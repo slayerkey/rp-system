@@ -14,10 +14,12 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $LegacyRat = Join-Path $PSScriptRoot "rat.ps1"
 $PluginKit = Join-Path $PSScriptRoot "rat-ship-plugin.ps1"
+$IconPackKit = Join-Path $PSScriptRoot "rat-ship-icon-pack.ps1"
 $MakerConsole = Join-Path $PSScriptRoot "rat-maker-console.ps1"
 
 if (-not (Test-Path $LegacyRat)) { throw "Canonical rat.ps1 not found: $LegacyRat" }
 if (-not (Test-Path $PluginKit)) { throw "Stream Deck plugin ship helper not found: $PluginKit" }
+if (-not (Test-Path $IconPackKit)) { throw "Stream Deck icon-pack kit helper not found: $IconPackKit" }
 if (-not (Test-Path $MakerConsole)) { throw "Maker Console helper not found: $MakerConsole" }
 
 function Get-UnmergedProductDetails {
@@ -89,7 +91,13 @@ function Assert-ProductReleaseState {
     elseif ($boundary) {
         $message += " Required boundary: $boundary."
     }
-    $message += " Resolve the blocker and move products/$ProductSlug.json to READY_TO_SHIP before shipping. You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
+    $message += " Resolve the blocker and move products/$ProductSlug.json to READY_TO_SHIP before shipping."
+    if ($Product.type -eq "icon_pack") {
+        $message += " You can still run 'rat kit $ProductSlug' for non-public review preparation."
+    }
+    else {
+        $message += " You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
+    }
     throw $message
 }
 
@@ -194,8 +202,22 @@ for ($i = 0; $i -lt $queue.Count; $i++) {
 
         $product = Get-Content $productPath -Raw | ConvertFrom-Json
         Assert-ProductReleaseState -Product $product -ProductSlug $item -RequestedAction $Action
-        $isPlugin = $product.type -eq "plugin"
 
+        $isIconPack = $product.type -eq "icon_pack"
+        if ($isIconPack) {
+            if ($Action -ne "kit") {
+                throw "Stream Deck icon packs currently support 'rat kit' only. Rat $Action will not create or modify a Maker Console draft until the official Icon Pack Man package flow and the Maker Console Icon Pack product route are validated end to end. Build the review kit with: rat kit $item"
+            }
+
+            $dest = Join-Path $RepoRoot "out\ship\$item"
+            & $IconPackKit -IconPackSlug $item -Destination $dest
+            if ($LASTEXITCODE -ne 0) { throw "Stream Deck icon-pack review-kit build failed for '$item'." }
+            Start-Process explorer.exe $dest
+            $completed += $item
+            continue
+        }
+
+        $isPlugin = $product.type -eq "plugin"
         if (-not $isPlugin) {
             # Existing XENEON/widget products stay on the proven legacy pipeline.
             & $LegacyRat $Action $item

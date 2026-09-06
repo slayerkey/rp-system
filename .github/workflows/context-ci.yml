@@ -35,6 +35,12 @@ jobs:
               print(f'OK {path}')
           PY
 
+      - name: Validate icon-pack Rat kit contract
+        run: |
+          python -m pip install Pillow
+          python tests/check_icon_pack_contract.py
+          python tests/check_icon_pack_rat_art.py
+
       - name: Validate Maker Console runtime patches
         run: node tests/check_maker_console_patch.mjs
 
