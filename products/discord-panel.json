@@ -1,6 +1,6 @@
 {
   "id": "discord-panel",
-  "name": "PackRat Voice Panel",
+  "name": "Discord Voice Panel for XENEON Edge",
   "type": "widget",
   "status": "qa_passed",
   "workflow_state": "BLOCKED",
