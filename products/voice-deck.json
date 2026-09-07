@@ -1,6 +1,6 @@
 {
   "id": "voice-deck",
-  "name": "PackRat Voice Deck for Discord",
+  "name": "Discord Voice Deck for Stream Deck",
   "type": "plugin",
   "status": "qa_passed",
   "workflow_state": "READY_TO_SHIP",
@@ -47,7 +47,7 @@
     "status": "CONFIRMED_BY_OPERATOR",
     "date_local": "2026-08-30",
     "release_gate": "CLEARED",
-    "approved_product_name": "PackRat Voice Deck for Discord",
+    "approved_product_name": "Discord Voice Deck for Stream Deck",
     "runtime_path": "Current tested Discord transport accepted for release; no runtime auth migration requested in this release pass",
     "verification_note": "Operator explicitly instructed release tooling to proceed without independent re-verification of the external approval message."
   },
