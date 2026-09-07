@@ -11,7 +11,8 @@
     "pack": "streamdeck pack com.packrat.voice-deck.sdPlugin --no-update-check --force --output dist",
     "host:audit": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-audit.ps1",
     "host:audit:static": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-audit.ps1 -StaticOnly",
-    "host:probe": "node scripts/discord-probe.mjs --require-voice"
+    "host:probe": "node scripts/discord-probe.mjs --require-voice",
+    "host:matrix": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/discord-client-matrix.ps1"
   },
   "dependencies": {
     "@elgato/streamdeck": "2.1.2"
