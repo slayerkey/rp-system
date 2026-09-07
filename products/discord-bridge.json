@@ -1,6 +1,6 @@
 {
   "id": "discord-bridge",
-  "name": "PackRat Voice Bridge",
+  "name": "Discord Voice Bridge",
   "type": "plugin",
   "status": "qa_passed",
   "workflow_state": "BLOCKED_EXTERNAL_APPROVAL",
