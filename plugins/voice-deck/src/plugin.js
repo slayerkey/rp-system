@@ -64,6 +64,7 @@ function safeSnapshotForInspector(snapshot) {
       authenticated: Boolean(snapshot?.discord?.authenticated),
       handshake: snapshot?.discord?.handshake || "idle",
       authStage: snapshot?.auth?.stage || "idle",
+      pipe: snapshot?.discord?.pipe || null,
       error: snapshot?.auth?.lastError || snapshot?.error || null,
     },
     guild: snapshot?.guild ? { id: String(snapshot.guild.id || ""), name: String(snapshot.guild.name || "") } : null,
@@ -85,6 +86,10 @@ function logger(message) {
   try { streamDeck.logger.error(String(message)); } catch {}
 }
 
+function infoLogger(message) {
+  try { streamDeck.logger.info(String(message)); } catch {}
+}
+
 const session = new VoiceSession({ log: logger });
 const avatars = new AvatarCache();
 const visible = new Map();
@@ -98,6 +103,24 @@ function scheduleRender(delay = 30) {
     renderTimer = null;
     void renderAll();
   }, delay);
+}
+
+async function waitForCurrentConnection(timeoutMs = 8000) {
+  if (!session.connecting) return;
+  const deadline = Date.now() + timeoutMs;
+  while (session.connecting && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+}
+
+async function ensureSessionReady() {
+  await waitForCurrentConnection();
+  const ready = await session.ensureReady();
+  if (!ready && session.connecting) {
+    await waitForCurrentConnection();
+    return session.ensureReady();
+  }
+  return ready;
 }
 
 async function sendInspector(record) {
@@ -161,7 +184,7 @@ async function renderAll() {
 
 async function runControl(record, control) {
   try {
-    const ready = await session.ensureReady();
+    const ready = await ensureSessionReady();
     if (!ready) return;
     if (control === "mute") await session.toggleMute();
     else if (control === "deafen") await session.toggleDeafen();
@@ -174,9 +197,8 @@ async function runControl(record, control) {
 
 async function handleConnectionPress(record) {
   try {
-    if (!latest.discord?.ready) await session.connect();
-    else if (!latest.discord?.authenticated) await session.beginAuthorization();
-    else await session.refresh();
+    const ready = await ensureSessionReady();
+    if (ready && session.snapshot().discord?.authenticated) await session.refresh();
     if (record?.action?.isKey?.()) await record.action.showOk().catch(() => {});
   } catch (error) {
     logger(error?.stack || error?.message || error);
@@ -254,10 +276,10 @@ class VoiceDeckAction extends SingletonAction {
     }
     if (payload.type !== "voiceDeck.command") return;
     const command = String(payload.command || "");
-    if (command === "authorize") await session.beginAuthorization();
+    if (command === "authorize") await ensureSessionReady();
     else if (command === "reconnect") {
       try { session.discord.disconnect("manual reconnect"); } catch {}
-      await session.connect();
+      await ensureSessionReady();
     } else if (command === "refresh") await session.refresh();
     await sendInspector(record);
   }
@@ -340,6 +362,33 @@ for (const [kind, manifestId] of Object.entries(ACTIONS)) {
 session.on("state", (snapshot) => {
   latest = snapshot;
   scheduleRender();
+});
+
+session.discord.on("handshake", (info) => {
+  const stage = String(info?.stage || "unknown");
+  if (!["preferred_pipe", "pipe_opened", "ready", "failed", "scan_complete"].includes(stage)) return;
+  const detail = [
+    `stage=${stage}`,
+    info?.pipe ? `pipe=${info.pipe}` : null,
+    info?.username ? `user=${info.username}` : null,
+    info?.environment ? `env=${info.environment}` : null,
+    info?.error ? `error=${info.error}` : null,
+  ].filter(Boolean).join(" ");
+  infoLogger(`[Discord IPC] ${detail}`);
+});
+
+session.discord.on("ready", (data) => {
+  const username = data?.user?.username ? String(data.user.username) : "unknown";
+  const environment = data?.config?.environment ? String(data.config.environment) : "unknown";
+  infoLogger(`[Discord IPC] READY pipe=${session.discord.pipe || "unknown"} user=${username} env=${environment}`);
+});
+
+session.discord.on("rpcClose", (info) => {
+  infoLogger(`[Discord IPC] CLOSE ${String(info?.message || "unknown")}`);
+});
+
+session.discord.on("rpcError", (info) => {
+  infoLogger(`[Discord IPC] RPC_ERROR ${JSON.stringify(info || {})}`);
 });
 
 setInterval(() => {
