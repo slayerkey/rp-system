@@ -6,9 +6,27 @@ import { DISCORD_OPCODE, DiscordFrameDecoder, encodeDiscordFrame } from "./proto
 const REQUEST_TIMEOUT_MS = 6000;
 const CONNECT_TIMEOUT_MS = 800;
 const HANDSHAKE_TIMEOUT_MS = 3500;
+const PIPE_COUNT = 10;
 
 function pipeName(index) {
   return `\\\\?\\pipe\\discord-ipc-${index}`;
+}
+
+function preferredPipeIndex() {
+  for (const key of ["PACKRAT_DISCORD_PIPE", "PACKRAT_DISCORD_INSTANCE_ID", "DISCORD_INSTANCE_ID"]) {
+    const raw = process.env[key];
+    if (raw === undefined || raw === null || raw === "") continue;
+    const value = Number.parseInt(String(raw), 10);
+    if (Number.isInteger(value) && value >= 0 && value < PIPE_COUNT) return value;
+  }
+  return null;
+}
+
+function pipeOrder() {
+  const preferred = preferredPipeIndex();
+  const indexes = Array.from({ length: PIPE_COUNT }, (_, index) => index);
+  if (preferred === null) return indexes;
+  return [preferred, ...indexes.filter((index) => index !== preferred)];
 }
 
 function parseJson(buffer) {
@@ -17,6 +35,14 @@ function parseJson(buffer) {
   } catch {
     return null;
   }
+}
+
+function cleanAuthorizeArgs(cmd, args) {
+  if (cmd !== "AUTHORIZE" || !args || typeof args !== "object") return args;
+  if (!Object.prototype.hasOwnProperty.call(args, "prompt")) return args;
+  const cleaned = { ...args };
+  delete cleaned.prompt;
+  return cleaned;
 }
 
 export class DiscordIpcClient extends EventEmitter {
@@ -28,76 +54,114 @@ export class DiscordIpcClient extends EventEmitter {
     this.ready = false;
     this.pending = new Map();
     this.decoder = new DiscordFrameDecoder((opcode, payload) => this.#onFrame(opcode, payload));
-    this.connecting = false;
+    this.connectPromise = null;
     this.handshakeWaiter = null;
   }
 
-  async connect() {
-    if (this.socket && !this.socket.destroyed && this.ready) return this.pipe;
-    if (this.connecting) return null;
+  connect() {
+    if (this.socket && !this.socket.destroyed && this.ready) return Promise.resolve(this.pipe);
+    if (this.connectPromise) return this.connectPromise;
 
-    this.connecting = true;
+    const attempt = this.#connectOnce().finally(() => {
+      if (this.connectPromise === attempt) this.connectPromise = null;
+    });
+    this.connectPromise = attempt;
+    return attempt;
+  }
+
+  async #connectOnce() {
     this.disconnect("reconnect");
+    let lastError = null;
+    let openedPipes = 0;
+    const order = pipeOrder();
+    const preferred = preferredPipeIndex();
 
-    try {
-      let lastError = null;
-      for (let index = 0; index < 10; index += 1) {
-        const path = pipeName(index);
-        this.emit("handshake", { stage: "opening_pipe", pipe: path });
+    if (preferred !== null) {
+      this.emit("handshake", {
+        stage: "preferred_pipe",
+        pipe: pipeName(preferred),
+        preferredIndex: preferred,
+      });
+    }
 
-        const socket = await this.#tryPipe(path);
-        if (!socket) continue;
+    for (const index of order) {
+      const path = pipeName(index);
+      this.emit("handshake", { stage: "opening_pipe", pipe: path, pipeIndex: index });
 
-        this.socket = socket;
-        this.pipe = path;
-        this.ready = false;
-        this.decoder = new DiscordFrameDecoder((opcode, payload) => this.#onFrame(opcode, payload));
-
-        socket.on("data", (chunk) => {
-          try {
-            this.decoder.push(chunk);
-          } catch (error) {
-            this.emit("error", error);
-            this.#rejectHandshake(error);
-            this.disconnect("decoder error");
-          }
+      const result = await this.#tryPipe(path);
+      const socket = result.socket;
+      if (!socket) {
+        this.emit("handshake", {
+          stage: "pipe_unavailable",
+          pipe: path,
+          pipeIndex: index,
+          error: result.error || null,
         });
-        socket.on("close", () => this.#onClose());
-        socket.on("error", (error) => {
-          this.emit("error", error);
-          this.#rejectHandshake(error);
-        });
-
-        const handshakePromise = this.#waitForReady(HANDSHAKE_TIMEOUT_MS);
-        try {
-          this.emit("handshake", { stage: "waiting_ready", pipe: path });
-          this.#write(DISCORD_OPCODE.HANDSHAKE, { v: 1, client_id: this.clientId });
-          await handshakePromise;
-          this.emit("handshake", { stage: "ready", pipe: path });
-          return path;
-        } catch (error) {
-          lastError = error;
-          this.emit("handshake", {
-            stage: "failed",
-            pipe: path,
-            error: String(error?.message || error),
-          });
-          this.#clearHandshake();
-          if (this.socket === socket) {
-            this.socket = null;
-            this.pipe = null;
-          }
-          try { socket.destroy(); } catch {}
-          this.ready = false;
-        }
+        continue;
       }
 
-      this.emit("offline");
-      if (lastError) throw lastError;
-      return null;
-    } finally {
-      this.connecting = false;
+      openedPipes += 1;
+      this.emit("handshake", { stage: "pipe_opened", pipe: path, pipeIndex: index });
+      this.socket = socket;
+      this.pipe = path;
+      this.ready = false;
+      this.decoder = new DiscordFrameDecoder((opcode, payload) => this.#onFrame(opcode, payload));
+
+      socket.on("data", (chunk) => {
+        try {
+          this.decoder.push(chunk);
+        } catch (error) {
+          this.emit("error", error);
+          this.#rejectHandshake(error);
+          this.disconnect("decoder error");
+        }
+      });
+      socket.on("close", () => this.#onClose());
+      socket.on("error", (error) => {
+        this.emit("error", error);
+        this.#rejectHandshake(error);
+      });
+
+      const handshakePromise = this.#waitForReady(HANDSHAKE_TIMEOUT_MS);
+      try {
+        this.emit("handshake", { stage: "waiting_ready", pipe: path, pipeIndex: index });
+        this.#write(DISCORD_OPCODE.HANDSHAKE, { v: 1, client_id: this.clientId });
+        const ready = await handshakePromise;
+        this.emit("handshake", {
+          stage: "ready",
+          pipe: path,
+          pipeIndex: index,
+          userId: ready?.user?.id ? String(ready.user.id) : null,
+          username: ready?.user?.username ? String(ready.user.username) : null,
+          environment: ready?.config?.environment ? String(ready.config.environment) : null,
+        });
+        return path;
+      } catch (error) {
+        lastError = error;
+        this.emit("handshake", {
+          stage: "failed",
+          pipe: path,
+          pipeIndex: index,
+          error: String(error?.message || error),
+        });
+        this.#clearHandshake();
+        if (this.socket === socket) {
+          this.socket = null;
+          this.pipe = null;
+        }
+        try { socket.destroy(); } catch {}
+        this.ready = false;
+      }
     }
+
+    this.emit("handshake", {
+      stage: "scan_complete",
+      openedPipes,
+      error: lastError ? String(lastError?.message || lastError) : null,
+    });
+    this.emit("offline");
+    if (lastError) throw lastError;
+    return null;
   }
 
   disconnect(reason = "disconnect") {
@@ -121,7 +185,7 @@ export class DiscordIpcClient extends EventEmitter {
       throw new Error("Discord IPC is not ready");
     }
     const nonce = randomUUID();
-    const payload = { cmd, args, nonce };
+    const payload = { cmd, args: cleanAuthorizeArgs(cmd, args), nonce };
     if (evt) payload.evt = evt;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -150,27 +214,29 @@ export class DiscordIpcClient extends EventEmitter {
   #tryPipe(path) {
     return new Promise((resolve) => {
       let settled = false;
+      let lastError = null;
       const socket = net.createConnection(path);
       const timer = setTimeout(() => {
         if (settled) return;
         settled = true;
         socket.destroy();
-        resolve(null);
+        resolve({ socket: null, error: "connect timeout" });
       }, CONNECT_TIMEOUT_MS);
 
       socket.once("connect", () => {
         if (settled) return;
         settled = true;
         clearTimeout(timer);
-        resolve(socket);
+        resolve({ socket, error: null });
       });
 
-      socket.once("error", () => {
+      socket.once("error", (error) => {
+        lastError = error;
         if (settled) return;
         settled = true;
         clearTimeout(timer);
         socket.destroy();
-        resolve(null);
+        resolve({ socket: null, error: String(lastError?.code || lastError?.message || lastError) });
       });
     });
   }
