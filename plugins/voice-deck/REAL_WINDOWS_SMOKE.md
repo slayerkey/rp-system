@@ -32,6 +32,39 @@ Final physically checked centered-avatar package SHA256:
 * Final visual parity: operator installed the centered-avatar `.streamDeckPlugin` and confirmed the avatar/ring alignment looks correct
 * XL, Plus, and Neo hardware were not separately identified as physically available during this handoff; their generated profiles remain covered by automated build/validation where physical hardware was unavailable
 
+## 2026-09-07 reviewer regression retest
+
+This retest targeted the Discord connection path after an Elgato review report that the plugin did not connect and referenced Discord Canary.
+
+Test host:
+
+* Windows 11 Home 10.0.26200 (build 26200)
+* Discord Stable 1.0.9256
+* Stream Deck 7.5.0.22885
+* Hardened Voice Deck branch commit under test: `6c6a726fa23b668b3193d189532d64699fccaaed`
+
+Observed real-host results:
+
+* Discord process detected successfully.
+* Named pipe `discord-ipc-0` detected successfully.
+* Explicit pipe handshake reached RPC `READY`.
+* RPC environment reported `production`.
+* READY identified the local Discord account successfully.
+* Authorization completed successfully.
+* Session reported `authenticated: true`.
+* Required scopes included `rpc`, `rpc.voice.read`, and `rpc.voice.write`.
+* Active voice membership resolved with `inVoice: true` and `memberCount: 1`.
+* Final probe result: `PASS`.
+* No transport/auth error was reported by the final probe.
+* `speakingTransitions` was `0` during the five-second observation because the test did not capture a speaking transition. This does not invalidate transport/auth/voice-state PASS, and speaking behavior was already physically verified in the 2026-08-30 smoke above.
+
+This retest proves the hardened Discord transport, authorization, and voice-state path on current Discord Stable on a real Windows/Stream Deck host. It also confirms that the earlier review failure is not reproducible on this Stable environment after the connection hardening.
+
+Canary-specific limitation:
+
+* Discord Canary was not installed on this test host, so this retest does not claim a real Canary runtime PASS.
+* The hardened IPC implementation scans the Discord pipe range and supports explicit instance selection, but a real Canary-only or Stable-plus-Canary host test is still the strongest direct reproduction of the reviewer environment if needed.
+
 ## Required physical checks
 
 1. Discord Desktop is detected. PASS
@@ -51,5 +84,7 @@ Final physically checked centered-avatar package SHA256:
 ## Evidence notes
 
 The host diagnostic and deep probe established the Discord transport independently from Stream Deck rendering. The physical Stream Deck screenshots then showed real channel/member state, speaking/recent-speaking transitions, deafen state, roster repopulation, and the final centered-avatar packaged renderer. The operator explicitly authorized closing the remaining physical checks after testing.
+
+The 2026-09-07 reviewer regression retest adds a fresh real-host PASS for the hardened Discord transport/auth/voice-state path on Discord Stable 1.0.9256. It does not claim a real Canary runtime PASS because Canary was not installed on that host.
 
 Public commercial release is still a separate boundary. This PASS does not grant Discord production RPC permission and does not remove the Rat Ship approval guard by itself.
