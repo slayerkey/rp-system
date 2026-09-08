@@ -21,6 +21,48 @@ function Section([string]$Title) {
     Write-Host ("=" * 72) -ForegroundColor DarkGray
 }
 
+function Get-DiscordPipes {
+    try {
+        return @(Get-ChildItem "\\.\pipe\" -ErrorAction Stop |
+            Where-Object { $_.Name -match '^discord-ipc-\d+$' } |
+            Select-Object -ExpandProperty Name |
+            Sort-Object)
+    }
+    catch {
+        return @()
+    }
+}
+
+function Get-DiscordProcesses([string[]]$Names) {
+    $items = @()
+    foreach ($name in $Names) {
+        $items += @(Get-Process -Name $name -ErrorAction SilentlyContinue)
+    }
+    return @($items)
+}
+
+function Find-DiscordExecutable([string]$InstallName) {
+    if (-not $env:LOCALAPPDATA) { return $null }
+    $dir = Join-Path $env:LOCALAPPDATA $InstallName
+    if (-not (Test-Path $dir -PathType Container)) { return $null }
+
+    $latest = @(Get-ChildItem $dir -Directory -ErrorAction SilentlyContinue |
+        Where-Object Name -match '^app-' |
+        Sort-Object Name -Descending |
+        Select-Object -First 1)
+
+    if ($latest.Count) {
+        $exe = Join-Path $latest[0].FullName "$InstallName.exe"
+        if (Test-Path $exe -PathType Leaf) { return $exe }
+
+        $fallback = @(Get-ChildItem $latest[0].FullName -Filter "Discord*.exe" -File -ErrorAction SilentlyContinue |
+            Select-Object -First 1)
+        if ($fallback.Count) { return $fallback[0].FullName }
+    }
+
+    return $null
+}
+
 try {
     Start-Transcript -Path $Report -Force | Out-Null
 
@@ -47,21 +89,44 @@ try {
     Section "2. DISCORD INSTALL + PROCESS SCAN"
     $local = $env:LOCALAPPDATA
     $installNames = @("Discord", "DiscordPTB", "DiscordCanary", "DiscordDevelopment")
+    $installed = @()
     foreach ($name in $installNames) {
         $dir = if ($local) { Join-Path $local $name } else { $null }
         if ($dir -and (Test-Path $dir -PathType Container)) {
             $updates = @(Get-ChildItem $dir -Directory -ErrorAction SilentlyContinue | Where-Object Name -match '^app-' | Sort-Object Name -Descending)
             $latest = $updates | Select-Object -First 1
+            $installed += $name
             Write-Host ("[FOUND] {0,-20} {1}" -f $name, $(if ($latest) { $latest.FullName } else { $dir })) -ForegroundColor Green
         } else {
             Write-Host ("[-----] {0,-20} not installed in LocalAppData" -f $name)
         }
     }
 
-    $running = @()
-    foreach ($name in $installNames) {
-        $running += @(Get-Process -Name $name -ErrorAction SilentlyContinue)
+    $running = Get-DiscordProcesses $installNames
+    if (-not $running.Count -and $installed.Count) {
+        $launchName = $installed[0]
+        $launchExe = Find-DiscordExecutable $launchName
+        if ($launchExe) {
+            Write-Host ""
+            Write-Host "No Discord client is running. Launching $launchName automatically..." -ForegroundColor Yellow
+            try {
+                Start-Process -FilePath $launchExe | Out-Null
+            }
+            catch {
+                Write-Host "Automatic Discord launch failed: $($_.Exception.Message)" -ForegroundColor Yellow
+            }
+
+            Write-Host "Waiting for Discord process and IPC pipe..." -ForegroundColor Yellow
+            $deadline = (Get-Date).AddSeconds(25)
+            do {
+                Start-Sleep -Milliseconds 500
+                $running = Get-DiscordProcesses $installNames
+                $pipesNow = Get-DiscordPipes
+                if ($running.Count -and $pipesNow.Count) { break }
+            } while ((Get-Date) -lt $deadline)
+        }
     }
+
     if ($running.Count) {
         Write-Host ""
         Write-Host "Running Discord clients:" -ForegroundColor Green
@@ -70,9 +135,19 @@ try {
             try { $path = $_.Path } catch {}
             Write-Host ("  {0,-20} PID {1,-8} {2}" -f $_.ProcessName, $_.Id, $path)
         }
+        $readyPipes = Get-DiscordPipes
+        if ($readyPipes.Count) {
+            Write-Host "Discord IPC pipes ready: $($readyPipes -join ', ')" -ForegroundColor Green
+        } else {
+            Write-Host "Discord process is running, but no IPC pipe appeared within the launch window." -ForegroundColor Yellow
+        }
     } else {
         Write-Host ""
-        Write-Host "WARNING: No Discord Desktop client is running." -ForegroundColor Yellow
+        if ($installed.Count) {
+            Write-Host "WARNING: Discord is installed but could not be started automatically." -ForegroundColor Yellow
+        } else {
+            Write-Host "WARNING: No supported Discord Desktop installation was found." -ForegroundColor Yellow
+        }
         Write-Host "Open Discord Stable/PTB/Canary, join a voice channel, then rerun this same command."
     }
 
