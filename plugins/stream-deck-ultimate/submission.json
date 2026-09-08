@@ -1,0 +1,17 @@
+{
+  "slug": "stream-deck-ultimate",
+  "name": "Stream Deck Ultimate",
+  "type": "plugin",
+  "price_usd": 14.99,
+  "version": "1.0.0.0",
+  "marketplace_category": [
+    "Productivity"
+  ],
+  "marketplace_auto_publish": true,
+  "platform": "Elgato Stream Deck / Windows",
+  "marketplace_correction": "Elgato review: category and action-list icons must be white.",
+  "release_notes": [
+    "Updated the plugin category and action-list icons to Elgato-compliant white artwork.",
+    "No runtime behavior, Stream Deck key faces, profiles, or Marketplace artwork changed in this review correction."
+  ]
+}

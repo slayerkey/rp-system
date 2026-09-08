@@ -1,0 +1,82 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{display:none;margin:0;padding:14px;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#242424;color:#eee}h3{margin:4px 0 14px;font-size:15px}.group{display:none}.row{margin:0 0 12px}label{display:block;color:#d0d0d0;margin-bottom:5px;font-weight:600}input,textarea,select{width:100%;border:1px solid #555;border-radius:5px;background:#303030;color:#fff;padding:8px}textarea{min-height:96px;resize:vertical}.check{display:flex;gap:8px;align-items:center;font-weight:400}.check input{width:auto}.help{font-size:11px;line-height:1.4;color:#aaa;margin-top:5px}.tag{display:inline-block;padding:3px 7px;border-radius:999px;background:#173f26;color:#58ee8b;font-size:10px;font-weight:700;letter-spacing:.06em}.status{margin-top:12px;color:#77e69a;font-size:11px;min-height:14px}</style></head><body>
+<div class="tag">ULTIMATE WINDOWS BETA</div><h3>Stream Deck Ultimate Bundle</h3>
+
+<div id="app" class="group">
+ <div class="row"><label>App</label><select id="role"><option value="browser">Default / open browser</option><option value="discord">Discord</option><option value="spotify">Spotify</option><option value="custom">Custom executable</option></select></div>
+ <div class="row"><label>Press behavior</label><select id="behavior"><option value="focus">Focus if open, launch if closed</option><option value="new">Always launch a new instance</option></select></div>
+ <div class="row"><label>Custom .exe path</label><input id="path" placeholder="C:\\Program Files\\App\\app.exe"><div class="help">Only used when App is set to Custom executable.</div></div>
+</div>
+
+<div id="workspace" class="group">
+ <div class="row"><label>Apps, one per line</label><textarea id="apps" placeholder="@browser\n@discord\n@spotify"></textarea><div class="help">Use @browser, @discord, @spotify, or a full executable path. Up to five entries.</div></div>
+ <div class="row"><label class="check"><input type="checkbox" id="arrange">Arrange windows after opening</label></div>
+ <div class="row"><label>Layout</label><select id="layout"><option value="work">Work: primary left, others right</option><option value="columns">Columns</option><option value="grid">Four-corner grid</option><option value="none">Do not move windows</option></select></div>
+</div>
+
+<div id="window" class="group">
+ <div class="row"><label>Window action</label><select id="windowMode">
+  <option value="left">Left half</option><option value="right">Right half</option><option value="maximize">Maximize</option><option value="restore">Restore</option><option value="center">Center</option>
+  <option value="top-left">Top left</option><option value="top-right">Top right</option><option value="bottom-left">Bottom left</option><option value="bottom-right">Bottom right</option>
+  <option value="next-monitor">Move to next screen</option><option value="minimize">Minimize</option><option value="topmost">Toggle always on top</option>
+ </select></div>
+</div>
+
+<div id="clipboard" class="group">
+ <div class="row"><label>Clipboard action</label><select id="clipboardMode"><option value="slot">Paste recent text</option><option value="clear">Clear PackRat clipboard history</option></select></div>
+ <div class="row" id="slotRow"><label>History position</label><select id="slot"><option value="1">Most recent</option><option value="2">2nd most recent</option><option value="3">3rd most recent</option><option value="4">4th most recent</option></select></div>
+ <div class="help">Clipboard text stays local in %APPDATA%\\PackRat\\StreamDeckUltimateBundle.</div>
+</div>
+
+<div id="snippet" class="group">
+ <div class="row"><label>Text to paste</label><textarea id="snippetText" placeholder="Thanks for reaching out!"></textarea></div>
+ <div class="row"><label class="check"><input type="checkbox" id="restoreClipboard">Restore the previous clipboard after pasting</label></div>
+ <div class="help">Optional tokens: {{date}}, {{time}}, {{datetime}}, {{clipboard}}.</div>
+</div>
+
+<div id="capture" class="group">
+ <div class="row"><label>Capture action</label><select id="captureMode"><option value="region">Select region</option><option value="full">Copy full screen</option><option value="window">Copy active window</option><option value="folder">Open Screenshots folder</option></select></div>
+</div>
+
+<div id="media" class="group">
+ <div class="row"><label>Media action</label><select id="mediaMode"><option value="mute">Mute / unmute</option><option value="volume-down">Volume down</option><option value="volume-up">Volume up</option><option value="play-pause">Play / pause</option><option value="previous">Previous track</option><option value="next">Next track</option></select></div>
+</div>
+
+<div id="system" class="group">
+ <div class="row"><label>System action</label><select id="systemMode"><option value="desktop">Show desktop</option><option value="task">Task Manager</option><option value="settings">Windows Settings</option><option value="explorer">File Explorer</option><option value="lock">Lock PC</option></select></div>
+</div>
+
+<div id="navigation" class="group">
+ <div class="row"><label>Open Ultimate profile</label><select id="profile"><option value="profiles/Stream Deck Ultimate - Home">Home</option><option value="profiles/Stream Deck Ultimate - Windows">Windows</option><option value="profiles/Stream Deck Ultimate - Utilities">Utilities</option></select></div>
+ <div class="help">Navigation only switches between profiles bundled with this plugin.</div>
+</div>
+
+<div class="status" id="status"></div><script>
+let ws,context,action,settings={}; const BASE='com.packrat.stream-deck-ultimate-bundle.'; const $=id=>document.getElementById(id);
+window.connectElgatoStreamDeckSocket=(port,uuid,event,info,actionInfo)=>{const ai=JSON.parse(actionInfo);context=uuid;action=ai.action;settings=ai.payload.settings||{};ws=new WebSocket('ws://127.0.0.1:'+port);ws.onopen=()=>{ws.send(JSON.stringify({event,uuid}));init()};};
+function show(id){$(id).style.display='block'} function val(id,v){if($(id))$(id).value=v??''} function check(id,v){if($(id))$(id).checked=!!v}
+function init(){document.body.style.display='block';
+ if(action===BASE+'smart-app'){show('app');val('role',settings.role||'browser');val('behavior',settings.behavior||'focus');val('path',settings.path||'')}
+ else if(action===BASE+'workspace'){show('workspace');val('apps',settings.apps||'@browser\n@discord\n@spotify');check('arrange',settings.arrange!==false);val('layout',settings.layout||'work')}
+ else if(action===BASE+'window'){show('window');val('windowMode',settings.mode||'left')}
+ else if(action===BASE+'clipboard'){show('clipboard');val('clipboardMode',settings.mode||'slot');val('slot',String(settings.slot||1));toggleSlot()}
+ else if(action===BASE+'snippet'){show('snippet');val('snippetText',settings.text||'');check('restoreClipboard',settings.restoreClipboard!==false)}
+ else if(action===BASE+'capture'){show('capture');val('captureMode',settings.mode||'region')}
+ else if(action===BASE+'media'){show('media');val('mediaMode',settings.mode||'play-pause')}
+ else if(action===BASE+'system'){show('system');val('systemMode',settings.mode||'desktop')}
+ else if(action===BASE+'navigation'){show('navigation');val('profile',settings.profile||'profiles/Stream Deck Ultimate - Home')}
+ bind();}
+function toggleSlot(){if($('slotRow'))$('slotRow').style.display=$('clipboardMode').value==='slot'?'block':'none'}
+let timer;function persist(){
+ if(action===BASE+'smart-app')settings={...settings,role:$('role').value,behavior:$('behavior').value,path:$('path').value.trim()};
+ else if(action===BASE+'workspace')settings={...settings,apps:$('apps').value,arrange:$('arrange').checked,layout:$('layout').value};
+ else if(action===BASE+'window')settings={...settings,mode:$('windowMode').value};
+ else if(action===BASE+'clipboard'){settings={...settings,mode:$('clipboardMode').value,slot:Number($('slot').value)};toggleSlot()}
+ else if(action===BASE+'snippet')settings={...settings,text:$('snippetText').value,restoreClipboard:$('restoreClipboard').checked};
+ else if(action===BASE+'capture')settings={...settings,mode:$('captureMode').value};
+ else if(action===BASE+'media')settings={...settings,mode:$('mediaMode').value};
+ else if(action===BASE+'system')settings={...settings,mode:$('systemMode').value};
+ else if(action===BASE+'navigation')settings={...settings,profile:$('profile').value};
+ ws.send(JSON.stringify({event:'setSettings',context,action,payload:settings}));$('status').textContent='Saved';clearTimeout(timer);timer=setTimeout(()=>$('status').textContent='',700)}
+function bind(){document.querySelectorAll('input,textarea,select').forEach(el=>el.addEventListener(el.type==='checkbox'||el.tagName==='SELECT'?'change':'input',()=>{clearTimeout(timer);timer=setTimeout(persist,160)}))}
+</script></body></html>

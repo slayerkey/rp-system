@@ -1,0 +1,80 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PackRat Ultimate Setup</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#090b0e;color:#f5f7fa;font:14px Inter,Segoe UI,Arial,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:36px 24px 60px}.brand{display:flex;align-items:center;gap:12px}.mark{width:42px;height:42px;border-radius:12px;background:#15191f;display:grid;place-items:center;font-weight:900;font-size:24px;border:1px solid #2b3139}.dot{color:#2be86a}
+h1{font-size:34px;margin:18px 0 8px;letter-spacing:-.04em}.sub{color:#aab2bd;font-size:16px;max-width:680px;line-height:1.5}
+.card{background:#12161b;border:1px solid #252b33;border-radius:18px;padding:22px;margin-top:20px}.card h2{font-size:17px;margin:0 0 5px}.hint{color:#8d98a6;font-size:12px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+label{display:block;color:#cfd5dc;font-size:12px;font-weight:700;margin-bottom:6px}input,select,textarea{width:100%;border-radius:10px;border:1px solid #323943;background:#0d1014;color:#fff;padding:11px 12px;font:inherit}textarea{min-height:96px;resize:vertical}
+.mode{background:#0d1014;border:1px solid #252b33;border-radius:14px;padding:14px}.mode h3{font-size:14px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.08em}
+.check{display:flex;align-items:center;gap:8px;margin-top:10px}.check input{width:auto}
+.actions{display:flex;align-items:center;gap:12px;margin-top:24px;position:sticky;bottom:0;background:linear-gradient(transparent,#090b0e 25%);padding-top:35px;padding-bottom:10px}
+button{border:0;border-radius:11px;padding:12px 18px;font-weight:800;cursor:pointer}.primary{background:#2be86a;color:#071008}.secondary{background:#20262d;color:#fff}.status{color:#81f2a5;font-weight:700}
+.badge{display:inline-block;background:#12331e;color:#6ff29a;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.08em}
+@media(max-width:720px){.grid,.grid4{grid-template-columns:1fr}.wrap{padding:24px 16px}h1{font-size:28px}}
+</style></head>
+<body><div class="wrap">
+<div class="brand"><div class="mark">P<span class="dot">.</span></div><div><div class="badge">ULTIMATE WINDOWS BETA</div><div style="font-weight:800;margin-top:5px">PackRat</div></div></div>
+<h1>Make your Stream Deck useful everywhere.</h1>
+<div class="sub">Pick your preferred audio devices and tell Ultimate what your main modes should open. Everything stays local on this PC. You can come back to this screen any time with the SETUP key.</div>
+
+<div class="card"><h2>1. Audio</h2><div class="hint">These become the defaults used by your presets. Leaving a field blank means “keep whatever Windows is using.”</div>
+<div class="grid"><div><label>Preferred output</label><select id="output"><option value="">Keep current output</option></select></div><div><label>Preferred microphone</label><select id="input"><option value="">Keep current input</option></select></div></div></div>
+
+<div class="card"><h2>2. Your modes</h2><div class="hint">Each mode can set output volume and mic mute state. Device choices inherit the defaults above unless you later customize them per action.</div>
+<div class="grid4">
+  <div class="mode"><h3>Work</h3><label>Volume</label><input id="workVol" type="number" min="0" max="100"><label class="check"><input id="workMute" type="checkbox">Mute mic</label></div>
+  <div class="mode"><h3>Focus</h3><label>Volume</label><input id="focusVol" type="number" min="0" max="100"><label class="check"><input id="focusMute" type="checkbox">Mute mic</label></div>
+  <div class="mode"><h3>Meeting</h3><label>Volume</label><input id="meetingVol" type="number" min="0" max="100"><label class="check"><input id="meetingMute" type="checkbox">Mute mic</label></div>
+  <div class="mode"><h3>Gaming</h3><label>Volume</label><input id="gamingVol" type="number" min="0" max="100"><label class="check"><input id="gamingMute" type="checkbox">Mute mic</label></div>
+</div></div>
+
+<div class="card"><h2>3. One-press routines</h2><div class="hint">Use one app token per line: <b>@browser</b>, <b>@discord</b>, <b>@spotify</b>, or a full .exe path.</div>
+<div class="grid">
+ <div><label>Work apps</label><textarea id="workApps"></textarea><label>Work layout</label><select id="workLayout"><option value="work">Primary left, others right</option><option value="none">Do not move windows</option></select></div>
+ <div><label>Focus apps</label><textarea id="focusApps"></textarea><label>Focus layout</label><select id="focusLayout"><option value="work">Arrange</option><option value="none">Do not move windows</option></select></div>
+ <div><label>Meeting apps</label><textarea id="meetingApps"></textarea><label>Meeting link (optional)</label><input id="meetingUrl" placeholder="https://meet.google.com/..."></div>
+ <div><label>Gaming apps</label><textarea id="gamingApps"></textarea><label>Gaming layout</label><select id="gamingLayout"><option value="none">Do not move windows</option><option value="work">Arrange</option></select></div>
+</div></div>
+
+<div class="actions"><button class="primary" id="save">Save Ultimate Setup</button><button class="secondary" id="reload">Reload devices</button><span class="status" id="status"></span></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);let current={};
+const list=a=>(Array.isArray(a)?a:[]);const lines=a=>list(a).join('\n');
+async function audioDevices(){
+ const r=await fetch('/api/audio',{cache:'no-store'});const d=await r.json();
+ for(const [id,items] of [['output',d.outputs],['input',d.inputs]]){const s=$(id),keep=s.options[0];s.innerHTML='';s.appendChild(keep);for(const x of list(items)){const o=document.createElement('option');o.value=x.name;o.textContent=(x.isDefault?'● ':'')+x.name;s.appendChild(o)}}
+ if(current.outputDevice)$('output').value=current.outputDevice;if(current.inputDevice)$('input').value=current.inputDevice;
+}
+function mode(name,p){$(name+'Vol').value=p?.volume??50;$(name+'Mute').checked=!!p?.micMuted}
+async function init(){
+ const r=await fetch('/api/state',{cache:'no-store'});const d=await r.json();current=d.config||{};
+ $('output').value=current.outputDevice||'';$('input').value=current.inputDevice||'';
+ for(const n of ['work','focus','meeting','gaming'])mode(n,current.presets?.[n]);
+ $('workApps').value=lines(current.workspaces?.work?.apps);$('workLayout').value=current.workspaces?.work?.layout||'work';
+ $('focusApps').value=lines(current.workspaces?.focus?.apps);$('focusLayout').value=current.workspaces?.focus?.layout||'work';
+ $('meetingApps').value=lines(current.workspaces?.meeting?.apps);$('meetingUrl').value=current.workspaces?.meeting?.url||'';
+ $('gamingApps').value=lines(current.workspaces?.gaming?.apps);$('gamingLayout').value=current.workspaces?.gaming?.layout||'none';
+ await audioDevices();
+}
+function appLines(id){return $(id).value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)}
+function preset(n){return {...(current.presets?.[n]||{}),volume:Math.max(0,Math.min(100,Number($(n+'Vol').value||0))),micMuted:$(n+'Mute').checked}}
+$('save').onclick=async()=>{
+ $('status').textContent='Saving…';
+ const payload={outputDevice:$('output').value,inputDevice:$('input').value,
+  presets:{work:preset('work'),focus:preset('focus'),meeting:preset('meeting'),gaming:preset('gaming')},
+  workspaces:{
+   work:{apps:appLines('workApps'),layout:$('workLayout').value},
+   focus:{apps:appLines('focusApps'),layout:$('focusLayout').value},
+   meeting:{apps:appLines('meetingApps'),layout:'none',url:$('meetingUrl').value.trim()},
+   gaming:{apps:appLines('gamingApps'),layout:$('gamingLayout').value}
+  }};
+ const r=await fetch('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const d=await r.json();
+ current={...current,...payload};$('status').textContent=d.ok?'Saved. Your Deck is ready.':'Could not save: '+(d.error||'unknown error');
+};
+$('reload').onclick=async()=>{$('status').textContent='Refreshing…';await audioDevices();$('status').textContent='Devices refreshed.'};
+init().catch(e=>$('status').textContent='Setup error: '+e.message);
+</script></body></html>

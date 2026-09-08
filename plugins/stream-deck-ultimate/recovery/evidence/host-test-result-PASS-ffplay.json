@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "status": "write-and-restore-pass",
+  "endpointAvailable": true,
+  "requested": {"process": "ffplay", "exercise": true},
+  "exercise": {"originalVolume": 100, "observedVolume": 99, "restoredVolume": 100, "changedVerified": true, "restoreVerified": true}
+}

@@ -1,0 +1,9 @@
+{
+  "bin/audio.ps1": "36ed8a1c3c512d4f4e6ab0bd792c9d65395189ddc826262f8a1fd0ec04ad295d",
+  "bin/plugin-v06.js": "9e29f4b769d7d5aeadbfcdbf829180c114ddcbdbe675fd478b5178bceb4e3876",
+  "bin/lib-v06-config.js": "a6944734dbbe94d2ba404850315c3b83e3c6fcd1b400075b95010cd30e5bf8d7",
+  "bin/lib-v071-diagnostics.js": "b06cfe414fb21bdd9aef3bfec9d6154856f786db5314d523c4cd7efddef52ef2",
+  "bin/app-audio/streamdeck-surface-model.js": "6cc2f0c38a838e2ed854ca75269c6019f10a0260c3c811299980ca218deae9c0",
+  "bin/app-audio/streamdeck-controller.js": "6b404aa9cfb4feee2f81033bcdb4957c02370511ee2576da314806c2ad98ed83",
+  "ui/onboarding-v06.html": "1b0e1e7c077a95c7f6d3d1376c5438fe121ec456ea540b124a9ac411cf1d4919"
+}

@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "productUuid": "com.packrat.stream-deck-ultimate-bundle",
+  "acceptedVersion": "0.7.1.0",
+  "targetVersion": "0.8.0.0",
+  "prepromotionSourceCommit": "15cc99c96bf243dfccb0b18774e859882c97684b",
+  "prepromotionPackedPluginSha256": "a3790e672ce18bc9887d1b8b2f0175c663c548a4d4bad19c287f1cf2003d9497",
+  "hostTest": {
+    "result": "pending",
+    "writeAndRestorePass": false,
+    "process": "",
+    "notes": ""
+  },
+  "labTest": {
+    "result": "pending",
+    "currentAppFollowsForeground": false,
+    "specificAppTargetsSelectedProcess": false,
+    "keypadMuteToggle": false,
+    "dialVolume": false,
+    "dialPushMuteToggle": false,
+    "waitingStateSafe": false,
+    "audioOffStateSafe": false,
+    "focusChangeDoesNotRetargetBurst": false,
+    "propertyInspectorAppList": false,
+    "manualProcessName": false,
+    "labRemovalLeavesV071Unaffected": false,
+    "notes": ""
+  },
+  "allowProductionPromotion": false,
+  "approvedAt": "",
+  "approvedBy": "hardware-owner"
+}

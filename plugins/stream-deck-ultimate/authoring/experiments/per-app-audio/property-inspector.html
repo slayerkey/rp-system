@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{display:none;margin:0;padding:14px;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#242424;color:#eee}h3{margin:4px 0 14px;font-size:15px}.tag{display:inline-block;margin-bottom:8px;padding:3px 7px;border-radius:999px;background:#173f26;color:#58ee8b;font-size:10px;font-weight:700;letter-spacing:.06em}.row{margin:0 0 13px}label{display:block;margin-bottom:5px;color:#d8d8d8;font-weight:600}select,input{width:100%;padding:8px;border:1px solid #555;border-radius:5px;background:#303030;color:#fff}.help{margin-top:5px;color:#aaa;font-size:11px;line-height:1.45}.status{min-height:15px;margin-top:10px;color:#77e69a;font-size:11px}.hidden{display:none}</style>
+</head>
+<body>
+<div class="tag">ULTIMATE · APP VOLUME EXPERIMENT</div>
+<h3>App Volume</h3>
+<div class="row">
+  <label for="mode">Control</label>
+  <select id="mode">
+    <option value="current">Current App · Recommended</option>
+    <option value="process">Specific App</option>
+  </select>
+  <div class="help">Current App follows the foreground window when you interact with the key or dial.</div>
+</div>
+<div class="row hidden" id="appRow">
+  <label for="process">App</label>
+  <input id="process" list="appOptions" autocomplete="off" placeholder="Choose an active audio app or type a process name">
+  <datalist id="appOptions"></datalist>
+  <div class="help" id="appHelp">Only apps with a current Windows audio session appear automatically. You can still type a process name for an app that is not playing audio yet.</div>
+</div>
+<div class="row">
+  <label for="step">Dial sensitivity</label>
+  <select id="step">
+    <option value="1">Fine · 1% per tick</option>
+    <option value="2">Standard · 2% per tick</option>
+    <option value="5">Fast · 5% per tick</option>
+  </select>
+</div>
+<div class="row">
+  <label for="pressAction">Press</label>
+  <select id="pressAction">
+    <option value="toggle-mute">Mute / unmute app</option>
+    <option value="none">Do nothing</option>
+  </select>
+  <div class="help">Waiting apps are never treated as errors. Press and rotate become safe no-ops until a matching audio session exists.</div>
+</div>
+<div class="help">Local only. PackRat reads Windows audio-session state on this PC. No cloud account or PackRat server is used.</div>
+<div class="status" id="status"></div>
+<script>
+let ws,context,action,settings={};
+const $=id=>document.getElementById(id);
+const normalizeProcess=v=>String(v||'').trim().replace(/^.*[\\/]/,'').replace(/\.exe$/i,'').toLowerCase();
+function normalize(raw={}){const mode=raw.mode==='process'?'process':'current';const step=[1,2,5].includes(Number(raw.step))?Number(raw.step):2;const pressAction=raw.pressAction==='none'?'none':'toggle-mute';return{mode,process:normalizeProcess(raw.process||''),step,pressAction}}
+function send(msg){if(ws&&ws.readyState===1)ws.send(JSON.stringify(msg))}
+function requestApps(){if(settings.mode==='process')send({event:'sendToPlugin',action,context,payload:{command:'list-apps'}})}
+function render(){settings=normalize(settings);$('mode').value=settings.mode;$('process').value=settings.process;$('step').value=String(settings.step);$('pressAction').value=settings.pressAction;$('appRow').classList.toggle('hidden',settings.mode!=='process');if(settings.mode==='process')requestApps()}
+function persist(){settings=normalize({mode:$('mode').value,process:$('process').value,step:Number($('step').value),pressAction:$('pressAction').value});render();send({event:'setSettings',context,action,payload:settings});$('status').textContent='Saved';clearTimeout(persist.timer);persist.timer=setTimeout(()=>$('status').textContent='',700)}
+function appOptions(apps=[]){const list=$('appOptions');list.textContent='';for(const app of apps){const o=document.createElement('option');o.value=String(app.value||'');o.label=String(app.label||app.value||'');list.appendChild(o)}$('appHelp').textContent=apps.length?'Active audio apps loaded. You can also type a process name.':'No active audio apps detected right now. You can type a process name and the control will wait safely for it.'}
+function init(){document.body.style.display='block';render();for(const id of ['mode','step','pressAction'])$(id).addEventListener('change',persist);$('process').addEventListener('input',()=>{clearTimeout(window.__appTimer);window.__appTimer=setTimeout(persist,180)})}
+window.connectElgatoStreamDeckSocket=(port,uuid,event,info,actionInfo)=>{const ai=JSON.parse(actionInfo);context=uuid;action=ai.action;settings=normalize(ai.payload.settings||{});ws=new WebSocket('ws://127.0.0.1:'+port);ws.onopen=()=>{send({event,uuid});init()};ws.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.event==='sendToPropertyInspector'&&m.action===action&&m.payload?.type==='app-options')appOptions(m.payload.apps||[])}catch{}}};
+</script>
+</body>
+</html>
