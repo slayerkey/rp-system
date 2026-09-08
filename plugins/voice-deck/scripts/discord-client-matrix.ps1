@@ -83,8 +83,23 @@ if ($Authorize) {
     Write-Host ""
     Write-Host ("Running full authorization + voice probe against {0}." -f $selected.Pipe) -ForegroundColor Cyan
     Write-Host "Discord may show its normal authorization modal."
-    & node $Probe "--instance=$index" --require-voice "--observe=$ObserveSeconds"
-    exit $LASTEXITCODE
+
+    $authOutput = & node $Probe "--instance=$index" --require-voice "--observe=$ObserveSeconds" 2>&1
+    $authCode = $LASTEXITCODE
+    $authText = ($authOutput | Out-String).Trim()
+    Write-Host $authText
+
+    if ($authCode -ne 0 -and $authText -match 'not currently in a voice channel') {
+        Write-Host ""
+        Write-Host "Discord connection and authorization PASS. Voice channel is the only missing step." -ForegroundColor Yellow
+        Read-Host "Join any Discord voice channel now, then press Enter to retry the voice probe"
+        Write-Host ""
+        Write-Host "Retrying full voice probe..." -ForegroundColor Cyan
+        & node $Probe "--instance=$index" --require-voice "--observe=$ObserveSeconds"
+        exit $LASTEXITCODE
+    }
+
+    exit $authCode
 }
 
 Write-Host ""
