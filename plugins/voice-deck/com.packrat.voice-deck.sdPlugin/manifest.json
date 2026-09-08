@@ -137,7 +137,7 @@
   "CodePath": "bin/plugin.js",
   "Description": "Turn Stream Deck into a live Discord voice console with members, speaking activity, mute, deafen, channel awareness and included dashboards.",
   "Icon": "imgs/plugin/icon",
-  "Name": "Discord Voice Deck for Stream Deck",
+  "Name": "PackRat Voice Deck for Discord",
   "Nodejs": { "Version": "24" },
   "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
   "Profiles": [
