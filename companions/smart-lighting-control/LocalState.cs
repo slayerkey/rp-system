@@ -6,6 +6,8 @@ using System.Text.Json;
 namespace PackRat.SmartLighting;
 
 public sealed class LocalConfig {
+    public const int CurrentSchemaVersion = 1;
+    public int SchemaVersion { get; set; } = CurrentSchemaVersion;
     public string? HueBridgeIp { get; set; }
     public string? HueBridgeId { get; set; }
     public string? HueCertificateSha256 { get; set; }
@@ -22,8 +24,20 @@ public sealed class LocalState {
         Config=Load();
     }
     LocalConfig Load() {
-        try { return File.Exists(configPath) ? JsonSerializer.Deserialize<LocalConfig>(File.ReadAllText(configPath),JsonDefaults.Options) ?? new() : new(); }
+        try { return File.Exists(configPath) ? ParseConfigText(File.ReadAllText(configPath)) : new(); }
         catch { return new(); }
+    }
+    public static LocalConfig ParseConfigText(string? text) {
+        if(string.IsNullOrWhiteSpace(text)) return new();
+        try {
+            var parsed=JsonSerializer.Deserialize<LocalConfig>(text,JsonDefaults.Options) ?? new();
+            if(parsed.SchemaVersion<=0) parsed.SchemaVersion=LocalConfig.CurrentSchemaVersion;
+            if(parsed.SchemaVersion>LocalConfig.CurrentSchemaVersion) return new();
+            parsed.Favorites ??= new HashSet<string>(StringComparer.Ordinal);
+            return parsed;
+        } catch {
+            return new();
+        }
     }
     public void Save() {
         var tmp=configPath+".tmp";
