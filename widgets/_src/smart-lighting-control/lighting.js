@@ -214,7 +214,7 @@ function colorFromPoint(ev){
   var t=selected();if(!t||!cap(t,'color'))return;
   var pad=document.getElementById('colorPad'),r=pad.getBoundingClientRect(),x=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)),y=Math.max(0,Math.min(1,(ev.clientY-r.top)/r.height)),rgb=hsv(x*360,1,1-y*.72);
   document.getElementById('colorCursor').style.left=(x*100)+'%';document.getElementById('colorCursor').style.top=(y*100)+'%';t.color=rgb;renderControls();
-  var colorDelay=(t.kind==='room'||t.kind==='zone'||(t.provider==='govee'&&t.transport==='cloud'))?550:120;
+  var colorDelay=(t.kind==='room'||t.kind==='zone')?1050:((t.provider==='govee'&&t.transport==='cloud')?550:120);
   clearTimeout(colorTimer);colorTimer=setTimeout(function(){
     if(!send({command:'color',id:t.id,r:Math.round(rgb.r),g:Math.round(rgb.g),b:Math.round(rgb.b)}))showToast('Lighting Companion is offline.');
   },colorDelay);
