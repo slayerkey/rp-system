@@ -413,7 +413,8 @@ jobs:
           retention-days: 30
 
   rat-art-ship:
-    name: Deterministic Rat Art + companion-inclusive Rat Ship
+    name: Legacy bridge Rat Ship disabled during Lite refactor
+    if: false
     needs: streamspell
     runs-on: windows-latest
     env:
@@ -508,7 +509,8 @@ jobs:
           retention-days: 30
 
   canonical-gates:
-    name: Canonical XENEON / Rat Art / Rat Ship workflows
+    name: Canonical release dispatch disabled during Lite refactor
+    if: false
     needs: rat-art-ship
     runs-on: ubuntu-latest
     steps:
