@@ -3,8 +3,8 @@
   "name": "Smart Lighting Control for Hue + Govee",
   "type": "widget",
   "status": "qa_passed",
-  "workflow_state": "BLOCKED",
-  "blocker": "Choose and publish a stable customer-accessible download URL for PackRat-Lighting-Companion-win-x64.zip, then place that URL in the Marketplace/customer setup flow. Engineering and automated release QA are complete.",
+  "workflow_state": "READY_TO_SHIP",
+  "blocker": null,
   "price_usd": 9.99,
   "version": "1.0.0",
   "platform": "CORSAIR iCUE / XENEON Edge + Windows companion",
@@ -41,7 +41,8 @@
     "reused Hue/Govee HTTP clients for always-on companion stability",
     "automatic Govee LAN discovery throttled when no LAN devices exist",
     "clean Hue unpair and Govee cloud-cache reset flows",
-    "single-instance installed companion plus clean Exit companion update path"
+    "single-instance installed companion plus clean Exit companion update path",
+    "permanent PackRat companion download redirect backed by a versioned GitHub Release asset"
   ],
   "automated_release_evidence": {
     "candidate_commit": "6d34d9a22c9d5e1a758bbc2237fc237cbc45d054",
@@ -68,6 +69,9 @@
     }
   },
   "hardware_boundary": "No physical XENEON Edge, Hue Bridge/light, or Govee light/credentials were available in this build session. Real provider code compiled and passed deterministic protocol/API fixtures plus exact-package localhost-companion integration. A physical smoke test is recommended when hardware is available, but is not represented as completed.",
-  "final_boundary": "Publish the companion ZIP at a stable customer-accessible URL, add that URL to the release/customer setup surface, then run rat ship smart-lighting-control for authenticated Maker Console submission.",
-  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. Final Deep QA run 34564227541 is fully green across Windows companion/package, Corsair Labs host, StreamSpell all eight presets, deterministic Rat Art and Rat Ship. Marketplace auto-publish remains disabled."
+  "final_boundary": "Authenticated Maker Console submission through rat ship smart-lighting-control. Marketplace auto-publish remains disabled.",
+  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. A permanent customer companion URL is wired through the PackRat site to the versioned GitHub Release asset. Marketplace auto-publish remains disabled.",
+  "companion_download_url": "https://packrat-site.pages.dev/downloads/smart-lighting",
+  "companion_release_tag": "smart-lighting-companion-v1.0.0",
+  "companion_release_asset_url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip"
 }

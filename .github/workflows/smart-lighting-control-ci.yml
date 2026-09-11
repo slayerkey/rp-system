@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   SLUG: smart-lighting-control
@@ -323,6 +323,21 @@ jobs:
           foreach ($f in @("$env:SLUG.icuewidget","PackRat-Lighting-Companion-win-x64.zip","01_search_icon.png","02_cover.png","03_gallery_01.png","04_gallery_02.png","05_gallery_03.png","06_gallery_04.png")) {
             if (-not (Test-Path "$kit/$f")) { throw "missing Rat Ship file: $f" }
           }
+
+      - name: Publish free Windows companion download
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = 'smart-lighting-companion-v1.0.0'
+          $zip = 'artifacts/companion/PackRat-Lighting-Companion-win-x64.zip'
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release delete $tag --repo $env:GITHUB_REPOSITORY --cleanup-tag --yes
+            if ($LASTEXITCODE -ne 0) { throw 'Could not replace existing Smart Lighting companion release' }
+          }
+          gh release create $tag $zip --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Smart Lighting Companion 1.0.0' --notes 'Free local Windows companion required by Smart Lighting Control for Hue + Govee on XENEON Edge. Runs on localhost only. Hue and Govee credentials stay in Windows Credential Manager; no PackRat cloud or account is used.'
+          if ($LASTEXITCODE -ne 0) { throw 'Could not publish Smart Lighting companion release' }
 
       - name: Upload final Rat Ship kit
         uses: actions/upload-artifact@v4

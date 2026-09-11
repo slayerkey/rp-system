@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var PORT=17486, PROTOCOL=1, WS_URL='ws://127.0.0.1:17486/widget';
+var PORT=17486, PROTOCOL=1, WS_URL='ws://127.0.0.1:17486/widget', COMPANION_DOWNLOAD='https://packrat-site.pages.dev/downloads/smart-lighting';
 var model={
   connection:'starting',auth:'pending',filter:'favorites',selectedId:null,targets:[],providers:{},
   socket:null,reconnect:null,fixture:false,lastError:'',socketGeneration:0,disposed:false,bound:false,
@@ -117,8 +117,8 @@ function render(){
   applyStyle();document.body.setAttribute('data-state',model.connection);renderStatus();
   document.querySelectorAll('.filter').forEach(function(b){b.classList.toggle('active',b.dataset.filter===model.filter);});
   if(model.connection==='unauthorized'){setBlocking('Pairing token rejected','Copy the current Companion Pairing Token from the local PackRat Lighting Companion setup page.');return;}
-  if(model.connection==='incompatible'){setBlocking('Companion update required','This widget and PackRat Lighting Companion use different local protocol versions. Install the companion included with this product version.');return;}
-  if(model.connection==='offline'||model.connection==='starting'){setBlocking('Lighting Companion offline','Start PackRat Lighting Companion on this Windows PC. Hue and Govee control stays local through the companion.');return;}
+  if(model.connection==='incompatible'){setBlocking('Companion update required','This widget and PackRat Lighting Companion use different local protocol versions. Install the companion included with this product version.','Update companion: '+COMPANION_DOWNLOAD);return;}
+  if(model.connection==='offline'||model.connection==='starting'){setBlocking('Lighting Companion offline','Start PackRat Lighting Companion on this Windows PC. Hue and Govee control stays local through the companion.','Download companion: '+COMPANION_DOWNLOAD);return;}
   if(model.connection==='unconfigured'){setBlocking('Finish local setup','Open PackRat Lighting Companion, connect Philips Hue and/or Govee, then paste the Companion Pairing Token in iCUE settings.');return;}
   clearBlocking();renderGrid();renderControls();
 }

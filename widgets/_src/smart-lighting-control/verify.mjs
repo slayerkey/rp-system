@@ -22,6 +22,7 @@ assert.equal(sub.price_usd,9.99);
 assert.equal(sub.version,'1.0.0');
 assert.match(sub.description,/without setting up Home Assistant/i);
 assert.match(sub.description,/no PackRat cloud/i);
+assert.match(sub.description,/packrat-site\.pages\.dev\/downloads\/smart-lighting/i);
 
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 for(const prop of ['pairingToken','defaultView','showOffline','textColor','accentColor','backgroundColor'])assert.match(html,new RegExp('content="'+prop+'"'));
@@ -29,6 +30,7 @@ assert.ok(html.indexOf('content="textColor"')<html.indexOf('content="accentColor
 
 const js=fs.readFileSync(path.join(root,'lighting.js'),'utf8');
 assert.match(js,/ws:\/\/127\.0\.0\.1:17486\/widget/);
+assert.match(js,/packrat-site\.pages\.dev\/downloads\/smart-lighting/);
 assert.match(js,/onICUEInitialized/);
 assert.match(js,/onDataUpdated/);
 assert.match(js,/pagehide/);
@@ -50,6 +52,7 @@ const setup=fs.readFileSync(path.join(companion,'CUSTOMER-SETUP.txt'),'utf8');
 assert.match(setup,/127\.0\.0\.1:17486/);
 assert.match(setup,/Install locally \+ start with Windows/);
 assert.match(setup,/No PackRat account is required/);
+assert.match(setup,/packrat-site\.pages\.dev\/downloads\/smart-lighting/);
 
 const secretPattern=/AIza[0-9A-Za-z_-]{30,}|sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|(?:api[_-]?key|token|secret)\s*[:=]\s*['"][A-Za-z0-9_\-]{20,}['"]/i;
 for(const dir of [root,companion]){

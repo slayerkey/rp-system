@@ -1,6 +1,7 @@
 PACKRAT LIGHTING COMPANION — QUICK SETUP
 Smart Lighting Control for Hue + Govee
 Version 1.0.0
+Permanent companion download: https://packrat-site.pages.dev/downloads/smart-lighting
 
 WHAT THIS IS
 This small Windows companion lets the XENEON Edge widget talk to Philips Hue and Govee on your local network. It listens only on this PC (127.0.0.1) and does not use a PackRat cloud service.
@@ -42,7 +43,7 @@ CONNECT XENEON EDGE
 4. The widget should connect automatically.
 
 TROUBLESHOOTING
-- "Lighting Companion offline": start the installed companion or open http://127.0.0.1:17486/
+- "Lighting Companion offline": start the installed companion or download/reinstall it from https://packrat-site.pages.dev/downloads/smart-lighting then open http://127.0.0.1:17486/
 - "Pairing token rejected": copy the current token from the local setup page into iCUE again.
 - "Companion update required": use the companion version supplied with the same widget release. If an older installed copy is running, open its local setup page, click "Exit companion", then run/install the newer EXE.
 - Hue not found: enter the Hue Bridge IP manually.
