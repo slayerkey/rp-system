@@ -184,10 +184,10 @@ public sealed class GoveeClient {
         }
     }
     async Task RefreshNextCloudStateAsync(CancellationToken ct){
-        // Budget cloud polling across the whole account instead of polling every
-        // device every refresh. LAN-capable devices already have local status.
-        // One cloud state request per 15 seconds is <= 5,760/day total, leaving
-        // substantial room for device discovery, scenes and user controls.
+        // Budget cloud polling globally instead of polling every device every
+        // refresh. LAN-capable devices already have local status. This stays far
+        // below Govee's documented per-device state rate while leaving headroom
+        // for discovery, scenes and user controls.
         var candidates=cloud.Where(d=>!lan.ContainsKey(d.Device)).ToList();
         if(candidates.Count==0){cloudStatesAt=DateTime.UtcNow;return;}
         if(cloudStateCursor>=candidates.Count)cloudStateCursor=0;
@@ -204,7 +204,7 @@ public sealed class GoveeClient {
                     cloudStates[d.Device]=ParseCloudState(caps);
                 }
             }
-        }catch{}
+        }catch(Exception ex){LastCloudError=CloudError(ex);}
         cloudStatesAt=DateTime.UtcNow;
     }
     static CloudState ParseCloudState(JsonElement caps){
@@ -259,7 +259,7 @@ public sealed class GoveeClient {
         scenesAt=DateTime.UtcNow;
     }
 
-    static async Task AppendScenesAsync(HttpClient http,CloudDevice d,string endpoint,List<CloudScene> scenes,CancellationToken ct){
+    async Task AppendScenesAsync(HttpClient http,CloudDevice d,string endpoint,List<CloudScene> scenes,CancellationToken ct){
         try{
             var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
             using var res=await http.PostAsJsonAsync(endpoint,payload,JsonDefaults.Options,ct);
@@ -274,7 +274,7 @@ public sealed class GoveeClient {
                     if(o.TryGetProperty("name",out var n)&&o.TryGetProperty("value",out var v))
                         scenes.Add(new CloudScene{Name=n.GetString()??"Scene",Type=type,Instance=inst,Value=v.Clone()});
             }
-        }catch{}
+        }catch(Exception ex){LastCloudError=CloudError(ex);}
     }
 
     List<LightingTarget> Normalize(){
