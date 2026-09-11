@@ -200,6 +200,12 @@ body[data-slot="s-v"] .sensorRow{
 }
 body[data-slot="s-h"] .sensorRow small,
 body[data-slot="s-v"] .sensorRow small{font-size:.55em}
+body[data-slot="s-h"] .localRow,
+body[data-slot="s-v"] .localRow{grid-template-columns:88px minmax(0,1fr)}
+body[data-slot="s-h"] .localRow small,
+body[data-slot="s-v"] .localRow small{display:none}
+body[data-slot="s-h"] .localRow>span,
+body[data-slot="s-v"] .localRow>span{white-space:nowrap}
 body[data-slot="s-h"] .systemFoot,
 body[data-slot="s-v"] .systemFoot{display:none}
 body[data-slot="s-h"] .programKicker{margin-bottom:6px}
