@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var BRIDGE_URL = "ws://127.0.0.1:17484";
+  var BRIDGE_URL = "ws://127.0.0.1:17487/widget";
   var RECONNECT_MS = 2500;
   var PIN_STORAGE_KEY = "packrat.window-manager-xeneon.pins.v1";
   var slots = [
@@ -34,7 +34,9 @@
       accentColor: "#2BE86A",
       backgroundColor: "#080B0F"
     },
-    toastTimer: null
+    toastTimer: null,
+    booted: false,
+    shuttingDown: false
   };
 
   function byId(id) { return document.getElementById(id); }
@@ -117,14 +119,32 @@
   }
 
   function loadPins() {
+    model.pins = {};
     try {
-      var parsed = JSON.parse(localStorage.getItem(PIN_STORAGE_KEY) || "{}");
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) model.pins = parsed;
-    } catch (error) { model.pins = {}; }
+      var raw = localStorage.getItem(PIN_STORAGE_KEY);
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return;
+
+      if (parsed.schemaVersion === 1 && parsed.pins && typeof parsed.pins === "object" && !Array.isArray(parsed.pins)) {
+        model.pins = parsed.pins;
+        return;
+      }
+
+      // Migrate the original v1 prerelease shape, which stored the pins object directly.
+      if (!Object.prototype.hasOwnProperty.call(parsed, "schemaVersion")) {
+        model.pins = parsed;
+        savePins();
+      }
+    } catch (error) {
+      model.pins = {};
+    }
   }
 
   function savePins() {
-    try { localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(model.pins)); } catch (error) {}
+    try {
+      localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify({ schemaVersion: 1, pins: model.pins }));
+    } catch (error) {}
   }
 
   function windowById(id) {
@@ -166,7 +186,9 @@
 
   function iconMarkup(windowInfo, className) {
     var icon = windowInfo && windowInfo.iconDataUri ? String(windowInfo.iconDataUri) : "";
-    if (icon) return '<img class="' + className + '" src="' + escapeHtml(icon) + '" alt="" />';
+    if (/^data:image\/(?:png|svg\+xml);/i.test(icon)) {
+      return '<img class="' + className + '" src="' + escapeHtml(icon) + '" alt="" />';
+    }
     return '<span class="' + className + ' icon-fallback">' + escapeHtml(appFallback(windowInfo)) + '</span>';
   }
 
@@ -221,6 +243,7 @@
     if (model.connection === "pairing") return ["PAIRING KEY NEEDED", "Run PackRat Window Bridge, then paste its local pairing key in iCUE settings."];
     if (model.connection === "denied") return ["PAIRING KEY REJECTED", "The bridge rejected this key. Copy the current key from PackRat Window Bridge and try again."];
     if (model.connection === "disconnected") return ["WINDOW BRIDGE OFFLINE", "Start PackRat Window Bridge on this PC. The panel reconnects automatically."];
+    if (model.connection === "version_mismatch") return ["WINDOW BRIDGE UPDATE NEEDED", "The widget and PackRat Window Bridge use different protocol versions. Install the matching companion build."];
     if (model.connection === "connecting" || model.connection === "starting") return ["CONNECTING TO WINDOWS", "Looking for PackRat Window Bridge on this PC."];
     if (!model.windows.length) return ["NO OPEN WINDOWS", "Open an app on the Windows desktop and it will appear here automatically."];
     return ["", ""];
@@ -440,6 +463,12 @@
       render();
       return;
     }
+    if (payload.type === "protocol_mismatch") {
+      model.connection = "version_mismatch";
+      render();
+      try { if (model.socket) model.socket.close(); } catch (error) {}
+      return;
+    }
     if (payload.type === "snapshot") {
       applySnapshot(payload);
       return;
@@ -450,7 +479,7 @@
   }
 
   function scheduleReconnect() {
-    if (model.fixtureMode || model.reconnectTimer) return;
+    if (model.fixtureMode || model.shuttingDown || model.reconnectTimer) return;
     model.reconnectTimer = setTimeout(function () {
       model.reconnectTimer = null;
       startLiveConnection();
@@ -480,7 +509,7 @@
   }
 
   function startLiveConnection() {
-    if (model.fixtureMode) return;
+    if (model.fixtureMode || model.shuttingDown) return;
     readSettings();
     if (!model.settings.bridgeKey) {
       model.connection = "pairing";
@@ -611,7 +640,26 @@
     };
   }
 
+  function shutdown() {
+    model.shuttingDown = true;
+    if (model.reconnectTimer) {
+      clearTimeout(model.reconnectTimer);
+      model.reconnectTimer = null;
+    }
+    if (model.toastTimer) {
+      clearTimeout(model.toastTimer);
+      model.toastTimer = null;
+    }
+    if (model.socket) {
+      try { model.socket.close(); } catch (error) {}
+      model.socket = null;
+    }
+  }
+
   function boot() {
+    if (model.booted) return;
+    model.booted = true;
+    model.shuttingDown = false;
     installIcueLifecycle();
     applySlot();
     loadPins();
@@ -624,10 +672,7 @@
     if (fixture) startFixture(fixture);
     else startLiveConnection();
 
-    setInterval(function () {
-      readSettings();
-      if (!model.fixtureMode && (!model.socket || model.socket.readyState > WebSocket.OPEN)) startLiveConnection();
-    }, 1000);
+    window.addEventListener("pagehide", shutdown, { once: true });
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
