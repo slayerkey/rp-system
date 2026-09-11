@@ -1,0 +1,34 @@
+name: PackRat Self-Hosted Runner Smoke Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Verify PackRat PC runner
+    runs-on: [self-hosted, Windows, X64, packrat]
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Verify repository checkout
+        shell: powershell
+        run: |
+          if (-not (Test-Path "RATPACK.md")) {
+            throw "RATPACK.md was not found after checkout."
+          }
+          Write-Host "Repository checkout succeeded."
+
+      - name: Verify runner environment
+        shell: powershell
+        run: |
+          Write-Host "PACKRAT_SELF_HOSTED_OK=true"
+          Write-Host "RUNNER_OS=$env:RUNNER_OS"
+          Write-Host "GITHUB_REPOSITORY=$env:GITHUB_REPOSITORY"
+          Write-Host "GITHUB_SHA=$env:GITHUB_SHA"
+          Write-Host "This job used the PackRat self-hosted runner and did not require Codex."
