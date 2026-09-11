@@ -137,7 +137,7 @@ jobs:
           }
           if (-not (Test-Path $installedUninstaller)) { throw 'installed uninstaller helper unexpectedly disappeared' }
           Remove-Item -Force $installedUninstaller
-          if (Test-Path $root -and -not (Get-ChildItem $root -Force -ErrorAction SilentlyContinue)) { Remove-Item -Force $root }
+          if ((Test-Path $root) -and -not (Get-ChildItem $root -Force -ErrorAction SilentlyContinue)) { Remove-Item -Force $root }
 
       - uses: actions/upload-artifact@v4
         with:
