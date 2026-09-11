@@ -29,7 +29,7 @@ assert.match(sub.description,/packrat-site\.pages\.dev\/downloads\/smart-lightin
 
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const translations=JSON.parse(fs.readFileSync(path.join(shipping,'translation.json'),'utf8')).en?.translation||{};
-const trKeys=[...html.matchAll(/tr\('([^']+)'\)/g)].map(m=>m[1]);
+const trKeys=[...html.matchAll(/tr\('([^']+)'\)/g)].map(m=>m[1].replaceAll('&amp;','&'));
 for(const key of trKeys)assert.ok(Object.prototype.hasOwnProperty.call(translations,key),'missing translation key: '+key);
 for(const prop of ['pairingToken','defaultView','showOffline','textColor','accentColor','backgroundColor'])assert.match(html,new RegExp('content="'+prop+'"'));
 assert.ok(html.indexOf('content="textColor"')<html.indexOf('content="accentColor"')&&html.indexOf('content="accentColor"')<html.indexOf('content="backgroundColor"'),'custom style triplet order');
