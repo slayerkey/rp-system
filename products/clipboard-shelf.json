@@ -2,8 +2,8 @@
   "id": "clipboard-shelf",
   "name": "Clipboard Shelf",
   "type": "widget",
-  "status": "built",
-  "workflow_state": "TESTING",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
   "price_usd": 7.99,
   "version": "1.0.0",
   "platform": "CORSAIR iCUE / XENEON Edge / Windows",
@@ -36,5 +36,5 @@
     "Rat Ship Maker Console kit preflight and exact-package invariants",
     "versioned free companion GitHub Release after all prior gates pass"
   ],
-  "final_boundary": "Authenticated Maker Console submission. Real iCUE and physical XENEON Edge are optional additional confidence and are not claimed by the hardware-free release gate."
+  "final_boundary": "Authenticated Maker Console submission. Real iCUE and physical XENEON Edge remain optional additional confidence and are not claimed by the hardware-free release gate."
 }
