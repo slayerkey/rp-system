@@ -4,7 +4,7 @@ var WS_URL="ws://127.0.0.1:17485/ws";
 var WS_PROTOCOL="packrat-clipboard-shelf-v1-a91f6c";
 var RECONNECT_MS=1200;
 var socket=null,reconnectTimer=null,clearArmedUntil=0,toastTimer=null;
-var state={connected:false,privateMode:false,maxHistory:40,currentId:"",entries:[],revision:0};
+var state={connected:false,privateMode:false,maxHistory:40,currentId:"",entries:[],revision:0,pairingCode:"",pairingError:false};
 var ui={filter:"all",search:""};
 var fixture=globalThis.__clipboardShelfFixture||null;
 
@@ -21,7 +21,8 @@ function normalizeEntry(entry,index){
     createdAt:String(entry&&entry.createdAt||new Date(Date.now()-index*60000).toISOString()),
     pinned:Boolean(entry&&entry.pinned),favorite:Boolean(entry&&entry.favorite),
     url:entry&&entry.url?String(entry.url):(link?link.url:""),
-    domain:entry&&entry.domain?String(entry.domain):(link?link.domain:"")
+    domain:entry&&entry.domain?String(entry.domain):(link?link.domain:""),
+    truncated:Boolean(entry&&entry.truncated),fullLength:Number(entry&&entry.fullLength)||text.length
   };
 }
 function dedupeEntries(entries,maxHistory){
@@ -62,6 +63,19 @@ function applyAppearance(){
   var next=Math.max(10,Math.min(100,Number(readSetting("maxHistory",40))||40));
   if(next!==state.maxHistory){state.maxHistory=next;if(state.connected&&!fixture)send({command:"config",maxHistory:next});}
 }
+function refreshSettings(){
+  var nextCode=String(readSetting("pairingCode","")||"").trim();
+  var changed=nextCode!==state.pairingCode;
+  state.pairingCode=nextCode;
+  applyAppearance();
+  if(changed&&!fixture){
+    state.connected=false;state.pairingError=false;
+    clearTimeout(reconnectTimer);reconnectTimer=null;
+    if(socket){try{socket.close(4001,"pairing changed");}catch(e){}socket=null;}
+    connect();
+  }
+  if(typeof document!=="undefined"&&document.getElementById("bridgeStatus"))render();
+}
 function formatTime(iso){
   var d=new Date(iso);if(Number.isNaN(d.getTime()))return"";
   try{return d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}catch(e){return"";}
@@ -84,7 +98,7 @@ function actionButton(label,action,id,active){
 function makeCard(e){
   var card=el("article","clip-card"+(e.id===state.currentId?" current":""));card.dataset.id=e.id;
   var main=el("button","card-main");main.type="button";main.dataset.action="copy";main.dataset.id=e.id;main.setAttribute("aria-label","Copy clipboard entry");
-  var badges=el("div","card-badges");if(e.pinned)badges.appendChild(badge("PINNED",""));if(e.favorite)badges.appendChild(badge("FAVORITE",""));if(e.url)badges.appendChild(badge("URL","url"));main.appendChild(badges);
+  var badges=el("div","card-badges");if(e.pinned)badges.appendChild(badge("PINNED",""));if(e.favorite)badges.appendChild(badge("FAVORITE",""));if(e.url)badges.appendChild(badge("URL","url"));if(e.truncated)badges.appendChild(badge("LONG",""));main.appendChild(badges);
   main.appendChild(el("div","preview",e.text));
   main.appendChild(el("div","meta",(e.url?e.domain+" • ":"")+formatTime(e.createdAt)));
   var actions=el("div","card-actions");
@@ -99,9 +113,23 @@ function showOnly(name){
 function render(){
   applySlot();applyAppearance();
   var status=document.getElementById("bridgeStatus");status.classList.toggle("online",state.connected);
-  status.querySelector(".status-text").textContent=state.connected?"Bridge connected":"Bridge offline";
+  status.querySelector(".status-text").textContent=state.connected?"Bridge connected":(!state.pairingCode?"Pair bridge":(state.pairingError?"Pairing rejected":"Bridge offline"));
   var priv=document.getElementById("privateButton");priv.setAttribute("aria-pressed",String(state.privateMode));priv.textContent=state.privateMode?"Private on":"Private";
-  if(!state.connected&&!fixture){showOnly("offlineState");document.getElementById("countLabel").textContent="offline";return;}
+  if(!state.connected&&!fixture){
+    showOnly("offlineState");document.getElementById("countLabel").textContent="offline";
+    var offlineTitle=document.getElementById("offlineTitle"),offlineCopy=document.getElementById("offlineCopy");
+    if(!state.pairingCode){
+      offlineTitle.textContent="Pair Clipboard Bridge";
+      offlineCopy.textContent="Run the bridge, choose Copy Pairing Code from its tray icon, then paste that code into Clipboard Shelf settings in iCUE.";
+    }else if(state.pairingError){
+      offlineTitle.textContent="Pairing code rejected";
+      offlineCopy.textContent="Copy a fresh pairing code from the Clipboard Shelf Bridge tray icon and replace the code in iCUE settings.";
+    }else{
+      offlineTitle.textContent="Clipboard Bridge offline";
+      offlineCopy.textContent="Start the PackRat Clipboard Shelf Bridge. This panel reconnects automatically.";
+    }
+    return;
+  }
   if(state.privateMode){showOnly("privateState");document.getElementById("countLabel").textContent="capture paused";return;}
   var entries=visibleEntries(),shelf=document.getElementById("shelf");shelf.textContent="";
   entries.forEach(function(e){shelf.appendChild(makeCard(e));});
@@ -113,7 +141,7 @@ function toast(text){
 }
 function applySnapshot(s){
   if(!s||s.type!=="snapshot")return;
-  state.connected=true;state.privateMode=Boolean(s.privateMode);state.maxHistory=Number(s.maxHistory)||state.maxHistory;state.currentId=String(s.currentId||"");state.revision=Number(s.revision)||0;
+  state.connected=true;state.pairingError=false;state.privateMode=Boolean(s.privateMode);state.maxHistory=Number(s.maxHistory)||state.maxHistory;state.currentId=String(s.currentId||"");state.revision=Number(s.revision)||0;
   state.entries=dedupeEntries(Array.isArray(s.entries)?s.entries:[],state.maxHistory);
   render();
 }
@@ -133,15 +161,16 @@ function send(cmd){
   if(!socket||socket.readyState!==WebSocket.OPEN)return false;
   try{socket.send(JSON.stringify(cmd));return true;}catch(e){return false;}
 }
-function scheduleReconnect(){if(fixture||reconnectTimer)return;reconnectTimer=setTimeout(function(){reconnectTimer=null;connect();},RECONNECT_MS);}
+function scheduleReconnect(){if(fixture||reconnectTimer||state.pairingError||!state.pairingCode)return;reconnectTimer=setTimeout(function(){reconnectTimer=null;connect();},RECONNECT_MS);}
 function connect(){
   if(fixture)return;
+  if(!state.pairingCode){state.connected=false;render();return;}
   if(socket&&(socket.readyState===WebSocket.OPEN||socket.readyState===WebSocket.CONNECTING))return;
   var ws;try{ws=new WebSocket(WS_URL,WS_PROTOCOL);}catch(e){state.connected=false;render();scheduleReconnect();return;}
   socket=ws;
-  ws.addEventListener("open",function(){if(socket!==ws)return;state.connected=true;send({command:"refresh"});send({command:"config",maxHistory:state.maxHistory});render();});
+  ws.addEventListener("open",function(){if(socket!==ws)return;state.connected=false;send({command:"auth",token:state.pairingCode});render();});
   ws.addEventListener("message",function(ev){var p;try{p=JSON.parse(String(ev.data||""));}catch(e){return;}applySnapshot(p);});
-  ws.addEventListener("close",function(){if(socket!==ws)return;socket=null;state.connected=false;render();scheduleReconnect();});
+  ws.addEventListener("close",function(ev){if(socket!==ws)return;socket=null;state.connected=false;if(ev&&ev.code===1008)state.pairingError=true;render();scheduleReconnect();});
   ws.addEventListener("error",function(){if(socket===ws){state.connected=false;render();}});
 }
 function handleAction(action,id){
@@ -168,15 +197,16 @@ function installEvents(){
   addEventListener("resize",render);
 }
 globalThis.icueEvents=globalThis.icueEvents||{};
-globalThis.icueEvents.onDataUpdated=function(){applyAppearance();render();};
+globalThis.icueEvents.onICUEInitialized=function(){refreshSettings();};
+globalThis.icueEvents.onDataUpdated=function(){refreshSettings();};
 globalThis.__clipboardShelfTest={classifyUrl:classifyUrl,dedupeEntries:dedupeEntries,slotFor:slotFor};
 if(typeof document==="undefined")return;
 document.addEventListener("DOMContentLoaded",function(){
-  installEvents();applySlot();applyAppearance();
+  installEvents();applySlot();refreshSettings();
   if(fixture){
     state.connected=true;state.privateMode=Boolean(fixture.privateMode);state.maxHistory=Number(fixture.maxHistory)||40;state.currentId=String(fixture.currentId||"");
     state.entries=dedupeEntries(fixture.entries||[],state.maxHistory);render();
-  }else{render();connect();}
+  }else{render();if(!socket)connect();}
   globalThis.__clipboardShelfReady=true;
 });
 })();
