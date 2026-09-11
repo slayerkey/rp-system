@@ -30,7 +30,11 @@ assert.equal(submission.slug, "window-manager-xeneon");
 assert.equal(submission.type, "widget");
 assert.equal(submission.price_usd, 9.99);
 assert.equal(submission.version, "1.0.0");
-assert.match(submission.description, /free PackRat Window Bridge companion/i);
+assert.match(submission.description, /free PackRat Window Manager Lite Stream Deck plugin/i);
+assert.equal(submission.marketplace_auto_publish, false);
+assert.equal(submission.stream_deck_plugin_required, true);
+assert.equal(submission.stream_deck_plugin_name, "Window Manager Lite");
+assert.match(submission.stream_deck_plugin_marketplace_url, /window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23/);
 assert.match(submission.description, /127\.0\.0\.1/);
 assert.match(submission.description, /not sent to a cloud service/i);
 
@@ -70,4 +74,8 @@ const closeHandler = js.indexOf('byId("confirmClose").addEventListener');
 const directClose = js.indexOf('byId("closeAction").addEventListener');
 assert.ok(directClose >= 0 && closeHandler > directClose, "safe close confirmation path missing");
 
-console.log("WINDOW MANAGER XENEON DEV QA PASS: identity, paid-only metadata, localhost pairing, safe close, actions, fixtures, all eight layouts, Custom Style triplet and no remote runtime dependencies");
+assert.match(html, /Window Manager Pairing Key/);
+assert.match(html, /Window Manager Lite Stream Deck plugin/);
+assert.equal(/PackRat Window Bridge/i.test(html), false, "customer setup still references standalone bridge");
+
+console.log("WINDOW MANAGER XENEON DEV QA PASS: identity, paid-only metadata, Window Manager Lite localhost pairing, safe close, actions, fixtures, all eight layouts, Custom Style triplet and no remote runtime dependencies");
