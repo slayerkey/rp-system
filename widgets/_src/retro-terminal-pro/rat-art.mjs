@@ -82,7 +82,7 @@ export async function prepare(page,context){
 export async function ready(page,context){
   const style=selected(context,"style","green");
   const program=selected(context,"program","prompt");
-  await page.waitForFunction(()=>globalThis.__retroTerminalPro?.started===true,{timeout:10000});
+  await page.waitForFunction(()=>globalThis.__retroTerminalPro?.started===true,null,{timeout:10000});
   await page.evaluate(async ({style,program})=>{
     for(const timer of globalThis.__retroTerminalPro.timers||[])clearInterval(timer);
     globalThis.__retroTerminalPro.timers=[];
