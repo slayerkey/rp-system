@@ -60,7 +60,22 @@ try{
  await page.waitForFunction(()=>document.getElementById('bridgeStatus')?.classList.contains('online'),{timeout:5000});
  if(connections<2)throw new Error('automatic reconnect did not occur');
 
+ for(const client of wss.clients){
+  try{client.send(JSON.stringify({type:'snapshot',version:2,privateMode:false,maxHistory:40,currentId:'',revision:99,entries:[]}));}catch{}
+ }
+ await page.waitForFunction(()=>document.getElementById('incompatibleState')?.hidden===false,{timeout:2000});
+ if(!(await page.locator('#privateButton').isDisabled())||!(await page.locator('#clearButton').isDisabled()))throw new Error('incompatible bridge controls were not disabled');
+
+ for(const client of wss.clients){
+  try{client.send(JSON.stringify({type:'snapshot',version:1,privateMode:false,maxHistory:40,currentId:'short',revision:100,entries}));}catch{}
+ }
+ await page.waitForFunction(()=>document.getElementById('incompatibleState')?.hidden===true&&document.querySelector('.clip-card[data-id="short"]'),{timeout:2000});
+
  await page.screenshot({path:path.join(out,'network-smoke.png')});
+ const beforePagehide=connections;
+ await page.evaluate(()=>dispatchEvent(new Event('pagehide')));
+ await page.waitForTimeout(1600);
+ if(connections!==beforePagehide)throw new Error('pagehide unexpectedly reconnected the bridge');
  if(errors.length)throw new Error('runtime errors: '+errors.join(' | '));
  console.log('CLIPBOARD SHELF PACKAGED NETWORK SMOKE PASS');
 }finally{
