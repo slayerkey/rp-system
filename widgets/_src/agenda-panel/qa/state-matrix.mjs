@@ -75,7 +75,18 @@ out.transportFailure = await page.evaluate(async () => {
   STATE.events = [];
   STATE.updatedAt = 0;
   await refreshCalendars(true);
-  return { state: document.body.dataset.state, events: STATE.events.length, hero: heroTitle.textContent };
+  let opened = null;
+  globalThis.plugins = { Linkprovider: { open(url) { opened = url; } } };
+  globalThis.pluginLinkprovider_initialized = true;
+  document.getElementById('heroCard').click();
+  return {
+    state: document.body.dataset.state,
+    events: STATE.events.length,
+    hero: heroTitle.textContent,
+    cta: heroCountdown.textContent,
+    opened,
+    mode: document.body.dataset.mode
+  };
 });
 await page.close();
 
@@ -111,6 +122,9 @@ if (out.empty.state !== 'fresh' || out.empty.events !== 0 || !out.empty.emptyVis
 if (out.empty.secretPersisted) throw new Error('secret calendar URL persisted to localStorage');
 if (out.stale.state !== 'stale' || out.stale.events < 1) throw new Error('stale cache fallback failed');
 if (out.transportFailure.state !== 'bridge' || out.transportFailure.events !== 0) throw new Error('transport failure state failed');
+if (out.transportFailure.cta !== 'GET CALENDAR SYNC PRO →') throw new Error('companion upsell CTA missing');
+if (out.transportFailure.opened !== 'https://marketplace.elgato.com/product/calendar-sync-pro-d957868e-d1a0-4c3b-8fe4-8291951a5170') throw new Error('companion upsell did not open exact Calendar Sync Pro listing');
+if (out.transportFailure.mode !== 'today') throw new Error('companion upsell should not toggle calendar range');
 if (out.malformed.state !== 'error' || out.malformed.events !== 0) throw new Error('malformed feed should be feed error');
 if (out.partial.state !== 'stale' || out.partial.failed !== 1 || out.partial.events !== 1) throw new Error('partial failure state failed');
 if (out.parallel.state !== 'fresh' || out.parallel.elapsed > 500) throw new Error(`calendar refresh not parallel: ${out.parallel.elapsed}`);
