@@ -1,0 +1,95 @@
+name: Window Manager Final Main Sync
+
+on:
+  push:
+    branches:
+      - product/window-manager-xeneon
+    paths:
+      - '.github/workflows/window-manager-xeneon-final-main-sync.yml'
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  sync-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: product/window-manager-xeneon
+          fetch-depth: 0
+
+      - name: Merge latest main
+        id: merge
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "packrat-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git fetch origin main
+          git merge --no-edit origin/main
+          git push origin HEAD:product/window-manager-xeneon
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch and wait for full post-merge hardware-free gate
+        id: verify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: product/window-manager-xeneon
+          MERGED_SHA: ${{ steps.merge.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          gh workflow run window-manager-xeneon-full-gate.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH"
+
+          run_id=""
+          for i in $(seq 1 60); do
+            run_id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow window-manager-xeneon-full-gate.yml --branch "$BRANCH" --event workflow_dispatch --limit 30 --json databaseId,createdAt,headSha --jq "[.[] | select(.createdAt >= \"$started\" and .headSha == \"$MERGED_SHA\")][0].databaseId // empty")"
+            if [ -n "$run_id" ]; then break; fi
+            sleep 3
+          done
+          if [ -z "$run_id" ]; then
+            echo "Could not find post-merge Window Manager full gate" >&2
+            exit 1
+          fi
+
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+
+      - name: Record final verification and remove one-time sync helper
+        env:
+          RUN_ID: ${{ steps.verify.outputs.run_id }}
+          MERGED_SHA: ${{ steps.merge.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin product/window-manager-xeneon
+          git reset --hard origin/product/window-manager-xeneon
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          path = Path("products/window-manager-xeneon.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          evidence = data.setdefault("automated_release_evidence", {})
+          evidence["post_main_sync_full_gate_run"] = int(os.environ["RUN_ID"])
+          evidence["final_verified_runtime_commit"] = os.environ["MERGED_SHA"]
+          data["notes"] = (
+              "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. "
+              "The free PackRat Window Bridge has a stable customer-accessible v1.0.0 release. "
+              "Canonical Rat Ship was refreshed after the stable companion download URL was added to customer-facing metadata. "
+              "The finished branch was merged with current main and the complete hardware-free full gate was rerun successfully on that merged runtime commit. "
+              "Marketplace submission itself has not been claimed as completed."
+          )
+          path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+          PY
+
+          rm -f .github/workflows/window-manager-xeneon-final-main-sync.yml
+          git config user.name "packrat-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add products/window-manager-xeneon.json .github/workflows/window-manager-xeneon-final-main-sync.yml
+          git commit -m "Finalize Window Manager after main sync [skip ci]"
+          git push origin HEAD:product/window-manager-xeneon
