@@ -1,0 +1,15 @@
+{
+  "en": {
+    "translation": {
+      "Clipboard Shelf": "Clipboard Shelf",
+      "Bridge Pairing Code": "Bridge Pairing Code",
+      "History Size": "History Size",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Appearance": "Appearance",
+      "Run the free local Clipboard Shelf Bridge, choose Copy Pairing Code from its tray icon, and paste the code here. History Size controls unpinned entries; pinned items are preserved.": "Run the free local Clipboard Shelf Bridge, choose Copy Pairing Code from its tray icon, and paste the code here. History Size controls unpinned entries; pinned items are preserved.",
+      "Clipboard contents stay on this Windows PC. The pairing code prevents other browser pages from reading the local bridge.": "Clipboard contents stay on this Windows PC. The pairing code prevents other browser pages from reading the local bridge."
+    }
+  }
+}
