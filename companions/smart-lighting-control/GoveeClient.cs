@@ -54,6 +54,9 @@ public sealed class GoveeClient {
 
             var scan=Encoding.UTF8.GetBytes(BuildLanCommand("scan",new{account_topic="reserve"}));
             if(manual is not null){
+                var manualKey="ip:"+manual;
+                if(!lan.Values.Any(x=>x.Ip==manual.ToString()))
+                    lan[manualKey]=new LanDevice{Device=manualKey,Ip=manual.ToString(),Sku="LAN",Name="Govee LAN "+manual,Reachable=false};
                 await udp.SendAsync(scan,scan.Length,new IPEndPoint(manual,4001));
             }else if(localAddresses.Count>0){
                 foreach(var local in localAddresses){
@@ -108,6 +111,7 @@ public sealed class GoveeClient {
             if(cmd=="scan"){
                 var ip=Str(data,"ip");if(string.IsNullOrWhiteSpace(ip))ip=remoteIp;
                 var device=Str(data,"device");if(string.IsNullOrWhiteSpace(device))return;
+                foreach(var stale in lan.Where(x=>x.Value.Ip==ip&&x.Key.StartsWith("ip:",StringComparison.OrdinalIgnoreCase)).Select(x=>x.Key).ToList())lan.Remove(stale);
                 lan[device]=new LanDevice{Device=device,Ip=ip,Sku=Str(data,"sku"),Name=Str(data,"sku")+" "+device.Replace(":","").TakeLast(4).Aggregate("",(a,c)=>a+c),Reachable=true};
             } else if(cmd=="devStatus"){
                 var found=lan.Values.FirstOrDefault(x=>x.Ip==remoteIp);if(found is null)return;
@@ -154,7 +158,7 @@ public sealed class GoveeClient {
             d.Temperature=true;
             if(c.TryGetProperty("parameters",out var p)&&p.TryGetProperty("range",out var r)&&r.TryGetProperty("min",out var mn)&&r.TryGetProperty("max",out var mx))d.TemperatureRange=[mn.GetInt32(),mx.GetInt32()];
         }
-        if(instance.Contains("scene",StringComparison.OrdinalIgnoreCase)&&c.TryGetProperty("parameters",out var pars)&&pars.TryGetProperty("options",out var opts)&&opts.ValueKind==JsonValueKind.Array){
+        if(type.Contains("scene",StringComparison.OrdinalIgnoreCase)&&c.TryGetProperty("parameters",out var pars)&&pars.TryGetProperty("options",out var opts)&&opts.ValueKind==JsonValueKind.Array){
             foreach(var o in opts.EnumerateArray())if(o.TryGetProperty("name",out var n)&&o.TryGetProperty("value",out var v))d.StaticScenes.Add(new CloudScene{Name=n.GetString()??"Scene",Type=type,Instance=instance,Value=v.Clone()});
         }
     }
@@ -264,7 +268,24 @@ public sealed class GoveeClient {
         else if(command=="color"){var rgb=(message.GetProperty("r").GetInt32()<<16)|(message.GetProperty("g").GetInt32()<<8)|message.GetProperty("b").GetInt32();await CloudControlAsync(meta.Sku,meta.Device,"devices.capabilities.color_setting","colorRgb",rgb,ct);}
         else if(command=="temperature")await CloudControlAsync(meta.Sku,meta.Device,"devices.capabilities.color_setting","colorTemperatureK",message.GetProperty("value").GetInt32(),ct);
         else throw new InvalidOperationException("Unsupported Govee command.");
+        ApplyCachedState(meta.Device,command,message);
     }
+
+    void ApplyCachedState(string device,string command,JsonElement message){
+        lan.TryGetValue(device,out var local);
+        if(!cloudStates.TryGetValue(device,out var remote)){remote=new CloudState{Reachable=true};cloudStates[device]=remote;}
+        if(command=="power"){
+            var value=message.GetProperty("value").GetBoolean();remote.On=value;if(local is not null)local.On=value;
+        }else if(command=="brightness"){
+            var value=message.GetProperty("value").GetDouble();remote.Brightness=value;if(local is not null)local.Brightness=value;
+        }else if(command=="color"){
+            var value=new RgbColor(message.GetProperty("r").GetInt32(),message.GetProperty("g").GetInt32(),message.GetProperty("b").GetInt32());
+            remote.Color=value;if(local is not null)local.Color=value;
+        }else if(command=="temperature"){
+            var value=message.GetProperty("value").GetInt32();remote.TemperatureK=value;if(local is not null){local.TemperatureK=value;local.SupportsTemperature=true;}
+        }
+    }
+
     async Task CloudControlAsync(string sku,string device,string type,string instance,object value,CancellationToken ct){
         if(!CloudConfigured)throw new InvalidOperationException("Govee Developer API key is not configured.");
         using var http=CloudHttp();var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku,device,capability=new{type,instance,value}}};
