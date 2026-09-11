@@ -41,8 +41,8 @@ jobs:
       - name: Publish reproducible self-contained Windows companion
         shell: pwsh
         run: |
-          dotnet publish $env:COMPANION_PROJECT -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -p:ContinuousIntegrationBuild=true -p:Deterministic=true -o artifacts/companion/publish-a
-          dotnet publish $env:COMPANION_PROJECT -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -p:ContinuousIntegrationBuild=true -p:Deterministic=true -o artifacts/companion/publish-b
+          dotnet publish $env:COMPANION_PROJECT -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -p:ContinuousIntegrationBuild=true -p:Deterministic=true -p:IncludeSourceRevisionInInformationalVersion=false -o artifacts/companion/publish-a
+          dotnet publish $env:COMPANION_PROJECT -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -p:ContinuousIntegrationBuild=true -p:Deterministic=true -p:IncludeSourceRevisionInInformationalVersion=false -o artifacts/companion/publish-b
           $exeA = Get-ChildItem artifacts/companion/publish-a -Filter *.exe -File | Select-Object -First 1
           $exeB = Get-ChildItem artifacts/companion/publish-b -Filter *.exe -File | Select-Object -First 1
           if (-not $exeA -or -not $exeB) { throw 'companion publish did not produce both executables' }
@@ -421,7 +421,7 @@ jobs:
           $zip = 'artifacts/companion/PackRat-Lighting-Companion-win-x64.zip'
           $sum = 'artifacts/companion/PackRat-Lighting-Companion-win-x64.zip.sha256.txt'
           $builtHash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          $legacyHashes = @('c3cf9665b2feac4b66443ead457daa07c7dbdf0d543231b4157021e84ea1f1bc')
+          $legacyHashes = @('c3cf9665b2feac4b66443ead457daa07c7dbdf0d543231b4157021e84ea1f1bc','8a9bcfb6f8961fb8bbaedf2f7c9a4b0bef7021c6c4443edca825ad7024f8ce22')
           gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -eq 0) {
             $existingDir = Join-Path $env:RUNNER_TEMP 'smart-lighting-existing-release'
