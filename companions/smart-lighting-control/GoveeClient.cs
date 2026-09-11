@@ -15,7 +15,7 @@ public sealed class GoveeClient {
     List<CloudDevice> cloud=new();
     readonly Dictionary<string,List<CloudScene>> sceneCache=new(StringComparer.OrdinalIgnoreCase);
     readonly Dictionary<string,CloudState> cloudStates=new(StringComparer.OrdinalIgnoreCase);
-    DateTime cloudDevicesAt=DateTime.MinValue, scenesAt=DateTime.MinValue, cloudStatesAt=DateTime.MinValue, lanStatusAt=DateTime.MinValue;
+    DateTime cloudDevicesAt=DateTime.MinValue, scenesAt=DateTime.MinValue, cloudStatesAt=DateTime.MinValue, lanStatusAt=DateTime.MinValue, lanDiscoveryAt=DateTime.MinValue;
     int cloudStateCursor=0;
     public GoveeClient(LocalState state){this.state=state;}
     public bool CloudConfigured=>!string.IsNullOrWhiteSpace(state.GoveeApiKey());
@@ -23,9 +23,9 @@ public sealed class GoveeClient {
     public string? LastLanError { get; private set; }
 
     public async Task<List<LightingTarget>> GetTargetsAsync(bool scanLan=false,CancellationToken ct=default){
-        if(scanLan||lan.Count==0){
+        if(scanLan||(lan.Count==0&&DateTime.UtcNow-lanDiscoveryAt>TimeSpan.FromMinutes(1))){
             try{await DiscoverLanAsync(null,ct);}catch(SocketException ex){LastLanError="LAN UDP 4002 unavailable: "+ex.Message;}
-        }else if(DateTime.UtcNow-lanStatusAt>TimeSpan.FromSeconds(4))await RefreshLanStatusAsync(ct);
+        }else if(lan.Count>0&&DateTime.UtcNow-lanStatusAt>TimeSpan.FromSeconds(4))await RefreshLanStatusAsync(ct);
         if(CloudConfigured){
             if(DateTime.UtcNow-cloudDevicesAt>TimeSpan.FromMinutes(10))
                 try{await RefreshCloudDevicesAsync(ct);}catch(Exception ex){LastCloudError=CloudError(ex);}
@@ -38,6 +38,7 @@ public sealed class GoveeClient {
     }
 
     public async Task<int> DiscoverLanAsync(string? manualIp=null,CancellationToken ct=default){
+        lanDiscoveryAt=DateTime.UtcNow;
         IPAddress? manual=null;
         if(!string.IsNullOrWhiteSpace(manualIp)&&(!IPAddress.TryParse(manualIp,out manual)||manual.AddressFamily!=AddressFamily.InterNetwork))
             throw new InvalidOperationException("Enter a valid IPv4 address for the Govee light.");
