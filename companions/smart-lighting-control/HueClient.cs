@@ -9,8 +9,10 @@ namespace PackRat.SmartLighting;
 
 public sealed record HueBridgeCandidate(string Id,string Ip,string Source);
 
-public sealed class HueClient {
+public sealed class HueClient : IDisposable {
     readonly LocalState state;
+    HttpClient? resourceHttp;
+    string? resourceSignature;
     public HueClient(LocalState state){this.state=state;}
     public bool Configured=>!string.IsNullOrWhiteSpace(state.Config.HueBridgeIp)&&!string.IsNullOrWhiteSpace(state.HueAppKey());
 
@@ -95,6 +97,18 @@ public sealed class HueClient {
         };
         return new HttpClient(handler){BaseAddress=new Uri("https://"+ip+"/"),Timeout=TimeSpan.FromSeconds(6)};
     }
+    HttpClient ResourceHttp(string ip,string? expectedPin,string key){
+        var signature=ip+"|"+(expectedPin??"")+"|"+key;
+        if(resourceHttp is not null&&string.Equals(resourceSignature,signature,StringComparison.Ordinal))return resourceHttp;
+        ResetResourceHttp();
+        resourceHttp=CreateHttp(ip,expectedPin);
+        resourceHttp.DefaultRequestHeaders.TryAddWithoutValidation("hue-application-key",key);
+        resourceSignature=signature;
+        return resourceHttp;
+    }
+    void ResetResourceHttp(){resourceHttp?.Dispose();resourceHttp=null;resourceSignature=null;}
+    public void ClearPairing(){state.ClearHuePairing();ResetResourceHttp();}
+    public void Dispose()=>ResetResourceHttp();
 
     public async Task<string> PairAsync(string ip,CancellationToken ct=default){
         if(!IPAddress.TryParse(ip,out _))throw new InvalidOperationException("Enter a valid Hue Bridge IP address.");
@@ -113,6 +127,7 @@ public sealed class HueClient {
         }
         if(!first.TryGetProperty("success",out var success)||!success.TryGetProperty("username",out var username))throw new InvalidOperationException("Hue Bridge did not return an application key.");
         var key=username.GetString();if(string.IsNullOrWhiteSpace(key))throw new InvalidOperationException("Hue application key was blank.");
+        ResetResourceHttp();
         state.Config.HueBridgeIp=ip;state.Config.HueCertificateSha256=observedPin;state.SetHueAppKey(key);
         try{
             using var configHttp=CreateHttp(ip,observedPin);
@@ -126,8 +141,7 @@ public sealed class HueClient {
     public async Task<List<LightingTarget>> GetTargetsAsync(CancellationToken ct=default){
         var ip=state.Config.HueBridgeIp;var key=state.HueAppKey();
         if(string.IsNullOrWhiteSpace(ip)||string.IsNullOrWhiteSpace(key))return new();
-        using var http=CreateHttp(ip,state.Config.HueCertificateSha256);
-        http.DefaultRequestHeaders.TryAddWithoutValidation("hue-application-key",key);
+        var http=ResourceHttp(ip,state.Config.HueCertificateSha256,key);
         using var response=await http.GetAsync("clip/v2/resource",ct);response.EnsureSuccessStatusCode();
         using var doc=JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
         if(!doc.RootElement.TryGetProperty("data",out var data)||data.ValueKind!=JsonValueKind.Array)return new();
@@ -200,7 +214,7 @@ public sealed class HueClient {
 
     public async Task ControlAsync(LightingTarget target,string command,JsonElement message,CancellationToken ct=default){
         var ip=state.Config.HueBridgeIp;var key=state.HueAppKey();if(string.IsNullOrWhiteSpace(ip)||string.IsNullOrWhiteSpace(key)||string.IsNullOrWhiteSpace(target.NativeId))throw new InvalidOperationException("Hue is not paired.");
-        using var http=CreateHttp(ip,state.Config.HueCertificateSha256);http.DefaultRequestHeaders.TryAddWithoutValidation("hue-application-key",key);
+        var http=ResourceHttp(ip,state.Config.HueCertificateSha256,key);
         string resource=target.Kind is "room" or "zone"?"grouped_light":target.Kind=="scene"?"scene":"light";
         object payload=command switch{
             "power"=>new{on=new{on=message.GetProperty("value").GetBoolean()}},
