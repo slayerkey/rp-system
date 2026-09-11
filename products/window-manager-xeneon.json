@@ -80,8 +80,35 @@
       "sha256": "3047502710af57b460d0835c2f4ad2d15c113dd1174df64e3b2475a8bf8c7bad"
     },
     "post_main_sync_full_gate_run": 34565815963,
-    "final_verified_runtime_commit": "89549cebd9aeeff4e016f0ac14cae18c2a2c0c69"
+    "final_verified_runtime_commit": "89549cebd9aeeff4e016f0ac14cae18c2a2c0c69",
+    "post_main_sync_official_package_artifact": {
+      "id": 10186051062,
+      "sha256": "3fcb2cca27867cb1e36139c6e152cb0aae0630d40d14a3f3e3e58409567c4855"
+    },
+    "post_main_sync_windows_companion_artifact": {
+      "id": 10186053152,
+      "sha256": "c8a0cb3388784f13bb4c8f741b5a62458e4a94e216ed61b2fc74576f0592f1a9"
+    },
+    "post_main_sync_windows_qa_artifact": {
+      "id": 10186053941,
+      "sha256": "b3c3b482d039a2f4a8246341b778bfa9801c8aa80610d0903b6a605fe1839d50"
+    },
+    "post_main_sync_streamspell_artifact": {
+      "id": 10186072484,
+      "sha256": "54f298218686c48b6ed582de88d4538cacd38a45e0bdab6399e08879a4c309cb"
+    },
+    "post_main_sync_companion_inclusive_rat_ship_artifact": {
+      "id": 10186102084,
+      "sha256": "71a54f39cd27437e42a7228b921568d0e643be7deed5bfe86e3b9c3121c92c6a"
+    },
+    "post_main_sync_canonical_xeneon_ci_run": 34566300184,
+    "post_main_sync_canonical_rat_art_run": 34566492285,
+    "post_main_sync_canonical_rat_ship_run": 34566572016,
+    "post_main_sync_canonical_rat_ship_artifact": {
+      "id": 10186240057,
+      "sha256": "f706003dcef4dcf269aec3fba037b6568b09241de0a50ffe51d2c34973631e03"
+    }
   },
   "hardware_boundary": "No physical XENEON Edge was available. The Windows companion compiled and ran in Windows CI and the exact packaged widget communicated with the actual published companion executable in deterministic fixture mode. Real foreground-lock/elevation restrictions and physical touch/iCUE behavior remain the only unclaimed hardware boundary.",
-  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. The free PackRat Window Bridge has a stable customer-accessible v1.0.0 release. Canonical Rat Ship was refreshed after the stable companion download URL was added to customer-facing metadata. The finished branch was merged with current main and the complete hardware-free full gate was rerun successfully on that merged runtime commit. Marketplace submission itself has not been claimed as completed."
+  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. The free PackRat Window Bridge has a stable customer-accessible v1.0.0 release. Canonical Rat Ship was refreshed after the stable companion download URL was added to customer-facing metadata. The finished branch was merged with current main and the complete hardware-free full gate plus canonical XENEON, Rat Art, and Rat Ship workflows were rerun successfully on runtime commit 89549cebd9aeeff4e016f0ac14cae18c2a2c0c69. Subsequent main-only commits were reviewed and touched Clipboard Shelf files only. Marketplace submission itself has not been claimed as completed."
 }
