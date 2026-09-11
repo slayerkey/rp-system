@@ -1,0 +1,40 @@
+{
+  "id": "clipboard-shelf",
+  "name": "Clipboard Shelf",
+  "type": "widget",
+  "status": "built",
+  "workflow_state": "TESTING",
+  "price_usd": 7.99,
+  "version": "1.0.0",
+  "platform": "CORSAIR iCUE / XENEON Edge / Windows",
+  "source": "widgets/_src/clipboard-shelf",
+  "package": "widgets/clipboard-shelf",
+  "submission_metadata": "widgets/_src/clipboard-shelf/submission.json",
+  "companion": {
+    "required": true,
+    "platform": "Windows x64",
+    "source": "companions/clipboard-shelf",
+    "release_tag": "clipboard-shelf-bridge-v1.0.0",
+    "download_url": "https://github.com/slayerkey/rp-system/releases/download/clipboard-shelf-bridge-v1.0.0/PackRat-Clipboard-Shelf-Bridge-1.0.0-win-x64.zip",
+    "transport": "localhost WebSocket 127.0.0.1:17485 with per-user pairing authentication",
+    "privacy": "Clipboard contents remain local and persisted state is protected with Windows DPAPI."
+  },
+  "release_gate": [
+    "canonical XENEON troubleshooting playbook review",
+    "Windows companion build, source self-test, published-exe self-test, and live localhost protocol self-test",
+    "short, long, multiline, URL, duplicate, rapid-change, pinned, favorite, history-limit, delete, clear, private-mode, corrupt-persistence fixtures",
+    "all eight deterministic XENEON layouts",
+    "official CORSAIR CLI validation and .icuewidget packaging",
+    "exact-package integrity including translation.json",
+    "lexical iCUE settings binding regression",
+    "no-callback iCUE settings autosync regression",
+    "Corsair Labs Windows exact-package runner smoke",
+    "exact-package paired localhost reconnect smoke",
+    "CI privacy leak scan",
+    "StreamSpell exact-package validation across all eight presets",
+    "deterministic Rat Art",
+    "Rat Ship Maker Console kit preflight and exact-package invariants",
+    "versioned free companion GitHub Release after all prior gates pass"
+  ],
+  "final_boundary": "Authenticated Maker Console submission. Real iCUE and physical XENEON Edge are optional additional confidence and are not claimed by the hardware-free release gate."
+}
