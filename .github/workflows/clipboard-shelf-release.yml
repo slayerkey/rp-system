@@ -9,6 +9,14 @@ on:
       - 'widgets/clipboard-shelf/**'
       - 'companions/clipboard-shelf/**'
       - 'products/index.json'
+      - 'RATPACK.md'
+      - 'XENEON.md'
+      - 'platforms/icue-xeneon.md'
+      - 'docs/XENEON_TROUBLESHOOTING_PLAYBOOK.md'
+      - 'skills/icue-widget-builder/SKILL.md'
+      - 'tools/xeneon/**'
+      - 'tools/art/**'
+      - 'tools/ship/**'
       - '.github/workflows/clipboard-shelf-release.yml'
   workflow_dispatch:
 
@@ -69,6 +77,8 @@ jobs:
           if (-not $exe) { throw "Clipboard Shelf bridge publish did not produce an executable" }
           Copy-Item $exe.FullName artifacts/companion/PackRat.ClipboardShelfBridge.exe
           Copy-Item companions/clipboard-shelf/README.md artifacts/companion/README.md
+          & artifacts/companion/PackRat.ClipboardShelfBridge.exe --self-test
+          if ($LASTEXITCODE -ne 0) { throw "Published Clipboard Shelf bridge self-test failed with exit code $LASTEXITCODE" }
           Compress-Archive -Path artifacts/companion/PackRat.ClipboardShelfBridge.exe,artifacts/companion/README.md -DestinationPath artifacts/companion/PackRat-Clipboard-Shelf-Bridge-1.0.0-win-x64.zip -Force
 
       - name: Deterministic widget logic verification
@@ -131,6 +141,10 @@ jobs:
         shell: pwsh
         run: node tools/xeneon/native-style-smoke.mjs "artifacts/extracted/$env:WIDGET_SLUG/index.html" "artifacts/native-style/$env:WIDGET_SLUG"
 
+      - name: No-callback iCUE settings autosync regression
+        shell: pwsh
+        run: node tools/xeneon/native-style-autosync-smoke.mjs "artifacts/extracted/$env:WIDGET_SLUG/index.html" "artifacts/native-style-autosync/$env:WIDGET_SLUG"
+
       - name: Corsair Labs Windows runner exact-package smoke
         shell: pwsh
         run: |
@@ -190,6 +204,7 @@ jobs:
             artifacts/companion/
             artifacts/layouts/
             artifacts/native-style/
+            artifacts/native-style-autosync/
             artifacts/icue-runner/
             artifacts/network-smoke/
             artifacts/corsair-runner-commit.txt
