@@ -43,6 +43,12 @@ The widget does not enumerate the desktop and does not continuously poll Windows
 - window titles, process paths/names, icons and commands stay on the PC
 - pairing key is generated locally in `%LOCALAPPDATA%\PackRat\WindowBridge\bridge-key.txt`
 
+## Download
+
+Stable v1.0.0 customer download:
+
+`https://github.com/slayerkey/rp-system/releases/download/window-manager-bridge-v1.0.0/PackRat-Window-Bridge-win-x64.zip`
+
 ## Install
 
 The release ZIP includes `Install.cmd`, `Install.ps1`, the self-contained executable and `Uninstall.ps1`.
