@@ -7,821 +7,108 @@
     "accent": "#2BE86A"
   },
   "products": [
-    {
-      "id": "better-hotkeys",
-      "name": "Better Hotkeys & Mouse",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 0,
-      "version": "0.2.1.0"
-    },
-    {
-      "id": "better-hotkeys-pro",
-      "name": "Better Hotkeys & Mouse Pro",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 4.99,
-      "version": "1.1.0.0"
-    },
-    {
-      "id": "valorant",
-      "name": "Valorant",
-      "type": "profile",
-      "status": "published",
-      "price_usd": 4.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "palworld",
-      "name": "Palworld",
-      "type": "profile",
-      "status": "published",
-      "price_usd": 4.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "discord-essentials",
-      "name": "Discord Essentials",
-      "type": "profile",
-      "status": "published",
-      "price_usd": 0,
-      "version": "1.0.0"
-    },
-    {
-      "id": "davinci-resolve",
-      "name": "DaVinci Resolve",
-      "type": "profile",
-      "status": "published",
-      "price_usd": 17.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "davinci-resolve-lite",
-      "name": "DaVinci Resolve Lite",
-      "type": "profile",
-      "status": "published",
-      "price_usd": 0,
-      "version": "1.0.0"
-    },
-    {
-      "id": "davinci-resolve-pro",
-      "name": "DaVinci Resolve Pro",
-      "type": "profile",
-      "status": "published",
-      "price_usd": 29.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "streamer-starter-pack",
-      "name": "Streamer Starter Pack",
-      "type": "profile",
-      "status": "published",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "streamer-university",
-      "name": "Streamer University",
-      "type": "profile",
-      "status": "published",
-      "price_usd": 6.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "claude-usage",
-      "name": "Claude Usage",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 3.99,
-      "version": "0.1.2.0"
-    },
-    {
-      "id": "screensaver-cycler",
-      "name": "Screensaver Scheduler",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 7.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "nfl-tracker",
-      "name": "NFL Tracker",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 6.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "nba-tracker",
-      "name": "NBA Tracker",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 6.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "mlb-tracker",
-      "name": "MLB Tracker",
-      "type": "plugin",
-      "status": "validated",
-      "price_usd": 6.99,
-      "version": "0.1.0.0"
-    },
-    {
-      "id": "nhl-tracker",
-      "name": "NHL Tracker",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 6.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "soccer-tracker",
-      "name": "Soccer Tracker",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 6.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "f1-tracker",
-      "name": "F1 Tracker",
-      "type": "plugin",
-      "status": "validated",
-      "price_usd": 6.99,
-      "version": "0.1.0.0"
-    },
-    {
-      "id": "nascar-tracker",
-      "name": "NASCAR Tracker",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 6.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "tennis-tracker",
-      "name": "Tennis Tracker",
-      "type": "plugin",
-      "status": "validated",
-      "price_usd": 6.99,
-      "version": "0.1.0.0"
-    },
-    {
-      "id": "golf-tracker",
-      "name": "Golf Tracker",
-      "type": "plugin",
-      "status": "validated",
-      "price_usd": 6.99,
-      "version": "0.1.0.0"
-    },
-    {
-      "id": "ufc-tracker",
-      "name": "UFC Tracker",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 6.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "riot-tracker",
-      "name": "Riot Rank Tracker",
-      "type": "plugin",
-      "status": "validated",
-      "price_usd": 6.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "fortnite",
-      "name": "Fortnite",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "world-of-warcraft",
-      "name": "World of Warcraft",
-      "type": "profile",
-      "status": "qa_passed",
-      "price_usd": 11.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "vectorworks",
-      "name": "Vectorworks",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 11.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "elite-dangerous",
-      "name": "Elite Dangerous",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "satisfactory",
-      "name": "Satisfactory",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 6.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "osrs",
-      "name": "Old School RuneScape",
-      "type": "profile",
-      "status": "qa_passed",
-      "price_usd": 6.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "forza",
-      "name": "Forza",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "review-marketplace-performance-30d",
-      "name": "review performance over 30d",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "volume-mixer-active-app-plugin",
-      "name": "create prompt for volume mixer that first button is active application",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "icue-widget-competitor-research",
-      "name": "look into icue ones looks like XE is what they want plugins for the most",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "streamdeck-wallpaper-engine",
-      "name": "wallpaper engine type shit but for streamdeck",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "valorant-dev-portal-key",
-      "name": "Apply for a VALORANT key on the dev portal",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "hwinfo",
-      "name": "HWiNFO Monitor",
-      "type": "plugin",
-      "status": "rejected",
-      "price_usd": 0,
-      "version": "0.1.0.0"
-    },
-    {
-      "id": "solidworks",
-      "name": "SOLIDWORKS",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 19.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "minecraft",
-      "name": "Minecraft",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 6.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "cs2",
-      "name": "CS2",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "league-of-legends",
-      "name": "League of Legends",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "dota2",
-      "name": "Dota 2",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "fl-studio",
-      "name": "FL Studio",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 14.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "foundry-vtt",
-      "name": "Foundry VTT",
-      "type": "profile",
-      "status": "rejected",
-      "price_usd": 0,
-      "version": "0.1.0"
-    },
-    {
-      "id": "neon-blue",
-      "name": "Neon Blue Icons",
-      "type": "icons",
-      "status": "published",
-      "price_usd": 4.49,
-      "version": "1.0.0"
-    },
-    {
-      "id": "neon-green",
-      "name": "Neon Green Icons",
-      "type": "icons",
-      "status": "published",
-      "price_usd": 4.49,
-      "version": "1.0.0"
-    },
-    {
-      "id": "neon-pink",
-      "name": "Neon Pink Icons",
-      "type": "icons",
-      "status": "published",
-      "price_usd": 4.49,
-      "version": "1.0.0"
-    },
-    {
-      "id": "neon-yellow",
-      "name": "Neon Yellow Icons",
-      "type": "icons",
-      "status": "published",
-      "price_usd": 4.49,
-      "version": "1.0.0"
-    },
-    {
-      "id": "neon-black",
-      "name": "Neon Black Icons",
-      "type": "icons",
-      "status": "published",
-      "price_usd": 4.49,
-      "version": "1.0.0"
-    },
-    {
-      "id": "neon-purple",
-      "name": "Neon Purple Icons",
-      "type": "icons",
-      "status": "published",
-      "price_usd": 4.49,
-      "version": "1.0.0"
-    },
-    {
-      "id": "neon-white",
-      "name": "Neon White Icons",
-      "type": "icons",
-      "status": "published",
-      "price_usd": 4.89,
-      "version": "1.0.0"
-    },
-    {
-      "id": "neon-red",
-      "name": "Neon Red Icons",
-      "type": "icons",
-      "status": "published",
-      "price_usd": 4.49,
-      "version": "1.0.0"
-    },
-    {
-      "id": "slot-machine",
-      "name": "Slot Machine",
-      "type": "widget",
-      "status": "submitted",
-      "price_usd": 7.77,
-      "version": "1.0.0"
-    },
-    {
-      "id": "net-spike",
-      "name": "Packrat Network Probe",
-      "type": "widget",
-      "status": "built",
-      "price_usd": 0,
-      "version": "1.0.0"
-    },
-    {
-      "id": "market-command-center",
-      "name": "Market Command Center",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 9.99,
-      "version": "1.0.2"
-    },
-    {
-      "id": "crypto-portfolio",
-      "name": "Crypto Portfolio",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "ambient-clock",
-      "name": "Ambient Clock Pack",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 6.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "retro-terminal",
-      "name": "Retro Terminal",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 0,
-      "version": "1.0.0"
-    },
-    {
-      "id": "perf-grapher",
-      "name": "Performance Grapher",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 7.99,
-      "version": "1.1.0"
-    },
-    {
-      "id": "ai-usage",
-      "name": "AI Usage Dashboard",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 9.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "home-assistant",
-      "name": "Home Assistant Panel",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 9.99,
-      "version": "1.0.1"
-    },
-    {
-      "id": "clipboard-manager",
-      "name": "Clipboard Manager",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 0,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "clipboard-manager-pro",
-      "name": "Clipboard Manager Pro",
-      "type": "plugin",
-      "status": "published",
-      "price_usd": 6.99,
-      "version": null
-    },
-    {
-      "id": "window-manager",
-      "name": "Window Manager Lite",
-      "type": "plugin",
-      "status": "submitted",
-      "price_usd": 0,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "workflow-automation",
-      "name": "Workflow Automation Lite",
-      "type": "plugin",
-      "status": "submitted",
-      "price_usd": 0,
-      "version": "1.0.0.1"
-    },
-    {
-      "id": "calendar",
-      "name": "Calendar Sync Lite",
-      "type": "plugin",
-      "status": "submitted",
-      "price_usd": 0,
-      "version": "1.0.0.1"
-    },
-    {
-      "id": "calendar-pro",
-      "name": "Calendar Sync Pro",
-      "type": "plugin",
-      "status": "submitted",
-      "price_usd": 7.99,
-      "version": "1.1.0.0"
-    },
-    {
-      "id": "todo-list",
-      "name": "To-Do List",
-      "type": "plugin",
-      "status": "validated",
-      "price_usd": 0,
-      "version": "0.1.0.0"
-    },
-    {
-      "id": "ai-usage-tracker",
-      "name": "AI Usage Tracker",
-      "type": "plugin",
-      "status": "submitted",
-      "price_usd": 10.99,
-      "version": "1.0.1.0"
-    },
-    {
-      "id": "epic-pen",
-      "name": "Epic Pen Profile",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 0,
-      "version": "1.0.0"
-    },
-    {
-      "id": "epic-pen-pro",
-      "name": "Epic Pen Pro Profile",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "clip-studio-paint",
-      "name": "Clip Studio Paint",
-      "type": "profile",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "window-manager-pro",
-      "name": "Window Manager Pro",
-      "type": "plugin",
-      "status": "submitted",
-      "price_usd": 6.99,
-      "version": "1.0.0.1"
-    },
-    {
-      "id": "workflow-automation-pro",
-      "name": "Workflow Automation Pro",
-      "type": "plugin",
-      "status": "submitted",
-      "price_usd": 6.99,
-      "version": "1.0.0.1"
-    },
-    {
-      "id": "world-of-warcraft-vsd",
-      "name": "World of Warcraft VSD Profile",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "osrs-vsd",
-      "name": "OSRS VSD Profile",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 6.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "ultimate-sports",
-      "name": "Sports Tracker Ultimate",
-      "type": "plugin",
-      "status": "qa_passed",
-      "price_usd": 16.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "ai-prompts-lite",
-      "name": "AI Prompts Lite",
-      "type": "profile",
-      "status": "built",
-      "price_usd": 0,
-      "version": "1.0.1"
-    },
-    {
-      "id": "ai-prompts-creator",
-      "name": "AI Prompts for Creators",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 4.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "ai-prompts-developer",
-      "name": "AI Prompts for Developers",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 4.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "ai-prompts-marketing",
-      "name": "AI Prompts for Marketing",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 4.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "ai-prompts-freelancer",
-      "name": "AI Prompts for Freelancers",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 4.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "ai-prompts-coach",
-      "name": "AI Coach Prompts",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 4.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "ai-prompt-toolkit",
-      "name": "AI Prompt Toolkit",
-      "type": "profile",
-      "status": "submitted",
-      "price_usd": 9.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "api-spend",
-      "name": "Claude & OpenAI Cost Monitor",
-      "type": "plugin",
-      "status": "validated",
-      "price_usd": 0,
-      "version": "0.1.0.0"
-    },
-    {
-      "id": "api-spend-pro",
-      "name": "Claude & OpenAI Cost Pro",
-      "type": "plugin",
-      "status": "validated",
-      "price_usd": 9.99,
-      "version": "0.1.0.0"
-    },
-    {
-      "id": "drawdown-alarm",
-      "name": "Portfolio Drawdown Alarm",
-      "type": "plugin",
-      "status": "rejected",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "rig-cost",
-      "name": "PC Power Cost Meter",
-      "type": "plugin",
-      "status": "rejected",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "cloud-bill",
-      "name": "AWS & Cloud Cost Monitor",
-      "type": "plugin",
-      "status": "rejected",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "grid-price",
-      "name": "Live Electricity Price",
-      "type": "plugin",
-      "status": "rejected",
-      "price_usd": null,
-      "version": null
-    },
-    {
-      "id": "weather-timeline",
-      "name": "Weather Timeline Lite",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 0,
-      "version": "1.0.1"
-    },
-    {
-      "id": "weather-timeline-pro",
-      "name": "Weather Timeline Pro",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 4.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "pc-power-meter",
-      "name": "PC Power Meter Lite",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 0,
-      "version": "1.0.2"
-    },
-    {
-      "id": "pc-power-meter-pro",
-      "name": "PC Power Meter Pro",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "work-session-tracker",
-      "name": "Work Session Tracker Lite",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 0,
-      "version": "1.0.2"
-    },
-    {
-      "id": "work-session-tracker-pro",
-      "name": "Work Session Tracker Pro",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 5.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "desk-notes",
-      "name": "Desk Notes Lite",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 0,
-      "version": "1.0.1"
-    },
-    {
-      "id": "desk-notes-pro",
-      "name": "Desk Notes Pro",
-      "type": "widget",
-      "status": "published",
-      "price_usd": 5.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "discord-bridge",
-      "name": "PackRat Discord Bridge",
-      "type": "plugin",
-      "status": "qa_passed",
-      "price_usd": 0,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "discord-panel",
-      "name": "Discord Voice Panel",
-      "type": "widget",
-      "status": "qa_passed",
-      "price_usd": 7.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "voice-deck",
-      "name": "PackRat Voice Deck",
-      "type": "plugin",
-      "status": "qa_passed",
-      "price_usd": 9.99,
-      "version": "1.0.0.0"
-    },
-    {
-      "id": "xeneon-edge-ultimate",
-      "name": "XENEON EDGE Ultimate",
-      "type": "widget",
-      "status": "qa_passed",
-      "price_usd": 34.99,
-      "version": "1.0.0"
-    },
-    {
-      "id": "window-manager-xeneon",
-      "name": "Window Manager for XENEON",
-      "type": "widget",
-      "status": "qa_passed",
-      "price_usd": 9.99,
-      "version": "1.0.0"
-    }
+    {"id":"better-hotkeys","name":"Better Hotkeys & Mouse","type":"plugin","status":"published","price_usd":0,"version":"0.2.1.0"},
+    {"id":"better-hotkeys-pro","name":"Better Hotkeys & Mouse Pro","type":"plugin","status":"published","price_usd":4.99,"version":"1.1.0.0"},
+    {"id":"valorant","name":"Valorant","type":"profile","status":"published","price_usd":4.99,"version":"1.0.0"},
+    {"id":"palworld","name":"Palworld","type":"profile","status":"published","price_usd":4.99,"version":"1.0.0"},
+    {"id":"discord-essentials","name":"Discord Essentials","type":"profile","status":"published","price_usd":0,"version":"1.0.0"},
+    {"id":"davinci-resolve","name":"DaVinci Resolve","type":"profile","status":"published","price_usd":17.99,"version":"1.0.0"},
+    {"id":"davinci-resolve-lite","name":"DaVinci Resolve Lite","type":"profile","status":"published","price_usd":0,"version":"1.0.0"},
+    {"id":"davinci-resolve-pro","name":"DaVinci Resolve Pro","type":"profile","status":"published","price_usd":29.99,"version":"1.0.0"},
+    {"id":"streamer-starter-pack","name":"Streamer Starter Pack","type":"profile","status":"published","price_usd":7.99,"version":"1.0.0"},
+    {"id":"streamer-university","name":"Streamer University","type":"profile","status":"published","price_usd":6.99,"version":"1.0.0"},
+    {"id":"claude-usage","name":"Claude Usage","type":"plugin","status":"published","price_usd":3.99,"version":"0.1.2.0"},
+    {"id":"screensaver-cycler","name":"Screensaver Scheduler","type":"plugin","status":"published","price_usd":7.99,"version":"1.0.0.0"},
+    {"id":"nfl-tracker","name":"NFL Tracker","type":"plugin","status":"published","price_usd":6.99,"version":"1.0.0.0"},
+    {"id":"nba-tracker","name":"NBA Tracker","type":"plugin","status":"published","price_usd":6.99,"version":"1.0.0.0"},
+    {"id":"mlb-tracker","name":"MLB Tracker","type":"plugin","status":"validated","price_usd":6.99,"version":"0.1.0.0"},
+    {"id":"nhl-tracker","name":"NHL Tracker","type":"plugin","status":"published","price_usd":6.99,"version":"1.0.0.0"},
+    {"id":"soccer-tracker","name":"Soccer Tracker","type":"plugin","status":"published","price_usd":6.99,"version":"1.0.0.0"},
+    {"id":"f1-tracker","name":"F1 Tracker","type":"plugin","status":"validated","price_usd":6.99,"version":"0.1.0.0"},
+    {"id":"nascar-tracker","name":"NASCAR Tracker","type":"plugin","status":"published","price_usd":6.99,"version":"1.0.0.0"},
+    {"id":"tennis-tracker","name":"Tennis Tracker","type":"plugin","status":"validated","price_usd":6.99,"version":"0.1.0.0"},
+    {"id":"golf-tracker","name":"Golf Tracker","type":"plugin","status":"validated","price_usd":6.99,"version":"0.1.0.0"},
+    {"id":"ufc-tracker","name":"UFC Tracker","type":"plugin","status":"published","price_usd":6.99,"version":"1.0.0.0"},
+    {"id":"riot-tracker","name":"Riot Rank Tracker","type":"plugin","status":"validated","price_usd":6.99,"version":"1.0.0.0"},
+    {"id":"fortnite","name":"Fortnite","type":"profile","status":"submitted","price_usd":7.99,"version":"1.0.0"},
+    {"id":"world-of-warcraft","name":"World of Warcraft","type":"profile","status":"qa_passed","price_usd":11.99,"version":"1.0.0"},
+    {"id":"vectorworks","name":"Vectorworks","type":"profile","status":"submitted","price_usd":11.99,"version":"1.0.0"},
+    {"id":"elite-dangerous","name":"Elite Dangerous","type":"profile","status":"submitted","price_usd":7.99,"version":"1.0.0"},
+    {"id":"satisfactory","name":"Satisfactory","type":"profile","status":"submitted","price_usd":6.99,"version":"1.0.0"},
+    {"id":"osrs","name":"Old School RuneScape","type":"profile","status":"qa_passed","price_usd":6.99,"version":"1.0.0"},
+    {"id":"forza","name":"Forza","type":"profile","status":"submitted","price_usd":7.99,"version":"1.0.0"},
+    {"id":"review-marketplace-performance-30d","name":"review performance over 30d","type":"idea","status":"idea","price_usd":null,"version":null},
+    {"id":"volume-mixer-active-app-plugin","name":"create prompt for volume mixer that first button is active application","type":"idea","status":"idea","price_usd":null,"version":null},
+    {"id":"icue-widget-competitor-research","name":"look into icue ones looks like XE is what they want plugins for the most","type":"idea","status":"idea","price_usd":null,"version":null},
+    {"id":"streamdeck-wallpaper-engine","name":"wallpaper engine type shit but for streamdeck","type":"idea","status":"idea","price_usd":null,"version":null},
+    {"id":"valorant-dev-portal-key","name":"Apply for a VALORANT key on the dev portal","type":"idea","status":"idea","price_usd":null,"version":null},
+    {"id":"hwinfo","name":"HWiNFO Monitor","type":"plugin","status":"rejected","price_usd":0,"version":"0.1.0.0"},
+    {"id":"solidworks","name":"SOLIDWORKS","type":"profile","status":"submitted","price_usd":19.99,"version":"1.0.0"},
+    {"id":"minecraft","name":"Minecraft","type":"profile","status":"submitted","price_usd":6.99,"version":"1.0.0"},
+    {"id":"cs2","name":"CS2","type":"profile","status":"submitted","price_usd":7.99,"version":"1.0.0"},
+    {"id":"league-of-legends","name":"League of Legends","type":"profile","status":"submitted","price_usd":7.99,"version":"1.0.0"},
+    {"id":"dota2","name":"Dota 2","type":"profile","status":"submitted","price_usd":7.99,"version":"1.0.0"},
+    {"id":"fl-studio","name":"FL Studio","type":"profile","status":"submitted","price_usd":14.99,"version":"1.0.0"},
+    {"id":"foundry-vtt","name":"Foundry VTT","type":"profile","status":"rejected","price_usd":0,"version":"0.1.0"},
+    {"id":"neon-blue","name":"Neon Blue Icons","type":"icons","status":"published","price_usd":4.49,"version":"1.0.0"},
+    {"id":"neon-green","name":"Neon Green Icons","type":"icons","status":"published","price_usd":4.49,"version":"1.0.0"},
+    {"id":"neon-pink","name":"Neon Pink Icons","type":"icons","status":"published","price_usd":4.49,"version":"1.0.0"},
+    {"id":"neon-yellow","name":"Neon Yellow Icons","type":"icons","status":"published","price_usd":4.49,"version":"1.0.0"},
+    {"id":"neon-black","name":"Neon Black Icons","type":"icons","status":"published","price_usd":4.49,"version":"1.0.0"},
+    {"id":"neon-purple","name":"Neon Purple Icons","type":"icons","status":"published","price_usd":4.49,"version":"1.0.0"},
+    {"id":"neon-white","name":"Neon White Icons","type":"icons","status":"published","price_usd":4.89,"version":"1.0.0"},
+    {"id":"neon-red","name":"Neon Red Icons","type":"icons","status":"published","price_usd":4.49,"version":"1.0.0"},
+    {"id":"slot-machine","name":"Slot Machine","type":"widget","status":"submitted","price_usd":7.77,"version":"1.0.0"},
+    {"id":"net-spike","name":"Packrat Network Probe","type":"widget","status":"built","price_usd":0,"version":"1.0.0"},
+    {"id":"market-command-center","name":"Market Command Center","type":"widget","status":"published","price_usd":9.99,"version":"1.0.2"},
+    {"id":"crypto-portfolio","name":"Crypto Portfolio","type":"widget","status":"published","price_usd":7.99,"version":"1.0.0"},
+    {"id":"ambient-clock","name":"Ambient Clock Pack","type":"widget","status":"published","price_usd":6.99,"version":"1.0.0"},
+    {"id":"retro-terminal","name":"Retro Terminal","type":"widget","status":"published","price_usd":0.0,"version":"1.0.0"},
+    {"id":"perf-grapher","name":"Performance Grapher","type":"widget","status":"published","price_usd":7.99,"version":"1.1.0"},
+    {"id":"ai-usage","name":"AI Usage Dashboard","type":"widget","status":"published","price_usd":9.99,"version":"1.0.0"},
+    {"id":"home-assistant","name":"Home Assistant Panel","type":"widget","status":"published","price_usd":9.99,"version":"1.0.1"},
+    {"id":"clipboard-shelf","name":"Clipboard Shelf","type":"widget","status":"qa_passed","price_usd":7.99,"version":"1.0.0"},
+    {"id":"clipboard-manager","name":"Clipboard Manager","type":"plugin","status":"published","price_usd":0,"version":"1.0.0.0"},
+    {"id":"clipboard-manager-pro","name":"Clipboard Manager Pro","type":"plugin","status":"published","price_usd":6.99,"version":null},
+    {"id":"window-manager","name":"Window Manager Lite","type":"plugin","status":"submitted","price_usd":0,"version":"1.0.0.0"},
+    {"id":"workflow-automation","name":"Workflow Automation Lite","type":"plugin","status":"submitted","price_usd":0,"version":"1.0.0.1"},
+    {"id":"calendar","name":"Calendar Sync Lite","type":"plugin","status":"submitted","price_usd":0,"version":"1.0.0.1"},
+    {"id":"calendar-pro","name":"Calendar Sync Pro","type":"plugin","status":"submitted","price_usd":7.99,"version":"1.1.0.0"},
+    {"id":"todo-list","name":"To-Do List","type":"plugin","status":"validated","price_usd":0,"version":"0.1.0.0"},
+    {"id":"ai-usage-tracker","name":"AI Usage Tracker","type":"plugin","status":"submitted","price_usd":10.99,"version":"1.0.1.0"},
+    {"id":"epic-pen","name":"Epic Pen Profile","type":"profile","status":"submitted","price_usd":0,"version":"1.0.0"},
+    {"id":"epic-pen-pro","name":"Epic Pen Pro Profile","type":"profile","status":"submitted","price_usd":7.99,"version":"1.0.0"},
+    {"id":"clip-studio-paint","name":"Clip Studio Paint","type":"profile","status":"idea","price_usd":null,"version":null},
+    {"id":"window-manager-pro","name":"Window Manager Pro","type":"plugin","status":"submitted","price_usd":6.99,"version":"1.0.0.1"},
+    {"id":"workflow-automation-pro","name":"Workflow Automation Pro","type":"plugin","status":"submitted","price_usd":6.99,"version":"1.0.0.1"},
+    {"id":"world-of-warcraft-vsd","name":"World of Warcraft VSD Profile","type":"profile","status":"submitted","price_usd":7.99,"version":"1.0.0"},
+    {"id":"osrs-vsd","name":"OSRS VSD Profile","type":"profile","status":"submitted","price_usd":6.99,"version":"1.0.0"},
+    {"id":"ultimate-sports","name":"Sports Tracker Ultimate","type":"plugin","status":"qa_passed","price_usd":16.99,"version":"1.0.0.0"},
+    {"id":"ai-prompts-lite","name":"AI Prompts Lite","type":"profile","status":"built","price_usd":0.0,"version":"1.0.1"},
+    {"id":"ai-prompts-creator","name":"AI Prompts for Creators","type":"profile","status":"submitted","price_usd":4.99,"version":"1.0.0"},
+    {"id":"ai-prompts-developer","name":"AI Prompts for Developers","type":"profile","status":"submitted","price_usd":4.99,"version":"1.0.0"},
+    {"id":"ai-prompts-marketing","name":"AI Prompts for Marketing","type":"profile","status":"submitted","price_usd":4.99,"version":"1.0.0"},
+    {"id":"ai-prompts-freelancer","name":"AI Prompts for Freelancers","type":"profile","status":"submitted","price_usd":4.99,"version":"1.0.0"},
+    {"id":"ai-prompts-coach","name":"AI Coach Prompts","type":"profile","status":"submitted","price_usd":4.99,"version":"1.0.0"},
+    {"id":"ai-prompt-toolkit","name":"AI Prompt Toolkit","type":"profile","status":"submitted","price_usd":9.99,"version":"1.0.0"},
+    {"id":"api-spend","name":"Claude & OpenAI Cost Monitor","type":"plugin","status":"validated","price_usd":0.0,"version":"0.1.0.0"},
+    {"id":"api-spend-pro","name":"Claude & OpenAI Cost Pro","type":"plugin","status":"validated","price_usd":9.99,"version":"0.1.0.0"},
+    {"id":"drawdown-alarm","name":"Portfolio Drawdown Alarm","type":"plugin","status":"rejected","price_usd":null,"version":null},
+    {"id":"rig-cost","name":"PC Power Cost Meter","type":"plugin","status":"rejected","price_usd":null,"version":null},
+    {"id":"cloud-bill","name":"AWS & Cloud Cost Monitor","type":"plugin","status":"rejected","price_usd":null,"version":null},
+    {"id":"grid-price","name":"Live Electricity Price","type":"plugin","status":"rejected","price_usd":null,"version":null},
+    {"id":"weather-timeline","name":"Weather Timeline Lite","type":"widget","status":"published","price_usd":0.0,"version":"1.0.1"},
+    {"id":"weather-timeline-pro","name":"Weather Timeline Pro","type":"widget","status":"published","price_usd":4.99,"version":"1.0.0"},
+    {"id":"pc-power-meter","name":"PC Power Meter Lite","type":"widget","status":"published","price_usd":0.0,"version":"1.0.2"},
+    {"id":"pc-power-meter-pro","name":"PC Power Meter Pro","type":"widget","status":"published","price_usd":7.99,"version":"1.0.0"},
+    {"id":"work-session-tracker","name":"Work Session Tracker Lite","type":"widget","status":"published","price_usd":0.0,"version":"1.0.2"},
+    {"id":"work-session-tracker-pro","name":"Work Session Tracker Pro","type":"widget","status":"published","price_usd":5.99,"version":"1.0.0"},
+    {"id":"desk-notes","name":"Desk Notes Lite","type":"widget","status":"published","price_usd":0.0,"version":"1.0.1"},
+    {"id":"desk-notes-pro","name":"Desk Notes Pro","type":"widget","status":"published","price_usd":5.99,"version":"1.0.0"},
+    {"id":"discord-bridge","name":"PackRat Discord Bridge","type":"plugin","status":"qa_passed","price_usd":0.0,"version":"1.0.0.0"},
+    {"id":"discord-panel","name":"Discord Voice Panel","type":"widget","status":"qa_passed","price_usd":7.99,"version":"1.0.0"},
+    {"id":"voice-deck","name":"PackRat Voice Deck","type":"plugin","status":"qa_passed","price_usd":9.99,"version":"1.0.0.0"},
+    {"id":"xeneon-edge-ultimate","name":"XENEON EDGE Ultimate","type":"widget","status":"qa_passed","price_usd":34.99,"version":"1.0.0"},
+    {"id":"window-manager-xeneon","name":"Window Manager for XENEON","type":"widget","status":"qa_passed","price_usd":9.99,"version":"1.0.0"}
   ]
 }

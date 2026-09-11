@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('Clipboard Shelf')</title>
+<meta name="x-icue-property" content="pairingCode" data-label="tr('Bridge Pairing Code')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="maxHistory" data-label="tr('History Size')" data-type="slider" data-default="40" data-min="10" data-max="100" data-step="10" />
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F5F7FA'" />
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#63E6BE'" />
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#080B10'" />
+<script type="application/json" id="x-icue-groups">
+[
+  {"title":"tr('Clipboard Shelf')","properties":["pairingCode","maxHistory"],"info":"tr('Run the free local Clipboard Shelf Bridge, choose Copy Pairing Code from its tray icon, and paste the code here. History Size controls unpinned entries; pinned items are preserved.')"},
+  {"title":"tr('Appearance')","properties":["textColor","accentColor","backgroundColor"],"info":"tr('Clipboard contents stay on this Windows PC. The pairing code prevents other browser pages from reading the local bridge.')"}
+]
+</script>
+<link rel="stylesheet" href="clipboard-shelf.css" />
+</head>
+<body>
+<main id="app" aria-label="Clipboard Shelf">
+  <header id="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">▣</div>
+      <div><div class="eyebrow">PACKRAT</div><div class="title">Clipboard Shelf</div></div>
+    </div>
+    <div class="status-wrap">
+      <div id="bridgeStatus" class="status-pill"><span class="dot"></span><span class="status-text">Bridge offline</span></div>
+      <button id="privateButton" class="top-button" type="button" aria-pressed="false">Private</button>
+      <button id="clearButton" class="top-button danger" type="button">Clear</button>
+    </div>
+  </header>
+
+  <section id="toolbar" aria-label="Clipboard filters">
+    <div class="filters" role="tablist" aria-label="Filter history">
+      <button class="filter active" data-filter="all" type="button">All</button>
+      <button class="filter" data-filter="pinned" type="button">Pinned</button>
+      <button class="filter" data-filter="favorites" type="button">Favorites</button>
+      <button class="filter" data-filter="links" type="button">Links</button>
+    </div>
+    <label id="searchWrap">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input id="searchInput" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="Search clipboard" aria-label="Search clipboard history" />
+    </label>
+    <div id="countLabel" class="count-label">0 items</div>
+  </section>
+
+  <section id="shelf" aria-live="polite"></section>
+
+  <section id="emptyState" class="state-card" hidden>
+    <div class="state-icon">▤</div>
+    <h2>No clipboard text yet</h2>
+    <p>Copy text in Windows and it will appear here automatically.</p>
+  </section>
+
+  <section id="offlineState" class="state-card" hidden>
+    <div class="state-icon">↻</div>
+    <h2 id="offlineTitle">Clipboard Bridge offline</h2>
+    <p id="offlineCopy">Start the PackRat Clipboard Shelf Bridge. This panel reconnects automatically.</p>
+  </section>
+
+  <section id="incompatibleState" class="state-card" hidden>
+    <div class="state-icon">!</div>
+    <h2>Bridge update required</h2>
+    <p>This Clipboard Shelf widget needs bridge protocol version 1. Install the companion included with this release.</p>
+  </section>
+
+  <section id="privateState" class="state-card private-state" hidden>
+    <div class="state-icon">◉</div>
+    <h2>Private Mode is on</h2>
+    <p>New clipboard text is not being saved and existing history is hidden on this display.</p>
+    <button id="resumeButton" class="resume-button" type="button">Resume capture</button>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+</main>
+<script src="clipboard-shelf.js"></script>
+</body>
+</html>
