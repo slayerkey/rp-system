@@ -1,0 +1,38 @@
+{
+  "id": "retro-terminal-pro",
+  "name": "Retro Terminal Pro",
+  "type": "widget",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "price_usd": 7.99,
+  "version": "1.0.0",
+  "platform": "CORSAIR iCUE / XENEON Edge",
+  "source": "widgets/_src/retro-terminal-pro",
+  "package": "widgets/retro-terminal-pro",
+  "submission_metadata": "widgets/_src/retro-terminal-pro/submission.json",
+  "release_gate": [
+    "all eight XENEON layouts",
+    "real iCUE Sensors provider telemetry only in SYSTEM",
+    "explicit stale, offline, error, no-sensor and recovery states",
+    "reduced-motion and lifecycle cleanup hardening",
+    "official CORSAIR CLI validation and packaging",
+    "exact-package ZIP integrity",
+    "lexical Custom Style and settings autosync regression",
+    "Corsair Labs Windows exact-package host smoke",
+    "both iCUE lifecycle callbacks observed",
+    "StreamSpell exact-package verification",
+    "deterministic Rat Art",
+    "Rat Ship Maker Console kit"
+  ],
+  "automated_release_evidence": {
+    "candidate_commit": "5be8c7c9e9d0cdcb7b0afbf765e25ff602c50673",
+    "authoritative_rc_run": 34565593371,
+    "release_candidate_artifact": {
+      "id": 10185983582,
+      "sha256": "2381982ece84d149a68824a18f901be9630b45da5eb898311cb846f75b62420b"
+    },
+    "exact_package_html_sha256": "0018c235f80febcfaeba1a8ff503f5bbfbfbe8d917392cf0f03339af089c6ad1"
+  },
+  "hardware_boundary": "No physical XENEON Edge validation is claimed. Real iCUE/physical-device rendering, touch behavior, and arbitrary customer sensor maps remain optional additional confidence.",
+  "final_boundary": "Authenticated Maker Console submission through rat ship retro-terminal-pro."
+}
