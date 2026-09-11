@@ -140,12 +140,12 @@ public static class Program {
         }catch(Exception ex){Console.Error.WriteLine("SMART LIGHTING COMPANION SELF-TEST FAIL: "+ex);return 1;}
     }
 
-    static string SetupHtml(int port)=>$$"""
+    static string SetupHtml(int port)=>"""
 <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PackRat Lighting Companion</title><style>
 :root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#f7f8fa;background:#090a0f}*{box-sizing:border-box}body{margin:0;padding:32px;background:radial-gradient(circle at 80% 0,#8b5cf622,transparent 30%),#090a0f}.wrap{max-width:920px;margin:auto}.hero{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:22px}h1{margin:5px 0;font-size:34px}.muted,p{color:#aeb3c0;line-height:1.5}.pill{border:1px solid #ffffff18;border-radius:999px;padding:8px 12px;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#12141d;border:1px solid #ffffff16;border-radius:20px;padding:20px}.full{grid-column:1/-1}.label{font-size:11px;font-weight:800;letter-spacing:.14em;color:#9ca3af;text-transform:uppercase}.token{font:800 18px ui-monospace,Consolas,monospace;background:#080910;border:1px solid #ffffff16;padding:14px;border-radius:12px;word-break:break-all;margin:10px 0}input,button{min-height:46px;border-radius:12px;border:1px solid #ffffff1c;background:#1a1d29;color:#fff;padding:0 13px}input{width:100%;margin:8px 0}button{cursor:pointer;font-weight:800;background:#8b5cf6}button.secondary{background:#242735}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}.status{font-size:12px;margin-top:10px;min-height:18px;color:#cbd5e1}.ok{color:#42e38d}.warn{color:#fbbf24}code{color:#c4b5fd}@media(max-width:700px){body{padding:16px}.grid{grid-template-columns:1fr}.full{grid-column:auto}.hero{display:block}h1{font-size:28px}}
 </style></head><body><div class="wrap">
-<div class="hero"><div><div class="label">PACKRAT · LOCAL WINDOWS COMPANION</div><h1>Hue + Govee Lighting</h1><p>Everything here stays on this PC. No PackRat account or PackRat cloud.</p></div><div class="pill">127.0.0.1:{{port}}</div></div>
+<div class="hero"><div><div class="label">PACKRAT · LOCAL WINDOWS COMPANION</div><h1>Hue + Govee Lighting</h1><p>Everything here stays on this PC. No PackRat account or PackRat cloud.</p></div><div class="pill">127.0.0.1:__PORT__</div></div>
 <div class="grid">
 <section class="card full"><div class="label">1 · XENEON CONNECTION</div><h2>Companion Pairing Token</h2><p>Copy this token into the widget's <b>Companion Pairing Token</b> setting in iCUE.</p><div id="token" class="token">Loading…</div><button onclick="copyToken()">Copy token</button><div id="summary" class="status"></div></section>
 <section class="card"><div class="label">2 · PHILIPS HUE</div><h2>Pair your Hue Bridge</h2><p>Discover locally first. Press the physical link button on the Hue Bridge, then click Pair.</p><div class="row"><button onclick="discoverHue()">Discover bridges</button></div><select id="hueList" style="width:100%;min-height:46px;margin:8px 0;background:#1a1d29;color:#fff;border:1px solid #ffffff1c;border-radius:12px"></select><input id="hueIp" placeholder="Or enter bridge IP, e.g. 192.168.1.20"><button onclick="pairHue()">Pair selected / IP</button><div id="hueStatus" class="status"></div></section>
@@ -162,5 +162,5 @@ async function saveGovee(){try{const key=goveeKey.value.trim();if(!key)throw Err
 async function clearGovee(){await j('/api/setup/govee/key',{method:'DELETE'});goveeStatus.textContent='Developer API key removed';refresh()}
 refresh().catch(e=>summary.textContent=e.message);
 </script></body></html>
-""";
+""".Replace("__PORT__",port.ToString());
 }
