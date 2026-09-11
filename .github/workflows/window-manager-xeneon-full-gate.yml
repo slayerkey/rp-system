@@ -115,6 +115,8 @@ jobs:
       - name: Build and self-test PackRat Window Bridge
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
           dotnet restore $env:COMPANION_PROJECT
           dotnet build $env:COMPANION_PROJECT -c Release --no-restore
           dotnet run --project $env:COMPANION_PROJECT -c Release --no-build -- --self-test
