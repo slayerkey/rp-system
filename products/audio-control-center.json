@@ -1,0 +1,49 @@
+{
+  "id": "audio-control-center",
+  "name": "Audio Control Center",
+  "type": "widget",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "price_usd": 9.99,
+  "version": "1.0.0",
+  "platform": "CORSAIR iCUE / XENEON Edge / Windows",
+  "source": "widgets/_src/audio-control-center",
+  "package": "widgets/audio-control-center",
+  "submission_metadata": "widgets/_src/audio-control-center/submission.json",
+  "companion": {
+    "required": true,
+    "platform": "Windows x64",
+    "source": "companions/audio-control-center-bridge",
+    "release_tag": "audio-control-center-bridge-v1.0.0",
+    "download_url": "https://github.com/slayerkey/rp-system/releases/download/audio-control-center-bridge-v1.0.0/PackRat-Audio-Bridge-1.0.0-win-x64.zip",
+    "transport": "localhost loopback bridge using Windows Core Audio",
+    "privacy": "No PackRat cloud, account, or telemetry; bridge runs locally on Windows."
+  },
+  "release_gate": [
+    "canonical authored source and generated shipping HTML freshness",
+    "Windows companion source and published-executable self-tests",
+    "real self-contained Windows bridge to generated shipping widget integration",
+    "customer per-user startup install and uninstall smoke",
+    "loopback origin and command-schema security checks",
+    "all eight XENEON layouts including long names, Unicode, crowded lists, disconnected and unavailable states",
+    "bridge offline, restart, reconnect and protocol mismatch recovery",
+    "official CORSAIR CLI validation and packaging",
+    "exact-package Windows host smoke",
+    "StreamSpell exact-package verification",
+    "deterministic Rat Art",
+    "Rat Ship Maker Console kit"
+  ],
+  "automated_release_evidence": {
+    "candidate_commit": "7d58c7b93c6ccbcbb71f44bb68a556f9f7171a59",
+    "full_gate_run": 34565040574,
+    "canonical_xeneon_ci_run": 34565297089,
+    "canonical_rat_art_run": 34565298531,
+    "canonical_rat_ship_run": 34565300255,
+    "companion_release": {
+      "release_id": 386800562,
+      "zip_sha256": "d70fcff329eb6f6b325dd77e71cd3879e75efe118bb5a0ceda678041dad32e2b"
+    }
+  },
+  "hardware_boundary": "No physical XENEON Edge validation is claimed. The Windows companion and exact packaged widget were validated through the hardware-free release gate.",
+  "final_boundary": "Authenticated Maker Console submission through rat ship audio-control-center."
+}
