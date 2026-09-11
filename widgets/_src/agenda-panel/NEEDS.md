@@ -8,29 +8,29 @@ The upload also supplied the exact ical.js 2.2.1 dependency and a built `plugin.
 
 The original `_calendar` TypeScript wrapper remains absent from canonical GitHub. If it is later migrated, compare it fixture for fixture for provenance and maintenance consolidation. Its absence is not a Calendar Panel release blocker because the exact production parser dependency and compiled behavior are present and tested.
 
-## Calendar Sync Pro raw ICS bridge
+## Standalone ICS transport
 
-XENEON widgets run from a `file://` origin and browser CORS applies. Major calendar providers can return valid secret ICS feeds without `Access-Control-Allow-Origin`, so direct widget fetch cannot reliably read every provider.
+XENEON widgets run from a `file://` origin and browser CORS applies. Some calendar providers return valid secret ICS feeds without `Access-Control-Allow-Origin`, so a direct widget fetch cannot reliably read every provider.
 
-Calendar Panel first attempts the configured feed directly. It accepts HTTP, HTTPS and `webcal://`; `webcal://` is normalized to HTTPS before network access, matching Calendar Sync Pro.
+Calendar Panel remains a standalone paid XENEON product. It does not require Calendar Sync Pro, a Stream Deck plugin, or another paid companion.
 
-If direct access fails, Calendar Panel attempts this local companion contract:
+Transport order:
 
-`GET http://127.0.0.1:38765/v1/ics?url=<percent-encoded-ics-url>`
+1. Try the configured ICS feed directly from the widget.
+2. If browser CORS or transport prevents a readable response, POST the feed URL to Packrat's stateless Cloudflare Pages relay at `https://packrat-site.pages.dev/api/calendar-feed`.
+3. The relay fetches the ICS server-side and returns the raw calendar body with CORS enabled for the XENEON widget.
+4. Calendar parsing always remains inside Calendar Panel so direct and relayed feeds use the same behavior.
 
-Required bridge behavior:
+Relay privacy and safety contract:
 
-1. Run only on loopback.
-2. Return the raw ICS body unchanged on HTTP 200.
-3. Return `Access-Control-Allow-Origin: *` so the XENEON `file://` widget may read it.
-4. Never log or persist the secret ICS URL by default.
-5. Apply an upstream timeout and conservative response size limit.
-6. Reject non HTTP and non HTTPS upstream URLs after `webcal://` normalization.
-7. Do not parse or normalize calendar data. The widget owns parsing so there is one calendar behavior model.
+* The secret ICS URL is sent in the POST body, not in the relay query string.
+* The relay does not cache or application-log calendar URLs or calendar bodies.
+* Responses are `Cache-Control: no-store`.
+* Only HTTP/HTTPS targets are accepted after `webcal://` normalization.
+* Localhost, private-network, link-local, metadata, and private redirect targets are rejected.
+* Calendar responses are capped at 2.5 MB and must contain a VCALENDAR payload.
 
-The supplied Calendar Sync Pro source has no localhost bridge. It fetches ICS inside the Stream Deck Node process, where browser CORS does not apply. Adding the loopback transport to that separate companion is outside this widget's allowed write boundary.
-
-This is a provider compatibility extension, not a Calendar Panel build blocker. Direct-CORS-compatible ICS feeds work without the companion. Providers that block direct browser access require the companion transport.
+This removes the former cross-product dependency while preserving compatibility with providers that block direct browser access.
 
 ## Rat Art and Rat Ship
 
