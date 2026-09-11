@@ -33,6 +33,7 @@ function fixtureState() {
 function createBackend() {
   let state = fixtureState();
   const subscribers = new Set();
+  const commands = [];
 
   function emit() {
     for (const callback of [...subscribers]) callback();
@@ -43,6 +44,7 @@ function createBackend() {
       return structuredClone(state);
     },
     async execute({ command, windowId, monitorId }) {
+      commands.push({ command, windowId, monitorId });
       const window = state.windows.find((item) => String(item.id) === String(windowId));
       if (!window) throw new Error("Window is no longer available.");
 
@@ -80,7 +82,11 @@ function createBackend() {
     },
     reset() {
       state = fixtureState();
+      commands.length = 0;
       emit();
+    },
+    getCommandLog() {
+      return structuredClone(commands);
     },
   };
 }
@@ -182,9 +188,13 @@ try {
   report.maximizeRestore = true;
 
   await page.locator("#snapLeftAction").click();
-  await page.waitForFunction(() => globalThis.__PACKRAT_WINDOW_TEST__.getState().windows.find((w) => w.id === "103")?.layout === "left");
+  await page.waitForFunction(() => globalThis.__PACKRAT_WINDOW_TEST__.getState().windows.find((w) => w.id === "103")?.state === "normal");
+  assert.equal(backend.getCommandLog().some((item) => item.command === "snap_left" && item.windowId === "103"), true);
   await page.locator("#snapRightAction").click();
-  await page.waitForFunction(() => globalThis.__PACKRAT_WINDOW_TEST__.getState().windows.find((w) => w.id === "103")?.layout === "right");
+  for (let i = 0; i < 40 && !backend.getCommandLog().some((item) => item.command === "snap_right" && item.windowId === "103"); i += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.equal(backend.getCommandLog().some((item) => item.command === "snap_right" && item.windowId === "103"), true);
   report.snap = true;
 
   await page.locator("#moveAction").click();
