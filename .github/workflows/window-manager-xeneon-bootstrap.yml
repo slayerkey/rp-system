@@ -1,0 +1,85 @@
+name: Window Manager XENEON Bootstrap
+
+on:
+  push:
+    branches:
+      - product/window-manager-xeneon
+    paths:
+      - '.github/workflows/window-manager-xeneon-bootstrap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    env:
+      TARGET_BRANCH: product/window-manager-xeneon
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: product/window-manager-xeneon
+          fetch-depth: 0
+
+      - name: Expand and verify staged product
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find .bootstrap -maxdepth 1 -name 'window-manager.part-*' | wc -l)" -eq 8
+          cat .bootstrap/window-manager.part-* | base64 -d > /tmp/window-manager.tgz
+          tar -tzf /tmp/window-manager.tgz >/tmp/window-manager-files.txt
+          grep -q './widgets/_src/window-manager-xeneon/index.html' /tmp/window-manager-files.txt
+          grep -q './companions/window-manager-xeneon/PackRat.WindowBridge/BridgeServer.cs' /tmp/window-manager-files.txt
+          grep -q './.github/workflows/window-manager-xeneon-full-gate.yml' /tmp/window-manager-files.txt
+          tar -xzf /tmp/window-manager.tgz -C .
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("products/index.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          products = data["products"]
+          if not any(item.get("id") == "window-manager-xeneon" for item in products):
+              products.append({
+                  "id": "window-manager-xeneon",
+                  "name": "Window Manager for XENEON",
+                  "type": "widget",
+                  "status": "built",
+                  "price_usd": 9.99,
+                  "version": "1.0.0"
+              })
+          path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+          PY
+
+          node --check widgets/_src/window-manager-xeneon/window-manager.js
+          node widgets/_src/window-manager-xeneon/verify.mjs .
+          rm -rf .bootstrap
+          rm -f .github/workflows/window-manager-xeneon-bootstrap.yml
+
+      - name: Commit clean product branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "packrat-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git status --short
+          git commit -m "Build paid Window Manager for XENEON"
+          git push origin HEAD:${TARGET_BRANCH}
+
+      - name: Dispatch full hardware-free release gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 20); do
+            if gh workflow run window-manager-xeneon-full-gate.yml --repo "$GITHUB_REPOSITORY" --ref "${TARGET_BRANCH}"; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Unable to dispatch Window Manager full gate" >&2
+          exit 1
