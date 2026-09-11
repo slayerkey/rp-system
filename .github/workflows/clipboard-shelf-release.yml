@@ -1,0 +1,350 @@
+name: Clipboard Shelf Release Gate
+
+on:
+  push:
+    branches:
+      - product/xeneon-clipboard-manager
+    paths:
+      - 'widgets/_src/clipboard-shelf/**'
+      - 'widgets/clipboard-shelf/**'
+      - 'companions/clipboard-shelf/**'
+      - 'products/index.json'
+      - '.github/workflows/clipboard-shelf-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WIDGET_SLUG: clipboard-shelf
+
+jobs:
+  windows-release-gate:
+    name: Windows companion + CORSAIR exact-package gate
+    runs-on: windows-latest
+    steps:
+      - name: Checkout product branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install browser QA dependencies
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1 ws@8.21.3
+          npx playwright install chromium
+
+      - name: Build and self-test Windows clipboard bridge
+        shell: pwsh
+        run: |
+          dotnet restore companions/clipboard-shelf/ClipboardShelfBridge.csproj
+          dotnet build companions/clipboard-shelf/ClipboardShelfBridge.csproj -c Release --no-restore
+          dotnet run --project companions/clipboard-shelf/ClipboardShelfBridge.csproj -c Release --no-build -- --self-test
+          if ($LASTEXITCODE -ne 0) { throw "Clipboard Shelf bridge self-test failed with exit code $LASTEXITCODE" }
+
+      - name: Publish standalone Windows bridge
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/companion | Out-Null
+          dotnet publish companions/clipboard-shelf/ClipboardShelfBridge.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -o artifacts/companion/publish
+          $exe = Get-ChildItem artifacts/companion/publish -Filter *.exe -File | Select-Object -First 1
+          if (-not $exe) { throw "Clipboard Shelf bridge publish did not produce an executable" }
+          Copy-Item $exe.FullName artifacts/companion/PackRat.ClipboardShelfBridge.exe
+          Copy-Item companions/clipboard-shelf/README.md artifacts/companion/README.md
+          Compress-Archive -Path artifacts/companion/PackRat.ClipboardShelfBridge.exe,artifacts/companion/README.md -DestinationPath artifacts/companion/PackRat-Clipboard-Shelf-Bridge-1.0.0-win-x64.zip -Force
+
+      - name: Deterministic widget logic verification
+        shell: pwsh
+        run: node widgets/_src/clipboard-shelf/verify.mjs
+
+      - name: Generate exact shipping widget
+        shell: pwsh
+        run: |
+          python tools/xeneon/inline.py $env:WIDGET_SLUG
+          python tools/xeneon/inline.py $env:WIDGET_SLUG --check
+
+      - name: Eight-layout deterministic browser gate
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/layouts | Out-Null
+          node tools/art/capture_xeneon.mjs $env:WIDGET_SLUG artifacts/layouts
+          $required = @('S_H.png','S_V.png','M_H.png','M_V.png','L_H.png','L_V.png','XL_H.png','XL_V.png')
+          foreach ($file in $required) {
+            if (-not (Test-Path (Join-Path artifacts/layouts $file))) { throw "missing deterministic layout capture $file" }
+          }
+
+      - name: Official CORSAIR validation and packaging
+        shell: pwsh
+        run: |
+          npx --yes icuewidget-cli@0.4.47 --version
+          npx --yes icuewidget-cli@0.4.47 validate "widgets/$env:WIDGET_SLUG"
+          if ($LASTEXITCODE -ne 0) { throw "official CORSAIR validation failed" }
+          npx --yes icuewidget-cli@0.4.47 package "widgets/$env:WIDGET_SLUG"
+          if ($LASTEXITCODE -ne 0) { throw "official CORSAIR packaging failed" }
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          $pkg = Get-ChildItem widgets -Filter *.icuewidget -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $pkg) { throw "official package was not created" }
+          Copy-Item $pkg.FullName "artifacts/package/$env:WIDGET_SLUG.icuewidget"
+
+      - name: Exact-package integrity and extraction
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "artifacts/extracted/$env:WIDGET_SLUG" | Out-Null
+          @'
+          import os, pathlib, zipfile
+          slug = os.environ['WIDGET_SLUG']
+          package = pathlib.Path('artifacts/package') / f'{slug}.icuewidget'
+          out = pathlib.Path('artifacts/extracted') / slug
+          if not zipfile.is_zipfile(package):
+              raise SystemExit(f'not a ZIP-compatible .icuewidget: {package}')
+          with zipfile.ZipFile(package) as archive:
+              bad = archive.testzip()
+              if bad:
+                  raise SystemExit(f'corrupt archive member: {bad}')
+              names = {name.replace('\\', '/') for name in archive.namelist()}
+              for required in ('index.html', 'manifest.json', 'resources/icon.svg'):
+                  if required not in names:
+                      raise SystemExit(f'exact package missing root member: {required}')
+              archive.extractall(out)
+          print(f'EXACT PACKAGE INTEGRITY PASS: {package}')
+          '@ | python -
+
+      - name: Lexical iCUE settings binding regression
+        shell: pwsh
+        run: node tools/xeneon/native-style-smoke.mjs "artifacts/extracted/$env:WIDGET_SLUG/index.html" "artifacts/native-style/$env:WIDGET_SLUG"
+
+      - name: Corsair Labs Windows runner exact-package smoke
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          if (Test-Path $runnerDir) { Remove-Item -Recurse -Force $runnerDir }
+          git clone --depth 1 https://github.com/Corsair-Labs/iCUE-widget-runner-windows.git $runnerDir
+          git -C $runnerDir rev-parse HEAD | Set-Content artifacts/corsair-runner-commit.txt
+          $target = Join-Path (Join-Path $runnerDir 'widgets') $env:WIDGET_SLUG
+          if (Test-Path $target) { Remove-Item -Recurse -Force $target }
+          Copy-Item -Recurse -Force "artifacts/extracted/$env:WIDGET_SLUG" $target
+          $stdout = Join-Path $env:RUNNER_TEMP "corsair-runner-$env:WIDGET_SLUG.out.log"
+          $stderr = Join-Path $env:RUNNER_TEMP "corsair-runner-$env:WIDGET_SLUG.err.log"
+          $process = Start-Process node -ArgumentList 'web-server.js' -WorkingDirectory $runnerDir -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              try {
+                $response = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/api/widgets -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+              Start-Sleep -Seconds 1
+            }
+            if (-not $ready) { throw 'Corsair Labs runner did not become ready' }
+            node tools/xeneon/icue-runner-smoke.mjs http://127.0.0.1:8080/ "$env:WIDGET_SLUG" "artifacts/icue-runner/$env:WIDGET_SLUG"
+            if ($LASTEXITCODE -ne 0) { throw "Corsair Labs runner smoke failed with exit code $LASTEXITCODE" }
+          }
+          finally {
+            if ($process -and -not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
+            if (Test-Path $stdout) { Copy-Item $stdout artifacts/corsair-runner.stdout.log }
+            if (Test-Path $stderr) { Copy-Item $stderr artifacts/corsair-runner.stderr.log }
+          }
+
+      - name: Exact-package loopback reconnect smoke
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/network-smoke | Out-Null
+          node widgets/_src/clipboard-shelf/network-smoke.mjs "artifacts/extracted/$env:WIDGET_SLUG/index.html" artifacts/network-smoke
+
+      - name: Verify no clipboard fixture contents leaked into runner logs
+        shell: pwsh
+        run: |
+          $logs = Get-ChildItem artifacts -Recurse -File -Include *.log,*.txt -ErrorAction SilentlyContinue
+          foreach ($log in $logs) {
+            $raw = Get-Content $log.FullName -Raw -ErrorAction SilentlyContinue
+            if ($raw -match 'deterministic short text|private fixture text|rapid-49') {
+              throw "clipboard fixture contents leaked into CI evidence log: $($log.FullName)"
+            }
+          }
+
+      - name: Upload exact package, companion, and Windows evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clipboard-shelf-release-core
+          path: |
+            artifacts/package/
+            artifacts/companion/
+            artifacts/layouts/
+            artifacts/native-style/
+            artifacts/icue-runner/
+            artifacts/network-smoke/
+            artifacts/corsair-runner-commit.txt
+            artifacts/corsair-runner.stdout.log
+            artifacts/corsair-runner.stderr.log
+          if-no-files-found: warn
+          retention-days: 30
+
+  streamspell:
+    name: StreamSpell exact-package all-layout gate
+    needs: windows-release-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout product branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Download exact package from Windows gate
+        uses: actions/download-artifact@v4
+        with:
+          name: clipboard-shelf-release-core
+          path: artifacts/core
+
+      - name: Install StreamSpell browser dependencies
+        run: |
+          npm install --no-save playwright@1.62.1 ws@8.21.3
+          npx playwright install --with-deps chromium
+
+      - name: Start StreamSpell builder
+        run: |
+          git clone --depth 1 https://github.com/streamspell/xeneon-edge-widget-builder.git /tmp/xeneon-edge-widget-builder
+          cd /tmp/xeneon-edge-widget-builder
+          npm install
+          nohup npm run dev > /tmp/streamspell-server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8090/ > /dev/null; then
+              echo 'StreamSpell local builder is ready'
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/streamspell-server.log
+          exit 1
+
+      - name: Verify exact package in all eight StreamSpell presets
+        run: node tools/xeneon/streamspell.mjs "artifacts/core/package/clipboard-shelf.icuewidget" artifacts/streamspell
+
+      - name: Upload StreamSpell evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clipboard-shelf-streamspell
+          path: artifacts/streamspell/
+          if-no-files-found: warn
+          retention-days: 30
+
+  rat-ship:
+    name: Rat Art + Rat Ship marketplace kit
+    needs: [windows-release-gate, streamspell]
+    runs-on: windows-latest
+    env:
+      RATPACK_ART_FONT: C:\Windows\Fonts\segoeui.ttf
+      RATPACK_ART_FONT_BOLD: C:\Windows\Fonts\segoeuib.ttf
+    steps:
+      - name: Checkout product branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Download exact release candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: clipboard-shelf-release-core
+          path: artifacts/core
+
+      - name: Download StreamSpell evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: clipboard-shelf-streamspell
+          path: artifacts/streamspell-evidence
+
+      - name: Install deterministic Rat Art and ship dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==12.3.0
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+
+      - name: Regenerate canonical widget for Rat Art
+        shell: pwsh
+        run: |
+          python tools/xeneon/inline.py $env:WIDGET_SLUG
+          python tools/xeneon/inline.py $env:WIDGET_SLUG --check
+
+      - name: Capture deterministic widget for Rat Art
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/rat-art/shots | Out-Null
+          node tools/art/capture_xeneon.mjs $env:WIDGET_SLUG artifacts/rat-art/shots
+
+      - name: Render deterministic Rat Art
+        shell: pwsh
+        run: python tools/art/rat_art.py xeneon $env:WIDGET_SLUG --shots artifacts/rat-art/shots --out artifacts/rat-art/review
+
+      - name: Render search icon
+        shell: pwsh
+        run: node tools/ship/render_svg_icon.mjs "widgets/$env:WIDGET_SLUG/resources/icon.svg" artifacts/rat-art/review/icon-288x288.png
+
+      - name: Build Maker Console SHIP_KIT from exact tested package
+        shell: pwsh
+        run: |
+          python tools/ship/make_xeneon_kit.py $env:WIDGET_SLUG --package "artifacts/core/package/$env:WIDGET_SLUG.icuewidget" --art artifacts/rat-art/review --out "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+          $kit = "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+          New-Item -ItemType Directory -Force -Path "$kit/companion" | Out-Null
+          Copy-Item artifacts/core/companion/PackRat.ClipboardShelfBridge.exe "$kit/companion/"
+          Copy-Item artifacts/core/companion/PackRat-Clipboard-Shelf-Bridge-1.0.0-win-x64.zip "$kit/companion/"
+          Copy-Item artifacts/core/companion/README.md "$kit/companion/"
+          Copy-Item -Recurse artifacts/streamspell-evidence "$kit/qa-streamspell"
+
+      - name: Maker Console kit preflight
+        shell: pwsh
+        run: node tools/ship/maker_console.mjs $env:WIDGET_SLUG --kit="artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT" --check-kit
+
+      - name: Rat Ship invariants
+        shell: pwsh
+        run: |
+          $kit = "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+          $source = Get-Content "widgets/_src/$env:WIDGET_SLUG/submission.json" -Raw | ConvertFrom-Json
+          $sub = Get-Content "$kit/submission.json" -Raw | ConvertFrom-Json
+          if ($source.type -ne 'widget' -or $sub.type -ne 'widget') { throw 'submission type must be widget' }
+          if ($sub.slug -ne $env:WIDGET_SLUG) { throw 'submission slug mismatch' }
+          if ($sub.name -ne 'Clipboard Shelf') { throw 'final product name mismatch' }
+          if ([decimal]$sub.price_usd -ne [decimal]7.99) { throw 'submission price must be 7.99 USD' }
+          if ($sub.version -ne '1.0.0') { throw 'version mismatch' }
+          if (-not (Test-Path "$kit/$env:WIDGET_SLUG.icuewidget")) { throw 'missing exact CORSAIR package' }
+          if (-not (Test-Path "$kit/companion/PackRat.ClipboardShelfBridge.exe")) { throw 'missing Windows clipboard bridge' }
+          foreach ($f in @('01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png')) {
+            if (-not (Test-Path "$kit/$f")) { throw "missing $f" }
+          }
+          $tested = (Get-FileHash "artifacts/core/package/$env:WIDGET_SLUG.icuewidget" -Algorithm SHA256).Hash
+          $shipped = (Get-FileHash "$kit/$env:WIDGET_SLUG.icuewidget" -Algorithm SHA256).Hash
+          if ($tested -ne $shipped) { throw 'Rat Ship package differs from exact package tested by Windows and StreamSpell gates' }
+          Write-Host "RAT SHIP EXACT-PACKAGE PASS $tested"
+
+      - name: Upload Rat Ship marketplace kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: rat-ship-clipboard-shelf
+          path: artifacts/ship/clipboard-shelf/SHIP_KIT/
+          if-no-files-found: error
+          retention-days: 30
