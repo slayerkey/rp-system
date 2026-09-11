@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Cryptography;
 using System.Net.Http.Json;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -292,7 +293,7 @@ public sealed class GoveeClient {
             var t=new LightingTarget{Id=id,Provider="govee",Kind="light",Name=string.IsNullOrWhiteSpace(c.Name)?c.Sku:c.Name,On=l?.On??st?.On??false,Brightness=l?.Brightness??st?.Brightness,Color=l?.Color??st?.Color,TemperatureK=l?.TemperatureK??st?.TemperatureK,TemperatureRange=c.TemperatureRange,Reachable=l?.Reachable??st?.Reachable??true,Favorite=state.Config.Favorites.Contains(id),Transport=l is null?"cloud":"lan+cloud",Capabilities=new(){Power=c.Power||l is not null,Brightness=c.Brightness||l is not null,Color=c.Color||l is not null,Temperature=c.Temperature||l?.SupportsTemperature==true},NativeId=c.Device,NativeAux=JsonSerializer.Serialize(new GoveeMeta{Device=c.Device,Sku=c.Sku,Ip=l?.Ip},JsonDefaults.Options)};
             if(sceneCache.TryGetValue(c.Device,out var scenes)){
                 for(int i=0;i<scenes.Count;i++){
-                    var s=scenes[i];var sid="govee:scene:"+Safe(c.Device)+":"+i;
+                    var s=scenes[i];var sid="govee:scene:"+Safe(c.Device)+":"+SceneKey(c.Device,s);
                     t.Scenes.Add(new SceneRef{Id=sid,Name=s.Name});
                     targets.Add(new LightingTarget{Id=sid,Provider="govee",Kind="scene",Name=s.Name,ParentId=id,Reachable=t.Reachable,Favorite=state.Config.Favorites.Contains(sid),Capabilities=new(){Scene=true},NativeId=c.Device,NativeAux=JsonSerializer.Serialize(new SceneMeta{Device=c.Device,Sku=c.Sku,Type=s.Type,Instance=s.Instance,Value=s.Value},JsonDefaults.Options)});
                 }
@@ -360,6 +361,10 @@ public sealed class GoveeClient {
 
     static string Str(JsonElement e,string p)=>e.ValueKind==JsonValueKind.Object&&e.TryGetProperty(p,out var v)&&v.ValueKind==JsonValueKind.String?v.GetString()??"":"";
     static int Int(JsonElement e,string p)=>e.ValueKind==JsonValueKind.Object&&e.TryGetProperty(p,out var v)&&v.ValueKind==JsonValueKind.Number?v.GetInt32():0;
+    static string SceneKey(string device,CloudScene scene){
+        var raw=device+"|"+scene.Type+"|"+scene.Instance+"|"+scene.Name+"|"+scene.Value.GetRawText();
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(raw))).ToLowerInvariant()[..16];
+    }
     static string Safe(string s)=>new string(s.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
 
     sealed class LanDevice {public string Device="",Ip="",Sku="",Name="";public bool On,Reachable;public double? Brightness;public RgbColor? Color;public int? TemperatureK;public bool SupportsTemperature;}
