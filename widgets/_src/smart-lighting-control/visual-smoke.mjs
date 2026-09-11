@@ -45,11 +45,19 @@ try{
       overflowY:document.documentElement.scrollHeight-innerHeight,
       cards:[...document.querySelectorAll('.target-card')].map(e=>{const r=e.getBoundingClientRect();return[r.width,r.height]}),
       filters:[...document.querySelectorAll('.filter')].map(e=>{const r=e.getBoundingClientRect();return[r.width,r.height]}),
-      controls:[...document.querySelectorAll('#powerButton,#favoriteButton')].filter(e=>!e.hidden).map(e=>{const r=e.getBoundingClientRect();return[r.width,r.height]})
+      controls:[...document.querySelectorAll('#powerButton,#favoriteButton')].filter(e=>!e.hidden).map(e=>{const r=e.getBoundingClientRect();return[r.width,r.height]}),
+      targetNamePx:parseFloat(getComputedStyle(document.querySelector('.target-name')).fontSize),
+      targetMetaPx:parseFloat(getComputedStyle(document.querySelector('.target-meta')).fontSize),
+      controlNamePx:parseFloat(getComputedStyle(document.getElementById('controlName')).fontSize)
     }));
     assert.ok(layout.overflowX<=1&&layout.overflowY<=1,name+' document overflow '+JSON.stringify(layout));
     for(const [,h] of layout.filters)assert.ok(h>=38,name+' filter too small');
     for(const [w,h] of layout.controls)assert.ok(w>=44&&h>=44,name+' control too small '+w+'x'+h);
+    if(width>=1200&&height===696){
+      assert.ok(layout.targetNamePx>=16,name+' native-wide target name too small: '+layout.targetNamePx);
+      assert.ok(layout.targetMetaPx>=11,name+' native-wide target metadata too small: '+layout.targetMetaPx);
+      assert.ok(layout.controlNamePx>=20,name+' native-wide control title too small: '+layout.controlNamePx);
+    }
     const hostile=page.locator('[data-id="govee:device:pathological"] .target-name');
     assert.equal(await hostile.textContent(),'Streamer Desk <b>not markup</b> 🎮 夜光 ygjpq — Extremely Long Light Name 1234567890',name+' hostile text changed');
     assert.equal(await hostile.locator('b').count(),0,name+' user device name rendered as markup');
