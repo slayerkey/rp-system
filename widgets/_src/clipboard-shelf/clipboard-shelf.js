@@ -114,8 +114,8 @@ function showOnly(name){
 function render(){
   if(typeof document==="undefined"||!document.getElementById("bridgeStatus"))return;
   applySlot();applyAppearance();
-  var status=document.getElementById("bridgeStatus");status.classList.toggle("online",state.connected);
-  status.querySelector(".status-text").textContent=state.connected?"Bridge connected":(!state.pairingCode?"Pair bridge":(state.pairingError?"Pairing rejected":"Bridge offline"));
+  var status=document.getElementById("bridgeStatus");status.classList.toggle("online",state.connected&&!state.incompatible);
+  status.querySelector(".status-text").textContent=state.incompatible?"Bridge update required":(state.connected?"Bridge connected":(!state.pairingCode?"Pair bridge":(state.pairingError?"Pairing rejected":"Bridge offline")));
   var priv=document.getElementById("privateButton"),clear=document.getElementById("clearButton");priv.setAttribute("aria-pressed",String(state.privateMode));priv.textContent=state.privateMode?"Private on":"Private";
   priv.disabled=state.incompatible;clear.disabled=state.incompatible;
   if(!state.connected&&!fixture){
@@ -210,7 +210,8 @@ function installEvents(){
     else{clearArmedUntil=now+2600;b.classList.add("armed");b.textContent="Tap again";setTimeout(function(){if(Date.now()>=clearArmedUntil){b.classList.remove("armed");b.textContent="Clear";}},2700);}
   });
   addEventListener("resize",render);
-  addEventListener("pagehide",function(){shuttingDown=true;if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}if(socket){try{socket.close(1000,"pagehide");}catch(e){}socket=null;}},{once:true});
+  addEventListener("pagehide",function(){shuttingDown=true;if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}if(socket){try{socket.close(1000,"pagehide");}catch(e){}socket=null;}});
+  addEventListener("pageshow",function(){if(!shuttingDown)return;shuttingDown=false;if(!fixture){state.connected=false;render();connect();}});
 }
 globalThis.icueEvents=globalThis.icueEvents||{};
 globalThis.icueEvents.onICUEInitialized=function(){refreshSettings();};
