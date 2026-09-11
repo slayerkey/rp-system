@@ -123,7 +123,17 @@ try{
       }),
       bodyFont:parseFloat(getComputedStyle(document.body).fontSize),
       promptFont:parseFloat(getComputedStyle(document.getElementById("promptHistory")).fontSize),
-      promptLine:parseFloat(getComputedStyle(document.getElementById("promptHistory")).lineHeight)
+      promptLine:parseFloat(getComputedStyle(document.getElementById("promptHistory")).lineHeight),
+      compactUptime:(()=>{
+        const row=document.querySelector('.sensorRow[data-role="uptime"]');
+        const label=row.querySelector("span").getBoundingClientRect();
+        const value=row.querySelector("strong").getBoundingClientRect();
+        const helper=row.querySelector("small");
+        return{
+          helperDisplay:getComputedStyle(helper).display,
+          separated:label.right<=value.left+0.5
+        };
+      })()
     }));
     expect(snap.slot===expected,slot+" slot "+JSON.stringify(snap));
     expect(snap.program==="prompt"&&snap.style==="green",slot+" initial state "+JSON.stringify(snap));
@@ -134,6 +144,9 @@ try{
     expect(Number.isFinite(snap.promptLine)&&snap.promptLine>=snap.promptFont*1.15,slot+" descender-unsafe prompt line height "+JSON.stringify(snap));
     if(width>=1688)expect(snap.bodyFont>=22,slot+" native-wide body font too small: "+snap.bodyFont);
     if(width>=2536)expect(snap.bodyFont>=24,slot+" XL-wide body font too small: "+snap.bodyFont);
+    if(slot==="S_H"||slot==="S_V"){
+      expect(snap.compactUptime.helperDisplay==="none"&&snap.compactUptime.separated,slot+" compact uptime crowding "+JSON.stringify(snap.compactUptime));
+    }
 
     await page.evaluate(()=>{
       const before=globalThis.__retroTerminalProTest.snapshot().timers;
@@ -409,7 +422,7 @@ const report={
   entry:path.basename(entry),
   slots:Object.keys(slots),
   coverage:[
-    "all-eight-layouts","touch-targets","rapid-taps","native-wide-readability","descenders",
+    "all-eight-layouts","touch-targets","rapid-taps","native-wide-readability","descenders","compact-uptime-crowding",
     "explicit-settings-callback","no-callback-autosync","onICUEInitialized","timer-idempotence",
     "idle-wake","auto-program-style-rotation","user-text-unicode-html-looking",
     "provider-normal-empty-error-stale-unavailable-recovery","persistence-reload-corrupt-legacy-clear",
