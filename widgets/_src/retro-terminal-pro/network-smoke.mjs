@@ -93,7 +93,9 @@ async function open(width,height,options={}){
 try{
   for(const [slot,[width,height]] of Object.entries(slots)){
     const {page,errors}=await open(width,height);
-    await page.waitForFunction(()=>globalThis.__retroTerminalPro?.started===true,{timeout:10000});
+    await page.waitForTimeout(250);
+    if(errors.length)throw new Error(slot+" startup runtime errors: "+errors.join(" | "));
+    await page.waitForFunction(()=>globalThis.__retroTerminalPro?.started===true,null,{timeout:10000});
     const expected=slot.toLowerCase().replace("_","-");
 
     let snap=await page.evaluate(()=>({
@@ -170,7 +172,7 @@ try{
 
   {
     const {page,errors}=await open(840,696,{withSensors:false});
-    await page.waitForFunction(()=>globalThis.__retroTerminalPro?.started===true,{timeout:10000});
+    await page.waitForFunction(()=>globalThis.__retroTerminalPro?.started===true,null,{timeout:10000});
     await page.click('#terminalFooter [data-program="system"]');
     await page.evaluate(async()=>{
       await globalThis.__retroTerminalProTest.discoverSensors();
@@ -188,10 +190,10 @@ try{
 
   {
     const {page,errors}=await open(840,344,{withSensors:false,boot:"fast"});
-    await page.waitForFunction(()=>document.getElementById("bootText").textContent.includes("RETRO TERMINAL PRO"),{timeout:5000});
+    await page.waitForFunction(()=>document.getElementById("bootText").textContent.includes("RETRO TERMINAL PRO"),null,{timeout:5000});
     const booting=await page.getAttribute("body","data-booting");
     if(booting!=="true")failures.push("fast boot did not render startup state");
-    await page.waitForFunction(()=>globalThis.__retroTerminalPro?.started===true,{timeout:10000});
+    await page.waitForFunction(()=>globalThis.__retroTerminalPro?.started===true,null,{timeout:10000});
     if(errors.length)failures.push("boot runtime errors "+errors.join(" | "));
     await page.close();
   }
