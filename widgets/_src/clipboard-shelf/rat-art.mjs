@@ -8,8 +8,8 @@ const entries=[
  {id:'long',text:longText,createdAt:'2026-09-10T19:43:00.000Z'},
  {id:'url2',text:'https://github.com/slayerkey/rp-system',createdAt:'2026-09-10T19:39:00.000Z'},
  {id:'copy',text:'one touch copy from the shelf',createdAt:'2026-09-10T19:30:00.000Z',favorite:true},
- {id:'notes',text:'Text only for v1. No files, images, cloud sync, or analytics containing clipboard contents.',createdAt:'2026-09-10T19:25:00.000Z'},
- {id:'nine',text:'Pinned items survive normal history pruning.',createdAt:'2026-09-10T19:20:00.000Z'},
+ {id:'notes',text:'<b>not markup</b> — café 日本語 🐀 stays plain clipboard text.',createdAt:'2026-09-10T19:25:00.000Z'},
+ {id:'nine',text:'glyph safety: gypqj descenders stay readable while pinned items survive pruning.',createdAt:'2026-09-10T19:20:00.000Z'},
  {id:'ten',text:'Private Mode pauses new capture and hides history on screen.',createdAt:'2026-09-10T19:10:00.000Z'}
 ];
 export const variants=[
