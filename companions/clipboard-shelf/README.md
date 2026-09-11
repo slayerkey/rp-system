@@ -6,6 +6,12 @@ Small Windows-only localhost companion for the paid Clipboard Shelf XENEON Edge 
 
 Continuous clipboard history cannot be implemented reliably by assuming a local file-origin widget can continuously call the browser Async Clipboard API. The bridge owns native Windows text clipboard monitoring and exposes only the narrow state/actions the XENEON widget needs.
 
+## Download
+
+Stable release-candidate download:
+
+`https://github.com/slayerkey/rp-system/releases/download/clipboard-shelf-bridge-v1.0.0/PackRat-Clipboard-Shelf-Bridge-1.0.0-win-x64.zip`
+
 ## Setup
 
 1. Run `PackRat.ClipboardShelfBridge.exe` once.
