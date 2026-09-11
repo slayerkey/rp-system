@@ -1,0 +1,233 @@
+:root{
+  --text:#B8FFC7;
+  --accent:#5CFF7F;
+  --background:#031006;
+  --crt-text:#B8FFC7;
+  --crt-accent:#5CFF7F;
+  --crt-bg:#031006;
+  --crt-alt:#8AF59F;
+  --crt-dim:rgba(184,255,199,.52);
+  --scan-opacity:.28;
+  --glow-blur:12px;
+  --flicker-opacity:.025;
+  --vignette-opacity:.6;
+  --curve-radius:24px;
+  --pad:22px;
+  --header-h:46px;
+  --footer-h:58px;
+  --base-font:18px;
+  --hero-font:72px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
+body{
+  color:var(--crt-text);
+  background:#000;
+  font-family:"Cascadia Mono","Consolas","Courier New",monospace;
+  font-size:var(--base-font);
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+}
+button{font:inherit}
+#terminalShell{width:100vw;height:100vh;padding:10px;background:#000;overflow:hidden}
+#crtViewport{
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  border:2px solid color-mix(in srgb,var(--crt-accent) 48%,transparent);
+  border-radius:var(--curve-radius);
+  background:
+    radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--crt-accent) 7%,transparent),transparent 56%),
+    var(--crt-bg);
+  box-shadow:inset 0 0 50px rgba(0,0,0,.72),0 0 var(--glow-blur) color-mix(in srgb,var(--crt-accent) 38%,transparent);
+}
+#topBar{
+  position:absolute;z-index:4;left:0;right:0;top:0;height:var(--header-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--pad);
+  border-bottom:1px solid color-mix(in srgb,var(--crt-accent) 35%,transparent);
+  background:color-mix(in srgb,var(--crt-bg) 88%,black);
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.identity,.topStatus{display:flex;align-items:center;gap:14px;min-width:0}
+.brandMark{font-size:.72em;color:var(--crt-dim);white-space:nowrap}
+#machineLabel{font-size:.9em;color:var(--crt-accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topStatus{font-size:.68em;color:var(--crt-dim);white-space:nowrap}
+.statusDot{width:7px;height:7px;border-radius:50%;background:var(--crt-accent);box-shadow:0 0 10px var(--crt-accent)}
+#terminalScreen{
+  position:absolute;z-index:2;
+  left:0;right:0;top:var(--header-h);bottom:var(--footer-h);
+  padding:var(--pad);
+  overflow:hidden;
+  text-shadow:0 0 var(--glow-blur) color-mix(in srgb,var(--crt-accent) 50%,transparent);
+}
+.programPanel{
+  position:absolute;inset:var(--pad);
+  display:none;overflow:hidden;
+}
+.programPanel.is-active{display:block}
+.programKicker{
+  color:var(--crt-dim);
+  font-size:.72em;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+#promptHistory,#traceField,#rainField{
+  margin:0;
+  white-space:pre-wrap;
+  overflow:hidden;
+  color:var(--crt-text);
+  line-height:1.35;
+}
+#promptHistory{height:calc(100% - 56px)}
+#promptInput{
+  position:absolute;left:0;right:0;bottom:0;
+  display:flex;gap:.7em;align-items:center;
+  padding-top:10px;
+  border-top:1px dashed color-mix(in srgb,var(--crt-accent) 24%,transparent);
+  white-space:nowrap;overflow:hidden;
+}
+#promptPrefix{color:var(--crt-accent);font-weight:700}
+#promptCommand{overflow:hidden;text-overflow:ellipsis}
+.cursor{display:inline-block;animation:blink 1s steps(1,end) infinite;color:var(--crt-accent)}
+@keyframes blink{50%{opacity:0}}
+.systemHead{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:10px}
+.systemHead>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.systemHead strong{font-size:.95em;letter-spacing:.06em;color:var(--crt-accent)}
+#systemUpdated{font-size:.66em;color:var(--crt-dim);white-space:nowrap}
+#systemGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  border-top:1px solid color-mix(in srgb,var(--crt-accent) 30%,transparent);
+  border-left:1px solid color-mix(in srgb,var(--crt-accent) 30%,transparent);
+}
+.sensorRow{
+  min-width:0;
+  display:grid;
+  grid-template-columns:minmax(90px,.9fr) minmax(86px,.55fr) minmax(0,1.8fr);
+  align-items:center;
+  gap:12px;
+  min-height:48px;
+  padding:8px 12px;
+  border-right:1px solid color-mix(in srgb,var(--crt-accent) 30%,transparent);
+  border-bottom:1px solid color-mix(in srgb,var(--crt-accent) 30%,transparent);
+}
+.sensorRow>span{font-size:.72em;letter-spacing:.08em;color:var(--crt-dim)}
+.sensorRow strong{font-size:1.05em;color:var(--crt-accent);white-space:nowrap}
+.sensorRow small{min-width:0;font-size:.62em;color:var(--crt-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.localRow strong{color:var(--crt-alt)}
+.systemFoot{font-size:.62em;color:var(--crt-dim);margin-top:10px;line-height:1.35}
+.ambientPanel #traceField,.ambientPanel #rainField{height:calc(100% - 30px);font-size:.84em;line-height:1.08;letter-spacing:.03em}
+.clockPanel{text-align:center}
+.clockPanel .programKicker{text-align:left}
+#clockTime{
+  margin-top:6vh;
+  font-size:var(--hero-font);
+  line-height:1;
+  letter-spacing:.03em;
+  font-weight:700;
+  color:var(--crt-accent);
+}
+#clockDate{margin-top:18px;font-size:1.15em;letter-spacing:.12em}
+#clockMachine{margin-top:30px;font-size:.75em;color:var(--crt-dim);letter-spacing:.1em}
+#terminalFooter{
+  position:absolute;z-index:5;left:0;right:0;bottom:0;height:var(--footer-h);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  border-top:1px solid color-mix(in srgb,var(--crt-accent) 35%,transparent);
+  background:color-mix(in srgb,var(--crt-bg) 90%,black);
+}
+#terminalFooter button{
+  min-width:0;border:0;border-right:1px solid color-mix(in srgb,var(--crt-accent) 24%,transparent);
+  background:transparent;color:var(--crt-dim);
+  letter-spacing:.08em;font-weight:700;
+  cursor:pointer;
+}
+#terminalFooter button:last-child{border-right:0}
+#terminalFooter button span{font-size:.64em;margin-right:8px;opacity:.6}
+#terminalFooter button.is-active{
+  color:var(--crt-bg);
+  background:var(--crt-accent);
+  text-shadow:none;
+  box-shadow:inset 0 0 22px color-mix(in srgb,var(--crt-text) 30%,transparent);
+}
+#terminalFooter button:active{transform:translateY(1px)}
+#bootLayer{
+  position:absolute;z-index:6;inset:0;
+  display:flex;align-items:flex-start;
+  padding:var(--pad);
+  background:var(--crt-bg);
+}
+body[data-booting="false"] #bootLayer{display:none}
+#bootText{margin:0;white-space:pre-wrap;line-height:1.45;color:var(--crt-text)}
+#scanlines,#vignette,#flicker,#glass{position:absolute;z-index:8;inset:0;pointer-events:none}
+#scanlines{
+  opacity:var(--scan-opacity);
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.08) 0,rgba(255,255,255,.08) 1px,transparent 1px,transparent 4px);
+  mix-blend-mode:soft-light;
+}
+#vignette{
+  background:radial-gradient(ellipse at center,transparent 48%,rgba(0,0,0,var(--vignette-opacity)) 100%);
+}
+#flicker{opacity:var(--flicker-opacity);background:#fff;animation:flicker 3.7s infinite steps(1,end)}
+@keyframes flicker{0%,96%,100%{opacity:0}97%{opacity:var(--flicker-opacity)}98%{opacity:0}99%{opacity:var(--flicker-opacity)}}
+#glass{background:linear-gradient(110deg,rgba(255,255,255,.025),transparent 25%,transparent 75%,rgba(255,255,255,.015))}
+body[data-style="cyber"] #topBar,
+body[data-style="cyber"] #terminalFooter{background:linear-gradient(90deg,color-mix(in srgb,var(--crt-bg) 92%,black),color-mix(in srgb,var(--crt-alt) 5%,var(--crt-bg)))}
+body[data-style="cyber"] .brandMark,
+body[data-style="cyber"] #clockDate{color:var(--crt-alt)}
+body[data-idle="true"] #topBar{opacity:.68}
+
+body[data-slot="s-h"]{--pad:14px;--header-h:38px;--footer-h:48px;--base-font:14px;--hero-font:58px;--curve-radius:15px}
+body[data-slot="s-v"]{--pad:14px;--header-h:40px;--footer-h:54px;--base-font:14px;--hero-font:60px;--curve-radius:16px}
+body[data-slot="m-h"]{--pad:22px;--header-h:46px;--footer-h:58px;--base-font:18px;--hero-font:78px;--curve-radius:22px}
+body[data-slot="m-v"]{--pad:24px;--header-h:48px;--footer-h:74px;--base-font:18px;--hero-font:82px;--curve-radius:24px}
+body[data-slot="l-h"]{--pad:28px;--header-h:54px;--footer-h:68px;--base-font:22px;--hero-font:104px;--curve-radius:26px}
+body[data-slot="l-v"]{--pad:30px;--header-h:56px;--footer-h:88px;--base-font:23px;--hero-font:110px;--curve-radius:28px}
+body[data-slot="xl-h"]{--pad:34px;--header-h:58px;--footer-h:72px;--base-font:24px;--hero-font:118px;--curve-radius:28px}
+body[data-slot="xl-v"]{--pad:34px;--header-h:60px;--footer-h:96px;--base-font:25px;--hero-font:122px;--curve-radius:30px}
+
+body[data-slot="s-h"] .brandMark,
+body[data-slot="s-v"] .brandMark{display:none}
+body[data-slot="s-h"] #systemGrid,
+body[data-slot="s-v"] #systemGrid{grid-template-columns:1fr 1fr}
+body[data-slot="s-h"] .sensorRow,
+body[data-slot="s-v"] .sensorRow{
+  grid-template-columns:72px 58px minmax(0,1fr);
+  min-height:34px;padding:4px 7px;gap:7px
+}
+body[data-slot="s-h"] .sensorRow small,
+body[data-slot="s-v"] .sensorRow small{font-size:.55em}
+body[data-slot="s-h"] .localRow,
+body[data-slot="s-v"] .localRow{grid-template-columns:88px minmax(0,1fr)}
+body[data-slot="s-h"] .localRow small,
+body[data-slot="s-v"] .localRow small{display:none}
+body[data-slot="s-h"] .localRow>span,
+body[data-slot="s-v"] .localRow>span{white-space:nowrap}
+body[data-slot="s-h"] .systemFoot,
+body[data-slot="s-v"] .systemFoot{display:none}
+body[data-slot="s-h"] .programKicker{margin-bottom:6px}
+body[data-slot="s-h"] #promptHistory{height:calc(100% - 42px);line-height:1.2}
+body[data-slot="s-h"] #clockTime{margin-top:2vh}
+body[data-slot="s-h"] #terminalFooter button span{display:none}
+
+body[data-slot="m-v"] #systemGrid,
+body[data-slot="l-v"] #systemGrid,
+body[data-slot="xl-v"] #systemGrid{grid-template-columns:1fr}
+body[data-slot="m-v"] .sensorRow,
+body[data-slot="l-v"] .sensorRow,
+body[data-slot="xl-v"] .sensorRow{min-height:60px}
+body[data-slot="m-v"] #terminalFooter,
+body[data-slot="l-v"] #terminalFooter,
+body[data-slot="xl-v"] #terminalFooter{grid-template-columns:repeat(5,1fr)}
+body[data-slot="xl-v"] #terminalScreen{padding-top:58px}
+body[data-slot="xl-v"] .programPanel{inset:58px var(--pad) var(--pad)}
+body[data-slot="xl-v"] .sensorRow{min-height:92px}
+body[data-slot="xl-v"] #systemGrid{margin-top:28px}
+body[data-slot="xl-v"] #clockTime{margin-top:28vh}
+
+@media (prefers-reduced-motion:reduce){
+  .cursor,#flicker{animation:none}
+}

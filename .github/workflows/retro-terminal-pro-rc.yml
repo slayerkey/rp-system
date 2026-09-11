@@ -1,0 +1,373 @@
+name: Retro Terminal Pro RC
+
+on:
+  push:
+    branches:
+      - product/retro-terminal-pro
+    paths:
+      - widgets/_src/retro-terminal-pro/**
+      - widgets/retro-terminal-pro/**
+      - .github/workflows/retro-terminal-pro-rc.yml
+
+permissions:
+  contents: read
+
+env:
+  WIDGET_SLUG: retro-terminal-pro
+
+jobs:
+  source-browser:
+    name: Source and deterministic browser gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Static product verification
+        run: node widgets/_src/retro-terminal-pro/verify.mjs
+
+      - name: Generate and verify flattened shipping widget
+        run: |
+          python tools/xeneon/inline.py "$WIDGET_SLUG"
+          python tools/xeneon/inline.py "$WIDGET_SLUG" --check
+
+      - name: Install and audit deterministic browser dependency
+        run: |
+          rm -rf /tmp/retro-terminal-pro-audit
+          mkdir -p /tmp/retro-terminal-pro-audit
+          cd /tmp/retro-terminal-pro-audit
+          npm init -y >/dev/null 2>&1
+          npm install --save-dev playwright@1.62.1
+          npm audit --audit-level=high
+          cd "$GITHUB_WORKSPACE"
+          npm install --no-save playwright@1.62.1
+          npx playwright install --with-deps chromium
+
+      - name: Eight layouts, touch, settings, idle, boot and provider states
+        run: |
+          mkdir -p artifacts/browser
+          node widgets/_src/retro-terminal-pro/network-smoke.mjs "widgets/retro-terminal-pro/index.html" "artifacts/browser"
+
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-terminal-pro-browser
+          path: artifacts/browser/
+          if-no-files-found: warn
+          retention-days: 30
+
+  package-host:
+    name: Official CORSAIR package and Windows host gate
+    needs: source-browser
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Generate canonical shipping widget
+        shell: pwsh
+        run: |
+          python tools/xeneon/inline.py $env:WIDGET_SLUG
+          python tools/xeneon/inline.py $env:WIDGET_SLUG --check
+
+      - name: Official CORSAIR validation
+        shell: pwsh
+        run: npx --yes icuewidget-cli@0.4.47 validate "widgets/$env:WIDGET_SLUG"
+
+      - name: Official CORSAIR package and exact archive integrity
+        shell: pwsh
+        run: |
+          npx --yes icuewidget-cli@0.4.47 package "widgets/$env:WIDGET_SLUG"
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          $pkg = Get-ChildItem -Path widgets -Filter *.icuewidget -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $pkg) { throw 'official package was not created' }
+          Copy-Item $pkg.FullName "artifacts/package/$env:WIDGET_SLUG.icuewidget"
+          @'
+          import os, pathlib, zipfile
+          slug=os.environ["WIDGET_SLUG"]
+          package=pathlib.Path("artifacts/package")/f"{slug}.icuewidget"
+          if not zipfile.is_zipfile(package):
+              raise SystemExit("official package is not ZIP-compatible")
+          with zipfile.ZipFile(package) as archive:
+              bad=archive.testzip()
+              if bad:
+                  raise SystemExit(f"corrupt package member: {bad}")
+              names={name.replace("\\","/") for name in archive.namelist()}
+              for required in ("index.html","manifest.json"):
+                  if required not in names:
+                      raise SystemExit(f"missing root {required}")
+              out=pathlib.Path("artifacts/extracted")/slug
+              out.mkdir(parents=True,exist_ok=True)
+              archive.extractall(out)
+          print(f"EXACT PACKAGE INTEGRITY PASS: {package}")
+          '@ | python -
+
+      - name: Install and audit Windows host smoke dependencies
+        shell: pwsh
+        run: |
+          $audit = Join-Path $env:RUNNER_TEMP 'retro-terminal-pro-audit'
+          if (Test-Path $audit) { Remove-Item -Recurse -Force $audit }
+          New-Item -ItemType Directory -Force -Path $audit | Out-Null
+          Push-Location $audit
+          npm init -y | Out-Null
+          npm install --save-dev playwright@1.62.1
+          npm audit --audit-level=high
+          Pop-Location
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+
+      - name: Lexical iCUE Custom Style regression
+        shell: pwsh
+        run: node tools/xeneon/native-style-smoke.mjs "artifacts/extracted/$env:WIDGET_SLUG/index.html" "artifacts/native-style"
+
+      - name: Lexical settings autosync regression
+        shell: pwsh
+        run: node tools/xeneon/native-style-autosync-smoke.mjs "artifacts/extracted/$env:WIDGET_SLUG/index.html" "artifacts/native-style-autosync"
+
+      - name: Exact-package product browser regression
+        shell: pwsh
+        run: node "widgets/_src/$env:WIDGET_SLUG/network-smoke.mjs" "artifacts/extracted/$env:WIDGET_SLUG/index.html" "artifacts/exact-package-browser"
+
+      - name: Clone Corsair Labs iCUE Widget Runner
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          if (Test-Path $runnerDir) { Remove-Item -Recurse -Force $runnerDir }
+          git clone --depth 1 https://github.com/Corsair-Labs/iCUE-widget-runner-windows.git $runnerDir
+          git -C $runnerDir rev-parse HEAD | Set-Content artifacts/corsair-runner-commit.txt
+
+      - name: Corsair Labs exact-package host smoke
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          $target = Join-Path (Join-Path $runnerDir 'widgets') $env:WIDGET_SLUG
+          if (Test-Path $target) { Remove-Item -Recurse -Force $target }
+          Copy-Item -Recurse -Force "artifacts/extracted/$env:WIDGET_SLUG" $target
+          $stdout = Join-Path $env:RUNNER_TEMP "corsair-runner-$env:WIDGET_SLUG.out.log"
+          $stderr = Join-Path $env:RUNNER_TEMP "corsair-runner-$env:WIDGET_SLUG.err.log"
+          $process = Start-Process node -ArgumentList 'web-server.js' -WorkingDirectory $runnerDir -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              try {
+                $response = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/api/widgets -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+              Start-Sleep -Seconds 1
+            }
+            if (-not $ready) { throw 'Corsair Labs runner did not become ready' }
+            node tools/xeneon/icue-runner-smoke.mjs http://127.0.0.1:8080/ "$env:WIDGET_SLUG" "artifacts/icue-runner"
+            if ($LASTEXITCODE -ne 0) { throw "Corsair Labs runner smoke failed: $LASTEXITCODE" }
+          }
+          finally {
+            if ($process -and -not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
+            if (Test-Path $stdout) { Copy-Item $stdout artifacts/corsair-runner.stdout.log }
+            if (Test-Path $stderr) { Copy-Item $stderr artifacts/corsair-runner.stderr.log }
+          }
+
+      - name: Require exact-package iCUE lifecycle callbacks
+        shell: pwsh
+        run: |
+          $result = Get-Content "artifacts/icue-runner/retro-terminal-pro-runner-result.json" -Raw | ConvertFrom-Json
+          if (-not $result.passed) { throw 'Corsair Labs runner result was not passing' }
+          if (-not $result.initial.hasOnICUEInitialized) { throw 'exact package is missing icueEvents.onICUEInitialized' }
+          if (-not $result.initial.hasOnDataUpdated) { throw 'exact package is missing icueEvents.onDataUpdated' }
+
+      - name: Upload exact package and host evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-terminal-pro-package-host
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+  streamspell:
+    name: StreamSpell exact-package verification
+    needs: package-host
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Download exact official package
+        uses: actions/download-artifact@v4
+        with:
+          name: retro-terminal-pro-package-host
+          path: artifacts/input
+
+      - name: Locate exact package
+        run: |
+          mkdir -p artifacts/package
+          cp "artifacts/input/package/$WIDGET_SLUG.icuewidget" "artifacts/package/$WIDGET_SLUG.icuewidget"
+
+      - name: Install and audit StreamSpell browser dependencies
+        run: |
+          rm -rf /tmp/retro-terminal-pro-streamspell-audit
+          mkdir -p /tmp/retro-terminal-pro-streamspell-audit
+          cd /tmp/retro-terminal-pro-streamspell-audit
+          npm init -y >/dev/null 2>&1
+          npm install --save-dev playwright@1.62.1 ws@8.21.3
+          npm audit --audit-level=high
+          cd "$GITHUB_WORKSPACE"
+          npm install --no-save playwright@1.62.1 ws@8.21.3
+          npx playwright install --with-deps chromium
+
+      - name: Start StreamSpell community builder
+        run: |
+          git clone --depth 1 https://github.com/streamspell/xeneon-edge-widget-builder.git /tmp/xeneon-edge-widget-builder
+          mkdir -p "$GITHUB_WORKSPACE/artifacts/streamspell"
+          git -C /tmp/xeneon-edge-widget-builder rev-parse HEAD > "$GITHUB_WORKSPACE/artifacts/streamspell/streamspell-runner-commit.txt"
+          cd /tmp/xeneon-edge-widget-builder
+          npm install
+          nohup npm run dev > /tmp/streamspell-server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8090/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/streamspell-server.log
+          exit 1
+
+      - name: Verify exact package through all StreamSpell presets
+        env:
+          STREAMSPELL_URL: http://127.0.0.1:8090/
+        run: node tools/xeneon/streamspell.mjs "artifacts/package/$WIDGET_SLUG.icuewidget" "artifacts/streamspell"
+
+      - name: Upload StreamSpell evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-terminal-pro-streamspell
+          path: artifacts/streamspell/
+          if-no-files-found: warn
+          retention-days: 30
+
+  rat-art-ship:
+    name: Deterministic Rat Art and Rat Ship kit
+    needs: [package-host, streamspell]
+    runs-on: windows-latest
+    env:
+      RATPACK_ART_FONT: C:\Windows\Fonts\segoeui.ttf
+      RATPACK_ART_FONT_BOLD: C:\Windows\Fonts\segoeuib.ttf
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Download exact official package
+        uses: actions/download-artifact@v4
+        with:
+          name: retro-terminal-pro-package-host
+          path: artifacts/input
+
+      - name: Prepare deterministic tooling
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==12.3.0
+          $audit = Join-Path $env:RUNNER_TEMP 'retro-terminal-pro-art-audit'
+          if (Test-Path $audit) { Remove-Item -Recurse -Force $audit }
+          New-Item -ItemType Directory -Force -Path $audit | Out-Null
+          Push-Location $audit
+          npm init -y | Out-Null
+          npm install --save-dev playwright@1.62.1
+          npm audit --audit-level=high
+          Pop-Location
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+          python tools/xeneon/inline.py $env:WIDGET_SLUG
+          @'
+          import hashlib, os, pathlib, zipfile
+          slug=os.environ["WIDGET_SLUG"]
+          package=pathlib.Path("artifacts/input/package")/f"{slug}.icuewidget"
+          generated=pathlib.Path("widgets")/slug/"index.html"
+          with zipfile.ZipFile(package) as archive:
+              packaged=archive.read("index.html")
+          generated_bytes=generated.read_bytes()
+          packaged_sha=hashlib.sha256(packaged).hexdigest()
+          generated_sha=hashlib.sha256(generated_bytes).hexdigest()
+          if packaged_sha != generated_sha:
+              raise SystemExit(f"Rat Art source index differs from exact official package: {generated_sha} != {packaged_sha}")
+          print(f"RAT ART EXACT-PACKAGE HTML MATCH: {packaged_sha}")
+          '@ | python -
+
+      - name: Deterministic native XENEON captures
+        shell: pwsh
+        run: node tools/art/capture_xeneon.mjs $env:WIDGET_SLUG "artifacts/rat-art/shots"
+
+      - name: Render Rat Art with repository compositor
+        shell: pwsh
+        run: python tools/art/rat_art.py xeneon $env:WIDGET_SLUG --shots "artifacts/rat-art/shots" --out "artifacts/rat-art/review"
+
+      - name: Rat Art contract
+        shell: pwsh
+        run: |
+          $report = Get-Content artifacts/rat-art/review/rat-art-report.json -Raw | ConvertFrom-Json
+          if ($report.image_generation -ne 'disabled') { throw 'Rat Art image generation must remain disabled' }
+          if ($report.slug -ne $env:WIDGET_SLUG) { throw 'Rat Art slug mismatch' }
+          foreach ($name in @('1-hero.png','2-showcase.png','3-features.png','4-settings.png','5-sizes.png')) {
+            if (-not (Test-Path "artifacts/rat-art/review/$name")) { throw "missing Rat Art frame $name" }
+          }
+
+      - name: Render canonical search icon
+        shell: pwsh
+        run: node tools/ship/render_svg_icon.mjs "widgets/$env:WIDGET_SLUG/resources/icon.svg" "artifacts/rat-art/review/icon-288x288.png"
+
+      - name: Build Rat Ship Maker Console kit from exact package
+        shell: pwsh
+        run: |
+          $package = "artifacts/input/package/$env:WIDGET_SLUG.icuewidget"
+          python tools/ship/make_xeneon_kit.py $env:WIDGET_SLUG --package $package --art "artifacts/rat-art/review" --out "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+
+      - name: Maker Console kit preflight
+        shell: pwsh
+        run: node tools/ship/maker_console.mjs $env:WIDGET_SLUG --kit="artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT" --check-kit
+
+      - name: Rat Ship invariants
+        shell: pwsh
+        run: |
+          $kit = "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+          $source = Get-Content "widgets/_src/$env:WIDGET_SLUG/submission.json" -Raw | ConvertFrom-Json
+          $sub = Get-Content "$kit/submission.json" -Raw | ConvertFrom-Json
+          if ($sub.slug -ne $env:WIDGET_SLUG) { throw 'ship-kit slug mismatch' }
+          if ($source.name -ne 'Retro Terminal Pro' -or [decimal]$source.price_usd -ne [decimal]7.99) { throw 'name/price mismatch' }
+          if ($sub.name -ne $source.name -or [decimal]$sub.price_usd -ne [decimal]$source.price_usd) { throw 'ship-kit metadata mismatch' }
+          if (-not (Test-Path "$kit/$env:WIDGET_SLUG.icuewidget")) { throw 'missing exact package in ship kit' }
+          foreach ($f in @('01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png')) {
+            if (-not (Test-Path "$kit/$f")) { throw "missing ship media $f" }
+          }
+
+      - name: Upload full release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-terminal-pro-release-candidate
+          path: |
+            artifacts/rat-art/
+            artifacts/ship/retro-terminal-pro/SHIP_KIT/
+          if-no-files-found: error
+          retention-days: 30

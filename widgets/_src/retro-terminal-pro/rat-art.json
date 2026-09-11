@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "hero": {
+    "subtitle": "The ultimate customizable version of Retro Terminal."
+  },
+  "showcase": {
+    "title": "Build the CRT terminal you actually want.",
+    "subtitle": "Classic phosphor looks, terminal programs, touch controls and idle behavior without turning it into another dashboard.",
+    "shot": "XL_H.png"
+  },
+  "features": {
+    "title": "Everything people wanted from the free terminal.",
+    "subtitle": "More atmosphere, more control, and one honest live SYSTEM view.",
+    "shot": "VARIANT_SYSTEM.png",
+    "items": [
+      ["Six terminal looks", "Green phosphor, amber, white, blue, cyberpunk or a custom palette with adjustable CRT effects."],
+      ["Programs that stay terminal", "Prompt, Trace, Data Rain and Clock preserve the ambient terminal experience instead of becoming a dashboard skin."],
+      ["Live SYSTEM when iCUE has it", "CPU, GPU and memory readings appear only when the native iCUE Sensors provider actually exposes them."],
+      ["Touch, rotate, idle", "Switch programs instantly, rotate programs or styles automatically, and choose the idle screensaver behavior."]
+    ]
+  },
+  "settings": {
+    "title": "From green phosphor to cyberpunk.",
+    "subtitle": "Tune the terminal style, identity, startup, motion and idle behavior from iCUE.",
+    "panels": [
+      {"label": "Green phosphor", "file": "XL_H.png"},
+      {"label": "Amber", "file": "VARIANT_AMBER.png"},
+      {"label": "Cyberpunk", "file": "VARIANT_CYBER.png"},
+      {"label": "Live SYSTEM", "file": "VARIANT_SYSTEM.png"}
+    ],
+    "tags": "scanlines   •   glow   •   flicker   •   vignette   •   CRT curve   •   custom identity"
+  },
+  "sizes": {
+    "title": "A real terminal at every XENEON size.",
+    "subtitle": "Every horizontal and vertical slot has a deliberate terminal composition instead of one stretched layout.",
+    "footer": "8 tuned layouts total   •   4 sizes   •   horizontal + vertical"
+  }
+}
