@@ -88,8 +88,12 @@ jobs:
       - name: Generate exact shipping widget
         shell: pwsh
         run: |
+          Copy-Item "widgets/_src/$env:WIDGET_SLUG/translation.json" "widgets/$env:WIDGET_SLUG/translation.json" -Force
           python tools/xeneon/inline.py $env:WIDGET_SLUG
           python tools/xeneon/inline.py $env:WIDGET_SLUG --check
+          $srcTranslation = (Get-FileHash "widgets/_src/$env:WIDGET_SLUG/translation.json" -Algorithm SHA256).Hash
+          $shipTranslation = (Get-FileHash "widgets/$env:WIDGET_SLUG/translation.json" -Algorithm SHA256).Hash
+          if ($srcTranslation -ne $shipTranslation) { throw "shipping translation.json is stale" }
 
       - name: Eight-layout deterministic browser gate
         shell: pwsh
@@ -130,7 +134,7 @@ jobs:
               if bad:
                   raise SystemExit(f'corrupt archive member: {bad}')
               names = {name.replace('\\', '/') for name in archive.namelist()}
-              for required in ('index.html', 'manifest.json', 'resources/icon.svg'):
+              for required in ('index.html', 'manifest.json', 'translation.json', 'resources/icon.svg'):
                   if required not in names:
                       raise SystemExit(f'exact package missing root member: {required}')
               archive.extractall(out)
