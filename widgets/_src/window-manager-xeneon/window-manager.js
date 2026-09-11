@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var BRIDGE_URL = "ws://127.0.0.1:17487/widget";
+  var WINDOW_SERVICE_URL = "ws://127.0.0.1:17487/widget";
   var RECONNECT_MS = 2500;
   var PIN_STORAGE_KEY = "packrat.window-manager-xeneon.pins.v1";
   var slots = [
@@ -240,11 +240,11 @@
   }
 
   function stateCopy() {
-    if (model.connection === "pairing") return ["PAIRING KEY NEEDED", "Run PackRat Window Bridge, then paste its local pairing key in iCUE settings."];
-    if (model.connection === "denied") return ["PAIRING KEY REJECTED", "The bridge rejected this key. Copy the current key from PackRat Window Bridge and try again."];
-    if (model.connection === "disconnected") return ["WINDOW BRIDGE OFFLINE", "Start PackRat Window Bridge on this PC. The panel reconnects automatically."];
-    if (model.connection === "version_mismatch") return ["WINDOW BRIDGE UPDATE NEEDED", "The widget and PackRat Window Bridge use different protocol versions. Install the matching companion build."];
-    if (model.connection === "connecting" || model.connection === "starting") return ["CONNECTING TO WINDOWS", "Looking for PackRat Window Bridge on this PC."];
+    if (model.connection === "pairing") return ["PAIRING KEY NEEDED", "Install Window Manager Lite, open its XENEON setup, then paste the local pairing key in iCUE settings."];
+    if (model.connection === "denied") return ["PAIRING KEY REJECTED", "Window Manager Lite rejected this key. Copy the current key from its XENEON setup and try again."];
+    if (model.connection === "disconnected") return ["WINDOW MANAGER LITE OFFLINE", "Start Stream Deck with Window Manager Lite installed. The panel reconnects automatically."];
+    if (model.connection === "version_mismatch") return ["WINDOW MANAGER LITE UPDATE NEEDED", "The XENEON widget and Window Manager Lite use different service versions. Update Window Manager Lite."];
+    if (model.connection === "connecting" || model.connection === "starting") return ["CONNECTING TO WINDOWS", "Looking for Window Manager Lite on this PC."];
     if (!model.windows.length) return ["NO OPEN WINDOWS", "Open an app on the Windows desktop and it will appear here automatically."];
     return ["", ""];
   }
@@ -527,7 +527,7 @@
     model.connection = "connecting";
     render();
     var socket;
-    try { socket = new WebSocket(BRIDGE_URL); }
+    try { socket = new WebSocket(WINDOW_SERVICE_URL); }
     catch (error) {
       model.connection = "disconnected";
       render();
