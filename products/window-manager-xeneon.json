@@ -2,8 +2,8 @@
   "id": "window-manager-xeneon",
   "name": "Window Manager for XENEON",
   "type": "widget",
-  "status": "in_progress",
-  "workflow_state": "REFRACTORING_TO_WINDOW_MANAGER_LITE",
+  "status": "qa_passed",
+  "workflow_state": "READY_FOR_REAL_WINDOWS_SMOKE",
   "price_usd": 9.99,
   "version": "1.0.0",
   "platform": "CORSAIR iCUE / XENEON Edge + Window Manager Lite",
@@ -159,14 +159,19 @@
     }
   },
   "hardware_boundary": "No physical XENEON Edge was available. The Windows companion compiled and ran in Windows CI and the exact packaged widget communicated with the actual published companion executable in deterministic fixture mode. Real foreground-lock/elevation restrictions and physical touch/iCUE behavior remain the only unclaimed hardware boundary.",
-  "notes": "Architecture refactor in progress. The final customer dependency is Window Manager Lite, not the standalone PackRat Window Bridge. Existing bridge evidence remains historical protocol/native-reference evidence only. Window Manager Lite must keep its visible Lite action set and existing Window Manager Pro upsell unchanged. Final release status is blocked until the actual Lite source is migrated, the hidden localhost service is integrated into its plugin process, and the exact Lite package is tested end to end with the XENEON package. Marketplace submission has not been performed.",
+  "notes": "The standalone PackRat Window Bridge is no longer the intended customer dependency. The exact shipped Window Manager Lite 1.0.0.2 package was used as the production baseline and a 1.0.0.3 release candidate was built with the hidden localhost XENEON service wired into the real Lite plugin process/native engine. The before/after conversion guard passes: Snap Window + Cycle Windows remain the only visible Lite actions, no Pro action UUIDs are added, and the existing Window Manager Pro upsell remains. Local protocol/security integration passes for auth, snapshot, allowed commands, arbitrary-command rejection, wrong-key rejection and protocol mismatch. The XENEON widget now includes a direct Window Manager Lite Marketplace install/update link and pairing instructions. Marketplace submission has not been performed. The remaining unclaimed boundary is an exact-package smoke on a real Windows Stream Deck runtime plus physical XENEON Edge touch/readability testing.",
   "window_manager_lite_dependency": {
     "id": "window-manager",
     "name": "Window Manager Lite",
     "marketplace_url": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23",
     "role": "Free Stream Deck plugin hosts the local native Windows engine used by the separately purchased XENEON widget.",
     "visible_lite_actions_must_remain_unchanged": true,
-    "pro_upsell_must_remain_unchanged": true
+    "pro_upsell_must_remain_unchanged": true,
+    "version_candidate": "1.0.0.3",
+    "candidate_sha256": "731e3ccc1262344f4cef0773cbe3ea660c6573f77ab1ad0594f1d39e61908845",
+    "candidate_size_bytes": 1693823,
+    "direct_setup_link_in_xeneon": true,
+    "xeneon_setup_in_property_inspector": true
   },
   "legacy_companion_release": {
     "tag": "window-manager-bridge-v1.0.0",
@@ -177,9 +182,26 @@
     "sha256": "80f28218748a86eadc82f8e930de3309f7127af405d484628942e5b22994815b"
   },
   "refactor_blockers": [
-    "Actual Window Manager Lite source is still only in the legacy local ratpack-projects checkout and has not yet been migrated into canonical GitHub.",
-    "The hidden XENEON service has not yet been wired into the real Window Manager Lite plugin entry point/native window engine.",
-    "The exact updated Window Manager Lite .streamDeckPlugin has not yet passed the pre/post visible-action conversion guard.",
-    "The exact updated Lite plugin and exact official XENEON package have not yet been run together end to end."
-  ]
+    "Run the exact Window Manager Lite 1.0.0.3 candidate inside a real Windows Stream Deck application process and confirm the localhost service starts from the production plugin lifecycle.",
+    "Connect the exact XENEON 1.0.0 candidate to that real Lite process and smoke focus/minimize/maximize/snap/move/close on ordinary and elevated-window cases.",
+    "Perform a physical XENEON Edge touch/readability smoke when hardware is available."
+  ],
+  "xeneon_candidate": {
+    "version": "1.0.0",
+    "sha256": "0d3f618024374955a186b3b05591fb6c16257d377e2453c94d00d5b88fd1978c",
+    "size_bytes": 15662,
+    "direct_lite_marketplace_link": true
+  },
+  "local_release_candidate_evidence": {
+    "lite_baseline_version": "1.0.0.2",
+    "lite_baseline_sha256": "9c486243be8d9dc30e133fa329e372a6d8d0195391a639868ab5b7adea481e7d",
+    "lite_candidate_version": "1.0.0.3",
+    "lite_candidate_sha256": "731e3ccc1262344f4cef0773cbe3ea660c6573f77ab1ad0594f1d39e61908845",
+    "lite_candidate_size_bytes": 1693823,
+    "conversion_guard": "pass",
+    "service_protocol_integration": "pass",
+    "xeneon_candidate_sha256": "0d3f618024374955a186b3b05591fb6c16257d377e2453c94d00d5b88fd1978c",
+    "xeneon_candidate_size_bytes": 15662,
+    "xeneon_zip_integrity": "pass"
+  }
 }
