@@ -44,8 +44,16 @@ async function state() {
   return response.json();
 }
 
+function assertHealth(health) {
+  assert.equal(health.ok, true, "bridge health ok flag");
+  assert.equal(health.protocol, 1, "bridge protocol");
+  assert.equal(health.version, "1.0.0", "bridge version");
+  assert.equal(health.port, 17484, "bridge port");
+}
+
 let bridge = startBridge();
-await waitForHealth();
+let health = await waitForHealth();
+assertHealth(health);
 
 const forbiddenOrigin = await fetch("http://127.0.0.1:17484/health", {
   headers: { Origin: "https://evil.example" }
@@ -72,6 +80,14 @@ try {
     document.body.dataset.connection === "ready" &&
     globalThis.__PACKRAT_AUDIO_TEST__?.getState().outputs.length >= 2
   ), { timeout: 10000 });
+  assert.deepEqual(
+    await page.evaluate(() => {
+      const state = globalThis.__PACKRAT_AUDIO_TEST__.getState();
+      return { protocol: state.protocol, bridgeVersion: state.bridgeVersion };
+    }),
+    { protocol: 1, bridgeVersion: "1.0.0" },
+    "widget bridge compatibility handshake"
+  );
 
   await page.locator('.device[title="Headphones (Arctis Nova Pro)"]').click();
   await page.waitForFunction(() => (
@@ -109,7 +125,8 @@ try {
   ), { timeout: 6000 });
 
   bridge = startBridge();
-  await waitForHealth();
+  health = await waitForHealth();
+  assertHealth(health);
 
   await page.waitForFunction(() => (
     document.body.dataset.connection === "ready" &&
@@ -118,7 +135,7 @@ try {
 
   assert.deepEqual(errors, []);
   console.log(
-    "PACKRAT AUDIO REAL BRIDGE INTEGRATION PASS: local security, commands, process loss, reconnect"
+    "PACKRAT AUDIO REAL BRIDGE INTEGRATION PASS: health/version, local security, commands, process loss, reconnect"
   );
 } finally {
   await browser.close();

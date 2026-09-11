@@ -551,6 +551,18 @@ public static class SelfTest
             service.Execute(document.RootElement);
         }
 
+        static void Reject<T>(Action action, string message) where T : Exception
+        {
+            try
+            {
+                action();
+                throw new Exception(message);
+            }
+            catch (T)
+            {
+            }
+        }
+
         var longName =
             "A Very Long USB Audio Device Friendly Name Designed To Stress Every XENEON Layout Without Losing Protocol Data";
 
@@ -591,6 +603,19 @@ public static class SelfTest
         Command(service, new { command = "set-output-mute", value = false });
         Require(!service.Snapshot().Outputs.Single(x => x.Id == "o2").Muted, "unmute");
 
+        Reject<ArgumentOutOfRangeException>(
+            () => Command(service, new { command = "set-output-volume", value = 101 }),
+            "invalid volume accepted");
+        Reject<ArgumentException>(
+            () => Command(service, new { command = "unknown-command" }),
+            "unknown command accepted");
+        Reject<ArgumentException>(
+            () => Command(service, new { command = "set-default-output", deviceId = "missing-endpoint" }),
+            "unknown endpoint accepted");
+        Reject<ArgumentException>(
+            () => Command(service, new { command = "set-default-output", deviceId = new string('x', 2049) }),
+            "overlong endpoint id accepted");
+
         backend.RemoveOutput("o3");
         Require(service.Snapshot().Outputs.Count == 2, "device disappearance");
         backend.ClearOutputs();
@@ -626,9 +651,13 @@ public static class SelfTest
         {
         }
 
-        Require(BridgeSecurity.IsAllowedOrigin("null"), "file origin");
+        Require(BridgeSecurity.IsAllowedOrigin("null"), "null file origin");
+        Require(BridgeSecurity.IsAllowedOrigin("file://"), "explicit file origin");
         Require(BridgeSecurity.IsAllowedOrigin("http://127.0.0.1:8080"), "loopback origin");
+        Require(BridgeSecurity.IsAllowedOrigin("http://localhost:8080"), "localhost origin");
         Require(!BridgeSecurity.IsAllowedOrigin("https://evil.example"), "remote origin rejection");
+        Require(!BridgeSecurity.IsAllowedOrigin("http://localhost.evil.example"), "localhost lookalike rejection");
+        Require(!BridgeSecurity.IsAllowedOrigin("http://127.0.0.1.evil.example"), "loopback lookalike rejection");
 
         Console.WriteLine("PACKRAT AUDIO BRIDGE SELF-TEST PASS");
         return 0;

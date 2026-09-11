@@ -81,11 +81,38 @@ jobs:
           if (-not $program.Contains('IsAllowedOrigin')) { throw 'missing origin gate' }
           if ($core.Contains('MediaDataProvider')) { throw 'iCUE media provider must not be used for OS audio control' }
 
+      - name: Package customer bridge bundle
+        shell: pwsh
+        run: |
+          $bundle = "artifacts/audio-bridge-bundle"
+          New-Item -ItemType Directory -Force $bundle | Out-Null
+          Copy-Item artifacts/audio-bridge/PackRat.AudioBridge.exe "$bundle/PackRat.AudioBridge.exe"
+          Copy-Item companions/audio-control-center-bridge/README.md "$bundle/README.md"
+          Copy-Item companions/audio-control-center-bridge/SECURITY.md "$bundle/SECURITY.md"
+          @'
+          @echo off
+          start "" /min "%~dp0PackRat.AudioBridge.exe"
+          '@ | Set-Content "$bundle/START_AUDIO_BRIDGE.cmd"
+          @'
+          PackRat Audio Bridge 1.0.0 for Windows x64
+
+          1. Extract this entire folder somewhere permanent.
+          2. Double-click START_AUDIO_BRIDGE.cmd before using Audio Control Center.
+          3. Keep the bridge running while the XENEON widget is in use.
+
+          The bridge listens only on 127.0.0.1:17484 and uses no PackRat cloud, account, or telemetry.
+          Audio Control Center will show an explicit offline or update-required state if the bridge is unavailable or incompatible.
+          '@ | Set-Content "$bundle/README_FIRST.txt"
+          $hash = (Get-FileHash "$bundle/PackRat.AudioBridge.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  PackRat.AudioBridge.exe" | Set-Content "$bundle/SHA256SUMS.txt"
+          Compress-Archive -Path "$bundle/*" -DestinationPath "artifacts/PackRat-Audio-Bridge-1.0.0-win-x64.zip" -Force
+
       - uses: actions/upload-artifact@v4
         with:
           name: audio-control-center-product-qa
           path: |
             artifacts/audio-bridge/PackRat.AudioBridge.exe
+            artifacts/PackRat-Audio-Bridge-1.0.0-win-x64.zip
             widgets/_src/audio-control-center/QA.md
             companions/audio-control-center-bridge/README.md
             companions/audio-control-center-bridge/SECURITY.md

@@ -49,3 +49,24 @@ There is:
 dotnet run --project src/PackRat.AudioBridge/PackRat.AudioBridge.csproj -c Release -- --self-test
 dotnet publish src/PackRat.AudioBridge/PackRat.AudioBridge.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
 ```
+
+## Protocol and compatibility
+
+The local contract is versioned independently from the Marketplace widget.
+
+- current bridge version: `1.0.0`
+- current protocol: `1`
+- `/health` reports the bridge version, protocol, port and current capabilities
+- every snapshot includes the protocol and bridge version
+- Audio Control Center rejects an incompatible protocol with an explicit update-required state instead of sending commands blindly
+- bridge restart/loss is recoverable; the widget reconnects automatically without accumulating duplicate sockets
+
+## Release bundle
+
+The Windows product gate publishes a portable customer-host-ready bundle:
+
+`PackRat-Audio-Bridge-1.0.0-win-x64.zip`
+
+It contains the exact self-contained `PackRat.AudioBridge.exe` exercised by the integration test, a launcher, setup/security documentation, and a SHA-256 checksum.
+
+A GitHub Actions artifact is **not** the final customer distribution channel. Before Marketplace submission, host this exact bundle at a durable PackRat-controlled download location and link that location from the product setup/listing flow. Do not ask customers to build the bridge themselves.

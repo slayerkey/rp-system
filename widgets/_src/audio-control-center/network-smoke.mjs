@@ -6,11 +6,12 @@ import { WebSocketServer } from "ws";
 
 const entry = path.resolve(process.argv[2]);
 const received = [];
+let totalConnections = 0;
 
 const snapshot = {
   type: "snapshot",
   protocol: 1,
-  bridge: { listening: true, version: "fixture" },
+  bridge: { listening: true, version: "1.0.0" },
   capabilities: {
     defaultDeviceSwitching: true,
     outputVolume: true,
@@ -57,6 +58,7 @@ async function startServer() {
   });
 
   server.on("connection", (socket) => {
+    totalConnections += 1;
     socket.send(JSON.stringify(snapshot));
     socket.on("message", (raw) => {
       let command;
@@ -76,6 +78,12 @@ async function startServer() {
           (value) => value.id === snapshot.defaultOutputId
         );
         if (endpoint) endpoint.muted = Boolean(command.value);
+      }
+      if (command.command === "set-output-volume") {
+        const endpoint = snapshot.outputs.find(
+          (value) => value.id === snapshot.defaultOutputId
+        );
+        if (endpoint) endpoint.volume = Number(command.value);
       }
 
       socket.send(JSON.stringify(snapshot));
@@ -101,6 +109,11 @@ async function stopServer(server) {
 let server = await startServer();
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 840, height: 696 } });
+const errors = [];
+page.on("pageerror", (error) => errors.push(String(error)));
+page.on("console", (message) => {
+  if (message.type() === "error") errors.push(message.text());
+});
 
 try {
   await page.addInitScript(() => {
@@ -119,6 +132,9 @@ try {
     "widget did not request an initial bridge refresh"
   );
 
+  await new Promise((resolve) => setTimeout(resolve, 2200));
+  assert.equal(totalConnections, 1, "healthy bridge should not accumulate duplicate WebSocket connections");
+
   await page.locator('.device[title="Headphones"]').click();
   await page.waitForFunction(() => (
     globalThis.__PACKRAT_AUDIO_TEST__.getState().defaultOutputId === "o2"
@@ -134,6 +150,15 @@ try {
   await page.waitForFunction(() => (
     globalThis.__PACKRAT_AUDIO_TEST__.getState()
       .outputs.find((value) => value.id === "o2")?.muted === true
+  ));
+
+  await page.locator("#outputVolume").evaluate((element) => {
+    element.value = "28";
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await page.waitForFunction(() => (
+    globalThis.__PACKRAT_AUDIO_TEST__.getState()
+      .outputs.find((value) => value.id === "o2")?.volume === 28
   ));
 
   await stopServer(server);
@@ -156,15 +181,46 @@ try {
         output: state.defaultOutputId,
         input: state.defaultInputId,
         outputs: state.outputs.length,
-        inputs: state.inputs.length
+        inputs: state.inputs.length,
+        protocol: state.protocol,
+        bridgeVersion: state.bridgeVersion
       };
     }),
-    { output: "o2", input: "i1", outputs: 2, inputs: 1 },
+    {
+      output: "o2",
+      input: "i1",
+      outputs: 2,
+      inputs: 1,
+      protocol: 1,
+      bridgeVersion: "1.0.0"
+    },
     "widget did not recover the fresh bridge snapshot after reconnect"
   );
 
+  await stopServer(server);
+  server = null;
+  snapshot.protocol = 2;
+  snapshot.bridge.version = "2.0.0";
+  server = await startServer();
+
+  await page.waitForFunction(() => (
+    document.body.dataset.connection === "incompatible"
+  ), { timeout: 8000 });
+  assert.match(await page.locator("#offlineTitle").innerText(), /update required/i);
+
+  await stopServer(server);
+  server = null;
+  snapshot.protocol = 1;
+  snapshot.bridge.version = "1.0.0";
+  server = await startServer();
+
+  await page.waitForFunction(() => (
+    document.body.dataset.connection === "ready"
+  ), { timeout: 8000 });
+
+  assert.deepEqual(errors, []);
   console.log(
-    "AUDIO CONTROL CENTER PACKAGED NETWORK PASS: commands, loss, reconnect"
+    "AUDIO CONTROL CENTER PACKAGED NETWORK PASS: commands, single-socket lifecycle, loss/reconnect, protocol mismatch, recovery"
   );
 } finally {
   try { await stopServer(server); } catch {}
