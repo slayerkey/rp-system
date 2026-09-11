@@ -280,15 +280,17 @@ function tickAmbient(){
 function plugin(){try{return window.plugins&&window.plugins.Sensorsdataprovider}catch(e){return null}}
 function connectSensors(){
   var p=plugin();
-  if(!p||!p.asyncResponse||typeof p.asyncResponse.connect!=="function")return false;
-  if(state.sensorConnected)return true;
+  if(!p||!p.asyncResponse||typeof p.asyncResponse.connect!=="function"){
+    state.sensorConnected=false;state.sensorPluginRef=null;return false;
+  }
+  if(state.sensorConnected&&state.sensorPluginRef===p)return true;
   try{
     p.asyncResponse.connect(function(id,value){
       var pending=state.pending[id];if(!pending)return;
       clearTimeout(pending.timer);delete state.pending[id];pending.resolve(value);
     });
-    state.sensorConnected=true;return true;
-  }catch(e){return false}
+    state.sensorConnected=true;state.sensorPluginRef=p;return true;
+  }catch(e){state.sensorConnected=false;state.sensorPluginRef=null;return false}
 }
 function ask(method,args){
   var p=plugin();
@@ -315,8 +317,20 @@ function pickSensor(list,role){
   return best;
 }
 async function discoverSensors(){
+  if(!plugin()){
+    state.sensorProviderState="unavailable";
+    state.sensorConnected=false;state.sensorPluginRef=null;
+    renderSystem();return;
+  }
+  state.sensorProviderState="loading";
   var ids=await ask("getAllSensorIds",[]);
-  if(!Array.isArray(ids)){renderSystem();return}
+  if(!Array.isArray(ids)){state.sensorProviderState="error";renderSystem();return}
+  if(!ids.length){
+    state.sensorProviderState="empty";
+    state.sensorCatalog={};
+    Object.keys(state.sensorIds).forEach(function(role){state.sensorIds[role]=null});
+    renderSystem();return;
+  }
   var list=await Promise.all(ids.map(async function(raw){
     var id=String(raw),parts=await Promise.all([
       ask("getSensorDeviceName",[id]),ask("getSensorName",[id]),ask("getSensorUnits",[id]),ask("getSensorType",[id]),ask("getSensorKind",[id])
@@ -325,6 +339,7 @@ async function discoverSensors(){
   }));
   state.sensorCatalog={};list.forEach(function(s){state.sensorCatalog[s.id]=s});
   ["cpuLoad","cpuTemp","gpuLoad","gpuTemp","ram"].forEach(function(role){state.sensorIds[role]=pickSensor(list,role)});
+  state.sensorProviderState="ready";
   renderSystem();
 }
 function formatValue(value,meta){
@@ -340,6 +355,11 @@ function formatValue(value,meta){
 }
 async function pollSensors(){
   var roles=["cpuLoad","cpuTemp","gpuLoad","gpuTemp","ram"];
+  if(!plugin()){
+    state.sensorProviderState="unavailable";
+    state.sensorConnected=false;state.sensorPluginRef=null;
+    renderSystem();return;
+  }
   await Promise.all(roles.map(async function(role){
     var id=state.sensorIds[role];if(!id)return;
     var v=await ask("getSensorValue",[String(id)]);
@@ -348,17 +368,28 @@ async function pollSensors(){
   renderSystem();
 }
 function renderSystem(){
-  var roles=["cpuLoad","cpuTemp","gpuLoad","gpuTemp","ram"],available=0,live=0;
+  var roles=["cpuLoad","cpuTemp","gpuLoad","gpuTemp","ram"],available=0,live=0,stale=0,now=Date.now();
   roles.forEach(function(role){
     var row=document.querySelector('.sensorRow[data-role="'+role+'"]');if(!row)return;
     var id=state.sensorIds[role],meta=id?state.sensorCatalog[id]:null,val=state.sensorValues[role];
-    if(id)available++;if(val)live++;
+    var isFresh=!!val&&now-val.at<=SENSOR_STALE_MS;
+    var isStale=!!val&&!isFresh;
+    if(id)available++;if(isFresh)live++;if(isStale)stale++;
     row.querySelector(".sensorValue").textContent=val?formatValue(val.value,meta):"—";
-    row.querySelector(".sensorSource").textContent=meta?cleanText((meta.device?meta.device+" // ":"")+meta.name,"iCUE sensor",80):"not available";
+    var source=meta?cleanText((meta.device?meta.device+" // ":"")+meta.name,"iCUE sensor",80):"not available";
+    row.querySelector(".sensorSource").textContent=isStale?"STALE // "+source:source;
   });
-  var status=live?"LIVE iCUE // "+live+" SIGNAL"+(live===1?"":"S"):available?"WAITING FOR iCUE VALUES":"NO MATCHING iCUE SENSORS";
+  var status="";
+  if(state.sensorProviderState==="unavailable")status="iCUE SENSOR PROVIDER OFFLINE";
+  else if(state.sensorProviderState==="error")status="iCUE SENSOR PROVIDER ERROR";
+  else if(state.sensorProviderState==="empty")status="NO iCUE SENSORS EXPOSED";
+  else if(live)status="LIVE iCUE // "+live+" SIGNAL"+(live===1?"":"S");
+  else if(stale)status="STALE iCUE DATA";
+  else if(available)status="WAITING FOR iCUE VALUES";
+  else if(state.sensorProviderState==="loading")status="DISCOVERING SENSORS";
+  else status="NO MATCHING iCUE SENSORS";
   byId("systemState").textContent=status;
-  byId("systemUpdated").textContent=live?"UPDATED "+new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}):"NO LIVE DATA";
+  byId("systemUpdated").textContent=live?"UPDATED "+new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}):stale?"LAST VALUES ARE STALE":"NO LIVE DATA";
   renderUptime();
 }
 function enterIdle(){
