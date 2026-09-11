@@ -451,6 +451,8 @@ internal sealed class BridgeServer : IDisposable
     private readonly ClipboardHistory _history;
     private readonly ConcurrentDictionary<Guid, WebSocket> _clients = new();
     private readonly SemaphoreSlim _broadcast = new(1, 1);
+    private int _broadcastDirty;
+    private int _broadcastLoopActive;
     private WebApplication? _app;
     public Func<string, Task<bool>>? CopyToClipboardAsync { get; set; }
 
@@ -623,7 +625,35 @@ internal sealed class BridgeServer : IDisposable
         }
     }
 
-    private void OnChanged() => _ = BroadcastSnapshotAsync();
+    private void OnChanged()
+    {
+        Interlocked.Exchange(ref _broadcastDirty, 1);
+        if (Interlocked.CompareExchange(ref _broadcastLoopActive, 1, 0) == 0)
+            _ = BroadcastLoopAsync();
+    }
+
+    private async Task BroadcastLoopAsync()
+    {
+        try
+        {
+            while (true)
+            {
+                Interlocked.Exchange(ref _broadcastDirty, 0);
+                await Task.Delay(25);
+                await BroadcastSnapshotAsync();
+                if (Volatile.Read(ref _broadcastDirty) == 0) break;
+            }
+        }
+        catch
+        {
+            // A disconnected client must not crash clipboard capture or leak clipboard data to logs.
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _broadcastLoopActive, 0);
+            if (Volatile.Read(ref _broadcastDirty) != 0) OnChanged();
+        }
+    }
 
     private async Task BroadcastSnapshotAsync()
     {
