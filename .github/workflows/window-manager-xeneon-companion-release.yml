@@ -55,6 +55,50 @@ jobs:
             if (-not (Test-Path "artifacts/audit/$file")) { throw "missing release file: $file" }
           }
 
+      - name: Exact customer ZIP install and uninstall smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $customerRoot = (Resolve-Path 'artifacts/audit').Path
+          $targetDir = Join-Path $env:LOCALAPPDATA 'PackRat\WindowBridge'
+          $targetExe = Join-Path $targetDir 'PackRat.WindowBridge.exe'
+          $startup = [Environment]::GetFolderPath('Startup')
+          $shortcutPath = Join-Path $startup 'PackRat Window Bridge.lnk'
+
+          & (Join-Path $customerRoot 'Uninstall.ps1')
+          & (Join-Path $customerRoot 'Install.ps1')
+
+          if (-not (Test-Path $targetExe)) { throw 'customer install did not create the installed executable' }
+          if (-not (Test-Path $shortcutPath)) { throw 'customer install did not create the startup shortcut' }
+
+          $healthy = $false
+          for ($i = 0; $i -lt 40; $i++) {
+            try {
+              $health = Invoke-RestMethod -Uri 'http://127.0.0.1:17487/health' -TimeoutSec 2
+              if ($health.ok -eq $true -and $health.product -eq 'PackRat Window Bridge') {
+                $healthy = $true
+                break
+              }
+            } catch {}
+            Start-Sleep -Milliseconds 250
+          }
+          if (-not $healthy) { throw 'installed customer executable never became healthy on localhost' }
+
+          $installed = @(Get-Process -Name 'PackRat.WindowBridge' -ErrorAction SilentlyContinue | Where-Object {
+            try { [string]::Equals($_.Path, $targetExe, [System.StringComparison]::OrdinalIgnoreCase) } catch { $false }
+          })
+          if ($installed.Count -ne 1) { throw "expected exactly one installed bridge process, got $($installed.Count)" }
+
+          & (Join-Path $customerRoot 'Uninstall.ps1')
+
+          if (Test-Path $targetDir) { throw 'uninstaller left the install directory behind' }
+          if (Test-Path $shortcutPath) { throw 'uninstaller left the startup shortcut behind' }
+          $left = @(Get-Process -Name 'PackRat.WindowBridge' -ErrorAction SilentlyContinue | Where-Object {
+            try { [string]::Equals($_.Path, $targetExe, [System.StringComparison]::OrdinalIgnoreCase) } catch { $false }
+          })
+          if ($left.Count -ne 0) { throw 'uninstaller left the installed process running' }
+
+
       - name: Publish stable free companion release
         shell: pwsh
         env:
@@ -75,6 +119,64 @@ jobs:
           } else {
             gh release create $env:TAG $asset --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "PackRat Window Bridge v1.0.0" --notes "Free local Windows companion for Window Manager for XENEON. Runs on localhost only. Includes no-admin install and uninstall scripts."
           }
+
+      - name: Verify exact published GitHub Release ZIP
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          New-Item -ItemType Directory -Force -Path artifacts/published | Out-Null
+          gh release download $env:TAG --repo $env:GITHUB_REPOSITORY --pattern $env:ZIP_NAME --dir artifacts/published --clobber
+
+          $candidate = Get-FileHash "artifacts/$env:ZIP_NAME" -Algorithm SHA256
+          $published = Get-FileHash "artifacts/published/$env:ZIP_NAME" -Algorithm SHA256
+          if ($candidate.Hash -ne $published.Hash) {
+            throw "published release asset hash mismatch: candidate=$($candidate.Hash) published=$($published.Hash)"
+          }
+
+          Expand-Archive "artifacts/published/$env:ZIP_NAME" artifacts/published-audit -Force
+          $customerRoot = (Resolve-Path 'artifacts/published-audit').Path
+          $targetDir = Join-Path $env:LOCALAPPDATA 'PackRat\WindowBridge'
+          $targetExe = Join-Path $targetDir 'PackRat.WindowBridge.exe'
+          $startup = [Environment]::GetFolderPath('Startup')
+          $shortcutPath = Join-Path $startup 'PackRat Window Bridge.lnk'
+
+          & (Join-Path $customerRoot 'Uninstall.ps1')
+          & (Join-Path $customerRoot 'Install.ps1')
+
+          if (-not (Test-Path $targetExe)) { throw 'customer install did not create the installed executable' }
+          if (-not (Test-Path $shortcutPath)) { throw 'customer install did not create the startup shortcut' }
+
+          $healthy = $false
+          for ($i = 0; $i -lt 40; $i++) {
+            try {
+              $health = Invoke-RestMethod -Uri 'http://127.0.0.1:17487/health' -TimeoutSec 2
+              if ($health.ok -eq $true -and $health.product -eq 'PackRat Window Bridge') {
+                $healthy = $true
+                break
+              }
+            } catch {}
+            Start-Sleep -Milliseconds 250
+          }
+          if (-not $healthy) { throw 'installed customer executable never became healthy on localhost' }
+
+          $installed = @(Get-Process -Name 'PackRat.WindowBridge' -ErrorAction SilentlyContinue | Where-Object {
+            try { [string]::Equals($_.Path, $targetExe, [System.StringComparison]::OrdinalIgnoreCase) } catch { $false }
+          })
+          if ($installed.Count -ne 1) { throw "expected exactly one installed bridge process, got $($installed.Count)" }
+
+          & (Join-Path $customerRoot 'Uninstall.ps1')
+
+          if (Test-Path $targetDir) { throw 'uninstaller left the install directory behind' }
+          if (Test-Path $shortcutPath) { throw 'uninstaller left the startup shortcut behind' }
+          $left = @(Get-Process -Name 'PackRat.WindowBridge' -ErrorAction SilentlyContinue | Where-Object {
+            try { [string]::Equals($_.Path, $targetExe, [System.StringComparison]::OrdinalIgnoreCase) } catch { $false }
+          })
+          if ($left.Count -ne 0) { throw 'uninstaller left the installed process running' }
+
+          Write-Host "PUBLISHED CUSTOMER ZIP PASS: $($published.Hash)"
 
       - uses: actions/upload-artifact@v4
         with:
