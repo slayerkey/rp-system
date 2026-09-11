@@ -1,0 +1,479 @@
+name: Window Manager XENEON Full Gate
+
+on:
+  push:
+    branches:
+      - product/window-manager-xeneon
+    paths:
+      - 'widgets/_src/window-manager-xeneon/**'
+      - 'widgets/window-manager-xeneon/**'
+      - 'companions/window-manager-xeneon/**'
+      - 'products/index.json'
+      - '.github/workflows/window-manager-xeneon-full-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+env:
+  SLUG: window-manager-xeneon
+  BRANCH: product/window-manager-xeneon
+  COMPANION_PROJECT: companions/window-manager-xeneon/PackRat.WindowBridge/PackRat.WindowBridge.csproj
+
+jobs:
+  exact-package-windows-companion:
+    name: Exact package + Windows companion + host QA
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Strict UTF-8 and source structure
+        shell: pwsh
+        run: |
+          @'
+          import json, pathlib
+          roots = [
+              pathlib.Path("widgets/_src/window-manager-xeneon"),
+              pathlib.Path("widgets/window-manager-xeneon"),
+              pathlib.Path("companions/window-manager-xeneon"),
+          ]
+          for root in roots:
+              if not root.exists():
+                  raise SystemExit(f"missing required root: {root}")
+              for path in root.rglob("*"):
+                  if path.is_file():
+                      try:
+                          path.read_text(encoding="utf-8")
+                      except UnicodeDecodeError as exc:
+                          raise SystemExit(f"invalid UTF-8 in {path}: {exc}")
+          for path in [
+              pathlib.Path("widgets/_src/window-manager-xeneon/submission.json"),
+              pathlib.Path("widgets/_src/window-manager-xeneon/rat-art.json"),
+              pathlib.Path("widgets/window-manager-xeneon/manifest.json"),
+              pathlib.Path("widgets/window-manager-xeneon/translation.json"),
+          ]:
+              json.loads(path.read_text(encoding="utf-8"))
+          print("STRICT UTF-8/JSON PASS")
+          '@ | python -
+
+      - name: Collision-safe localhost port
+        shell: pwsh
+        run: |
+          @'
+          import pathlib
+          wanted = "17487"
+          allowed = (
+              "widgets/_src/window-manager-xeneon/",
+              "companions/window-manager-xeneon/",
+              ".github/workflows/window-manager-xeneon-full-gate.yml",
+          )
+          hits = []
+          for root in ("widgets", "companions", "plugins", ".github/workflows"):
+              base = pathlib.Path(root)
+              if not base.exists():
+                  continue
+              for path in base.rglob("*"):
+                  if not path.is_file():
+                      continue
+                  rel = path.as_posix()
+                  if any(rel.startswith(prefix) or rel == prefix for prefix in allowed):
+                      continue
+                  try:
+                      text = path.read_text(encoding="utf-8")
+                  except Exception:
+                      continue
+                  if wanted in text:
+                      hits.append(rel)
+          if hits:
+              raise SystemExit("localhost port 17487 collides with unrelated PackRat source: " + ", ".join(hits))
+          print("PORT COLLISION PASS: 17487 is product-local")
+          '@ | python -
+
+      - name: Static widget verification
+        shell: pwsh
+        run: |
+          node --check widgets/_src/$env:SLUG/window-manager.js
+          node --check widgets/_src/$env:SLUG/visual-smoke.mjs
+          node --check widgets/_src/$env:SLUG/rat-art.mjs
+          node --check widgets/_src/$env:SLUG/bridge-integration.mjs
+          node --check widgets/_src/$env:SLUG/verify.mjs
+          node widgets/_src/$env:SLUG/verify.mjs .
+
+      - name: Build and self-test PackRat Window Bridge
+        shell: pwsh
+        run: |
+          dotnet restore $env:COMPANION_PROJECT
+          dotnet build $env:COMPANION_PROJECT -c Release --no-restore
+          dotnet run --project $env:COMPANION_PROJECT -c Release --no-build -- --self-test
+          dotnet publish $env:COMPANION_PROJECT -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o artifacts/companion/publish
+          $exe = Get-ChildItem artifacts/companion/publish -Filter PackRat.WindowBridge.exe -File | Select-Object -First 1
+          if (-not $exe) { throw 'Window Bridge publish did not produce PackRat.WindowBridge.exe' }
+          New-Item -ItemType Directory -Force -Path artifacts/companion/package | Out-Null
+          Copy-Item $exe.FullName artifacts/companion/package/PackRat.WindowBridge.exe
+          Copy-Item companions/window-manager-xeneon/Install.cmd artifacts/companion/package/Install.cmd
+          Copy-Item companions/window-manager-xeneon/Install.ps1 artifacts/companion/package/Install.ps1
+          Copy-Item companions/window-manager-xeneon/Uninstall.ps1 artifacts/companion/package/Uninstall.ps1
+          Copy-Item companions/window-manager-xeneon/README.md artifacts/companion/package/README.md
+          Copy-Item companions/window-manager-xeneon/SECURITY.md artifacts/companion/package/SECURITY.md
+          Compress-Archive -Path artifacts/companion/package/* -DestinationPath artifacts/companion/PackRat-Window-Bridge-win-x64.zip -Force
+
+      - name: Companion security invariants
+        shell: pwsh
+        run: |
+          $program = Get-Content companions/window-manager-xeneon/PackRat.WindowBridge/Program.cs -Raw
+          $native = Get-Content companions/window-manager-xeneon/PackRat.WindowBridge/Win32WindowBackend.cs -Raw
+          $all = $program + $native
+          foreach ($required in @('127.0.0.1','FixedTimeKeyEquals','SetWinEventHook','TimeSpan.FromSeconds(5)','WM_CLOSE','SetForegroundWindow','SetWindowPos')) {
+            if (-not $all.Contains($required)) { throw "missing companion invariant: $required" }
+          }
+          foreach ($bad in @('powershell.exe','cmd.exe','HttpClient(','TelemetryClient','DllInject','CreateRemoteThread')) {
+            if ($all.Contains($bad)) { throw "forbidden companion behavior: $bad" }
+          }
+          if ($program.Contains('0.0.0.0')) { throw 'companion must never bind all interfaces' }
+
+      - name: Install browser QA dependencies
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1
+          npm audit --audit-level=high
+          npx playwright install chromium
+
+      - name: Build canonical shipping widget
+        shell: pwsh
+        run: |
+          python tools/xeneon/inline.py $env:SLUG
+          python tools/xeneon/inline.py $env:SLUG --check
+
+      - name: Authored eight-layout interaction gate
+        shell: pwsh
+        run: node widgets/_src/$env:SLUG/visual-smoke.mjs "widgets/_src/$env:SLUG/index.html" "artifacts/authored-visual"
+
+      - name: Shipping eight-layout interaction gate
+        shell: pwsh
+        run: node widgets/_src/$env:SLUG/visual-smoke.mjs "widgets/$env:SLUG/index.html" "artifacts/shipping-visual"
+
+      - name: Official CORSAIR validation
+        shell: pwsh
+        run: npx --yes icuewidget-cli@0.4.47 validate "widgets/$env:SLUG"
+
+      - name: Official CORSAIR package
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path widgets -Filter *.icuewidget -File -ErrorAction SilentlyContinue | Remove-Item -Force
+          npx --yes icuewidget-cli@0.4.47 package "widgets/$env:SLUG"
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          $pkg = Get-ChildItem -Path widgets -Filter *.icuewidget -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $pkg) { throw 'official package was not created' }
+          Copy-Item $pkg.FullName "artifacts/package/$env:SLUG.icuewidget"
+
+      - name: Exact official package integrity and contract
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "artifacts/extracted/$env:SLUG" | Out-Null
+          @'
+          import json, os, pathlib, zipfile
+          slug = os.environ["SLUG"]
+          package = pathlib.Path("artifacts/package") / f"{slug}.icuewidget"
+          out = pathlib.Path("artifacts/extracted") / slug
+          if not zipfile.is_zipfile(package):
+              raise SystemExit("official package is not ZIP compatible")
+          with zipfile.ZipFile(package) as z:
+              bad = z.testzip()
+              if bad:
+                  raise SystemExit(f"corrupt package member: {bad}")
+              names = {n.replace("\\", "/") for n in z.namelist()}
+              for required in ("index.html","manifest.json","translation.json","resources/icon.svg"):
+                  if required not in names:
+                      raise SystemExit(f"missing root package member: {required}")
+              z.extractall(out)
+          manifest = json.loads((out/"manifest.json").read_text(encoding="utf-8"))
+          if manifest.get("id") != "com.packrat.window-manager-xeneon":
+              raise SystemExit("package id changed")
+          if manifest.get("version") != "1.0.0" or manifest.get("interactive") is not True:
+              raise SystemExit("package version/interactive contract changed")
+          html = (out/"index.html").read_text(encoding="utf-8")
+          checks = {
+              "flattened_css": 'href="window-manager.css"' not in html,
+              "flattened_js": 'src="window-manager.js"' not in html,
+              "loopback_bridge": "ws://127.0.0.1:17487/widget" in html,
+              "no_remote_http": "https://" not in html and "http://" not in html,
+              "pairing_key": "bridgeKey" in html,
+              "lifecycle": "onICUEInitialized" in html and "onDataUpdated" in html,
+              "binding_bridge": "__ratpackIcueBindingBridge" in html,
+              "no_direct_win32": "EnumWindows" not in html and "SetWindowPos" not in html,
+          }
+          if not all(checks.values()):
+              raise SystemExit(f"package audit failed: {checks}")
+          pathlib.Path("artifacts/package-audit.json").write_text(
+              json.dumps({"files": sorted(names), "checks": checks}, indent=2),
+              encoding="utf-8")
+          print(checks)
+          '@ | python -
+
+      - name: Exact-package eight-layout regression
+        shell: pwsh
+        run: node widgets/_src/$env:SLUG/visual-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/exact-package-visual"
+
+      - name: Lexical iCUE Custom Style regression
+        shell: pwsh
+        run: node tools/xeneon/native-style-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/native-style/$env:SLUG"
+
+      - name: No-callback iCUE autosync regression
+        shell: pwsh
+        run: node tools/xeneon/native-style-autosync-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/native-style-autosync/$env:SLUG"
+
+      - name: Exact packaged file-origin to real Window Bridge process
+        shell: pwsh
+        run: node widgets/_src/$env:SLUG/bridge-integration.mjs "artifacts/companion/package/PackRat.WindowBridge.exe" "artifacts/extracted/$env:SLUG/index.html" "artifacts/bridge-integration"
+
+      - name: Clone Corsair Labs runner
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          if (Test-Path $runnerDir) { Remove-Item -Recurse -Force $runnerDir }
+          git clone --depth 1 https://github.com/Corsair-Labs/iCUE-widget-runner-windows.git $runnerDir
+          git -C $runnerDir rev-parse HEAD | Set-Content artifacts/corsair-runner-commit.txt
+          $target = Join-Path (Join-Path $runnerDir 'widgets') $env:SLUG
+          Copy-Item -Recurse -Force "artifacts/extracted/$env:SLUG" $target
+
+      - name: Corsair Labs exact-package host smoke
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          $stdout = Join-Path $env:RUNNER_TEMP "corsair-$env:SLUG.out.log"
+          $stderr = Join-Path $env:RUNNER_TEMP "corsair-$env:SLUG.err.log"
+          $process = Start-Process node -ArgumentList 'web-server.js' -WorkingDirectory $runnerDir -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              try {
+                $response = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/api/widgets -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+              Start-Sleep -Seconds 1
+            }
+            if (-not $ready) { throw 'Corsair Labs runner did not become ready' }
+            node tools/xeneon/icue-runner-smoke.mjs http://127.0.0.1:8080/ $env:SLUG "artifacts/icue-runner/$env:SLUG"
+            if ($LASTEXITCODE -ne 0) { throw 'Corsair Labs runner smoke failed' }
+          } finally {
+            if ($process -and -not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
+            if (Test-Path $stdout) { Copy-Item $stdout artifacts/corsair-runner.stdout.log }
+            if (Test-Path $stderr) { Copy-Item $stderr artifacts/corsair-runner.stderr.log }
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-xeneon-official-package
+          path: artifacts/package/window-manager-xeneon.icuewidget
+          if-no-files-found: error
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-xeneon-companion
+          path: |
+            artifacts/companion/package/
+            artifacts/companion/PackRat-Window-Bridge-win-x64.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Windows QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-xeneon-windows-evidence
+          path: |
+            artifacts/authored-visual/
+            artifacts/shipping-visual/
+            artifacts/exact-package-visual/
+            artifacts/native-style/
+            artifacts/native-style-autosync/
+            artifacts/bridge-integration/
+            artifacts/icue-runner/
+            artifacts/package-audit.json
+            artifacts/corsair-runner-commit.txt
+            artifacts/corsair-runner.stdout.log
+            artifacts/corsair-runner.stderr.log
+          if-no-files-found: warn
+          retention-days: 30
+
+  streamspell:
+    name: StreamSpell exact package all eight presets
+    needs: exact-package-windows-companion
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: window-manager-xeneon-official-package
+          path: artifacts/package
+
+      - name: Install browser dependencies
+        run: |
+          npm install --no-save playwright@1.62.1
+          npm audit --audit-level=high
+          npx playwright install --with-deps chromium
+
+      - name: Start StreamSpell builder locally
+        run: |
+          git clone --depth 1 https://github.com/streamspell/xeneon-edge-widget-builder.git /tmp/xeneon-edge-widget-builder
+          cd /tmp/xeneon-edge-widget-builder
+          npm install
+          nohup npm run dev > /tmp/streamspell-server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8090/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/streamspell-server.log
+          exit 1
+
+      - name: Verify exact package through all eight StreamSpell presets
+        env:
+          STREAMSPELL_URL: http://127.0.0.1:8090/
+        run: node tools/xeneon/streamspell.mjs artifacts/package/window-manager-xeneon.icuewidget artifacts/streamspell
+
+      - name: Upload StreamSpell evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-xeneon-streamspell
+          path: artifacts/streamspell/
+          if-no-files-found: warn
+          retention-days: 30
+
+  rat-art-ship:
+    name: Deterministic Rat Art + companion-inclusive Rat Ship
+    needs: streamspell
+    runs-on: windows-latest
+    env:
+      RATPACK_ART_FONT: C:\Windows\Fonts\segoeui.ttf
+      RATPACK_ART_FONT_BOLD: C:\Windows\Fonts\segoeuib.ttf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: window-manager-xeneon-official-package
+          path: artifacts/package
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: window-manager-xeneon-companion
+          path: artifacts/companion-download
+
+      - name: Install deterministic art dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==12.3.0
+          npm install --no-save playwright@1.62.1
+          npm audit --audit-level=high
+          npx playwright install chromium
+
+      - name: Build canonical widget for deterministic capture
+        shell: pwsh
+        run: python tools/xeneon/inline.py $env:SLUG
+
+      - name: Capture all eight real widget compositions
+        shell: pwsh
+        run: node tools/art/capture_xeneon.mjs $env:SLUG "artifacts/rat-art/shots"
+
+      - name: Render deterministic Rat Art
+        shell: pwsh
+        run: python tools/art/rat_art.py xeneon $env:SLUG --shots "artifacts/rat-art/shots" --out "artifacts/rat-art/review"
+
+      - name: Render Marketplace search icon
+        shell: pwsh
+        run: node tools/ship/render_svg_icon.mjs "widgets/$env:SLUG/resources/icon.svg" "artifacts/rat-art/review/icon-288x288.png"
+
+      - name: Build Rat Ship kit from exact official package
+        shell: pwsh
+        run: |
+          python tools/ship/make_xeneon_kit.py $env:SLUG --package "artifacts/package/$env:SLUG.icuewidget" --art "artifacts/rat-art/review" --out "artifacts/ship/$env:SLUG/SHIP_KIT"
+          $zip = Get-ChildItem artifacts/companion-download -Recurse -Filter PackRat-Window-Bridge-win-x64.zip -File | Select-Object -First 1
+          if (-not $zip) { throw 'downloaded Window Bridge zip missing' }
+          Copy-Item $zip.FullName "artifacts/ship/$env:SLUG/SHIP_KIT/PackRat-Window-Bridge-win-x64.zip"
+
+      - name: Maker Console kit preflight
+        shell: pwsh
+        run: node tools/ship/maker_console.mjs $env:SLUG --kit="artifacts/ship/$env:SLUG/SHIP_KIT" --check-kit
+
+      - name: Rat Ship invariants
+        shell: pwsh
+        run: |
+          $kit = "artifacts/ship/$env:SLUG/SHIP_KIT"
+          foreach ($file in @(
+            "$env:SLUG.icuewidget",
+            "PackRat-Window-Bridge-win-x64.zip",
+            "01_search_icon.png",
+            "02_cover.png",
+            "03_gallery_01.png",
+            "04_gallery_02.png",
+            "05_gallery_03.png",
+            "06_gallery_04.png"
+          )) {
+            if (-not (Test-Path "$kit/$file")) { throw "missing Rat Ship file: $file" }
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rat-ship-window-manager-xeneon
+          path: artifacts/ship/window-manager-xeneon/SHIP_KIT/
+          if-no-files-found: error
+          retention-days: 30
+
+  canonical-gates:
+    name: Canonical XENEON / Rat Art / Rat Ship workflows
+    needs: rat-art-ship
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch and wait for canonical gates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          dispatch_and_wait() {
+            local workflow="$1"
+            local started
+            started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            gh workflow run "$workflow" --repo "$GITHUB_REPOSITORY" --ref "$BRANCH" -f slug="$SLUG"
+            local run_id=""
+            for i in $(seq 1 40); do
+              run_id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$workflow" --branch "$BRANCH" --event workflow_dispatch --limit 20 --json databaseId,createdAt --jq "[.[] | select(.createdAt >= \"$started\")][0].databaseId // empty")"
+              if [ -n "$run_id" ]; then break; fi
+              sleep 3
+            done
+            if [ -z "$run_id" ]; then
+              echo "Could not find dispatched run for $workflow" >&2
+              exit 1
+            fi
+            echo "Waiting for $workflow run $run_id"
+            gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          }
+
+          dispatch_and_wait xeneon-widget-ci.yml
+          dispatch_and_wait rat-art-xeneon.yml
+          dispatch_and_wait rat-ship-xeneon.yml
