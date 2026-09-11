@@ -180,6 +180,14 @@ jobs:
             if (Test-Path $stderr) { Copy-Item $stderr artifacts/corsair-runner.stderr.log }
           }
 
+      - name: Require exact-package iCUE lifecycle callbacks
+        shell: pwsh
+        run: |
+          $result = Get-Content "artifacts/icue-runner/retro-terminal-pro-runner-result.json" -Raw | ConvertFrom-Json
+          if (-not $result.passed) { throw 'Corsair Labs runner result was not passing' }
+          if (-not $result.initial.hasOnICUEInitialized) { throw 'exact package is missing icueEvents.onICUEInitialized' }
+          if (-not $result.initial.hasOnDataUpdated) { throw 'exact package is missing icueEvents.onDataUpdated' }
+
       - name: Upload exact package and host evidence
         if: always()
         uses: actions/upload-artifact@v4
