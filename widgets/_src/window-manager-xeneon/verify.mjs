@@ -58,7 +58,7 @@ assert.match(js, /schemaVersion:\s*1/);
 assert.match(js, /version_mismatch/);
 assert.match(js, /pagehide/);
 assert.equal(/setInterval\s*\(/.test(js), false, "widget must not own a polling interval");
-assert.match(js, /\^data:image\\\/(?:png\|svg\\\+xml);/);
+assert.ok(js.includes("/^data:image\\/(?:png|svg\\+xml);/i.test(icon)"), "icon URI allowlist missing");
 assert.match(js, /__PACKRAT_WINDOW_FIXTURE__/);
 assert.match(js, /__PACKRAT_WINDOW_TEST__/);
 assert.equal(/https?:\/\//i.test(js), false, "widget runtime must not call remote HTTP services");
