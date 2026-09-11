@@ -8,6 +8,8 @@ const sandbox={console,URL,Set,Date,Math,globalThis:null,document:undefined};san
 vm.createContext(sandbox);vm.runInContext(source,sandbox,{filename:'clipboard-shelf.js'});
 const api=sandbox.__clipboardShelfTest;
 function assert(v,m){if(!v)throw new Error(m);}
+assert(typeof sandbox.icueEvents?.onICUEInitialized==='function','onICUEInitialized lifecycle handler');
+assert(typeof sandbox.icueEvents?.onDataUpdated==='function','onDataUpdated lifecycle handler');
 assert(api.classifyUrl('https://example.com/a').domain==='example.com','url recognition');
 assert(api.classifyUrl('not a url')===null,'plain text classification');
 const list=api.dedupeEntries([
