@@ -25,6 +25,8 @@ internal static class Program
             return;
         }
 
+        if (CompanionInstall.EnsureInstalledAndRelaunched()) return;
+
         using var singleInstance = new Mutex(true, @"Local\PackRatClipboardShelfBridge", out var created);
         if (!created) return;
 
@@ -50,6 +52,55 @@ internal static class Program
     }
 }
 
+internal static class CompanionInstall
+{
+    private const string RunValueName = "PackRatClipboardShelfBridge";
+
+    public static string InstalledPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "PackRat", "ClipboardShelf", "PackRat.ClipboardShelfBridge.exe");
+
+    public static bool EnsureInstalledAndRelaunched()
+    {
+        var current = Environment.ProcessPath;
+        if (string.IsNullOrWhiteSpace(current)) return false;
+        if (!string.Equals(Path.GetFileName(current), "PackRat.ClipboardShelfBridge.exe", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        try
+        {
+            var installed = InstalledPath;
+            Directory.CreateDirectory(Path.GetDirectoryName(installed)!);
+            if (!string.Equals(Path.GetFullPath(current), Path.GetFullPath(installed), StringComparison.OrdinalIgnoreCase))
+            {
+                File.Copy(current, installed, true);
+                RegisterStartup(installed);
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = installed,
+                    UseShellExecute = true
+                });
+                return true;
+            }
+
+            RegisterStartup(installed);
+        }
+        catch
+        {
+            // The bridge can still run portably if install/startup registration fails.
+        }
+
+        return false;
+    }
+
+    private static void RegisterStartup(string installedPath)
+    {
+        using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(
+            @"Software\Microsoft\Windows\CurrentVersion\Run");
+        key?.SetValue(RunValueName, "\"" + installedPath + "\"", Microsoft.Win32.RegistryValueKind.String);
+    }
+}
+
 internal sealed class ClipEntry
 {
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
@@ -65,6 +116,7 @@ internal sealed class PersistedState
     public int MaxHistory { get; set; } = 40;
     public bool PrivateMode { get; set; }
     public string CurrentId { get; set; } = "";
+    public string PairingToken { get; set; } = "";
 }
 
 internal sealed class SnapshotEntry
@@ -76,6 +128,8 @@ internal sealed class SnapshotEntry
     public bool Favorite { get; init; }
     public string Url { get; init; } = "";
     public string Domain { get; init; } = "";
+    public bool Truncated { get; init; }
+    public int FullLength { get; init; }
 }
 
 internal sealed class BridgeSnapshot
@@ -98,6 +152,7 @@ internal sealed class ClipboardHistory
     private int _maxHistory = 40;
     private bool _privateMode;
     private string _currentId = "";
+    private string _pairingToken = CreatePairingToken();
     private long _revision;
 
     public event Action? Changed;
@@ -107,6 +162,7 @@ internal sealed class ClipboardHistory
     public int Count { get { lock (_gate) return _entries.Count; } }
     public int MaxHistory { get { lock (_gate) return _maxHistory; } }
     public bool PrivateMode { get { lock (_gate) return _privateMode; } }
+    public string PairingToken { get { lock (_gate) return _pairingToken; } }
 
     public void Load()
     {
@@ -114,7 +170,11 @@ internal sealed class ClipboardHistory
         {
             try
             {
-                if (!File.Exists(_storagePath)) return;
+                if (!File.Exists(_storagePath))
+                {
+                    PersistLocked();
+                    return;
+                }
                 var protectedBytes = File.ReadAllBytes(_storagePath);
                 var plain = ProtectedData.Unprotect(protectedBytes, null, DataProtectionScope.CurrentUser);
                 var saved = JsonSerializer.Deserialize<PersistedState>(plain, _json);
@@ -126,12 +186,18 @@ internal sealed class ClipboardHistory
                 _maxHistory = Math.Clamp(saved.MaxHistory, 10, 100);
                 _privateMode = saved.PrivateMode;
                 _currentId = saved.CurrentId ?? "";
+                _pairingToken = string.IsNullOrWhiteSpace(saved.PairingToken) ? CreatePairingToken() : saved.PairingToken;
                 PruneLocked();
+                PersistLocked();
             }
             catch
             {
                 _entries = [];
+                _maxHistory = 40;
+                _privateMode = false;
                 _currentId = "";
+                _pairingToken = CreatePairingToken();
+                PersistLocked();
             }
         }
     }
@@ -178,6 +244,18 @@ internal sealed class ClipboardHistory
         {
             if (_entries.All(x => x.Id != id)) return;
             _currentId = id;
+            PersistLocked();
+            _revision++;
+        }
+        Changed?.Invoke();
+    }
+
+    public void ClearCurrent()
+    {
+        lock (_gate)
+        {
+            if (string.IsNullOrEmpty(_currentId)) return;
+            _currentId = "";
             PersistLocked();
             _revision++;
         }
@@ -305,7 +383,8 @@ internal sealed class ClipboardHistory
                 Entries = _entries.Select(CloneSafe).ToList(),
                 MaxHistory = _maxHistory,
                 PrivateMode = _privateMode,
-                CurrentId = _currentId
+                CurrentId = _currentId,
+                PairingToken = _pairingToken
             };
             var plain = JsonSerializer.SerializeToUtf8Bytes(payload, _json);
             var protectedBytes = ProtectedData.Protect(plain, null, DataProtectionScope.CurrentUser);
@@ -318,6 +397,8 @@ internal sealed class ClipboardHistory
             // Privacy rule: never print clipboard contents or serialized state.
         }
     }
+
+    private static string CreatePairingToken() => Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
 
     private static ClipEntry CloneSafe(ClipEntry x) => new()
     {
@@ -338,15 +419,19 @@ internal sealed class ClipboardHistory
             url = x.Text.Trim();
             domain = uri.Host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? uri.Host[4..] : uri.Host;
         }
+        const int previewLimit = 16_384;
+        var preview = x.Text.Length > previewLimit ? x.Text[..previewLimit] : x.Text;
         return new SnapshotEntry
         {
             Id = x.Id,
-            Text = x.Text,
+            Text = preview,
             CreatedAt = x.CreatedAt.ToUniversalTime().ToString("O"),
             Pinned = x.Pinned,
             Favorite = x.Favorite,
             Url = url,
-            Domain = domain
+            Domain = domain,
+            Truncated = x.Text.Length > previewLimit,
+            FullLength = x.Text.Length
         };
     }
 }
@@ -357,6 +442,7 @@ internal sealed class BridgeCommand
     public string Id { get; set; } = "";
     public bool? Value { get; set; }
     public int? MaxHistory { get; set; }
+    public string Token { get; set; } = "";
 }
 
 internal sealed class BridgeServer : IDisposable
@@ -411,6 +497,8 @@ internal sealed class BridgeServer : IDisposable
             }
 
             using var socket = await context.WebSockets.AcceptWebSocketAsync(Protocol);
+            if (!await AuthenticateAsync(socket)) return;
+
             var id = Guid.NewGuid();
             _clients[id] = socket;
             try
@@ -441,38 +529,64 @@ internal sealed class BridgeServer : IDisposable
         }
     }
 
-    private static bool AllowedOrigin(string origin)
+    internal static bool AllowedOrigin(string origin)
     {
         if (string.IsNullOrWhiteSpace(origin) || origin.Equals("null", StringComparison.OrdinalIgnoreCase)) return true;
-        return origin.StartsWith("file://", StringComparison.OrdinalIgnoreCase)
-            || origin.StartsWith("http://127.0.0.1", StringComparison.OrdinalIgnoreCase)
-            || origin.StartsWith("http://localhost", StringComparison.OrdinalIgnoreCase);
+        if (origin.Equals("file://", StringComparison.OrdinalIgnoreCase)) return true;
+        if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri)) return false;
+        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) return false;
+        return string.Equals(uri.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(uri.Host, "localhost", StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal static bool SecureTokenEquals(string expected, string provided)
+    {
+        if (string.IsNullOrWhiteSpace(expected) || string.IsNullOrWhiteSpace(provided)) return false;
+        var left = Encoding.UTF8.GetBytes(expected);
+        var right = Encoding.UTF8.GetBytes(provided);
+        return CryptographicOperations.FixedTimeEquals(left, right);
+    }
+
+    private async Task<bool> AuthenticateAsync(WebSocket socket)
+    {
+        var command = await ReceiveCommandAsync(socket);
+        if (command is not null
+            && string.Equals(command.Command, "auth", StringComparison.OrdinalIgnoreCase)
+            && SecureTokenEquals(_history.PairingToken, command.Token))
+            return true;
+
+        try { await socket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "pairing", CancellationToken.None); } catch { }
+        return false;
+    }
+
+    private static async Task<BridgeCommand?> ReceiveCommandAsync(WebSocket socket)
+    {
+        var buffer = new byte[4096];
+        using var ms = new MemoryStream();
+        WebSocketReceiveResult result;
+        do
+        {
+            result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            if (result.MessageType == WebSocketMessageType.Close)
+            {
+                try { await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", CancellationToken.None); } catch { }
+                return null;
+            }
+            if (result.MessageType != WebSocketMessageType.Text) return null;
+            ms.Write(buffer, 0, result.Count);
+            if (ms.Length > 32_768) return null;
+        } while (!result.EndOfMessage);
+
+        try { return JsonSerializer.Deserialize<BridgeCommand>(ms.ToArray(), new JsonSerializerOptions(JsonSerializerDefaults.Web)); }
+        catch { return null; }
     }
 
     private async Task ClientLoopAsync(WebSocket socket)
     {
-        var buffer = new byte[4096];
         while (socket.State == WebSocketState.Open)
         {
-            using var ms = new MemoryStream();
-            WebSocketReceiveResult result;
-            do
-            {
-                result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                if (result.MessageType == WebSocketMessageType.Close)
-                {
-                    try { await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", CancellationToken.None); } catch { }
-                    return;
-                }
-                if (result.MessageType != WebSocketMessageType.Text) return;
-                ms.Write(buffer, 0, result.Count);
-                if (ms.Length > 32_768) return;
-            } while (!result.EndOfMessage);
-
-            BridgeCommand? command;
-            try { command = JsonSerializer.Deserialize<BridgeCommand>(ms.ToArray(), new JsonSerializerOptions(JsonSerializerDefaults.Web)); }
-            catch { continue; }
-            if (command is null) continue;
+            var command = await ReceiveCommandAsync(socket);
+            if (command is null) return;
             await HandleAsync(command, socket);
         }
     }
@@ -550,6 +664,7 @@ internal sealed class ClipboardWindow : Form
     private const int WM_CLIPBOARDUPDATE = 0x031D;
     private readonly ClipboardHistory _history;
     private readonly NotifyIcon _tray;
+    private string _suppressNextClipboardText = "";
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool AddClipboardFormatListener(IntPtr hwnd);
@@ -570,12 +685,28 @@ internal sealed class ClipboardWindow : Form
         var status = new ToolStripMenuItem("Clipboard Shelf Bridge: running") { Enabled = false };
         var privateItem = new ToolStripMenuItem("Private Mode") { Checked = _history.PrivateMode, CheckOnClick = true };
         privateItem.CheckedChanged += (_, _) => _history.SetPrivate(privateItem.Checked);
+        var pairing = new ToolStripMenuItem("Copy Pairing Code");
+        pairing.Click += (_, _) =>
+        {
+            _suppressNextClipboardText = _history.PairingToken;
+            Clipboard.SetText(_suppressNextClipboardText, TextDataFormat.UnicodeText);
+            _history.ClearCurrent();
+        };
         var clear = new ToolStripMenuItem("Clear History");
-        clear.Click += (_, _) => _history.Clear();
+        clear.Click += (_, _) =>
+        {
+            if (MessageBox.Show(
+                "Clear all Clipboard Shelf history? Pinned and favorite entries will also be removed.",
+                "Clipboard Shelf",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning) == DialogResult.Yes)
+                _history.Clear();
+        };
         var exit = new ToolStripMenuItem("Exit");
         exit.Click += (_, _) => Close();
         menu.Items.Add(status);
         menu.Items.Add(privateItem);
+        menu.Items.Add(pairing);
         menu.Items.Add(clear);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(exit);
@@ -621,9 +752,21 @@ internal sealed class ClipboardWindow : Form
         {
             try
             {
-                if (!Clipboard.ContainsText(TextDataFormat.UnicodeText)) return;
+                if (!Clipboard.ContainsText(TextDataFormat.UnicodeText))
+                {
+                    _history.ClearCurrent();
+                    return;
+                }
                 var text = Clipboard.GetText(TextDataFormat.UnicodeText);
+                if (!string.IsNullOrEmpty(_suppressNextClipboardText)
+                    && string.Equals(text, _suppressNextClipboardText, StringComparison.Ordinal))
+                {
+                    _suppressNextClipboardText = "";
+                    _history.ClearCurrent();
+                    return;
+                }
                 if (!string.IsNullOrEmpty(text)) _history.Ingest(text);
+                else _history.ClearCurrent();
                 return;
             }
             catch (ExternalException)
@@ -668,6 +811,15 @@ internal static class SelfTest
         try
         {
             var h = new ClipboardHistory(path);
+            h.Load();
+            if (h.PairingToken.Length < 24) throw new Exception("pairing token generation failed");
+            if (!BridgeServer.SecureTokenEquals(h.PairingToken, h.PairingToken)) throw new Exception("pairing token equality failed");
+            if (BridgeServer.SecureTokenEquals(h.PairingToken, h.PairingToken + "x")) throw new Exception("pairing token rejection failed");
+            if (!BridgeServer.AllowedOrigin("null") || !BridgeServer.AllowedOrigin("file://")) throw new Exception("local file origin rejected");
+            if (!BridgeServer.AllowedOrigin("http://127.0.0.1:8080") || !BridgeServer.AllowedOrigin("http://localhost:8080")) throw new Exception("localhost origin rejected");
+            if (BridgeServer.AllowedOrigin("http://localhost.evil.example") || BridgeServer.AllowedOrigin("https://example.com")) throw new Exception("remote origin accepted");
+            if (!CompanionInstall.InstalledPath.EndsWith("PackRat.ClipboardShelfBridge.exe", StringComparison.OrdinalIgnoreCase)) throw new Exception("install path invalid");
+
             h.SetMaxHistory(10);
             h.Ingest("pin me");
             var pinId = h.Snapshot().CurrentId;
@@ -697,6 +849,26 @@ internal static class SelfTest
             var reload = new ClipboardHistory(path);
             reload.Load();
             if (reload.Count != snapshot.Entries.Count) throw new Exception("DPAPI persistence reload failed");
+            if (!BridgeServer.SecureTokenEquals(h.PairingToken, reload.PairingToken)) throw new Exception("pairing token persistence failed");
+
+            reload.Ingest(new string('L', 20_000));
+            var longEntry = reload.Snapshot().Entries.First(x => x.FullLength == 20_000);
+            if (!longEntry.Truncated || longEntry.Text.Length != 16_384) throw new Exception("long preview cap failed");
+            if (reload.GetText(longEntry.Id)?.Length != 20_000) throw new Exception("full long clipboard text not preserved");
+
+            reload.ClearCurrent();
+            if (!string.IsNullOrEmpty(reload.Snapshot().CurrentId)) throw new Exception("current clipboard clear failed");
+
+            var health = JsonSerializer.Serialize(reload.Health());
+            if (health.Contains(reload.PairingToken, StringComparison.Ordinal) || health.Contains("rapid-49", StringComparison.Ordinal))
+                throw new Exception("health endpoint privacy failed");
+
+            var corruptPath = Path.Combine(root, "corrupt-state.dat");
+            Directory.CreateDirectory(root);
+            File.WriteAllBytes(corruptPath, [1, 2, 3, 4, 5]);
+            var corrupt = new ClipboardHistory(corruptPath);
+            corrupt.Load();
+            if (corrupt.Count != 0 || corrupt.PairingToken.Length < 24) throw new Exception("corrupt persistence recovery failed");
 
             reload.Clear();
             if (reload.Count != 0) throw new Exception("clear failed");
