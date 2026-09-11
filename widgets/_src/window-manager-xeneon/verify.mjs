@@ -48,12 +48,17 @@ for (const slot of ["s-h", "s-v", "m-h", "m-v", "l-h", "l-v", "xl-h", "xl-v"]) {
 for (const action of ["focus", "minimize", "maximize_restore", "snap_left", "snap_right", "move_monitor", "close"]) {
   assert.ok(js.includes(`\"${action}\"`), `missing action ${action}`);
 }
-assert.match(js, /ws:\/\/127\.0\.0\.1:17484/);
+assert.match(js, /ws:\/\/127\.0\.0\.1:17487\/widget/);
 assert.match(js, /type:\s*"hello"/);
 assert.match(js, /key:\s*model\.settings\.bridgeKey/);
 assert.match(js, /confirmClose/);
 assert.match(js, /sendCommand\("close"\)/);
 assert.match(js, /PIN_STORAGE_KEY/);
+assert.match(js, /schemaVersion:\s*1/);
+assert.match(js, /version_mismatch/);
+assert.match(js, /pagehide/);
+assert.equal(/setInterval\s*\(/.test(js), false, "widget must not own a polling interval");
+assert.match(js, /\^data:image\\\/(?:png\|svg\\\+xml);/);
 assert.match(js, /__PACKRAT_WINDOW_FIXTURE__/);
 assert.match(js, /__PACKRAT_WINDOW_TEST__/);
 assert.equal(/https?:\/\//i.test(js), false, "widget runtime must not call remote HTTP services");
