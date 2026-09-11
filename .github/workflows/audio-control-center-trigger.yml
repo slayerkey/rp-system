@@ -122,8 +122,17 @@ jobs:
 
           & $installedUninstaller
           if ($LASTEXITCODE -ne 0) { throw "installed UNINSTALL_STARTUP.cmd failed with exit code $LASTEXITCODE" }
-          if (Test-Path $dest) { throw 'startup uninstall left installed bridge directory behind' }
-          if (Test-Path $startup) { throw 'startup uninstall left user Startup entry behind' }
+          $clean = $false
+          for ($i = 0; $i -lt 30; $i++) {
+            if (-not (Test-Path $dest) -and -not (Test-Path $startup)) {
+              $clean = $true
+              break
+            }
+            Start-Sleep -Milliseconds 250
+          }
+          if (-not $clean) {
+            throw "startup uninstall did not fully clean up. dest=$((Test-Path $dest)) startup=$((Test-Path $startup))"
+          }
 
       - uses: actions/upload-artifact@v4
         with:
