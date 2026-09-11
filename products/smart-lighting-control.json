@@ -3,7 +3,7 @@
   "name": "Hue & Govee Lighting Control",
   "type": "widget",
   "status": "qa_passed",
-  "workflow_state": "QA_IN_PROGRESS",
+  "workflow_state": "READY_TO_SHIP",
   "blocker": null,
   "price_usd": 9.99,
   "version": "1.0.0",
@@ -53,47 +53,58 @@
     "Govee failed manual-IP placeholder cleanup and rejected-cloud-key offline state"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "e41a6eecc1a60c21e78a4fe11f99e1bedd8898de",
-    "deep_qa_run": 34600105757,
+    "candidate_commit": "719fab7c13f080752905d4ecf1f0865e9302f7b0",
+    "deep_qa_run": 34602024686,
     "cross_commit_reproducibility": {
       "baseline_commit": "833003ef62c8d18c1214bf20705f28580502b118",
       "proof_commit": "e41a6eecc1a60c21e78a4fe11f99e1bedd8898de",
       "companion_exe_sha256": "df08ba26808dd473d24e13a85c4d967835070922d07e7204a4fc046928bddbb6",
       "companion_zip_sha256": "f919182ab19803ef39a69fbc7c9acae5cd51570ecf5aaf38bafdfeb164beaa04",
+      "final_listing_commit_reverified": true,
       "immutable_release_gate": "PASS: existing v1.0.0 matches exact build"
     },
     "final_rat_ship_artifact": {
-      "id": 10264031246,
-      "sha256": "9760f54e751e4b245821eb4fc8e711fb11c656bc190599200e0b16083c76cac7"
+      "id": 10264224714,
+      "sha256": "0edf567cb1ac9d47e53ee460f043c59cccf5b745c7d62fa8b3651b73bb9bc5ca"
     },
     "official_package_artifact": {
-      "id": 10264140677,
-      "sha256": "55018ec193112ce8095ac74f9ca9d3881a51b17691c1e3b6ca1144d2dcdb6879"
+      "id": 10265146081,
+      "sha256": "4ddd16734866ba55b376d83bf6505ed5e21c12850ffe146f0671b0ee23df52a3"
     },
     "windows_companion_artifact": {
-      "id": 10264165762,
-      "sha256": "70d1943d7ab14d773b5e88a19c497b8f7d6228ddfe7770967a3daf51a4b81198"
+      "id": 10264846307,
+      "sha256": "02f8c3fc26bfc4c962b461c4771983562562103caa601b68420ead253a5b78f4"
     },
     "windows_qa_artifact": {
-      "id": 10264330606,
-      "sha256": "e23aceb137c3586d1317988dc7bd33db6e477472eca1c66790accb29259c5957"
+      "id": 10265011143,
+      "sha256": "684c97a1077d10df98d3ec988dd2a8072cb45aaddc9197cfee547dc8e3c1b2e3"
     },
     "streamspell_artifact": {
-      "id": 10263403899,
-      "sha256": "3ad7639ab95dd4c23b1899aa244c87e7b718118a68262a3f8e2fc721feb7753a"
+      "id": 10264679279,
+      "sha256": "f65c8fa7be2c31c691ee9dffbb759de28a6c60877b8b7e627fb048de8233b98d"
     },
     "public_companion_release": {
       "release_id": 387027174,
       "asset_id": 557226553,
       "sha256": "f919182ab19803ef39a69fbc7c9acae5cd51570ecf5aaf38bafdfeb164beaa04",
-      "checksum_asset_id": 557236131,
+      "checksum_asset_id": 557270789,
       "url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip",
       "verified_customer_url": "https://packrat-site.pages.dev/downloads/smart-lighting"
+    },
+    "marketplace_preflight": {
+      "listing_name": "Hue & Govee Lighting Control",
+      "listing_name_characters": 28,
+      "description_characters": 1051,
+      "search_icon": "PNG 288x288, enforced",
+      "cover": "PNG 1920x960, enforced",
+      "gallery": "4 PNG items at 1920x960, >=3 enforced",
+      "reviewer_demo_checklist": "generated in Rat Ship kit",
+      "hardware_demo_status": "not_recorded"
     }
   },
   "hardware_boundary": "No physical XENEON Edge, Hue Bridge/light, or Govee light/credentials were available in this build session. Real provider code compiled and passed deterministic protocol/API fixtures plus exact-package localhost-companion integration. A physical smoke test is recommended when hardware is available, but is not represented as completed.",
-  "final_boundary": "Authenticated Maker Console submission through rat ship smart-lighting-control. Marketplace auto-publish remains disabled.",
-  "notes": "Final listing hardening QA in progress: shorter Marketplace name, strict Rat Ship media dimensions, and explicit physical-demo review checklist. Runtime and companion code are unchanged.",
+  "final_boundary": "Authenticated Maker Console submission through rat ship smart-lighting-control. Live PackRat tooling has previously confirmed Widget/.icuewidget support in Maker Console. Marketplace review may request a real hardware functionality video; automated QA does not substitute for physical proof.",
+  "notes": "Final automated and listing hardening complete. Run 34602024686 is fully green: official CORSAIR validation/package, exact-package QA, real Windows companion install/startup/single-instance behavior, rapid multi-client WebSocket stress, Corsair Labs host smoke, StreamSpell all-eight, strict Marketplace media dimensions, reviewer-demo checklist generation, immutable cross-commit companion release, and exact public PackRat download SHA256. Physical XENEON + Hue/Govee demo remains honestly unrecorded.",
   "companion_download_url": "https://packrat-site.pages.dev/downloads/smart-lighting",
   "companion_release_tag": "smart-lighting-companion-v1.0.0",
   "companion_release_asset_url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip",
