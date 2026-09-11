@@ -1,0 +1,21 @@
+{
+  "author": "PackRat 🐀",
+  "id": "com.packrat.marketcommandcenter",
+  "name": "Market Command Center",
+  "description": "Your watchlist, live on your dashboard. Pin S&P 500, Nasdaq 100 and Dow ETF proxies at the top, track stocks and crypto side by side, and see prices, daily movement and rolling charts at a glance. Crypto works immediately; stocks use your own Finnhub API key. Keeps showing last known prices when the connection drops.",
+  "version": "1.0.2",
+  "preview_icon": "resources/icon.svg",
+  "min_framework_version": "1.0.0",
+  "min_app_version": "5.47",
+  "os": [
+    {
+      "platform": "windows"
+    }
+  ],
+  "supported_devices": [
+    {
+      "type": "dashboard_lcd"
+    }
+  ],
+  "interactive": false
+}
