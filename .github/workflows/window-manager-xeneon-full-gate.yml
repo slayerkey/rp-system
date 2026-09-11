@@ -329,8 +329,14 @@ jobs:
 
       - name: Install browser dependencies
         run: |
-          npm install --no-save playwright@1.62.1
+          rm -rf /tmp/ratpack-window-manager-audit
+          mkdir -p /tmp/ratpack-window-manager-audit
+          cd /tmp/ratpack-window-manager-audit
+          npm init -y >/dev/null 2>&1
+          npm install --save-dev playwright@1.62.1
           npm audit --audit-level=high
+          cd "$GITHUB_WORKSPACE"
+          npm install --no-save playwright@1.62.1
           npx playwright install --with-deps chromium
 
       - name: Start StreamSpell builder locally
@@ -389,9 +395,18 @@ jobs:
       - name: Install deterministic art dependencies
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
           python -m pip install --disable-pip-version-check Pillow==12.3.0
-          npm install --no-save playwright@1.62.1
+          $auditDir = Join-Path $env:RUNNER_TEMP 'ratpack-window-manager-audit'
+          if (Test-Path $auditDir) { Remove-Item -Recurse -Force $auditDir }
+          New-Item -ItemType Directory -Force -Path $auditDir | Out-Null
+          Push-Location $auditDir
+          npm init -y | Out-Null
+          npm install --save-dev playwright@1.62.1
           npm audit --audit-level=high
+          Pop-Location
+          npm install --no-save playwright@1.62.1
           npx playwright install chromium
 
       - name: Build canonical widget for deterministic capture
