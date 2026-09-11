@@ -43,6 +43,24 @@ jobs:
           npm test
           Pop-Location
 
+      - name: Validate Lite migration tooling
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          node --check tools/qa/window-manager-lite-conversion-guard.mjs
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'tools/local/import-window-manager-lite.ps1'),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            throw 'Window Manager Lite importer has PowerShell parse errors.'
+          }
+          Write-Host 'WINDOW MANAGER LITE MIGRATION TOOLING PARSE PASS'
+
       - name: Install browser QA dependency
         shell: pwsh
         run: |
