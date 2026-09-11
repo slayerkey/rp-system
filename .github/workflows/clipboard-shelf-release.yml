@@ -189,7 +189,7 @@ jobs:
           $logs = Get-ChildItem artifacts -Recurse -File -Include *.log,*.txt -ErrorAction SilentlyContinue
           foreach ($log in $logs) {
             $raw = Get-Content $log.FullName -Raw -ErrorAction SilentlyContinue
-            if ($raw -match 'deterministic short text|private fixture text|rapid-49') {
+            if ($raw -match 'deterministic short text|private fixture text|rapid-49|A1B2C3D4E5F60718293A4B5C6D7E8F90') {
               throw "clipboard fixture contents leaked into CI evidence log: $($log.FullName)"
             }
           }
