@@ -77,9 +77,18 @@ jobs:
           if (-not $exe) { throw "Clipboard Shelf bridge publish did not produce an executable" }
           Copy-Item $exe.FullName artifacts/companion/PackRat.ClipboardShelfBridge.exe
           Copy-Item companions/clipboard-shelf/README.md artifacts/companion/README.md
+          Copy-Item companions/clipboard-shelf/SECURITY.md artifacts/companion/SECURITY.md
+          Copy-Item companions/clipboard-shelf/Uninstall.cmd artifacts/companion/Uninstall.cmd
+          Copy-Item companions/clipboard-shelf/Uninstall.ps1 artifacts/companion/Uninstall.ps1
           & artifacts/companion/PackRat.ClipboardShelfBridge.exe --self-test
           if ($LASTEXITCODE -ne 0) { throw "Published Clipboard Shelf bridge self-test failed with exit code $LASTEXITCODE" }
-          Compress-Archive -Path artifacts/companion/PackRat.ClipboardShelfBridge.exe,artifacts/companion/README.md -DestinationPath artifacts/companion/PackRat-Clipboard-Shelf-Bridge-1.0.0-win-x64.zip -Force
+          Compress-Archive -Path artifacts/companion/PackRat.ClipboardShelfBridge.exe,artifacts/companion/README.md,artifacts/companion/SECURITY.md,artifacts/companion/Uninstall.cmd,artifacts/companion/Uninstall.ps1 -DestinationPath artifacts/companion/PackRat-Clipboard-Shelf-Bridge-1.0.0-win-x64.zip -Force
+          $check = Join-Path $env:RUNNER_TEMP 'clipboard-shelf-companion-zip'
+          if (Test-Path $check) { Remove-Item -Recurse -Force $check }
+          Expand-Archive artifacts/companion/PackRat-Clipboard-Shelf-Bridge-1.0.0-win-x64.zip $check
+          foreach ($required in @('PackRat.ClipboardShelfBridge.exe','README.md','SECURITY.md','Uninstall.cmd','Uninstall.ps1')) {
+            if (-not (Test-Path (Join-Path $check $required))) { throw "companion release ZIP missing $required" }
+          }
 
       - name: Deterministic widget logic verification
         shell: pwsh
