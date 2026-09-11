@@ -1,91 +1,88 @@
 # Window Manager for XENEON - QA contract
 
-## Current architecture state
+## Current architecture
 
-Target customer architecture:
+Customer architecture:
 
 ```text
 Window Manager for XENEON
   -> localhost protocol v1 on 127.0.0.1:17487
-  -> free Window Manager Lite Stream Deck plugin
-  -> existing native Window Manager engine
+  -> free Window Manager Lite 1.0.0.3
+  -> existing native Window Manager Win32 engine
   -> Windows
 ```
 
-The previous standalone PackRat Window Bridge remains only as a protocol/native reference during this refactor. It is not the intended final customer dependency.
+The standalone PackRat Window Bridge is retained only as historical protocol/native-reference evidence. It is not the intended customer dependency.
 
-The product is intentionally **not READY_TO_SHIP** until the actual Window Manager Lite source is migrated and the exact Lite package passes the gates below.
+## Finished release candidates
 
-## XENEON automated QA already retained
+### Window Manager Lite
 
-- static identity and paid XENEON metadata
-- JavaScript syntax and safe-close routing
-- all eight native XENEON viewports in Playwright
-- overflow and minimum touch-target assertions
-- deterministic six-window / four-monitor fixture
-- focus, minimize, maximize/restore, snap left/right, move monitor, pin/unpin and confirmed close
-- disconnected, pairing, protocol-mismatch, empty and no-active-window states
-- malformed and legacy pinned-app storage recovery
-- Unicode, emoji, descenders and HTML-looking titles
-- data-image-only icon URI allowlist
-- repeated iCUE lifecycle idempotency
-- pagehide cleanup
-- lexical iCUE Custom Style regression
-- no-callback iCUE autosync regression
-- official CORSAIR package validation
-- Corsair Labs host smoke
-- StreamSpell all-eight-presets package verification
+Built from the exact uploaded 1.0.0.2 production package.
 
-## New Window Manager Lite service gate
+Candidate:
+- version: `1.0.0.3`
+- SHA-256: `731e3ccc1262344f4cef0773cbe3ea660c6573f77ab1ad0594f1d39e61908845`
+- size: `1,693,823` bytes
+- visible actions remain exactly:
+  - Snap Window: `com.packrat.windowmanager.snap`
+  - Cycle Windows: `com.packrat.windowmanager.cycle`
+- existing Window Manager Pro Marketplace upsell remains present
+- no Pro action UUIDs are exposed
+- XENEON service registers no Stream Deck action
+- Property Inspector adds XENEON Edge setup with pairing-key copy and local setup page controls
 
-`shared/window-manager-xeneon-service/` is the hidden localhost service intended to run inside the existing Lite plugin process.
+### Window Manager for XENEON
 
-Automated contract tests cover:
+Candidate:
+- version: `1.0.0`
+- SHA-256: `0d3f618024374955a186b3b05591fb6c16257d377e2453c94d00d5b88fd1978c`
+- size: `15,662` bytes
+- direct Window Manager Lite Marketplace install/update link is shown during pairing/disconnected/version-mismatch setup states
 
-- localhost-only HTTP/WebSocket service
-- local/file origin policy
+## Passing automated/local gates
+
+- exact Lite baseline captured before modification
+- Lite -> Pro conversion guard
+- JavaScript syntax for plugin, Win32 adapter, XENEON service and Property Inspector scripts
+- ZIP integrity of updated Lite package
+- localhost-only service
 - protocol v1
 - fixed-time pairing-key comparison
+- 64 KiB WebSocket message cap
 - narrow command allowlist
-- normalized windows/monitors/active-window snapshot
+- snapshot normalization
+- correct-key authentication
 - wrong-key rejection
-- protocol mismatch
-- service restart/reconnect
-- exact official XENEON package communicating with the Lite-hosted service
-- all XENEON window commands against the service fixture
-- zero Stream Deck action registration by the shared service
+- protocol mismatch rejection
+- arbitrary-command rejection
+- focus/minimize/maximize-restore/snap-left/snap-right/move-monitor/close command routing
+- no shell/process execution API
+- direct XENEON -> Lite Marketplace setup affordance
+- XENEON candidate ZIP integrity
 
-## Lite -> Pro conversion guard
+Existing XENEON QA retained from earlier full gates:
+- all eight XENEON viewports
+- overflow and touch-target checks
+- active/empty/disconnected/pairing/version-mismatch states
+- safe close confirmation
+- pinned-app persistence recovery
+- Unicode/emoji/descender/HTML-looking titles
+- remote icon URI rejection
+- repeated iCUE lifecycle idempotency
+- pagehide cleanup
+- lexical Custom Style regression
+- no-callback iCUE autosync
+- official CORSAIR package validation on the pre-link package
+- Corsair Labs host smoke on the previous bridge-backed package
+- StreamSpell all-eight-presets verification
 
-Before modifying the actual Window Manager Lite source, capture its current shipped manifest and Property Inspector as the baseline.
+## Remaining real-runtime boundary
 
-After integration, run:
+The software release candidates are built. Before claiming hardware verification, still perform:
 
-`tools/qa/window-manager-lite-conversion-guard.mjs`
+1. install the exact Lite 1.0.0.3 candidate in the Windows Stream Deck application and confirm its hidden localhost service starts from the real plugin lifecycle
+2. connect the exact XENEON candidate and smoke focus/minimize/maximize/snap/move/close against real desktop windows, including expected Windows elevation restrictions
+3. perform physical XENEON Edge touch/readability testing when hardware is available
 
-The final Lite update must prove:
-
-- visible Lite action UUID/name set is unchanged
-- Window Manager Pro upsell URL is still present
-- no Pro action is added to Lite
-- the hidden XENEON service registers no Stream Deck action
-- the XENEON setup affordance does not replace or weaken the Pro upsell
-
-## Required final exact-Lite gate
-
-These items are still required before release status can be restored:
-
-1. migrate the actual Window Manager Lite source into canonical GitHub
-2. integrate the shared service with Lite's existing native window engine
-3. preserve the exact visible Lite action surface
-4. preserve the existing Window Manager Pro upsell
-5. build and officially validate the updated Lite `.streamDeckPlugin`
-6. launch the exact updated Lite package/backend on Windows
-7. connect the exact official XENEON `.icuewidget` to that running Lite service
-8. run focus/minimize/maximize/snap/move/close, restart, wrong-key and protocol-mismatch integration
-9. rerun all XENEON host/layout/package gates
-10. regenerate Rat Art and Rat Ship only after all above are green
-
-## Deliberate remaining real-device boundary
-
-Even after the exact Lite package gate passes, automated CI cannot prove every Windows foreground-lock/elevation case or physical XENEON Edge touch/readability behavior. Those remain additional real-Windows/physical smokes, not substitutes for the automated release gate.
+These are real-runtime/hardware smokes, not missing implementation work.
