@@ -88,7 +88,7 @@ public sealed class LightingController : ILightingRuntime, IAsyncDisposable {
 
     public Task<List<HueBridgeCandidate>> DiscoverHueAsync(CancellationToken ct=default)=>hue.DiscoverAsync(ct);
     public async Task<string> PairHueAsync(string ip,CancellationToken ct=default){var r=await hue.PairAsync(ip,ct);await RefreshAsync(ct);return r;}
-    public async Task ClearHuePairingAsync(CancellationToken ct=default){state.ClearHuePairing();await RefreshAsync(ct);}
+    public async Task ClearHuePairingAsync(CancellationToken ct=default){hue.ClearPairing();await RefreshAsync(ct);}
     public async Task<int> ScanGoveeLanAsync(string? manualIp=null,CancellationToken ct=default){var n=await govee.DiscoverLanAsync(manualIp,ct);await RefreshAsync(ct);return n;}
     public async Task SetGoveeKeyAsync(string key,CancellationToken ct=default){await govee.ValidateAndSaveApiKeyAsync(key,ct);await RefreshAsync(ct);}
     public async Task ClearGoveeKeyAsync(CancellationToken ct=default){govee.ClearApiKeyAndCache();await RefreshAsync(ct);}
@@ -98,7 +98,7 @@ public sealed class LightingController : ILightingRuntime, IAsyncDisposable {
         govee=new{lan=Snapshot.Providers.TryGetValue("govee",out var g)&&g.Lan,cloud=govee.CloudConfigured},
         targetCount=Snapshot.Targets.Count
     };
-    public async ValueTask DisposeAsync(){stop.Cancel();if(loop is not null)try{await loop;}catch{}stop.Dispose();refreshLock.Dispose();}
+    public async ValueTask DisposeAsync(){stop.Cancel();if(loop is not null)try{await loop;}catch{}hue.Dispose();govee.Dispose();stop.Dispose();refreshLock.Dispose();}
 }
 
 public sealed class FixtureRuntime : ILightingRuntime {
