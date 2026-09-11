@@ -418,20 +418,30 @@ function wireTouch(){
   document.addEventListener("pointerdown",markInteraction,{passive:true});
   document.addEventListener("keydown",markInteraction);
 }
+function cleanup(){
+  state.timers.forEach(function(timer){clearInterval(timer)});
+  state.timers=[];
+  Object.keys(state.pending).forEach(function(id){
+    var pending=state.pending[id];
+    if(pending&&pending.timer)clearTimeout(pending.timer);
+    if(pending&&typeof pending.resolve==="function")pending.resolve(null);
+    delete state.pending[id];
+  });
+}
 function beginTimers(){
+  if(state.timers.length)return;
   state.timers.push(setInterval(tickAmbient,120));
   state.timers.push(setInterval(lifecycleTick,1000));
   state.timers.push(setInterval(function(){applySettings(false)},500));
   state.timers.push(setInterval(pollSensors,2200));
-  state.timers.push(setInterval(function(){if(!Object.values(state.sensorIds).some(Boolean))discoverSensors()},15000));
+  state.timers.push(setInterval(discoverSensors,15000));
 }
 function init(){
   applySlot();state.cfg=settings();state.settingsFingerprint=fingerprint(state.cfg);
-  var savedStyle=loadStore("style",null);
-  var initialStyle=savedStyle&&savedStyle.base===state.cfg.terminalStyle?savedStyle.value:state.cfg.terminalStyle;
-  applyEffects();applyStyle(initialStyle,false);renderIdentity();setProgram(restoreProgram(state.cfg),"restore");
+  applyEffects();applyStyle(state.cfg.terminalStyle,false);renderIdentity();setProgram(restoreProgram(state.cfg),"restore");
   wireTouch();beginTimers();startBoot();
   addEventListener("resize",applySlot);
+  addEventListener("pagehide",cleanup,{once:true});
 }
 globalThis.__retroTerminalPro=state;
 globalThis.__retroTerminalProTest={
@@ -444,6 +454,8 @@ globalThis.__retroTerminalProTest={
   forcePromptComplete:function(){renderPrompt(true)},
   discoverSensors:discoverSensors,
   pollSensors:pollSensors,
-  snapshot:function(){return{program:state.activeProgram,style:state.activeStyle,idle:state.idle,slot:document.body.getAttribute("data-slot"),started:state.started,sensors:JSON.parse(JSON.stringify(state.sensorValues))}}
+  lifecycleTick:lifecycleTick,
+  cleanup:cleanup,
+  snapshot:function(){return{program:state.activeProgram,style:state.activeStyle,idle:state.idle,slot:document.body.getAttribute("data-slot"),started:state.started,providerState:state.sensorProviderState,timers:state.timers.length,sensors:JSON.parse(JSON.stringify(state.sensorValues))}}
 };
 init();
