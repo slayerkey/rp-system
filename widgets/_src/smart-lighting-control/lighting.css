@@ -7,6 +7,8 @@
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,"Segoe UI",Arial,sans-serif}
 button,input{font:inherit}
 button{color:inherit}
+button:disabled,input:disabled{opacity:.42;cursor:not-allowed}
+.color-pad[aria-disabled="true"]{opacity:.42;cursor:not-allowed;filter:saturate(.55)}
 #stage{width:100vw;height:100vh;padding:var(--pad);display:grid;grid-template-rows:50px 48px minmax(0,1fr);gap:var(--gap);background:
  radial-gradient(circle at 85% 0%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 34%),
  linear-gradient(145deg,var(--bg),color-mix(in srgb,var(--bg) 92%,#15182A))}
