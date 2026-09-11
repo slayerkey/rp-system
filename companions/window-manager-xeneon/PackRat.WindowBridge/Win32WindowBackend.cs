@@ -447,6 +447,9 @@ internal static class Native
     public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
 
     [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll")]
     public static extern bool IsWindowVisible(IntPtr hwnd);
 
     [DllImport("user32.dll")]
