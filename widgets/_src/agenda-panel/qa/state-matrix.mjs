@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const entry = path.join(root, 'widgets', 'agenda-panel', 'index.html');
 const html = fs.readFileSync(entry, 'utf8');
-const valid = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:test\r\nDTSTART:20260823T120000\r\nDTEND:20260823T130000\r\nSUMMARY:State test\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
+const now = new Date();\nconst pad = (n) => String(n).padStart(2, '0');\nconst ymd = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;\nconst valid = `BEGIN:VCALENDAR\\r\\nVERSION:2.0\\r\\nBEGIN:VEVENT\\r\\nUID:test\\r\\nDTSTART:${ymd}T120000\\r\\nDTEND:${ymd}T130000\\r\\nSUMMARY:State test\\r\\nEND:VEVENT\\r\\nEND:VCALENDAR\\r\\n`;
 const empty = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n`;
 const malformed = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nTHIS IS BAD\r\nEND:VCALENDAR\r\n`;
 const secretUrl = 'https://calendar.example/private-secret-token/basic.ics';
@@ -98,7 +98,7 @@ page = await pageWith(secretUrl, [valid]);
 out.partial = await page.evaluate(async () => {
   calendarUrl1 = 'https://one.invalid/a.ics';
   calendarUrl2 = 'https://two.invalid/b.ics';
-  const good = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:partial\r\nDTSTART:20260823T120000\r\nDTEND:20260823T130000\r\nSUMMARY:Partial good\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
+  const today = new Date();\n  const two = (n) => String(n).padStart(2, '0');\n  const stamp = `${today.getFullYear()}${two(today.getMonth() + 1)}${two(today.getDate())}`;\n  const good = `BEGIN:VCALENDAR\\r\\nVERSION:2.0\\r\\nBEGIN:VEVENT\\r\\nUID:partial\\r\\nDTSTART:${stamp}T120000\\r\\nDTEND:${stamp}T130000\\r\\nSUMMARY:Partial good\\r\\nEND:VEVENT\\r\\nEND:VCALENDAR\\r\\n`;
   loadCalendarText = async (url, index) => index === 0 ? { text: good, via: 'fixture' } : null;
   await refreshCalendars(true);
   return { state: document.body.dataset.state, failed: STATE.failedCount, sources: STATE.sourceCount, events: STATE.events.length };
