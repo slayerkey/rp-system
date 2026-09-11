@@ -42,4 +42,4 @@ Rat Ship successfully rebuilt the widget, ran official CORSAIR validation and pa
 
 ## Network host policy
 
-The current Widget API manifest does not define a `network_hosts` field. Calendar Panel therefore does not invent one in the product manifest. User-supplied calendar hosts are handled as configured ICS URLs, with loopback `127.0.0.1` used only for the optional companion bridge fallback.
+The current Widget API manifest does not define a `network_hosts` field. Calendar Panel therefore does not invent one in the product manifest. User-supplied calendar hosts are handled as configured ICS URLs. Direct fetch is attempted first, with the Packrat HTTPS relay used only when the provider blocks readable browser access.
