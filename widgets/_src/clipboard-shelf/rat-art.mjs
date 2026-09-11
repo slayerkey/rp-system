@@ -39,7 +39,9 @@ export async function assert(page,context){
   overflowY:document.documentElement.scrollHeight-innerHeight,
   cards:document.querySelectorAll('.clip-card').length,
   current:document.querySelectorAll('.clip-card.current').length,
-  minButton:Math.min(...Array.from(document.querySelectorAll('.icon-button,.top-button,.filter')).map(x=>Math.min(x.getBoundingClientRect().width,x.getBoundingClientRect().height)))
+  minButton:Math.min(...Array.from(document.querySelectorAll('.icon-button,.top-button,.filter,.resume-button')).map(x=>Math.min(x.getBoundingClientRect().width,x.getBoundingClientRect().height))),
+  markupNodes:document.querySelectorAll('#shelf b,#shelf script,#shelf img').length,
+  hostileText:Array.from(document.querySelectorAll('.preview')).some(x=>x.textContent.includes('<b>not markup</b>'))
  }));
  if(report.slot!==expected)throw new Error('slot mismatch '+JSON.stringify(report));
  if(report.overflowX>.5||report.overflowY>.5)throw new Error('page overflow '+JSON.stringify(report));
