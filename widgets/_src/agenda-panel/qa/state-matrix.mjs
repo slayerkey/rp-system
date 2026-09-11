@@ -6,7 +6,10 @@ import { chromium } from 'playwright';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const entry = path.join(root, 'widgets', 'agenda-panel', 'index.html');
 const html = fs.readFileSync(entry, 'utf8');
-const valid = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:test\r\nDTSTART:20260823T120000\r\nDTEND:20260823T130000\r\nSUMMARY:State test\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
+const now = new Date();
+const pad = (n) => String(n).padStart(2, '0');
+const ymd = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+const valid = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:test\r\nDTSTART:${ymd}T120000\r\nDTEND:${ymd}T130000\r\nSUMMARY:State test\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
 const empty = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n`;
 const malformed = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nTHIS IS BAD\r\nEND:VCALENDAR\r\n`;
 const secretUrl = 'https://calendar.example/private-secret-token/basic.ics';
@@ -75,7 +78,18 @@ out.transportFailure = await page.evaluate(async () => {
   STATE.events = [];
   STATE.updatedAt = 0;
   await refreshCalendars(true);
-  return { state: document.body.dataset.state, events: STATE.events.length, hero: heroTitle.textContent };
+  let opened = null;
+  globalThis.plugins = { Linkprovider: { open(url) { opened = url; } } };
+  globalThis.pluginLinkprovider_initialized = true;
+  document.getElementById('heroCard').click();
+  return {
+    state: document.body.dataset.state,
+    events: STATE.events.length,
+    hero: heroTitle.textContent,
+    cta: heroCountdown.textContent,
+    opened,
+    mode: document.body.dataset.mode
+  };
 });
 await page.close();
 
@@ -87,7 +101,10 @@ page = await pageWith(secretUrl, [valid]);
 out.partial = await page.evaluate(async () => {
   calendarUrl1 = 'https://one.invalid/a.ics';
   calendarUrl2 = 'https://two.invalid/b.ics';
-  const good = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:partial\r\nDTSTART:20260823T120000\r\nDTEND:20260823T130000\r\nSUMMARY:Partial good\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
+  const today = new Date();
+  const two = (n) => String(n).padStart(2, '0');
+  const stamp = `${today.getFullYear()}${two(today.getMonth() + 1)}${two(today.getDate())}`;
+  const good = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:partial\r\nDTSTART:${stamp}T120000\r\nDTEND:${stamp}T130000\r\nSUMMARY:Partial good\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
   loadCalendarText = async (url, index) => index === 0 ? { text: good, via: 'fixture' } : null;
   await refreshCalendars(true);
   return { state: document.body.dataset.state, failed: STATE.failedCount, sources: STATE.sourceCount, events: STATE.events.length };
@@ -111,6 +128,9 @@ if (out.empty.state !== 'fresh' || out.empty.events !== 0 || !out.empty.emptyVis
 if (out.empty.secretPersisted) throw new Error('secret calendar URL persisted to localStorage');
 if (out.stale.state !== 'stale' || out.stale.events < 1) throw new Error('stale cache fallback failed');
 if (out.transportFailure.state !== 'bridge' || out.transportFailure.events !== 0) throw new Error('transport failure state failed');
+if (out.transportFailure.cta !== 'GET CALENDAR SYNC PRO →') throw new Error('companion upsell CTA missing');
+if (out.transportFailure.opened !== 'https://marketplace.elgato.com/product/calendar-sync-pro-d957868e-d1a0-4c3b-8fe4-8291951a5170') throw new Error('companion upsell did not open exact Calendar Sync Pro listing');
+if (out.transportFailure.mode !== 'today') throw new Error('companion upsell should not toggle calendar range');
 if (out.malformed.state !== 'error' || out.malformed.events !== 0) throw new Error('malformed feed should be feed error');
 if (out.partial.state !== 'stale' || out.partial.failed !== 1 || out.partial.events !== 1) throw new Error('partial failure state failed');
 if (out.parallel.state !== 'fresh' || out.parallel.elapsed > 500) throw new Error(`calendar refresh not parallel: ${out.parallel.elapsed}`);

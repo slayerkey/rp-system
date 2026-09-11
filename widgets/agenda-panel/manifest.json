@@ -3,15 +3,22 @@
   "id": "com.packrat.agendapanel",
   "name": "Calendar Panel",
   "description": "A touch-first calendar and agenda timeline for XENEON Edge. Add up to three ICS feed URLs, see the next event at a glance, and use the wide display as a real time-scaled day timeline. Recurring events, all-day events, timezone-aware times, stale data, empty days, and feed failures are handled deliberately. No OAuth is used.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "preview_icon": "resources/icon.svg",
   "min_framework_version": "1.0.0",
   "min_app_version": "5.47",
   "os": [
-    { "platform": "windows" }
+    {
+      "platform": "windows"
+    }
   ],
   "supported_devices": [
-    { "type": "dashboard_lcd" }
+    {
+      "type": "dashboard_lcd"
+    }
   ],
-  "interactive": true
+  "interactive": true,
+  "required_plugins": [
+    "widgetbuilder.linkprovider:Url:1.0"
+  ]
 }
