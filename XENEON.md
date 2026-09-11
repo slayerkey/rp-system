@@ -14,9 +14,10 @@ GitHub remains the source of truth. Do not rebuild the XENEON process from conve
 2. `XENEON.md`
 3. `skills/icue-widget-builder/SKILL.md`
 4. `platforms/icue-xeneon.md`
-5. `skills/rat-art/SKILL.md`
-6. `skills/rat-ship/SKILL.md`
-7. `products/index.json`
+5. `docs/XENEON_TROUBLESHOOTING_PLAYBOOK.md`
+6. `skills/rat-art/SKILL.md`
+7. `skills/rat-ship/SKILL.md`
+8. `products/index.json`
 
 Read product-specific source and QA only after the product slug is known.
 
@@ -102,6 +103,29 @@ A polished widget must design around the real provider rather than inventing cap
 If the desired feature is unavailable, explain the limitation and redesign around what is actually possible.
 
 Deterministic fixtures may simulate valid provider responses for QA, but they must never imply that the shipping provider exposes fields it does not actually expose.
+
+## Proven troubleshooting doctrine
+
+Do not patch symptoms product by product when a failure belongs to shared XENEON infrastructure.
+
+For every failure:
+
+1. reproduce it against canonical source or the exact packaged widget
+2. classify it as lifecycle/settings, provider, network, persistence, touch, timer/cleanup, responsive layout, packaging, or host-fidelity
+3. check shared tooling before adding a product-local workaround
+4. fix the smallest root cause
+5. add an automated regression that would have caught the original failure
+6. rerun the closest available host/package layer
+
+A normal browser mock is the lowest-confidence environment. Passing it does not prove real iCUE behavior.
+
+Use the confidence ladder:
+
+browser fixtures -> exact packaged widget -> lexical iCUE binding smoke -> Corsair Labs Windows runner -> StreamSpell packaged preview -> real iCUE -> physical XENEON Edge.
+
+Real iCUE or physical-device observations override emulators and browser mocks. Convert every confirmed real-host failure into an automated regression when possible.
+
+Read `docs/XENEON_TROUBLESHOOTING_PLAYBOOK.md` for the durable failure patterns and recovery procedure.
 
 ## Eight-slot requirement
 
