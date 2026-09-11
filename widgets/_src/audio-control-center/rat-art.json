@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "hero": {"subtitle": "Switch speakers, headphones and microphones, then control real Windows volume without opening Settings."},
+  "showcase": {"title": "Your Windows audio devices on XENEON Edge.", "subtitle": "See the active output and microphone, switch endpoints, adjust volume and mute from the dedicated touch display.", "shot": "XL_H.png"},
+  "features": {"title": "Stop digging through Windows Sound settings.", "subtitle": "The audio controls you actually change stay one touch away.", "shot": "M_H.png", "items": [["Switch outputs", "Move between headphones, speakers, displays and other detected Windows playback endpoints."], ["Switch microphones", "See the current Windows default input and choose another detected microphone."], ["Volume + mute", "Adjust endpoint volume and mute state directly when Windows exposes the control."], ["Local companion", "PackRat Audio Bridge talks to Windows Core Audio locally. No cloud account or telemetry."]]},
+  "settings": {"title": "Built for touch.", "subtitle": "Large controls and clear active-device states across every XENEON Edge layout.", "panels": [{"label": "Wide", "file": "XL_H.png"}, {"label": "Vertical", "file": "M_V.png"}, {"label": "Compact", "file": "S_H.png"}, {"label": "Tall", "file": "L_V.png"}], "tags": "output switching   •   microphone switching   •   master volume   •   mute   •   local Windows bridge"},
+  "sizes": {"title": "Designed for all eight XENEON slots.", "subtitle": "Compact layouts preserve both audio jobs while larger layouts add room for devices and bigger controls.", "footer": "8 tuned layouts total   •   4 sizes   •   horizontal + vertical"}
+}
