@@ -33,9 +33,18 @@
     return fallback;
   }
 
+  function parseWanted(value) {
+    var seen = Object.create(null);
+    return String(value || '').split(/[,\n]+/).map(function (s) { return s.trim(); }).filter(function (id) {
+      if (!id || seen[id]) return false;
+      seen[id] = true;
+      return true;
+    });
+  }
+
   function config() {
     var base = String(read('baseUrl', 'http://homeassistant.local:8123') || '').trim().replace(/\/+$/, '');
-    var wanted = String(read('entities', '') || '').split(/[,\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+    var wanted = parseWanted(read('entities', ''));
     return {
       base: base,
       token: String(read('token', '') || '').trim(),
@@ -142,7 +151,7 @@
 
     var statusText = '';
     var statusClass = 'status';
-    if (runtime.connection === 'live') { statusText = 'CONNECTED'; statusClass += ' live'; }
+    if (runtime.connection === 'live') { statusText = 'CONNECTED · ' + cfg.wanted.length + (cfg.wanted.length === 1 ? ' ENTITY' : ' ENTITIES'); statusClass += ' live'; }
     else if (runtime.connection === 'connecting') { statusText = 'CONNECTING'; statusClass += ' connecting'; }
     else if (runtime.connection === 'auth_error') { statusText = 'TOKEN REJECTED'; statusClass += ' error'; }
     else if (runtime.connection === 'offline') { statusText = 'OFFLINE'; statusClass += ' error'; }
@@ -160,22 +169,35 @@
     }
 
     var rows = visibleRows();
-    if (!rows.length) {
-      var missing = runtime.wanted.filter(function (id) { return !runtime.byId[id]; });
+    var missing = runtime.connection === 'live'
+      ? runtime.wanted.filter(function (id) { return !runtime.byId[id]; })
+      : [];
+
+    if (!rows.length && !missing.length) {
       if (runtime.connection === 'auth_error') host.innerHTML = '<div class="empty">Home Assistant rejected the access token. Create a fresh Long-Lived Access Token and try again.</div>';
       else if ((runtime.connection === 'offline' || runtime.connection === 'reconnecting') && Object.keys(runtime.byId).length === 0) host.innerHTML = '<div class="empty">Cannot reach Home Assistant at this address. Check the server URL, port, and local network.</div>';
-      else if (missing.length) host.innerHTML = '<div class="empty">Connected, but these entity IDs were not found: ' + escapeHtml(missing.slice(0,3).join(', ')) + '</div>';
       else host.innerHTML = '<div class="empty">Connected. Matching entities are currently unavailable or hidden by the Show Unavailable setting.</div>';
       return;
     }
 
-    host.innerHTML = rows.map(function (r) {
+    var tiles = rows.map(function (r) {
       return '<div class="tile ' + (r.on ? 'on' : 'off') + (r.unavailable ? ' dead' : '') + '">' +
         '<span class="tile-name">' + escapeHtml(r.name) + '</span>' +
         '<span class="tile-value">' + escapeHtml(valueText(r)) + '</span>' +
         '<span class="tile-domain">' + escapeHtml(r.domain.replace(/_/g,' ')) + '</span>' +
       '</div>';
-    }).join('');
+    });
+
+    tiles = tiles.concat(missing.map(function (id) {
+      var domain = String(id).split('.')[0] || 'entity';
+      return '<div class="tile dead missing">' +
+        '<span class="tile-name">' + escapeHtml(id) + '</span>' +
+        '<span class="tile-value">NOT FOUND</span>' +
+        '<span class="tile-domain">' + escapeHtml(domain.replace(/_/g,' ')) + '</span>' +
+      '</div>';
+    }));
+
+    host.innerHTML = tiles.join('');
   }
 
   function clearTimers() {

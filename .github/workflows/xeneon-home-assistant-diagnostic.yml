@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   product-package:
-    name: Exact Home Assistant 1.0.2 package and iCUE host gate
+    name: Exact Home Assistant 1.0.3 package and iCUE host gate
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -65,7 +65,7 @@ jobs:
           manifest = json.loads(pathlib.Path('artifacts/extracted/home-assistant/manifest.json').read_text(encoding='utf-8'))
           if manifest.get('id') != 'com.packrat.homeassistant':
               raise SystemExit(f'published id changed: {manifest.get("id")}')
-          if manifest.get('version') != '1.0.2':
+          if manifest.get('version') != '1.0.3':
               raise SystemExit(f'candidate version mismatch: {manifest.get("version")}')
           html = pathlib.Path('artifacts/extracted/home-assistant/index.html').read_text(encoding='utf-8')
           if '/api/states' in html or 'add null to CORS' in html:
@@ -129,7 +129,7 @@ jobs:
         shell: pwsh
         run: |
           @'
-          HOME ASSISTANT PANEL 1.0.2 — REAL iCUE TEST
+          HOME ASSISTANT PANEL 1.0.3 — REAL iCUE TEST
 
           IMPORTANT: revoke the Long-Lived Access Token that appeared in the earlier screenshot and create a fresh token before testing this build.
 
@@ -139,7 +139,7 @@ jobs:
           1. Install home-assistant.icuewidget.
           2. Enter the same Home Assistant server address that opens on this PC.
           3. Paste a fresh Long-Lived Access Token.
-          4. Copy one or more exact entity IDs from Home Assistant Developer Tools > States, one per line.
+          4. Copy one or more exact entity IDs from Home Assistant Developer Tools > States and separate multiple IDs with commas.
           5. No CORS allowed-origin change is required for this candidate.
 
           Please verify:
@@ -154,10 +154,10 @@ jobs:
             ForEach-Object { "$($_.Hash.ToLower())  home-assistant.icuewidget" } |
             Set-Content -Encoding ASCII artifacts/package/SHA256SUMS.txt
 
-      - name: Upload Home Assistant 1.0.2 physical candidate
+      - name: Upload Home Assistant 1.0.3 physical candidate
         uses: actions/upload-artifact@v4
         with:
-          name: home-assistant-panel-1.0.2-real-icue-candidate
+          name: home-assistant-panel-1.0.3-real-icue-candidate
           path: artifacts/package/
           retention-days: 30
 
@@ -165,7 +165,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: home-assistant-panel-1.0.2-windows-evidence
+          name: home-assistant-panel-1.0.3-windows-evidence
           path: artifacts/
           retention-days: 30
 
@@ -248,6 +248,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: home-assistant-panel-1.0.2-real-core-evidence
+          name: home-assistant-panel-1.0.3-real-core-evidence
           path: artifacts/real-home-assistant-product/
           retention-days: 30

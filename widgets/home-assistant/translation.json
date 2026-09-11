@@ -1,14 +1,66 @@
 {
-  "en": {"translation": {
-    "Home Assistant Panel":"Home Assistant Panel","Home Assistant":"Home Assistant","Appearance":"Appearance","Server Address":"Server Address","Access Token":"Access Token","Entities":"Entities","Refresh":"Refresh","Show Unavailable":"Show Unavailable","Text Color":"Text Color","Accent Color":"Accent Color","Background Color":"Background Color","One entity id per line. Copy exact entity IDs from Home Assistant Developer Tools > States. No CORS setup is required in this version.":"One entity id per line. Copy exact entity IDs from Home Assistant Developer Tools > States. No CORS setup is required in this version."
-  }},
-  "de": {"translation": {
-    "Home Assistant Panel":"Home Assistant Panel","Home Assistant":"Home Assistant","Appearance":"Appearance","Server Address":"Server Address","Access Token":"Access Token","Entities":"Entities","Refresh":"Refresh","Show Unavailable":"Show Unavailable","Text Color":"Text Color","Accent Color":"Accent Color","Background Color":"Background Color","One entity id per line. Copy exact entity IDs from Home Assistant Developer Tools > States. No CORS setup is required in this version.":"One entity id per line. Copy exact entity IDs from Home Assistant Developer Tools > States. No CORS setup is required in this version."
-  }},
-  "es": {"translation": {
-    "Home Assistant Panel":"Home Assistant Panel","Home Assistant":"Home Assistant","Appearance":"Appearance","Server Address":"Server Address","Access Token":"Access Token","Entities":"Entities","Refresh":"Refresh","Show Unavailable":"Show Unavailable","Text Color":"Text Color","Accent Color":"Accent Color","Background Color":"Background Color","One entity id per line. Copy exact entity IDs from Home Assistant Developer Tools > States. No CORS setup is required in this version.":"One entity id per line. Copy exact entity IDs from Home Assistant Developer Tools > States. No CORS setup is required in this version."
-  }},
-  "fr": {"translation": {
-    "Home Assistant Panel":"Home Assistant Panel","Home Assistant":"Home Assistant","Appearance":"Appearance","Server Address":"Server Address","Access Token":"Access Token","Entities":"Entities","Refresh":"Refresh","Show Unavailable":"Show Unavailable","Text Color":"Text Color","Accent Color":"Accent Color","Background Color":"Background Color","One entity id per line. Copy exact entity IDs from Home Assistant Developer Tools > States. No CORS setup is required in this version.":"One entity id per line. Copy exact entity IDs from Home Assistant Developer Tools > States. No CORS setup is required in this version."
-  }}
+  "en": {
+    "translation": {
+      "Home Assistant Panel": "Home Assistant Panel",
+      "Home Assistant": "Home Assistant",
+      "Appearance": "Appearance",
+      "Server Address": "Server Address",
+      "Access Token": "Access Token",
+      "Refresh": "Refresh",
+      "Show Unavailable": "Show Unavailable",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Entities (comma separated)": "Entities (comma separated)",
+      "Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States.": "Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States."
+    }
+  },
+  "de": {
+    "translation": {
+      "Home Assistant Panel": "Home Assistant Panel",
+      "Home Assistant": "Home Assistant",
+      "Appearance": "Appearance",
+      "Server Address": "Server Address",
+      "Access Token": "Access Token",
+      "Refresh": "Refresh",
+      "Show Unavailable": "Show Unavailable",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Entities (comma separated)": "Entities (comma separated)",
+      "Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States.": "Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States."
+    }
+  },
+  "es": {
+    "translation": {
+      "Home Assistant Panel": "Home Assistant Panel",
+      "Home Assistant": "Home Assistant",
+      "Appearance": "Appearance",
+      "Server Address": "Server Address",
+      "Access Token": "Access Token",
+      "Refresh": "Refresh",
+      "Show Unavailable": "Show Unavailable",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Entities (comma separated)": "Entities (comma separated)",
+      "Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States.": "Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States."
+    }
+  },
+  "fr": {
+    "translation": {
+      "Home Assistant Panel": "Home Assistant Panel",
+      "Home Assistant": "Home Assistant",
+      "Appearance": "Appearance",
+      "Server Address": "Server Address",
+      "Access Token": "Access Token",
+      "Refresh": "Refresh",
+      "Show Unavailable": "Show Unavailable",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Entities (comma separated)": "Entities (comma separated)",
+      "Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States.": "Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States."
+    }
+  }
 }

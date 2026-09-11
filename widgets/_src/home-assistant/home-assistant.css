@@ -35,6 +35,8 @@ body {
 .tile { min-width:0; display:flex; flex-direction:column; gap:calc(var(--layout-unit)*.3); padding:calc(var(--layout-unit)*1.4) var(--space-pad); background:var(--panel); border:1px solid var(--panel-line); border-left:calc(var(--layout-unit)*.7) solid var(--panel-line); border-radius:var(--radius-tile); }
 .tile.on { border-left-color:var(--accent); }
 .tile.dead { opacity:.45; }
+.tile.missing { border-left-color:var(--bad); opacity:.82; }
+.tile.missing .tile-value { color:var(--bad); }
 .tile-name { font-size:max(11px,var(--fs-label)); opacity:.64; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .tile-value { font-size:max(12px,min(calc(var(--layout-unit)*5.2),8vh)); font-weight:700; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .tile.on .tile-value { color:var(--accent); }

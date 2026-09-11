@@ -8,7 +8,7 @@
 
 <meta name="x-icue-property" content="baseUrl" data-label="tr('Server Address')" data-type="textfield" data-default="'http://homeassistant.local:8123'" />
 <meta name="x-icue-property" content="token" data-label="tr('Access Token')" data-type="textfield" data-default="''" />
-<meta name="x-icue-property" content="entities" data-label="tr('Entities')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="entities" data-label="tr('Entities (comma separated)')" data-type="textfield" data-default="''" />
 <meta name="x-icue-property" content="refreshMinutes" data-label="tr('Refresh')" data-type="slider" data-min="1" data-max="30" data-step="1" data-unit-label="'min'" data-default="1" />
 <meta name="x-icue-property" content="showUnavailable" data-label="tr('Show Unavailable')" data-type="switch" data-default="false" />
 
@@ -21,7 +21,7 @@
   {
     "title": "tr('Home Assistant')",
     "properties": ["baseUrl", "token", "entities", "refreshMinutes", "showUnavailable"],
-    "info": "tr('One entity id per line. Copy exact entity IDs from Home Assistant Developer Tools > States. No CORS setup is required in this version.')"
+    "info": "tr('Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States.')"
   },
   {
     "title": "tr('Appearance')",
