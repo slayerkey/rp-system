@@ -28,7 +28,47 @@ jobs:
           git config user.name "packrat-ci"
           git config user.email "actions@users.noreply.github.com"
           git fetch origin main
+
+          set +e
           git merge --no-edit origin/main
+          merge_code=$?
+          set -e
+
+          if [ "$merge_code" -ne 0 ]; then
+            conflicts="$(git diff --name-only --diff-filter=U)"
+            if [ "$conflicts" != "products/index.json" ]; then
+              echo "Unexpected merge conflicts:" >&2
+              printf '%s\n' "$conflicts" >&2
+              exit 1
+            fi
+
+            # Keep current main as the canonical registry baseline, then add
+            # only this product's collision-safe registry row.
+            git checkout --theirs products/index.json
+            python - <<'PY'
+          from pathlib import Path
+          import json
+
+          path = Path("products/index.json")
+          text = path.read_text(encoding="utf-8")
+          data = json.loads(text)
+          products = data["products"]
+          products = [item for item in products if item.get("id") != "window-manager-xeneon"]
+          entry = '    {"id":"window-manager-xeneon","name":"Window Manager for XENEON","type":"widget","status":"qa_passed","price_usd":9.99,"version":"1.0.0"}'
+          marker = "\n  ]\n}\n"
+          if not text.endswith(marker):
+              raise SystemExit("Unexpected products/index.json canonical format")
+          text = text[:-len(marker)].rstrip()
+          if products:
+              text += ",\n" + entry + marker
+          else:
+              text += "\n" + entry + marker
+          path.write_text(text, encoding="utf-8")
+          PY
+            git add products/index.json
+            git commit --no-edit
+          fi
+
           git push origin HEAD:product/window-manager-xeneon
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
