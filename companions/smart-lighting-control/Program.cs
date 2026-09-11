@@ -172,13 +172,15 @@ public static class Program {
             if(!GoveeClient.IsLanStatusCommand("status")||!GoveeClient.IsLanStatusCommand("devStatus")||GoveeClient.IsLanStatusCommand("scan"))throw new Exception("Govee LAN status compatibility failed");
             GoveeClient.RunDeterministicParserSelfTest();
             dynamic xy=HueClient.RgbToXy(255,0,0);var rgb=HueClient.XyToRgb((double)xy.x,(double)xy.y,100);if(rgb.R<180||rgb.G>120||rgb.B>120)throw new Exception("Hue color conversion failed");
-            var fixture=JsonDocument.Parse("""{"data":[
+            var fixture=JsonDocument.Parse("""
+            {"data":[
               {"id":"zc1","type":"zigbee_connectivity","owner":{"rid":"d1","rtype":"device"},"status":"disconnected"},
               {"id":"l1","type":"light","owner":{"rid":"d1","rtype":"device"},"metadata":{"name":"Offline Lamp"},"on":{"on":true},"dimming":{"brightness":40}},
               {"id":"gl1","type":"grouped_light","on":{"on":true},"dimming":{"brightness":66},"color":{"xy":{"x":0.4,"y":0.4}},"color_temperature":{"mirek":250,"mirek_schema":{"mirek_minimum":153,"mirek_maximum":500}}},
               {"id":"r1","type":"room","metadata":{"name":"Studio"},"children":[{"rid":"d1","rtype":"device"}],"services":[{"rid":"gl1","rtype":"grouped_light"}]},
               {"id":"s1","type":"scene","metadata":{"name":"Focus"},"group":{"rid":"r1"}}
-            ]}""");
+            ]}
+            """);
             var list=HueClient.NormalizeResources(fixture.RootElement.GetProperty("data"),new HashSet<string>{"hue:room:r1"});
             var room=list.FirstOrDefault(t=>t.Id=="hue:room:r1")??throw new Exception("Hue room normalization failed");
             var lamp=list.FirstOrDefault(t=>t.Id=="hue:light:l1")??throw new Exception("Hue light normalization failed");
