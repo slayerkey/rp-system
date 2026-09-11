@@ -138,20 +138,32 @@ public sealed class HueClient {
         favorites??=new HashSet<string>();
         var resources=data.EnumerateArray().Select(e=>e.Clone()).ToList();
         var grouped=resources.Where(e=>S(e,"type")=="grouped_light").ToDictionary(e=>S(e,"id"),e=>e,StringComparer.Ordinal);
+        var connectivity=resources.Where(e=>S(e,"type")=="zigbee_connectivity")
+            .Where(e=>e.TryGetProperty("owner",out var owner)&&S(owner,"rtype")=="device")
+            .GroupBy(e=>e.GetProperty("owner").GetProperty("rid").GetString()??"",StringComparer.Ordinal)
+            .Where(g=>!string.IsNullOrWhiteSpace(g.Key))
+            .ToDictionary(g=>g.Key,g=>g.Any(e=>S(e,"status")=="connected"),StringComparer.Ordinal);
         var targets=new List<LightingTarget>();var ownerMap=new Dictionary<string,string>(StringComparer.Ordinal);
         foreach(var e in resources.Where(e=>S(e,"type")=="light")){
             var rid=S(e,"id"); var id="hue:light:"+rid; var name=MetaName(e,"Hue Light");
-            var t=FromHueState(e,id,"light",name,rid);t.Favorite=favorites.Contains(id);targets.Add(t);ownerMap[rid]=id;
+            var device=e.TryGetProperty("owner",out var owner)?S(owner,"rid"):"";
+            var reachable=!connectivity.TryGetValue(device,out var connected)||connected;
+            var t=FromHueState(e,id,"light",name,rid,reachable);t.Favorite=favorites.Contains(id);targets.Add(t);ownerMap[rid]=id;
         }
         foreach(var e in resources.Where(e=>S(e,"type") is "room" or "zone")){
             var kind=S(e,"type"); var rid=S(e,"id"); var id="hue:"+kind+":"+rid; var service=ServiceRid(e,"grouped_light");
             if(string.IsNullOrWhiteSpace(service)||!grouped.TryGetValue(service,out var g))continue;
-            var t=FromHueState(g,id,kind,MetaName(e,kind=="room"?"Hue Room":"Hue Zone"),service);t.NativeAux=rid;t.Favorite=favorites.Contains(id);targets.Add(t);ownerMap[rid]=id;
+            var childDevices=ChildRids(e,"device");
+            var known=childDevices.Where(connectivity.ContainsKey).ToList();
+            var reachable=known.Count==0||known.Any(device=>connectivity[device]);
+            var t=FromHueState(g,id,kind,MetaName(e,kind=="room"?"Hue Room":"Hue Zone"),service,reachable);t.NativeAux=rid;t.Favorite=favorites.Contains(id);targets.Add(t);ownerMap[rid]=id;
         }
         var scenes=new List<LightingTarget>();
         foreach(var e in resources.Where(e=>S(e,"type")=="scene")){
             var rid=S(e,"id"); var group=e.TryGetProperty("group",out var gr)?S(gr,"rid"):""; var id="hue:scene:"+rid;
-            var t=new LightingTarget{Id=id,Provider="hue",Kind="scene",Name=MetaName(e,"Hue Scene"),ParentId=ownerMap.TryGetValue(group,out var parent)?parent:null,Reachable=true,Favorite=favorites.Contains(id),Capabilities=new(){Scene=true},NativeId=rid};
+            var parentId=ownerMap.TryGetValue(group,out var parent)?parent:null;
+            var parentReachable=parentId is null||targets.FirstOrDefault(x=>x.Id==parentId)?.Reachable!=false;
+            var t=new LightingTarget{Id=id,Provider="hue",Kind="scene",Name=MetaName(e,"Hue Scene"),ParentId=parentId,Reachable=parentReachable,Favorite=favorites.Contains(id),Capabilities=new(){Scene=true},NativeId=rid};
             scenes.Add(t);
         }
         targets.AddRange(scenes);
@@ -160,7 +172,7 @@ public sealed class HueClient {
         }
         return targets;
     }
-    static LightingTarget FromHueState(JsonElement e,string id,string kind,string name,string nativeId){
+    static LightingTarget FromHueState(JsonElement e,string id,string kind,string name,string nativeId,bool reachable=true){
         bool on=e.TryGetProperty("on",out var onObj)&&onObj.TryGetProperty("on",out var ov)&&ov.GetBoolean();
         double? bri=e.TryGetProperty("dimming",out var dim)&&dim.TryGetProperty("brightness",out var bv)?bv.GetDouble():null;
         RgbColor? rgb=null;if(e.TryGetProperty("color",out var col)&&col.TryGetProperty("xy",out var xy)&&xy.TryGetProperty("x",out var xx)&&xy.TryGetProperty("y",out var yy))rgb=XyToRgb(xx.GetDouble(),yy.GetDouble(),bri??100);
@@ -169,13 +181,21 @@ public sealed class HueClient {
             if(ctObj.TryGetProperty("mirek",out var mk)&&mk.ValueKind==JsonValueKind.Number&&mk.GetInt32()>0)temp=(int)Math.Round(1_000_000d/mk.GetInt32());
             if(ctObj.TryGetProperty("mirek_schema",out var schema)&&schema.TryGetProperty("mirek_minimum",out var mn)&&schema.TryGetProperty("mirek_maximum",out var mx)&&mn.GetInt32()>0&&mx.GetInt32()>0)range=[(int)Math.Round(1_000_000d/mx.GetInt32()),(int)Math.Round(1_000_000d/mn.GetInt32())];
         }
-        return new LightingTarget{Id=id,Provider="hue",Kind=kind,Name=name,NativeId=nativeId,On=on,Brightness=bri,Color=rgb,TemperatureK=temp,TemperatureRange=range,Reachable=true,Capabilities=new(){Power=e.TryGetProperty("on",out _),Brightness=e.TryGetProperty("dimming",out _),Color=e.TryGetProperty("color",out _),Temperature=e.TryGetProperty("color_temperature",out _)}};
+        return new LightingTarget{Id=id,Provider="hue",Kind=kind,Name=name,NativeId=nativeId,On=on,Brightness=bri,Color=rgb,TemperatureK=temp,TemperatureRange=range,Reachable=reachable,Capabilities=new(){Power=e.TryGetProperty("on",out _),Brightness=e.TryGetProperty("dimming",out _),Color=e.TryGetProperty("color",out _),Temperature=e.TryGetProperty("color_temperature",out _)}};
     }
     static string S(JsonElement e,string p)=>e.ValueKind==JsonValueKind.Object&&e.TryGetProperty(p,out var v)&&v.ValueKind==JsonValueKind.String?v.GetString()??"":"";
     static string MetaName(JsonElement e,string fallback)=>e.TryGetProperty("metadata",out var m)&&m.TryGetProperty("name",out var n)&&n.ValueKind==JsonValueKind.String?n.GetString()??fallback:fallback;
     static string ServiceRid(JsonElement e,string type){
         if(!e.TryGetProperty("services",out var s)||s.ValueKind!=JsonValueKind.Array)return"";
         foreach(var x in s.EnumerateArray())if(S(x,"rtype")==type)return S(x,"rid");return"";
+    }
+    static List<string> ChildRids(JsonElement e,string type){
+        var result=new List<string>();
+        if(!e.TryGetProperty("children",out var children)||children.ValueKind!=JsonValueKind.Array)return result;
+        foreach(var child in children.EnumerateArray())if(S(child,"rtype")==type){
+            var rid=S(child,"rid");if(!string.IsNullOrWhiteSpace(rid))result.Add(rid);
+        }
+        return result;
     }
 
     public async Task ControlAsync(LightingTarget target,string command,JsonElement message,CancellationToken ct=default){
