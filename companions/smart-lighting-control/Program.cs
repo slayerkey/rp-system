@@ -11,15 +11,19 @@ namespace PackRat.SmartLighting;
 
 public static class Program {
     const int DefaultPort=17486;
+    const int ProtocolVersion=1;
+    const string CompanionVersion="1.0.0";
     public static async Task<int> Main(string[] args){
         if(args.Contains("--self-test"))return SelfTest();
         var fixture=args.Contains("--fixture");
         var noBrowser=args.Contains("--no-browser")||fixture;
         var port=ArgInt(args,"--port",DefaultPort);
+        var protocol=fixture?ArgInt(args,"--fixture-protocol",ProtocolVersion):ProtocolVersion;
         ILightingRuntime runtime;
         LightingController? real=null;
         if(fixture)runtime=new FixtureRuntime();
         else{var local=new LocalState();real=new LightingController(local);runtime=real;await real.StartAsync();}
+        runtime.Snapshot.Protocol=protocol;
 
         var builder=WebApplication.CreateBuilder(args);
         builder.WebHost.UseUrls($"http://127.0.0.1:{port}");
@@ -46,7 +50,7 @@ public static class Program {
         runtime.Changed+=()=>_=BroadcastAsync();
 
         app.MapGet("/",()=>Results.Content(SetupHtml(port),"text/html; charset=utf-8"));
-        app.MapGet("/health",()=>Results.Json(new{ok=true,product="PackRat Lighting Companion",protocol=1,fixture}));
+        app.MapGet("/health",()=>Results.Json(new{ok=true,product="PackRat Lighting Companion",version=CompanionVersion,protocol,fixture}));
         app.MapGet("/api/setup/status",(HttpContext ctx)=>{
             if(!SetupOriginAllowed(ctx,port))return Results.StatusCode(403);
             return Results.Json(real is null?new{pairingToken=runtime.PairingToken,fixture=true}:real.SetupStatus());
@@ -81,7 +85,7 @@ public static class Program {
             if(hello is null||!hello.RootElement.TryGetProperty("type",out var typ)||typ.GetString()!="hello"||!hello.RootElement.TryGetProperty("token",out var tok)||!TokenEqual(tok.GetString(),runtime.PairingToken)){
                 await SendAsync(ws,new{type="auth_error",error="invalid companion pairing token"},ctx.RequestAborted);await ws.CloseAsync(WebSocketCloseStatus.PolicyViolation,"auth",CancellationToken.None);return;
             }
-            await SendAsync(ws,new{type="auth_ok",protocol=1},ctx.RequestAborted);
+            await SendAsync(ws,new{type="auth_ok",protocol,companionVersion=CompanionVersion},ctx.RequestAborted);
             await SendAsync(ws,runtime.Snapshot,ctx.RequestAborted);
             var id=Guid.NewGuid();sockets[id]=ws;
             try{
@@ -135,7 +139,13 @@ public static class Program {
             var room=list.FirstOrDefault(t=>t.Id=="hue:room:r1")??throw new Exception("Hue room normalization failed");
             if(!room.Favorite||room.Scenes.Count!=1||room.Brightness!=66)throw new Exception("Hue room capability/scene normalization failed");
             if(!new FixtureRuntime().Snapshot.Targets.Any(t=>t.Provider=="govee"))throw new Exception("fixture runtime failed");
-            Console.WriteLine("SMART LIGHTING COMPANION SELF-TEST PASS: Hue resource normalization/color, Govee LAN payload, fixture protocol");
+            var malformed=LocalState.ParseConfigText("{not-json");
+            if(malformed.SchemaVersion!=LocalConfig.CurrentSchemaVersion||malformed.Favorites.Count!=0)throw new Exception("malformed persisted config recovery failed");
+            var future=LocalState.ParseConfigText("""{"schemaVersion":999,"favorites":["bad"]}""");
+            if(future.SchemaVersion!=LocalConfig.CurrentSchemaVersion||future.Favorites.Count!=0)throw new Exception("future persisted config fallback failed");
+            var legacy=LocalState.ParseConfigText("""{"favorites":["hue:room:r1"]}""");
+            if(legacy.SchemaVersion!=LocalConfig.CurrentSchemaVersion||!legacy.Favorites.Contains("hue:room:r1"))throw new Exception("legacy persisted config migration failed");
+            Console.WriteLine("SMART LIGHTING COMPANION SELF-TEST PASS: Hue normalization/color, Govee LAN payload, fixture protocol, persisted-config recovery");
             return 0;
         }catch(Exception ex){Console.Error.WriteLine("SMART LIGHTING COMPANION SELF-TEST FAIL: "+ex);return 1;}
     }
