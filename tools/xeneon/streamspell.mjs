@@ -72,6 +72,33 @@ const result = {
 try {
   await page.goto(site, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.waitForSelector("#widgetFile", { timeout: 30_000 });
+
+  // StreamSpell registers a Service Worker and may reload once before it can
+  // serve uploaded widget assets. Uploading before the page is controlled can
+  // strand loadWidgetFromUpload() on the builder's intentional reload promise,
+  // leaving validation Idle and the preview iframe hidden.
+  let previewReady = false;
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    try {
+      previewReady = await page.evaluate(async () => {
+        if (!("serviceWorker" in navigator)) return false;
+        const registration = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise((resolve) => setTimeout(() => resolve(null), 500)),
+        ]);
+        return Boolean(registration?.active && navigator.serviceWorker.controller);
+      });
+    } catch {
+      // A first-run Service Worker reload can destroy this execution context.
+      previewReady = false;
+    }
+    if (previewReady) break;
+    await page.waitForTimeout(500);
+  }
+  if (!previewReady) {
+    throw new Error("StreamSpell preview Service Worker did not become ready/control the page before upload.");
+  }
+
   await page.setInputFiles("#widgetFile", packagePath);
 
   await page.waitForFunction(() => {
@@ -99,7 +126,15 @@ try {
 
   result.validation = info;
   const badValidation = /invalid|error|fail/i.test(`${info.badge} ${info.summary}`);
-  if (!info.active || badValidation) exitCode = 1;
+  if (!info.active || /^idle$/i.test(info.badge) || badValidation) {
+    exitCode = 1;
+    throw new Error(
+      "StreamSpell did not activate the uploaded package: active=\"" +
+      (info.active || "(empty)") + "\", badge=\"" +
+      (info.badge || "(empty)") + "\", summary=\"" +
+      (info.summary || "(empty)") + "\"."
+    );
+  }
 
   const availablePresets = expectedPresets.filter((preset) => info.options.includes(preset));
   if (availablePresets.length !== expectedPresets.length) {
@@ -113,6 +148,7 @@ try {
     await page.waitForTimeout(900);
 
     const frame = page.locator("#widgetFrame");
+    await frame.waitFor({ state: "visible", timeout: 15_000 });
     const screenshot = path.join(outputDir, `${preset}.png`);
     await frame.screenshot({ path: screenshot });
 
