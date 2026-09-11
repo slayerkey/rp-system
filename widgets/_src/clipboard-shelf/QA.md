@@ -46,3 +46,4 @@ Release gate:
 12. StreamSpell packaged verification
 13. deterministic Rat Art
 14. Rat Ship marketplace kit
+15. versioned companion GitHub Release published only after the preceding gates pass
