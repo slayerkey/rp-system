@@ -77,6 +77,6 @@ Recommended setup:
 
 The installer is per-user only. It copies the bridge to `%LOCALAPPDATA%\PackRat\AudioBridge`, places its removable uninstaller at `%LOCALAPPDATA%\PackRat\UNINSTALL_AUDIO_BRIDGE.cmd`, and creates a user Startup entry. It does not require administrator access and does not install a Windows service.
 
-`START_AUDIO_BRIDGE.cmd` is the portable/manual option. `UNINSTALL_STARTUP.cmd` removes the Startup entry and installed copy.
+`START_AUDIO_BRIDGE.cmd` is the portable/manual option. `UNINSTALL_STARTUP.cmd` removes the Startup entry and installed bridge copy. The installed helper at `%LOCALAPPDATA%\PackRat\UNINSTALL_AUDIO_BRIDGE.cmd` remains as a tiny inert cleanup file after uninstall and can be deleted normally.
 
 The bundle also contains setup/security documentation and a SHA-256 checksum. Customers do not need to build the bridge themselves.

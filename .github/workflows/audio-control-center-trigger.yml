@@ -126,15 +126,18 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "installed UNINSTALL_STARTUP.cmd failed with exit code $LASTEXITCODE" }
           $clean = $false
           for ($i = 0; $i -lt 30; $i++) {
-            if (-not (Test-Path $dest) -and -not (Test-Path $startup) -and -not (Test-Path $installedUninstaller)) {
+            if (-not (Test-Path $dest) -and -not (Test-Path $startup)) {
               $clean = $true
               break
             }
             Start-Sleep -Milliseconds 250
           }
           if (-not $clean) {
-            throw "startup uninstall did not fully clean up. dest=$((Test-Path $dest)) startup=$((Test-Path $startup)) uninstaller=$((Test-Path $installedUninstaller))"
+            throw "startup uninstall did not fully clean up. dest=$((Test-Path $dest)) startup=$((Test-Path $startup))"
           }
+          if (-not (Test-Path $installedUninstaller)) { throw 'installed uninstaller helper unexpectedly disappeared' }
+          Remove-Item -Force $installedUninstaller
+          if (Test-Path $root -and -not (Get-ChildItem $root -Force -ErrorAction SilentlyContinue)) { Remove-Item -Force $root }
 
       - uses: actions/upload-artifact@v4
         with:

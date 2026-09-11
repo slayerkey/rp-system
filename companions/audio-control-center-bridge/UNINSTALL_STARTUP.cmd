@@ -26,10 +26,8 @@ exit /b 1
 :removed
 echo.
 echo PackRat Audio Bridge startup install removed for this Windows user.
+echo The small uninstaller helper can now be deleted: %UNINSTALLER%
 echo.
-if "%PACKRAT_AUDIO_BRIDGE_TEST%"=="1" goto :finish
+if "%PACKRAT_AUDIO_BRIDGE_TEST%"=="1" exit /b 0
 pause
-
-:finish
-if /I "%SELF%"=="%UNINSTALLER%" del /Q "%SELF%" >nul 2>&1 & exit /b 0
 exit /b 0

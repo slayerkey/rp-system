@@ -17,7 +17,10 @@ PORTABLE MODE
 Double-click START_AUDIO_BRIDGE.cmd instead. Keep the bridge running while using Audio Control Center.
 
 REMOVE STARTUP INSTALL
-Double-click UNINSTALL_STARTUP.cmd.
+Double-click UNINSTALL_STARTUP.cmd, or run:
+%LOCALAPPDATA%\PackRat\UNINSTALL_AUDIO_BRIDGE.cmd
+
+The bridge files and Startup entry are removed. The tiny installed uninstaller helper can then be deleted normally.
 
 SECURITY
 The bridge listens only on 127.0.0.1:17484.
