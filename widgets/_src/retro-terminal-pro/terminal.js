@@ -22,7 +22,7 @@ var state={
   started:false,startedAt:Date.now(),activeProgram:"prompt",activeStyle:"green",
   booting:true,idle:false,idlePrevious:"prompt",lastInteraction:Date.now(),
   lastProgramRotation:Date.now(),lastStyleRotation:Date.now(),
-  cfg:null,settingsFingerprint:"",timers:[],requestId:9000,
+  cfg:null,settingsFingerprint:"",timers:[],bootTimer:null,bootFinishTimer:null,requestId:9000,
   pending:{},sensorConnected:false,sensorPluginRef:null,sensorProviderState:"loading",sensorCatalog:{},sensorIds:{cpuLoad:null,cpuTemp:null,gpuLoad:null,gpuTemp:null,ram:null},
   sensorValues:{},promptIndex:0,promptChar:0,promptRendered:[],ambientTick:0
 };
@@ -137,6 +137,8 @@ function setProgram(name,reason){
   if(reason==="manual")saveStore("program",{base:state.cfg.startProgram,value:name});
   if(name==="system")renderSystem();
   if(name==="prompt")renderPrompt(true);
+  if(name==="trace")renderTrace();
+  if(name==="rain")renderRain();
   if(name==="clock")renderClock();
   state.lastProgramRotation=Date.now();
 }
@@ -176,7 +178,11 @@ function applySettings(initial){
   if(initial||!old||old.terminalStyle!==cfg.terminalStyle||cfg.terminalStyle==="custom")applyStyle(cfg.terminalStyle,false);
   renderIdentity();
   if(initial)setProgram(restoreProgram(cfg),"restore");
-  else if(old&&old.startProgram!==cfg.startProgram)setProgram(cfg.startProgram,"settings");
+  else if(old){
+    if(state.idle&&old.idleEnabled&&!cfg.idleEnabled)wake();
+    else if(state.idle&&old.idleProgram!==cfg.idleProgram)setProgram(cfg.idleProgram,"idle");
+    else if(!state.idle&&old.startProgram!==cfg.startProgram)setProgram(cfg.startProgram,"settings");
+  }
   state.lastInteraction=Date.now();
 }
 function refreshFromIcue(){applySettings(false)}
@@ -184,6 +190,7 @@ globalThis.icueEvents=globalThis.icueEvents||{};
 globalThis.icueEvents.onICUEInitialized=refreshFromIcue;
 globalThis.icueEvents.onDataUpdated=refreshFromIcue;
 
+function reducedMotion(){try{return typeof matchMedia==="function"&&matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}}
 function bootLines(){
   return[
     "RETRO TERMINAL PRO // LOCAL STARTUP",
@@ -200,10 +207,16 @@ function finishBoot(){
 function startBoot(){
   var mode=state.cfg.bootSequence;
   if(mode==="none"){byId("bootText").textContent="";finishBoot();return}
-  var lines=bootLines(),out=[],i=0,delay=mode==="fast"?110:mode==="cascade"?210:360;
+  var lines=bootLines();
+  if(reducedMotion()){byId("bootText").textContent=lines.join("\n");finishBoot();return}
+  var out=[],i=0,delay=mode==="fast"?110:mode==="cascade"?210:360;
   byId("bootText").textContent="";
-  var timer=setInterval(function(){
-    if(i>=lines.length){clearInterval(timer);setTimeout(finishBoot,mode==="fast"?80:220);return}
+  state.bootTimer=setInterval(function(){
+    if(i>=lines.length){
+      clearInterval(state.bootTimer);state.bootTimer=null;
+      state.bootFinishTimer=setTimeout(function(){state.bootFinishTimer=null;finishBoot()},mode==="fast"?80:220);
+      return;
+    }
     if(mode==="cascade"){
       out.push(lines[i].split("").map(function(ch,n){return n%7===state.ambientTick%7?ch.toLowerCase():ch}).join(""));
     }else out.push(lines[i]);
@@ -272,10 +285,11 @@ function renderUptime(){
   byId("uptimeValue").textContent=pad2(h)+":"+pad2(m)+":"+pad2(s);
 }
 function tickAmbient(){
+  if(reducedMotion())return;
   state.ambientTick++;
   if(state.activeProgram==="trace")renderTrace();
   if(state.activeProgram==="rain")renderRain();
-  if(state.activeProgram==="prompt"&&!matchMedia("(prefers-reduced-motion: reduce)").matches)renderPrompt(false);
+  if(state.activeProgram==="prompt")renderPrompt(false);
 }
 function plugin(){try{return window.plugins&&window.plugins.Sensorsdataprovider}catch(e){return null}}
 function connectSensors(){
@@ -363,7 +377,7 @@ async function pollSensors(){
   await Promise.all(roles.map(async function(role){
     var id=state.sensorIds[role];if(!id)return;
     var v=await ask("getSensorValue",[String(id)]);
-    var n=Number(v);if(Number.isFinite(n))state.sensorValues[role]={value:n,at:Date.now()};
+    var n=Number(v);if(Number.isFinite(n))state.sensorValues[role]={id:String(id),value:n,at:Date.now()};
   }));
   renderSystem();
 }
@@ -371,13 +385,20 @@ function renderSystem(){
   var roles=["cpuLoad","cpuTemp","gpuLoad","gpuTemp","ram"],available=0,live=0,stale=0,now=Date.now();
   roles.forEach(function(role){
     var row=document.querySelector('.sensorRow[data-role="'+role+'"]');if(!row)return;
-    var id=state.sensorIds[role],meta=id?state.sensorCatalog[id]:null,val=id?state.sensorValues[role]:null;
-    var isFresh=!!val&&now-val.at<=SENSOR_STALE_MS;
-    var isStale=!!val&&!isFresh;
+    var id=state.sensorIds[role],meta=id?state.sensorCatalog[id]:null,rawVal=id?state.sensorValues[role]:null;
+    var val=rawVal&&String(rawVal.id||"")===String(id)?rawVal:null;
+    var blocked=state.sensorProviderState==="unavailable"||state.sensorProviderState==="error"||state.sensorProviderState==="empty";
+    var visibleVal=blocked?null:val;
+    var isFresh=!!visibleVal&&now-visibleVal.at<=SENSOR_STALE_MS;
+    var isStale=!!visibleVal&&!isFresh;
     if(id)available++;if(isFresh)live++;if(isStale)stale++;
-    row.querySelector(".sensorValue").textContent=val?formatValue(val.value,meta):"—";
+    row.querySelector(".sensorValue").textContent=visibleVal?formatValue(visibleVal.value,meta):"—";
     var source=meta?cleanText((meta.device?meta.device+" // ":"")+meta.name,"iCUE sensor",80):"not available";
-    row.querySelector(".sensorSource").textContent=isStale?"STALE // "+source:source;
+    if(state.sensorProviderState==="unavailable")source="provider offline";
+    else if(state.sensorProviderState==="error")source="provider error";
+    else if(state.sensorProviderState==="empty")source="no sensors exposed";
+    else if(isStale)source="STALE // "+source;
+    row.querySelector(".sensorSource").textContent=source;
   });
   var status="";
   if(state.sensorProviderState==="unavailable")status="iCUE SENSOR PROVIDER OFFLINE";
@@ -421,6 +442,8 @@ function wireTouch(){
 function cleanup(){
   state.timers.forEach(function(timer){clearInterval(timer)});
   state.timers=[];
+  if(state.bootTimer){clearInterval(state.bootTimer);state.bootTimer=null}
+  if(state.bootFinishTimer){clearTimeout(state.bootFinishTimer);state.bootFinishTimer=null}
   Object.keys(state.pending).forEach(function(id){
     var pending=state.pending[id];
     if(pending&&pending.timer)clearTimeout(pending.timer);
@@ -456,6 +479,6 @@ globalThis.__retroTerminalProTest={
   pollSensors:pollSensors,
   lifecycleTick:lifecycleTick,
   cleanup:cleanup,
-  snapshot:function(){return{program:state.activeProgram,style:state.activeStyle,idle:state.idle,slot:document.body.getAttribute("data-slot"),started:state.started,providerState:state.sensorProviderState,timers:state.timers.length,sensors:JSON.parse(JSON.stringify(state.sensorValues))}}
+  snapshot:function(){return{program:state.activeProgram,style:state.activeStyle,idle:state.idle,slot:document.body.getAttribute("data-slot"),started:state.started,providerState:state.sensorProviderState,timers:state.timers.length,bootTimerActive:!!state.bootTimer,bootFinishTimerActive:!!state.bootFinishTimer,sensors:JSON.parse(JSON.stringify(state.sensorValues))}}
 };
 init();
