@@ -258,7 +258,7 @@ public sealed class Win32WindowBackend : IWindowBackend
     private static List<MonitorEntry> EnumerateMonitors()
     {
         var list = new List<MonitorEntry>();
-        Native.EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, (handle, _, ref Native.RECT _, _) =>
+        Native.EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, (IntPtr handle, IntPtr hdc, ref Native.RECT monitorRect, IntPtr data) =>
         {
             var info = new Native.MONITORINFOEX { cbSize = Marshal.SizeOf<Native.MONITORINFOEX>(), szDevice = "" };
             if (Native.GetMonitorInfo(handle, ref info))
