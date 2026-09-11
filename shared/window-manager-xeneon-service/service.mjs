@@ -321,9 +321,12 @@ export async function startWindowManagerXeneonService({
     server.listen(port, host);
   });
 
+  const address = server.address();
+  const actualPort = address && typeof address === "object" ? address.port : port;
+
   return {
     host,
-    port,
+    port: actualPort,
     protocol,
     pairingKey,
     async close() {
