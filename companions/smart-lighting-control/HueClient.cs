@@ -140,17 +140,17 @@ public sealed class HueClient {
         var grouped=resources.Where(e=>S(e,"type")=="grouped_light").ToDictionary(e=>S(e,"id"),e=>e,StringComparer.Ordinal);
         var targets=new List<LightingTarget>();var ownerMap=new Dictionary<string,string>(StringComparer.Ordinal);
         foreach(var e in resources.Where(e=>S(e,"type")=="light")){
-            var rid=S(e,"id"),id="hue:light:"+rid,name=MetaName(e,"Hue Light");
+            var rid=S(e,"id"); var id="hue:light:"+rid; var name=MetaName(e,"Hue Light");
             var t=FromHueState(e,id,"light",name,rid);t.Favorite=favorites.Contains(id);targets.Add(t);ownerMap[rid]=id;
         }
         foreach(var e in resources.Where(e=>S(e,"type") is "room" or "zone")){
-            var kind=S(e,"type"),rid=S(e,"id"),id="hue:"+kind+":"+rid,service=ServiceRid(e,"grouped_light");
+            var kind=S(e,"type"); var rid=S(e,"id"); var id="hue:"+kind+":"+rid; var service=ServiceRid(e,"grouped_light");
             if(string.IsNullOrWhiteSpace(service)||!grouped.TryGetValue(service,out var g))continue;
             var t=FromHueState(g,id,kind,MetaName(e,kind=="room"?"Hue Room":"Hue Zone"),service);t.NativeAux=rid;t.Favorite=favorites.Contains(id);targets.Add(t);ownerMap[rid]=id;
         }
         var scenes=new List<LightingTarget>();
         foreach(var e in resources.Where(e=>S(e,"type")=="scene")){
-            var rid=S(e,"id"),group=e.TryGetProperty("group",out var gr)?S(gr,"rid"):"",id="hue:scene:"+rid;
+            var rid=S(e,"id"); var group=e.TryGetProperty("group",out var gr)?S(gr,"rid"):""; var id="hue:scene:"+rid;
             var t=new LightingTarget{Id=id,Provider="hue",Kind="scene",Name=MetaName(e,"Hue Scene"),ParentId=ownerMap.TryGetValue(group,out var parent)?parent:null,Reachable=true,Favorite=favorites.Contains(id),Capabilities=new(){Scene=true},NativeId=rid};
             scenes.Add(t);
         }
@@ -206,7 +206,7 @@ public sealed class HueClient {
         if(y<=0)return new(0,0,0);var Y=Math.Clamp(brightness/100d,0.01,1);var X=(Y/y)*x;var Z=(Y/y)*(1-x-y);
         var r=X*1.656492-Y*.354851-Z*.255038;var g=-X*.707196+Y*1.655397+Z*.036152;var b=X*.051713-Y*.121364+Z*1.011530;
         double C(double c){c=Math.Max(0,c);c=c<=.0031308?12.92*c:1.055*Math.Pow(c,1/2.4)-.055;return Math.Clamp(c,0,1);}
-        var cr=C(r),cg=C(g),cb=C(b),max=Math.Max(cr,Math.Max(cg,cb));if(max>1){cr/=max;cg/=max;cb/=max;}
+        var cr=C(r); var cg=C(g); var cb=C(b); var max=Math.Max(cr,Math.Max(cg,cb)); if(max>1){cr/=max;cg/=max;cb/=max;}
         return new((int)Math.Round(cr*255),(int)Math.Round(cg*255),(int)Math.Round(cb*255));
     }
 }
