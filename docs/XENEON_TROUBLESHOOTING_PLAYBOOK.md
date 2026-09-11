@@ -239,8 +239,25 @@ Prefer:
 - deliberate disconnected UI
 - narrow commands and normalized state
 - no logging of sensitive clipboard, token or account contents
+- one per-user running instance, with a clean way to exit before updating
+- reusable long-lived HTTP clients for polling/control providers instead of creating a new client for every request
+- explicit pair, unpair, disconnect, clear-key and cache-reset paths when credentials or local pairings can go stale
+- bounded discovery and polling cadence; an empty device list must not cause aggressive multicast/network discovery forever
+- provider reachability derived from the provider's real connectivity resources rather than assuming every normalized device is online
+- independent LAN/cloud/provider failure domains where one optional transport should not disable a working one
+- a stable customer-accessible companion download URL when the `.icuewidget` cannot contain the native companion
 
-Test the widget with the companion healthy, unavailable, restarting and version-mismatched.
+Test the widget with the companion healthy, unavailable, restarting, version-mismatched and already running when launched a second time.
+
+For companion-backed Marketplace products, also test the customer dependency path itself:
+
+- the Marketplace description clearly says a companion is required
+- the dependency has a stable link, not a temporary Actions artifact
+- the widget's offline/setup state tells the customer where to download it
+- the download resolves without GitHub authentication or a PackRat account
+- the release ZIP contains the executable plus setup/recovery instructions
+- updating the companion does not require Task Manager or deleting local app data
+- removing credentials removes stale cloud-only/device state without breaking unrelated local transports
 
 ### 12. External tester or physical-device reports
 
@@ -276,6 +293,8 @@ A hardware-free XENEON release candidate should complete all applicable layers:
 - StreamSpell packaged verification
 - deterministic Rat Art from real widget captures
 - Rat Ship marketplace kit
+- stable dependency/download path for any required external companion
+- companion install, update, reset and single-instance behavior when a native bridge is required
 
 Record any remaining real-iCUE or physical-device uncertainty. Do not convert uncertainty into a fake blocker when all automatable evidence is green.
 
