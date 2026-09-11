@@ -55,6 +55,27 @@ try{
  for(let i=0;i<30&&!commands.some(x=>x.command==='copy'&&x.id==='short');i++)await page.waitForTimeout(50);
  if(!commands.some(x=>x.command==='copy'&&x.id==='short'))throw new Error('copy command not sent');
 
+ const pin=page.locator('.clip-card[data-id="url"] [data-action="pin"]');
+ await pin.click();
+ for(let i=0;i<20&&!commands.some(x=>x.command==='pin'&&x.id==='url');i++)await page.waitForTimeout(25);
+ if(!commands.some(x=>x.command==='pin'&&x.id==='url'))throw new Error('pin command not sent');
+
+ const del=page.locator('.clip-card[data-id="url"] [data-action="delete"]');
+ const deletesBefore=commands.filter(x=>x.command==='delete').length;
+ await del.click();await page.waitForTimeout(100);
+ if(commands.filter(x=>x.command==='delete').length!==deletesBefore)throw new Error('delete fired without confirmation');
+ await del.click();
+ for(let i=0;i<20&&commands.filter(x=>x.command==='delete').length===deletesBefore;i++)await page.waitForTimeout(25);
+ if(commands.filter(x=>x.command==='delete').length!==deletesBefore+1)throw new Error('confirmed delete command not sent');
+
+ const clear=page.locator('#clearButton');
+ const clearsBefore=commands.filter(x=>x.command==='clear').length;
+ await clear.click();await page.waitForTimeout(100);
+ if(commands.filter(x=>x.command==='clear').length!==clearsBefore)throw new Error('clear fired without confirmation');
+ await clear.click();
+ for(let i=0;i<20&&commands.filter(x=>x.command==='clear').length===clearsBefore;i++)await page.waitForTimeout(25);
+ if(commands.filter(x=>x.command==='clear').length!==clearsBefore+1)throw new Error('confirmed clear command not sent');
+
  for(const client of wss.clients)client.close();
  await page.waitForFunction(()=>!document.getElementById('bridgeStatus')?.classList.contains('online'),{timeout:3000});
  await page.waitForFunction(()=>document.getElementById('bridgeStatus')?.classList.contains('online'),{timeout:5000});
