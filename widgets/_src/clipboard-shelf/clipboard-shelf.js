@@ -3,8 +3,8 @@
 var WS_URL="ws://127.0.0.1:17485/ws";
 var WS_PROTOCOL="packrat-clipboard-shelf-v1-a91f6c";
 var RECONNECT_MS=1200;
-var socket=null,reconnectTimer=null,clearArmedUntil=0,deleteArmedId="",deleteArmedUntil=0,toastTimer=null;
-var state={connected:false,privateMode:false,maxHistory:40,currentId:"",entries:[],revision:0,pairingCode:"",pairingError:false};
+var socket=null,reconnectTimer=null,clearArmedUntil=0,deleteArmedId="",deleteArmedUntil=0,toastTimer=null,shuttingDown=false;
+var state={connected:false,incompatible:false,bridgeVersion:0,privateMode:false,maxHistory:40,currentId:"",entries:[],revision:0,pairingCode:"",pairingError:false};
 var ui={filter:"all",search:""};
 var fixture=globalThis.__clipboardShelfFixture||null;
 
@@ -31,7 +31,7 @@ function dedupeEntries(entries,maxHistory){
     if(a.pinned!==b.pinned)return a.pinned?-1:1;
     return Date.parse(b.createdAt)-Date.parse(a.createdAt);
   }).forEach(function(e){
-    if(seen.has(e.text))return;seen.add(e.text);
+    if(seen.has(e.id))return;seen.add(e.id);
     if(e.pinned||out.filter(function(x){return !x.pinned;}).length<limit)out.push(e);
   });
   return out;
@@ -69,7 +69,7 @@ function refreshSettings(){
   state.pairingCode=nextCode;
   applyAppearance();
   if(changed&&!fixture){
-    state.connected=false;state.pairingError=false;
+    state.connected=false;state.incompatible=false;state.pairingError=false;
     clearTimeout(reconnectTimer);reconnectTimer=null;
     if(socket){try{socket.close(4001,"pairing changed");}catch(e){}socket=null;}
     connect();
@@ -116,7 +116,8 @@ function render(){
   applySlot();applyAppearance();
   var status=document.getElementById("bridgeStatus");status.classList.toggle("online",state.connected);
   status.querySelector(".status-text").textContent=state.connected?"Bridge connected":(!state.pairingCode?"Pair bridge":(state.pairingError?"Pairing rejected":"Bridge offline"));
-  var priv=document.getElementById("privateButton");priv.setAttribute("aria-pressed",String(state.privateMode));priv.textContent=state.privateMode?"Private on":"Private";
+  var priv=document.getElementById("privateButton"),clear=document.getElementById("clearButton");priv.setAttribute("aria-pressed",String(state.privateMode));priv.textContent=state.privateMode?"Private on":"Private";
+  priv.disabled=state.incompatible;clear.disabled=state.incompatible;
   if(!state.connected&&!fixture){
     showOnly("offlineState");document.getElementById("countLabel").textContent="offline";
     var offlineTitle=document.getElementById("offlineTitle"),offlineCopy=document.getElementById("offlineCopy");
@@ -132,6 +133,7 @@ function render(){
     }
     return;
   }
+  if(state.incompatible){showOnly("incompatibleState");document.getElementById("countLabel").textContent="update required";return;}
   if(state.privateMode){showOnly("privateState");document.getElementById("countLabel").textContent="capture paused";return;}
   var entries=visibleEntries(),shelf=document.getElementById("shelf");shelf.textContent="";
   entries.forEach(function(e){shelf.appendChild(makeCard(e));});
@@ -141,9 +143,12 @@ function render(){
 function toast(text){
   var t=document.getElementById("toast");t.textContent=text;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove("show");},950);
 }
+function snapshotVersionOk(s){return Number(s&&s.version)===1;}
 function applySnapshot(s){
   if(!s||s.type!=="snapshot")return;
-  state.connected=true;state.pairingError=false;state.privateMode=Boolean(s.privateMode);state.maxHistory=Number(s.maxHistory)||state.maxHistory;state.currentId=String(s.currentId||"");state.revision=Number(s.revision)||0;
+  state.connected=true;state.bridgeVersion=Number(s.version)||0;state.pairingError=false;
+  if(!snapshotVersionOk(s)){state.incompatible=true;state.entries=[];render();return;}
+  state.incompatible=false;state.privateMode=Boolean(s.privateMode);state.maxHistory=Number(s.maxHistory)||state.maxHistory;state.currentId=String(s.currentId||"");state.revision=Number(s.revision)||0;
   state.entries=dedupeEntries(Array.isArray(s.entries)?s.entries:[],state.maxHistory);
   render();
 }
@@ -163,16 +168,16 @@ function send(cmd){
   if(!socket||socket.readyState!==WebSocket.OPEN)return false;
   try{socket.send(JSON.stringify(cmd));return true;}catch(e){return false;}
 }
-function scheduleReconnect(){if(fixture||reconnectTimer||state.pairingError||!state.pairingCode)return;reconnectTimer=setTimeout(function(){reconnectTimer=null;connect();},RECONNECT_MS);}
+function scheduleReconnect(){if(fixture||shuttingDown||reconnectTimer||state.pairingError||!state.pairingCode)return;reconnectTimer=setTimeout(function(){reconnectTimer=null;connect();},RECONNECT_MS);}
 function connect(){
-  if(fixture)return;
+  if(fixture||shuttingDown)return;
   if(!state.pairingCode){state.connected=false;render();return;}
   if(socket&&(socket.readyState===WebSocket.OPEN||socket.readyState===WebSocket.CONNECTING))return;
   var ws;try{ws=new WebSocket(WS_URL,WS_PROTOCOL);}catch(e){state.connected=false;render();scheduleReconnect();return;}
   socket=ws;
   ws.addEventListener("open",function(){if(socket!==ws)return;state.connected=false;send({command:"auth",token:state.pairingCode});render();});
   ws.addEventListener("message",function(ev){var p;try{p=JSON.parse(String(ev.data||""));}catch(e){return;}applySnapshot(p);});
-  ws.addEventListener("close",function(ev){if(socket!==ws)return;socket=null;state.connected=false;if(ev&&ev.code===1008)state.pairingError=true;render();scheduleReconnect();});
+  ws.addEventListener("close",function(ev){if(socket!==ws)return;socket=null;state.connected=false;if(ev&&ev.code===1008)state.pairingError=true;if(!shuttingDown){render();scheduleReconnect();}});
   ws.addEventListener("error",function(){if(socket===ws){state.connected=false;render();}});
 }
 function handleAction(action,id){
@@ -205,11 +210,12 @@ function installEvents(){
     else{clearArmedUntil=now+2600;b.classList.add("armed");b.textContent="Tap again";setTimeout(function(){if(Date.now()>=clearArmedUntil){b.classList.remove("armed");b.textContent="Clear";}},2700);}
   });
   addEventListener("resize",render);
+  addEventListener("pagehide",function(){shuttingDown=true;if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}if(socket){try{socket.close(1000,"pagehide");}catch(e){}socket=null;}},{once:true});
 }
 globalThis.icueEvents=globalThis.icueEvents||{};
 globalThis.icueEvents.onICUEInitialized=function(){refreshSettings();};
 globalThis.icueEvents.onDataUpdated=function(){refreshSettings();};
-globalThis.__clipboardShelfTest={classifyUrl:classifyUrl,dedupeEntries:dedupeEntries,slotFor:slotFor};
+globalThis.__clipboardShelfTest={classifyUrl:classifyUrl,dedupeEntries:dedupeEntries,slotFor:slotFor,snapshotVersionOk:snapshotVersionOk};
 if(typeof document==="undefined")return;
 document.addEventListener("DOMContentLoaded",function(){
   installEvents();applySlot();refreshSettings();
