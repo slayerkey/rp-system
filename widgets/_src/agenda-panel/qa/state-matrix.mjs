@@ -65,6 +65,25 @@ out.empty = await page.evaluate((secretUrl) => ({
 }), secretUrl);
 await page.close();
 
+page = await pageWith('', []);
+out.relayFallback = await page.evaluate(async ({ secretUrl, valid }) => {
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url: String(url), method: options.method || 'GET', body: options.body || '' });
+    if (String(url) === secretUrl) throw new TypeError('Simulated browser CORS failure');
+    if (String(url) === CALENDAR_RELAY_URL) return new Response(valid, { status: 200, headers: { 'Content-Type': 'text/calendar' } });
+    throw new Error('Unexpected URL: ' + url);
+  };
+  const loaded = await loadCalendarText(secretUrl, 0);
+  return {
+    via: loaded && loaded.via,
+    hasCalendar: !!(loaded && /BEGIN:VCALENDAR/.test(loaded.text)),
+    calls,
+    relayUrl: CALENDAR_RELAY_URL
+  };
+}, { secretUrl, valid });
+await page.close();
+
 page = await pageWith(secretUrl, [valid]);
 out.stale = await page.evaluate(async () => {
   const cached = { events: STATE.events.slice(), updatedAt: STATE.updatedAt };
@@ -78,17 +97,14 @@ out.transportFailure = await page.evaluate(async () => {
   STATE.events = [];
   STATE.updatedAt = 0;
   await refreshCalendars(true);
-  let opened = null;
-  globalThis.plugins = { Linkprovider: { open(url) { opened = url; } } };
-  globalThis.pluginLinkprovider_initialized = true;
   document.getElementById('heroCard').click();
   return {
     state: document.body.dataset.state,
     events: STATE.events.length,
     hero: heroTitle.textContent,
     cta: heroCountdown.textContent,
-    opened,
-    mode: document.body.dataset.mode
+    mode: document.body.dataset.mode,
+    mentionsCompanion: /Calendar Sync Pro|COMPANION NEEDED|companion/i.test(document.body.innerText)
   };
 });
 await page.close();
@@ -127,10 +143,15 @@ if (out.unconfigured.state !== 'unconfigured') throw new Error('unconfigured sta
 if (out.empty.state !== 'fresh' || out.empty.events !== 0 || !out.empty.emptyVisible) throw new Error('empty state failed');
 if (out.empty.secretPersisted) throw new Error('secret calendar URL persisted to localStorage');
 if (out.stale.state !== 'stale' || out.stale.events < 1) throw new Error('stale cache fallback failed');
-if (out.transportFailure.state !== 'bridge' || out.transportFailure.events !== 0) throw new Error('transport failure state failed');
-if (out.transportFailure.cta !== 'GET CALENDAR SYNC PRO →') throw new Error('companion upsell CTA missing');
-if (out.transportFailure.opened !== 'https://marketplace.elgato.com/product/calendar-sync-pro-d957868e-d1a0-4c3b-8fe4-8291951a5170') throw new Error('companion upsell did not open exact Calendar Sync Pro listing');
-if (out.transportFailure.mode !== 'today') throw new Error('companion upsell should not toggle calendar range');
+if (out.relayFallback.via !== 'relay' || !out.relayFallback.hasCalendar) throw new Error('standalone relay fallback failed');
+if (out.relayFallback.calls.length !== 2) throw new Error('relay fallback should attempt direct then relay exactly once');
+if (out.relayFallback.calls[0].url !== secretUrl || out.relayFallback.calls[0].method !== 'GET') throw new Error('direct calendar attempt changed');
+if (out.relayFallback.calls[1].url !== 'https://packrat-site.pages.dev/api/calendar-feed' || out.relayFallback.calls[1].method !== 'POST') throw new Error('relay endpoint or method incorrect');
+if (out.relayFallback.calls[1].body !== secretUrl) throw new Error('relay POST body did not contain exact calendar URL');
+if (out.transportFailure.state !== 'error' || out.transportFailure.events !== 0) throw new Error('transport failure state failed');
+if (out.transportFailure.cta !== '') throw new Error('transport failure must not display a purchase CTA');
+if (out.transportFailure.mentionsCompanion) throw new Error('Calendar Panel must not mention Calendar Sync Pro or a companion');
+if (out.transportFailure.mode !== 'four') throw new Error('hero card should remain the normal calendar range toggle during feed errors');
 if (out.malformed.state !== 'error' || out.malformed.events !== 0) throw new Error('malformed feed should be feed error');
 if (out.partial.state !== 'stale' || out.partial.failed !== 1 || out.partial.events !== 1) throw new Error('partial failure state failed');
 if (out.parallel.state !== 'fresh' || out.parallel.elapsed > 500) throw new Error(`calendar refresh not parallel: ${out.parallel.elapsed}`);
