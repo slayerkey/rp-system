@@ -22,7 +22,7 @@ Read product-specific source and QA only after the product slug is known.
 
 ## Repository model
 
-Keep all XENEON products in `ratpack-system` unless there is a concrete technical reason to split one out.
+Keep all XENEON products in `rp-system` unless there is a concrete technical reason to split one out.
 
 `main` is the stable canonical system.
 
@@ -173,6 +173,6 @@ Do not duplicate the same fix independently across multiple widgets.
 
 A new chat should be able to start from something as small as:
 
-`Build a XENEON Edge widget for <idea>. Read XENEON.md in slayerkey/ratpack-system first and follow RatPack end to end.`
+`Build a XENEON Edge widget for <idea>. Read XENEON.md in slayerkey/rp-system first and follow RatPack end to end.`
 
 The assistant should recover the rest of the build, QA, art, and shipping process from GitHub rather than requiring the user to restate the system.
