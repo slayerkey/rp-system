@@ -11,6 +11,11 @@
 - disconnected, pairing, protocol-mismatch, empty and no-active-window states
 - Windows companion tests for layout geometry, local-origin policy, pairing rejection/acceptance and push snapshots
 - self-contained Windows x64 companion publish
+- exact customer companion ZIP install from the release layout into `%LOCALAPPDATA%\PackRat\WindowBridge`
+- per-user Startup shortcut creation and localhost health verification from the installed executable
+- exact installed-process shutdown with bounded wait before update/uninstall
+- retrying fail-closed removal of the install directory and Startup shortcut
+- exact published GitHub Release ZIP re-download, SHA-256 equality check, install smoke and uninstall smoke
 
 ## Canonical XENEON release gate
 
