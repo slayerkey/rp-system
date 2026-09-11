@@ -176,8 +176,8 @@
         "widgets/_src/retro-terminal-pro",
         "widgets/retro-terminal-pro"
       ],
-      "source_status": "free_catalog_only_source_unavailable_pro_canonical",
-      "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
+      "source_status": "free_catalog_only_source_unavailable_pro_qa_passed",
+      "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
     }
   ],
   "standalone_free": [
@@ -208,4 +208,4 @@
       "reason": "Rejected."
     }
   ]
-}\n
+}
