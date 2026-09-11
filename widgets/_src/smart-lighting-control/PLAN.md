@@ -77,6 +77,7 @@ The Govee cloud key is optional. LAN-only users can still control discovered LAN
 - Corsair Labs Windows runner
 - StreamSpell all eight presets
 - deterministic Rat Art
+- companion publish excludes source-revision metadata, and the immutable release gate requires the exact same v1.0.0 ZIP hash across unrelated commits
 - Rat Ship SHIP_KIT plus Windows companion artifact
 
 ## Marketplace naming
