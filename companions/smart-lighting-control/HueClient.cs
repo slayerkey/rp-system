@@ -139,6 +139,17 @@ public sealed class HueClient : IDisposable {
     }
 
     public async Task<List<LightingTarget>> GetTargetsAsync(CancellationToken ct=default){
+        try{return await GetTargetsCoreAsync(ct);}
+        catch(HttpRequestException ex) when(ex.StatusCode is null){
+            if(await TryRecoverBridgeIpAsync(ct))return await GetTargetsCoreAsync(ct);
+            throw;
+        }
+        catch(TaskCanceledException) when(!ct.IsCancellationRequested){
+            if(await TryRecoverBridgeIpAsync(ct))return await GetTargetsCoreAsync(ct);
+            throw;
+        }
+    }
+    async Task<List<LightingTarget>> GetTargetsCoreAsync(CancellationToken ct){
         var ip=state.Config.HueBridgeIp;var key=state.HueAppKey();
         if(string.IsNullOrWhiteSpace(ip)||string.IsNullOrWhiteSpace(key))return new();
         var http=ResourceHttp(ip,state.Config.HueCertificateSha256,key);
@@ -146,6 +157,19 @@ public sealed class HueClient : IDisposable {
         using var doc=JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
         if(!doc.RootElement.TryGetProperty("data",out var data)||data.ValueKind!=JsonValueKind.Array)return new();
         return NormalizeResources(data,state.Config.Favorites);
+    }
+    async Task<bool> TryRecoverBridgeIpAsync(CancellationToken ct){
+        var bridgeId=state.Config.HueBridgeId;
+        if(string.IsNullOrWhiteSpace(bridgeId))return false;
+        var current=state.Config.HueBridgeIp??"";
+        var candidates=await DiscoverAsync(ct);
+        var match=candidates.FirstOrDefault(c=>BridgeIdEquals(c.Id,bridgeId));
+        if(match is null||string.Equals(match.Ip,current,StringComparison.OrdinalIgnoreCase))return false;
+        state.Config.HueBridgeIp=match.Ip;state.Save();ResetResourceHttp();return true;
+    }
+    internal static bool BridgeIdEquals(string? a,string? b){
+        static string Normalize(string? value)=>new((value??"").Where(char.IsLetterOrDigit).Select(char.ToUpperInvariant).ToArray());
+        var x=Normalize(a);var y=Normalize(b);return x.Length>0&&x==y;
     }
 
     public static List<LightingTarget> NormalizeResources(JsonElement data,ISet<string>? favorites=null){

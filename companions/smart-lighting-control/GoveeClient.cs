@@ -47,7 +47,7 @@ public sealed class GoveeClient : IDisposable {
 
     public async Task<int> DiscoverLanAsync(string? manualIp=null,CancellationToken ct=default){
         lanDiscoveryAt=DateTime.UtcNow;
-        IPAddress? manual=null;
+        IPAddress? manual=null;string? manualKey=null;
         if(!string.IsNullOrWhiteSpace(manualIp)&&(!IPAddress.TryParse(manualIp,out manual)||manual.AddressFamily!=AddressFamily.InterNetwork))
             throw new InvalidOperationException("Enter a valid IPv4 address for the Govee light.");
         try{
@@ -72,7 +72,7 @@ public sealed class GoveeClient : IDisposable {
 
             var scan=Encoding.UTF8.GetBytes(BuildLanCommand("scan",new{account_topic="reserve"}));
             if(manual is not null){
-                var manualKey="ip:"+manual;
+                manualKey="ip:"+manual;
                 if(!lan.Values.Any(x=>x.Ip==manual.ToString()))
                     lan[manualKey]=new LanDevice{Device=manualKey,Ip=manual.ToString(),Sku="LAN",Name="Govee LAN "+manual,Reachable=false};
                 await udp.SendAsync(scan,scan.Length,new IPEndPoint(manual,4001));
@@ -95,6 +95,7 @@ public sealed class GoveeClient : IDisposable {
             }
         }catch(SocketException ex){LastLanError="LAN UDP 4002 unavailable: "+ex.Message;throw;}catch(OperationCanceledException){}
         if(lan.Count>0)await RefreshLanStatusAsync(ct);
+        if(manualKey is not null&&lan.TryGetValue(manualKey,out var placeholder)&&!placeholder.Reachable)lan.Remove(manualKey);
         if(lan.Count>0)LastLanError=null;
         return lan.Count;
     }
@@ -154,7 +155,10 @@ public sealed class GoveeClient : IDisposable {
     void NoteCloudResponse(HttpResponseMessage response){
         if(response.IsSuccessStatusCode){LastCloudError=null;return;}
         if((int)response.StatusCode==429)LastCloudError="Developer API rate limited";
-        else if((int)response.StatusCode==401)LastCloudError="Developer API key rejected";
+        else if((int)response.StatusCode==401){
+            LastCloudError="Developer API key rejected";
+            foreach(var d in cloud)cloudStates[d.Device]=new CloudState{Reachable=false};
+        }
         else if((int)response.StatusCode>=500)LastCloudError="Developer API unavailable";
     }
 
@@ -355,7 +359,8 @@ public sealed class GoveeClient : IDisposable {
 
     void ApplyCachedState(string device,string command,JsonElement message){
         lan.TryGetValue(device,out var local);
-        if(!cloudStates.TryGetValue(device,out var remote)){remote=new CloudState{Reachable=true};cloudStates[device]=remote;}
+        if(!cloudStates.TryGetValue(device,out var remote)){remote=new CloudState();cloudStates[device]=remote;}
+        remote.Reachable=true;
         if(command=="power"){
             var value=message.GetProperty("value").GetBoolean();remote.On=value;if(local is not null)local.On=value;
         }else if(command=="brightness"){

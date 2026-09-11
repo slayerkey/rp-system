@@ -91,6 +91,20 @@ try{
   await page.waitForFunction(()=>globalThis.__PACKRAT_LIGHTING_TEST__.selected()?.favorite===false);
   report.tests.controls=true;
 
+  const stress=await newWidgetPage(context);
+  await stress.page.waitForFunction(()=>document.body.getAttribute('data-state')==='live'&&document.querySelectorAll('.target-card').length>=3,null,{timeout:8000});
+  await page.evaluate(()=>{
+    const ws=globalThis.__PACKRAT_LIGHTING_TEST__.state.socket;
+    for(let i=0;i<80;i++)ws.send(JSON.stringify({command:'brightness',id:'hue:room:studio',value:(i%99)+1}));
+  });
+  await page.waitForTimeout(1800);
+  await page.waitForFunction(()=>document.body.getAttribute('data-state')==='live'&&globalThis.__PACKRAT_LIGHTING_TEST__.state.socket?.readyState===WebSocket.OPEN,null,{timeout:5000});
+  await stress.page.waitForFunction(()=>document.body.getAttribute('data-state')==='live'&&globalThis.__PACKRAT_LIGHTING_TEST__.state.socket?.readyState===WebSocket.OPEN,null,{timeout:5000});
+  assert.equal(proc.exitCode,null,'rapid broadcast stress terminated the companion');
+  assert.deepEqual(stress.errors,[],'rapid broadcast stress produced runtime errors: '+stress.errors.join(' | '));
+  await stress.page.close();
+  report.tests.rapidBroadcastStress=true;
+
   // Provider-side command failures must surface visibly instead of disappearing
   // into console/log state.
   await page.evaluate(()=>globalThis.__PACKRAT_LIGHTING_TEST__.state.socket.send(JSON.stringify({command:'forceError',id:'hue:room:studio'})));
@@ -137,7 +151,7 @@ try{
   await badContext.close();
 
   report.ok=true;
-  console.log('SMART LIGHTING NETWORK QA PASS: idempotent lifecycle, controls, restart recovery, protocol mismatch, wrong-token rejection');
+  console.log('SMART LIGHTING NETWORK QA PASS: idempotent lifecycle, controls, rapid multi-client broadcast stress, restart recovery, protocol mismatch, wrong-token rejection');
 }finally{
   await browser.close();
   await stopCompanion(active);

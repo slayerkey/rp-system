@@ -13,24 +13,30 @@ for(const p of ['PackRat.SmartLighting.Companion.csproj','Program.cs','Controlle
 const manifest=JSON.parse(fs.readFileSync(path.join(shipping,'manifest.json'),'utf8'));
 assert.equal(manifest.author,'PackRat 🐀');
 assert.equal(manifest.id,'com.packrat.smartlightingcontrol');
+assert.equal(manifest.name,'Smart Lighting Control for Hue & Govee');
 assert.equal(manifest.interactive,true);
 assert.deepEqual(manifest.supported_devices,[{type:'dashboard_lcd'}]);
 
 const sub=JSON.parse(fs.readFileSync(path.join(root,'submission.json'),'utf8'));
-assert.equal(sub.name,'Smart Lighting Control for Hue + Govee');
+assert.equal(sub.name,'Smart Lighting Control for Hue & Govee');
 assert.equal(sub.price_usd,9.99);
 assert.equal(sub.version,'1.0.0');
-assert.match(sub.description,/without setting up Home Assistant/i);
+assert.ok(sub.description.length<=1500,'Marketplace description exceeds 1,500 characters');
+assert.doesNotMatch(sub.name,/\+/,'Marketplace name must not use + to mean and');
+assert.match(sub.description,/without Home Assistant/i);
 assert.match(sub.description,/no PackRat cloud/i);
-assert.match(sub.description,/main\.packrat-site\.pages\.dev\/downloads\/smart-lighting/i);
+assert.match(sub.description,/packrat-site\.pages\.dev\/downloads\/smart-lighting/i);
 
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const translations=JSON.parse(fs.readFileSync(path.join(shipping,'translation.json'),'utf8')).en?.translation||{};
+const trKeys=[...html.matchAll(/tr\('([^']+)'\)/g)].map(m=>m[1]);
+for(const key of trKeys)assert.ok(Object.prototype.hasOwnProperty.call(translations,key),'missing translation key: '+key);
 for(const prop of ['pairingToken','defaultView','showOffline','textColor','accentColor','backgroundColor'])assert.match(html,new RegExp('content="'+prop+'"'));
 assert.ok(html.indexOf('content="textColor"')<html.indexOf('content="accentColor"')&&html.indexOf('content="accentColor"')<html.indexOf('content="backgroundColor"'),'custom style triplet order');
 
 const js=fs.readFileSync(path.join(root,'lighting.js'),'utf8');
 assert.match(js,/ws:\/\/127\.0\.0\.1:17486\/widget/);
-assert.match(js,/main\.packrat-site\.pages\.dev\/downloads\/smart-lighting/);
+assert.match(js,/packrat-site\.pages\.dev\/downloads\/smart-lighting/);
 assert.match(js,/onICUEInitialized/);
 assert.match(js,/onDataUpdated/);
 assert.match(js,/pagehide/);
@@ -52,7 +58,7 @@ const setup=fs.readFileSync(path.join(companion,'CUSTOMER-SETUP.txt'),'utf8');
 assert.match(setup,/127\.0\.0\.1:17486/);
 assert.match(setup,/Install locally \+ start with Windows/);
 assert.match(setup,/No PackRat account is required/);
-assert.match(setup,/main\.packrat-site\.pages\.dev\/downloads\/smart-lighting/);
+assert.match(setup,/packrat-site\.pages\.dev\/downloads\/smart-lighting/);
 
 const secretPattern=/AIza[0-9A-Za-z_-]{30,}|sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|(?:api[_-]?key|token|secret)\s*[:=]\s*['"][A-Za-z0-9_\-]{20,}['"]/i;
 for(const dir of [root,companion]){

@@ -1,6 +1,6 @@
 {
   "slug": "smart-lighting-control",
-  "name": "Smart Lighting Control for Hue + Govee",
+  "name": "Smart Lighting Control for Hue & Govee",
   "type": "widget",
   "price_usd": 9.99,
   "version": "1.0.0",
@@ -17,7 +17,7 @@
     "English"
   ],
   "marketplace_auto_publish": false,
-  "description": "Control Philips Hue and Govee lighting from CORSAIR XENEON Edge without setting up Home Assistant.\n\nSmart Lighting Control for Hue + Govee gives you touch-first power, brightness, color and color-temperature controls, plus favorites, Hue rooms/zones, and scenes where the connected lighting API supports them. Current state stays visible so the panel behaves like a real controller instead of a set of blind shortcuts.\n\nPhilips Hue uses your Hue Bridge locally. Pair once by pressing the physical bridge button; the generated application credential stays on your PC. Govee is local-first for compatible devices with LAN Control enabled. You may optionally add your own Govee Developer API key in the local companion to expose cloud-only device capabilities and Govee scenes.\n\nThe required PackRat Lighting Companion runs only on your Windows PC, binds to localhost, and keeps Philips Hue and Govee credentials out of the XENEON widget. Download the required Windows companion at https://main.packrat-site.pages.dev/downloads/smart-lighting. There is no PackRat cloud, no PackRat account, and PackRat does not collect your lighting credentials.\n\nHue-only and Govee-only setups are fully supported. Controls are capability-aware, so unsupported features are hidden rather than faked.\n\nThis is an independent third-party PackRat product. It is not affiliated with, endorsed by, or sponsored by Signify, Philips Hue, or Govee. Philips Hue and Govee are trademarks of their respective owners.\n\nPart of the PackRat Ecosystem.",
+  "description": "Control Philips Hue and Govee lighting from CORSAIR XENEON Edge without Home Assistant. Use touch controls for power, brightness, RGB color, color temperature, favorites, Hue rooms/zones, and scenes when supported. Live state keeps the panel synced instead of acting like blind shortcuts.\n\nPhilips Hue pairs directly with your local Hue Bridge after you press its physical link button. Govee uses LAN Control first on compatible devices; optionally add your own Govee Developer API key for cloud-only devices, capabilities, and scenes.\n\nRequires Windows and the free PackRat Lighting Companion: https://packrat-site.pages.dev/downloads/smart-lighting. The companion binds only to localhost and stores Hue/Govee credentials in Windows Credential Manager. No PackRat cloud or PackRat account is required.\n\nHue-only and Govee-only setups are supported. Unsupported controls are hidden automatically.\n\nIndependent third-party PackRat product. Not affiliated with, endorsed by, or sponsored by Signify, Philips Hue, or Govee. Part of the PackRat Ecosystem.",
   "release_notes": [
     "Direct Philips Hue Bridge pairing and local light, room/zone, scene, brightness, color and color-temperature control.",
     "Local-first Govee LAN discovery/control with optional Govee Developer API support for cloud-only capabilities and scenes.",

@@ -1,9 +1,9 @@
 {
   "id": "smart-lighting-control",
-  "name": "Smart Lighting Control for Hue + Govee",
+  "name": "Smart Lighting Control for Hue & Govee",
   "type": "widget",
   "status": "qa_passed",
-  "workflow_state": "READY_TO_SHIP",
+  "workflow_state": "QA_IN_PROGRESS",
   "blocker": null,
   "price_usd": 9.99,
   "version": "1.0.0",
@@ -72,13 +72,13 @@
       "asset_id": 557087009,
       "sha256": "c3cf9665b2feac4b66443ead457daa07c7dbdf0d543231b4157021e84ea1f1bc",
       "url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip",
-      "verified_customer_url": "https://main.packrat-site.pages.dev/downloads/smart-lighting"
+      "verified_customer_url": "https://packrat-site.pages.dev/downloads/smart-lighting"
     }
   },
   "hardware_boundary": "No physical XENEON Edge, Hue Bridge/light, or Govee light/credentials were available in this build session. Real provider code compiled and passed deterministic protocol/API fixtures plus exact-package localhost-companion integration. A physical smoke test is recommended when hardware is available, but is not represented as completed.",
   "final_boundary": "Authenticated Maker Console submission through rat ship smart-lighting-control. Marketplace auto-publish remains disabled.",
-  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. Final run 34591991159 is fully green, including exact-package Windows/companion QA, StreamSpell all eight presets, Rat Ship, versioned companion release, and an end-to-end customer download test through the verified PackRat Cloudflare main-branch URL with SHA-256 equality and ZIP-content validation.",
-  "companion_download_url": "https://main.packrat-site.pages.dev/downloads/smart-lighting",
+  "notes": "Final hardening QA in progress: Marketplace compliance, deterministic/immutable companion delivery, real Windows install/single-instance smoke, rapid WebSocket stress, provider recovery edge cases, and the production PackRat download route.",
+  "companion_download_url": "https://packrat-site.pages.dev/downloads/smart-lighting",
   "companion_release_tag": "smart-lighting-companion-v1.0.0",
   "companion_release_asset_url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip"
 }
