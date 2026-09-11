@@ -90,6 +90,75 @@ jobs:
             if (-not (Test-Path (Join-Path $check $required))) { throw "companion release ZIP missing $required" }
           }
 
+      - name: Customer first-run install and uninstall smoke
+        shell: pwsh
+        run: |
+          $installedDir = Join-Path $env:LOCALAPPDATA 'PackRat\ClipboardShelf'
+          $installedExe = Join-Path $installedDir 'PackRat.ClipboardShelfBridge.exe'
+          $runKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+          $runValue = 'PackRatClipboardShelfBridge'
+          $zipCheck = Join-Path $env:RUNNER_TEMP 'clipboard-shelf-companion-zip'
+
+          function Stop-ClipboardShelf {
+            Get-Process -Name 'PackRat.ClipboardShelfBridge' -ErrorAction SilentlyContinue |
+              Stop-Process -Force -ErrorAction SilentlyContinue
+          }
+
+          try {
+            Stop-ClipboardShelf
+            Remove-ItemProperty -Path $runKey -Name $runValue -ErrorAction SilentlyContinue
+            Remove-Item $installedDir -Recurse -Force -ErrorAction SilentlyContinue
+
+            $bootstrap = Start-Process 'artifacts/companion/PackRat.ClipboardShelfBridge.exe' -PassThru
+
+            $ready = $false
+            for ($i = 0; $i -lt 80; $i++) {
+              try {
+                if ((Test-Path $installedExe)) {
+                  $response = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:17485/health' -TimeoutSec 1
+                  if ($response.StatusCode -eq 200) { $ready = $true; break }
+                }
+              } catch {}
+              Start-Sleep -Milliseconds 250
+            }
+            if (-not $ready) { throw 'first-run bridge did not self-install and become healthy' }
+
+            $bootstrap.WaitForExit(5000) | Out-Null
+            if (-not $bootstrap.HasExited) { throw 'bootstrap executable did not exit after relaunching installed bridge' }
+
+            $startup = (Get-ItemProperty -Path $runKey -Name $runValue -ErrorAction Stop).$runValue
+            $expectedStartup = '"' + $installedExe + '"'
+            if ($startup -ne $expectedStartup) {
+              throw "startup registration mismatch: expected $expectedStartup, got $startup"
+            }
+
+            $installedProcess = Get-CimInstance Win32_Process -Filter "Name='PackRat.ClipboardShelfBridge.exe'" |
+              Where-Object { $_.ExecutablePath -and ([IO.Path]::GetFullPath($_.ExecutablePath) -eq [IO.Path]::GetFullPath($installedExe)) } |
+              Select-Object -First 1
+            if (-not $installedProcess) { throw 'installed bridge process is not running from LocalAppData' }
+
+            & (Join-Path $zipCheck 'Uninstall.ps1')
+            if ($LASTEXITCODE -ne 0) { throw "shipped uninstall script failed with exit code $LASTEXITCODE" }
+
+            for ($i = 0; $i -lt 40; $i++) {
+              $remaining = Get-Process -Name 'PackRat.ClipboardShelfBridge' -ErrorAction SilentlyContinue
+              if (-not $remaining -and -not (Test-Path $installedDir)) { break }
+              Start-Sleep -Milliseconds 250
+            }
+
+            if (Get-Process -Name 'PackRat.ClipboardShelfBridge' -ErrorAction SilentlyContinue) {
+              throw 'uninstall left Clipboard Shelf bridge running'
+            }
+            if (Test-Path $installedDir) { throw 'uninstall left Clipboard Shelf local data directory behind' }
+            $startupAfter = Get-ItemProperty -Path $runKey -Name $runValue -ErrorAction SilentlyContinue
+            if ($startupAfter) { throw 'uninstall left Clipboard Shelf startup registration behind' }
+          }
+          finally {
+            Stop-ClipboardShelf
+            Remove-ItemProperty -Path $runKey -Name $runValue -ErrorAction SilentlyContinue
+            Remove-Item $installedDir -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
       - name: Deterministic widget logic verification
         shell: pwsh
         run: node widgets/_src/clipboard-shelf/verify.mjs
