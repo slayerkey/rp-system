@@ -1,0 +1,259 @@
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Net;
+using System.Net.WebSockets;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http.Json;
+
+namespace PackRat.SmartLighting;
+
+public static class Program {
+    const int DefaultPort=17486;
+    const int ProtocolVersion=1;
+    const string CompanionVersion="1.0.0";
+    public static async Task<int> Main(string[] args){
+        if(args.Contains("--self-test"))return SelfTest();
+        var fixture=args.Contains("--fixture");
+        var noBrowser=args.Contains("--no-browser")||fixture;
+        var port=ArgInt(args,"--port",DefaultPort);
+        var protocol=fixture?ArgInt(args,"--fixture-protocol",ProtocolVersion):ProtocolVersion;
+        Mutex? instanceMutex=null;
+        if(!fixture){
+            instanceMutex=new Mutex(true,@"Local\PackRat.SmartLighting.Companion",out var firstInstance);
+            if(!firstInstance){
+                if(!noBrowser)try{Process.Start(new ProcessStartInfo($"http://127.0.0.1:{port}/"){UseShellExecute=true});}catch{}
+                instanceMutex.Dispose();
+                return 0;
+            }
+        }
+        ILightingRuntime runtime;
+        LightingController? real=null;
+        if(fixture)runtime=new FixtureRuntime();
+        else{var local=new LocalState();real=new LightingController(local);runtime=real;await real.StartAsync();}
+        runtime.Snapshot.Protocol=protocol;
+
+        var builder=WebApplication.CreateBuilder(args);
+        builder.WebHost.UseUrls($"http://127.0.0.1:{port}");
+        builder.Services.Configure<JsonOptions>(o=>{o.SerializerOptions.PropertyNamingPolicy=JsonNamingPolicy.CamelCase;o.SerializerOptions.DefaultIgnoreCondition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;});
+        var app=builder.Build();
+        app.UseWebSockets(new WebSocketOptions{KeepAliveInterval=TimeSpan.FromSeconds(20)});
+        app.Use(async(ctx,next)=>{
+            if(ctx.Connection.RemoteIpAddress is not null&&!IPAddress.IsLoopback(ctx.Connection.RemoteIpAddress)){ctx.Response.StatusCode=403;return;}
+            await next();
+        });
+
+        var sockets=new ConcurrentDictionary<Guid,SocketPeer>();
+        var broadcastGate=new SemaphoreSlim(1,1);
+        var broadcastPending=0;
+        async Task BroadcastAsync(){
+            Interlocked.Exchange(ref broadcastPending,1);
+            if(!await broadcastGate.WaitAsync(0))return;
+            try{
+                do{
+                    Interlocked.Exchange(ref broadcastPending,0);
+                    var dead=new List<Guid>();
+                    foreach(var pair in sockets){
+                        try{
+                            if(pair.Value.Socket.State==WebSocketState.Open)await pair.Value.SendAsync(runtime.Snapshot);
+                            else dead.Add(pair.Key);
+                        }catch{dead.Add(pair.Key);}
+                    }
+                    foreach(var id in dead)sockets.TryRemove(id,out _);
+                }while(Interlocked.Exchange(ref broadcastPending,0)==1);
+            }finally{
+                broadcastGate.Release();
+                if(Volatile.Read(ref broadcastPending)==1)_=BroadcastAsync();
+            }
+        }
+        runtime.Changed+=()=>_=BroadcastAsync();
+
+        app.MapGet("/",()=>Results.Content(SetupHtml(port),"text/html; charset=utf-8"));
+        app.MapGet("/health",()=>Results.Json(new{ok=true,product="PackRat Lighting Companion",version=CompanionVersion,protocol,fixture}));
+        app.MapGet("/api/setup/status",(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port))return Results.StatusCode(403);
+            return Results.Json(real is null?new{pairingToken=runtime.PairingToken,fixture=true}:real.SetupStatus());
+        });
+        app.MapGet("/api/setup/install/status",(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port))return Results.StatusCode(403);
+            return Results.Json(CompanionInstall.Status());
+        });
+        app.MapPost("/api/setup/install",(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port)||fixture)return Results.StatusCode(403);
+            try{return Results.Json(CompanionInstall.Install());}
+            catch(Exception ex){return Results.BadRequest(new{error=ex.Message});}
+        });
+        app.MapPost("/api/setup/startup",async(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port)||fixture)return Results.StatusCode(403);
+            try{
+                var body=await JsonDocument.ParseAsync(ctx.Request.Body,cancellationToken:ctx.RequestAborted);
+                var enabled=body.RootElement.TryGetProperty("enabled",out var v)&&v.GetBoolean();
+                return Results.Json(CompanionInstall.SetStartup(enabled));
+            }catch(Exception ex){return Results.BadRequest(new{error=ex.Message});}
+        });
+        app.MapPost("/api/setup/shutdown",(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port)||fixture)return Results.StatusCode(403);
+            _=Task.Run(async()=>{await Task.Delay(150);app.Lifetime.StopApplication();});
+            return Results.Json(new{ok=true});
+        });
+        app.MapPost("/api/setup/hue/discover",async(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port)||real is null)return Results.StatusCode(403);
+            try{return Results.Json(new{ok=true,bridges=await real.DiscoverHueAsync(ctx.RequestAborted)});}catch(Exception ex){return Results.BadRequest(new{ok=false,error=ex.Message});}
+        });
+        app.MapPost("/api/setup/hue/pair",async(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port)||real is null)return Results.StatusCode(403);
+            try{var body=await JsonDocument.ParseAsync(ctx.Request.Body,cancellationToken:ctx.RequestAborted);var ip=body.RootElement.GetProperty("ip").GetString()??"";var id=await real.PairHueAsync(ip,ctx.RequestAborted);return Results.Json(new{ok=true,bridge=id});}
+            catch(Exception ex){return Results.BadRequest(new{ok=false,error=ex.Message});}
+        });
+        app.MapDelete("/api/setup/hue/pair",async(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port)||real is null)return Results.StatusCode(403);
+            await real.ClearHuePairingAsync(ctx.RequestAborted);return Results.Json(new{ok=true});
+        });
+        app.MapPost("/api/setup/govee/scan",async(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port)||real is null)return Results.StatusCode(403);
+            try{string? ip=null;if(ctx.Request.ContentLength.GetValueOrDefault()>0){var body=await JsonDocument.ParseAsync(ctx.Request.Body,cancellationToken:ctx.RequestAborted);if(body.RootElement.TryGetProperty("ip",out var value))ip=value.GetString();}return Results.Json(new{ok=true,devices=await real.ScanGoveeLanAsync(ip,ctx.RequestAborted)});}catch(Exception ex){return Results.BadRequest(new{ok=false,error=ex.Message});}
+        });
+        app.MapPost("/api/setup/govee/key",async(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port)||real is null)return Results.StatusCode(403);
+            try{var body=await JsonDocument.ParseAsync(ctx.Request.Body,cancellationToken:ctx.RequestAborted);var key=body.RootElement.GetProperty("key").GetString()??"";if(string.IsNullOrWhiteSpace(key))throw new InvalidOperationException("Enter a Govee Developer API key.");await real.SetGoveeKeyAsync(key,ctx.RequestAborted);return Results.Json(new{ok=true});}
+            catch(Exception ex){return Results.BadRequest(new{ok=false,error=ex.Message});}
+        });
+        app.MapDelete("/api/setup/govee/key",async(HttpContext ctx)=>{
+            if(!SetupOriginAllowed(ctx,port)||real is null)return Results.StatusCode(403);
+            await real.ClearGoveeKeyAsync(ctx.RequestAborted);return Results.Json(new{ok=true});
+        });
+
+        app.Map("/widget",async ctx=>{
+            if(!ctx.WebSockets.IsWebSocketRequest||!WidgetOriginAllowed(ctx)){ctx.Response.StatusCode=403;return;}
+            using var ws=await ctx.WebSockets.AcceptWebSocketAsync();
+            var peer=new SocketPeer(ws);
+            var hello=await ReceiveJsonAsync(ws,TimeSpan.FromSeconds(4),ctx.RequestAborted);
+            if(hello is null||!hello.RootElement.TryGetProperty("type",out var typ)||typ.GetString()!="hello"||!hello.RootElement.TryGetProperty("token",out var tok)||!TokenEqual(tok.GetString(),runtime.PairingToken)){
+                await peer.SendAsync(new{type="auth_error",error="invalid companion pairing token"},ctx.RequestAborted);
+                await ws.CloseAsync(WebSocketCloseStatus.PolicyViolation,"auth",CancellationToken.None);
+                return;
+            }
+            await peer.SendAsync(new{type="auth_ok",protocol,companionVersion=CompanionVersion},ctx.RequestAborted);
+            await peer.SendAsync(runtime.Snapshot,ctx.RequestAborted);
+            var id=Guid.NewGuid();sockets[id]=peer;
+            try{
+                while(ws.State==WebSocketState.Open&&!ctx.RequestAborted.IsCancellationRequested){
+                    var msg=await ReceiveJsonAsync(ws,TimeSpan.FromMinutes(10),ctx.RequestAborted);if(msg is null)break;
+                    try{await runtime.HandleCommandAsync(msg.RootElement,ctx.RequestAborted);}
+                    catch(Exception ex){await peer.SendAsync(new{type="error",error=ex.Message},ctx.RequestAborted);}
+                }
+            }finally{sockets.TryRemove(id,out _);}
+        });
+
+        app.Lifetime.ApplicationStarted.Register(()=>{
+            Console.WriteLine($"PackRat Lighting Companion running at http://127.0.0.1:{port}/");
+            Console.WriteLine("Credentials remain on this PC. No PackRat cloud is used.");
+            if(!noBrowser)try{Process.Start(new ProcessStartInfo($"http://127.0.0.1:{port}/"){UseShellExecute=true});}catch{}
+        });
+        await app.RunAsync();
+        if(real is not null)await real.DisposeAsync();
+        if(instanceMutex is not null){try{instanceMutex.ReleaseMutex();}catch{}instanceMutex.Dispose();}
+        return 0;
+    }
+
+    static bool SetupOriginAllowed(HttpContext ctx,int port){
+        var origin=ctx.Request.Headers.Origin.ToString();
+        if(string.IsNullOrWhiteSpace(origin))return true;
+        return origin.Equals($"http://127.0.0.1:{port}",StringComparison.OrdinalIgnoreCase)||origin.Equals($"http://localhost:{port}",StringComparison.OrdinalIgnoreCase);
+    }
+    static bool WidgetOriginAllowed(HttpContext ctx){
+        var origin=ctx.Request.Headers.Origin.ToString();
+        return string.IsNullOrWhiteSpace(origin)||origin=="null"||origin.StartsWith("file://",StringComparison.OrdinalIgnoreCase);
+    }
+    static bool TokenEqual(string? supplied,string expected){
+        if(string.IsNullOrEmpty(supplied))return false;
+        var a=SHA256.HashData(Encoding.UTF8.GetBytes(supplied)); var b=SHA256.HashData(Encoding.UTF8.GetBytes(expected));
+        return CryptographicOperations.FixedTimeEquals(a,b);
+    }
+    static async Task<JsonDocument?> ReceiveJsonAsync(WebSocket ws,TimeSpan timeout,CancellationToken outer){
+        using var cts=CancellationTokenSource.CreateLinkedTokenSource(outer);cts.CancelAfter(timeout);
+        var buffer=new byte[32*1024];using var ms=new MemoryStream();
+        try{
+            while(true){var r=await ws.ReceiveAsync(buffer,cts.Token);if(r.MessageType==WebSocketMessageType.Close)return null;if(r.MessageType!=WebSocketMessageType.Text)continue;ms.Write(buffer,0,r.Count);if(r.EndOfMessage)break;if(ms.Length>128*1024)throw new InvalidOperationException("message too large");}
+            return JsonDocument.Parse(ms.ToArray());
+        }catch(OperationCanceledException){return null;}catch(JsonException){return null;}
+    }
+    static int ArgInt(string[] args,string name,int fallback){var i=Array.IndexOf(args,name);return i>=0&&i+1<args.Length&&int.TryParse(args[i+1],out var v)?v:fallback;}
+
+    static int SelfTest(){
+        try{
+            var cmd=GoveeClient.BuildLanCommand("turn",new{value=1});if(!cmd.Contains("\"cmd\":\"turn\"")||!cmd.Contains("\"value\":1"))throw new Exception("Govee LAN command serialization failed");
+            if(!GoveeClient.IsLanStatusCommand("status")||!GoveeClient.IsLanStatusCommand("devStatus")||GoveeClient.IsLanStatusCommand("scan"))throw new Exception("Govee LAN status compatibility failed");
+            GoveeClient.RunDeterministicParserSelfTest();
+            dynamic xy=HueClient.RgbToXy(255,0,0);var rgb=HueClient.XyToRgb((double)xy.x,(double)xy.y,100);if(rgb.R<180||rgb.G>120||rgb.B>120)throw new Exception("Hue color conversion failed");
+            if(!HueClient.BridgeIdEquals("00:17:88:AB:CD:EF","001788abcdef"))throw new Exception("Hue bridge-id normalization failed");
+            var fixture=JsonDocument.Parse("""
+            {"data":[
+              {"id":"zc1","type":"zigbee_connectivity","owner":{"rid":"d1","rtype":"device"},"status":"disconnected"},
+              {"id":"l1","type":"light","owner":{"rid":"d1","rtype":"device"},"metadata":{"name":"Offline Lamp"},"on":{"on":true},"dimming":{"brightness":40}},
+              {"id":"gl1","type":"grouped_light","on":{"on":true},"dimming":{"brightness":66},"color":{"xy":{"x":0.4,"y":0.4}},"color_temperature":{"mirek":250,"mirek_schema":{"mirek_minimum":153,"mirek_maximum":500}}},
+              {"id":"r1","type":"room","metadata":{"name":"Studio"},"children":[{"rid":"d1","rtype":"device"}],"services":[{"rid":"gl1","rtype":"grouped_light"}]},
+              {"id":"s1","type":"scene","metadata":{"name":"Focus"},"group":{"rid":"r1"}}
+            ]}
+            """);
+            var list=HueClient.NormalizeResources(fixture.RootElement.GetProperty("data"),new HashSet<string>{"hue:room:r1"});
+            var room=list.FirstOrDefault(t=>t.Id=="hue:room:r1")??throw new Exception("Hue room normalization failed");
+            var lamp=list.FirstOrDefault(t=>t.Id=="hue:light:l1")??throw new Exception("Hue light normalization failed");
+            var scene=list.FirstOrDefault(t=>t.Id=="hue:scene:s1")??throw new Exception("Hue scene normalization failed");
+            if(!room.Favorite||room.Scenes.Count!=1||room.Brightness!=66)throw new Exception("Hue room capability/scene normalization failed");
+            if(room.Reachable||lamp.Reachable||scene.Reachable)throw new Exception("Hue zigbee reachability propagation failed");
+            if(!new FixtureRuntime().Snapshot.Targets.Any(t=>t.Provider=="govee"))throw new Exception("fixture runtime failed");
+            var malformed=LocalState.ParseConfigText("{not-json");
+            if(malformed.SchemaVersion!=LocalConfig.CurrentSchemaVersion||malformed.Favorites.Count!=0)throw new Exception("malformed persisted config recovery failed");
+            var future=LocalState.ParseConfigText("""{"schemaVersion":999,"favorites":["bad"]}""");
+            if(future.SchemaVersion!=LocalConfig.CurrentSchemaVersion||future.Favorites.Count!=0)throw new Exception("future persisted config fallback failed");
+            var legacy=LocalState.ParseConfigText("""{"favorites":["hue:room:r1"]}""");
+            if(legacy.SchemaVersion!=LocalConfig.CurrentSchemaVersion||!legacy.Favorites.Contains("hue:room:r1"))throw new Exception("legacy persisted config migration failed");
+            Console.WriteLine("SMART LIGHTING COMPANION SELF-TEST PASS: Hue normalization/color, Govee LAN payload, fixture protocol, persisted-config recovery");
+            return 0;
+        }catch(Exception ex){Console.Error.WriteLine("SMART LIGHTING COMPANION SELF-TEST FAIL: "+ex);return 1;}
+    }
+
+    sealed class SocketPeer {
+        readonly SemaphoreSlim sendGate=new(1,1);
+        public WebSocket Socket { get; }
+        public SocketPeer(WebSocket socket){Socket=socket;}
+        public async Task SendAsync(object value,CancellationToken ct=default){
+            await sendGate.WaitAsync(ct);
+            try{
+                var bytes=Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value,JsonDefaults.Options));
+                await Socket.SendAsync(bytes,WebSocketMessageType.Text,true,ct);
+            }finally{sendGate.Release();}
+        }
+    }
+
+    static string SetupHtml(int port)=>"""
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PackRat Lighting Companion</title><style>
+:root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#f7f8fa;background:#090a0f}*{box-sizing:border-box}body{margin:0;padding:32px;background:radial-gradient(circle at 80% 0,#8b5cf622,transparent 30%),#090a0f}.wrap{max-width:920px;margin:auto}.hero{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:22px}h1{margin:5px 0;font-size:34px}.muted,p{color:#aeb3c0;line-height:1.5}.pill{border:1px solid #ffffff18;border-radius:999px;padding:8px 12px;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#12141d;border:1px solid #ffffff16;border-radius:20px;padding:20px}.full{grid-column:1/-1}.label{font-size:11px;font-weight:800;letter-spacing:.14em;color:#9ca3af;text-transform:uppercase}.token{font:800 18px ui-monospace,Consolas,monospace;background:#080910;border:1px solid #ffffff16;padding:14px;border-radius:12px;word-break:break-all;margin:10px 0}input,button{min-height:46px;border-radius:12px;border:1px solid #ffffff1c;background:#1a1d29;color:#fff;padding:0 13px}input{width:100%;margin:8px 0}button{cursor:pointer;font-weight:800;background:#8b5cf6}button.secondary{background:#242735}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}.status{font-size:12px;margin-top:10px;min-height:18px;color:#cbd5e1}.ok{color:#42e38d}.warn{color:#fbbf24}code{color:#c4b5fd}@media(max-width:700px){body{padding:16px}.grid{grid-template-columns:1fr}.full{grid-column:auto}.hero{display:block}h1{font-size:28px}}
+</style></head><body><div class="wrap">
+<div class="hero"><div><div class="label">PACKRAT · LOCAL WINDOWS COMPANION</div><h1>Hue &amp; Govee Lighting</h1><p>Everything here stays on this PC. No PackRat account or PackRat cloud.</p></div><div class="pill">127.0.0.1:__PORT__</div></div>
+<div class="grid">
+<section class="card full"><div class="label">1 · XENEON CONNECTION</div><h2>Companion Pairing Token</h2><p>Copy this token into the widget's <b>Companion Pairing Token</b> setting in iCUE.</p><div id="token" class="token">Loading…</div><button onclick="copyToken()">Copy token</button><div id="summary" class="status"></div></section>
+<section class="card full"><div class="label">WINDOWS SETUP</div><h2>Keep the companion available</h2><p>Install this copy into your local PackRat folder and start it automatically with Windows. No administrator permission is required.</p><div class="row"><button onclick="installCompanion()">Install locally + start with Windows</button><button class="secondary" onclick="toggleStartup(false)">Disable Windows startup</button><button class="secondary" onclick="shutdownCompanion()">Exit companion</button></div><div id="installStatus" class="status"></div></section>
+<section class="card"><div class="label">2 · PHILIPS HUE</div><h2>Pair your Hue Bridge</h2><p>Discover locally first. Press the physical link button on the Hue Bridge, then click Pair.</p><div class="row"><button onclick="discoverHue()">Discover bridges</button></div><select id="hueList" style="width:100%;min-height:46px;margin:8px 0;background:#1a1d29;color:#fff;border:1px solid #ffffff1c;border-radius:12px"></select><input id="hueIp" placeholder="Or enter bridge IP, e.g. 192.168.1.20"><div class="row"><button onclick="pairHue()">Pair selected / IP</button><button class="secondary" onclick="clearHue()">Forget Hue pairing on this PC</button></div><div id="hueStatus" class="status"></div></section>
+<section class="card"><div class="label">3 · GOVEE</div><h2>LAN first, cloud optional</h2><p>Enable <b>LAN Control</b> for compatible lights in Govee Home, then scan. If multicast discovery is blocked, enter the light IP manually. For Govee scenes or cloud-only lights, paste your own Developer API key.</p><input id="goveeIp" placeholder="Optional Govee device IP for manual LAN scan"><button onclick="scanGovee()">Scan LAN devices</button><input id="goveeKey" type="password" autocomplete="off" placeholder="Optional Govee Developer API key"><div class="row"><button onclick="saveGovee()">Save API key</button><button class="secondary" onclick="clearGovee()">Remove key</button></div><div id="goveeStatus" class="status"></div></section>
+<section class="card full"><div class="label">CAPABILITY NOTES</div><p><b>Hue:</b> local Bridge v2 resources for lights, rooms/zones, scenes, on/off, brightness, color and color temperature when exposed by the light. <b>Govee:</b> LAN-capable devices use local UDP for core controls; the optional Developer API adds model capability ranges, cloud-only device state and scenes.</p></section>
+</div></div><script>
+const j=(u,o={})=>fetch(u,{headers:{'Content-Type':'application/json'},...o}).then(async r=>{const x=await r.json().catch(()=>({}));if(!r.ok)throw Error(x.error||r.statusText);return x});
+async function refresh(){const [s,install]=await Promise.all([j('/api/setup/status'),j('/api/setup/install/status')]);token.textContent=s.pairingToken;summary.textContent=(s.targetCount??0)+' lighting targets ready';summary.className='status ok';installStatus.textContent=install.runningInstalled?'Installed copy is running'+(install.startWithWindows?' · starts with Windows':' · Windows startup disabled'):(install.installed?'Installed locally'+(install.startWithWindows?' · starts with Windows':'')+' · restart using the installed copy when convenient':'Running portable copy · install locally for automatic startup');installStatus.className='status '+(install.installed?'ok':'warn');if(s.hue?.configured){hueStatus.textContent='Paired: '+(s.hue.bridgeId||s.hue.bridgeIp);hueStatus.className='status ok'}if(s.govee?.cloud){goveeStatus.textContent='Developer API connected'+(s.govee.lan?' · LAN devices found':'');goveeStatus.className='status ok'}else if(s.govee?.lan){goveeStatus.textContent='LAN devices found · cloud key not required for local core controls';goveeStatus.className='status ok'}}
+function copyToken(){navigator.clipboard.writeText(token.textContent)}
+async function installCompanion(){try{installStatus.textContent='Installing…';await j('/api/setup/install',{method:'POST'});installStatus.textContent='Installed locally and enabled Windows startup. This portable copy can be closed; use the installed copy next time.';installStatus.className='status ok';refresh()}catch(e){installStatus.textContent=e.message;installStatus.className='status warn'}}
+async function toggleStartup(enabled){try{await j('/api/setup/startup',{method:'POST',body:JSON.stringify({enabled})});installStatus.textContent=enabled?'Windows startup enabled':'Windows startup disabled';installStatus.className='status ok';refresh()}catch(e){installStatus.textContent=e.message;installStatus.className='status warn'}}
+async function shutdownCompanion(){try{await j('/api/setup/shutdown',{method:'POST'});installStatus.textContent='Companion is exiting. You can now replace or update the installed EXE.';installStatus.className='status ok'}catch(e){installStatus.textContent=e.message;installStatus.className='status warn'}}
+async function discoverHue(){try{hueStatus.textContent='Discovering…';const x=await j('/api/setup/hue/discover',{method:'POST'});hueList.replaceChildren(...x.bridges.map(b=>{const o=document.createElement('option');o.value=String(b.ip||'');o.textContent=(b.id||'Hue Bridge')+' · '+(b.ip||'')+' · '+(b.source||'');return o}));hueStatus.textContent=x.bridges.length?x.bridges.length+' bridge(s) found':'No bridge found. Enter its IP manually.'}catch(e){hueStatus.textContent=e.message}}
+async function pairHue(){try{const ip=hueIp.value.trim()||hueList.value;if(!ip)throw Error('Discover or enter a bridge IP first.');hueStatus.textContent='Press the Hue Bridge button, then pairing…';const x=await j('/api/setup/hue/pair',{method:'POST',body:JSON.stringify({ip})});hueStatus.textContent='Paired '+x.bridge;hueStatus.className='status ok';refresh()}catch(e){hueStatus.textContent=e.message;hueStatus.className='status warn'}}
+async function clearHue(){try{await j('/api/setup/hue/pair',{method:'DELETE'});hueStatus.textContent='Hue pairing forgotten on this PC. Revoke app access separately in Philips Hue if desired.';hueStatus.className='status ok';refresh()}catch(e){hueStatus.textContent=e.message;hueStatus.className='status warn'}}
+async function scanGovee(){try{goveeStatus.textContent='Scanning LAN…';const x=await j('/api/setup/govee/scan',{method:'POST',body:JSON.stringify({ip:goveeIp.value.trim()})});goveeStatus.textContent=x.devices+' LAN device(s) found';goveeStatus.className='status '+(x.devices?'ok':'warn');refresh()}catch(e){goveeStatus.textContent=e.message}}
+async function saveGovee(){try{const key=goveeKey.value.trim();if(!key)throw Error('Paste your Govee Developer API key first.');goveeStatus.textContent='Validating key…';await j('/api/setup/govee/key',{method:'POST',body:JSON.stringify({key})});goveeKey.value='';goveeStatus.textContent='Developer API connected';goveeStatus.className='status ok';refresh()}catch(e){goveeStatus.textContent=e.message;goveeStatus.className='status warn'}}
+async function clearGovee(){try{await j('/api/setup/govee/key',{method:'DELETE'});goveeStatus.textContent='Developer API key removed';goveeStatus.className='status ok';refresh()}catch(e){goveeStatus.textContent=e.message;goveeStatus.className='status warn'}}
+refresh().catch(e=>summary.textContent=e.message);
+</script></body></html>
+""".Replace("__PORT__",port.ToString());
+}

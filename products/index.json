@@ -838,6 +838,14 @@
       "status": "qa_passed",
       "price_usd": 7.99,
       "version": "1.0.0"
+    },
+    {
+      "id": "smart-lighting-control",
+      "name": "Smart Lighting Control for Hue & Govee",
+      "type": "widget",
+      "status": "qa_passed",
+      "price_usd": 9.99,
+      "version": "1.0.0"
     }
   ]
 }
