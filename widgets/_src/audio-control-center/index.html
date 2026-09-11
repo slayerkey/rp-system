@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('Audio Control Center')</title>
+<link rel="stylesheet" href="audio-control-center.css" />
+</head>
+<body data-slot="m-h" data-connection="connecting">
+<main id="app">
+  <header class="topbar">
+    <div><div class="eyebrow">AUDIO CONTROL CENTER</div><div class="headline">Windows audio, one touch away.</div></div>
+    <div class="bridge-pill"><span class="dot"></span><span id="bridgeText">CONNECTING</span></div>
+  </header>
+
+  <section id="offlineState" class="offline">
+    <div class="offline-icon">⌁</div>
+    <div class="offline-copy"><strong id="offlineTitle">Connecting to PackRat Audio Bridge</strong><span id="offlineBody">The panel will reconnect automatically.</span></div>
+    <button id="retryButton" class="retry" type="button">RETRY</button>
+  </section>
+
+  <section id="audioGrid" class="audio-grid">
+    <article class="panel">
+      <div class="panel-head"><div><span class="label">OUTPUT</span><h2>Speakers &amp; headphones</h2></div><span id="outputCount" class="count">0 DEVICES</span></div>
+      <div id="outputDevices" class="devices" aria-label="Output devices"></div>
+      <div class="volume">
+        <div class="volume-head"><span class="label">MASTER VOLUME</span><strong id="outputVolumeValue">—</strong></div>
+        <div class="volume-row">
+          <button id="outputDown" class="step" type="button">−</button>
+          <input id="outputVolume" class="slider" type="range" min="0" max="100" step="1" value="50" aria-label="Output volume" />
+          <button id="outputUp" class="step" type="button">+</button>
+          <button id="outputMute" class="mute" type="button" aria-pressed="false"><span>◖</span><span id="outputMuteLabel">MUTE</span></button>
+        </div>
+        <div id="outputHint" class="hint">Tap a device above to make it the Windows default.</div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head"><div><span class="label">INPUT</span><h2>Microphones</h2></div><span id="inputCount" class="count">0 DEVICES</span></div>
+      <div id="inputDevices" class="devices" aria-label="Input devices"></div>
+      <div class="volume">
+        <div class="volume-head"><span class="label">MICROPHONE VOLUME</span><strong id="inputVolumeValue">—</strong></div>
+        <div class="volume-row">
+          <button id="inputDown" class="step" type="button">−</button>
+          <input id="inputVolume" class="slider" type="range" min="0" max="100" step="1" value="50" aria-label="Microphone volume" />
+          <button id="inputUp" class="step" type="button">+</button>
+          <button id="inputMute" class="mute" type="button" aria-pressed="false"><span>●</span><span id="inputMuteLabel">MUTE</span></button>
+        </div>
+        <div id="inputHint" class="hint">Microphone volume appears only when the endpoint exposes it reliably.</div>
+      </div>
+    </article>
+  </section>
+
+  <footer><span id="capabilityText">LOCAL WINDOWS AUDIO</span><span>PACKRAT 🐀</span></footer>
+</main>
+<script src="audio-control-center.js"></script>
+</body>
+</html>

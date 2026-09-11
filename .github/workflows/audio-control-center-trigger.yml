@@ -1,0 +1,189 @@
+name: Audio Control Center Full Gate Trigger
+
+on:
+  push:
+    branches:
+      - product/audio-control-center
+    paths:
+      - 'widgets/_src/audio-control-center/**'
+      - 'widgets/audio-control-center/**'
+      - 'companions/audio-control-center-bridge/**'
+      - '.github/workflows/audio-control-center-trigger.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  product-qa:
+    name: Widget and local bridge QA
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Canonical source and syntax
+        shell: pwsh
+        run: |
+          node --check widgets/_src/audio-control-center/audio-control-center.js
+          node --check widgets/_src/audio-control-center/visual-smoke.mjs
+          node --check widgets/_src/audio-control-center/network-smoke.mjs
+          node --check widgets/_src/audio-control-center/bridge-integration.mjs
+          python tools/xeneon/inline.py audio-control-center --check
+
+      - name: Install browser QA dependencies
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1 ws@8.21.3
+          npm audit --audit-level=high
+          npx playwright install chromium
+
+      - name: Eight-layout authored and shipping QA
+        shell: pwsh
+        run: |
+          node widgets/_src/audio-control-center/visual-smoke.mjs widgets/_src/audio-control-center/index.html
+          node widgets/_src/audio-control-center/visual-smoke.mjs widgets/audio-control-center/index.html
+
+      - name: Build and self-test PackRat Audio Bridge
+        shell: pwsh
+        run: |
+          dotnet restore companions/audio-control-center-bridge/src/PackRat.AudioBridge/PackRat.AudioBridge.csproj
+          dotnet run --project companions/audio-control-center-bridge/src/PackRat.AudioBridge/PackRat.AudioBridge.csproj -c Release -- --self-test
+          dotnet publish companions/audio-control-center-bridge/src/PackRat.AudioBridge/PackRat.AudioBridge.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/audio-bridge
+
+      - name: Shipping widget against real PackRat Audio Bridge process
+        shell: pwsh
+        run: |
+          node widgets/_src/audio-control-center/bridge-integration.mjs artifacts/audio-bridge/PackRat.AudioBridge.exe widgets/audio-control-center/index.html
+
+      - name: Security invariants
+        shell: pwsh
+        run: |
+          $program = Get-Content companions/audio-control-center-bridge/src/PackRat.AudioBridge/Program.cs -Raw
+          $core = Get-Content companions/audio-control-center-bridge/src/PackRat.AudioBridge/CoreAudioBackend.cs -Raw
+          $all = $program + $core
+          foreach ($bad in @('Process.Start(', 'powershell.exe', 'cmd.exe', 'HttpClient(', 'TelemetryClient')) {
+            if ($all.Contains($bad)) { throw "forbidden bridge behavior: $bad" }
+          }
+          if (-not $program.Contains('127.0.0.1')) { throw 'missing explicit loopback bind' }
+          if (-not $program.Contains('IsAllowedOrigin')) { throw 'missing origin gate' }
+          if ($core.Contains('MediaDataProvider')) { throw 'iCUE media provider must not be used for OS audio control' }
+
+      - name: Package customer bridge bundle
+        shell: pwsh
+        run: |
+          $bundle = "artifacts/audio-bridge-bundle"
+          New-Item -ItemType Directory -Force $bundle | Out-Null
+          Copy-Item artifacts/audio-bridge/PackRat.AudioBridge.exe "$bundle/PackRat.AudioBridge.exe"
+          Copy-Item companions/audio-control-center-bridge/README.md "$bundle/README.md"
+          Copy-Item companions/audio-control-center-bridge/SECURITY.md "$bundle/SECURITY.md"
+          Copy-Item companions/audio-control-center-bridge/START_AUDIO_BRIDGE.cmd "$bundle/START_AUDIO_BRIDGE.cmd"
+          Copy-Item companions/audio-control-center-bridge/INSTALL_STARTUP.cmd "$bundle/INSTALL_STARTUP.cmd"
+          Copy-Item companions/audio-control-center-bridge/UNINSTALL_STARTUP.cmd "$bundle/UNINSTALL_STARTUP.cmd"
+          Copy-Item companions/audio-control-center-bridge/README_FIRST.txt "$bundle/README_FIRST.txt"
+          foreach ($required in @('PackRat.AudioBridge.exe','START_AUDIO_BRIDGE.cmd','INSTALL_STARTUP.cmd','UNINSTALL_STARTUP.cmd','README_FIRST.txt','README.md','SECURITY.md')) {
+            if (-not (Test-Path (Join-Path $bundle $required))) { throw "missing bridge bundle file $required" }
+          }
+          $hash = (Get-FileHash "$bundle/PackRat.AudioBridge.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  PackRat.AudioBridge.exe" | Set-Content "$bundle/SHA256SUMS.txt"
+          Compress-Archive -Path "$bundle/*" -DestinationPath "artifacts/PackRat-Audio-Bridge-1.0.0-win-x64.zip" -Force
+
+      - name: Customer startup install and uninstall smoke
+        shell: pwsh
+        env:
+          PACKRAT_AUDIO_BRIDGE_TEST: '1'
+        run: |
+          $bundle = (Resolve-Path "artifacts/audio-bridge-bundle").Path
+          $root = Join-Path $env:LOCALAPPDATA 'PackRat'
+          $dest = Join-Path $root 'AudioBridge'
+          $installedUninstaller = Join-Path $root 'UNINSTALL_AUDIO_BRIDGE.cmd'
+          $startup = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Startup\PackRat Audio Bridge.cmd'
+          if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
+          if (Test-Path $installedUninstaller) { Remove-Item -Force $installedUninstaller }
+          if (Test-Path $startup) { Remove-Item -Force $startup }
+
+          & (Join-Path $bundle 'INSTALL_STARTUP.cmd')
+          if ($LASTEXITCODE -ne 0) { throw "INSTALL_STARTUP.cmd failed with exit code $LASTEXITCODE" }
+          if (-not (Test-Path (Join-Path $dest 'PackRat.AudioBridge.exe'))) { throw 'startup install did not copy bridge executable' }
+          if (-not (Test-Path $installedUninstaller)) { throw 'startup install did not copy its uninstaller' }
+          if (-not (Test-Path $startup)) { throw 'startup install did not create user Startup entry' }
+          $startupText = Get-Content $startup -Raw
+          if (-not $startupText.Contains('PackRat.AudioBridge.exe')) { throw 'Startup entry does not launch PackRat Audio Bridge' }
+
+          & $installedUninstaller
+          if ($LASTEXITCODE -ne 0) { throw "installed UNINSTALL_STARTUP.cmd failed with exit code $LASTEXITCODE" }
+          $clean = $false
+          for ($i = 0; $i -lt 30; $i++) {
+            if (-not (Test-Path $dest) -and -not (Test-Path $startup)) {
+              $clean = $true
+              break
+            }
+            Start-Sleep -Milliseconds 250
+          }
+          if (-not $clean) {
+            throw "startup uninstall did not fully clean up. dest=$((Test-Path $dest)) startup=$((Test-Path $startup))"
+          }
+          if (-not (Test-Path $installedUninstaller)) { throw 'installed uninstaller helper unexpectedly disappeared' }
+          Remove-Item -Force $installedUninstaller
+          if ((Test-Path $root) -and -not (Get-ChildItem $root -Force -ErrorAction SilentlyContinue)) { Remove-Item -Force $root }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audio-control-center-product-qa
+          path: |
+            artifacts/audio-bridge/PackRat.AudioBridge.exe
+            artifacts/PackRat-Audio-Bridge-1.0.0-win-x64.zip
+            widgets/_src/audio-control-center/QA.md
+            companions/audio-control-center-bridge/README.md
+            companions/audio-control-center-bridge/SECURITY.md
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish free Windows companion download
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = 'audio-control-center-bridge-v1.0.0'
+          $zip = 'artifacts/PackRat-Audio-Bridge-1.0.0-win-x64.zip'
+          $exe = 'artifacts/audio-bridge/PackRat.AudioBridge.exe'
+          if (-not (Test-Path $zip)) { throw 'missing Audio Bridge ZIP for release' }
+          if (-not (Test-Path $exe)) { throw 'missing Audio Bridge EXE for release' }
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release delete $tag --repo $env:GITHUB_REPOSITORY --cleanup-tag --yes
+            if ($LASTEXITCODE -ne 0) { throw 'Could not replace existing Audio Control Center companion release' }
+          }
+          gh release create $tag $zip $exe --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Audio Bridge 1.0.0' --notes 'Free local Windows companion required by the paid Audio Control Center XENEON Edge widget. The recommended ZIP includes one-click per-user startup install/uninstall scripts. The bridge binds to 127.0.0.1 only and uses no PackRat cloud, account, or telemetry.' --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Could not publish PackRat Audio Bridge release' }
+
+  dispatch-canonical-gates:
+    needs: product-qa
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch XENEON exact-package gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run xeneon-widget-ci.yml --repo ${{ github.repository }} --ref product/audio-control-center -f slug=audio-control-center
+
+      - name: Dispatch Rat Art
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run rat-art-xeneon.yml --repo ${{ github.repository }} --ref product/audio-control-center -f slug=audio-control-center
+
+      - name: Dispatch Rat Ship
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run rat-ship-xeneon.yml --repo ${{ github.repository }} --ref product/audio-control-center -f slug=audio-control-center
