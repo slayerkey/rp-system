@@ -8,7 +8,7 @@ A normal XENEON/iCUE widget is an HTML/JavaScript surface. It cannot honestly en
 
 - Paid XENEON widget: touch UI, pins, settings, safe-close confirmation, local presentation state.
 - Free PackRat Window Bridge: native Win32 enumeration/control and app-icon extraction.
-- Transport: authenticated WebSocket on `127.0.0.1:17484` only.
+- Transport: authenticated WebSocket on `127.0.0.1:17487` only.
 - Pairing: random key generated locally and stored in `%LOCALAPPDATA%\PackRat\WindowBridge\bridge-key.txt`.
 - Update model: WinEvent notifications are debounced for fast push updates; a 5-second reconciliation scan catches missed changes. The widget never polls the desktop.
 - No cloud account, telemetry, remote API, injected DLL or privileged service.
@@ -20,3 +20,11 @@ Horizontal slots are a scrollable visual desktop strip with pinned apps separate
 ## Release proof
 
 Deterministic browser fixtures cover window lists, three-monitor states, active-state clearing, all actions, safe close and all eight layouts. Windows CI covers companion layout math, origin/pairing policy and end-to-end fixture WebSocket commands. The canonical XENEON exact-package, lexical settings, Corsair Labs, StreamSpell, Rat Art and Rat Ship workflows run after product QA.
+
+## Troubleshooting-playbook hardening
+
+- Port 17487 is reserved for Window Manager so it does not collide with Discord Voice Bridge (17483), Audio Control Center (17484), or Smart Lighting (17486).
+- Persisted pins use a versioned schema with malformed/legacy recovery.
+- Companion protocol/version mismatch is explicit instead of appearing as a generic disconnect.
+- Repeated iCUE lifecycle callbacks do not create duplicate timers or listeners; pagehide closes reconnect/socket state.
+- Exact-package QA covers long Unicode/HTML-looking titles, 4-monitor fixtures, disconnected controls, corrupted persistence, companion restart, and protocol mismatch.
