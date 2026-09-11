@@ -97,7 +97,7 @@ public sealed class GoveeClient {
         cloud=next;cloudDevicesAt=DateTime.UtcNow;
     }
     static void ParseCloudCapability(CloudDevice d,JsonElement c){
-        var type=Str(c,"type"),instance=Str(c,"instance");
+        var type=Str(c,"type"); var instance=Str(c,"instance");
         if(type=="devices.capabilities.on_off"&&instance=="powerSwitch")d.Power=true;
         if(type=="devices.capabilities.range"&&instance=="brightness")d.Brightness=true;
         if(type=="devices.capabilities.color_setting"&&instance=="colorRgb")d.Color=true;
@@ -120,7 +120,7 @@ public sealed class GoveeClient {
                 if(p.ValueKind!=JsonValueKind.Object||!p.TryGetProperty("capabilities",out var caps)||caps.ValueKind!=JsonValueKind.Array)continue;
                 var st=new CloudState{Reachable=true};
                 foreach(var c in caps.EnumerateArray()){
-                    var type=Str(c,"type"),inst=Str(c,"instance");if(!c.TryGetProperty("state",out var s)||!s.TryGetProperty("value",out var value))continue;
+                    var type=Str(c,"type"); var inst=Str(c,"instance"); if(!c.TryGetProperty("state",out var s)||!s.TryGetProperty("value",out var value))continue;
                     if(type=="devices.capabilities.online"&&value.ValueKind is JsonValueKind.True or JsonValueKind.False)st.Reachable=value.GetBoolean();
                     if(type=="devices.capabilities.on_off"&&inst=="powerSwitch"&&value.ValueKind==JsonValueKind.Number)st.On=value.GetInt32()==1;
                     if(type=="devices.capabilities.range"&&inst=="brightness"&&value.ValueKind==JsonValueKind.Number)st.Brightness=value.GetDouble();
@@ -143,7 +143,7 @@ public sealed class GoveeClient {
                     using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
                     if(doc.RootElement.TryGetProperty("payload",out var p)&&p.TryGetProperty("capabilities",out var caps)&&caps.ValueKind==JsonValueKind.Array){
                         foreach(var c in caps.EnumerateArray()){
-                            var type=Str(c,"type"),inst=Str(c,"instance");
+                            var type=Str(c,"type"); var inst=Str(c,"instance");
                             if(!c.TryGetProperty("parameters",out var pars)||!pars.TryGetProperty("options",out var opts)||opts.ValueKind!=JsonValueKind.Array)continue;
                             foreach(var o in opts.EnumerateArray())if(o.TryGetProperty("name",out var n)&&o.TryGetProperty("value",out var v))scenes.Add(new CloudScene{Name=n.GetString()??"Scene",Type=type,Instance=inst,Value=v.Clone()});
                         }
