@@ -140,15 +140,19 @@ public sealed class GoveeClient {
         var data=doc.RootElement.TryGetProperty("data",out var d)&&d.ValueKind==JsonValueKind.Array?d:default;
         var next=new List<CloudDevice>();
         if(data.ValueKind==JsonValueKind.Array)foreach(var e in data.EnumerateArray()){
-            if(Str(e,"type")!="devices.types.light")continue;
-            var cd=new CloudDevice{Device=Str(e,"device"),Sku=Str(e,"sku"),Name=Str(e,"deviceName")};
-            if(e.TryGetProperty("capabilities",out var caps)&&caps.ValueKind==JsonValueKind.Array){
-                foreach(var c in caps.EnumerateArray())ParseCloudCapability(cd,c);
-            }
-            if(!string.IsNullOrWhiteSpace(cd.Device))next.Add(cd);
+            var cd=ParseCloudDevice(e);
+            if(cd is not null)next.Add(cd);
         }
         cloud=next;cloudDevicesAt=DateTime.UtcNow;
     }
+    static CloudDevice? ParseCloudDevice(JsonElement e){
+        if(Str(e,"type")!="devices.types.light")return null;
+        var cd=new CloudDevice{Device=Str(e,"device"),Sku=Str(e,"sku"),Name=Str(e,"deviceName")};
+        if(e.TryGetProperty("capabilities",out var caps)&&caps.ValueKind==JsonValueKind.Array)
+            foreach(var capability in caps.EnumerateArray())ParseCloudCapability(cd,capability);
+        return string.IsNullOrWhiteSpace(cd.Device)?null:cd;
+    }
+
     static void ParseCloudCapability(CloudDevice d,JsonElement c){
         var type=Str(c,"type"); var instance=Str(c,"instance");
         if(type=="devices.capabilities.on_off"&&instance=="powerSwitch")d.Power=true;
@@ -179,22 +183,53 @@ public sealed class GoveeClient {
                 using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
                 var p=doc.RootElement.TryGetProperty("payload",out var pp)?pp:doc.RootElement.TryGetProperty("data",out var dd)?dd:default;
                 if(p.ValueKind==JsonValueKind.Object&&p.TryGetProperty("capabilities",out var caps)&&caps.ValueKind==JsonValueKind.Array){
-                    var st=new CloudState{Reachable=true};
-                    foreach(var cap in caps.EnumerateArray()){
-                        var type=Str(cap,"type"); var inst=Str(cap,"instance");
-                        if(!cap.TryGetProperty("state",out var s)||!s.TryGetProperty("value",out var value))continue;
-                        if(type=="devices.capabilities.online"&&value.ValueKind is JsonValueKind.True or JsonValueKind.False)st.Reachable=value.GetBoolean();
-                        if(type=="devices.capabilities.on_off"&&inst=="powerSwitch"&&value.ValueKind==JsonValueKind.Number)st.On=value.GetInt32()==1;
-                        if(type=="devices.capabilities.range"&&inst=="brightness"&&value.ValueKind==JsonValueKind.Number)st.Brightness=value.GetDouble();
-                        if(type=="devices.capabilities.color_setting"&&inst=="colorRgb"&&value.ValueKind==JsonValueKind.Number){var rgb=value.GetInt32();st.Color=new((rgb>>16)&255,(rgb>>8)&255,rgb&255);}
-                        if(type=="devices.capabilities.color_setting"&&inst=="colorTemperatureK"&&value.ValueKind==JsonValueKind.Number)st.TemperatureK=value.GetInt32();
-                    }
-                    cloudStates[d.Device]=st;
+                    cloudStates[d.Device]=ParseCloudState(caps);
                 }
             }
         }catch{}
         cloudStatesAt=DateTime.UtcNow;
     }
+    static CloudState ParseCloudState(JsonElement caps){
+        var st=new CloudState{Reachable=true};
+        foreach(var cap in caps.EnumerateArray()){
+            var type=Str(cap,"type"); var inst=Str(cap,"instance");
+            if(!cap.TryGetProperty("state",out var s)||!s.TryGetProperty("value",out var value))continue;
+            if(type=="devices.capabilities.online"&&value.ValueKind is JsonValueKind.True or JsonValueKind.False)st.Reachable=value.GetBoolean();
+            if(type=="devices.capabilities.on_off"&&inst=="powerSwitch"&&value.ValueKind==JsonValueKind.Number)st.On=value.GetInt32()==1;
+            if(type=="devices.capabilities.range"&&inst=="brightness"&&value.ValueKind==JsonValueKind.Number)st.Brightness=value.GetDouble();
+            if(type=="devices.capabilities.color_setting"&&inst=="colorRgb"&&value.ValueKind==JsonValueKind.Number){var rgb=value.GetInt32();st.Color=new((rgb>>16)&255,(rgb>>8)&255,rgb&255);}
+            if(type=="devices.capabilities.color_setting"&&inst=="colorTemperatureK"&&value.ValueKind==JsonValueKind.Number)st.TemperatureK=value.GetInt32();
+        }
+        return st;
+    }
+
+    public static void RunDeterministicParserSelfTest(){
+        using var deviceDoc=JsonDocument.Parse("""
+        {"type":"devices.types.light","sku":"H6601","device":"AA:BB:CC:DD","deviceName":"Fixture Light","capabilities":[
+          {"type":"devices.capabilities.on_off","instance":"powerSwitch","parameters":{"dataType":"ENUM"}},
+          {"type":"devices.capabilities.range","instance":"brightness","parameters":{"dataType":"INTEGER","range":{"min":1,"max":100}}},
+          {"type":"devices.capabilities.color_setting","instance":"colorRgb","parameters":{"dataType":"INTEGER","range":{"min":0,"max":16777215}}},
+          {"type":"devices.capabilities.color_setting","instance":"colorTemperatureK","parameters":{"dataType":"INTEGER","range":{"min":2000,"max":9000}}},
+          {"type":"devices.capabilities.dynamic_scene","instance":"lightScene","parameters":{"dataType":"ENUM","options":[{"name":"Aurora","value":{"paramId":4284,"id":3857}}]}}
+        ]}
+        """);
+        var d=ParseCloudDevice(deviceDoc.RootElement)??throw new Exception("Govee fixture device parser returned null");
+        if(!d.Power||!d.Brightness||!d.Color||!d.Temperature)throw new Exception("Govee fixture capabilities were not detected");
+        if(d.TemperatureRange is null||d.TemperatureRange[0]!=2000||d.TemperatureRange[1]!=9000)throw new Exception("Govee fixture temperature range failed");
+        if(d.StaticScenes.Count!=1||d.StaticScenes[0].Name!="Aurora")throw new Exception("Govee fixture scene parser failed");
+
+        using var stateDoc=JsonDocument.Parse("""
+        [{"type":"devices.capabilities.online","instance":"online","state":{"value":true}},
+         {"type":"devices.capabilities.on_off","instance":"powerSwitch","state":{"value":1}},
+         {"type":"devices.capabilities.range","instance":"brightness","state":{"value":73}},
+         {"type":"devices.capabilities.color_setting","instance":"colorRgb","state":{"value":16711680}},
+         {"type":"devices.capabilities.color_setting","instance":"colorTemperatureK","state":{"value":4200}}]
+        """);
+        var st=ParseCloudState(stateDoc.RootElement);
+        if(!st.Reachable||!st.On||st.Brightness!=73||st.Color?.R!=255||st.Color.G!=0||st.Color.B!=0||st.TemperatureK!=4200)
+            throw new Exception("Govee fixture state parser failed");
+    }
+
     async Task RefreshScenesAsync(CancellationToken ct){
         using var http=CloudHttp();
         foreach(var d in cloud){
