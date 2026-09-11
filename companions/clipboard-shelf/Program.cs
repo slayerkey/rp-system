@@ -553,7 +553,14 @@ internal sealed class BridgeServer : IDisposable
 
     private async Task<bool> AuthenticateAsync(WebSocket socket)
     {
-        var command = await ReceiveCommandAsync(socket);
+        BridgeCommand? command = null;
+        try
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(4));
+            command = await ReceiveCommandAsync(socket, timeout.Token);
+        }
+        catch (OperationCanceledException) { }
+
         if (command is not null
             && string.Equals(command.Command, "auth", StringComparison.OrdinalIgnoreCase)
             && SecureTokenEquals(_history.PairingToken, command.Token))
@@ -563,14 +570,14 @@ internal sealed class BridgeServer : IDisposable
         return false;
     }
 
-    private static async Task<BridgeCommand?> ReceiveCommandAsync(WebSocket socket)
+    private static async Task<BridgeCommand?> ReceiveCommandAsync(WebSocket socket, CancellationToken cancellationToken = default)
     {
         var buffer = new byte[4096];
         using var ms = new MemoryStream();
         WebSocketReceiveResult result;
         do
         {
-            result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
             if (result.MessageType == WebSocketMessageType.Close)
             {
                 try { await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", CancellationToken.None); } catch { }
@@ -856,15 +863,17 @@ internal static class ProtocolSelfTest
 
         using var server = new BridgeServer(history);
         await server.StartAsync();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var ct = timeout.Token;
         try
         {
             using (var bad = new ClientWebSocket())
             {
                 bad.Options.AddSubProtocol(BridgeServer.Protocol);
-                await bad.ConnectAsync(new Uri("ws://127.0.0.1:17485/ws"), CancellationToken.None);
-                await SendAsync(bad, new { command = "auth", token = history.PairingToken + "BAD" });
+                await bad.ConnectAsync(new Uri("ws://127.0.0.1:17485/ws"), ct);
+                await SendAsync(bad, new { command = "auth", token = history.PairingToken + "BAD" }, ct);
                 var closeBuffer = new byte[1024];
-                var result = await bad.ReceiveAsync(new ArraySegment<byte>(closeBuffer), CancellationToken.None);
+                var result = await bad.ReceiveAsync(new ArraySegment<byte>(closeBuffer), ct);
                 if (result.MessageType != WebSocketMessageType.Close)
                     throw new Exception("unauthorized bridge received clipboard data");
             }
@@ -872,13 +881,13 @@ internal static class ProtocolSelfTest
             using (var good = new ClientWebSocket())
             {
                 good.Options.AddSubProtocol(BridgeServer.Protocol);
-                await good.ConnectAsync(new Uri("ws://127.0.0.1:17485/ws"), CancellationToken.None);
-                await SendAsync(good, new { command = "auth", token = history.PairingToken });
-                var snapshot = await ReceiveTextAsync(good);
+                await good.ConnectAsync(new Uri("ws://127.0.0.1:17485/ws"), ct);
+                await SendAsync(good, new { command = "auth", token = history.PairingToken }, ct);
+                var snapshot = await ReceiveTextAsync(good, ct);
                 if (!snapshot.Contains("\"type\":\"snapshot\"", StringComparison.Ordinal)
                     || !snapshot.Contains("protocol fixture text", StringComparison.Ordinal))
                     throw new Exception("authorized bridge snapshot failed");
-                await good.CloseAsync(WebSocketCloseStatus.NormalClosure, "test done", CancellationToken.None);
+                good.Abort();
             }
 
             using var http = new HttpClient();
@@ -893,20 +902,20 @@ internal static class ProtocolSelfTest
         }
     }
 
-    private static async Task SendAsync(ClientWebSocket socket, object value)
+    private static async Task SendAsync(ClientWebSocket socket, object value, CancellationToken cancellationToken)
     {
         var bytes = JsonSerializer.SerializeToUtf8Bytes(value, new JsonSerializerOptions(JsonSerializerDefaults.Web));
-        await socket.SendAsync(bytes, WebSocketMessageType.Text, true, CancellationToken.None);
+        await socket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellationToken);
     }
 
-    private static async Task<string> ReceiveTextAsync(ClientWebSocket socket)
+    private static async Task<string> ReceiveTextAsync(ClientWebSocket socket, CancellationToken cancellationToken)
     {
         var buffer = new byte[64 * 1024];
         using var ms = new MemoryStream();
         WebSocketReceiveResult result;
         do
         {
-            result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
             if (result.MessageType != WebSocketMessageType.Text)
                 throw new Exception("expected bridge text snapshot");
             ms.Write(buffer, 0, result.Count);
