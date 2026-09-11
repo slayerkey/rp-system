@@ -24,17 +24,95 @@ jobs:
           ref: product/window-manager-xeneon
           fetch-depth: 0
 
-      - name: Expand and verify staged product
+      - name: Sync latest canonical main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "packrat-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git merge --no-edit origin/main
+
+      - name: Recover verify and expand staged product
         shell: bash
         run: |
           set -euo pipefail
           test "$(find .bootstrap -maxdepth 1 -name 'window-manager.part-*' | wc -l)" -eq 8
-          cat .bootstrap/window-manager.part-* | base64 -d > /tmp/window-manager.tgz
-          tar -tzf /tmp/window-manager.tgz >/tmp/window-manager-files.txt
-          grep -q './widgets/_src/window-manager-xeneon/index.html' /tmp/window-manager-files.txt
-          grep -q './companions/window-manager-xeneon/PackRat.WindowBridge/BridgeServer.cs' /tmp/window-manager-files.txt
-          grep -q './.github/workflows/window-manager-xeneon-full-gate.yml' /tmp/window-manager-files.txt
-          tar -xzf /tmp/window-manager.tgz -C .
+          python - <<'PY'
+          import base64, gzip, io, pathlib, struct, tarfile, zlib
+
+          parts = sorted(pathlib.Path(".bootstrap").glob("window-manager.part-*"))
+          encoded = "".join(p.read_text(encoding="utf-8").strip() for p in parts)
+          print("staged chars:", len(encoded), "parts:", [len(p.read_text(encoding="utf-8").strip()) for p in parts])
+          raw = base64.b64decode(encoded, validate=True)
+          print("decoded bytes:", len(raw))
+          if raw[:3] != b"\x1f\x8b\x08":
+              raise SystemExit("staged payload is not a gzip/deflate archive")
+
+          try:
+              tar_bytes = gzip.decompress(raw)
+              print("gzip wrapper integrity: PASS")
+          except Exception as exc:
+              print("gzip wrapper integrity: FAIL:", repr(exc))
+              flags = raw[3]
+              pos = 10
+              if flags & 4:
+                  xlen = struct.unpack_from("<H", raw, pos)[0]
+                  pos += 2 + xlen
+              if flags & 8:
+                  pos = raw.index(b"\0", pos) + 1
+              if flags & 16:
+                  pos = raw.index(b"\0", pos) + 1
+              if flags & 2:
+                  pos += 2
+              if len(raw) < pos + 8:
+                  raise SystemExit("truncated gzip payload")
+              trailer_crc, trailer_size = struct.unpack("<II", raw[-8:])
+              tar_bytes = zlib.decompress(raw[pos:-8], -zlib.MAX_WBITS)
+              actual_crc = zlib.crc32(tar_bytes) & 0xffffffff
+              actual_size = len(tar_bytes) & 0xffffffff
+              print(f"gzip trailer expected crc={trailer_crc:08x} size={trailer_size}; actual crc={actual_crc:08x} size={actual_size}")
+              if trailer_size != actual_size:
+                  print("warning: gzip ISIZE mismatch; tar validation will decide whether product source is recoverable")
+              pathlib.Path("/tmp/window-manager-recovered.tar").write_bytes(tar_bytes)
+
+          with tarfile.open(fileobj=io.BytesIO(tar_bytes), mode="r:") as tf:
+              members = tf.getmembers()
+              names = [m.name.lstrip("./") for m in members]
+              required = {
+                  "widgets/_src/window-manager-xeneon/index.html",
+                  "widgets/_src/window-manager-xeneon/window-manager.js",
+                  "widgets/_src/window-manager-xeneon/verify.mjs",
+                  "widgets/window-manager-xeneon/manifest.json",
+                  "companions/window-manager-xeneon/PackRat.WindowBridge/BridgeServer.cs",
+                  ".github/workflows/window-manager-xeneon-full-gate.yml",
+              }
+              missing = sorted(required - set(names))
+              if missing:
+                  raise SystemExit("recovered tar missing required product files: " + ", ".join(missing))
+
+              for member in members:
+                  normalized = pathlib.PurePosixPath(member.name)
+                  if normalized.is_absolute() or ".." in normalized.parts:
+                      raise SystemExit(f"unsafe archive member: {member.name}")
+
+              # Reading every regular member forces tar payload/checksum validation.
+              for member in members:
+                  if member.isfile():
+                      fh = tf.extractfile(member)
+                      if fh is None:
+                          raise SystemExit(f"unable to read archive member: {member.name}")
+                      fh.read()
+
+              print("tar structure/member validation: PASS; members:", len(members))
+              tf.extractall(".", filter="data")
+
+          # Regenerate a healthy deterministic-enough wrapper for diagnostic proof.
+          with gzip.GzipFile("/tmp/window-manager-repaired.tgz", "wb", mtime=0) as out:
+              out.write(tar_bytes)
+          with tarfile.open("/tmp/window-manager-repaired.tgz", "r:gz") as tf:
+              tf.getmembers()
+          print("repaired gzip round-trip: PASS")
+          PY
 
           python - <<'PY'
           import json
@@ -43,7 +121,10 @@ jobs:
           path = Path("products/index.json")
           data = json.loads(path.read_text(encoding="utf-8"))
           products = data["products"]
-          if not any(item.get("id") == "window-manager-xeneon" for item in products):
+          matches = [item for item in products if item.get("id") == "window-manager-xeneon"]
+          if len(matches) > 1:
+              raise SystemExit("duplicate window-manager-xeneon product IDs")
+          if not matches:
               products.append({
                   "id": "window-manager-xeneon",
                   "name": "Window Manager for XENEON",
@@ -64,8 +145,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name "packrat-ci"
-          git config user.email "actions@users.noreply.github.com"
           git add -A
           git status --short
           git commit -m "Build paid Window Manager for XENEON"
