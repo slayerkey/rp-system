@@ -309,7 +309,14 @@ try {
             $companionExe = Get-ChildItem $companionOut -Filter *.exe -File | Select-Object -First 1
             if (-not $companionExe) { throw "Companion publish completed but no Windows executable was produced." }
             $companionZip = Join-Path $Destination "PackRat-Lighting-Companion-win-x64.zip"
-            Compress-Archive -Path $companionExe.FullName -DestinationPath $companionZip -Force
+            $zipInputs = @($companionExe.FullName)
+            $customerSetup = Join-Path (Split-Path $companionProject -Parent) "CUSTOMER-SETUP.txt"
+            if (Test-Path $customerSetup) {
+                $setupCopy = Join-Path $companionOut "CUSTOMER-SETUP.txt"
+                Copy-Item $customerSetup $setupCopy -Force
+                $zipInputs += $setupCopy
+            }
+            Compress-Archive -Path $zipInputs -DestinationPath $companionZip -Force
             if (-not (Test-Path $companionZip)) { throw "Local SHIP_KIT is missing the Windows companion archive." }
         }
 
