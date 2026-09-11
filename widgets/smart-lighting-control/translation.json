@@ -1,0 +1,19 @@
+{
+  "en": {"translation": {
+    "Smart Lighting Control for Hue + Govee": "Smart Lighting Control for Hue + Govee",
+    "Companion Pairing Token": "Companion Pairing Token",
+    "Copy from PackRat Lighting Companion": "Copy from PackRat Lighting Companion",
+    "Default View": "Default View",
+    "Favorites": "Favorites",
+    "All Lights": "All Lights",
+    "Hue": "Hue",
+    "Govee": "Govee",
+    "Show Offline Lights": "Show Offline Lights",
+    "Lighting Companion": "Lighting Companion",
+    "Install PackRat Lighting Companion on this Windows PC. Open its local setup page, pair Philips Hue and/or Govee, then copy the Companion Pairing Token here. Philips Hue and Govee credentials stay in the local companion, not in this widget.": "Install PackRat Lighting Companion on this Windows PC. Open its local setup page, pair Philips Hue and/or Govee, then copy the Companion Pairing Token here. Philips Hue and Govee credentials stay in the local companion, not in this widget.",
+    "Appearance": "Appearance",
+    "Text Color": "Text Color",
+    "Accent Color": "Accent Color",
+    "Background Color": "Background Color"
+  }}
+}
