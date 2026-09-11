@@ -43,6 +43,12 @@ function setBlocking(title,copy,hint){
   document.getElementById('blockingHint').textContent=hint||'Local setup: http://127.0.0.1:'+PORT+'/';
 }
 function clearBlocking(){document.getElementById('blockingState').hidden=true;}
+var toastTimer=null;
+function showToast(message){
+  var el=document.getElementById('toast');if(!el)return;
+  el.textContent=String(message||'Lighting command failed.');el.hidden=false;
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.hidden=true;},4200);
+}
 function providerState(s){
   if(s&&s.connected)return{label:'READY',cls:'live'};
   if(s&&(s.partial||s.lan||s.cloud))return{label:'PARTIAL',cls:'partial'};
@@ -177,7 +183,7 @@ function connect(token){
       model.connection='live';render();return;
     }
     if(m.type==='snapshot')applySnapshot(m);
-    if(m.type==='error'){model.lastError=String(m.error||'');}
+    if(m.type==='error'){model.lastError=String(m.error||'Lighting command failed.');showToast(model.lastError);}
   };
   ws.onerror=function(){if(gen===model.socketGeneration&&model.connection!=='unauthorized'&&model.connection!=='incompatible'){model.connection='offline';render();}};
   ws.onclose=function(){
@@ -208,7 +214,10 @@ function colorFromPoint(ev){
   var t=selected();if(!t||!cap(t,'color'))return;
   var pad=document.getElementById('colorPad'),r=pad.getBoundingClientRect(),x=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)),y=Math.max(0,Math.min(1,(ev.clientY-r.top)/r.height)),rgb=hsv(x*360,1,1-y*.72);
   document.getElementById('colorCursor').style.left=(x*100)+'%';document.getElementById('colorCursor').style.top=(y*100)+'%';t.color=rgb;renderControls();
-  clearTimeout(colorTimer);colorTimer=setTimeout(function(){send({command:'color',id:t.id,r:Math.round(rgb.r),g:Math.round(rgb.g),b:Math.round(rgb.b)});},90);
+  var colorDelay=(t.kind==='room'||t.kind==='zone'||(t.provider==='govee'&&t.transport==='cloud'))?550:120;
+  clearTimeout(colorTimer);colorTimer=setTimeout(function(){
+    if(!send({command:'color',id:t.id,r:Math.round(rgb.r),g:Math.round(rgb.g),b:Math.round(rgb.b)}))showToast('Lighting Companion is offline.');
+  },colorDelay);
 }
 function bind(){
   if(model.bound)return;model.bound=true;
@@ -234,7 +243,7 @@ function bind(){
   window.addEventListener('pagehide',cleanup,{once:true});
 }
 function cleanup(){
-  model.disposed=true;clearReconnect();clearTimeout(colorTimer);colorTimer=null;invalidateSocket();
+  model.disposed=true;clearReconnect();clearTimeout(colorTimer);colorTimer=null;clearTimeout(toastTimer);toastTimer=null;invalidateSocket();
 }
 function fixtureStart(f){
   model.fixture=true;model.settings=cfg();model.connection=f.connection||'live';model.providers=f.providers||{};model.targets=JSON.parse(JSON.stringify(f.targets||[]));model.filter=model.settings.defaultView||f.filter||'favorites';
