@@ -1,0 +1,21 @@
+{
+  "author": "PackRat 🐀",
+  "id": "com.packrat.homeassistant",
+  "name": "Home Assistant Panel",
+  "description": "Your house, on your desk. Pick any entities from your own Home Assistant and each one gets a tile showing its current state, lights and switches lit when they are on, sensors reading out with their units. Connects directly to your own Home Assistant server with a token you create and uses Home Assistant's native WebSocket API for live state updates without requiring browser CORS setup.",
+  "version": "1.0.3",
+  "preview_icon": "resources/icon.svg",
+  "min_framework_version": "1.0.0",
+  "min_app_version": "5.47",
+  "os": [
+    {
+      "platform": "windows"
+    }
+  ],
+  "supported_devices": [
+    {
+      "type": "dashboard_lcd"
+    }
+  ],
+  "interactive": false
+}

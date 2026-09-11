@@ -1,0 +1,22 @@
+{
+  "slug": "home-assistant",
+  "name": "Home Assistant Panel",
+  "type": "widget",
+  "price_usd": 9.99,
+  "version": "1.0.3",
+  "marketplace_category": [
+    "Utilities"
+  ],
+  "marketplace_dashboard_sizes": [
+    "Extra large",
+    "Large",
+    "Medium",
+    "Small"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_auto_publish": false,
+  "description": "Home Assistant Panel for the Corsair XENEON Edge. Pick entities from your own Home Assistant instance and keep their current states visible on your desk. Sensors show their values and units, while common binary domains such as lights, switches, locks, covers, and fans show a clear active state. The panel connects directly to your own server with a Home Assistant access token and uses Home Assistant's native WebSocket API for live updates. No cloud relay and no CORS configuration is required for normal operation.",
+  "release_notes": "• Makes multi-entity setup clear with comma-separated entity IDs.\\n• Shows the configured entity count next to the live connection status.\\n• Displays invalid or missing entity IDs as visible NOT FOUND tiles instead of silently hiding them.\\n• Ignores duplicate entity IDs while preserving WebSocket live updates and the no-CORS setup."
+}

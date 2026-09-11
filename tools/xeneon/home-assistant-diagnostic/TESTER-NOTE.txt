@@ -1,0 +1,52 @@
+HOME ASSISTANT PANEL — REAL iCUE DIAGNOSTIC
+
+IMPORTANT SECURITY STEP
+The previous screenshot exposed a Home Assistant Long-Lived Access Token.
+Please revoke that token in Home Assistant and create a new temporary token.
+Do not send another screenshot that shows the token.
+
+This diagnostic is not a Marketplace product. It only tells us which layer is failing.
+
+Before testing:
+1. Confirm the Home Assistant address by opening the exact URL in a normal browser on the same PC.
+2. Home Assistant 2026.8+: Settings > System > Network > HTTP server > Advanced.
+3. Under CORS allowed origins, add the literal value:
+   null
+4. Save. Home Assistant will restart.
+5. IMPORTANT: after restart, confirm the new HTTP settings when Home Assistant asks. If you do not confirm them within 5 minutes, Home Assistant automatically reverts them.
+6. Create a fresh temporary Long-Lived Access Token.
+7. Pick one entity directly from Developer Tools > States and copy its exact entity_id.
+
+In iCUE:
+1. Install home-assistant-diagnostic.icuewidget.
+2. Enter the exact server URL.
+3. Paste the fresh temporary token.
+4. Paste one known entity ID.
+5. Tap RUN TEST.
+
+The screen tests five layers:
+LAN = iCUE can reach the Home Assistant address.
+CORS = REST API responses are readable from the imported file-origin widget.
+AUTH = the bearer token is accepted.
+ENTITY = the exact entity can be retrieved.
+WEBSOCKET = Home Assistant's native WebSocket API works from iCUE.
+
+What to send back:
+Send a screenshot of the DIAGNOSTIC DISPLAY ONLY.
+Please do not include the iCUE settings area or the access token.
+
+Especially useful outcomes:
+ALL FIVE TESTS PASSED
+  The published panel itself has a runtime bug.
+
+REST CORS is blocked, but WebSocket WORKS
+  We can replace the published panel's REST transport with Home Assistant's native WebSocket API and remove the null-CORS dependency.
+
+LAN FAIL
+  Address, port, firewall, or iCUE local-network access is blocking the connection.
+
+AUTH FAIL
+  Replace the token.
+
+ENTITY 404
+  Connection is healthy; copy an exact entity_id from Developer Tools > States.

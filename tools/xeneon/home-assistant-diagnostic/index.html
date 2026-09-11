@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('Home Assistant Diagnostic')</title>
+
+<meta name="x-icue-property" content="serverAddress" data-label="tr('Server Address')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="accessToken" data-label="tr('Access Token')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="entityId" data-label="tr('Entity ID')" data-type="textfield" data-default="''" />
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Home Assistant Test')",
+    "properties": ["serverAddress", "accessToken", "entityId"],
+    "info": "tr('Use a fresh temporary Long-Lived Access Token. This diagnostic separates LAN reachability, CORS/authentication, and entity lookup. It does not save or transmit your token anywhere except your Home Assistant server.')"
+  }
+]
+</script>
+
+<style>
+:root {
+  --bg:#080b10; --panel:#111722; --line:#263244; --text:#f4f7fb; --muted:#8f9db0;
+  --accent:#2be86a; --warn:#ffd15c; --bad:#ff6675; --info:#55baff;
+  font-family:"Segoe UI",Arial,sans-serif; color-scheme:dark;
+}
+* { box-sizing:border-box; }
+html,body { width:100%; height:100%; margin:0; overflow:hidden; background:var(--bg); color:var(--text); }
+body { padding:14px; }
+main { height:100%; display:grid; grid-template-columns:1.25fr 3fr; gap:12px; }
+#summary, .step { border:1px solid var(--line); background:var(--panel); border-radius:13px; }
+#summary { padding:18px; display:flex; flex-direction:column; justify-content:space-between; min-width:0; }
+.eyebrow { color:var(--muted); font-size:11px; letter-spacing:.14em; font-weight:800; }
+h1 { margin:7px 0 8px; font-size:24px; line-height:1.05; }
+#headline { font-size:15px; font-weight:800; line-height:1.25; }
+#detail { color:var(--muted); font-size:12px; line-height:1.35; margin-top:7px; word-break:break-word; }
+#run { min-height:44px; border:1px solid var(--accent); background:#10271a; color:#fff; border-radius:10px; font:inherit; font-weight:800; cursor:pointer; }
+#steps { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:9px; min-width:0; }
+.step { min-width:0; padding:14px; display:flex; flex-direction:column; justify-content:space-between; }
+.step-top { display:flex; justify-content:space-between; gap:7px; align-items:center; }
+.step-num { color:var(--muted); font-size:10px; font-weight:900; letter-spacing:.12em; }
+.badge { font-size:10px; font-weight:900; padding:4px 7px; border-radius:99px; background:#202938; color:var(--muted); }
+.step[data-state="pass"] .badge { color:#78f59d; background:#12321f; }
+.step[data-state="fail"] .badge { color:#ff9ca6; background:#351820; }
+.step[data-state="warn"] .badge { color:#ffe08b; background:#342b12; }
+.step[data-state="run"] .badge { color:#90d3ff; background:#102a3c; }
+.step h2 { margin:12px 0 7px; font-size:16px; }
+.step p { margin:0; color:var(--muted); font-size:11px; line-height:1.35; word-break:break-word; }
+.step strong { display:block; margin-top:10px; font-size:12px; line-height:1.25; word-break:break-word; }
+@media (max-width:900px) {
+  body { padding:9px; }
+  main { grid-template-columns:1fr; grid-template-rows:auto 1fr; gap:8px; }
+  #summary { padding:11px; display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
+  #summary .copy { min-width:0; }
+  h1 { font-size:18px; margin:3px 0; }
+  #detail { display:none; }
+  #run { min-width:110px; }
+  .step { padding:9px; }
+  .step h2 { font-size:13px; margin:7px 0 4px; }
+  .step p { font-size:9px; }
+  .step strong { font-size:10px; margin-top:5px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <section id="summary">
+    <div class="copy">
+      <div class="eyebrow">PACKRAT • HOME ASSISTANT</div>
+      <h1>Connection Diagnostic</h1>
+      <div id="headline">Add server, token, and an entity in iCUE.</div>
+      <div id="detail">This tests the same browser security path an imported XENEON widget uses.</div>
+    </div>
+    <button id="run" type="button">RUN TEST</button>
+  </section>
+  <section id="steps" aria-label="Diagnostic stages">
+    <article class="step" id="stepReach" data-state="idle">
+      <div class="step-top"><span class="step-num">01</span><span class="badge">WAIT</span></div>
+      <div><h2>LAN</h2><p>Can iCUE reach the Home Assistant address at all?</p><strong class="result">Not tested</strong></div>
+    </article>
+    <article class="step" id="stepApi" data-state="idle">
+      <div class="step-top"><span class="step-num">02</span><span class="badge">WAIT</span></div>
+      <div><h2>CORS</h2><p>Can this file-origin widget read Home Assistant API responses?</p><strong class="result">Not tested</strong></div>
+    </article>
+    <article class="step" id="stepAuth" data-state="idle">
+      <div class="step-top"><span class="step-num">03</span><span class="badge">WAIT</span></div>
+      <div><h2>AUTH</h2><p>Does Home Assistant accept the bearer token?</p><strong class="result">Not tested</strong></div>
+    </article>
+    <article class="step" id="stepEntity" data-state="idle">
+      <div class="step-top"><span class="step-num">04</span><span class="badge">WAIT</span></div>
+      <div><h2>ENTITY</h2><p>Can the configured entity be found through the REST API?</p><strong class="result">Not tested</strong></div>
+    </article>
+    <article class="step" id="stepWs" data-state="idle">
+      <div class="step-top"><span class="step-num">05</span><span class="badge">WAIT</span></div>
+      <div><h2>WEBSOCKET</h2><p>Can iCUE use Home Assistant's native WebSocket API without REST CORS?</p><strong class="result">Not tested</strong></div>
+    </article>
+  </section>
+</main>
+
+<script>
+'use strict';
+(function () {
+  var timer = null;
+  var running = false;
+
+  function prop(name, fallback) {
+    try {
+      switch (name) {
+        case 'serverAddress': return typeof serverAddress !== 'undefined' ? serverAddress : fallback;
+        case 'accessToken': return typeof accessToken !== 'undefined' ? accessToken : fallback;
+        case 'entityId': return typeof entityId !== 'undefined' ? entityId : fallback;
+      }
+    } catch (error) {}
+    return fallback;
+  }
+
+  function config() {
+    var base = String(prop('serverAddress', '') || '').trim().replace(/\/+$/, '');
+    var token = String(prop('accessToken', '') || '').trim();
+    var entity = String(prop('entityId', '') || '').trim();
+    return { base: base, token: token, entity: entity };
+  }
+
+  function setStep(id, state, label, result) {
+    var node = document.getElementById(id);
+    node.setAttribute('data-state', state);
+    node.querySelector('.badge').textContent = label;
+    node.querySelector('.result').textContent = result;
+  }
+
+  function resetSteps() {
+    ['stepReach','stepApi','stepAuth','stepEntity','stepWs'].forEach(function (id) {
+      setStep(id, 'idle', 'WAIT', 'Not tested');
+    });
+  }
+
+  function headline(title, detail) {
+    document.getElementById('headline').textContent = title;
+    document.getElementById('detail').textContent = detail || '';
+  }
+
+  function timeoutFetch(url, options, ms) {
+    var controller = new AbortController();
+    var timeout = setTimeout(function () { controller.abort(); }, ms || 5500);
+    var opts = Object.assign({}, options || {}, { signal: controller.signal });
+    return fetch(url, opts).finally(function () { clearTimeout(timeout); });
+  }
+
+  function authHeaders(token) {
+    return {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    };
+  }
+
+  function websocketUrl(base) {
+    return base.replace(/^http:/i, 'ws:').replace(/^https:/i, 'wss:') + '/api/websocket';
+  }
+
+  function testWebSocket(cfg) {
+    return new Promise(function (resolve) {
+      var finished = false;
+      var ws;
+      var timeout = setTimeout(function () {
+        if (finished) return;
+        finished = true;
+        try { if (ws) ws.close(); } catch (error) {}
+        resolve({ ok:false, stage:'timeout', message:'WebSocket timed out' });
+      }, 7000);
+
+      function done(result) {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timeout);
+        try { if (ws && ws.readyState < 2) ws.close(); } catch (error) {}
+        resolve(result);
+      }
+
+      try {
+        ws = new WebSocket(websocketUrl(cfg.base));
+      } catch (error) {
+        done({ ok:false, stage:'open', message:String(error && error.message ? error.message : error) });
+        return;
+      }
+
+      ws.onerror = function () {
+        done({ ok:false, stage:'network', message:'WebSocket connection blocked or refused' });
+      };
+      ws.onmessage = function (event) {
+        var msg;
+        try { msg = JSON.parse(event.data); } catch (error) { return; }
+        if (msg.type === 'auth_required') {
+          ws.send(JSON.stringify({ type:'auth', access_token:cfg.token }));
+          return;
+        }
+        if (msg.type === 'auth_invalid') {
+          done({ ok:false, stage:'auth', message:'WebSocket token rejected' });
+          return;
+        }
+        if (msg.type === 'auth_ok') {
+          ws.send(JSON.stringify({ id:1, type:'get_states' }));
+          return;
+        }
+        if (msg.type === 'result' && msg.id === 1) {
+          if (!msg.success || !Array.isArray(msg.result)) {
+            done({ ok:false, stage:'states', message:'get_states failed' });
+            return;
+          }
+          var state = cfg.entity ? msg.result.find(function (item) { return item && item.entity_id === cfg.entity; }) : null;
+          done({
+            ok:true,
+            stage:'states',
+            count:msg.result.length,
+            entity:state || null,
+            message:cfg.entity
+              ? (state ? (state.entity_id + ' = ' + String(state.state)) : ('Connected; entity not found: ' + cfg.entity))
+              : (msg.result.length + ' entities returned')
+          });
+        }
+      };
+    });
+  }
+
+  async function runWebSocket(cfg) {
+    setStep('stepWs', 'run', 'TEST', 'Opening /api/websocket');
+    var result = await testWebSocket(cfg);
+    if (result.ok) {
+      setStep('stepWs', 'pass', 'PASS', result.message);
+    } else {
+      setStep('stepWs', 'fail', 'FAIL', result.message);
+    }
+    return result;
+  }
+
+  async function test() {
+    if (running) return;
+    var cfg = config();
+    resetSteps();
+
+    if (!/^https?:\/\/[^/]+/i.test(cfg.base)) {
+      headline('Server address is incomplete', 'Use the exact Home Assistant URL that opens in a browser, including http:// or https:// and the port when needed.');
+      setStep('stepReach', 'fail', 'FIX', 'Enter a full server URL');
+      return;
+    }
+    if (!cfg.token) {
+      headline('Access token is missing', 'Create a fresh Long-Lived Access Token in Home Assistant and paste the complete value into iCUE.');
+      setStep('stepAuth', 'fail', 'FIX', 'Token required');
+      return;
+    }
+
+    running = true;
+    document.getElementById('run').disabled = true;
+    headline('Testing real iCUE network path…', cfg.base);
+
+    try {
+      setStep('stepReach', 'run', 'TEST', 'Opening server');
+      try {
+        await timeoutFetch(cfg.base + '/?packrat_diag=' + Date.now(), {
+          method:'GET', mode:'no-cors', cache:'no-store'
+        }, 5000);
+        setStep('stepReach', 'pass', 'PASS', 'Server is reachable from this widget');
+      } catch (error) {
+        setStep('stepReach', 'fail', 'FAIL', 'iCUE cannot reach this address');
+        setStep('stepApi', 'warn', 'SKIP', 'Fix LAN reachability first');
+        setStep('stepAuth', 'warn', 'SKIP', 'Fix LAN reachability first');
+        setStep('stepEntity', 'warn', 'SKIP', 'Fix LAN reachability first');
+        setStep('stepWs', 'warn', 'SKIP', 'LAN path failed');
+        headline('LAN or iCUE security is blocking the server', 'Check the exact address/port, Windows firewall, and whether this iCUE build allows local-network requests.');
+        return;
+      }
+
+      setStep('stepApi', 'run', 'TEST', 'Calling /api/');
+      var apiResponse;
+      try {
+        apiResponse = await timeoutFetch(cfg.base + '/api/', {
+          method:'GET',
+          mode:'cors',
+          cache:'no-store',
+          headers:authHeaders(cfg.token)
+        }, 6500);
+      } catch (error) {
+        setStep('stepApi', 'fail', 'FAIL', 'API response blocked by browser security');
+        setStep('stepAuth', 'warn', 'BLOCK', 'Cannot read REST authentication response');
+        setStep('stepEntity', 'warn', 'SKIP', 'REST CORS is blocking lookup');
+        var wsAfterCors = await runWebSocket(cfg);
+        if (wsAfterCors.ok) {
+          headline('REST CORS is blocked, but WebSocket WORKS', 'This is the strongest fix path for the published panel: use Home Assistant WebSocket API and remove the null CORS requirement.');
+        } else {
+          headline('CORS is the most likely REST failure', 'In Home Assistant 2026.8+: Settings > System > Network > HTTP server > Advanced > CORS allowed origins. Add the literal value null, save, let Home Assistant restart, then CONFIRM the new HTTP settings within 5 minutes. WebSocket also failed, so include this diagnostic screenshot.');
+        }
+        return;
+      }
+
+      var allowOrigin = apiResponse.headers.get('access-control-allow-origin') || '';
+      setStep('stepApi', 'pass', 'PASS', allowOrigin ? ('Allowed origin: ' + allowOrigin) : 'API response is readable');
+
+      setStep('stepAuth', 'run', 'TEST', 'Checking token');
+      if (apiResponse.status === 401) {
+        setStep('stepAuth', 'fail', 'FAIL', '401 Unauthorized');
+        setStep('stepEntity', 'warn', 'SKIP', 'Replace token first');
+        await runWebSocket(cfg);
+        headline('Home Assistant rejected the token', 'Create a new Long-Lived Access Token and paste the complete token. Do not reuse a token shown in a screenshot.');
+        return;
+      }
+      if (!apiResponse.ok) {
+        setStep('stepAuth', 'fail', 'FAIL', 'HTTP ' + apiResponse.status);
+        setStep('stepEntity', 'warn', 'SKIP', 'API request failed');
+        await runWebSocket(cfg);
+        headline('Home Assistant API returned HTTP ' + apiResponse.status, 'The server and CORS path work, but the API request did not authenticate successfully.');
+        return;
+      }
+      setStep('stepAuth', 'pass', 'PASS', 'Bearer token accepted');
+
+      if (!cfg.entity) {
+        setStep('stepEntity', 'run', 'TEST', 'Listing states');
+        var listResponse = await timeoutFetch(cfg.base + '/api/states', {
+          method:'GET', mode:'cors', cache:'no-store', headers:authHeaders(cfg.token)
+        }, 6500);
+        if (!listResponse.ok) throw new Error('states list HTTP ' + listResponse.status);
+        var states = await listResponse.json();
+        var count = Array.isArray(states) ? states.length : 0;
+        setStep('stepEntity', 'pass', 'PASS', count + ' entities returned');
+        await runWebSocket(cfg);
+        headline('Home Assistant transport is working', 'The widget can reach the server, pass REST CORS, authenticate, and read entity states. Any remaining problem is in the published panel implementation.');
+        return;
+      }
+
+      setStep('stepEntity', 'run', 'TEST', cfg.entity);
+      var entityResponse = await timeoutFetch(cfg.base + '/api/states/' + encodeURIComponent(cfg.entity), {
+        method:'GET', mode:'cors', cache:'no-store', headers:authHeaders(cfg.token)
+      }, 6500);
+      if (entityResponse.status === 404) {
+        setStep('stepEntity', 'fail', '404', 'Entity not found: ' + cfg.entity);
+        await runWebSocket(cfg);
+        headline('Connection works, but this entity ID does not exist', 'Copy the exact entity_id from Home Assistant Developer Tools > States.');
+        return;
+      }
+      if (!entityResponse.ok) {
+        setStep('stepEntity', 'fail', 'FAIL', 'HTTP ' + entityResponse.status);
+        await runWebSocket(cfg);
+        headline('Entity lookup failed', 'Connection and authentication passed, but Home Assistant returned HTTP ' + entityResponse.status + ' for this entity.');
+        return;
+      }
+      var state = await entityResponse.json();
+      setStep('stepEntity', 'pass', 'PASS', String(state.entity_id || cfg.entity) + ' = ' + String(state.state || 'unknown'));
+      var wsFinal = await runWebSocket(cfg);
+      if (wsFinal.ok) {
+        headline('ALL FIVE TESTS PASSED', 'Real iCUE can reach Home Assistant through both REST and WebSocket and read this entity. The published Home Assistant Panel itself needs a runtime fix.');
+      } else {
+        headline('REST WORKS • WEBSOCKET FAILED', 'The published panel can be fixed on REST. Include this diagnostic screenshot so we do not switch transports unnecessarily.');
+      }
+    } catch (error) {
+      headline('Unexpected diagnostic error', String(error && error.message ? error.message : error));
+    } finally {
+      running = false;
+      document.getElementById('run').disabled = false;
+    }
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    timer = setTimeout(test, 350);
+  }
+
+  document.getElementById('run').addEventListener('click', test);
+  globalThis.icueEvents = {
+    onICUEInitialized: schedule,
+    onDataUpdated: schedule
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, { once:true });
+  else schedule();
+
+  globalThis.__packratHomeAssistantDiagnostic = { test:test, config:config };
+})();
+</script>
+</body>
+</html>

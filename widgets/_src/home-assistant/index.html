@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('Home Assistant Panel')</title>
+
+<meta name="x-icue-property" content="baseUrl" data-label="tr('Server Address')" data-type="textfield" data-default="'http://homeassistant.local:8123'" />
+<meta name="x-icue-property" content="token" data-label="tr('Access Token')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="entities" data-label="tr('Entities (comma separated)')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="refreshMinutes" data-label="tr('Refresh')" data-type="slider" data-min="1" data-max="30" data-step="1" data-unit-label="'min'" data-default="1" />
+<meta name="x-icue-property" content="showUnavailable" data-label="tr('Show Unavailable')" data-type="switch" data-default="false" />
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F2F5F7'" />
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'" />
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#0B0E11'" />
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Home Assistant')",
+    "properties": ["baseUrl", "token", "entities", "refreshMinutes", "showUnavailable"],
+    "info": "tr('Enter multiple entity IDs separated by commas. Example: sensor.office_temperature, light.desk_lamp. Copy exact IDs from Home Assistant Developer Tools > States.')"
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"]
+  }
+]
+</script>
+<link rel="stylesheet" href="home-assistant.css" />
+</head>
+<body data-connection="unconfigured">
+<div id="stage">
+  <div id="head">
+    <span id="title">Home</span>
+    <span id="status" class="status"></span>
+  </div>
+  <div id="tiles"></div>
+</div>
+<script src="home-assistant.js"></script>
+<script src="home-assistant-settings-patch.js"></script>
+</body>
+</html>
