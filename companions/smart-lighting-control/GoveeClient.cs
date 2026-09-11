@@ -234,23 +234,28 @@ public sealed class GoveeClient {
         using var http=CloudHttp();
         foreach(var d in cloud){
             var scenes=new List<CloudScene>(d.StaticScenes);
-            try{
-                var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
-                using var res=await http.PostAsJsonAsync("/router/api/v1/device/scenes",payload,JsonDefaults.Options,ct);
-                if(res.IsSuccessStatusCode){
-                    using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-                    if(doc.RootElement.TryGetProperty("payload",out var p)&&p.TryGetProperty("capabilities",out var caps)&&caps.ValueKind==JsonValueKind.Array){
-                        foreach(var c in caps.EnumerateArray()){
-                            var type=Str(c,"type"); var inst=Str(c,"instance");
-                            if(!c.TryGetProperty("parameters",out var pars)||!pars.TryGetProperty("options",out var opts)||opts.ValueKind!=JsonValueKind.Array)continue;
-                            foreach(var o in opts.EnumerateArray())if(o.TryGetProperty("name",out var n)&&o.TryGetProperty("value",out var v))scenes.Add(new CloudScene{Name=n.GetString()??"Scene",Type=type,Instance=inst,Value=v.Clone()});
-                        }
-                    }
-                }
-            }catch{}
+            await AppendScenesAsync(http,d,"/router/api/v1/device/scenes",scenes,ct);
+            await AppendScenesAsync(http,d,"/router/api/v1/device/diy-scenes",scenes,ct);
             sceneCache[d.Device]=scenes.GroupBy(s=>s.Name,StringComparer.OrdinalIgnoreCase).Select(g=>g.First()).ToList();
         }
         scenesAt=DateTime.UtcNow;
+    }
+
+    static async Task AppendScenesAsync(HttpClient http,CloudDevice d,string endpoint,List<CloudScene> scenes,CancellationToken ct){
+        try{
+            var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
+            using var res=await http.PostAsJsonAsync(endpoint,payload,JsonDefaults.Options,ct);
+            if(!res.IsSuccessStatusCode)return;
+            using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
+            if(!doc.RootElement.TryGetProperty("payload",out var p)||!p.TryGetProperty("capabilities",out var caps)||caps.ValueKind!=JsonValueKind.Array)return;
+            foreach(var capability in caps.EnumerateArray()){
+                var type=Str(capability,"type"); var inst=Str(capability,"instance");
+                if(!capability.TryGetProperty("parameters",out var pars)||!pars.TryGetProperty("options",out var opts)||opts.ValueKind!=JsonValueKind.Array)continue;
+                foreach(var o in opts.EnumerateArray())
+                    if(o.TryGetProperty("name",out var n)&&o.TryGetProperty("value",out var v))
+                        scenes.Add(new CloudScene{Name=n.GetString()??"Scene",Type=type,Instance=inst,Value=v.Clone()});
+            }
+        }catch{}
     }
 
     List<LightingTarget> Normalize(){
