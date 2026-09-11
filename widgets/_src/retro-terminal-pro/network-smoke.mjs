@@ -340,10 +340,19 @@ try{
       globalThis.plugins={Sensorsdataprovider:globalThis.__sensorProviderFixture};
       globalThis.__setSensorFixtureMode("normal");
       await globalThis.__retroTerminalProTest.discoverSensors();
-      await globalThis.__retroTerminalProTest.pollSensors();
     });
-    snap=await page.evaluate(()=>({state:document.getElementById("systemState").textContent}));
-    expect(snap.state.includes("LIVE iCUE"),"provider reconnect recovery "+JSON.stringify(snap));
+    snap=await page.evaluate(()=>({
+      state:document.getElementById("systemState").textContent,
+      values:Array.from(document.querySelectorAll("#systemGrid .sensorValue")).map(el=>el.textContent)
+    }));
+    expect(snap.state==="WAITING FOR iCUE VALUES"&&snap.values.every(v=>v==="—"),"provider reconnect must wait for fresh readings "+JSON.stringify(snap));
+    await page.evaluate(async()=>{await globalThis.__retroTerminalProTest.pollSensors();});
+    snap=await page.evaluate(()=>({
+      state:document.getElementById("systemState").textContent,
+      updated:document.getElementById("systemUpdated").textContent,
+      expected:"UPDATED "+new Date(Math.max(...Object.values(globalThis.__retroTerminalPro.sensorValues).map(v=>v.at))).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"})
+    }));
+    expect(snap.state.includes("LIVE iCUE")&&snap.updated===snap.expected,"provider reconnect recovery and reading timestamp "+JSON.stringify(snap));
 
     await page.screenshot({path:path.join(outDir,"PROVIDER_STATES.png")});
     if(errors.length)failures.push("provider-state runtime errors "+errors.join(" | "));
@@ -504,7 +513,7 @@ const report={
     "all-eight-layouts","touch-targets","rapid-taps","native-wide-readability","descenders","compact-uptime-crowding",
     "explicit-settings-callback","no-callback-autosync","onICUEInitialized","timer-idempotence",
     "idle-wake","live-idle-setting-transitions","auto-program-style-rotation","user-text-unicode-html-looking",
-    "provider-normal-empty-error-stale-unavailable-recovery","provider-disconnect-clears-live-ui","sensor-id-rebinding",
+    "provider-normal-empty-error-stale-unavailable-recovery","provider-disconnect-clears-live-ui","provider-reconnect-fresh-only","sensor-reading-timestamps","sensor-id-rebinding",
     "persistence-reload-corrupt-legacy-missing-schema-clear","reduced-motion-static-ambient",
     "boot-sequences","mid-boot-cleanup","cleanup"
   ],
