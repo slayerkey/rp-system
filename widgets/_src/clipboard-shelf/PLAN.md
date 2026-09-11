@@ -16,7 +16,8 @@ Live path:
 4. First-run pairing uses a locally generated DPAPI-protected code. The bridge sends no clipboard snapshot until the widget authenticates with that code.
 5. The XENEON widget renders normalized text previews and sends narrow commands for copy, pin, favorite, delete, clear, private mode, and history limit changes.
 6. The companion self-installs under the current user's LocalAppData folder and registers per-user startup so history works after reboot.
-7. No cloud, PackRat server, account, or remote synchronization exists.
+7. After the complete release gate passes, the free companion ZIP is published as a versioned GitHub Release so Marketplace customers have a stable download.
+8. No cloud, PackRat server, account, or remote synchronization exists.
 
 The loopback protocol requires the fixed application subprotocol packrat-clipboard-shelf-v1-a91f6c, per-user pairing authentication, and exact local-origin checks. The health endpoint never returns clipboard text or the pairing token.
 
