@@ -21,7 +21,13 @@ public static class Program
         if (args.Contains("--self-test", StringComparer.OrdinalIgnoreCase))
             return SelfTest.Run();
 
-        var fixture = args.Contains("--fixture", StringComparer.OrdinalIgnoreCase);
+        var fixtureRequested = args.Contains("--fixture", StringComparer.OrdinalIgnoreCase);
+        var fixture = fixtureRequested && Environment.GetEnvironmentVariable("PACKRAT_WINDOW_BRIDGE_TEST") == "1";
+        if (fixtureRequested && !fixture)
+        {
+            Console.Error.WriteLine("Fixture mode is restricted to the PackRat test environment.");
+            return 2;
+        }
         var noBrowser = fixture || args.Contains("--no-browser", StringComparer.OrdinalIgnoreCase);
         var port = ArgInt(args, "--port", DefaultPort);
         var protocol = fixture ? ArgInt(args, "--fixture-protocol", ProtocolVersion) : ProtocolVersion;
