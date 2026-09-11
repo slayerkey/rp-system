@@ -1,5 +1,9 @@
 # PackRat Window Bridge
 
+> **Legacy development/reference implementation**
+>
+> The final customer architecture is being migrated to the free **Window Manager Lite** Stream Deck plugin hosting the same localhost XENEON service. Do not ship this standalone bridge as the final dependency while that refactor is in progress. Its source and release remain useful for protocol/native regression comparison and rollback.
+
 Local Windows companion for **Window Manager for XENEON**.
 
 ## Why it exists
