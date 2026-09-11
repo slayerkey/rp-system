@@ -79,6 +79,7 @@ jobs:
               "widgets/_src/window-manager-xeneon/",
               "companions/window-manager-xeneon/",
               ".github/workflows/window-manager-xeneon-full-gate.yml",
+              ".github/workflows/window-manager-xeneon-companion-release.yml",
           )
           hits = []
           for root in ("widgets", "companions", "plugins", ".github/workflows"):
