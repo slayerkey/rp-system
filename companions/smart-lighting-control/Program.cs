@@ -150,6 +150,7 @@ public static class Program {
     static int SelfTest(){
         try{
             var cmd=GoveeClient.BuildLanCommand("turn",new{value=1});if(!cmd.Contains("\"cmd\":\"turn\"")||!cmd.Contains("\"value\":1"))throw new Exception("Govee LAN command serialization failed");
+            if(!GoveeClient.IsLanStatusCommand("status")||!GoveeClient.IsLanStatusCommand("devStatus")||GoveeClient.IsLanStatusCommand("scan"))throw new Exception("Govee LAN status compatibility failed");
             GoveeClient.RunDeterministicParserSelfTest();
             dynamic xy=HueClient.RgbToXy(255,0,0);var rgb=HueClient.XyToRgb((double)xy.x,(double)xy.y,100);if(rgb.R<180||rgb.G>120||rgb.B>120)throw new Exception("Hue color conversion failed");
             var fixture=JsonDocument.Parse("""{"data":[{"id":"gl1","type":"grouped_light","on":{"on":true},"dimming":{"brightness":66},"color":{"xy":{"x":0.4,"y":0.4}},"color_temperature":{"mirek":250,"mirek_schema":{"mirek_minimum":153,"mirek_maximum":500}}},{"id":"r1","type":"room","metadata":{"name":"Studio"},"services":[{"rid":"gl1","rtype":"grouped_light"}]},{"id":"s1","type":"scene","metadata":{"name":"Focus"},"group":{"rid":"r1"}}]}""");
