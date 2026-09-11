@@ -97,6 +97,9 @@ try{
  await page.evaluate(()=>dispatchEvent(new Event('pagehide')));
  await page.waitForTimeout(1600);
  if(connections!==beforePagehide)throw new Error('pagehide unexpectedly reconnected the bridge');
+ await page.evaluate(()=>dispatchEvent(new Event('pageshow')));
+ await page.waitForFunction(()=>document.getElementById('bridgeStatus')?.classList.contains('online'),{timeout:5000});
+ if(connections!==beforePagehide+1)throw new Error('pageshow did not create exactly one clean reconnect');
  if(errors.length)throw new Error('runtime errors: '+errors.join(' | '));
  console.log('CLIPBOARD SHELF PACKAGED NETWORK SMOKE PASS');
 }finally{
