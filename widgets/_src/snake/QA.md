@@ -2,7 +2,7 @@
 
 ## Product
 - Slug: `snake`
-- Version: `1.0.0`
+- Version: `1.0.1`
 - Price: free
 - Network dependency: none
 - Account/API key/helper app: none
@@ -21,7 +21,7 @@
 ## Automated gate
 `node widgets/_src/snake/verify.mjs .`
 
-The verification script covers all eight sizes, overflow, canvas visibility, pause, resume, restart, touch zones, swipe input, fast repeated input, reverse prevention, wall collision, self collision, legal tail-vacate movement, eating and growth, food spawning, exactly-one-free-cell spawning, full-board completion, score persistence, high-score persistence, browser preview operation, runtime errors and a 300-draw rendering benchmark.
+The verification script covers all eight sizes, overflow, canvas visibility, pause, resume, restart, keyboard arrow input, keyboard reverse-direction protection, touch zones, swipe input, fast repeated input, reverse prevention, wall collision, self collision, legal tail-vacate movement, eating and growth, food spawning, exactly-one-free-cell spawning, full-board completion, score persistence, high-score persistence, browser preview operation, runtime errors and a 300-draw rendering benchmark.
 
 The canonical XENEON CI then regenerates the inline shipping build, runs the official CORSAIR CLI validator and packager, and opens the packaged `.icuewidget` through StreamSpell across all eight official presets.
 
@@ -29,4 +29,4 @@ The canonical XENEON CI then regenerates the inline shipping build, runs the off
 The game is event driven. It does not run a continuous animation frame loop. Movement advances from 205 ms per step at level 1 down to 68 ms per step at level 10. The browser benchmark uses a conservative 16 ms average draw regression ceiling.
 
 ## Physical confidence checks
-Physical XENEON Edge testing is optional under the current RatPack release gate. If hardware is available, verify swipe threshold and directional-zone feel, accidental touch resistance, desk-distance visibility, exact iCUE touch hit testing, OLED contrast, pause/restart ergonomics and the creator link opening in the system browser.
+Physical XENEON Edge testing is optional under the current RatPack release gate. If hardware is available, verify swipe threshold and directional-zone feel, accidental touch resistance, desk-distance visibility, exact iCUE touch hit testing, OLED contrast, pause/restart ergonomics and the creator link opening in the system browser. Keyboard arrows are standard web key events and therefore require the widget webview to have keyboard focus; verify real-iCUE focus behavior when available.
