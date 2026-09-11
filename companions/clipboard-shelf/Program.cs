@@ -434,7 +434,7 @@ internal sealed class BridgeServer : IDisposable
     public async Task StopAsync()
     {
         if (_app is null) return;
-        try { await _app.StopAsync(TimeSpan.FromSeconds(2)); } catch { }
+        try { using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2)); await _app.StopAsync(timeout.Token); } catch { }
         foreach (var socket in _clients.Values)
         {
             try { await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "shutdown", CancellationToken.None); } catch { }
