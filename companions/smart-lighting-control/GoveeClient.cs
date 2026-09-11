@@ -15,15 +15,16 @@ public sealed class GoveeClient {
     readonly Dictionary<string,List<CloudScene>> sceneCache=new(StringComparer.OrdinalIgnoreCase);
     readonly Dictionary<string,CloudState> cloudStates=new(StringComparer.OrdinalIgnoreCase);
     DateTime cloudDevicesAt=DateTime.MinValue, scenesAt=DateTime.MinValue, cloudStatesAt=DateTime.MinValue, lanStatusAt=DateTime.MinValue;
+    int cloudStateCursor=0;
     public GoveeClient(LocalState state){this.state=state;}
     public bool CloudConfigured=>!string.IsNullOrWhiteSpace(state.GoveeApiKey());
 
     public async Task<List<LightingTarget>> GetTargetsAsync(bool scanLan=false,CancellationToken ct=default){
         if(scanLan||lan.Count==0)await DiscoverLanAsync(null,ct);
         else if(DateTime.UtcNow-lanStatusAt>TimeSpan.FromSeconds(4))await RefreshLanStatusAsync(ct);
-        if(CloudConfigured&&DateTime.UtcNow-cloudDevicesAt>TimeSpan.FromMinutes(1))await RefreshCloudDevicesAsync(ct);
-        if(CloudConfigured&&DateTime.UtcNow-cloudStatesAt>TimeSpan.FromSeconds(15))await RefreshCloudStatesAsync(ct);
-        if(CloudConfigured&&DateTime.UtcNow-scenesAt>TimeSpan.FromMinutes(10))await RefreshScenesAsync(ct);
+        if(CloudConfigured&&DateTime.UtcNow-cloudDevicesAt>TimeSpan.FromMinutes(10))await RefreshCloudDevicesAsync(ct);
+        if(CloudConfigured&&DateTime.UtcNow-cloudStatesAt>TimeSpan.FromSeconds(15))await RefreshNextCloudStateAsync(ct);
+        if(CloudConfigured&&DateTime.UtcNow-scenesAt>TimeSpan.FromMinutes(30))await RefreshScenesAsync(ct);
         return Normalize();
     }
 
@@ -157,27 +158,37 @@ public sealed class GoveeClient {
             foreach(var o in opts.EnumerateArray())if(o.TryGetProperty("name",out var n)&&o.TryGetProperty("value",out var v))d.StaticScenes.Add(new CloudScene{Name=n.GetString()??"Scene",Type=type,Instance=instance,Value=v.Clone()});
         }
     }
-    async Task RefreshCloudStatesAsync(CancellationToken ct){
-        using var http=CloudHttp();
-        foreach(var d in cloud){
-            try{
-                var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
-                using var res=await http.PostAsJsonAsync("/router/api/v1/device/state",payload,JsonDefaults.Options,ct);
-                if(!res.IsSuccessStatusCode)continue;using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
+    async Task RefreshNextCloudStateAsync(CancellationToken ct){
+        // Budget cloud polling across the whole account instead of polling every
+        // device every refresh. LAN-capable devices already have local status.
+        // One cloud state request per 15 seconds is <= 5,760/day total, leaving
+        // substantial room for device discovery, scenes and user controls.
+        var candidates=cloud.Where(d=>!lan.ContainsKey(d.Device)).ToList();
+        if(candidates.Count==0){cloudStatesAt=DateTime.UtcNow;return;}
+        if(cloudStateCursor>=candidates.Count)cloudStateCursor=0;
+        var d=candidates[cloudStateCursor++];
+        try{
+            using var http=CloudHttp();
+            var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
+            using var res=await http.PostAsJsonAsync("/router/api/v1/device/state",payload,JsonDefaults.Options,ct);
+            if(res.IsSuccessStatusCode){
+                using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
                 var p=doc.RootElement.TryGetProperty("payload",out var pp)?pp:doc.RootElement.TryGetProperty("data",out var dd)?dd:default;
-                if(p.ValueKind!=JsonValueKind.Object||!p.TryGetProperty("capabilities",out var caps)||caps.ValueKind!=JsonValueKind.Array)continue;
-                var st=new CloudState{Reachable=true};
-                foreach(var c in caps.EnumerateArray()){
-                    var type=Str(c,"type"); var inst=Str(c,"instance"); if(!c.TryGetProperty("state",out var s)||!s.TryGetProperty("value",out var value))continue;
-                    if(type=="devices.capabilities.online"&&value.ValueKind is JsonValueKind.True or JsonValueKind.False)st.Reachable=value.GetBoolean();
-                    if(type=="devices.capabilities.on_off"&&inst=="powerSwitch"&&value.ValueKind==JsonValueKind.Number)st.On=value.GetInt32()==1;
-                    if(type=="devices.capabilities.range"&&inst=="brightness"&&value.ValueKind==JsonValueKind.Number)st.Brightness=value.GetDouble();
-                    if(type=="devices.capabilities.color_setting"&&inst=="colorRgb"&&value.ValueKind==JsonValueKind.Number){var rgb=value.GetInt32();st.Color=new((rgb>>16)&255,(rgb>>8)&255,rgb&255);}
-                    if(type=="devices.capabilities.color_setting"&&inst=="colorTemperatureK"&&value.ValueKind==JsonValueKind.Number)st.TemperatureK=value.GetInt32();
+                if(p.ValueKind==JsonValueKind.Object&&p.TryGetProperty("capabilities",out var caps)&&caps.ValueKind==JsonValueKind.Array){
+                    var st=new CloudState{Reachable=true};
+                    foreach(var cap in caps.EnumerateArray()){
+                        var type=Str(cap,"type"); var inst=Str(cap,"instance");
+                        if(!cap.TryGetProperty("state",out var s)||!s.TryGetProperty("value",out var value))continue;
+                        if(type=="devices.capabilities.online"&&value.ValueKind is JsonValueKind.True or JsonValueKind.False)st.Reachable=value.GetBoolean();
+                        if(type=="devices.capabilities.on_off"&&inst=="powerSwitch"&&value.ValueKind==JsonValueKind.Number)st.On=value.GetInt32()==1;
+                        if(type=="devices.capabilities.range"&&inst=="brightness"&&value.ValueKind==JsonValueKind.Number)st.Brightness=value.GetDouble();
+                        if(type=="devices.capabilities.color_setting"&&inst=="colorRgb"&&value.ValueKind==JsonValueKind.Number){var rgb=value.GetInt32();st.Color=new((rgb>>16)&255,(rgb>>8)&255,rgb&255);}
+                        if(type=="devices.capabilities.color_setting"&&inst=="colorTemperatureK"&&value.ValueKind==JsonValueKind.Number)st.TemperatureK=value.GetInt32();
+                    }
+                    cloudStates[d.Device]=st;
                 }
-                cloudStates[d.Device]=st;
-            }catch{}
-        }
+            }
+        }catch{}
         cloudStatesAt=DateTime.UtcNow;
     }
     async Task RefreshScenesAsync(CancellationToken ct){
