@@ -864,7 +864,7 @@ internal static class ProtocolSelfTest
                 await bad.ConnectAsync(new Uri("ws://127.0.0.1:17485/ws"), CancellationToken.None);
                 await SendAsync(bad, new { command = "auth", token = history.PairingToken + "BAD" });
                 var closeBuffer = new byte[1024];
-                var result = await bad.ReceiveAsync(closeBuffer, CancellationToken.None);
+                var result = await bad.ReceiveAsync(new ArraySegment<byte>(closeBuffer), CancellationToken.None);
                 if (result.MessageType != WebSocketMessageType.Close)
                     throw new Exception("unauthorized bridge received clipboard data");
             }
@@ -906,7 +906,7 @@ internal static class ProtocolSelfTest
         WebSocketReceiveResult result;
         do
         {
-            result = await socket.ReceiveAsync(buffer, CancellationToken.None);
+            result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             if (result.MessageType != WebSocketMessageType.Text)
                 throw new Exception("expected bridge text snapshot");
             ms.Write(buffer, 0, result.Count);
