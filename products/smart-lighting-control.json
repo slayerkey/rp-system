@@ -70,8 +70,8 @@
   },
   "hardware_boundary": "No physical XENEON Edge, Hue Bridge/light, or Govee light/credentials were available in this build session. Real provider code compiled and passed deterministic protocol/API fixtures plus exact-package localhost-companion integration. A physical smoke test is recommended when hardware is available, but is not represented as completed.",
   "final_boundary": "Authenticated Maker Console submission through rat ship smart-lighting-control. Marketplace auto-publish remains disabled.",
-  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. A permanent customer companion URL is wired through the PackRat site to the versioned GitHub Release asset. Marketplace auto-publish remains disabled.",
-  "companion_download_url": "https://packrat-site.pages.dev/downloads/smart-lighting",
+  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. The verified customer companion URL uses the public Cloudflare main-branch alias and redirects to the versioned GitHub Release asset. Marketplace auto-publish remains disabled.",
+  "companion_download_url": "https://main.packrat-site.pages.dev/downloads/smart-lighting",
   "companion_release_tag": "smart-lighting-companion-v1.0.0",
   "companion_release_asset_url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip"
 }

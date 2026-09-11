@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var PORT=17486, PROTOCOL=1, WS_URL='ws://127.0.0.1:17486/widget', COMPANION_DOWNLOAD='https://packrat-site.pages.dev/downloads/smart-lighting';
+var PORT=17486, PROTOCOL=1, WS_URL='ws://127.0.0.1:17486/widget', COMPANION_DOWNLOAD='https://main.packrat-site.pages.dev/downloads/smart-lighting';
 var model={
   connection:'starting',auth:'pending',filter:'favorites',selectedId:null,targets:[],providers:{},
   socket:null,reconnect:null,fixture:false,lastError:'',socketGeneration:0,disposed:false,bound:false,

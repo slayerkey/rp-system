@@ -344,7 +344,7 @@ jobs:
       - name: Verify public PackRat companion download
         shell: pwsh
         run: |
-          $url = 'https://packrat-site.pages.dev/downloads/smart-lighting'
+          $url = 'https://main.packrat-site.pages.dev/downloads/smart-lighting'
           $download = 'artifacts/public-PackRat-Lighting-Companion-win-x64.zip'
           $ok = $false
           for ($attempt = 1; $attempt -le 20; $attempt++) {
