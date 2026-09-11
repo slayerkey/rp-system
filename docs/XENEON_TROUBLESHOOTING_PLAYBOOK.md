@@ -88,6 +88,13 @@ Before debugging host behavior, regenerate with `tools/xeneon/inline.py` and fai
 
 After official packaging, downstream tests must consume the exact package or exact extracted package. Do not rebuild between validation layers.
 
+The generated iCUE document is also consumed as XML-like markup by PackRat/CORSAIR tooling. Keep the non-script/non-style head well formed:
+
+- raw `&` in titles, attributes or metadata is invalid; use an XML-safe entity or simpler text
+- do not trust a browser rendering as proof that the source is XML-safe
+- when translated `tr('...')` keys contain escaped entities, normalize deliberately or avoid creating a second accidental translation key
+- add a source verifier for translation-key coverage when a widget declares localized iCUE settings
+
 ### 3. Property metadata
 
 Vendor CLI success is necessary but not sufficient.
@@ -271,6 +278,12 @@ For companion-backed Marketplace products, also test the customer dependency pat
 - the release ZIP contains the executable plus setup/recovery instructions
 - updating the companion does not require Task Manager or deleting local app data
 - removing credentials removes stale cloud-only/device state without breaking unrelated local transports
+- the exact public download is hashed and compared with the exact build artifact
+- versioned release tags are treated as immutable; unexpected hash changes fail closed instead of deleting/recreating the release
+- deterministic ZIP creation fixes entry order and timestamps rather than relying on archive-tool defaults
+- .NET companions that must be byte-stable across unrelated commits disable source-revision injection in informational version metadata (for example `IncludeSourceRevisionInInformationalVersion=false`)
+- reproducibility is proven across two different commit SHAs, not only by publishing twice inside one runner
+- rapid multi-client state changes serialize/coalesce sends per WebSocket; do not assume concurrent `SendAsync` calls on the same socket are safe
 
 ### 12. External tester or physical-device reports
 
@@ -307,6 +320,8 @@ A hardware-free XENEON release candidate should complete all applicable layers:
 - deterministic Rat Art from real widget captures
 - Rat Ship marketplace kit
 - stable dependency/download path for any required external companion
+- exact public companion-download hash verification
+- deterministic/immutable companion release behavior, including a cross-commit reproducibility proof when a versioned binary is published
 - companion install, update, reset and single-instance behavior when a native bridge is required
 
 Record any remaining real-iCUE or physical-device uncertainty. Do not convert uncertainty into a fake blocker when all automatable evidence is green.
