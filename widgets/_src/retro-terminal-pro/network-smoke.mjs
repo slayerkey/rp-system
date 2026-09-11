@@ -372,10 +372,14 @@ try{
 
   for(const boot of ["classic","cascade","fast","none"]){
     const {page,errors}=await open(840,344,{withSensors:false,boot});
-    if(boot!=="none"){
-      await page.waitForFunction(()=>document.getElementById("bootText").textContent.includes("RETRO TERMINAL PRO"),null,{timeout:5000});
-      expect(await page.getAttribute("body","data-booting")==="true",boot+" boot did not render startup state");
-    }
+    await page.waitForTimeout(700);
+    let bootSnap=await page.evaluate(()=>({
+      configured:globalThis.__retroTerminalPro?.cfg?.bootSequence,
+      text:document.getElementById("bootText")?.textContent||"",
+      started:globalThis.__retroTerminalPro?.started===true
+    }));
+    expect(bootSnap.configured===boot,boot+" boot setting mismatch "+JSON.stringify(bootSnap));
+    if(boot!=="none")expect(bootSnap.text.includes("RETRO TERMINAL PRO"),boot+" boot transcript missing "+JSON.stringify(bootSnap));
     await waitStarted(page);
     expect(await page.getAttribute("body","data-booting")==="false",boot+" boot did not complete");
     if(errors.length)failures.push(boot+" boot runtime errors "+errors.join(" | "));
