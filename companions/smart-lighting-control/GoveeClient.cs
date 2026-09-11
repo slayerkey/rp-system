@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
@@ -18,21 +19,53 @@ public sealed class GoveeClient {
     public bool CloudConfigured=>!string.IsNullOrWhiteSpace(state.GoveeApiKey());
 
     public async Task<List<LightingTarget>> GetTargetsAsync(bool scanLan=false,CancellationToken ct=default){
-        if(scanLan||lan.Count==0)await DiscoverLanAsync(ct);
+        if(scanLan||lan.Count==0)await DiscoverLanAsync(null,ct);
         if(CloudConfigured&&DateTime.UtcNow-cloudDevicesAt>TimeSpan.FromMinutes(1))await RefreshCloudDevicesAsync(ct);
         if(CloudConfigured&&DateTime.UtcNow-cloudStatesAt>TimeSpan.FromSeconds(15))await RefreshCloudStatesAsync(ct);
         if(CloudConfigured&&DateTime.UtcNow-scenesAt>TimeSpan.FromMinutes(10))await RefreshScenesAsync(ct);
         return Normalize();
     }
 
-    public async Task<int> DiscoverLanAsync(CancellationToken ct=default){
+    public async Task<int> DiscoverLanAsync(string? manualIp=null,CancellationToken ct=default){
+        IPAddress? manual=null;
+        if(!string.IsNullOrWhiteSpace(manualIp)&&(!IPAddress.TryParse(manualIp,out manual)||manual.AddressFamily!=AddressFamily.InterNetwork))
+            throw new InvalidOperationException("Enter a valid IPv4 address for the Govee light.");
         try{
+            var group=IPAddress.Parse("239.255.255.250");
+            var localAddresses=NetworkInterface.GetAllNetworkInterfaces()
+                .Where(n=>n.OperationalStatus==OperationalStatus.Up&&n.NetworkInterfaceType!=NetworkInterfaceType.Loopback)
+                .SelectMany(n=>n.GetIPProperties().UnicastAddresses)
+                .Select(a=>a.Address)
+                .Where(a=>a.AddressFamily==AddressFamily.InterNetwork&&!IPAddress.IsLoopback(a))
+                .Distinct()
+                .ToList();
+
             using var udp=new UdpClient(AddressFamily.InterNetwork);
             udp.Client.SetSocketOption(SocketOptionLevel.Socket,SocketOptionName.ReuseAddress,true);
             udp.Client.Bind(new IPEndPoint(IPAddress.Any,4002));
+
+            var joined=false;
+            foreach(var local in localAddresses){
+                try{udp.JoinMulticastGroup(group,local);joined=true;}catch(SocketException){}
+            }
+            if(!joined)try{udp.JoinMulticastGroup(group);}catch(SocketException){}
+
             var scan=Encoding.UTF8.GetBytes(BuildLanCommand("scan",new{account_topic="reserve"}));
-            await udp.SendAsync(scan,scan.Length,new IPEndPoint(IPAddress.Parse("239.255.255.250"),4001));
-            var until=DateTime.UtcNow.AddMilliseconds(1400);
+            if(manual is not null){
+                await udp.SendAsync(scan,scan.Length,new IPEndPoint(manual,4001));
+            }else if(localAddresses.Count>0){
+                foreach(var local in localAddresses){
+                    try{
+                        using var sender=new UdpClient(new IPEndPoint(local,0));
+                        sender.Client.SetSocketOption(SocketOptionLevel.IP,SocketOptionName.MulticastTimeToLive,1);
+                        await sender.SendAsync(scan,scan.Length,new IPEndPoint(group,4001));
+                    }catch(SocketException){}
+                }
+            }else{
+                await udp.SendAsync(scan,scan.Length,new IPEndPoint(group,4001));
+            }
+
+            var until=DateTime.UtcNow.AddMilliseconds(1600);
             while(DateTime.UtcNow<until&&!ct.IsCancellationRequested){
                 var task=udp.ReceiveAsync(ct).AsTask();var done=await Task.WhenAny(task,Task.Delay(180,ct));if(done!=task)continue;
                 var packet=await task;ParseLanPacket(packet.Buffer,packet.RemoteEndPoint.Address.ToString());
@@ -41,7 +74,7 @@ public sealed class GoveeClient {
                 var status=Encoding.UTF8.GetBytes(BuildLanCommand("devStatus",new{}));
                 await udp.SendAsync(status,status.Length,new IPEndPoint(IPAddress.Parse(d.Ip),4003));
             }
-            until=DateTime.UtcNow.AddMilliseconds(650);
+            until=DateTime.UtcNow.AddMilliseconds(750);
             while(DateTime.UtcNow<until&&!ct.IsCancellationRequested){
                 var task=udp.ReceiveAsync(ct).AsTask();var done=await Task.WhenAny(task,Task.Delay(120,ct));if(done!=task)continue;
                 var packet=await task;ParseLanPacket(packet.Buffer,packet.RemoteEndPoint.Address.ToString());
