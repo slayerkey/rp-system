@@ -43,7 +43,8 @@ jobs:
           $exe = Get-ChildItem artifacts/companion/publish -Filter *.exe -File | Select-Object -First 1
           if (-not $exe) { throw 'companion publish did not produce an exe' }
           Copy-Item $exe.FullName artifacts/companion/PackRat-Lighting-Companion.exe
-          Compress-Archive -Path artifacts/companion/PackRat-Lighting-Companion.exe -DestinationPath artifacts/companion/PackRat-Lighting-Companion-win-x64.zip -Force
+          Copy-Item companions/smart-lighting-control/CUSTOMER-SETUP.txt artifacts/companion/CUSTOMER-SETUP.txt
+          Compress-Archive -Path artifacts/companion/PackRat-Lighting-Companion.exe,artifacts/companion/CUSTOMER-SETUP.txt -DestinationPath artifacts/companion/PackRat-Lighting-Companion-win-x64.zip -Force
 
       - name: Install Playwright
         shell: pwsh
@@ -175,6 +176,7 @@ jobs:
           name: smart-lighting-control-companion
           path: |
             artifacts/companion/PackRat-Lighting-Companion.exe
+            artifacts/companion/CUSTOMER-SETUP.txt
             artifacts/companion/PackRat-Lighting-Companion-win-x64.zip
           if-no-files-found: error
           retention-days: 30
