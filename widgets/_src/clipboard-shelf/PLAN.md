@@ -13,10 +13,12 @@ Live path:
 1. Windows sends WM_CLIPBOARDUPDATE to the PackRat Clipboard Shelf Bridge.
 2. The bridge reads Unicode text only, deduplicates it, applies the configured history limit, and persists local state with Windows DPAPI.
 3. The bridge exposes a loopback-only WebSocket at ws://127.0.0.1:17485/ws.
-4. The XENEON widget renders normalized text entries and sends narrow commands for copy, pin, favorite, delete, clear, private mode, and history limit changes.
-5. No cloud, PackRat server, account, or remote synchronization exists.
+4. First-run pairing uses a locally generated DPAPI-protected code. The bridge sends no clipboard snapshot until the widget authenticates with that code.
+5. The XENEON widget renders normalized text previews and sends narrow commands for copy, pin, favorite, delete, clear, private mode, and history limit changes.
+6. The companion self-installs under the current user's LocalAppData folder and registers per-user startup so history works after reboot.
+7. No cloud, PackRat server, account, or remote synchronization exists.
 
-The loopback protocol requires the fixed application subprotocol packrat-clipboard-shelf-v1-a91f6c and rejects non-loopback HTTP binding. The health endpoint never returns clipboard text.
+The loopback protocol requires the fixed application subprotocol packrat-clipboard-shelf-v1-a91f6c, per-user pairing authentication, and exact local-origin checks. The health endpoint never returns clipboard text or the pairing token.
 
 ## v1 scope
 
@@ -25,7 +27,7 @@ Text only. No images or files.
 Features:
 - readable recent text cards
 - tap a card to make it the current Windows clipboard value
-- current-copied highlight
+- current-copied highlight that clears when Windows switches to non-text clipboard content
 - pinned entries protected from normal history pruning
 - independent favorites
 - URL recognition and link filter
@@ -54,7 +56,7 @@ Primary text and touch targets are protected before secondary metadata. Long tex
 
 Private Mode is manual and deterministic: capture pauses and existing history text is hidden on the XENEON surface until disabled. It is not marketed as password detection.
 
-Clipboard text is never sent to PackRat, cloud storage, analytics, CI logs, or the health endpoint. Persisted bridge state is protected with Windows DPAPI for the current Windows user.
+Clipboard text is never sent to PackRat, cloud storage, analytics, CI logs, or the health endpoint. Persisted bridge state and its per-user pairing code are protected with Windows DPAPI. The bridge does not expose history until the widget authenticates.
 
 ## Release honesty
 
