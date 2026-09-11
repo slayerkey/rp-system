@@ -48,6 +48,7 @@ button{border:0}
 .icon-button:last-child{border-right:0}
 .icon-button.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
 .icon-button.delete:hover,.icon-button.delete:focus-visible{color:var(--danger)}
+.icon-button.delete.armed{color:var(--danger);background:color-mix(in srgb,var(--danger) 16%,transparent)}
 .state-card{grid-row:3;place-self:center;max-width:650px;text-align:center;padding:22px 34px}
 .state-icon{font-size:44px;color:var(--accent);margin-bottom:8px}
 .state-card h2{font-size:28px;margin:0 0 8px}
