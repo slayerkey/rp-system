@@ -156,7 +156,8 @@ function applyEffects(){
   root.setProperty("--glow-blur",String(2+cfg.glow/100*22)+"px");
   root.setProperty("--flicker-opacity",String(cfg.flicker/100*.16));
   root.setProperty("--vignette-opacity",String(cfg.vignette/100*.82));
-  var viewport=byId("crtViewport");\n  if(viewport)viewport.style.borderRadius=cfg.curvature?"":"0px";
+  var viewport=byId("crtViewport");
+  if(viewport)viewport.style.borderRadius=cfg.curvature?"":"0px";
 }
 function renderIdentity(){
   byId("machineLabel").textContent=state.cfg.machineName;
