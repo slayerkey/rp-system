@@ -45,8 +45,10 @@ public sealed class LightingController : ILightingRuntime, IAsyncDisposable {
                 var list=await govee.GetTargetsAsync(firstGoveeScan,ct);firstGoveeScan=false;targets.AddRange(list);
                 gp.Lan=list.Any(t=>t.Provider=="govee"&&(t.Transport?.Contains("lan")==true));
                 gp.Cloud=govee.CloudConfigured;gp.Connected=list.Count>0;gp.Partial=gp.Lan||gp.Cloud;
-                if(!string.IsNullOrWhiteSpace(govee.LastCloudError))
-                    gp.Detail=(gp.Lan?"LAN ready · ":"")+"Cloud degraded: "+govee.LastCloudError;
+                var issues=new List<string>();
+                if(!string.IsNullOrWhiteSpace(govee.LastLanError))issues.Add(govee.LastLanError);
+                if(!string.IsNullOrWhiteSpace(govee.LastCloudError))issues.Add("Cloud degraded: "+govee.LastCloudError);
+                if(issues.Count>0)gp.Detail=string.Join(" · ",issues);
                 else gp.Detail=gp.Lan&&gp.Cloud?"LAN + Developer API":gp.Lan?"LAN":gp.Cloud?"Developer API":"Not configured";
             }catch(Exception ex){gp.Cloud=govee.CloudConfigured;gp.Partial=gp.Cloud;gp.Detail=SafeError(ex);}
             foreach(var t in targets)t.Favorite=state.Config.Favorites.Contains(t.Id);
