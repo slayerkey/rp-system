@@ -40,12 +40,12 @@ Supported when exposed by the resource:
 ## Govee
 
 1. Enable **LAN Control** in Govee Home for compatible devices.
-2. Scan LAN from the local setup page.
+2. Scan LAN from the local setup page. The companion joins Govee LAN multicast on active IPv4 interfaces; if multicast is blocked by a router/VLAN, enter the device IPv4 address for a direct scan.
 3. Core LAN-capable controls work without a cloud key.
 4. Optionally paste a Govee Developer API key to add cloud-only devices/capabilities, current state and scenes.
 
-LAN path:
-- UDP discovery
+LAN Control path (local interoperability transport; separate from Govee's public Developer API):
+- UDP discovery on the user's LAN
 - on/off
 - brightness
 - RGB
@@ -76,3 +76,5 @@ dotnet run --project companions/smart-lighting-control/PackRat.SmartLighting.Com
 ```
 
 Deterministic transport tests never require real Hue/Govee credentials.
+
+For normal use, keep the companion process running while the XENEON widget is active. Closing the companion intentionally puts the widget into its offline/reconnect state.
