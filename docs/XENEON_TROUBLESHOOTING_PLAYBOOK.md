@@ -324,6 +324,14 @@ A hardware-free XENEON release candidate should complete all applicable layers:
 - deterministic/immutable companion release behavior, including a cross-commit reproducibility proof when a versioned binary is published
 - companion install, update, reset and single-instance behavior when a native bridge is required
 
+For Marketplace-facing XENEON releases, also run a listing preflight:
+
+- validate the current Marketplace icon, cover and gallery dimensions rather than assuming the art renderer produced them
+- require the current minimum gallery count
+- validate name and description constraints before opening the submission flow
+- when review guidance requires a hardware functionality video, keep that as an explicit physical-evidence boundary; simulated provider or browser evidence must not be relabeled as hardware footage
+- if a companion is distributed separately, keep the stable download path and exact public hash verification green at the same time as the final listing candidate
+
 Record any remaining real-iCUE or physical-device uncertainty. Do not convert uncertainty into a fake blocker when all automatable evidence is green.
 
 ## Rejection matrix template

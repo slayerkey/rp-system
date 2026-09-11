@@ -39,6 +39,26 @@ When the gallery input supports multiple files, upload the canonical gallery seq
 
 Use the shared Rat Art footer and spacing rules. Do not add product-local footer wordmarks or one-off label/divider placement fixes when the shared renderer can own them.
 
+## XENEON listing preflight
+
+For XENEON Marketplace kits, fail closed on the current media contract:
+
+- dedicated search/app icon, when the live Maker Console exposes that field: PNG at 288 × 288
+- cover/thumbnail: PNG at 1920 × 960
+- at least 3 gallery items; image gallery items are PNG at 1920 × 960
+- video gallery items, when used, follow the current Marketplace video requirements shown by the live submission flow/guidelines
+- keep cover and gallery frames distinct, readable, English-language, and representative of the actual product
+
+Prefer product names at or below the current Marketplace recommendation when that can be done without losing clarity. Treat the live create-product form as authoritative for immutable fields such as the final product name and monetization choice.
+
+Hardware-dependent products need an honest review-evidence boundary. When current Marketplace review guidance or the live flow requires a functionality video:
+
+- use real hardware for hardware-origin claims
+- do not label browser fixtures, simulated providers, StreamSpell, or Corsair Labs runner output as physical-device evidence
+- include a short reviewer-demo checklist in the ship kit when owned hardware was unavailable during automated QA
+- if the live submission flow makes the video a required field, fail closed rather than uploading simulated evidence or guessing
+- if review requests a demo after submission, preserve the exact submitted package/version and provide the requested physical evidence against that candidate
+
 ## Release notes
 
 Marketplace release notes are concise bullets, not a prose announcement.
