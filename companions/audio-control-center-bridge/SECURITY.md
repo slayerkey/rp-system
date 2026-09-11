@@ -11,3 +11,5 @@
 - No third-party audio-switcher executable.
 - Errors crossing the bridge are sanitized.
 - The undocumented Windows default-device policy interface is isolated to one adapter and capability-probed before the UI enables switching.
+
+- The bridge executable never launches a shell or PowerShell. The optional customer `.cmd` helpers are transparent user-run launch/install scripts only: they copy the bridge into the current user's `%LOCALAPPDATA%`, create/remove a current-user Startup entry, start/stop the bridge process, and require no administrator access.

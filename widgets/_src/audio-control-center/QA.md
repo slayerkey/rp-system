@@ -37,6 +37,10 @@ Physical XENEON hardware test: **not performed**. This file records the hardware
 
 The product gate also builds `PackRat-Audio-Bridge-1.0.0-win-x64.zip` from the exact tested self-contained bridge executable and includes launcher/setup/security/checksum files.
 
-That bundle is engineering-complete but still needs a durable PackRat-controlled public download location before Marketplace submission. A temporary GitHub Actions artifact is not a customer distribution URL.
+The release gate publishes that tested bundle as a versioned PackRat GitHub prerelease at:
+
+https://github.com/slayerkey/rp-system/releases/download/audio-control-center-bridge-v1.0.0/PackRat-Audio-Bridge-1.0.0-win-x64.zip
+
+The ZIP contains portable launch plus per-user startup install/uninstall helpers. The install path is under the current user's `%LOCALAPPDATA%`; no administrator access or Windows service is required.
 
 Per-app audio is intentionally not part of v1. Global default-device switching uses a capability-probed Windows policy interface and fails closed when unavailable.

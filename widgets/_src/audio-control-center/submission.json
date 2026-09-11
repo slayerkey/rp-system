@@ -4,16 +4,26 @@
   "type": "widget",
   "price_usd": 9.99,
   "version": "1.0.0",
-  "marketplace_category": ["Utilities", "Productivity"],
-  "marketplace_dashboard_sizes": ["Extra large", "Large", "Medium", "Small"],
-  "marketplace_language": ["English"],
+  "marketplace_category": [
+    "Utilities",
+    "Productivity"
+  ],
+  "marketplace_dashboard_sizes": [
+    "Extra large",
+    "Large",
+    "Medium",
+    "Small"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
   "marketplace_auto_publish": false,
-  "description": "Audio Control Center turns your CORSAIR XENEON Edge into a touch-first Windows sound control surface.\n\nSee the current Windows default output, switch between detected headphones, speakers, displays and other playback devices, and adjust real endpoint master volume or mute without opening Windows Settings.\n\nThe input side does the same job for microphones: see the active Windows default input, switch to another detected microphone, mute it, and adjust microphone endpoint volume when the hardware and driver expose that control reliably.\n\nClear ACTIVE status, friendly Windows device names, large touch controls and dedicated disconnected or no-device states keep the panel understandable at a glance. All eight XENEON Edge layouts are tuned separately.\n\nAudio Control Center requires the free PackRat Audio Bridge companion on Windows. The bridge runs only on your PC, uses Windows Core Audio for endpoint discovery and volume control, and talks to the XENEON widget over loopback localhost. No PackRat cloud service, account, or telemetry is required.\n\nWindows does not expose a documented public setter for the global default audio endpoint. PackRat Audio Bridge isolates the Windows policy interface behind a capability check and disables switching if Windows rejects it; volume and mute remain independent.\n\nPart of the PackRat 🐀 collection for CORSAIR XENEON Edge.",
+  "description": "Audio Control Center turns your CORSAIR XENEON Edge into a touch-first Windows sound control surface.\n\nSee the current Windows default output, switch between detected headphones, speakers, displays and other playback devices, and adjust real endpoint master volume or mute without opening Windows Settings.\n\nThe input side does the same job for microphones: see the active Windows default input, switch to another detected microphone, mute it, and adjust microphone endpoint volume when the hardware and driver expose that control reliably.\n\nClear ACTIVE status, friendly Windows device names, large touch controls and dedicated disconnected or no-device states keep the panel understandable at a glance. All eight XENEON Edge layouts are tuned separately.\n\nAudio Control Center requires the free PackRat Audio Bridge companion on Windows. Download: https://github.com/slayerkey/rp-system/releases/download/audio-control-center-bridge-v1.0.0/PackRat-Audio-Bridge-1.0.0-win-x64.zip\\n\\nExtract the ZIP and run INSTALL_STARTUP.cmd for a per-user startup install, or START_AUDIO_BRIDGE.cmd for portable/manual use. The bridge runs only on your PC, uses Windows Core Audio for endpoint discovery and volume control, and talks to the XENEON widget over loopback localhost. No administrator install, Windows service, PackRat cloud service, account, or telemetry is required.\n\nWindows does not expose a documented public setter for the global default audio endpoint. PackRat Audio Bridge isolates the Windows policy interface behind a capability check and disables switching if Windows rejects it; volume and mute remain independent.\n\nPart of the PackRat 🐀 collection for CORSAIR XENEON Edge.",
   "release_notes": [
     "Switch between detected Windows output devices and microphones from XENEON Edge.",
     "Control default output master volume, microphone endpoint volume when available, and mute/unmute state.",
-    "Clear active-device, no-device, bridge-offline and reconnecting states with friendly Windows device names.",
-    "Free local PackRat Audio Bridge uses Windows Core Audio with no cloud account or telemetry.",
+    "Clear active-device, no-device, bridge-offline, reconnecting, Windows-audio-error, and bridge-version states.",
+    "Free local PackRat Audio Bridge has a direct Windows download plus per-user startup install and portable modes; no cloud account or telemetry.",
     "Touch-first responsive layouts are tuned for all eight XENEON Edge slot sizes and orientations."
   ]
 }

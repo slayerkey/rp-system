@@ -61,12 +61,22 @@ The local contract is versioned independently from the Marketplace widget.
 - Audio Control Center rejects an incompatible protocol with an explicit update-required state instead of sending commands blindly
 - bridge restart/loss is recoverable; the widget reconnects automatically without accumulating duplicate sockets
 
-## Release bundle
+## Install and download
 
-The Windows product gate publishes a portable customer-host-ready bundle:
+Customer download:
 
-`PackRat-Audio-Bridge-1.0.0-win-x64.zip`
+https://github.com/slayerkey/rp-system/releases/download/audio-control-center-bridge-v1.0.0/PackRat-Audio-Bridge-1.0.0-win-x64.zip
 
-It contains the exact self-contained `PackRat.AudioBridge.exe` exercised by the integration test, a launcher, setup/security documentation, and a SHA-256 checksum.
+The release gate publishes `PackRat-Audio-Bridge-1.0.0-win-x64.zip` from the same self-contained `PackRat.AudioBridge.exe` exercised by the integration test.
 
-A GitHub Actions artifact is **not** the final customer distribution channel. Before Marketplace submission, host this exact bundle at a durable PackRat-controlled download location and link that location from the product setup/listing flow. Do not ask customers to build the bridge themselves.
+Recommended setup:
+
+1. Extract the ZIP.
+2. Run `INSTALL_STARTUP.cmd`.
+3. Audio Control Center reconnects automatically.
+
+The installer is per-user only. It copies the bridge to `%LOCALAPPDATA%\PackRat\AudioBridge` and creates a user Startup entry. It does not require administrator access and does not install a Windows service.
+
+`START_AUDIO_BRIDGE.cmd` is the portable/manual option. `UNINSTALL_STARTUP.cmd` removes the Startup entry and installed copy.
+
+The bundle also contains setup/security documentation and a SHA-256 checksum. Customers do not need to build the bridge themselves.

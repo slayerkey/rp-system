@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   actions: write
 
 jobs:
@@ -89,20 +89,13 @@ jobs:
           Copy-Item artifacts/audio-bridge/PackRat.AudioBridge.exe "$bundle/PackRat.AudioBridge.exe"
           Copy-Item companions/audio-control-center-bridge/README.md "$bundle/README.md"
           Copy-Item companions/audio-control-center-bridge/SECURITY.md "$bundle/SECURITY.md"
-          @'
-          @echo off
-          start "" /min "%~dp0PackRat.AudioBridge.exe"
-          '@ | Set-Content "$bundle/START_AUDIO_BRIDGE.cmd"
-          @'
-          PackRat Audio Bridge 1.0.0 for Windows x64
-
-          1. Extract this entire folder somewhere permanent.
-          2. Double-click START_AUDIO_BRIDGE.cmd before using Audio Control Center.
-          3. Keep the bridge running while the XENEON widget is in use.
-
-          The bridge listens only on 127.0.0.1:17484 and uses no PackRat cloud, account, or telemetry.
-          Audio Control Center will show an explicit offline or update-required state if the bridge is unavailable or incompatible.
-          '@ | Set-Content "$bundle/README_FIRST.txt"
+          Copy-Item companions/audio-control-center-bridge/START_AUDIO_BRIDGE.cmd "$bundle/START_AUDIO_BRIDGE.cmd"
+          Copy-Item companions/audio-control-center-bridge/INSTALL_STARTUP.cmd "$bundle/INSTALL_STARTUP.cmd"
+          Copy-Item companions/audio-control-center-bridge/UNINSTALL_STARTUP.cmd "$bundle/UNINSTALL_STARTUP.cmd"
+          Copy-Item companions/audio-control-center-bridge/README_FIRST.txt "$bundle/README_FIRST.txt"
+          foreach ($required in @('PackRat.AudioBridge.exe','START_AUDIO_BRIDGE.cmd','INSTALL_STARTUP.cmd','UNINSTALL_STARTUP.cmd','README_FIRST.txt','README.md','SECURITY.md')) {
+            if (-not (Test-Path (Join-Path $bundle $required))) { throw "missing bridge bundle file $required" }
+          }
           $hash = (Get-FileHash "$bundle/PackRat.AudioBridge.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  PackRat.AudioBridge.exe" | Set-Content "$bundle/SHA256SUMS.txt"
           Compress-Archive -Path "$bundle/*" -DestinationPath "artifacts/PackRat-Audio-Bridge-1.0.0-win-x64.zip" -Force
@@ -118,6 +111,24 @@ jobs:
             companions/audio-control-center-bridge/SECURITY.md
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish free Windows companion download
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = 'audio-control-center-bridge-v1.0.0'
+          $zip = 'artifacts/PackRat-Audio-Bridge-1.0.0-win-x64.zip'
+          $exe = 'artifacts/audio-bridge/PackRat.AudioBridge.exe'
+          if (-not (Test-Path $zip)) { throw 'missing Audio Bridge ZIP for release' }
+          if (-not (Test-Path $exe)) { throw 'missing Audio Bridge EXE for release' }
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release delete $tag --repo $env:GITHUB_REPOSITORY --cleanup-tag --yes
+            if ($LASTEXITCODE -ne 0) { throw 'Could not replace existing Audio Control Center companion release' }
+          }
+          gh release create $tag $zip $exe --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Audio Bridge 1.0.0' --notes 'Free local Windows companion required by the paid Audio Control Center XENEON Edge widget. The recommended ZIP includes one-click per-user startup install/uninstall scripts. The bridge binds to 127.0.0.1 only and uses no PackRat cloud, account, or telemetry.' --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Could not publish PackRat Audio Bridge release' }
 
   dispatch-canonical-gates:
     needs: product-qa
