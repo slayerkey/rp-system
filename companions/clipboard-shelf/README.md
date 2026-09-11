@@ -55,4 +55,6 @@ Publish one Windows x64 executable:
 dotnet publish companions/clipboard-shelf/ClipboardShelfBridge.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
 ```
 
-The engineering release artifact is produced by the Clipboard Shelf GitHub workflow and copied into the Rat Ship kit under `companion/`.
+The release ZIP also includes `SECURITY.md`, `Uninstall.cmd`, and `Uninstall.ps1`. Run `Uninstall.cmd` to stop the bridge, remove its Windows startup entry, and delete its local encrypted history.
+
+The engineering release artifact is produced by the Clipboard Shelf GitHub workflow and copied into the Rat Ship kit under `companion/`. The exact tested ZIP is also published at the stable download URL above only after the full hardware-free release gate passes.
