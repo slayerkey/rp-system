@@ -249,6 +249,19 @@ Prefer:
 
 Test the widget with the companion healthy, unavailable, restarting, version-mismatched and already running when launched a second time.
 
+For Windows GUI/tray companions, do not treat a GitHub-hosted Windows runner as proof that the production desktop UI path works. Hosted runners execute in a non-interactive service session. A useful hardware-free split is:
+
+- launch the exact published customer executable normally and prove its production bootstrap side effects, such as per-user install location and startup registration
+- use a deliberately narrow headless CI mode only to prove the exact installed binary's localhost transport and process lifecycle when a desktop is unavailable
+- keep tray UI, clipboard listener and physical-device behavior outside the claims of that headless gate
+
+Windows process and filesystem teardown also need explicit testing:
+
+- before replacing a running installed executable, stop the exact installed process and wait for it to exit before overwriting the binary
+- before deleting an install/data directory, wait for the process to exit and retry deletion for transient executable/state-file locks
+- never suppress a final cleanup failure; fail visibly if the install directory or startup registration remains
+- execute the uninstaller from the exact customer release ZIP rather than a cleaner source-tree copy
+
 For companion-backed Marketplace products, also test the customer dependency path itself:
 
 - the Marketplace description clearly says a companion is required
