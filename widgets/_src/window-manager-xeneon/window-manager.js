@@ -478,8 +478,12 @@
     }
   }
 
+  function isTerminalConnectionState() {
+    return model.connection === "denied" || model.connection === "version_mismatch";
+  }
+
   function scheduleReconnect() {
-    if (model.fixtureMode || model.shuttingDown || model.reconnectTimer) return;
+    if (model.fixtureMode || model.shuttingDown || model.reconnectTimer || isTerminalConnectionState()) return;
     model.reconnectTimer = setTimeout(function () {
       model.reconnectTimer = null;
       startLiveConnection();
@@ -496,12 +500,14 @@
     socket.addEventListener("close", function () {
       if (model.socket !== socket) return;
       model.socket = null;
-      model.connection = model.settings.bridgeKey ? "disconnected" : "pairing";
-      render();
-      scheduleReconnect();
+      if (!isTerminalConnectionState()) {
+        model.connection = model.settings.bridgeKey ? "disconnected" : "pairing";
+        render();
+        scheduleReconnect();
+      }
     });
     socket.addEventListener("error", function () {
-      if (model.socket !== socket) return;
+      if (model.socket !== socket || isTerminalConnectionState()) return;
       model.connection = "disconnected";
       render();
     });
@@ -555,6 +561,13 @@
 
   function refreshSettings() {
     var keyChanged = readSettings();
+    if (keyChanged && model.reconnectTimer) {
+      clearTimeout(model.reconnectTimer);
+      model.reconnectTimer = null;
+    }
+    if (keyChanged) {
+      model.connection = model.settings.bridgeKey ? "connecting" : "pairing";
+    }
     render();
     if (!model.fixtureMode && keyChanged) startLiveConnection();
   }
