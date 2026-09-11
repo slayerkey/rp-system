@@ -146,6 +146,51 @@ jobs:
           }
           if ($program.Contains('0.0.0.0')) { throw 'companion must never bind all interfaces' }
 
+      - name: Exact customer companion ZIP install and uninstall smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Expand-Archive artifacts/companion/PackRat-Window-Bridge-win-x64.zip artifacts/companion/customer-audit -Force
+          $customerRoot = (Resolve-Path 'artifacts/companion/customer-audit').Path
+          $targetDir = Join-Path $env:LOCALAPPDATA 'PackRat\WindowBridge'
+          $targetExe = Join-Path $targetDir 'PackRat.WindowBridge.exe'
+          $startup = [Environment]::GetFolderPath('Startup')
+          $shortcutPath = Join-Path $startup 'PackRat Window Bridge.lnk'
+
+          & (Join-Path $customerRoot 'Uninstall.ps1')
+          & (Join-Path $customerRoot 'Install.ps1')
+
+          if (-not (Test-Path $targetExe)) { throw 'customer install did not create the installed executable' }
+          if (-not (Test-Path $shortcutPath)) { throw 'customer install did not create the startup shortcut' }
+
+          $healthy = $false
+          for ($i = 0; $i -lt 40; $i++) {
+            try {
+              $health = Invoke-RestMethod -Uri 'http://127.0.0.1:17487/health' -TimeoutSec 2
+              if ($health.ok -eq $true -and $health.product -eq 'PackRat Window Bridge') {
+                $healthy = $true
+                break
+              }
+            } catch {}
+            Start-Sleep -Milliseconds 250
+          }
+          if (-not $healthy) { throw 'installed customer executable never became healthy on localhost' }
+
+          $installed = @(Get-Process -Name 'PackRat.WindowBridge' -ErrorAction SilentlyContinue | Where-Object {
+            try { [string]::Equals($_.Path, $targetExe, [System.StringComparison]::OrdinalIgnoreCase) } catch { $false }
+          })
+          if ($installed.Count -ne 1) { throw "expected exactly one installed bridge process, got $($installed.Count)" }
+
+          & (Join-Path $customerRoot 'Uninstall.ps1')
+
+          if (Test-Path $targetDir) { throw 'uninstaller left the install directory behind' }
+          if (Test-Path $shortcutPath) { throw 'uninstaller left the startup shortcut behind' }
+          $left = @(Get-Process -Name 'PackRat.WindowBridge' -ErrorAction SilentlyContinue | Where-Object {
+            try { [string]::Equals($_.Path, $targetExe, [System.StringComparison]::OrdinalIgnoreCase) } catch { $false }
+          })
+          if ($left.Count -ne 0) { throw 'uninstaller left the installed process running' }
+
+
       - name: Install browser QA dependencies
         shell: pwsh
         run: |
