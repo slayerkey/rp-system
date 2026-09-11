@@ -297,6 +297,22 @@ try {
 
         Invoke-LocalStep "build Maker Console SHIP_KIT" { & python tools/ship/make_xeneon_kit.py $WidgetSlug --package $canonicalPackage --art $review --out $Destination }
 
+        $companionProject = Join-Path $RepoRoot "companions\$WidgetSlug\PackRat.SmartLighting.Companion.csproj"
+        if (Test-Path $companionProject) {
+            Require-LocalCommand "dotnet" "Install the .NET 8 SDK to package this product's Windows companion."
+            $companionOut = Join-Path $WorkRoot "companion"
+            New-Item -ItemType Directory -Force -Path $companionOut | Out-Null
+            Invoke-LocalStep "run companion deterministic self-tests" { & dotnet run --project $companionProject -c Release -- --self-test }
+            Invoke-LocalStep "publish Windows companion" {
+                & dotnet publish $companionProject -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o $companionOut
+            }
+            $companionExe = Get-ChildItem $companionOut -Filter *.exe -File | Select-Object -First 1
+            if (-not $companionExe) { throw "Companion publish completed but no Windows executable was produced." }
+            $companionZip = Join-Path $Destination "PackRat-Lighting-Companion-win-x64.zip"
+            Compress-Archive -Path $companionExe.FullName -DestinationPath $companionZip -Force
+            if (-not (Test-Path $companionZip)) { throw "Local SHIP_KIT is missing the Windows companion archive." }
+        }
+
         Invoke-LocalStep "Playwright driver kit preflight" { & node tools/ship/maker_console.mjs $WidgetSlug "--kit=$Destination" --check-kit }
 
         $source = Get-Content $submissionSource -Raw | ConvertFrom-Json
