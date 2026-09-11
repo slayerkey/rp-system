@@ -15,6 +15,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: clipboard-shelf-release-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   WIDGET_SLUG: clipboard-shelf
 
