@@ -1,0 +1,55 @@
+name: Snake Package 1.0.1
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/snake-package-1.0.1.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Generate shipping widget
+        shell: pwsh
+        run: |
+          python tools/xeneon/inline.py snake
+          python tools/xeneon/inline.py snake --check
+      - name: Validate and package with official CORSAIR CLI
+        shell: pwsh
+        run: |
+          npx --yes icuewidget-cli@0.4.47 validate "widgets/snake"
+          npx --yes icuewidget-cli@0.4.47 package "widgets/snake"
+      - name: Collect exact package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $pkg = Get-ChildItem -Path widgets -Filter *.icuewidget -File |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $pkg) { throw "No package produced" }
+          Copy-Item $pkg.FullName "artifacts/snake-1.0.1.icuewidget"
+          @'
+          import json, pathlib, zipfile
+          m=json.loads(pathlib.Path("widgets/snake/manifest.json").read_text(encoding="utf-8"))
+          assert m["version"]=="1.0.1", m["version"]
+          p=pathlib.Path("artifacts/snake-1.0.1.icuewidget")
+          assert zipfile.is_zipfile(p)
+          with zipfile.ZipFile(p) as z:
+              assert z.testzip() is None
+              names={n.replace("\\","/") for n in z.namelist()}
+          assert "index.html" in names and "manifest.json" in names
+          print("OK Snake 1.0.1 package")
+          '@ | python -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snake-1.0.1-package
+          path: artifacts/snake-1.0.1.icuewidget
+          if-no-files-found: error
+          retention-days: 7
