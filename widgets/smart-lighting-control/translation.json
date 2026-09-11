@@ -14,8 +14,8 @@
       "Text Color": "Text Color",
       "Accent Color": "Accent Color",
       "Background Color": "Background Color",
-      "Smart Lighting Control for Hue & Govee": "Smart Lighting Control for Hue & Govee",
-      "Required Windows companion: https://packrat-site.pages.dev/downloads/smart-lighting . Install it on this PC, open its local setup page, pair Philips Hue and/or Govee, then copy the Companion Pairing Token here. Philips Hue and Govee credentials stay in the local companion, not in this widget.": "Required Windows companion: https://packrat-site.pages.dev/downloads/smart-lighting . Install it on this PC, open its local setup page, pair Philips Hue and/or Govee, then copy the Companion Pairing Token here. Philips Hue and Govee credentials stay in the local companion, not in this widget."
+      "Required Windows companion: https://packrat-site.pages.dev/downloads/smart-lighting . Install it on this PC, open its local setup page, pair Philips Hue and/or Govee, then copy the Companion Pairing Token here. Philips Hue and Govee credentials stay in the local companion, not in this widget.": "Required Windows companion: https://packrat-site.pages.dev/downloads/smart-lighting . Install it on this PC, open its local setup page, pair Philips Hue and/or Govee, then copy the Companion Pairing Token here. Philips Hue and Govee credentials stay in the local companion, not in this widget.",
+      "Hue & Govee Lighting Control": "Hue & Govee Lighting Control"
     }
   }
 }

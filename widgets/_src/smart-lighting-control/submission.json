@@ -1,6 +1,6 @@
 {
   "slug": "smart-lighting-control",
-  "name": "Smart Lighting Control for Hue & Govee",
+  "name": "Hue & Govee Lighting Control",
   "type": "widget",
   "price_usd": 9.99,
   "version": "1.0.0",
@@ -23,5 +23,9 @@
     "Local-first Govee LAN discovery/control with optional Govee Developer API support for cloud-only capabilities and scenes.",
     "Favorites, one-touch scenes, live capability-aware state, and touch-first color/brightness controls.",
     "Eight tuned XENEON Edge layouts plus a localhost-only PackRat Lighting Companion with no PackRat cloud."
-  ]
+  ],
+  "review_hardware_demo_required": true,
+  "review_hardware_demo_status": "not_recorded",
+  "review_hardware_demo_reason": "Marketplace review guidance says hardware-dependent products may require a video demonstrating full functionality. This product depends on XENEON Edge plus real Philips Hue and/or Govee hardware, and automated QA does not claim physical-hardware proof.",
+  "review_hardware_demo_recommended_filename": "REVIEW_DEMO_VIDEO.mp4"
 }

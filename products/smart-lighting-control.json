@@ -1,9 +1,9 @@
 {
   "id": "smart-lighting-control",
-  "name": "Smart Lighting Control for Hue & Govee",
+  "name": "Hue & Govee Lighting Control",
   "type": "widget",
   "status": "qa_passed",
-  "workflow_state": "READY_TO_SHIP",
+  "workflow_state": "QA_IN_PROGRESS",
   "blocker": null,
   "price_usd": 9.99,
   "version": "1.0.0",
@@ -93,8 +93,12 @@
   },
   "hardware_boundary": "No physical XENEON Edge, Hue Bridge/light, or Govee light/credentials were available in this build session. Real provider code compiled and passed deterministic protocol/API fixtures plus exact-package localhost-companion integration. A physical smoke test is recommended when hardware is available, but is not represented as completed.",
   "final_boundary": "Authenticated Maker Console submission through rat ship smart-lighting-control. Marketplace auto-publish remains disabled.",
-  "notes": "Final automated hardening complete. Exact package, real Windows companion install/startup/single-instance behavior, rapid multi-client WebSocket stress, official CORSAIR validation/package, Corsair Labs host smoke, StreamSpell all-eight, deterministic Rat Art, immutable cross-commit companion release, and exact public PackRat download SHA256 all pass. Remaining uncertainty is physical XENEON Edge + real Hue/Govee hardware.",
+  "notes": "Final listing hardening QA in progress: shorter Marketplace name, strict Rat Ship media dimensions, and explicit physical-demo review checklist. Runtime and companion code are unchanged.",
   "companion_download_url": "https://packrat-site.pages.dev/downloads/smart-lighting",
   "companion_release_tag": "smart-lighting-companion-v1.0.0",
-  "companion_release_asset_url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip"
+  "companion_release_asset_url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip",
+  "review_submission_risk": {
+    "hardware_demo_video": "Current Marketplace review guidance may require a real hardware functionality video for hardware-dependent products. Automated QA does not claim physical XENEON/Hue/Govee proof.",
+    "companion_signing": "The Windows companion is reproducible and hash-verified but currently not Authenticode-signed, so Windows may display Unknown publisher/SmartScreen."
+  }
 }

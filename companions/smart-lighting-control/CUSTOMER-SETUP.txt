@@ -1,5 +1,5 @@
 PACKRAT LIGHTING COMPANION — QUICK SETUP
-Smart Lighting Control for Hue & Govee
+Hue & Govee Lighting Control
 Version 1.0.0
 Permanent companion download: https://packrat-site.pages.dev/downloads/smart-lighting
 
@@ -39,7 +39,7 @@ Add your own Govee Developer API key only if you want cloud-only devices/capabil
 
 CONNECT XENEON EDGE
 1. Copy the Companion Pairing Token from the local setup page.
-2. In iCUE, open Smart Lighting Control for Hue & Govee settings.
+2. In iCUE, open Hue & Govee Lighting Control settings.
 3. Paste it into Companion Pairing Token.
 4. The widget should connect automatically.
 

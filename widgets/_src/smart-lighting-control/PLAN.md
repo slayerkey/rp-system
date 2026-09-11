@@ -1,4 +1,4 @@
-# Smart Lighting Control for Hue & Govee — Plan
+# Hue & Govee Lighting Control — Plan
 
 ## Customer job
 
@@ -82,6 +82,6 @@ The Govee cloud key is optional. LAN-only users can still control discovered LAN
 
 ## Marketplace naming
 
-Final marketplace name: **Smart Lighting Control for Hue & Govee**.
+Final marketplace name: **Hue & Govee Lighting Control**.
 
 Use Philips Hue and Govee in descriptive compatibility copy and search terms. Do not use vendor logos or imply endorsement.

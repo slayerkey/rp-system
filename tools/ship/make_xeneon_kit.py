@@ -1,6 +1,7 @@
 """Build a self-contained Maker Console SHIP_KIT for one XENEON widget."""
 import argparse, hashlib, json, shutil
 from pathlib import Path
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 PLAYWRIGHT_VERSION = "1.62.1"
@@ -10,6 +11,18 @@ def fail(msg):
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def require_png(path, size, label):
+    try:
+        with Image.open(path) as image:
+            if image.format != "PNG":
+                fail(f"{label} must be PNG: {path.name}")
+            if image.size != size:
+                fail(f"{label} must be {size[0]}x{size[1]} px, got {image.size[0]}x{image.size[1]}: {path.name}")
+    except SystemExit:
+        raise
+    except Exception as exc:
+        fail(f"could not validate {label} image {path.name}: {exc}")
 
 def release_notes_text(value):
     """Normalize current bullet-list metadata and legacy prose for paste files."""
@@ -72,6 +85,14 @@ def main():
     }
     for src, dst in mapping.items(): shutil.copy2(art / src, out / dst)
 
+    require_png(out / "01_search_icon.png", (288, 288), "Marketplace search/app icon")
+    require_png(out / "02_cover.png", (1920, 960), "Marketplace cover")
+    gallery_names = ["03_gallery_01.png", "04_gallery_02.png", "05_gallery_03.png", "06_gallery_04.png"]
+    if len(gallery_names) < 3:
+        fail("Marketplace requires at least 3 gallery items")
+    for name in gallery_names:
+        require_png(out / name, (1920, 960), f"Marketplace gallery {name}")
+
     # Fail closed if Rat Art accidentally produced a cover/gallery duplicate.
     # The cover is not a gallery item and every gallery frame must add information.
     listing_media = ["02_cover.png","03_gallery_01.png","04_gallery_02.png","05_gallery_03.png","06_gallery_04.png"]
@@ -84,6 +105,30 @@ def main():
 
     (out / "PASTE_description.txt").write_text(meta["description"].strip() + "\n", encoding="utf-8")
     (out / "PASTE_release_notes.txt").write_text(release_notes_text(meta["release_notes"]) + "\n", encoding="utf-8")
+    if meta.get("review_hardware_demo_required"):
+        demo_name = meta.get("review_hardware_demo_recommended_filename", "REVIEW_DEMO_VIDEO.mp4")
+        demo_lines = [
+            "# Hardware review demo checklist",
+            "",
+            "Marketplace review guidance says hardware-dependent products may be asked for a video demonstrating full functionality.",
+            "",
+            "For **" + str(meta["name"]) + "**, automated QA is not physical-hardware proof. If a reviewer requests or the submission flow exposes a demo-video field, record a real setup with:",
+            "",
+            "1. XENEON Edge visible with the submitted widget installed.",
+            "2. PackRat Lighting Companion running on the same Windows PC.",
+            "3. A real Philips Hue and/or Govee light visible in-frame.",
+            "4. Power toggle changing the physical light.",
+            "5. Brightness adjustment changing the physical light.",
+            "6. One color or white-temperature adjustment on supported hardware.",
+            "7. One scene activation when supported.",
+            "8. Live state on XENEON reflecting the resulting device state.",
+            "9. A brief reconnect/recovery demonstration if practical.",
+            "",
+            "Do not label browser fixtures, StreamSpell, Corsair Labs runner output, or simulated provider fixtures as physical hardware evidence.",
+            "",
+            "Suggested filename: " + str(demo_name),
+        ]
+        (out / "REVIEW_DEMO_CHECKLIST.md").write_text("\n".join(demo_lines) + "\n", encoding="utf-8")
     public = {k: v for k, v in meta.items() if k not in ("description", "release_notes")}
     (out / "submission.json").write_text(json.dumps(public, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     orientation = meta.get("marketplace_recommended_orientation")
@@ -103,6 +148,10 @@ def main():
     (out / "CHECKLIST.md").write_text(f"""# {meta['name']} Maker Console kit
 
 Canonical Rat Ship kit.
+
+Media preflight enforces 288x288 PNG for the search/app icon, 1920x960 PNG for the cover, and at least three 1920x960 PNG gallery items.
+
+If REVIEW_DEMO_CHECKLIST.md is present, automated QA is intentionally not being represented as physical hardware proof. A reviewer may request a real hardware functionality video.
 
 Normal release path: run `rat ship {slug}`. Rat Ship builds this kit and then submits it through the persistent local Maker Console browser profile.
 

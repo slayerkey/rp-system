@@ -1,7 +1,7 @@
 {
   "author": "PackRat 🐀",
   "id": "com.packrat.smartlightingcontrol",
-  "name": "Smart Lighting Control for Hue & Govee",
+  "name": "Hue & Govee Lighting Control",
   "description": "Touch-first Philips Hue and Govee lighting control for XENEON Edge through the local PackRat Lighting Companion.",
   "version": "1.0.0",
   "preview_icon": "resources/icon.svg",

@@ -13,15 +13,19 @@ for(const p of ['PackRat.SmartLighting.Companion.csproj','Program.cs','Controlle
 const manifest=JSON.parse(fs.readFileSync(path.join(shipping,'manifest.json'),'utf8'));
 assert.equal(manifest.author,'PackRat 🐀');
 assert.equal(manifest.id,'com.packrat.smartlightingcontrol');
-assert.equal(manifest.name,'Smart Lighting Control for Hue & Govee');
+assert.equal(manifest.name,'Hue & Govee Lighting Control');
 assert.equal(manifest.interactive,true);
 assert.deepEqual(manifest.supported_devices,[{type:'dashboard_lcd'}]);
 
 const sub=JSON.parse(fs.readFileSync(path.join(root,'submission.json'),'utf8'));
-assert.equal(sub.name,'Smart Lighting Control for Hue & Govee');
+assert.equal(sub.name,'Hue & Govee Lighting Control');
 assert.equal(sub.price_usd,9.99);
 assert.equal(sub.version,'1.0.0');
+assert.ok(sub.name.length<=30,'Marketplace product name should stay at or below 30 characters');
+assert.ok(sub.description.length>=250,'Marketplace description should be at least 250 characters');
 assert.ok(sub.description.length<=1500,'Marketplace description exceeds 1,500 characters');
+assert.equal(sub.review_hardware_demo_required,true);
+assert.equal(sub.review_hardware_demo_status,'not_recorded');
 assert.doesNotMatch(sub.name,/\+/,'Marketplace name must not use + to mean and');
 assert.match(sub.description,/without Home Assistant/i);
 assert.match(sub.description,/no PackRat cloud/i);

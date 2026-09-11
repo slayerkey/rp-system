@@ -32,6 +32,7 @@ if (prod.slug !== slug || prod.type !== 'widget') throw new Error('submission me
 const galleryFiles = ['03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png'];
 const media = ['01_search_icon.png','02_cover.png',...galleryFiles];
 const required = ['PASTE_description.txt','PASTE_release_notes.txt',...media];
+if (prod.review_hardware_demo_required) required.push('REVIEW_DEMO_CHECKLIST.md');
 const missing = required.filter(f => !existsSync(join(KIT, f)));
 const packages = readdirSync(KIT).filter(f => /\.icuewidget$/i.test(f));
 
@@ -42,7 +43,8 @@ for (const key of ['name','version','price_usd','marketplace_category','marketpl
 if (missing.length) throw new Error(`SHIP_KIT preflight failed:\n${missing.join('\n')}`);
 
 if (CHECK_KIT) {
-  console.log(`RAT SHIP KIT PASS: ${prod.name} ${prod.version} | $${prod.price_usd}`);
+  console.log(`RAT SHIP KIT PASS: ${prod.name} ${prod.version} | ${prod.price_usd}`);
+  if (prod.review_hardware_demo_required) console.log('review note: physical hardware demo may be required; see REVIEW_DEMO_CHECKLIST.md');
   console.log(`package: ${packages[0]}`);
   console.log(`gallery order: ${galleryFiles.join(' -> ')}`);
   process.exit(0);

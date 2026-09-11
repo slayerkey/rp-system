@@ -1,6 +1,6 @@
 # PackRat Lighting Companion
 
-Local Windows companion for **Smart Lighting Control for Hue & Govee** on XENEON Edge.
+Local Windows companion for **Hue & Govee Lighting Control** on XENEON Edge.
 
 ## Why a companion exists
 

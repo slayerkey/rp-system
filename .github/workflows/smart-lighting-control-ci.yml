@@ -408,7 +408,7 @@ jobs:
             if (-not (Test-Path "$kit/$f")) { throw "missing Rat Ship file: $f" }
           }
           $sub = Get-Content "widgets/_src/$env:SLUG/submission.json" -Raw | ConvertFrom-Json
-          if ($sub.name -ne 'Smart Lighting Control for Hue & Govee') { throw 'Marketplace product name mismatch' }
+          if ($sub.name -ne 'Hue & Govee Lighting Control') { throw 'Marketplace product name mismatch' }
           if ($sub.description.Length -gt 1500) { throw "Marketplace description is $($sub.description.Length) characters; max is 1500" }
           if ($sub.description -notmatch 'https://packrat-site\.pages\.dev/downloads/smart-lighting') { throw 'Marketplace description missing stable companion dependency URL' }
 
@@ -439,7 +439,7 @@ jobs:
               Write-Host "One-time migration from pre-deterministic release $publishedHash to $builtHash"
               gh release delete $tag --repo $env:GITHUB_REPOSITORY --cleanup-tag --yes
               if ($LASTEXITCODE -ne 0) { throw 'Could not remove legacy release' }
-              gh release create $tag $zip $sum --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Smart Lighting Companion 1.0.0' --notes 'Free local Windows companion required by Smart Lighting Control for Hue & Govee on XENEON Edge. Runs on localhost only. Hue and Govee credentials stay in Windows Credential Manager; no PackRat cloud or account is used.'
+              gh release create $tag $zip $sum --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Smart Lighting Companion 1.0.0' --notes 'Free local Windows companion required by Hue & Govee Lighting Control on XENEON Edge. Runs on localhost only. Hue and Govee credentials stay in Windows Credential Manager; no PackRat cloud or account is used.'
               if ($LASTEXITCODE -ne 0) { throw 'Could not publish deterministic release' }
             }
             else {
@@ -447,7 +447,7 @@ jobs:
             }
           }
           else {
-            gh release create $tag $zip $sum --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Smart Lighting Companion 1.0.0' --notes 'Free local Windows companion required by Smart Lighting Control for Hue & Govee on XENEON Edge. Runs on localhost only. Hue and Govee credentials stay in Windows Credential Manager; no PackRat cloud or account is used.'
+            gh release create $tag $zip $sum --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Smart Lighting Companion 1.0.0' --notes 'Free local Windows companion required by Hue & Govee Lighting Control on XENEON Edge. Runs on localhost only. Hue and Govee credentials stay in Windows Credential Manager; no PackRat cloud or account is used.'
             if ($LASTEXITCODE -ne 0) { throw 'Could not publish Smart Lighting release' }
           }
 
