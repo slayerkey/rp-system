@@ -1,0 +1,13 @@
+{
+  "name": "@packrat/window-manager-xeneon-service",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Internal localhost XENEON service intended to run inside Window Manager Lite.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
