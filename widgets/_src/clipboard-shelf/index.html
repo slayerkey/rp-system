@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
 <title>tr('Clipboard Shelf')</title>
+<meta name="x-icue-property" content="pairingCode" data-label="tr('Bridge Pairing Code')" data-type="textfield" data-default="''" />
 <meta name="x-icue-property" content="maxHistory" data-label="tr('History Size')" data-type="slider" data-default="40" data-min="10" data-max="100" data-step="10" />
 <meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F5F7FA'" />
 <meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#63E6BE'" />
 <meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#080B10'" />
 <script type="application/json" id="x-icue-groups">
 [
-  {"title":"tr('Clipboard Shelf')","properties":["maxHistory","textColor","accentColor","backgroundColor"],"info":"tr('History Size controls unpinned clipboard entries. Pinned items are preserved. Clipboard contents stay on this Windows PC and require the free local PackRat Clipboard Shelf Bridge.')"}
+  {"title":"tr('Clipboard Shelf')","properties":["pairingCode","maxHistory"],"info":"tr('Run the free local Clipboard Shelf Bridge, choose Copy Pairing Code from its tray icon, and paste the code here. History Size controls unpinned entries; pinned items are preserved.')"},
+  {"title":"tr('Appearance')","properties":["textColor","accentColor","backgroundColor"],"info":"tr('Clipboard contents stay on this Windows PC. The pairing code prevents other browser pages from reading the local bridge.')"}
 ]
 </script>
 <link rel="stylesheet" href="clipboard-shelf.css" />
@@ -54,8 +56,8 @@
 
   <section id="offlineState" class="state-card" hidden>
     <div class="state-icon">↻</div>
-    <h2>Clipboard Bridge offline</h2>
-    <p>Start the PackRat Clipboard Shelf Bridge. This panel reconnects automatically.</p>
+    <h2 id="offlineTitle">Clipboard Bridge offline</h2>
+    <p id="offlineCopy">Start the PackRat Clipboard Shelf Bridge. This panel reconnects automatically.</p>
   </section>
 
   <section id="privateState" class="state-card private-state" hidden>
