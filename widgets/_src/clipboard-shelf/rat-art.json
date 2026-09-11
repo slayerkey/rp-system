@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "hero": {"subtitle": "Your recent Windows text clipboard, readable and one tap away."},
+  "showcase": {"title": "Clipboard history that fits the display.", "subtitle": "Readable cards, current-copy state, pins, favorites and links are built for touch instead of tiny keys.", "shot": "XL_H.png"},
+  "features": {"title": "Keep the text you actually reuse.", "subtitle": "Fast local history without turning your clipboard into a cloud service.", "shot": "L_H.png", "items": [
+    ["Readable recent text cards", "Short notes, multiline text, URLs and long snippets stay scannable across all eight XENEON layouts."],
+    ["Pins + favorites", "Protect recurring snippets from normal history pruning and mark useful entries for quick filtering."],
+    ["One tap copy", "Tap any card to make it the current Windows clipboard value, with a clear CURRENT indicator."],
+    ["Private Mode", "Pause new capture and hide existing clipboard text on the XENEON surface when you need privacy."]
+  ]},
+  "settings": {"title": "Local by design.", "subtitle": "Choose the history size in iCUE. Clipboard contents stay on this Windows PC and the bridge reconnects automatically.", "panels": [
+    {"label":"Clipboard shelf","file":"XL_H.png"},
+    {"label":"Private Mode","file":"VARIANT_PRIVATE.png"},
+    {"label":"Link filter","file":"VARIANT_LINKS.png"},
+    {"label":"Favorites","file":"VARIANT_FAVORITES.png"}
+  ], "tags": "text-first  •  pinned snippets  •  favorites  •  URL recognition  •  local-only history"},
+  "sizes": {"title": "Eight layouts, not one stretched screen.", "subtitle": "Compact slots hide secondary controls before shrinking the text. Larger slots expose search and more cards.", "footer": "8 tuned layouts total  •  4 sizes  •  horizontal + vertical"}
+}
