@@ -19,6 +19,15 @@ public static class Program {
         var noBrowser=args.Contains("--no-browser")||fixture;
         var port=ArgInt(args,"--port",DefaultPort);
         var protocol=fixture?ArgInt(args,"--fixture-protocol",ProtocolVersion):ProtocolVersion;
+        Mutex? instanceMutex=null;
+        if(!fixture){
+            instanceMutex=new Mutex(true,@"Local\PackRat.SmartLighting.Companion",out var firstInstance);
+            if(!firstInstance){
+                if(!noBrowser)try{Process.Start(new ProcessStartInfo($"http://127.0.0.1:{port}/"){UseShellExecute=true});}catch{}
+                instanceMutex.Dispose();
+                return 0;
+            }
+        }
         ILightingRuntime runtime;
         LightingController? real=null;
         if(fixture)runtime=new FixtureRuntime();
@@ -124,6 +133,7 @@ public static class Program {
         });
         await app.RunAsync();
         if(real is not null)await real.DisposeAsync();
+        if(instanceMutex is not null){try{instanceMutex.ReleaseMutex();}catch{}instanceMutex.Dispose();}
         return 0;
     }
 
