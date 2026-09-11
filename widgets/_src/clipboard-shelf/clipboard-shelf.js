@@ -3,7 +3,7 @@
 var WS_URL="ws://127.0.0.1:17485/ws";
 var WS_PROTOCOL="packrat-clipboard-shelf-v1-a91f6c";
 var RECONNECT_MS=1200;
-var socket=null,reconnectTimer=null,clearArmedUntil=0,toastTimer=null;
+var socket=null,reconnectTimer=null,clearArmedUntil=0,deleteArmedId="",deleteArmedUntil=0,toastTimer=null;
 var state={connected:false,privateMode:false,maxHistory:40,currentId:"",entries:[],revision:0,pairingCode:"",pairingError:false};
 var ui={filter:"all",search:""};
 var fixture=globalThis.__clipboardShelfFixture||null;
@@ -104,7 +104,8 @@ function makeCard(e){
   var actions=el("div","card-actions");
   actions.appendChild(actionButton(e.pinned?"Unpin":"Pin","pin",e.id,e.pinned));
   actions.appendChild(actionButton(e.favorite?"Remove favorite":"Favorite","favorite",e.id,e.favorite));
-  var del=actionButton("Delete","delete",e.id,false);del.classList.add("delete");actions.appendChild(del);
+  var deleteArmed=deleteArmedId===e.id&&Date.now()<deleteArmedUntil;
+  var del=actionButton(deleteArmed?"Tap again to delete":"Delete","delete",e.id,deleteArmed);del.classList.add("delete");if(deleteArmed)del.classList.add("armed");actions.appendChild(del);
   card.appendChild(main);card.appendChild(actions);return card;
 }
 function showOnly(name){
@@ -178,7 +179,15 @@ function handleAction(action,id){
   if(action==="copy"&&e){send({command:"copy",id:id});return;}
   if(action==="pin"&&e){send({command:"pin",id:id,value:!e.pinned});return;}
   if(action==="favorite"&&e){send({command:"favorite",id:id,value:!e.favorite});return;}
-  if(action==="delete"&&e){send({command:"delete",id:id});return;}
+  if(action==="delete"&&e){
+    var now=Date.now();
+    if(deleteArmedId===id&&now<deleteArmedUntil){
+      deleteArmedId="";deleteArmedUntil=0;send({command:"delete",id:id});toast("Deleted");return;
+    }
+    deleteArmedId=id;deleteArmedUntil=now+2400;render();
+    setTimeout(function(){if(deleteArmedId===id&&Date.now()>=deleteArmedUntil){deleteArmedId="";deleteArmedUntil=0;render();}},2500);
+    return;
+  }
 }
 function installEvents(){
   document.getElementById("shelf").addEventListener("click",function(ev){
