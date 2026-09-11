@@ -107,6 +107,7 @@
     {"id":"discord-bridge","name":"PackRat Discord Bridge","type":"plugin","status":"qa_passed","price_usd":0.0,"version":"1.0.0.0"},
     {"id":"discord-panel","name":"Discord Voice Panel","type":"widget","status":"qa_passed","price_usd":7.99,"version":"1.0.0"},
     {"id":"voice-deck","name":"PackRat Voice Deck","type":"plugin","status":"qa_passed","price_usd":9.99,"version":"1.0.0.0"},
-    {"id":"xeneon-edge-ultimate","name":"XENEON EDGE Ultimate","type":"widget","status":"qa_passed","price_usd":34.99,"version":"1.0.0"},\n    {"id":"retro-terminal-pro","name":"Retro Terminal Pro","type":"widget","status":"qa_passed","price_usd":7.99,"version":"1.0.0"}
+    {"id":"xeneon-edge-ultimate","name":"XENEON EDGE Ultimate","type":"widget","status":"qa_passed","price_usd":34.99,"version":"1.0.0"},
+    {"id":"retro-terminal-pro","name":"Retro Terminal Pro","type":"widget","status":"qa_passed","price_usd":7.99,"version":"1.0.0"}
   ]
 }
