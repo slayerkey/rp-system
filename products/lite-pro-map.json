@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-01",
+  "updated_at": "2026-09-10",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -166,6 +166,18 @@
       "classification": "ambiguous_multi_product_funnel",
       "source_status": "catalog_only_in_ratpack",
       "notes": "Multiple paid prompt packs and AI Prompt Toolkit exist; no single true Pro counterpart should be invented."
+    },
+    {
+      "lite_id": "retro-terminal",
+      "pro_id": "retro-terminal-pro",
+      "platform": "xeneon",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "widgets/_src/retro-terminal-pro",
+        "widgets/retro-terminal-pro"
+      ],
+      "source_status": "free_catalog_only_source_unavailable_pro_canonical",
+      "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
     }
   ],
   "standalone_free": [
@@ -176,10 +188,6 @@
     {
       "id": "net-spike",
       "reason": "Standalone free XENEON network probe."
-    },
-    {
-      "id": "retro-terminal",
-      "reason": "Standalone free XENEON widget."
     },
     {
       "id": "todo-list",
@@ -200,4 +208,4 @@
       "reason": "Rejected."
     }
   ]
-}
+}\n
