@@ -36,7 +36,7 @@ assert.equal(submission.stream_deck_plugin_required, true);
 assert.equal(submission.stream_deck_plugin_name, "Window Manager Lite");
 assert.match(submission.stream_deck_plugin_marketplace_url, /window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23/);
 assert.match(submission.description, /localhost/i);
-assert.match(submission.description, /not sent to a cloud service/i);
+assert.match(submission.description, /not sent to .*cloud service/i);
 
 const properties = [...html.matchAll(/name=["']x-icue-property["'][^>]*content=["']([^"']+)["']/g)].map((match) => match[1]);
 for (const property of ["bridgeKey", "showPinned", "showIcons", "textColor", "accentColor", "backgroundColor"]) {
