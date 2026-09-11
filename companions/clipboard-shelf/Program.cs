@@ -73,6 +73,7 @@ internal static class CompanionInstall
             Directory.CreateDirectory(Path.GetDirectoryName(installed)!);
             if (!string.Equals(Path.GetFullPath(current), Path.GetFullPath(installed), StringComparison.OrdinalIgnoreCase))
             {
+                StopInstalledInstance(installed);
                 File.Copy(current, installed, true);
                 RegisterStartup(installed);
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -91,6 +92,34 @@ internal static class CompanionInstall
         }
 
         return false;
+    }
+
+    private static void StopInstalledInstance(string installedPath)
+    {
+        foreach (var process in System.Diagnostics.Process.GetProcessesByName("PackRat.ClipboardShelfBridge"))
+        {
+            using (process)
+            {
+                if (process.Id == Environment.ProcessId) continue;
+                try
+                {
+                    var processPath = process.MainModule?.FileName;
+                    if (string.IsNullOrWhiteSpace(processPath)) continue;
+                    if (!string.Equals(
+                        Path.GetFullPath(processPath),
+                        Path.GetFullPath(installedPath),
+                        StringComparison.OrdinalIgnoreCase)) continue;
+
+                    process.Kill(entireProcessTree: true);
+                    process.WaitForExit(5_000);
+                }
+                catch
+                {
+                    // File.Copy below remains the final authority. If the old bridge cannot
+                    // be replaced, portable fallback behavior keeps the user's current bridge alive.
+                }
+            }
+        }
     }
 
     private static void RegisterStartup(string installedPath)
