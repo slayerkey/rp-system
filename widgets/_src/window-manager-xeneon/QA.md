@@ -6,9 +6,9 @@
 - JavaScript syntax and safe-close routing checks
 - all eight native XENEON viewports in Playwright
 - overflow and minimum touch-target assertions
-- deterministic six-window / three-monitor fixture
+- deterministic six-window / four-monitor fixture
 - focus, minimize, maximize/restore, snap left/right, move monitor, pin/unpin and confirmed close interaction tests
-- disconnected, pairing, empty and no-active-window states
+- disconnected, pairing, protocol-mismatch, empty and no-active-window states
 - Windows companion tests for layout geometry, local-origin policy, pairing rejection/acceptance and push snapshots
 - self-contained Windows x64 companion publish
 
@@ -23,3 +23,14 @@ After product QA passes, the branch synchronously dispatches and waits for:
 ## Deliberate remaining real-device boundary
 
 Automated CI cannot prove how Windows foreground-lock rules or elevated target processes behave on a customer's interactive desktop, and it does not claim physical XENEON Edge touch/readability verification. Those are additional real-Windows/physical smokes, not substitutes for the automated gate.
+
+## Troubleshooting playbook regressions
+
+- malformed and legacy pinned-app storage recovery
+- Unicode, emoji, descenders and HTML-looking window titles rendered as text
+- only data:image icon URIs accepted by the widget
+- repeated lifecycle callbacks remain idempotent
+- no product-local settings polling loop; canonical iCUE binding autosync owns live settings
+- pagehide cleanup prevents reconnect/timer leaks
+- bridge restart and protocol mismatch are explicit states
+- port collision regression protects 17487 from reuse by this product
