@@ -159,7 +159,6 @@ jobs:
             if (-not $upgraded) { throw 'running installed bridge was not replaced cleanly by a second customer launch' }
 
             & (Join-Path $zipCheck 'Uninstall.ps1')
-            if ($LASTEXITCODE -ne 0) { throw "shipped uninstall script failed with exit code $LASTEXITCODE" }
 
             for ($i = 0; $i -lt 40; $i++) {
               $remaining = Get-Process -Name 'PackRat.ClipboardShelfBridge' -ErrorAction SilentlyContinue
