@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('Retro Terminal Pro')</title>
+
+<meta name="x-icue-property" content="startProgram" data-label="tr('Start Program')" data-type="combobox" data-default="'prompt'" data-values="[{'key':'prompt','value':tr('Prompt')},{'key':'system','value':tr('System')},{'key':'trace','value':tr('Trace')},{'key':'rain','value':tr('Data Rain')},{'key':'clock','value':tr('Clock')}]"/>
+<meta name="x-icue-property" content="bootSequence" data-label="tr('Boot Sequence')" data-type="combobox" data-default="'classic'" data-values="[{'key':'classic','value':tr('Classic')},{'key':'cascade','value':tr('Cascade')},{'key':'fast','value':tr('Fast')},{'key':'none','value':tr('None')}]"/>
+<meta name="x-icue-property" content="autoProgram" data-label="tr('Auto Program Rotation')" data-type="switch" data-default="false"/>
+<meta name="x-icue-property" content="autoStyle" data-label="tr('Auto Style Rotation')" data-type="switch" data-default="false"/>
+<meta name="x-icue-property" content="rotationSeconds" data-label="tr('Rotation Interval')" data-type="slider" data-default="45" data-min="15" data-max="180" data-step="5" data-unit-label="'s'"/>
+<meta name="x-icue-property" content="idleEnabled" data-label="tr('Idle Screensaver')" data-type="switch" data-default="true"/>
+<meta name="x-icue-property" content="idleSeconds" data-label="tr('Idle After')" data-type="slider" data-default="120" data-min="30" data-max="900" data-step="30" data-unit-label="'s'"/>
+<meta name="x-icue-property" content="idleProgram" data-label="tr('Idle Program')" data-type="combobox" data-default="'clock'" data-values="[{'key':'clock','value':tr('Clock')},{'key':'rain','value':tr('Data Rain')},{'key':'trace','value':tr('Trace')}]"/>
+
+<meta name="x-icue-property" content="machineName" data-label="tr('Machine Name')" data-type="textfield" data-default="'XENEON'"/>
+<meta name="x-icue-property" content="username" data-label="tr('Username')" data-type="textfield" data-default="'packrat'"/>
+<meta name="x-icue-property" content="promptText" data-label="tr('Prompt Command')" data-type="textfield" data-default="'status --local'"/>
+<meta name="x-icue-property" content="terminalLines" data-label="tr('Ambient Script Lines')" data-type="textfield" data-default="'retro terminal pro online|touch SYSTEM for live iCUE sensors|edit this script in iCUE settings|scanlines glow flicker and style are configurable'"/>
+
+<meta name="x-icue-property" content="terminalStyle" data-label="tr('Terminal Style')" data-type="combobox" data-default="'green'" data-values="[{'key':'green','value':tr('Green Phosphor')},{'key':'amber','value':tr('Amber')},{'key':'white','value':tr('White Monochrome')},{'key':'blue','value':tr('Blue Terminal')},{'key':'cyber','value':tr('Cyberpunk')},{'key':'custom','value':tr('Custom')}]"/>
+<meta name="x-icue-property" content="textColor" data-label="tr('Custom Text Color')" data-type="color" data-default="'#B8FFC7'"/>
+<meta name="x-icue-property" content="accentColor" data-label="tr('Custom Accent Color')" data-type="color" data-default="'#5CFF7F'"/>
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Custom Background Color')" data-type="color" data-default="'#031006'"/>
+<meta name="x-icue-property" content="scanlineStrength" data-label="tr('Scanlines')" data-type="slider" data-default="55" data-min="0" data-max="100" data-step="5"/>
+<meta name="x-icue-property" content="glowStrength" data-label="tr('Glow')" data-type="slider" data-default="55" data-min="0" data-max="100" data-step="5"/>
+<meta name="x-icue-property" content="flickerStrength" data-label="tr('Flicker')" data-type="slider" data-default="8" data-min="0" data-max="35" data-step="1"/>
+<meta name="x-icue-property" content="vignetteStrength" data-label="tr('Vignette')" data-type="slider" data-default="60" data-min="0" data-max="100" data-step="5"/>
+<meta name="x-icue-property" content="crtCurvature" data-label="tr('CRT Curvature')" data-type="switch" data-default="true"/>
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Programs')",
+    "properties": ["startProgram","bootSequence","autoProgram","autoStyle","rotationSeconds","idleEnabled","idleSeconds","idleProgram"],
+    "info": "tr('Touch the on-screen program keys at any time. Auto rotation and idle behavior pause when you interact with the terminal.')"
+  },
+  {
+    "title": "tr('Terminal Identity')",
+    "properties": ["machineName","username","promptText","terminalLines"],
+    "info": "tr('Ambient Script Lines uses the vertical bar character to separate lines. These are decorative local terminal lines, not live system telemetry.')"
+  },
+  {
+    "title": "tr('CRT Appearance')",
+    "properties": ["terminalStyle","textColor","accentColor","backgroundColor","scanlineStrength","glowStrength","flickerStrength","vignetteStrength","crtCurvature"],
+    "info": "tr('Preset styles provide the classic palettes. Custom colors are used when Terminal Style is set to Custom.')"
+  }
+]
+</script>
+
+<link rel="stylesheet" href="terminal.css" />
+</head>
+<body data-slot="s-h" data-program="prompt" data-style="green" data-idle="false" data-booting="true">
+<main id="terminalShell" aria-label="Retro Terminal Pro">
+  <section id="crtViewport">
+    <header id="topBar">
+      <div class="identity">
+        <span class="brandMark">PACKRAT // RETRO TERMINAL PRO</span>
+        <strong id="machineLabel">XENEON</strong>
+      </div>
+      <div class="topStatus">
+        <span id="styleLabel">GREEN PHOSPHOR</span>
+        <span class="statusDot" aria-hidden="true"></span>
+        <span id="programLabel">PROMPT</span>
+      </div>
+    </header>
+
+    <section id="terminalScreen" aria-live="polite">
+      <div id="bootLayer"><pre id="bootText"></pre></div>
+
+      <section class="programPanel is-active" data-program-panel="prompt" aria-label="Prompt program">
+        <div class="programKicker">LOCAL PROMPT // DECORATIVE SCRIPT</div>
+        <pre id="promptHistory"></pre>
+        <div id="promptInput"><span id="promptPrefix">packrat@XENEON:~$</span><span id="promptCommand">status --local</span><span class="cursor">█</span></div>
+      </section>
+
+      <section class="programPanel" data-program-panel="system" aria-label="System program">
+        <div class="systemHead">
+          <div><span class="programKicker">SYSTEM // LIVE iCUE SENSOR VIEW</span><strong id="systemState">DISCOVERING SENSORS</strong></div>
+          <span id="systemUpdated">WAITING</span>
+        </div>
+        <div id="systemGrid">
+          <div class="sensorRow" data-role="cpuLoad"><span>CPU LOAD</span><strong class="sensorValue">—</strong><small class="sensorSource">not available</small></div>
+          <div class="sensorRow" data-role="cpuTemp"><span>CPU TEMP</span><strong class="sensorValue">—</strong><small class="sensorSource">not available</small></div>
+          <div class="sensorRow" data-role="gpuLoad"><span>GPU LOAD</span><strong class="sensorValue">—</strong><small class="sensorSource">not available</small></div>
+          <div class="sensorRow" data-role="gpuTemp"><span>GPU TEMP</span><strong class="sensorValue">—</strong><small class="sensorSource">not available</small></div>
+          <div class="sensorRow" data-role="ram"><span>RAM</span><strong class="sensorValue">—</strong><small class="sensorSource">not available</small></div>
+          <div class="sensorRow localRow" data-role="uptime"><span>WIDGET UPTIME</span><strong id="uptimeValue">00:00:00</strong><small>local session, not PC uptime</small></div>
+        </div>
+        <div class="systemFoot">Only values returned by the iCUE sensor provider are shown as live system data.</div>
+      </section>
+
+      <section class="programPanel ambientPanel" data-program-panel="trace" aria-label="Trace program">
+        <div class="programKicker">AMBIENT TRACE // SYNTHETIC VISUAL</div>
+        <pre id="traceField"></pre>
+      </section>
+
+      <section class="programPanel ambientPanel" data-program-panel="rain" aria-label="Data rain program">
+        <div class="programKicker">DATA RAIN // SYNTHETIC VISUAL</div>
+        <pre id="rainField"></pre>
+      </section>
+
+      <section class="programPanel clockPanel" data-program-panel="clock" aria-label="Clock program">
+        <div class="programKicker">LOCAL CLOCK // DEVICE TIME</div>
+        <div id="clockTime">20:35:00</div>
+        <div id="clockDate">THU // SEP 10 2026</div>
+        <div id="clockMachine">packrat@XENEON</div>
+      </section>
+    </section>
+
+    <footer id="terminalFooter" aria-label="Program switcher">
+      <button type="button" data-program="prompt"><span>01</span>PROMPT</button>
+      <button type="button" data-program="system"><span>02</span>SYSTEM</button>
+      <button type="button" data-program="trace"><span>03</span>TRACE</button>
+      <button type="button" data-program="rain"><span>04</span>RAIN</button>
+      <button type="button" data-program="clock"><span>05</span>CLOCK</button>
+    </footer>
+
+    <div id="scanlines" aria-hidden="true"></div>
+    <div id="vignette" aria-hidden="true"></div>
+    <div id="flicker" aria-hidden="true"></div>
+    <div id="glass" aria-hidden="true"></div>
+  </section>
+</main>
+<script src="terminal.js"></script>
+</body>
+</html>
