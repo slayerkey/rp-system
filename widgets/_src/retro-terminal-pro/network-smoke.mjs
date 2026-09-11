@@ -85,6 +85,7 @@ let failures=[];
 
 async function open(width,height,options={}){
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
+  if(options.reducedMotion)await page.emulateMedia({reducedMotion:options.reducedMotion});
   const errors=[];
   page.on("pageerror",e=>errors.push("pageerror: "+String(e)));
   page.on("console",m=>{if(m.type()==="error")errors.push("console: "+m.text());});
@@ -235,6 +236,23 @@ try{
     expect(!snap.idle&&snap.program==="prompt",slot+" idle wake "+JSON.stringify(snap));
 
     await page.evaluate(()=>{
+      globalThis.idleEnabled=true;
+      globalThis.idleProgram="rain";
+      globalThis.icueEvents.onDataUpdated();
+      globalThis.__retroTerminalProTest.forceIdle();
+      globalThis.idleProgram="clock";
+      globalThis.icueEvents.onDataUpdated();
+    });
+    snap=await page.evaluate(()=>globalThis.__retroTerminalProTest.snapshot());
+    expect(snap.idle&&snap.program==="clock",slot+" live idle-program setting "+JSON.stringify(snap));
+    await page.evaluate(()=>{
+      globalThis.idleEnabled=false;
+      globalThis.icueEvents.onDataUpdated();
+    });
+    snap=await page.evaluate(()=>globalThis.__retroTerminalProTest.snapshot());
+    expect(!snap.idle&&snap.program==="prompt",slot+" disabling idle wakes immediately "+JSON.stringify(snap));
+
+    await page.evaluate(()=>{
       globalThis.autoProgram=true;
       globalThis.autoStyle=true;
       globalThis.rotationSeconds=15;
@@ -295,12 +313,28 @@ try{
     snap=await page.evaluate(()=>({state:document.getElementById("systemState").textContent}));
     expect(snap.state.includes("LIVE iCUE"),"stale sensor recovery "+JSON.stringify(snap));
 
+    await page.evaluate(()=>{
+      globalThis.__retroTerminalPro.sensorIds.cpuLoad="cpu-temp";
+      globalThis.__retroTerminalProTest.setProgram("system");
+    });
+    snap=await page.evaluate(()=>({cpu:document.querySelector('.sensorRow[data-role="cpuLoad"] .sensorValue').textContent}));
+    expect(snap.cpu==="—","sensor value must remain bound to its discovered id "+JSON.stringify(snap));
+    await page.evaluate(async()=>{
+      globalThis.__setSensorFixtureMode("normal");
+      await globalThis.__retroTerminalProTest.discoverSensors();
+      await globalThis.__retroTerminalProTest.pollSensors();
+    });
+
     await page.evaluate(async()=>{
       globalThis.plugins={};
       await globalThis.__retroTerminalProTest.discoverSensors();
     });
-    snap=await page.evaluate(()=>({state:document.getElementById("systemState").textContent}));
-    expect(snap.state==="iCUE SENSOR PROVIDER OFFLINE","provider unavailable state "+JSON.stringify(snap));
+    snap=await page.evaluate(()=>({
+      state:document.getElementById("systemState").textContent,
+      values:Array.from(document.querySelectorAll("#systemGrid .sensorValue")).map(el=>el.textContent),
+      sources:Array.from(document.querySelectorAll("#systemGrid .sensorSource")).map(el=>el.textContent)
+    }));
+    expect(snap.state==="iCUE SENSOR PROVIDER OFFLINE"&&snap.values.every(v=>v==="—")&&snap.sources.every(v=>v==="provider offline"),"provider unavailable clears live presentation "+JSON.stringify(snap));
 
     await page.evaluate(async()=>{
       globalThis.plugins={Sensorsdataprovider:globalThis.__sensorProviderFixture};
@@ -331,6 +365,20 @@ try{
     expect(snap.state==="iCUE SENSOR PROVIDER OFFLINE"&&snap.values.every(v=>v==="—"),"no-provider honesty "+JSON.stringify(snap));
     await page.screenshot({path:path.join(outDir,"NO_SENSORS.png")});
     if(errors.length)failures.push("no-provider runtime errors "+errors.join(" | "));
+    await page.close();
+  }
+
+  {
+    const {page,errors}=await open(840,696,{withSensors:false,boot:"classic",reducedMotion:"reduce"});
+    const initial=await page.evaluate(()=>globalThis.__retroTerminalProTest.snapshot());
+    expect(initial.started===true&&initial.bootTimerActive===false,"reduced motion skips animated boot "+JSON.stringify(initial));
+    await page.evaluate(()=>globalThis.__retroTerminalProTest.setProgram("trace"));
+    let trace=await page.locator("#traceField").textContent();
+    expect(trace.trim().length>0,"reduced motion trace renders a static frame");
+    await page.waitForTimeout(450);
+    const traceLater=await page.locator("#traceField").textContent();
+    expect(traceLater===trace,"reduced motion trace remains static");
+    if(errors.length)failures.push("reduced-motion runtime errors "+errors.join(" | "));
     await page.close();
   }
 
@@ -372,6 +420,24 @@ try{
 
     await page.evaluate(()=>{
       const key=Object.keys(localStorage).find(k=>k.endsWith(":retro-terminal-pro:program"));
+      localStorage.setItem(key,JSON.stringify({schema:1}));
+    });
+    await page.reload({waitUntil:"load"});
+    await waitStarted(page);
+    snap=await page.evaluate(()=>globalThis.__retroTerminalProTest.snapshot());
+    expect(snap.program==="prompt","persistence missing-fields fallback "+JSON.stringify(snap));
+
+    await page.evaluate(()=>{
+      const key=Object.keys(localStorage).find(k=>k.endsWith(":retro-terminal-pro:program"));
+      localStorage.setItem(key,JSON.stringify({schema:999,base:"prompt",value:"system"}));
+    });
+    await page.reload({waitUntil:"load"});
+    await waitStarted(page);
+    snap=await page.evaluate(()=>globalThis.__retroTerminalProTest.snapshot());
+    expect(snap.program==="prompt","persistence unknown-schema fallback "+JSON.stringify(snap));
+
+    await page.evaluate(()=>{
+      const key=Object.keys(localStorage).find(k=>k.endsWith(":retro-terminal-pro:program"));
       localStorage.removeItem(key);
     });
     await page.reload({waitUntil:"load"});
@@ -400,6 +466,19 @@ try{
   }
 
   {
+    const {page,errors}=await open(840,696,{withSensors:false,boot:"fast"});
+    await page.waitForTimeout(30);
+    let snap=await page.evaluate(()=>globalThis.__retroTerminalProTest.snapshot());
+    expect(!snap.started&&snap.bootTimerActive,"mid-boot cleanup fixture did not own boot interval "+JSON.stringify(snap));
+    await page.evaluate(()=>globalThis.__retroTerminalProTest.cleanup());
+    await page.waitForTimeout(900);
+    snap=await page.evaluate(()=>globalThis.__retroTerminalProTest.snapshot());
+    expect(!snap.started&&snap.timers===0&&!snap.bootTimerActive&&!snap.bootFinishTimerActive,"mid-boot cleanup leaked work "+JSON.stringify(snap));
+    if(errors.length)failures.push("mid-boot cleanup runtime errors "+errors.join(" | "));
+    await page.close();
+  }
+
+  {
     const {page,errors}=await open(840,696,{withSensors:true});
     await waitStarted(page);
     let snap=await page.evaluate(()=>globalThis.__retroTerminalProTest.snapshot());
@@ -424,9 +503,10 @@ const report={
   coverage:[
     "all-eight-layouts","touch-targets","rapid-taps","native-wide-readability","descenders","compact-uptime-crowding",
     "explicit-settings-callback","no-callback-autosync","onICUEInitialized","timer-idempotence",
-    "idle-wake","auto-program-style-rotation","user-text-unicode-html-looking",
-    "provider-normal-empty-error-stale-unavailable-recovery","persistence-reload-corrupt-legacy-clear",
-    "boot-sequences","cleanup"
+    "idle-wake","live-idle-setting-transitions","auto-program-style-rotation","user-text-unicode-html-looking",
+    "provider-normal-empty-error-stale-unavailable-recovery","provider-disconnect-clears-live-ui","sensor-id-rebinding",
+    "persistence-reload-corrupt-legacy-missing-schema-clear","reduced-motion-static-ambient",
+    "boot-sequences","mid-boot-cleanup","cleanup"
   ],
   failures,
   passed:failures.length===0
