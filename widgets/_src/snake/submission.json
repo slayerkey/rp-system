@@ -3,7 +3,7 @@
   "name": "Snake",
   "type": "widget",
   "price_usd": 0.0,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "marketplace_category": [
     "Gaming"
   ],
@@ -17,6 +17,6 @@
     "English"
   ],
   "marketplace_auto_publish": true,
-  "description": "Snake for the CORSAIR XENEON Edge.\n\nA touch-first version of the classic game, designed around the Edge instead of stretched from a phone layout. Swipe anywhere on the board or tap the large directional controls to turn.\n\nEight tuned boards: Small, Medium, Large and Extra Large each use their own horizontal and vertical grid so the snake stays easy to read at normal desk distance.\n\nThe challenge builds naturally as you eat. Speed increases across ten levels while normal Snake rules prevent instant reverse-direction turns.\n\nYour best score and a paused run are stored locally on this PC. No account, no network data, no API key and no helper app are required.\n\nIncludes four OLED-friendly themes: Matrix, Ice, Ember and Mono. Touch guides can also be hidden for a cleaner board once the controls feel familiar.\n\nCompletely free.",
-  "release_notes": "• Touch-first Snake with swipe and large directional controls\n• Eight tuned XENEON Edge layouts across every official size and orientation\n• Ten speed levels with reverse-direction protection\n• Local best score and paused-run persistence\n• Four OLED-friendly themes: Matrix, Ice, Ember and Mono"
+  "description": "Snake for the CORSAIR XENEON Edge.\n\nA touch-first version of the classic game, designed around the Edge instead of stretched from a phone layout. Swipe anywhere on the board, tap the large directional controls, or use your keyboard arrow keys while the widget has focus to turn.\n\nEight tuned boards: Small, Medium, Large and Extra Large each use their own horizontal and vertical grid so the snake stays easy to read at normal desk distance.\n\nThe challenge builds naturally as you eat. Speed increases across ten levels while normal Snake rules prevent instant reverse-direction turns.\n\nYour best score and a paused run are stored locally on this PC. No account, no network data, no API key and no helper app are required.\n\nIncludes four OLED-friendly themes: Matrix, Ice, Ember and Mono. Touch guides can also be hidden for a cleaner board once the controls feel familiar.\n\nCompletely free.",
+  "release_notes": "• Added keyboard arrow-key controls for steering while the widget has focus\n• Keyboard input uses the same rapid-turn queue and reverse-direction protection as touch controls\n• Swipe and on-screen directional controls remain fully supported\n• Preserves all eight XENEON Edge layouts, local high scores and paused-run saves"
 }
