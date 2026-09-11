@@ -185,14 +185,16 @@ async function loadCalendarText(url, sourceIndex) {
   } catch (error) {}
 
   var fetchUrl = url.replace(/^webcal:/i, "https:");
-  var direct = await withTimeout(fetchUrl, { cache: "no-store" }, 8000);
+  var direct = await withTimeout(fetchUrl, { cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer" }, 8000);
   if (direct && /BEGIN:VCALENDAR/i.test(direct)) return { text: direct, via: "direct" };
 
   var relayed = await withTimeout(CALENDAR_RELAY_URL, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=UTF-8" },
     body: fetchUrl,
-    cache: "no-store"
+    cache: "no-store",
+    credentials: "omit",
+    referrerPolicy: "no-referrer"
   }, 8000);
   if (relayed && /BEGIN:VCALENDAR/i.test(relayed)) return { text: relayed, via: "relay" };
   return null;
