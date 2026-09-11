@@ -1006,6 +1006,18 @@ internal static class SelfTest
             corrupt.Load();
             if (corrupt.Count != 0 || corrupt.PairingToken.Length < 24) throw new Exception("corrupt persistence recovery failed");
 
+            var futurePath = Path.Combine(root, "future-state.dat");
+            var futurePayload = JsonSerializer.SerializeToUtf8Bytes(new PersistedState
+            {
+                SchemaVersion = 99,
+                Entries = [new ClipEntry { Text = "future schema must not load" }],
+                PairingToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(16))
+            }, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            File.WriteAllBytes(futurePath, ProtectedData.Protect(futurePayload, null, DataProtectionScope.CurrentUser));
+            var future = new ClipboardHistory(futurePath);
+            future.Load();
+            if (future.Count != 0) throw new Exception("unsupported persistence schema did not fail closed");
+
             reload.Clear();
             if (reload.Count != 0) throw new Exception("clear failed");
 
