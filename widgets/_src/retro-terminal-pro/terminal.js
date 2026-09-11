@@ -371,7 +371,7 @@ function renderSystem(){
   var roles=["cpuLoad","cpuTemp","gpuLoad","gpuTemp","ram"],available=0,live=0,stale=0,now=Date.now();
   roles.forEach(function(role){
     var row=document.querySelector('.sensorRow[data-role="'+role+'"]');if(!row)return;
-    var id=state.sensorIds[role],meta=id?state.sensorCatalog[id]:null,val=state.sensorValues[role];
+    var id=state.sensorIds[role],meta=id?state.sensorCatalog[id]:null,val=id?state.sensorValues[role]:null;
     var isFresh=!!val&&now-val.at<=SENSOR_STALE_MS;
     var isStale=!!val&&!isFresh;
     if(id)available++;if(isFresh)live++;if(isStale)stale++;
