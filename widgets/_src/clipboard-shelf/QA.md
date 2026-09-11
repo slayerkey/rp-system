@@ -34,7 +34,7 @@ Privacy assertions:
 Release gate:
 1. companion Windows build + self-test
 2. widget pure-function verify
-3. inline build and stale check
+3. inline build, translation sync, and stale check
 4. all-eight deterministic Rat Art capture assertions
 5. official CORSAIR validate
 6. official CORSAIR package
