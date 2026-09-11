@@ -113,6 +113,7 @@ public sealed class FixtureRuntime : ILightingRuntime {
     public Task HandleCommandAsync(JsonElement m,CancellationToken ct=default){
         var cmd=m.TryGetProperty("command",out var c)?c.GetString():""; var id=m.TryGetProperty("id",out var i)?i.GetString():"";
         if(cmd=="scene"&&m.TryGetProperty("sceneId",out var s))id=s.GetString();
+        if(cmd=="forceError")throw new InvalidOperationException("Fixture provider rejected the command.");
         var t=Snapshot.Targets.FirstOrDefault(x=>x.Id==id);
         if(t is not null){
             if(cmd=="power")t.On=m.GetProperty("value").GetBoolean();
