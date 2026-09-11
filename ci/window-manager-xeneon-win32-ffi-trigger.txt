@@ -1,0 +1,1 @@
+trigger win32 ffi smoke
