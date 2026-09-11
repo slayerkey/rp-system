@@ -112,6 +112,7 @@ internal sealed class ClipEntry
 
 internal sealed class PersistedState
 {
+    public int SchemaVersion { get; set; } = 1;
     public List<ClipEntry> Entries { get; set; } = [];
     public int MaxHistory { get; set; } = 40;
     public bool PrivateMode { get; set; }
@@ -178,7 +179,7 @@ internal sealed class ClipboardHistory
                 var protectedBytes = File.ReadAllBytes(_storagePath);
                 var plain = ProtectedData.Unprotect(protectedBytes, null, DataProtectionScope.CurrentUser);
                 var saved = JsonSerializer.Deserialize<PersistedState>(plain, _json);
-                if (saved is null) return;
+                if (saved is null || saved.SchemaVersion != 1) return;
                 _entries = saved.Entries
                     .Where(x => !string.IsNullOrEmpty(x.Text))
                     .Select(CloneSafe)
@@ -296,6 +297,7 @@ internal sealed class ClipboardHistory
         {
             if (_privateMode == value) return;
             _privateMode = value;
+            if (value) _currentId = "";
             PersistLocked();
             _revision++;
         }
@@ -382,6 +384,7 @@ internal sealed class ClipboardHistory
             Directory.CreateDirectory(Path.GetDirectoryName(_storagePath)!);
             var payload = new PersistedState
             {
+                SchemaVersion = 1,
                 Entries = _entries.Select(CloneSafe).ToList(),
                 MaxHistory = _maxHistory,
                 PrivateMode = _privateMode,
@@ -415,10 +418,12 @@ internal sealed class ClipboardHistory
     {
         var url = "";
         var domain = "";
-        if (Uri.TryCreate(x.Text.Trim(), UriKind.Absolute, out var uri) &&
-            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+        var trimmed = x.Text.Trim();
+        if (trimmed.Length <= 8_192
+            && Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
         {
-            url = x.Text.Trim();
+            url = trimmed;
             domain = uri.Host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? uri.Host[4..] : uri.Host;
         }
         const int previewLimit = 16_384;
@@ -703,7 +708,8 @@ internal sealed class ClipboardWindow : Form
     private const int WM_CLIPBOARDUPDATE = 0x031D;
     private readonly ClipboardHistory _history;
     private readonly NotifyIcon _tray;
-    private string _suppressNextClipboardText = "";
+    private string _suppressClipboardText = "";
+    private DateTimeOffset _suppressClipboardTextUntil = DateTimeOffset.MinValue;
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool AddClipboardFormatListener(IntPtr hwnd);
@@ -729,13 +735,15 @@ internal sealed class ClipboardWindow : Form
         {
             try
             {
-                _suppressNextClipboardText = _history.PairingToken;
-                Clipboard.SetText(_suppressNextClipboardText, TextDataFormat.UnicodeText);
+                _suppressClipboardText = _history.PairingToken;
+                _suppressClipboardTextUntil = DateTimeOffset.UtcNow.AddSeconds(5);
+                Clipboard.SetText(_suppressClipboardText, TextDataFormat.UnicodeText);
                 _history.ClearCurrent();
             }
             catch
             {
-                _suppressNextClipboardText = "";
+                _suppressClipboardText = "";
+                _suppressClipboardTextUntil = DateTimeOffset.MinValue;
                 MessageBox.Show(
                     "Windows clipboard is busy. Try Copy Pairing Code again.",
                     "Clipboard Shelf",
@@ -790,7 +798,7 @@ internal sealed class ClipboardWindow : Form
 
     protected override void WndProc(ref Message m)
     {
-        if (m.Msg == WM_CLIPBOARDUPDATE) BeginInvoke(new Action(CaptureClipboard));
+        if (m.Msg == WM_CLIPBOARDUPDATE) CaptureClipboard();
         base.WndProc(ref m);
     }
 
@@ -809,12 +817,16 @@ internal sealed class ClipboardWindow : Form
                     return;
                 }
                 var text = Clipboard.GetText(TextDataFormat.UnicodeText);
-                if (!string.IsNullOrEmpty(_suppressNextClipboardText)
-                    && string.Equals(text, _suppressNextClipboardText, StringComparison.Ordinal))
+                if (!string.IsNullOrEmpty(_suppressClipboardText))
                 {
-                    _suppressNextClipboardText = "";
-                    _history.ClearCurrent();
-                    return;
+                    if (DateTimeOffset.UtcNow <= _suppressClipboardTextUntil
+                        && string.Equals(text, _suppressClipboardText, StringComparison.Ordinal))
+                    {
+                        _history.ClearCurrent();
+                        return;
+                    }
+                    _suppressClipboardText = "";
+                    _suppressClipboardTextUntil = DateTimeOffset.MinValue;
                 }
                 if (!string.IsNullOrEmpty(text)) _history.Ingest(text);
                 else _history.ClearCurrent();
@@ -960,6 +972,7 @@ internal static class SelfTest
             if (!h.Snapshot().Entries.First(x => x.Text == "duplicate").Favorite) throw new Exception("favorite failed");
 
             h.SetPrivate(true);
+            if (!string.IsNullOrEmpty(h.Snapshot().CurrentId)) throw new Exception("private mode left stale CURRENT state");
             if (h.Ingest("private fixture text")) throw new Exception("private mode captured text");
             if (h.Snapshot().Entries.Any(x => x.Text == "private fixture text")) throw new Exception("private text persisted");
             h.SetPrivate(false);
