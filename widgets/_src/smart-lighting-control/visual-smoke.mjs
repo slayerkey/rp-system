@@ -42,7 +42,7 @@ try{
     const layout=await page.evaluate(()=>({
       overflowX:document.documentElement.scrollWidth-innerWidth,
       overflowY:document.documentElement.scrollHeight-innerHeight,
-      cards:[...document.querySelectorAll('.target-card')].map(e=>{const r=e.getBoundingClientRect();return[w=e.clientWidth,h=e.clientHeight]}),
+      cards:[...document.querySelectorAll('.target-card')].map(e=>{const r=e.getBoundingClientRect();return[r.width,r.height]}),
       filters:[...document.querySelectorAll('.filter')].map(e=>{const r=e.getBoundingClientRect();return[r.width,r.height]}),
       controls:[...document.querySelectorAll('#powerButton,#favoriteButton')].filter(e=>!e.hidden).map(e=>{const r=e.getBoundingClientRect();return[r.width,r.height]})
     }));
