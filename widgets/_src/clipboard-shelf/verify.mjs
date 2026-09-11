@@ -12,6 +12,8 @@ assert(typeof sandbox.icueEvents?.onICUEInitialized==='function','onICUEInitiali
 assert(typeof sandbox.icueEvents?.onDataUpdated==='function','onDataUpdated lifecycle handler');
 assert(api.classifyUrl('https://example.com/a').domain==='example.com','url recognition');
 assert(api.classifyUrl('not a url')===null,'plain text classification');
+assert(api.snapshotVersionOk({version:1})===true,'bridge protocol version 1 accepted');
+assert(api.snapshotVersionOk({version:2})===false,'future bridge protocol rejected');
 const list=api.dedupeEntries([
  {id:'1',text:'alpha',createdAt:'2026-09-10T20:00:00Z'},
  {id:'2',text:'alpha',createdAt:'2026-09-10T20:01:00Z'},
@@ -20,7 +22,12 @@ const list=api.dedupeEntries([
 ],2);
 assert(list.length===3,'pin plus two unpinned');
 assert(list[0].pinned===true,'pins sort first');
-assert(list.filter(x=>x.text==='alpha').length===1,'dedupe');
+assert(list.filter(x=>x.text==='alpha').length===1,'history cap still applies after duplicate-looking entries');
+const collision=api.dedupeEntries([
+ {id:'long-a',text:'same bounded preview',createdAt:'2026-09-10T20:02:00Z',truncated:true,fullLength:50000},
+ {id:'long-b',text:'same bounded preview',createdAt:'2026-09-10T20:01:00Z',truncated:true,fullLength:60000}
+],10);
+assert(collision.length===2,'distinct long entries with identical bounded previews must not collapse');
 assert(api.slotFor(840,344)==='s-h','small horizontal');
 assert(api.slotFor(696,416)==='s-v','small vertical');
 assert(api.slotFor(840,696)==='m-h','medium horizontal');
