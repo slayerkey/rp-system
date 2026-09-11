@@ -68,6 +68,10 @@ try{
     assert.equal(Math.round(await page.evaluate(()=>globalThis.__PACKRAT_LIGHTING_TEST__.selected().brightness)),55,name+' brightness fixture failed');
     await page.locator('[data-filter="govee"]').click();
     assert.ok(await page.locator('.target-card').count()>=1,name+' govee filter empty');
+    await page.locator('[data-id="govee:device:floor"]').click();
+    assert.equal(await page.locator('#powerButton').isDisabled(),true,name+' offline power control remained enabled');
+    assert.equal(await page.locator('#brightnessSlider').isDisabled(),true,name+' offline brightness control remained enabled');
+    assert.match(await page.locator('#controlProvider').textContent(),/OFFLINE/,name+' offline control state not labeled');
     await page.screenshot({path:path.join(out,name+'.png')});
     assert.deepEqual(errors,[],name+' runtime errors '+errors.join(' | '));
     results.push({name,width,height,layout});
