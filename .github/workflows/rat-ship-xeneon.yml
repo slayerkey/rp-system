@@ -48,6 +48,10 @@ jobs:
         with:
           python-version: '3.13'
 
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
       - name: Validate local Rat command syntax and batch parsing
         shell: pwsh
         run: |
@@ -105,6 +109,26 @@ jobs:
             --package "artifacts/package/$env:WIDGET_SLUG.icuewidget" `
             --art "artifacts/rat-art/review" `
             --out "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+
+      - name: Package optional Windows companion
+        shell: pwsh
+        run: |
+          $project = "companions/$env:WIDGET_SLUG/PackRat.SmartLighting.Companion.csproj"
+          if (-not (Test-Path $project)) {
+            Write-Host "No product companion project declared; skipping."
+            exit 0
+          }
+          dotnet run --project $project -c Release -- --self-test
+          if ($LASTEXITCODE -ne 0) { throw "companion self-test failed" }
+          $out = "artifacts/companion/$env:WIDGET_SLUG"
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          dotnet publish $project -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o $out
+          if ($LASTEXITCODE -ne 0) { throw "companion publish failed" }
+          $exe = Get-ChildItem $out -Filter *.exe -File | Select-Object -First 1
+          if (-not $exe) { throw "companion publish produced no exe" }
+          $zip = "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT/PackRat-Lighting-Companion-win-x64.zip"
+          Compress-Archive -Path $exe.FullName -DestinationPath $zip -Force
+          if (-not (Test-Path $zip)) { throw "companion archive missing from SHIP_KIT" }
 
       - name: Playwright driver kit preflight
         shell: pwsh
