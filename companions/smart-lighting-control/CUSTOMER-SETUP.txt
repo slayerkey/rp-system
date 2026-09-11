@@ -1,0 +1,54 @@
+PACKRAT LIGHTING COMPANION — QUICK SETUP
+Smart Lighting Control for Hue + Govee
+Version 1.0.0
+
+WHAT THIS IS
+This small Windows companion lets the XENEON Edge widget talk to Philips Hue and Govee on your local network. It listens only on this PC (127.0.0.1) and does not use a PackRat cloud service.
+
+INSTALL
+1. Extract this ZIP to a normal folder.
+2. Run PackRat-Lighting-Companion.exe.
+3. Your browser opens the local setup page:
+   http://127.0.0.1:17486/
+4. Click "Install locally + start with Windows".
+   - This copies the companion to:
+     %LOCALAPPDATA%\PackRat\SmartLightingControl\
+   - It adds a per-user Windows startup entry.
+   - Administrator permission is not required.
+
+PHILIPS HUE
+1. On the local setup page, click Discover bridges.
+2. If discovery does not find your bridge, enter its local IP address.
+3. Press the physical link button on the Hue Bridge.
+4. Click Pair.
+5. The generated local Hue application credential is stored in Windows Credential Manager.
+
+GOVEE — LOCAL LAN CONTROL
+1. In Govee Home, enable LAN Control for compatible lights.
+2. On the local setup page, click Scan LAN devices.
+3. If multicast discovery is blocked by your router/VLAN, enter the device IPv4 address first and scan again.
+4. LAN-capable core controls do not require a Govee API key.
+
+GOVEE — OPTIONAL DEVELOPER API
+Add your own Govee Developer API key only if you want cloud-only devices/capabilities and Govee scenes/DIY scenes. The key is stored in Windows Credential Manager and is never sent to PackRat.
+
+CONNECT XENEON EDGE
+1. Copy the Companion Pairing Token from the local setup page.
+2. In iCUE, open Smart Lighting Control for Hue + Govee settings.
+3. Paste it into Companion Pairing Token.
+4. The widget should connect automatically.
+
+TROUBLESHOOTING
+- "Lighting Companion offline": start the installed companion or open http://127.0.0.1:17486/
+- "Pairing token rejected": copy the current token from the local setup page into iCUE again.
+- "Companion update required": use the companion version supplied with the same widget release.
+- Hue not found: enter the Hue Bridge IP manually.
+- Govee not found: confirm LAN Control is enabled and both devices are on the same LAN; try the manual device IP fallback.
+- A light marked Offline keeps favorite management available but disables live lighting controls until it reconnects.
+
+PRIVACY
+No PackRat account is required.
+No Hue account password is collected.
+No Govee password is collected.
+No lighting credential is sent to PackRat.
+The widget communicates with the companion only over localhost.
