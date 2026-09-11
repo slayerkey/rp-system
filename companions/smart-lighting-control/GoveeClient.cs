@@ -14,12 +14,13 @@ public sealed class GoveeClient {
     List<CloudDevice> cloud=new();
     readonly Dictionary<string,List<CloudScene>> sceneCache=new(StringComparer.OrdinalIgnoreCase);
     readonly Dictionary<string,CloudState> cloudStates=new(StringComparer.OrdinalIgnoreCase);
-    DateTime cloudDevicesAt=DateTime.MinValue, scenesAt=DateTime.MinValue, cloudStatesAt=DateTime.MinValue;
+    DateTime cloudDevicesAt=DateTime.MinValue, scenesAt=DateTime.MinValue, cloudStatesAt=DateTime.MinValue, lanStatusAt=DateTime.MinValue;
     public GoveeClient(LocalState state){this.state=state;}
     public bool CloudConfigured=>!string.IsNullOrWhiteSpace(state.GoveeApiKey());
 
     public async Task<List<LightingTarget>> GetTargetsAsync(bool scanLan=false,CancellationToken ct=default){
         if(scanLan||lan.Count==0)await DiscoverLanAsync(null,ct);
+        else if(DateTime.UtcNow-lanStatusAt>TimeSpan.FromSeconds(4))await RefreshLanStatusAsync(ct);
         if(CloudConfigured&&DateTime.UtcNow-cloudDevicesAt>TimeSpan.FromMinutes(1))await RefreshCloudDevicesAsync(ct);
         if(CloudConfigured&&DateTime.UtcNow-cloudStatesAt>TimeSpan.FromSeconds(15))await RefreshCloudStatesAsync(ct);
         if(CloudConfigured&&DateTime.UtcNow-scenesAt>TimeSpan.FromMinutes(10))await RefreshScenesAsync(ct);
@@ -70,17 +71,31 @@ public sealed class GoveeClient {
                 var task=udp.ReceiveAsync(ct).AsTask();var done=await Task.WhenAny(task,Task.Delay(180,ct));if(done!=task)continue;
                 var packet=await task;ParseLanPacket(packet.Buffer,packet.RemoteEndPoint.Address.ToString());
             }
-            foreach(var d in lan.Values.ToList()){
+        }catch(SocketException){}catch(OperationCanceledException){}
+        if(lan.Count>0)await RefreshLanStatusAsync(ct);
+        return lan.Count;
+    }
+
+    async Task RefreshLanStatusAsync(CancellationToken ct=default){
+        if(lan.Count==0)return;
+        try{
+            using var udp=new UdpClient(AddressFamily.InterNetwork);
+            udp.Client.SetSocketOption(SocketOptionLevel.Socket,SocketOptionName.ReuseAddress,true);
+            udp.Client.Bind(new IPEndPoint(IPAddress.Any,4002));
+            try{udp.JoinMulticastGroup(IPAddress.Parse("239.255.255.250"));}catch(SocketException){}
+            var devices=lan.Values.ToList();
+            foreach(var d in devices)d.Reachable=false;
+            foreach(var d in devices){
                 var status=Encoding.UTF8.GetBytes(BuildLanCommand("devStatus",new{}));
                 await udp.SendAsync(status,status.Length,new IPEndPoint(IPAddress.Parse(d.Ip),4003));
             }
-            until=DateTime.UtcNow.AddMilliseconds(750);
+            var until=DateTime.UtcNow.AddMilliseconds(850);
             while(DateTime.UtcNow<until&&!ct.IsCancellationRequested){
                 var task=udp.ReceiveAsync(ct).AsTask();var done=await Task.WhenAny(task,Task.Delay(120,ct));if(done!=task)continue;
                 var packet=await task;ParseLanPacket(packet.Buffer,packet.RemoteEndPoint.Address.ToString());
             }
+            lanStatusAt=DateTime.UtcNow;
         }catch(SocketException){}catch(OperationCanceledException){}
-        return lan.Count;
     }
     public static string BuildLanCommand(string command,object data)=>JsonSerializer.Serialize(new{msg=new{cmd=command,data}},JsonDefaults.Options);
 
@@ -144,7 +159,7 @@ public sealed class GoveeClient {
     }
     async Task RefreshCloudStatesAsync(CancellationToken ct){
         using var http=CloudHttp();
-        foreach(var d in cloud.Take(12)){
+        foreach(var d in cloud){
             try{
                 var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
                 using var res=await http.PostAsJsonAsync("/router/api/v1/device/state",payload,JsonDefaults.Options,ct);
@@ -167,7 +182,7 @@ public sealed class GoveeClient {
     }
     async Task RefreshScenesAsync(CancellationToken ct){
         using var http=CloudHttp();
-        foreach(var d in cloud.Take(12)){
+        foreach(var d in cloud){
             var scenes=new List<CloudScene>(d.StaticScenes);
             try{
                 var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
