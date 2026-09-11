@@ -311,6 +311,27 @@ body[data-connection="live"][data-has-windows="false"] #windowList { visibility:
   font-weight: 730;
 }
 #emptyBody { max-width: 650px; margin-top: 7px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+#installLiteLink {
+  display: none;
+  margin-top: 12px;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 15px;
+  border: 1px solid color-mix(in srgb, var(--accent) 75%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+body[data-connection="pairing"] #installLiteLink,
+body[data-connection="disconnected"] #installLiteLink,
+body[data-connection="version_mismatch"] #installLiteLink { display: inline-flex; }
+#installLiteHint { display:none; max-width:650px; margin-top:8px; color:var(--muted); font-size:11px; line-height:1.35; }
+body[data-connection="pairing"] #installLiteHint,
+body[data-connection="disconnected"] #installLiteHint { display:block; }
 
 #actionTray {
   min-width: 0;
