@@ -15,6 +15,8 @@ INSTALL
      %LOCALAPPDATA%\PackRat\SmartLightingControl\
    - It adds a per-user Windows startup entry.
    - Administrator permission is not required.
+5. If the companion is already running and you launch it again, the existing local setup page opens instead of starting a duplicate server.
+6. To replace/update the installed EXE later, open the local setup page and click "Exit companion" first.
 
 PHILIPS HUE
 1. On the local setup page, click Discover bridges.
@@ -22,6 +24,7 @@ PHILIPS HUE
 3. Press the physical link button on the Hue Bridge.
 4. Click Pair.
 5. The generated local Hue application credential is stored in Windows Credential Manager.
+6. Use "Remove Hue pairing" on the local setup page if you need to forget/re-pair a bridge.
 
 GOVEE — LOCAL LAN CONTROL
 1. In Govee Home, enable LAN Control for compatible lights.
@@ -41,9 +44,10 @@ CONNECT XENEON EDGE
 TROUBLESHOOTING
 - "Lighting Companion offline": start the installed companion or open http://127.0.0.1:17486/
 - "Pairing token rejected": copy the current token from the local setup page into iCUE again.
-- "Companion update required": use the companion version supplied with the same widget release.
+- "Companion update required": use the companion version supplied with the same widget release. If an older installed copy is running, open its local setup page, click "Exit companion", then run/install the newer EXE.
 - Hue not found: enter the Hue Bridge IP manually.
 - Govee not found: confirm LAN Control is enabled and both devices are on the same LAN; try the manual device IP fallback.
+- Removing the Govee Developer API key immediately clears cloud-only cached devices/scenes; LAN devices keep working independently.
 - A light marked Offline keeps favorite management available but disables live lighting controls until it reconnects.
 
 PRIVACY
