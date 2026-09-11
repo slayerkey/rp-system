@@ -45,3 +45,9 @@ All eight official XENEON viewport compositions use the same terminal language b
 ## Release gate
 
 Static verification, exact packaged browser fixture, all eight layouts, touch/settings/idle/no-sensor states, official CORSAIR validate/package, ZIP integrity, lexical Custom Style regression, Corsair Labs Windows runner, StreamSpell package verification, deterministic Rat Art, and Rat Ship kit.
+
+## Final synchronized RC provenance
+
+- Canonical base synchronized through main `057fd27a15f046c321f3d335f6e71439a7a4d1db`.
+- Release-candidate verification must run from this synchronized branch state and consume the exact official CORSAIR package through lexical settings, Corsair Labs host, StreamSpell, deterministic Rat Art, and Rat Ship gates.
+- Physical XENEON Edge and real end-user iCUE hardware remain the only verification boundary outside automated coverage.
