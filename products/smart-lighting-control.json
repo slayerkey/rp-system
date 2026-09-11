@@ -45,32 +45,39 @@
     "permanent PackRat companion download redirect backed by a versioned GitHub Release asset"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "6d34d9a22c9d5e1a758bbc2237fc237cbc45d054",
-    "deep_qa_run": 34564227541,
+    "candidate_commit": "705e453ef09f3e60ac986dfd0bc417ba6f993e66",
+    "deep_qa_run": 34591991159,
     "final_rat_ship_artifact": {
-      "id": 10185502431,
-      "sha256": "02310d0a106d1a970821f8140ca7783ca39b9d7b749de77ecdfab987a0f51594"
+      "id": 10196142805,
+      "sha256": "660ca990e56b8642c00c59278696056a7d335a4330d4fc77345d21acc82ab51c"
     },
     "official_package_artifact": {
-      "id": 10185453604,
-      "sha256": "cd9789f58510eb65943610b39ce983ac3d8618868db32742a8c527c0eebe9716"
+      "id": 10196066469,
+      "sha256": "b3fb9f1781551a439703b67ec25b845076be44d72c7c96ac590bcbd5430c6385"
     },
     "windows_companion_artifact": {
-      "id": 10185455791,
-      "sha256": "3c1e74aaf87c1702f124021e27b170850f347ebd4ef18829ffa993d1201432ca"
+      "id": 10196069588,
+      "sha256": "48d59ec27b0ca27858932908b387d26d0487288bfc9d0273c60158aa11014464"
     },
     "windows_qa_artifact": {
-      "id": 10185456290,
-      "sha256": "a5c48df275ff19204b8fa4fd03db25dc69f2af6bb8139ed0fb239fca466582d1"
+      "id": 10196070689,
+      "sha256": "1866cf85f7a196746c27aa2dc6fed700841b34180798df6d0119ee08618c5a0a"
     },
     "streamspell_artifact": {
-      "id": 10185475714,
-      "sha256": "1e7c59ba2a135eb79aed9db8ef11713f7314c94663e401aade5c8abafa401bd4"
+      "id": 10196100552,
+      "sha256": "b4185f3a10dd80e75e0da3e4b90eb65c144995dc6d7945dd3c5813ec299ac6a9"
+    },
+    "public_companion_release": {
+      "release_id": 386975261,
+      "asset_id": 557087009,
+      "sha256": "c3cf9665b2feac4b66443ead457daa07c7dbdf0d543231b4157021e84ea1f1bc",
+      "url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip",
+      "verified_customer_url": "https://main.packrat-site.pages.dev/downloads/smart-lighting"
     }
   },
   "hardware_boundary": "No physical XENEON Edge, Hue Bridge/light, or Govee light/credentials were available in this build session. Real provider code compiled and passed deterministic protocol/API fixtures plus exact-package localhost-companion integration. A physical smoke test is recommended when hardware is available, but is not represented as completed.",
   "final_boundary": "Authenticated Maker Console submission through rat ship smart-lighting-control. Marketplace auto-publish remains disabled.",
-  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. The verified customer companion URL uses the public Cloudflare main-branch alias and redirects to the versioned GitHub Release asset. Marketplace auto-publish remains disabled.",
+  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. Final run 34591991159 is fully green, including exact-package Windows/companion QA, StreamSpell all eight presets, Rat Ship, versioned companion release, and an end-to-end customer download test through the verified PackRat Cloudflare main-branch URL with SHA-256 equality and ZIP-content validation.",
   "companion_download_url": "https://main.packrat-site.pages.dev/downloads/smart-lighting",
   "companion_release_tag": "smart-lighting-companion-v1.0.0",
   "companion_release_asset_url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip"
