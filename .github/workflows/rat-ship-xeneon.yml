@@ -127,7 +127,14 @@ jobs:
           $exe = Get-ChildItem $out -Filter *.exe -File | Select-Object -First 1
           if (-not $exe) { throw "companion publish produced no exe" }
           $zip = "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT/PackRat-Lighting-Companion-win-x64.zip"
-          Compress-Archive -Path $exe.FullName -DestinationPath $zip -Force
+          $zipInputs = @($exe.FullName)
+          $customerSetup = "companions/$env:WIDGET_SLUG/CUSTOMER-SETUP.txt"
+          if (Test-Path $customerSetup) {
+            $setupCopy = Join-Path $out "CUSTOMER-SETUP.txt"
+            Copy-Item $customerSetup $setupCopy -Force
+            $zipInputs += $setupCopy
+          }
+          Compress-Archive -Path $zipInputs -DestinationPath $zip -Force
           if (-not (Test-Path $zip)) { throw "companion archive missing from SHIP_KIT" }
 
       - name: Playwright driver kit preflight
