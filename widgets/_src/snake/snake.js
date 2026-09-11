@@ -24,6 +24,7 @@
     left: { x: -1, y: 0 }
   };
   const OPPOSITE = { up: "down", down: "up", left: "right", right: "left" };
+  const ARROW_KEYS = { ArrowUp: "up", ArrowRight: "right", ArrowDown: "down", ArrowLeft: "left" };
 
   const els = {
     body: document.body,
@@ -315,7 +316,7 @@
       els.status.textContent = "READY";
       els.overlayKicker.textContent = "CLASSIC GAME";
       els.overlayTitle.textContent = "Snake";
-      els.overlayText.textContent = "Swipe anywhere or tap the edge arrows. Eat. Grow. Don't fold.";
+      els.overlayText.textContent = "Swipe, tap the edge arrows, or use your keyboard arrow keys. Eat. Grow. Don't fold.";
       els.primary.textContent = "Play";
     } else if (state === "playing") {
       els.status.textContent = "LIVE";
@@ -481,6 +482,14 @@
     }
   }
 
+  function onKeyDown(event) {
+    const next = ARROW_KEYS[event.key];
+    if (!next) return;
+    if (event.repeat) return;
+    event.preventDefault();
+    queueDirection(next);
+  }
+
   function openCreatorPage() {
     try {
       if (window.plugins && window.plugins.Linkprovider && typeof pluginLinkprovider_initialized !== "undefined" && pluginLinkprovider_initialized) {
@@ -509,6 +518,7 @@
     els.boardShell.addEventListener("pointerdown", onPointerDown);
     els.boardShell.addEventListener("pointerup", onPointerUp);
     els.boardShell.addEventListener("pointercancel", () => { pointerStart = null; });
+    window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", resizeCanvas);
     window.addEventListener("pagehide", savePersistence);
     document.addEventListener("visibilitychange", () => {
