@@ -18,7 +18,12 @@ Required deterministic cases:
 - missing and rejected pairing codes
 - non-text clipboard changes clear stale CURRENT state
 - long text preserves full local copy data while limiting display transport size
-- corrupt persistence recovery
+- distinct huge entries with identical bounded previews remain distinct
+- corrupt and unsupported-version persistence recovery
+- bridge protocol mismatch/update-required state and recovery
+- pagehide cleanup plus single reconnect on pageshow
+- HTML-looking text, Unicode, emoji, and descender-heavy glyph fixtures render as plain text
+- 40 px minimum tested touch targets across compact layouts
 - all eight official XENEON layouts
 
 Privacy assertions:
@@ -46,4 +51,5 @@ Release gate:
 12. StreamSpell packaged verification
 13. deterministic Rat Art
 14. Rat Ship marketplace kit
-15. versioned companion GitHub Release published only after the preceding gates pass
+15. complete companion ZIP integrity check, including security and uninstall files
+16. versioned companion GitHub Release published only after the preceding gates pass
