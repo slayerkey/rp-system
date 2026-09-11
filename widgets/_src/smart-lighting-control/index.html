@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('Smart Lighting Control for Hue + Govee')</title>
+
+<meta name="x-icue-property" content="pairingToken" data-label="tr('Companion Pairing Token')" data-type="textfield" data-default="''" data-placeholder="tr('Copy from PackRat Lighting Companion')" />
+<meta name="x-icue-property" content="defaultView" data-label="tr('Default View')" data-type="combobox" data-default="'favorites'" data-values="[{'key':'favorites','value':tr('Favorites')},{'key':'all','value':tr('All Lights')},{'key':'hue','value':tr('Hue')},{'key':'govee','value':tr('Govee')}]" />
+<meta name="x-icue-property" content="showOffline" data-label="tr('Show Offline Lights')" data-type="switch" data-default="true" />
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F7F8FA'" />
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#8B5CF6'" />
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#090A0F'" />
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Lighting Companion')",
+    "properties": ["pairingToken", "defaultView", "showOffline"],
+    "info": "tr('Install PackRat Lighting Companion on this Windows PC. Open its local setup page, pair Philips Hue and/or Govee, then copy the Companion Pairing Token here. Philips Hue and Govee credentials stay in the local companion, not in this widget.')"
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"]
+  }
+]
+</script>
+<link rel="stylesheet" href="lighting.css" />
+</head>
+<body data-state="starting">
+<main id="stage" aria-label="Smart lighting controller">
+  <header id="header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">✦</span>
+      <div>
+        <div class="eyebrow">PACKRAT LIGHTING</div>
+        <div id="headline">Hue + Govee</div>
+      </div>
+    </div>
+    <div id="providerStatus" class="status-pills" aria-label="Provider status"></div>
+  </header>
+
+  <nav id="filters" aria-label="Lighting filters">
+    <button class="filter active" data-filter="favorites">★ Favorites</button>
+    <button class="filter" data-filter="all">All</button>
+    <button class="filter" data-filter="hue">Hue</button>
+    <button class="filter" data-filter="govee">Govee</button>
+  </nav>
+
+  <section id="workspace">
+    <section id="targetsPanel" class="panel" aria-label="Lights and scenes">
+      <div id="targetGrid"></div>
+      <div id="emptyState" class="empty-state" hidden></div>
+    </section>
+
+    <aside id="controlPanel" class="panel" aria-label="Lighting controls">
+      <div id="controlEmpty" class="control-empty">Select a light, room, or scene.</div>
+      <div id="controls" hidden>
+        <div class="control-title-row">
+          <div>
+            <div id="controlProvider" class="eyebrow"></div>
+            <div id="controlName"></div>
+          </div>
+          <button id="favoriteButton" class="icon-button" aria-label="Toggle favorite">☆</button>
+        </div>
+
+        <button id="powerButton" class="power-button">
+          <span class="power-dot"></span>
+          <span id="powerLabel">Turn on</span>
+        </button>
+
+        <div id="brightnessControl" class="control-block">
+          <div class="control-label"><span>Brightness</span><strong id="brightnessValue">--</strong></div>
+          <input id="brightnessSlider" type="range" min="1" max="100" step="1" value="50" />
+        </div>
+
+        <div id="colorControl" class="control-block">
+          <div class="control-label"><span>Color</span><strong id="colorValue">RGB</strong></div>
+          <div id="colorPad" class="color-pad" role="slider" tabindex="0" aria-label="Color pad">
+            <span id="colorCursor"></span>
+          </div>
+          <div id="swatches" class="swatches">
+            <button data-rgb="255,72,72" aria-label="Red"></button>
+            <button data-rgb="255,153,51" aria-label="Orange"></button>
+            <button data-rgb="255,232,96" aria-label="Yellow"></button>
+            <button data-rgb="74,222,128" aria-label="Green"></button>
+            <button data-rgb="56,189,248" aria-label="Blue"></button>
+            <button data-rgb="129,140,248" aria-label="Indigo"></button>
+            <button data-rgb="217,70,239" aria-label="Magenta"></button>
+            <button data-rgb="255,255,255" aria-label="White"></button>
+          </div>
+        </div>
+
+        <div id="temperatureControl" class="control-block">
+          <div class="control-label"><span>White temperature</span><strong id="temperatureValue">--</strong></div>
+          <input id="temperatureSlider" class="temperature-slider" type="range" min="2000" max="6500" step="50" value="4000" />
+        </div>
+
+        <div id="sceneControl" class="control-block">
+          <div class="control-label"><span>Scenes</span><strong id="sceneCount"></strong></div>
+          <div id="sceneChips" class="scene-chips"></div>
+        </div>
+
+        <button id="activateSceneButton" class="activate-scene" hidden>Activate scene</button>
+      </div>
+    </aside>
+  </section>
+
+  <section id="blockingState" class="blocking-state" hidden>
+    <div class="blocking-card">
+      <div class="blocking-icon">✦</div>
+      <h1 id="blockingTitle">Lighting Companion offline</h1>
+      <p id="blockingCopy">Start PackRat Lighting Companion on this PC.</p>
+      <div id="blockingHint">Local setup: http://127.0.0.1:17486/</div>
+    </div>
+  </section>
+</main>
+<script src="lighting.js"></script>
+</body>
+</html>
