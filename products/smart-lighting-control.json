@@ -36,33 +36,38 @@
     "Corsair Labs exact-package Windows host/settings smoke",
     "StreamSpell exact-package verification at all eight presets",
     "deterministic Rat Art",
-    "Rat Ship Maker Console kit preflight including customer companion ZIP and CUSTOMER-SETUP.txt"
+    "Rat Ship Maker Console kit preflight including customer companion ZIP and CUSTOMER-SETUP.txt",
+    "Hue zigbee_connectivity reachability propagation to lights, rooms/zones and scenes",
+    "reused Hue/Govee HTTP clients for always-on companion stability",
+    "automatic Govee LAN discovery throttled when no LAN devices exist",
+    "clean Hue unpair and Govee cloud-cache reset flows",
+    "single-instance installed companion plus clean Exit companion update path"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "7403906cb63b477509151247b089e53532bf5145",
-    "deep_qa_run": 34562916516,
+    "candidate_commit": "6d34d9a22c9d5e1a758bbc2237fc237cbc45d054",
+    "deep_qa_run": 34564227541,
     "final_rat_ship_artifact": {
-      "id": 10185089877,
-      "sha256": "72fbdffd563ab666800a38248dccefa74afe09631df8d726449b42b3e7a2dd8d"
+      "id": 10185502431,
+      "sha256": "02310d0a106d1a970821f8140ca7783ca39b9d7b749de77ecdfab987a0f51594"
     },
     "official_package_artifact": {
-      "id": 10185035997,
-      "sha256": "d8b11c427931a7039b7515cbe73e31dc1088dfa15d4ec712d5917ad942137152"
+      "id": 10185453604,
+      "sha256": "cd9789f58510eb65943610b39ce983ac3d8618868db32742a8c527c0eebe9716"
     },
     "windows_companion_artifact": {
-      "id": 10185037720,
-      "sha256": "541486af0f9ecb9d1f960694e3fda6ab391eeb44aa5ac2b2b5b1f032c0bceb95"
+      "id": 10185455791,
+      "sha256": "3c1e74aaf87c1702f124021e27b170850f347ebd4ef18829ffa993d1201432ca"
     },
     "windows_qa_artifact": {
-      "id": 10185038247,
-      "sha256": "0c525e3cafdc820e1d3d6f8ab55b92482335cb0194afe607833f78cda2f9c234"
+      "id": 10185456290,
+      "sha256": "a5c48df275ff19204b8fa4fd03db25dc69f2af6bb8139ed0fb239fca466582d1"
     },
     "streamspell_artifact": {
-      "id": 10185056427,
-      "sha256": "b2dedee7cad4d2bfa1c39dc521f2823773ee1cfc174e4c4dec92bee0ba3e350b"
+      "id": 10185475714,
+      "sha256": "1e7c59ba2a135eb79aed9db8ef11713f7314c94663e401aade5c8abafa401bd4"
     }
   },
   "hardware_boundary": "No physical XENEON Edge, Hue Bridge/light, or Govee light/credentials were available in this build session. Real provider code compiled and passed deterministic protocol/API fixtures plus exact-package localhost-companion integration. A physical smoke test is recommended when hardware is available, but is not represented as completed.",
   "final_boundary": "Publish the companion ZIP at a stable customer-accessible URL, add that URL to the release/customer setup surface, then run rat ship smart-lighting-control for authenticated Maker Console submission.",
-  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON release gate. Marketplace auto-publish remains disabled."
+  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. Final Deep QA run 34564227541 is fully green across Windows companion/package, Corsair Labs host, StreamSpell all eight presets, deterministic Rat Art and Rat Ship. Marketplace auto-publish remains disabled."
 }
