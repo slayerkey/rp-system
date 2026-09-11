@@ -68,6 +68,13 @@ for (const [slot,width,height] of slots) {
     fail(slot,`rapid/reverse input ${JSON.stringify(input)}`);
 
   await page.evaluate(()=>__PACKRAT_SNAKE__.setFixture({state:"playing",direction:"right",inputQueue:[]}));
+  await page.keyboard.press("ArrowUp");
+  if ((await page.evaluate(()=>__PACKRAT_SNAKE__.getState().inputQueue[0]))!=="up") fail(slot,"keyboard ArrowUp input failed");
+  await page.evaluate(()=>__PACKRAT_SNAKE__.setFixture({state:"playing",direction:"right",inputQueue:[]}));
+  await page.keyboard.press("ArrowLeft");
+  if ((await page.evaluate(()=>__PACKRAT_SNAKE__.getState().inputQueue.length))!==0) fail(slot,"keyboard reverse-direction protection failed");
+
+  await page.evaluate(()=>__PACKRAT_SNAKE__.setFixture({state:"playing",direction:"right",inputQueue:[]}));
   await page.locator('[data-direction="up"]').dispatchEvent("pointerdown",{pointerId:22,pointerType:"touch",isPrimary:true});
   if ((await page.evaluate(()=>__PACKRAT_SNAKE__.getState().inputQueue[0]))!=="up") fail(slot,"touch-zone pointer input failed");
 
@@ -140,4 +147,4 @@ await browser.close();
 console.log("SNAKE PERFORMANCE (FULL BOARD RENDER)");
 for(const r of perf) console.log(`${r.slot}: ${r.avg.toFixed(3)} ms/draw, ${r.cells} cells (${r.total.toFixed(1)} ms / 120)`);
 if(failures.length){console.error("SNAKE QA FAIL");for(const f of failures)console.error(f);process.exit(1);}
-console.log("SNAKE QA PASS: 8 layouts, UI controls, touch/swipe, rapid/reverse input, collisions, food edge cases, board clear, persistence, preview runtime, and full-board rendering passed");
+console.log("SNAKE QA PASS: 8 layouts, UI controls, keyboard arrows, touch/swipe, rapid/reverse input, collisions, food edge cases, board clear, persistence, preview runtime, and full-board rendering passed");
