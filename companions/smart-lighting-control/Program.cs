@@ -113,7 +113,7 @@ public static class Program {
     }
     static bool TokenEqual(string? supplied,string expected){
         if(string.IsNullOrEmpty(supplied))return false;
-        var a=SHA256.HashData(Encoding.UTF8.GetBytes(supplied)),b=SHA256.HashData(Encoding.UTF8.GetBytes(expected));
+        var a=SHA256.HashData(Encoding.UTF8.GetBytes(supplied)); var b=SHA256.HashData(Encoding.UTF8.GetBytes(expected));
         return CryptographicOperations.FixedTimeEquals(a,b);
     }
     static async Task<JsonDocument?> ReceiveJsonAsync(WebSocket ws,TimeSpan timeout,CancellationToken outer){
