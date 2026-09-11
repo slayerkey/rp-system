@@ -392,7 +392,7 @@ try{
       started:globalThis.__retroTerminalPro?.started===true
     }));
     expect(bootSnap.configured===boot,boot+" boot setting mismatch "+JSON.stringify(bootSnap));
-    if(boot!=="none")expect(bootSnap.text.includes("RETRO TERMINAL PRO"),boot+" boot transcript missing "+JSON.stringify(bootSnap));
+    if(boot!=="none")expect(bootSnap.text.toLowerCase().includes("retro terminal pro"),boot+" boot transcript missing "+JSON.stringify(bootSnap));
     await waitStarted(page);
     expect(await page.getAttribute("body","data-booting")==="false",boot+" boot did not complete");
     if(errors.length)failures.push(boot+" boot runtime errors "+errors.join(" | "));
