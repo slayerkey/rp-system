@@ -260,7 +260,7 @@ public sealed class GoveeClient {
                 _=>new{}
             };
             var lanCmd=command switch{"power"=>"turn","brightness"=>"brightness","color"=>"colorwc","temperature"=>"colorwc",_=>""};
-            using var udp=new UdpClient();var bytes=Encoding.UTF8.GetBytes(BuildLanCommand(lanCmd,data));await udp.SendAsync(bytes,bytes.Length,new IPEndPoint(IPAddress.Parse(meta.Ip!),4003));return;
+            using var udp=new UdpClient();var bytes=Encoding.UTF8.GetBytes(BuildLanCommand(lanCmd,data));await udp.SendAsync(bytes,bytes.Length,new IPEndPoint(IPAddress.Parse(meta.Ip!),4003));ApplyCachedState(meta.Device,command,message);return;
         }
         if(!CloudConfigured)throw new InvalidOperationException("This Govee control needs the optional Developer API key for this device.");
         if(command=="power")await CloudControlAsync(meta.Sku,meta.Device,"devices.capabilities.on_off","powerSwitch",message.GetProperty("value").GetBoolean()?1:0,ct);
