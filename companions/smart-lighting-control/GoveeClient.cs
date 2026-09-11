@@ -18,13 +18,19 @@ public sealed class GoveeClient {
     int cloudStateCursor=0;
     public GoveeClient(LocalState state){this.state=state;}
     public bool CloudConfigured=>!string.IsNullOrWhiteSpace(state.GoveeApiKey());
+    public string? LastCloudError { get; private set; }
 
     public async Task<List<LightingTarget>> GetTargetsAsync(bool scanLan=false,CancellationToken ct=default){
         if(scanLan||lan.Count==0)await DiscoverLanAsync(null,ct);
         else if(DateTime.UtcNow-lanStatusAt>TimeSpan.FromSeconds(4))await RefreshLanStatusAsync(ct);
-        if(CloudConfigured&&DateTime.UtcNow-cloudDevicesAt>TimeSpan.FromMinutes(10))await RefreshCloudDevicesAsync(ct);
-        if(CloudConfigured&&DateTime.UtcNow-cloudStatesAt>TimeSpan.FromSeconds(15))await RefreshNextCloudStateAsync(ct);
-        if(CloudConfigured&&DateTime.UtcNow-scenesAt>TimeSpan.FromMinutes(30))await RefreshScenesAsync(ct);
+        if(CloudConfigured){
+            if(DateTime.UtcNow-cloudDevicesAt>TimeSpan.FromMinutes(10))
+                try{await RefreshCloudDevicesAsync(ct);}catch(Exception ex){LastCloudError=CloudError(ex);}
+            if(cloud.Count>0&&DateTime.UtcNow-cloudStatesAt>TimeSpan.FromSeconds(15))
+                try{await RefreshNextCloudStateAsync(ct);}catch(Exception ex){LastCloudError=CloudError(ex);}
+            if(cloud.Count>0&&DateTime.UtcNow-scenesAt>TimeSpan.FromMinutes(30))
+                try{await RefreshScenesAsync(ct);}catch(Exception ex){LastCloudError=CloudError(ex);}
+        }
         return Normalize();
     }
 
@@ -124,6 +130,17 @@ public sealed class GoveeClient {
         }catch{}
     }
 
+    static string CloudError(Exception ex){
+        var message=ex.Message.Replace("\r"," ").Replace("\n"," ").Trim();
+        return message.Length>120?message[..120]:message;
+    }
+    void NoteCloudResponse(HttpResponseMessage response){
+        if(response.IsSuccessStatusCode){LastCloudError=null;return;}
+        if((int)response.StatusCode==429)LastCloudError="Developer API rate limited";
+        else if((int)response.StatusCode==401)LastCloudError="Developer API key rejected";
+        else if((int)response.StatusCode>=500)LastCloudError="Developer API unavailable";
+    }
+
     HttpClient CloudHttp(){
         var h=new HttpClient{BaseAddress=new Uri(ApiBase),Timeout=TimeSpan.FromSeconds(8)};
         h.DefaultRequestHeaders.TryAddWithoutValidation("Govee-API-Key",state.GoveeApiKey());
@@ -135,7 +152,7 @@ public sealed class GoveeClient {
         catch{state.SetGoveeApiKey(prior);throw;}
     }
     async Task RefreshCloudDevicesAsync(CancellationToken ct){
-        using var http=CloudHttp();using var res=await http.GetAsync("/router/api/v1/user/devices",ct);res.EnsureSuccessStatusCode();
+        using var http=CloudHttp();using var res=await http.GetAsync("/router/api/v1/user/devices",ct);NoteCloudResponse(res);res.EnsureSuccessStatusCode();
         using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
         var data=doc.RootElement.TryGetProperty("data",out var d)&&d.ValueKind==JsonValueKind.Array?d:default;
         var next=new List<CloudDevice>();
@@ -179,6 +196,7 @@ public sealed class GoveeClient {
             using var http=CloudHttp();
             var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
             using var res=await http.PostAsJsonAsync("/router/api/v1/device/state",payload,JsonDefaults.Options,ct);
+            NoteCloudResponse(res);
             if(res.IsSuccessStatusCode){
                 using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
                 var p=doc.RootElement.TryGetProperty("payload",out var pp)?pp:doc.RootElement.TryGetProperty("data",out var dd)?dd:default;
@@ -245,6 +263,7 @@ public sealed class GoveeClient {
         try{
             var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
             using var res=await http.PostAsJsonAsync(endpoint,payload,JsonDefaults.Options,ct);
+            if((int)res.StatusCode is 401 or 429 || (int)res.StatusCode>=500)NoteCloudResponse(res);
             if(!res.IsSuccessStatusCode)return;
             using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
             if(!doc.RootElement.TryGetProperty("payload",out var p)||!p.TryGetProperty("capabilities",out var caps)||caps.ValueKind!=JsonValueKind.Array)return;
@@ -329,7 +348,7 @@ public sealed class GoveeClient {
     async Task CloudControlAsync(string sku,string device,string type,string instance,object value,CancellationToken ct){
         if(!CloudConfigured)throw new InvalidOperationException("Govee Developer API key is not configured.");
         using var http=CloudHttp();var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku,device,capability=new{type,instance,value}}};
-        using var res=await http.PostAsJsonAsync("/router/api/v1/device/control",payload,JsonDefaults.Options,ct);res.EnsureSuccessStatusCode();
+        using var res=await http.PostAsJsonAsync("/router/api/v1/device/control",payload,JsonDefaults.Options,ct);NoteCloudResponse(res);res.EnsureSuccessStatusCode();
     }
 
     static string Str(JsonElement e,string p)=>e.ValueKind==JsonValueKind.Object&&e.TryGetProperty(p,out var v)&&v.ValueKind==JsonValueKind.String?v.GetString()??"":"";
