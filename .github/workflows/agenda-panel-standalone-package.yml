@@ -35,7 +35,7 @@ jobs:
         run: |
           $html = Get-Content widgets/agenda-panel/index.html -Raw
           if ($html -notmatch 'https://packrat-site\.pages\.dev/api/calendar-feed') { throw 'Standalone relay URL missing from generated widget.' }
-          if ($html -match 'Calendar Sync Pro|COMPANION NEEDED|127\.0\.0\.1:38765|GET CALENDAR SYNC PRO') { throw 'Calendar Panel still contains a companion dependency or upsell.' }
+          if ($html -match 'COMPANION NEEDED|127\.0\.0\.1:38765|GET CALENDAR SYNC PRO|Calendar Sync Pro bridge is required|Calendar companion unavailable|openCalendarSyncPro|CALENDAR_SYNC_PRO_MARKETPLACE_URL') { throw 'Calendar Panel still contains a companion dependency or upsell.' }
           $manifest = Get-Content widgets/agenda-panel/manifest.json -Raw | ConvertFrom-Json
           if ($manifest.PSObject.Properties.Name -contains 'required_plugins') { throw 'Calendar Panel must not require a plugin.' }
 
@@ -68,7 +68,7 @@ jobs:
           Expand-Archive artifacts/Calendar-Panel-1.0.1.zip artifacts/extracted -Force
           $packedHtml = Get-Content artifacts/extracted/index.html -Raw
           if ($packedHtml -notmatch 'https://packrat-site\.pages\.dev/api/calendar-feed') { throw 'Exact package is missing standalone relay.' }
-          if ($packedHtml -match 'Calendar Sync Pro|COMPANION NEEDED|127\.0\.0\.1:38765|GET CALENDAR SYNC PRO') { throw 'Exact package still contains companion dependency copy.' }
+          if ($packedHtml -match 'COMPANION NEEDED|127\.0\.0\.1:38765|GET CALENDAR SYNC PRO|Calendar Sync Pro bridge is required|Calendar companion unavailable|openCalendarSyncPro|CALENDAR_SYNC_PRO_MARKETPLACE_URL') { throw 'Exact package still contains companion dependency copy.' }
           Get-FileHash artifacts/Calendar-Panel-1.0.1.icuewidget -Algorithm SHA256
 
       - name: Commit generated shipping HTML
