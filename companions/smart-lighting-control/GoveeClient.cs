@@ -21,6 +21,12 @@ public sealed class GoveeClient {
     public bool CloudConfigured=>!string.IsNullOrWhiteSpace(state.GoveeApiKey());
     public string? LastCloudError { get; private set; }
     public string? LastLanError { get; private set; }
+    public void ClearApiKeyAndCache(){
+        state.SetGoveeApiKey(null);
+        cloud.Clear();cloudStates.Clear();sceneCache.Clear();
+        cloudDevicesAt=DateTime.MinValue;cloudStatesAt=DateTime.MinValue;scenesAt=DateTime.MinValue;cloudStateCursor=0;
+        LastCloudError=null;
+    }
 
     public async Task<List<LightingTarget>> GetTargetsAsync(bool scanLan=false,CancellationToken ct=default){
         if(scanLan||(lan.Count==0&&DateTime.UtcNow-lanDiscoveryAt>TimeSpan.FromMinutes(1))){
