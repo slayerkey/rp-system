@@ -22,7 +22,7 @@
       "Agenda list": "Agenda list",
       "Close details": "Close details",
       "EVENT": "EVENT",
-      "Paste secret ICS feed URLs. Blocked feeds use Packrat's stateless relay; URLs and calendar data are not stored.": "Paste secret ICS feed URLs. Blocked feeds use Packrat's stateless relay; URLs and calendar data are not stored."
+      "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored.": "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored."
     }
   },
   "de": {
@@ -48,7 +48,7 @@
       "Agenda list": "Agendaliste",
       "Close details": "Details schließen",
       "EVENT": "TERMIN",
-      "Paste secret ICS feed URLs. Blocked feeds use Packrat's stateless relay; URLs and calendar data are not stored.": "Füge geheime ICS-Feed-URLs ein. Blockierte Feeds nutzen Packrats zustandslosen Relay; URLs und Kalenderdaten werden nicht gespeichert."
+      "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored.": "Füge geheime ICS-Feed-URLs ein. Blockierte Feeds nutzen den zustandslosen Packrat-Relay; URLs und Kalenderdaten werden nicht gespeichert."
     }
   },
   "es": {
@@ -74,7 +74,7 @@
       "Agenda list": "Lista de agenda",
       "Close details": "Cerrar detalles",
       "EVENT": "EVENTO",
-      "Paste secret ICS feed URLs. Blocked feeds use Packrat's stateless relay; URLs and calendar data are not stored.": "Pega URLs secretas de feeds ICS. Los feeds bloqueados usan el relé sin estado de Packrat; las URLs y los datos del calendario no se almacenan."
+      "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored.": "Pega URLs secretas de feeds ICS. Los feeds bloqueados usan el relé sin estado de Packrat; las URLs y los datos del calendario no se almacenan."
     }
   },
   "fr": {
@@ -100,7 +100,7 @@
       "Agenda list": "Liste de l'agenda",
       "Close details": "Fermer les détails",
       "EVENT": "ÉVÉNEMENT",
-      "Paste secret ICS feed URLs. Blocked feeds use Packrat's stateless relay; URLs and calendar data are not stored.": "Collez des URL secrètes de flux ICS. Les flux bloqués utilisent le relais sans état de Packrat ; les URL et les données du calendrier ne sont pas stockées."
+      "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored.": "Collez des URL secrètes de flux ICS. Les flux bloqués utilisent le relais sans état de Packrat ; les URL et les données du calendrier ne sont pas stockées."
     }
   }
 }
