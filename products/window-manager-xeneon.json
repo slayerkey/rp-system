@@ -1,0 +1,80 @@
+{
+  "id": "window-manager-xeneon",
+  "name": "Window Manager for XENEON",
+  "type": "widget",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "price_usd": 9.99,
+  "version": "1.0.0",
+  "platform": "CORSAIR iCUE / XENEON Edge + Windows companion",
+  "source": "widgets/_src/window-manager-xeneon",
+  "package": "widgets/window-manager-xeneon",
+  "companion": "companions/window-manager-xeneon",
+  "submission_metadata": "widgets/_src/window-manager-xeneon/submission.json",
+  "companion_release": {
+    "tag": "window-manager-bridge-v1.0.0",
+    "asset": "PackRat-Window-Bridge-win-x64.zip",
+    "url": "https://github.com/slayerkey/rp-system/releases/download/window-manager-bridge-v1.0.0/PackRat-Window-Bridge-win-x64.zip",
+    "asset_id": 556537812,
+    "sha256": "702be9fcc403db0f09bf4805799a872a8edc01da5eedb3a6bc443c644d0cdf60"
+  },
+  "release_gate": [
+    "canonical XENEON troubleshooting playbook applied",
+    "strict UTF-8 and JSON source validation",
+    "collision-safe localhost port regression",
+    "Windows companion build, deterministic self-test and self-contained x64 publish",
+    "loopback-only authenticated companion security invariants",
+    "all eight authored, shipping and exact-package XENEON layouts",
+    "Unicode, emoji, descender and HTML-looking title safety",
+    "remote icon URI rejection",
+    "corrupt and legacy pinned-app persistence recovery",
+    "repeated iCUE lifecycle idempotency and pagehide cleanup",
+    "official CORSAIR validation and packaging",
+    "exact official package integrity/contract audit",
+    "lexical iCUE Custom Style regression",
+    "no-callback iCUE autosync regression",
+    "exact packaged file:// widget to actual compiled Window Bridge process",
+    "focus, minimize, maximize/restore, snap left/right, move monitor and safe-close integration",
+    "companion kill/restart automatic recovery",
+    "wrong pairing key fail-closed persistent state",
+    "widget/companion protocol mismatch fail-closed persistent state",
+    "Corsair Labs exact-package Windows host smoke",
+    "StreamSpell exact-package verification at all eight presets",
+    "deterministic Rat Art",
+    "companion-inclusive Rat Ship kit preflight",
+    "canonical XENEON Widget CI, Rat Art XENEON and Rat Ship XENEON"
+  ],
+  "automated_release_evidence": {
+    "candidate_commit": "e03b5eef1faff6bdc3c817a5411e144484adaea7",
+    "deep_qa_run": 34564009475,
+    "canonical_xeneon_ci_run": 34564349443,
+    "canonical_rat_art_run": 34564516266,
+    "canonical_rat_ship_run": 34564609837,
+    "official_package_artifact": {
+      "id": 10185394812,
+      "sha256": "65f0e85c06bc15add3b10c763e99867b429ff873cbf4ffe8306ce4b58505a397"
+    },
+    "windows_companion_artifact": {
+      "id": 10185397134,
+      "sha256": "1e586d37bdf5873d26e32931230019d3399f0f1a2122eada3e9ea6b15a95f806"
+    },
+    "windows_qa_artifact": {
+      "id": 10185397829,
+      "sha256": "1f5173865a78f644f21d0cfed3935a8098753c88f6dd479fcddf5f72fef14190"
+    },
+    "streamspell_artifact": {
+      "id": 10185416477,
+      "sha256": "74af13a569d34c053d6df67f05b9fe7c813d59af5cd084f5cb6de5c40d9cf148"
+    },
+    "companion_inclusive_rat_ship_artifact": {
+      "id": 10185443402,
+      "sha256": "af45a7b503595f2c0edf41a1c2199a8e99c173f8f843b5a2f8aa714081b3746d"
+    },
+    "canonical_rat_ship_artifact": {
+      "id": 10185569612,
+      "sha256": "b794b4757025eac8fa7386dfc09277b22c1015595c58a35fdef803c0427894de"
+    }
+  },
+  "hardware_boundary": "No physical XENEON Edge was available. The Windows companion compiled and ran in Windows CI and the exact packaged widget communicated with the actual published companion executable in deterministic fixture mode. Real foreground-lock/elevation restrictions and physical touch/iCUE behavior remain the only unclaimed hardware boundary.",
+  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. The free PackRat Window Bridge has a stable customer-accessible v1.0.0 release. Marketplace submission itself has not been claimed as completed."
+}
