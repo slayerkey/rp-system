@@ -1,0 +1,112 @@
+name: Audio Control Center Full Gate Trigger
+
+on:
+  push:
+    branches:
+      - product/audio-control-center
+    paths:
+      - 'widgets/_src/audio-control-center/**'
+      - 'widgets/audio-control-center/**'
+      - 'companions/audio-control-center-bridge/**'
+      - '.github/workflows/audio-control-center-trigger.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  product-qa:
+    name: Widget and local bridge QA
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Canonical source and syntax
+        shell: pwsh
+        run: |
+          node --check widgets/_src/audio-control-center/audio-control-center.js
+          node --check widgets/_src/audio-control-center/visual-smoke.mjs
+          node --check widgets/_src/audio-control-center/network-smoke.mjs
+          node --check widgets/_src/audio-control-center/bridge-integration.mjs
+          python tools/xeneon/inline.py audio-control-center --check
+
+      - name: Install browser QA dependencies
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1 ws@8.21.3
+          npm audit --audit-level=high
+          npx playwright install chromium
+
+      - name: Eight-layout authored and shipping QA
+        shell: pwsh
+        run: |
+          node widgets/_src/audio-control-center/visual-smoke.mjs widgets/_src/audio-control-center/index.html
+          node widgets/_src/audio-control-center/visual-smoke.mjs widgets/audio-control-center/index.html
+
+      - name: Build and self-test PackRat Audio Bridge
+        shell: pwsh
+        run: |
+          dotnet restore companions/audio-control-center-bridge/src/PackRat.AudioBridge/PackRat.AudioBridge.csproj
+          dotnet run --project companions/audio-control-center-bridge/src/PackRat.AudioBridge/PackRat.AudioBridge.csproj -c Release -- --self-test
+          dotnet publish companions/audio-control-center-bridge/src/PackRat.AudioBridge/PackRat.AudioBridge.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/audio-bridge
+
+      - name: Shipping widget against real PackRat Audio Bridge process
+        shell: pwsh
+        run: |
+          node widgets/_src/audio-control-center/bridge-integration.mjs artifacts/audio-bridge/PackRat.AudioBridge.exe widgets/audio-control-center/index.html
+
+      - name: Security invariants
+        shell: pwsh
+        run: |
+          $program = Get-Content companions/audio-control-center-bridge/src/PackRat.AudioBridge/Program.cs -Raw
+          $core = Get-Content companions/audio-control-center-bridge/src/PackRat.AudioBridge/CoreAudioBackend.cs -Raw
+          $all = $program + $core
+          foreach ($bad in @('Process.Start(', 'powershell.exe', 'cmd.exe', 'HttpClient(', 'TelemetryClient')) {
+            if ($all.Contains($bad)) { throw "forbidden bridge behavior: $bad" }
+          }
+          if (-not $program.Contains('127.0.0.1')) { throw 'missing explicit loopback bind' }
+          if (-not $program.Contains('IsAllowedOrigin')) { throw 'missing origin gate' }
+          if ($core.Contains('MediaDataProvider')) { throw 'iCUE media provider must not be used for OS audio control' }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audio-control-center-product-qa
+          path: |
+            artifacts/audio-bridge/PackRat.AudioBridge.exe
+            widgets/_src/audio-control-center/QA.md
+            companions/audio-control-center-bridge/README.md
+            companions/audio-control-center-bridge/SECURITY.md
+          if-no-files-found: error
+          retention-days: 30
+
+  dispatch-canonical-gates:
+    needs: product-qa
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch XENEON exact-package gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run xeneon-widget-ci.yml --repo ${{ github.repository }} --ref product/audio-control-center -f slug=audio-control-center
+
+      - name: Dispatch Rat Art
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run rat-art-xeneon.yml --repo ${{ github.repository }} --ref product/audio-control-center -f slug=audio-control-center
+
+      - name: Dispatch Rat Ship
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run rat-ship-xeneon.yml --repo ${{ github.repository }} --ref product/audio-control-center -f slug=audio-control-center
