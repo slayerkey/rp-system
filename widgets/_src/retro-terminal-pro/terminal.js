@@ -179,8 +179,10 @@ function applySettings(initial){
   else if(old&&old.startProgram!==cfg.startProgram)setProgram(cfg.startProgram,"settings");
   state.lastInteraction=Date.now();
 }
+function refreshFromIcue(){applySettings(false)}
 globalThis.icueEvents=globalThis.icueEvents||{};
-globalThis.icueEvents.onDataUpdated=function(){applySettings(false)};
+globalThis.icueEvents.onICUEInitialized=refreshFromIcue;
+globalThis.icueEvents.onDataUpdated=refreshFromIcue;
 
 function bootLines(){
   return[
