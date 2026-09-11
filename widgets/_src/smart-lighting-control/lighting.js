@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var PORT=17486, WS_URL='ws://127.0.0.1:'+PORT+'/widget';
+var PORT=17486, WS_URL='ws://127.0.0.1:17486/widget';
 var model={connection:'starting',auth:'pending',filter:'favorites',selectedId:null,targets:[],providers:{},socket:null,reconnect:null,fixture:false,lastError:''};
 
 function read(name,fallback){
