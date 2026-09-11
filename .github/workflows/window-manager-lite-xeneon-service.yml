@@ -1,0 +1,109 @@
+name: Window Manager Lite XENEON Service
+
+on:
+  push:
+    branches:
+      - product/window-manager-xeneon
+    paths:
+      - 'shared/window-manager-xeneon-service/**'
+      - 'widgets/_src/window-manager-xeneon/**'
+      - 'widgets/window-manager-xeneon/**'
+      - '.github/workflows/window-manager-lite-xeneon-service.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SLUG: window-manager-xeneon
+
+jobs:
+  lite-service-contract:
+    name: Lite-hosted service + exact XENEON package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install and audit internal Lite service
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          Push-Location shared/window-manager-xeneon-service
+          npm install
+          npm audit --audit-level=high
+          npm test
+          Pop-Location
+
+      - name: Install browser QA dependency
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+
+      - name: Static XENEON verification
+        shell: pwsh
+        run: |
+          node --check widgets/_src/$env:SLUG/window-manager.js
+          node --check widgets/_src/$env:SLUG/lite-service-integration.mjs
+          node widgets/_src/$env:SLUG/verify.mjs .
+
+      - name: Build canonical shipping widget
+        shell: pwsh
+        run: |
+          python tools/xeneon/inline.py $env:SLUG
+          python tools/xeneon/inline.py $env:SLUG --check
+
+      - name: Official CORSAIR validation and package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          npx --yes icuewidget-cli@0.4.47 validate "widgets/$env:SLUG"
+          Get-ChildItem -Path widgets -Filter *.icuewidget -File -ErrorAction SilentlyContinue | Remove-Item -Force
+          npx --yes icuewidget-cli@0.4.47 package "widgets/$env:SLUG"
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          $pkg = Get-ChildItem -Path widgets -Filter *.icuewidget -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $pkg) { throw 'official package was not created' }
+          Copy-Item $pkg.FullName "artifacts/package/$env:SLUG.icuewidget"
+
+      - name: Extract exact official package
+        shell: pwsh
+        run: |
+          @'
+          import pathlib, zipfile
+          slug = "window-manager-xeneon"
+          package = pathlib.Path("artifacts/package") / f"{slug}.icuewidget"
+          out = pathlib.Path("artifacts/extracted") / slug
+          out.mkdir(parents=True, exist_ok=True)
+          with zipfile.ZipFile(package) as archive:
+              bad = archive.testzip()
+              if bad:
+                  raise SystemExit(f"corrupt package member: {bad}")
+              archive.extractall(out)
+          '@ | python -
+
+      - name: Exact XENEON package to Lite-hosted service
+        shell: pwsh
+        run: |
+          node widgets/_src/$env:SLUG/lite-service-integration.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/lite-service"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: window-manager-lite-xeneon-service-evidence
+          path: |
+            artifacts/package/window-manager-xeneon.icuewidget
+            artifacts/lite-service/
+          if-no-files-found: warn
+          retention-days: 30
