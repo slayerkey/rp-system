@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: clipboard-shelf-release-${{ github.ref }}
@@ -360,6 +360,22 @@ jobs:
           $shipped = (Get-FileHash "$kit/$env:WIDGET_SLUG.icuewidget" -Algorithm SHA256).Hash
           if ($tested -ne $shipped) { throw 'Rat Ship package differs from exact package tested by Windows and StreamSpell gates' }
           Write-Host "RAT SHIP EXACT-PACKAGE PASS $tested"
+
+      - name: Publish free Windows companion download
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = 'clipboard-shelf-bridge-v1.0.0'
+          $zip = 'artifacts/core/companion/PackRat-Clipboard-Shelf-Bridge-1.0.0-win-x64.zip'
+          $exe = 'artifacts/core/companion/PackRat.ClipboardShelfBridge.exe'
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release delete $tag --repo $env:GITHUB_REPOSITORY --cleanup-tag --yes
+            if ($LASTEXITCODE -ne 0) { throw 'Could not replace existing Clipboard Shelf companion release' }
+          }
+          gh release create $tag $zip $exe --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Clipboard Shelf Bridge 1.0.0' --notes 'Free local Windows companion required by the paid Clipboard Shelf XENEON Edge widget. Runs on loopback only; clipboard contents never leave the PC.' --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Could not publish Clipboard Shelf companion release' }
 
       - name: Upload Rat Ship marketplace kit
         uses: actions/upload-artifact@v4
