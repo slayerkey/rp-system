@@ -2,23 +2,15 @@
   "id": "window-manager-xeneon",
   "name": "Window Manager for XENEON",
   "type": "widget",
-  "status": "qa_passed",
-  "workflow_state": "READY_TO_SHIP",
+  "status": "in_progress",
+  "workflow_state": "REFRACTORING_TO_WINDOW_MANAGER_LITE",
   "price_usd": 9.99,
   "version": "1.0.0",
-  "platform": "CORSAIR iCUE / XENEON Edge + Windows companion",
+  "platform": "CORSAIR iCUE / XENEON Edge + Window Manager Lite",
   "source": "widgets/_src/window-manager-xeneon",
   "package": "widgets/window-manager-xeneon",
-  "companion": "companions/window-manager-xeneon",
+  "companion": "Window Manager Lite plugin internal XENEON service",
   "submission_metadata": "widgets/_src/window-manager-xeneon/submission.json",
-  "companion_release": {
-    "tag": "window-manager-bridge-v1.0.0",
-    "source_commit": "adbac94234214110eb03b0201d7ebd0dfd37d263",
-    "asset": "PackRat-Window-Bridge-win-x64.zip",
-    "url": "https://github.com/slayerkey/rp-system/releases/download/window-manager-bridge-v1.0.0/PackRat-Window-Bridge-win-x64.zip",
-    "asset_id": 557097117,
-    "sha256": "80f28218748a86eadc82f8e930de3309f7127af405d484628942e5b22994815b"
-  },
   "release_gate": [
     "canonical XENEON troubleshooting playbook applied",
     "strict UTF-8 and JSON source validation",
@@ -161,5 +153,21 @@
     }
   },
   "hardware_boundary": "No physical XENEON Edge was available. The Windows companion compiled and ran in Windows CI and the exact packaged widget communicated with the actual published companion executable in deterministic fixture mode. Real foreground-lock/elevation restrictions and physical touch/iCUE behavior remain the only unclaimed hardware boundary.",
-  "notes": "Version 1.0.0 is engineering-complete under the current hardware-free XENEON troubleshooting/release playbook. The free PackRat Window Bridge v1.0.0 has a stable customer-accessible release whose exact published ZIP was downloaded back, hash-checked, installed, health-checked and uninstalled successfully. The release tag points to the exact companion source commit. The widget full gate and canonical XENEON, Rat Art and Rat Ship workflows are green on runtime commit 1c597a7849cd62caedcaa8d7d22c70e8f4ad6f8f. The final Maker Console Rat Ship kit was refreshed after correcting the customer companion download paragraph. Marketplace submission itself has not been claimed as completed."
+  "notes": "Architecture refactor in progress. The final customer dependency is Window Manager Lite, not the standalone PackRat Window Bridge. Existing bridge evidence remains historical protocol/native-reference evidence only. Window Manager Lite must keep its visible Lite action set and existing Window Manager Pro upsell unchanged. Final release status is blocked until the actual Lite source is migrated, the hidden localhost service is integrated into its plugin process, and the exact Lite package is tested end to end with the XENEON package. Marketplace submission has not been performed.",
+  "window_manager_lite_dependency": {
+    "id": "window-manager",
+    "name": "Window Manager Lite",
+    "marketplace_url": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23",
+    "role": "Free Stream Deck plugin hosts the local native Windows engine used by the separately purchased XENEON widget.",
+    "visible_lite_actions_must_remain_unchanged": true,
+    "pro_upsell_must_remain_unchanged": true
+  },
+  "legacy_companion_release": {
+    "tag": "window-manager-bridge-v1.0.0",
+    "source_commit": "adbac94234214110eb03b0201d7ebd0dfd37d263",
+    "asset": "PackRat-Window-Bridge-win-x64.zip",
+    "url": "https://github.com/slayerkey/rp-system/releases/download/window-manager-bridge-v1.0.0/PackRat-Window-Bridge-win-x64.zip",
+    "asset_id": 557097117,
+    "sha256": "80f28218748a86eadc82f8e930de3309f7127af405d484628942e5b22994815b"
+  }
 }
