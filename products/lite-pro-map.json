@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-10",
+  "updated_at": "2026-09-11",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -160,14 +160,6 @@
       "pro_marketplace_product_id": "da242369-a59b-4cb5-b841-6d1ccb4dd2d0"
     },
     {
-      "lite_id": "ai-prompts-lite",
-      "pro_id": null,
-      "platform": "streamdeck_profile",
-      "classification": "ambiguous_multi_product_funnel",
-      "source_status": "catalog_only_in_ratpack",
-      "notes": "Multiple paid prompt packs and AI Prompt Toolkit exist; no single true Pro counterpart should be invented."
-    },
-    {
       "lite_id": "retro-terminal",
       "pro_id": "retro-terminal-pro",
       "platform": "xeneon",
@@ -178,6 +170,14 @@
       ],
       "source_status": "free_catalog_only_source_unavailable_pro_qa_passed",
       "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
+    },
+    {
+      "lite_id": "ai-prompts-lite",
+      "pro_id": null,
+      "platform": "streamdeck_profile",
+      "classification": "ambiguous_multi_product_funnel",
+      "source_status": "catalog_only_in_ratpack",
+      "notes": "Multiple paid prompt packs and AI Prompt Toolkit exist; no single true Pro counterpart should be invented."
     }
   ],
   "standalone_free": [
