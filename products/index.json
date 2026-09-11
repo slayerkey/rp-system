@@ -819,7 +819,7 @@
       "id": "audio-control-center",
       "name": "Audio Control Center",
       "type": "widget",
-      "status": "built",
+      "status": "qa_passed",
       "price_usd": 9.99,
       "version": "1.0.0"
     }
