@@ -99,7 +99,8 @@ try{
   proc=startCompanion(1);
   await waitHealth(1);
   await page.waitForFunction(()=>document.body.getAttribute('data-state')==='live',null,{timeout:9000});
-  assert.ok((await page.locator('.target-card').count())>=3,'targets did not recover after companion restart');
+  assert.ok((await page.locator('.target-card').count())>=1,'active-filter targets did not recover after companion restart');
+  assert.equal(await page.evaluate(()=>globalThis.__PACKRAT_LIGHTING_TEST__.state.filter),'govee','restart unexpectedly reset the user filter');
   report.tests.restartRecovery=true;
 
   await page.screenshot({path:path.join(out,'live-loopback-recovered.png')});
