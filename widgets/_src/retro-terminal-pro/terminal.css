@@ -172,7 +172,7 @@ body[data-booting="false"] #bootLayer{display:none}
   background:radial-gradient(ellipse at center,transparent 48%,rgba(0,0,0,var(--vignette-opacity)) 100%);
 }
 #flicker{opacity:var(--flicker-opacity);background:#fff;animation:flicker 3.7s infinite steps(1,end)}
-@keyframes flicker{0%,96%,100%{opacity:0}97%{opacity:var(--flicker-opacity)}98%{opacity:0}99%{opacity:calc(var(--flicker-opacity) * .55)}}
+@keyframes flicker{0%,96%,100%{opacity:0}97%{opacity:var(--flicker-opacity)}98%{opacity:0}99%{opacity:var(--flicker-opacity)}}
 #glass{background:linear-gradient(110deg,rgba(255,255,255,.025),transparent 25%,transparent 75%,rgba(255,255,255,.015))}
 body[data-style="cyber"] #topBar,
 body[data-style="cyber"] #terminalFooter{background:linear-gradient(90deg,color-mix(in srgb,var(--crt-bg) 92%,black),color-mix(in srgb,var(--crt-alt) 5%,var(--crt-bg)))}
