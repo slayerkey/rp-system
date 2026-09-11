@@ -371,6 +371,8 @@ internal sealed class ClipboardHistory
             .Where(x => x.Pinned || keepUnpinned.Contains(x.Id))
             .OrderByDescending(x => x.CreatedAt)
             .ToList();
+        if (!string.IsNullOrEmpty(_currentId) && _entries.All(x => x.Id != _currentId))
+            _currentId = "";
     }
 
     private void PersistLocked()
@@ -844,6 +846,76 @@ internal sealed class ClipboardWindow : Form
     }
 }
 
+internal static class ProtocolSelfTest
+{
+    public static async Task RunAsync(string path)
+    {
+        var history = new ClipboardHistory(path);
+        history.Load();
+        history.Ingest("protocol fixture text");
+
+        using var server = new BridgeServer(history);
+        await server.StartAsync();
+        try
+        {
+            using (var bad = new ClientWebSocket())
+            {
+                bad.Options.AddSubProtocol(BridgeServer.Protocol);
+                await bad.ConnectAsync(new Uri("ws://127.0.0.1:17485/ws"), CancellationToken.None);
+                await SendAsync(bad, new { command = "auth", token = history.PairingToken + "BAD" });
+                var closeBuffer = new byte[1024];
+                var result = await bad.ReceiveAsync(closeBuffer, CancellationToken.None);
+                if (result.MessageType != WebSocketMessageType.Close)
+                    throw new Exception("unauthorized bridge received clipboard data");
+            }
+
+            using (var good = new ClientWebSocket())
+            {
+                good.Options.AddSubProtocol(BridgeServer.Protocol);
+                await good.ConnectAsync(new Uri("ws://127.0.0.1:17485/ws"), CancellationToken.None);
+                await SendAsync(good, new { command = "auth", token = history.PairingToken });
+                var snapshot = await ReceiveTextAsync(good);
+                if (!snapshot.Contains("\"type\":\"snapshot\"", StringComparison.Ordinal)
+                    || !snapshot.Contains("protocol fixture text", StringComparison.Ordinal))
+                    throw new Exception("authorized bridge snapshot failed");
+                await good.CloseAsync(WebSocketCloseStatus.NormalClosure, "test done", CancellationToken.None);
+            }
+
+            using var http = new HttpClient();
+            var health = await http.GetStringAsync("http://127.0.0.1:17485/health");
+            if (health.Contains("protocol fixture text", StringComparison.Ordinal)
+                || health.Contains(history.PairingToken, StringComparison.Ordinal))
+                throw new Exception("bridge health leaked private data");
+        }
+        finally
+        {
+            await server.StopAsync();
+        }
+    }
+
+    private static async Task SendAsync(ClientWebSocket socket, object value)
+    {
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(value, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        await socket.SendAsync(bytes, WebSocketMessageType.Text, true, CancellationToken.None);
+    }
+
+    private static async Task<string> ReceiveTextAsync(ClientWebSocket socket)
+    {
+        var buffer = new byte[64 * 1024];
+        using var ms = new MemoryStream();
+        WebSocketReceiveResult result;
+        do
+        {
+            result = await socket.ReceiveAsync(buffer, CancellationToken.None);
+            if (result.MessageType != WebSocketMessageType.Text)
+                throw new Exception("expected bridge text snapshot");
+            ms.Write(buffer, 0, result.Count);
+            if (ms.Length > 2_000_000) throw new Exception("bridge snapshot unexpectedly large");
+        } while (!result.EndOfMessage);
+        return Encoding.UTF8.GetString(ms.ToArray());
+    }
+}
+
 internal static class SelfTest
 {
     public static int Run()
@@ -914,6 +986,8 @@ internal static class SelfTest
 
             reload.Clear();
             if (reload.Count != 0) throw new Exception("clear failed");
+
+            ProtocolSelfTest.RunAsync(Path.Combine(root, "protocol-state.dat")).GetAwaiter().GetResult();
 
             Console.WriteLine("CLIPBOARD SHELF BRIDGE SELF-TEST PASS");
             return 0;
