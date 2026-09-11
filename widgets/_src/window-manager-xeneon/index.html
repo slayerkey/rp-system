@@ -6,7 +6,7 @@
 <link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
 <title>tr('Window Manager for XENEON')</title>
 
-<meta name="x-icue-property" content="bridgeKey" data-label="tr('Window Bridge Key')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="bridgeKey" data-label="tr('Window Manager Pairing Key')" data-type="textfield" data-default="''" />
 <meta name="x-icue-property" content="showPinned" data-label="tr('Show Pinned Apps')" data-type="switch" data-default="true" />
 <meta name="x-icue-property" content="showIcons" data-label="tr('Show App Icons')" data-type="switch" data-default="true" />
 <meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F4F6F8'" />
@@ -18,7 +18,7 @@
   {
     "title": "tr('Connection')",
     "properties": ["bridgeKey"],
-    "info": "tr('Run the free PackRat Window Bridge on this Windows PC, copy its local pairing key, and paste it here. The bridge listens only on localhost.')"
+    "info": "tr('Install the free Window Manager Lite Stream Deck plugin on this Windows PC, open its XENEON setup, copy the local pairing key, and paste it here. The service listens only on localhost.')"
   },
   {
     "title": "tr('Window Strip')",
@@ -60,7 +60,7 @@
       <div id="windowList"></div>
       <div id="emptyState" role="status" aria-live="polite">
         <div id="emptyGlyph">⌁</div>
-        <div id="emptyTitle">Starting Window Bridge</div>
+        <div id="emptyTitle">Starting Window Manager Lite</div>
         <div id="emptyBody">The panel will connect automatically.</div>
       </div>
     </section>
