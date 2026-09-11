@@ -34,7 +34,7 @@ No PackRat cloud and no Hue account credentials.
 ## Govee
 
 Local-first:
-1. discover LAN-Control-capable Govee devices by the Govee LAN UDP protocol
+1. discover LAN-Control-capable Govee devices over the local Govee LAN Control UDP transport, with manual IPv4 fallback when multicast discovery is blocked
 2. use LAN commands for on/off, brightness, RGB color and current status when supported
 3. optionally accept a user-provided Govee Developer API key in the local companion for cloud-only capability discovery, color-temperature bounds, devices that do not expose LAN control, current state, and scenes
 4. store the API key in Windows Credential Manager
