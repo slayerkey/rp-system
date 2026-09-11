@@ -84,7 +84,7 @@ public sealed class LightingController : ILightingRuntime, IAsyncDisposable {
 
     public Task<List<HueBridgeCandidate>> DiscoverHueAsync(CancellationToken ct=default)=>hue.DiscoverAsync(ct);
     public async Task<string> PairHueAsync(string ip,CancellationToken ct=default){var r=await hue.PairAsync(ip,ct);await RefreshAsync(ct);return r;}
-    public async Task<int> ScanGoveeLanAsync(CancellationToken ct=default){var n=await govee.DiscoverLanAsync(ct);await RefreshAsync(ct);return n;}
+    public async Task<int> ScanGoveeLanAsync(string? manualIp=null,CancellationToken ct=default){var n=await govee.DiscoverLanAsync(manualIp,ct);await RefreshAsync(ct);return n;}
     public async Task SetGoveeKeyAsync(string key,CancellationToken ct=default){await govee.ValidateAndSaveApiKeyAsync(key,ct);await RefreshAsync(ct);}
     public async Task ClearGoveeKeyAsync(CancellationToken ct=default){state.SetGoveeApiKey(null);await RefreshAsync(ct);}
     public object SetupStatus()=>new{
