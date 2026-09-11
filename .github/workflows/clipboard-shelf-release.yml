@@ -136,6 +136,27 @@ jobs:
               Where-Object { $_.ExecutablePath -and ([IO.Path]::GetFullPath($_.ExecutablePath) -eq [IO.Path]::GetFullPath($installedExe)) } |
               Select-Object -First 1
             if (-not $installedProcess) { throw 'installed bridge process is not running from LocalAppData' }
+            $firstInstalledPid = [int]$installedProcess.ProcessId
+
+            $upgradeBootstrap = Start-Process 'artifacts/companion/PackRat.ClipboardShelfBridge.exe' -PassThru
+            $upgradeBootstrap.WaitForExit(10000) | Out-Null
+            if (-not $upgradeBootstrap.HasExited) { throw 'upgrade bootstrap did not exit after replacing installed bridge' }
+
+            $upgraded = $null
+            for ($i = 0; $i -lt 80; $i++) {
+              try {
+                $response = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:17485/health' -TimeoutSec 1
+                $candidate = Get-CimInstance Win32_Process -Filter "Name='PackRat.ClipboardShelfBridge.exe'" |
+                  Where-Object { $_.ExecutablePath -and ([IO.Path]::GetFullPath($_.ExecutablePath) -eq [IO.Path]::GetFullPath($installedExe)) } |
+                  Select-Object -First 1
+                if ($response.StatusCode -eq 200 -and $candidate -and [int]$candidate.ProcessId -ne $firstInstalledPid) {
+                  $upgraded = $candidate
+                  break
+                }
+              } catch {}
+              Start-Sleep -Milliseconds 250
+            }
+            if (-not $upgraded) { throw 'running installed bridge was not replaced cleanly by a second customer launch' }
 
             & (Join-Path $zipCheck 'Uninstall.ps1')
             if ($LASTEXITCODE -ne 0) { throw "shipped uninstall script failed with exit code $LASTEXITCODE" }
