@@ -13,6 +13,7 @@ function baseTargets(){
     {id:'govee:device:bars',provider:'govee',kind:'light',name:'Desk Bars',on:true,brightness:61,color:{r:139,g:92,b:246},temperatureK:0,reachable:true,favorite:true,transport:'lan',capabilities:{power:true,brightness:true,color:true,temperature:false},scenes:[{id:'govee:scene:aurora',name:'Aurora'},{id:'govee:scene:neon',name:'Neon'}]},
     {id:'govee:device:strip',provider:'govee',kind:'light',name:'Shelf Strip',on:true,brightness:38,color:{r:56,g:189,b:248},temperatureK:4400,temperatureRange:[2000,6500],reachable:true,favorite:false,transport:'cloud+lan',capabilities:{power:true,brightness:true,color:true,temperature:true},scenes:[{id:'govee:scene:aurora',name:'Aurora'}]},
     {id:'govee:device:floor',provider:'govee',kind:'light',name:'Floor Lamp',on:false,brightness:22,color:{r:255,g:132,b:72},reachable:false,favorite:false,transport:'cloud',capabilities:{power:true,brightness:true,color:true,temperature:true},temperatureRange:[2200,6500],scenes:[]},
+    {id:'govee:device:pathological',provider:'govee',kind:'light',name:'Streamer Desk <b>not markup</b> 🎮 夜光 ygjpq — Extremely Long Light Name 1234567890',on:true,brightness:50,color:{r:120,g:90,b:255},reachable:true,favorite:true,transport:'lan',capabilities:{power:true,brightness:true,color:true,temperature:false},scenes:[]},
     {id:'govee:scene:aurora',provider:'govee',kind:'scene',name:'Aurora',reachable:true,favorite:true,parentId:'govee:device:bars',capabilities:{scene:true}}
   ];
 }
@@ -37,7 +38,7 @@ try{
       globalThis.__PACKRAT_LIGHTING_FIXTURE__={connection:'live',providers:{hue:{connected:true},govee:{connected:true,lan:true,cloud:true}},targets,forceFilter:'favorites',selectedId:'hue:room:studio'};
     },{targets:baseTargets()});
     await page.goto(pathToFileURL(entry).href,{waitUntil:'load'});
-    await page.waitForFunction(()=>Boolean(globalThis.__PACKRAT_LIGHTING_TEST__)&&document.querySelectorAll('.target-card').length>=3);
+    await page.waitForFunction(()=>Boolean(globalThis.__PACKRAT_LIGHTING_TEST__)&&document.querySelectorAll('.target-card').length>=4);
     await page.waitForTimeout(250);
     const layout=await page.evaluate(()=>({
       overflowX:document.documentElement.scrollWidth-innerWidth,
@@ -49,6 +50,9 @@ try{
     assert.ok(layout.overflowX<=1&&layout.overflowY<=1,name+' document overflow '+JSON.stringify(layout));
     for(const [,h] of layout.filters)assert.ok(h>=38,name+' filter too small');
     for(const [w,h] of layout.controls)assert.ok(w>=44&&h>=44,name+' control too small '+w+'x'+h);
+    const hostile=page.locator('[data-id="govee:device:pathological"] .target-name');
+    assert.equal(await hostile.textContent(),'Streamer Desk <b>not markup</b> 🎮 夜光 ygjpq — Extremely Long Light Name 1234567890',name+' hostile text changed');
+    assert.equal(await hostile.locator('b').count(),0,name+' user device name rendered as markup');
     await page.locator('[data-id="hue:room:studio"]').click();
     await page.locator('#powerButton').click();
     assert.equal(await page.evaluate(()=>globalThis.__PACKRAT_LIGHTING_TEST__.selected().on),false,name+' power fixture command failed');
@@ -62,7 +66,7 @@ try{
     await context.close();
   }
   // Error / edge states.
-  for(const state of ['offline','unconfigured','unauthorized']){
+  for(const state of ['offline','unconfigured','unauthorized','incompatible']){
     const context=await browser.newContext({viewport:{width:840,height:696}}),page=await context.newPage();
     await page.addInitScript(({state})=>{
       globalThis.pairingToken='fixture-token';globalThis.defaultView='favorites';globalThis.showOffline=true;globalThis.textColor='#fff';globalThis.accentColor='#8B5CF6';globalThis.backgroundColor='#090A0F';globalThis.tr=async v=>v;
@@ -72,6 +76,32 @@ try{
     assert.equal(await page.locator('#blockingState').isHidden(),false,state+' blocking state missing');
     await context.close();
   }
+
+  // Provider-specific unavailable and no-data states must be explicit, never blank.
+  {
+    const context=await browser.newContext({viewport:{width:840,height:696}}),page=await context.newPage();
+    await page.addInitScript(()=>{
+      globalThis.pairingToken='fixture-token';globalThis.defaultView='hue';globalThis.showOffline=true;globalThis.textColor='#fff';globalThis.accentColor='#8B5CF6';globalThis.backgroundColor='#090A0F';globalThis.tr=async v=>v;
+      globalThis.__PACKRAT_LIGHTING_FIXTURE__={connection:'live',providers:{hue:{connected:false,detail:'Bridge unreachable'},govee:{connected:true,lan:true,detail:'LAN ready'}},targets:[{id:'govee:device:one',provider:'govee',kind:'light',name:'Only Govee',on:true,brightness:50,reachable:true,favorite:false,capabilities:{power:true,brightness:true,color:true}}],forceFilter:'hue'};
+    });
+    await page.goto(pathToFileURL(entry).href,{waitUntil:'load'});
+    await page.waitForFunction(()=>!document.getElementById('emptyState').hidden);
+    assert.match(await page.locator('#emptyState').textContent(),/Hue is unavailable/i);
+    assert.match(await page.locator('#providerStatus').textContent(),/Hue OFF/i);
+    assert.ok((await page.locator('body').textContent()).trim().length>40,'provider error state rendered blank');
+    await context.close();
+  }
+  {
+    const context=await browser.newContext({viewport:{width:840,height:696}}),page=await context.newPage();
+    await page.addInitScript(()=>{
+      globalThis.pairingToken='fixture-token';globalThis.defaultView='all';globalThis.showOffline=true;globalThis.textColor='#fff';globalThis.accentColor='#8B5CF6';globalThis.backgroundColor='#090A0F';globalThis.tr=async v=>v;
+      globalThis.__PACKRAT_LIGHTING_FIXTURE__={connection:'live',providers:{hue:{connected:false,detail:'Not paired'},govee:{connected:false,detail:'No LAN devices'}},targets:[],forceFilter:'all'};
+    });
+    await page.goto(pathToFileURL(entry).href,{waitUntil:'load'});
+    await page.waitForFunction(()=>!document.getElementById('emptyState').hidden);
+    assert.match(await page.locator('#emptyState').textContent(),/No lighting devices found/i);
+    await context.close();
+  }
 }finally{await browser.close()}
 await fs.writeFile(path.join(out,'results.json'),JSON.stringify(results,null,2));
-console.log('SMART LIGHTING VISUAL QA PASS: 8 XENEON compositions + offline/unconfigured/unauthorized fixtures');
+console.log('SMART LIGHTING VISUAL QA PASS: 8 XENEON compositions + hostile text + offline/unconfigured/unauthorized/incompatible/provider/no-data states');
