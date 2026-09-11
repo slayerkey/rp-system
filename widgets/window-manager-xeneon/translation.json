@@ -1,0 +1,62 @@
+{
+  "en": {
+    "translation": {
+      "Window Manager for XENEON": "Window Manager for XENEON",
+      "Window Bridge Key": "Window Bridge Key",
+      "Show Pinned Apps": "Show Pinned Apps",
+      "Show App Icons": "Show App Icons",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Connection": "Connection",
+      "Window Strip": "Window Strip",
+      "Appearance": "Appearance",
+      "Run the free PackRat Window Bridge on this Windows PC, copy its local pairing key, and paste it here. The bridge listens only on localhost.": "Run the free PackRat Window Bridge on this Windows PC, copy its local pairing key, and paste it here. The bridge listens only on localhost."
+    }
+  },
+  "de": {
+    "translation": {
+      "Window Manager for XENEON": "Window Manager for XENEON",
+      "Window Bridge Key": "Window-Bridge-Schlüssel",
+      "Show Pinned Apps": "Angeheftete Apps anzeigen",
+      "Show App Icons": "App-Symbole anzeigen",
+      "Text Color": "Textfarbe",
+      "Accent Color": "Akzentfarbe",
+      "Background Color": "Hintergrundfarbe",
+      "Connection": "Verbindung",
+      "Window Strip": "Fensterleiste",
+      "Appearance": "Darstellung",
+      "Run the free PackRat Window Bridge on this Windows PC, copy its local pairing key, and paste it here. The bridge listens only on localhost.": "Starte die kostenlose PackRat Window Bridge auf diesem Windows-PC, kopiere den lokalen Kopplungsschlüssel und füge ihn hier ein. Die Bridge hört nur auf localhost."
+    }
+  },
+  "es": {
+    "translation": {
+      "Window Manager for XENEON": "Window Manager for XENEON",
+      "Window Bridge Key": "Clave de Window Bridge",
+      "Show Pinned Apps": "Mostrar apps fijadas",
+      "Show App Icons": "Mostrar iconos de apps",
+      "Text Color": "Color del texto",
+      "Accent Color": "Color de acento",
+      "Background Color": "Color de fondo",
+      "Connection": "Conexión",
+      "Window Strip": "Banda de ventanas",
+      "Appearance": "Apariencia",
+      "Run the free PackRat Window Bridge on this Windows PC, copy its local pairing key, and paste it here. The bridge listens only on localhost.": "Ejecuta PackRat Window Bridge gratis en este PC con Windows, copia su clave local y pégala aquí. El puente solo escucha en localhost."
+    }
+  },
+  "fr": {
+    "translation": {
+      "Window Manager for XENEON": "Window Manager for XENEON",
+      "Window Bridge Key": "Clé Window Bridge",
+      "Show Pinned Apps": "Afficher les apps épinglées",
+      "Show App Icons": "Afficher les icônes des apps",
+      "Text Color": "Couleur du texte",
+      "Accent Color": "Couleur d'accentuation",
+      "Background Color": "Couleur d'arrière-plan",
+      "Connection": "Connexion",
+      "Window Strip": "Bande de fenêtres",
+      "Appearance": "Apparence",
+      "Run the free PackRat Window Bridge on this Windows PC, copy its local pairing key, and paste it here. The bridge listens only on localhost.": "Lancez PackRat Window Bridge sur ce PC Windows, copiez sa clé locale et collez-la ici. Le bridge écoute uniquement sur localhost."
+    }
+  }
+}
