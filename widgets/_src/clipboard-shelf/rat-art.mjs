@@ -39,7 +39,12 @@ export async function assert(page,context){
   overflowY:document.documentElement.scrollHeight-innerHeight,
   cards:document.querySelectorAll('.clip-card').length,
   current:document.querySelectorAll('.clip-card.current').length,
-  minButton:Math.min(...Array.from(document.querySelectorAll('.icon-button,.top-button,.filter,.resume-button')).map(x=>Math.min(x.getBoundingClientRect().width,x.getBoundingClientRect().height))),
+  minButton:(()=>{
+    const visible=Array.from(document.querySelectorAll('.icon-button,.top-button,.filter,.resume-button'))
+      .map(x=>x.getBoundingClientRect())
+      .filter(r=>r.width>0&&r.height>0);
+    return visible.length?Math.min(...visible.map(r=>Math.min(r.width,r.height))):0;
+  })(),
   markupNodes:document.querySelectorAll('#shelf b,#shelf script,#shelf img').length,
   hostileText:Array.from(document.querySelectorAll('.preview')).some(x=>x.textContent.includes('<b>not markup</b>'))
  }));
