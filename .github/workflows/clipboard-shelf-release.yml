@@ -90,7 +90,7 @@ jobs:
             if (-not (Test-Path (Join-Path $check $required))) { throw "companion release ZIP missing $required" }
           }
 
-      - name: Customer first-run install and uninstall smoke
+      - name: Customer install, upgrade, and uninstall lifecycle smoke
         shell: pwsh
         run: |
           $installedDir = Join-Path $env:LOCALAPPDATA 'PackRat\ClipboardShelf'
@@ -109,19 +109,19 @@ jobs:
             Remove-ItemProperty -Path $runKey -Name $runValue -ErrorAction SilentlyContinue
             Remove-Item $installedDir -Recurse -Force -ErrorAction SilentlyContinue
 
+            # First exercise the exact normal customer bootstrap. GitHub-hosted Windows
+            # runners are non-interactive, so the tray/WinForms child is not expected to
+            # stay healthy here; install location + startup registration are the production
+            # behaviors this part proves.
             $bootstrap = Start-Process 'artifacts/companion/PackRat.ClipboardShelfBridge.exe' -PassThru
 
-            $ready = $false
+            $installed = $false
             for ($i = 0; $i -lt 80; $i++) {
-              try {
-                if ((Test-Path $installedExe)) {
-                  $response = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:17485/health' -TimeoutSec 1
-                  if ($response.StatusCode -eq 200) { $ready = $true; break }
-                }
-              } catch {}
+              $startupProbe = Get-ItemProperty -Path $runKey -Name $runValue -ErrorAction SilentlyContinue
+              if ((Test-Path $installedExe) -and $startupProbe) { $installed = $true; break }
               Start-Sleep -Milliseconds 250
             }
-            if (-not $ready) { throw 'first-run bridge did not self-install and become healthy' }
+            if (-not $installed) { throw 'normal customer launch did not self-install and register Windows startup' }
 
             $bootstrap.WaitForExit(5000) | Out-Null
             if (-not $bootstrap.HasExited) { throw 'bootstrap executable did not exit after relaunching installed bridge' }
@@ -132,13 +132,31 @@ jobs:
               throw "startup registration mismatch: expected $expectedStartup, got $startup"
             }
 
-            $installedProcess = Get-CimInstance Win32_Process -Filter "Name='PackRat.ClipboardShelfBridge.exe'" |
-              Where-Object { $_.ExecutablePath -and ([IO.Path]::GetFullPath($_.ExecutablePath) -eq [IO.Path]::GetFullPath($installedExe)) } |
-              Select-Object -First 1
-            if (-not $installedProcess) { throw 'installed bridge process is not running from LocalAppData' }
+            Stop-ClipboardShelf
+
+            # Re-enter through the exact published customer EXE with the CI-only headless
+            # lifecycle mode. This keeps the installed binary alive without a desktop so
+            # localhost health, replacement of a running install, and uninstall can be
+            # verified on the hosted Windows service runner.
+            $headlessBootstrap = Start-Process 'artifacts/companion/PackRat.ClipboardShelfBridge.exe' -ArgumentList '--lifecycle-smoke' -PassThru
+            $headlessBootstrap.WaitForExit(10000) | Out-Null
+            if (-not $headlessBootstrap.HasExited) { throw 'headless lifecycle bootstrap did not exit after relaunching installed bridge' }
+
+            $installedProcess = $null
+            for ($i = 0; $i -lt 80; $i++) {
+              try {
+                $response = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:17485/health' -TimeoutSec 1
+                $candidate = Get-CimInstance Win32_Process -Filter "Name='PackRat.ClipboardShelfBridge.exe'" |
+                  Where-Object { $_.ExecutablePath -and ([IO.Path]::GetFullPath($_.ExecutablePath) -eq [IO.Path]::GetFullPath($installedExe)) } |
+                  Select-Object -First 1
+                if ($response.StatusCode -eq 200 -and $candidate) { $installedProcess = $candidate; break }
+              } catch {}
+              Start-Sleep -Milliseconds 250
+            }
+            if (-not $installedProcess) { throw 'installed headless lifecycle bridge did not become healthy from LocalAppData' }
             $firstInstalledPid = [int]$installedProcess.ProcessId
 
-            $upgradeBootstrap = Start-Process 'artifacts/companion/PackRat.ClipboardShelfBridge.exe' -PassThru
+            $upgradeBootstrap = Start-Process 'artifacts/companion/PackRat.ClipboardShelfBridge.exe' -ArgumentList '--lifecycle-smoke' -PassThru
             $upgradeBootstrap.WaitForExit(10000) | Out-Null
             if (-not $upgradeBootstrap.HasExited) { throw 'upgrade bootstrap did not exit after replacing installed bridge' }
 
