@@ -467,7 +467,7 @@ public sealed class WindowMonitorService : BackgroundService
     private readonly WindowService _windows;
     private readonly BridgeHub _hub;
     private readonly object _debounceGate = new();
-    private Timer? _debounceTimer;
+    private System.Threading.Timer? _debounceTimer;
 
     public WindowMonitorService(WindowService windows, BridgeHub hub)
     {
@@ -498,7 +498,7 @@ public sealed class WindowMonitorService : BackgroundService
     {
         lock (_debounceGate)
         {
-            _debounceTimer ??= new Timer(async _ =>
+            _debounceTimer ??= new System.Threading.Timer(async _ =>
             {
                 try { await RefreshAndBroadcastAsync(CancellationToken.None); } catch { }
             });
