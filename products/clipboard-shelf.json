@@ -21,7 +21,7 @@
   },
   "release_gate": [
     "canonical XENEON troubleshooting playbook review",
-    "Windows companion build, source self-test, published-exe self-test, and live localhost protocol self-test",
+    "Windows companion build, source self-test, published-exe self-test, real first-run self-install/startup smoke, running-version replacement smoke, shipped uninstall cleanup smoke, and live localhost protocol self-test",
     "short, long, multiline, URL, duplicate, rapid-change, pinned, favorite, history-limit, delete, clear, private-mode, corrupt-persistence fixtures",
     "all eight deterministic XENEON layouts",
     "official CORSAIR CLI validation and .icuewidget packaging",

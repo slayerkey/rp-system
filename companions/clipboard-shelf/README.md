@@ -20,6 +20,8 @@ Stable release-candidate download:
 4. In iCUE, open Clipboard Shelf settings and paste the code into **Bridge Pairing Code**.
 5. The XENEON panel will connect automatically.
 
+To update the bridge later, run the newer downloaded `PackRat.ClipboardShelfBridge.exe`. It replaces the installed per-user copy, restarts from `%LOCALAPPDATA%\PackRat\ClipboardShelf\`, and preserves the existing encrypted history and pairing state.
+
 The pairing code is generated locally, stored inside the bridge's DPAPI-protected state, and never returned by `/health`. Copying the code from the tray is deliberately suppressed from clipboard history.
 
 ## Runtime
