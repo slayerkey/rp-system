@@ -1,0 +1,38 @@
+{
+  "Name": "Calendar Sync Lite",
+  "Version": "1.0.0.1",
+  "Author": "Packrat",
+  "Actions": [
+    {
+      "Name": "Next Meeting",
+      "UUID": "com.packrat.calendarsynclite.next",
+      "Icon": "imgs/actions/next/icon",
+      "Tooltip": "Your next meeting and a live countdown, right on the key. The key turns amber as it gets close and red when it is about to start. Press to refresh.",
+      "PropertyInspectorPath": "ui/next.html",
+      "Controllers": ["Keypad"],
+      "States": [{"Image": "imgs/actions/next/key","TitleAlignment": "bottom"}]
+    },
+    {
+      "Name": "Agenda",
+      "UUID": "com.packrat.calendarsynclite.agenda",
+      "Icon": "imgs/actions/agenda/icon",
+      "Tooltip": "Everything left on your day, one key at a time. Press to step to the next one.",
+      "PropertyInspectorPath": "ui/agenda.html",
+      "Controllers": ["Keypad"],
+      "States": [{"Image": "imgs/actions/agenda/key","TitleAlignment": "bottom"}]
+    }
+  ],
+  "Category": "Calendar Sync Lite",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "Never miss the start of a meeting again. Your next event sits on a key with a live countdown, and the key shifts colour as the time closes in, so you catch it from across the room without alt-tabbing. Works with any calendar that gives you a private iCal link, including Google Calendar, Outlook, Apple Calendar and Fastmail.",
+  "Icon": "imgs/plugin/marketplace",
+  "SDKVersion": 3,
+  "Software": {"MinimumVersion": "6.9"},
+  "OS": [
+    {"Platform":"windows","MinimumVersion":"10"},
+    {"Platform":"mac","MinimumVersion":"12"}
+  ],
+  "Nodejs": {"Version":"20"},
+  "UUID": "com.packrat.calendarsynclite"
+}

@@ -1,0 +1,48 @@
+{
+  "Name": "Calendar Sync Pro",
+  "Version": "1.1.1.0",
+  "Author": "Packrat",
+  "Category": "Calendar Sync Pro",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "All your calendars on one key. Your next event sits on a key with a live countdown that shifts colour as the time closes in, one press opens the meeting link, and work, personal and shared calendars merge together so nothing hides in the one you forgot to check. On Stream Deck+, turn the dial to scroll through the day. Works with Google Calendar, Outlook, Apple Calendar and Fastmail.",
+  "Icon": "imgs/plugin/marketplace",
+  "SDKVersion": 3,
+  "Software": {"MinimumVersion":"6.9"},
+  "OS": [
+    {"Platform":"windows","MinimumVersion":"10"},
+    {"Platform":"mac","MinimumVersion":"12"}
+  ],
+  "Nodejs": {"Version":"20"},
+  "UUID": "com.packrat.calendarsyncpro",
+  "Actions": [
+    {
+      "Name":"Next Meeting",
+      "UUID":"com.packrat.calendarsyncpro.next",
+      "Icon":"imgs/actions/next/icon",
+      "Tooltip":"Your next meeting across every calendar on this key, with a live countdown. The key turns amber as it gets close and red when it is about to start. Press to refresh.",
+      "PropertyInspectorPath":"ui/next.html",
+      "Controllers":["Keypad"],
+      "States":[{"Image":"imgs/actions/next/key","TitleAlignment":"bottom"}]
+    },
+    {
+      "Name":"Agenda",
+      "UUID":"com.packrat.calendarsyncpro.agenda",
+      "Icon":"imgs/actions/agenda/icon",
+      "Tooltip":"What is left today, one event at a time. Press to step forward, or turn the dial on Stream Deck+ to scroll both ways.",
+      "PropertyInspectorPath":"ui/agenda.html",
+      "Controllers":["Keypad","Encoder"],
+      "Encoder":{"layout":"$B1","TriggerDescription":{"Rotate":"Scroll the day","Push":"Back to the top","Touch":"Back to the top"}},
+      "States":[{"Image":"imgs/actions/agenda/key","TitleAlignment":"bottom"}]
+    },
+    {
+      "Name":"Join Meeting",
+      "UUID":"com.packrat.calendarsyncpro.join",
+      "Icon":"imgs/actions/join/icon",
+      "Tooltip":"Opens the meeting link for whatever is next. Works with Teams, Meet, Zoom and Webex links found in the invite.",
+      "PropertyInspectorPath":"ui/join.html",
+      "Controllers":["Keypad"],
+      "States":[{"Image":"imgs/actions/join/key","TitleAlignment":"bottom"}]
+    }
+  ]
+}
