@@ -45,7 +45,7 @@ function readIcue(name,fallback){
     return v===undefined||v===null?fallback:v;
   }catch(e2){return fallback}
 }
-function bool(name,fallback){return readIcue(name,fallback)!==false}
+function bool(name,fallback){var v=readIcue(name,fallback);return !(v===false||v===0||v==="0"||String(v).toLowerCase()==="false")}
 function settings(){
   var style=String(readIcue("terminalStyle","green")||"green").toLowerCase();
   if(["green","amber","white","blue","cyber","custom"].indexOf(style)<0)style="green";
@@ -156,7 +156,7 @@ function applyEffects(){
   root.setProperty("--glow-blur",String(2+cfg.glow/100*22)+"px");
   root.setProperty("--flicker-opacity",String(cfg.flicker/100*.16));
   root.setProperty("--vignette-opacity",String(cfg.vignette/100*.82));
-  root.setProperty("--curve-radius",cfg.curvature?"var(--curve-slot, 24px)":"0px");
+  var viewport=byId("crtViewport");\n  if(viewport)viewport.style.borderRadius=cfg.curvature?"":"0px";
 }
 function renderIdentity(){
   byId("machineLabel").textContent=state.cfg.machineName;
