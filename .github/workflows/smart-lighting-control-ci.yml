@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - product/smart-lighting-control
+    paths-ignore:
+      - 'products/smart-lighting-control.json'
   workflow_dispatch:
 
 permissions:
@@ -338,6 +340,36 @@ jobs:
           }
           gh release create $tag $zip --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Smart Lighting Companion 1.0.0' --notes 'Free local Windows companion required by Smart Lighting Control for Hue + Govee on XENEON Edge. Runs on localhost only. Hue and Govee credentials stay in Windows Credential Manager; no PackRat cloud or account is used.'
           if ($LASTEXITCODE -ne 0) { throw 'Could not publish Smart Lighting companion release' }
+
+      - name: Verify public PackRat companion download
+        shell: pwsh
+        run: |
+          $url = 'https://packrat-site.pages.dev/downloads/smart-lighting'
+          $download = 'artifacts/public-PackRat-Lighting-Companion-win-x64.zip'
+          $ok = $false
+          for ($attempt = 1; $attempt -le 20; $attempt++) {
+            if (Test-Path $download) { Remove-Item $download -Force }
+            & curl.exe -L --fail --silent --show-error --output $download $url
+            if ($LASTEXITCODE -eq 0 -and (Test-Path $download) -and (Get-Item $download).Length -gt 1000000) {
+              $ok = $true
+              break
+            }
+            Write-Host "PackRat download not ready yet (attempt $attempt/20)"
+            Start-Sleep -Seconds 15
+          }
+          if (-not $ok) { throw 'Public PackRat companion download did not become available' }
+
+          $built = (Get-FileHash 'artifacts/companion/PackRat-Lighting-Companion-win-x64.zip' -Algorithm SHA256).Hash
+          $public = (Get-FileHash $download -Algorithm SHA256).Hash
+          if ($built -ne $public) { throw "Public companion hash mismatch: built=$built public=$public" }
+
+          $check = Join-Path $env:RUNNER_TEMP 'smart-lighting-public-download'
+          if (Test-Path $check) { Remove-Item -Recurse -Force $check }
+          Expand-Archive $download $check
+          foreach ($required in @('PackRat-Lighting-Companion.exe','CUSTOMER-SETUP.txt')) {
+            if (-not (Test-Path (Join-Path $check $required))) { throw "Public companion ZIP missing $required" }
+          }
+          Write-Host "PUBLIC COMPANION DOWNLOAD PASS $public"
 
       - name: Upload final Rat Ship kit
         uses: actions/upload-artifact@v4
