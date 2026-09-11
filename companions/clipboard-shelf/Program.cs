@@ -376,16 +376,19 @@ internal sealed class BridgeServer : IDisposable
 
     public async Task StartAsync()
     {
-        var builder = WebApplication.CreateSlimBuilder();
+        var builder = WebApplication.CreateBuilder(Array.Empty<string>());
         builder.Logging.ClearProviders();
         builder.WebHost.UseUrls("http://127.0.0.1:17485");
         var app = builder.Build();
         app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(20) });
 
-        app.MapGet("/health", () => Results.Json(_history.Health()));
-
-        app.Map("/ws", async context =>
+        app.Use(async (context, next) =>
         {
+            if (context.Request.Path != "/ws")
+            {
+                await next(context);
+                return;
+            }
             if (!context.WebSockets.IsWebSocketRequest)
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -420,6 +423,9 @@ internal sealed class BridgeServer : IDisposable
                 _clients.TryRemove(id, out _);
             }
         });
+
+
+        app.MapGet("/health", () => Results.Json(_history.Health()));
 
         _app = app;
         await app.StartAsync();
