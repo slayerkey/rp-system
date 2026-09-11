@@ -3,11 +3,20 @@
   "name": "Calendar Panel",
   "type": "widget",
   "price_usd": 9.99,
-  "version": "1.0.0",
-  "marketplace_category": ["Productivity"],
-  "marketplace_dashboard_sizes": ["Extra large", "Large", "Medium", "Small"],
-  "marketplace_language": ["English"],
+  "version": "1.0.1",
+  "marketplace_category": [
+    "Productivity"
+  ],
+  "marketplace_dashboard_sizes": [
+    "Extra large",
+    "Large",
+    "Medium",
+    "Small"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
   "marketplace_auto_publish": true,
   "description": "Calendar Panel turns the XENEON Edge into a glanceable day timeline. Add up to three ICS calendar feeds and see what is next, what is happening now, and how packed the rest of the day really is.\n\nThe wide layout positions events by real start time and duration, with a live now marker and a separate all-day rail. Tap any event for full details including location. Tap the next-event card to switch between today and the next three days.\n\nRecurring events, recurrence exceptions, all-day events, timezone-aware times, overlapping meetings, stale data, empty days, and feed failures are handled deliberately.\n\nNo OAuth or account login is used. Calendar Panel reads ICS feed URLs configured in iCUE. Some calendar providers block direct browser access, so Calendar Sync Pro companion transport may be required for those feeds.\n\nPart of the PackRat 🐀 collection for CORSAIR XENEON Edge.",
-  "release_notes": "Initial release. Up to three ICS calendar feeds. Time-scaled horizontal day timeline with live now marker. Next-event hero with countdown. Today and next-three-days modes. Recurring event expansion with RDATE, EXDATE, RECURRENCE-ID overrides and cancellation handling. Separate all-day rail. Timezone-aware display and DST-safe day scaling. Touch event details. Tuned layouts for all eight XENEON Edge slot sizes and orientations."
+  "release_notes": "• Added a direct Calendar Sync Pro Marketplace CTA when a configured feed needs the companion bridge\\n• Tapping the companion-needed card now opens the exact Calendar Sync Pro product page through iCUE\\n• Normal calendar, timeline, and range-toggle behavior is unchanged when the companion is not needed"
 }
