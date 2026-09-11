@@ -11,7 +11,6 @@
       "Accent Color": "Accent Color",
       "Background Color": "Background Color",
       "Calendars": "Calendars",
-      "Paste secret ICS feed URLs. Calendar data stays on this PC.": "Paste secret ICS feed URLs. Calendar data stays on this PC.",
       "Appearance": "Appearance",
       "CALENDAR": "CALENDAR",
       "NEXT UP": "NEXT UP",
@@ -22,7 +21,8 @@
       "Day timeline": "Day timeline",
       "Agenda list": "Agenda list",
       "Close details": "Close details",
-      "EVENT": "EVENT"
+      "EVENT": "EVENT",
+      "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored.": "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored."
     }
   },
   "de": {
@@ -37,7 +37,6 @@
       "Accent Color": "Akzentfarbe",
       "Background Color": "Hintergrundfarbe",
       "Calendars": "Kalender",
-      "Paste secret ICS feed URLs. Calendar data stays on this PC.": "Füge geheime ICS-Feed-URLs ein. Kalenderdaten bleiben auf diesem PC.",
       "Appearance": "Darstellung",
       "CALENDAR": "KALENDER",
       "NEXT UP": "ALS NÄCHSTES",
@@ -48,7 +47,8 @@
       "Day timeline": "Tageszeitleiste",
       "Agenda list": "Agendaliste",
       "Close details": "Details schließen",
-      "EVENT": "TERMIN"
+      "EVENT": "TERMIN",
+      "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored.": "Füge geheime ICS-Feed-URLs ein. Blockierte Feeds nutzen den zustandslosen Packrat-Relay; URLs und Kalenderdaten werden nicht gespeichert."
     }
   },
   "es": {
@@ -63,7 +63,6 @@
       "Accent Color": "Color de acento",
       "Background Color": "Color de fondo",
       "Calendars": "Calendarios",
-      "Paste secret ICS feed URLs. Calendar data stays on this PC.": "Pega URLs secretas de feeds ICS. Los datos del calendario permanecen en este PC.",
       "Appearance": "Apariencia",
       "CALENDAR": "CALENDARIO",
       "NEXT UP": "PRÓXIMO",
@@ -74,7 +73,8 @@
       "Day timeline": "Cronología del día",
       "Agenda list": "Lista de agenda",
       "Close details": "Cerrar detalles",
-      "EVENT": "EVENTO"
+      "EVENT": "EVENTO",
+      "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored.": "Pega URLs secretas de feeds ICS. Los feeds bloqueados usan el relé sin estado de Packrat; las URLs y los datos del calendario no se almacenan."
     }
   },
   "fr": {
@@ -89,7 +89,6 @@
       "Accent Color": "Couleur d'accentuation",
       "Background Color": "Couleur d'arrière-plan",
       "Calendars": "Calendriers",
-      "Paste secret ICS feed URLs. Calendar data stays on this PC.": "Collez des URL secrètes de flux ICS. Les données du calendrier restent sur ce PC.",
       "Appearance": "Apparence",
       "CALENDAR": "CALENDRIER",
       "NEXT UP": "À VENIR",
@@ -100,7 +99,8 @@
       "Day timeline": "Chronologie du jour",
       "Agenda list": "Liste de l'agenda",
       "Close details": "Fermer les détails",
-      "EVENT": "ÉVÉNEMENT"
+      "EVENT": "ÉVÉNEMENT",
+      "Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored.": "Collez des URL secrètes de flux ICS. Les flux bloqués utilisent le relais sans état de Packrat ; les URL et les données du calendrier ne sont pas stockées."
     }
   }
 }

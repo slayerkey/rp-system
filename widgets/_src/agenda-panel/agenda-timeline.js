@@ -5,7 +5,6 @@ function renderHero(now) {
   var countdown = document.getElementById("heroCountdown");
   var location = document.getElementById("heroLocation");
   var heroCard = document.getElementById("heroCard");
-  var bridgeNeeded = STATE.status === "bridge" && !STATE.events.length;
   countdown.setAttribute("data-tone", "");
 
   if (STATE.status === "unconfigured") {
@@ -13,14 +12,9 @@ function renderHero(now) {
     time.textContent = "Paste an ICS feed URL in settings";
     countdown.textContent = "";
     location.textContent = "";
-  } else if (bridgeNeeded) {
-    title.textContent = "Calendar companion unavailable";
-    time.textContent = "Calendar Sync Pro bridge is required for feeds blocked by browser CORS";
-    countdown.textContent = "GET CALENDAR SYNC PRO →";
-    location.textContent = "";
   } else if (STATE.status === "error" && !STATE.events.length) {
     title.textContent = "Calendar feed unavailable";
-    time.textContent = "Check the ICS URL and try refresh";
+    time.textContent = "Check the ICS URL or your connection, then try refresh";
     countdown.textContent = "";
     location.textContent = "";
   } else if (!event) {
@@ -38,19 +32,13 @@ function renderHero(now) {
     location.textContent = event.location || "";
   }
 
-  if (bridgeNeeded) {
-    setText("heroToggle", "TAP TO OPEN MARKETPLACE");
-    heroCard.setAttribute("aria-label", "Open Calendar Sync Pro on Marketplace");
-    heroCard.onclick = function () { openCalendarSyncPro(); };
-  } else {
-    setText("heroToggle", STATE.mode === "today" ? "TAP FOR NEXT 3 DAYS" : "TAP FOR TODAY");
-    heroCard.setAttribute("aria-label", "Switch calendar range");
-    heroCard.onclick = function () {
-      STATE.mode = STATE.mode === "today" ? "four" : "today";
-      document.body.setAttribute("data-mode", STATE.mode);
-      render();
-    };
-  }
+  setText("heroToggle", STATE.mode === "today" ? "TAP FOR NEXT 3 DAYS" : "TAP FOR TODAY");
+  heroCard.setAttribute("aria-label", "Switch calendar range");
+  heroCard.onclick = function () {
+    STATE.mode = STATE.mode === "today" ? "four" : "today";
+    document.body.setAttribute("data-mode", STATE.mode);
+    render();
+  };
 }
 
 function allDayStartDate(event) {

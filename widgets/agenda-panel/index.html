@@ -21,7 +21,7 @@
   {
     "title": "tr('Calendars')",
     "properties": ["calendarUrl1", "calendarUrl2", "calendarUrl3", "refreshMinutes", "use24Hour"],
-    "info": "tr('Paste secret ICS feed URLs. Calendar data stays on this PC.')"
+    "info": "tr('Paste secret ICS feed URLs. Blocked feeds use the Packrat stateless relay; URLs and calendar data are not stored.')"
   },
   {
     "title": "tr('Appearance')",
@@ -211,19 +211,48 @@ body[data-slot="m-h"] #allDayRail {
 <script>
 (function () {
   var names = ["calendarUrl1","calendarUrl2","calendarUrl3","refreshMinutes","use24Hour","textColor","accentColor","backgroundColor"];
+  function readBinding(name) {
+    switch (name) {
+    case "calendarUrl1":
+      try { return typeof calendarUrl1 !== 'undefined' ? calendarUrl1 : undefined; }
+      catch (error) { return undefined; }
+    case "calendarUrl2":
+      try { return typeof calendarUrl2 !== 'undefined' ? calendarUrl2 : undefined; }
+      catch (error) { return undefined; }
+    case "calendarUrl3":
+      try { return typeof calendarUrl3 !== 'undefined' ? calendarUrl3 : undefined; }
+      catch (error) { return undefined; }
+    case "refreshMinutes":
+      try { return typeof refreshMinutes !== 'undefined' ? refreshMinutes : undefined; }
+      catch (error) { return undefined; }
+    case "use24Hour":
+      try { return typeof use24Hour !== 'undefined' ? use24Hour : undefined; }
+      catch (error) { return undefined; }
+    case "textColor":
+      try { return typeof textColor !== 'undefined' ? textColor : undefined; }
+      catch (error) { return undefined; }
+    case "accentColor":
+      try { return typeof accentColor !== 'undefined' ? accentColor : undefined; }
+      catch (error) { return undefined; }
+    case "backgroundColor":
+      try { return typeof backgroundColor !== 'undefined' ? backgroundColor : undefined; }
+      catch (error) { return undefined; }
+      default: return undefined;
+    }
+  }
+  globalThis.__ratpackIcueRead = readBinding;
   names.forEach(function (name) {
     try {
       if (Object.prototype.hasOwnProperty.call(globalThis, name)) return;
-      var resolve = Function("return typeof " + name + " !== 'undefined' ? " + name + " : undefined;");
-      if (resolve() === undefined) return;
+      if (readBinding(name) === undefined) return;
       Object.defineProperty(globalThis, name, {
         configurable: true,
         enumerable: true,
-        get: function () { try { return resolve(); } catch (error) { return undefined; } }
+        get: function () { return readBinding(name); }
       });
     } catch (error) {}
   });
-  globalThis.__ratpackIcueBindingBridge = { version: 1, names: names.slice() };
+  globalThis.__ratpackIcueBindingBridge = { version: 2, mode: 'direct-binding', names: names.slice() };
 })();
 </script>
 </head>
@@ -305,7 +334,7 @@ var SLOT_SPECS = [
   { id: "xl-h", w: 2536, h: 696 },
   { id: "xl-v", w: 696, h: 2536 }
 ];
-var BRIDGE_URL = "http://127.0.0.1:38765/v1/ics?url=";
+var CALENDAR_RELAY_URL = "https://packrat-site.pages.dev/api/calendar-feed";
 var REFRESH_TIMER = null;
 var CLOCK_TIMER = null;
 var STATE = {
@@ -475,11 +504,18 @@ async function loadCalendarText(url, sourceIndex) {
   } catch (error) {}
 
   var fetchUrl = url.replace(/^webcal:/i, "https:");
-  var direct = await withTimeout(fetchUrl, { cache: "no-store" }, 8000);
+  var direct = await withTimeout(fetchUrl, { cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer" }, 8000);
   if (direct && /BEGIN:VCALENDAR/i.test(direct)) return { text: direct, via: "direct" };
 
-  var bridged = await withTimeout(BRIDGE_URL + encodeURIComponent(fetchUrl), { cache: "no-store" }, 8000);
-  if (bridged && /BEGIN:VCALENDAR/i.test(bridged)) return { text: bridged, via: "bridge" };
+  var relayed = await withTimeout(CALENDAR_RELAY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+    body: fetchUrl,
+    cache: "no-store",
+    credentials: "omit",
+    referrerPolicy: "no-referrer"
+  }, 8000);
+  if (relayed && /BEGIN:VCALENDAR/i.test(relayed)) return { text: relayed, via: "relay" };
   return null;
 }
 
@@ -1397,8 +1433,10 @@ async function refreshCalendars(force) {
       STATE.stale = true;
       STATE.sourceCount = urls.length;
       STATE.failedCount = failed;
-      STATE.status = transportFailures === urls.length ? "bridge" : "error";
-      STATE.message = transportFailures === urls.length ? "Calendar companion unavailable." : "Calendar feed unavailable.";
+      STATE.status = "error";
+      STATE.message = transportFailures === urls.length
+        ? "Calendar feed unavailable. Check the URL or your connection."
+        : "Calendar feed unavailable.";
     }
   }
   render();
@@ -1497,7 +1535,6 @@ function setStatus(state, message) {
   if (state === "fresh") { text = STATE.updatedAt ? "UPDATED " + ago(Date.now() - STATE.updatedAt) : "LIVE"; tone = "fresh"; }
   else if (state === "stale") { text = STATE.updatedAt ? "STALE • " + ago(Date.now() - STATE.updatedAt) : "STALE"; tone = "stale"; }
   else if (state === "loading") { text = "REFRESHING"; tone = ""; }
-  else if (state === "bridge") { text = "COMPANION NEEDED"; tone = "error"; }
   else if (state === "error") { text = "FEED ERROR"; tone = "error"; }
   else { text = "NOT CONFIGURED"; tone = ""; }
   label.textContent = text;
@@ -1521,19 +1558,17 @@ function renderHero(now) {
   var time = document.getElementById("heroTime");
   var countdown = document.getElementById("heroCountdown");
   var location = document.getElementById("heroLocation");
+  var heroCard = document.getElementById("heroCard");
+  countdown.setAttribute("data-tone", "");
+
   if (STATE.status === "unconfigured") {
     title.textContent = "Add your calendar";
     time.textContent = "Paste an ICS feed URL in settings";
     countdown.textContent = "";
     location.textContent = "";
-  } else if (STATE.status === "bridge" && !STATE.events.length) {
-    title.textContent = "Calendar companion unavailable";
-    time.textContent = "Calendar Sync Pro bridge is required for feeds blocked by browser CORS";
-    countdown.textContent = "";
-    location.textContent = "";
   } else if (STATE.status === "error" && !STATE.events.length) {
     title.textContent = "Calendar feed unavailable";
-    time.textContent = "Check the ICS URL and try refresh";
+    time.textContent = "Check the ICS URL or your connection, then try refresh";
     countdown.textContent = "";
     location.textContent = "";
   } else if (!event) {
@@ -1550,8 +1585,10 @@ function renderHero(now) {
     countdown.setAttribute("data-tone", minutes <= 10 ? "urgent" : (minutes <= 30 ? "soon" : ""));
     location.textContent = event.location || "";
   }
+
   setText("heroToggle", STATE.mode === "today" ? "TAP FOR NEXT 3 DAYS" : "TAP FOR TODAY");
-  document.getElementById("heroCard").onclick = function () {
+  heroCard.setAttribute("aria-label", "Switch calendar range");
+  heroCard.onclick = function () {
     STATE.mode = STATE.mode === "today" ? "four" : "today";
     document.body.setAttribute("data-mode", STATE.mode);
     render();
@@ -1999,6 +2036,71 @@ else boot();
 try {
   if (typeof iCUE_initialized !== "undefined" && iCUE_initialized) onIcueInitialized();
 } catch (error) {}
+</script>
+<script>
+(function () {
+  var names = ["calendarUrl1","calendarUrl2","calendarUrl3","refreshMinutes","use24Hour","textColor","accentColor","backgroundColor"];
+  var snapshot = Object.create(null);
+  var started = false;
+  var notifying = false;
+
+  function stable(value) {
+    if (value === undefined) return '__ratpack_undefined__';
+    try { return JSON.stringify(value); }
+    catch (error) { return String(value); }
+  }
+
+  function mirror(name, value) {
+    if (value === undefined) return;
+    try {
+      var descriptor = Object.getOwnPropertyDescriptor(globalThis, name);
+      if (descriptor && (descriptor.get || descriptor.set)) return;
+      if (!descriptor) {
+        Object.defineProperty(globalThis, name, {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: value
+        });
+      } else if (descriptor.writable !== false) {
+        globalThis[name] = value;
+      }
+    } catch (error) {}
+  }
+
+  function sync() {
+    var reader = globalThis.__ratpackIcueRead;
+    if (typeof reader !== 'function') return;
+    var changed = false;
+    names.forEach(function (name) {
+      var value;
+      try { value = reader(name); }
+      catch (error) { return; }
+      if (value === undefined) return;
+      var next = stable(value);
+      if (Object.prototype.hasOwnProperty.call(snapshot, name) && snapshot[name] !== next) changed = true;
+      snapshot[name] = next;
+      mirror(name, value);
+    });
+
+    if (started && changed && !notifying) {
+      try {
+        var events = globalThis.icueEvents;
+        if (events && typeof events.onDataUpdated === 'function') {
+          notifying = true;
+          events.onDataUpdated();
+        }
+      } catch (error) {}
+      finally { notifying = false; }
+    }
+    started = true;
+  }
+
+  sync();
+  globalThis.__ratpackIcueSyncGlobals = sync;
+  globalThis.__ratpackIcueBindingSync = { version: 1, names: names.slice() };
+  setInterval(sync, 200);
+})();
 </script>
 </body>
 </html>

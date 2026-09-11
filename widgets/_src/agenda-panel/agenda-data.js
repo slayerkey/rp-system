@@ -63,8 +63,10 @@ async function refreshCalendars(force) {
       STATE.stale = true;
       STATE.sourceCount = urls.length;
       STATE.failedCount = failed;
-      STATE.status = transportFailures === urls.length ? "bridge" : "error";
-      STATE.message = transportFailures === urls.length ? "Calendar companion unavailable." : "Calendar feed unavailable.";
+      STATE.status = "error";
+      STATE.message = transportFailures === urls.length
+        ? "Calendar feed unavailable. Check the URL or your connection."
+        : "Calendar feed unavailable.";
     }
   }
   render();
@@ -163,7 +165,6 @@ function setStatus(state, message) {
   if (state === "fresh") { text = STATE.updatedAt ? "UPDATED " + ago(Date.now() - STATE.updatedAt) : "LIVE"; tone = "fresh"; }
   else if (state === "stale") { text = STATE.updatedAt ? "STALE • " + ago(Date.now() - STATE.updatedAt) : "STALE"; tone = "stale"; }
   else if (state === "loading") { text = "REFRESHING"; tone = ""; }
-  else if (state === "bridge") { text = "COMPANION NEEDED"; tone = "error"; }
   else if (state === "error") { text = "FEED ERROR"; tone = "error"; }
   else { text = "NOT CONFIGURED"; tone = ""; }
   label.textContent = text;

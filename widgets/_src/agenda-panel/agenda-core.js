@@ -15,8 +15,7 @@ var SLOT_SPECS = [
   { id: "xl-h", w: 2536, h: 696 },
   { id: "xl-v", w: 696, h: 2536 }
 ];
-var BRIDGE_URL = "http://127.0.0.1:38765/v1/ics?url=";
-var CALENDAR_SYNC_PRO_MARKETPLACE_URL = "https://marketplace.elgato.com/product/calendar-sync-pro-d957868e-d1a0-4c3b-8fe4-8291951a5170";
+var CALENDAR_RELAY_URL = "https://packrat-site.pages.dev/api/calendar-feed";
 var REFRESH_TIMER = null;
 var CLOCK_TIMER = null;
 var STATE = {
@@ -40,16 +39,6 @@ function getIcueProperty(name, fallback) {
   } catch (error) {
     return fallback;
   }
-}
-
-function openCalendarSyncPro() {
-  try {
-    if (globalThis.plugins && globalThis.plugins.Linkprovider && globalThis.pluginLinkprovider_initialized !== false) {
-      globalThis.plugins.Linkprovider.open(CALENDAR_SYNC_PRO_MARKETPLACE_URL);
-      return true;
-    }
-  } catch (error) {}
-  return false;
 }
 
 function instanceKey(name) {
@@ -196,11 +185,18 @@ async function loadCalendarText(url, sourceIndex) {
   } catch (error) {}
 
   var fetchUrl = url.replace(/^webcal:/i, "https:");
-  var direct = await withTimeout(fetchUrl, { cache: "no-store" }, 8000);
+  var direct = await withTimeout(fetchUrl, { cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer" }, 8000);
   if (direct && /BEGIN:VCALENDAR/i.test(direct)) return { text: direct, via: "direct" };
 
-  var bridged = await withTimeout(BRIDGE_URL + encodeURIComponent(fetchUrl), { cache: "no-store" }, 8000);
-  if (bridged && /BEGIN:VCALENDAR/i.test(bridged)) return { text: bridged, via: "bridge" };
+  var relayed = await withTimeout(CALENDAR_RELAY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+    body: fetchUrl,
+    cache: "no-store",
+    credentials: "omit",
+    referrerPolicy: "no-referrer"
+  }, 8000);
+  if (relayed && /BEGIN:VCALENDAR/i.test(relayed)) return { text: relayed, via: "relay" };
   return null;
 }
 

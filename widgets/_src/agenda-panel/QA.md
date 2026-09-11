@@ -6,14 +6,14 @@ Product: Calendar Panel
 Slug: `agenda-panel`
 Branch: `product/agenda-panel`
 Pull request: `#15`
-Version: `1.0.0`
+Version: `1.0.1`
 Author: `PackRat 🐀`
 
 ## Product behavior contract
 
 * No OAuth.
 * Up to three ICS feed URLs, stored only as iCUE textfield properties.
-* Direct feed fetch first, loopback Calendar Sync Pro bridge fallback second.
+* Direct feed fetch first, Packrat stateless HTTPS relay fallback second when browser CORS blocks readable access.
 * `webcal://` feeds are accepted and normalized to HTTPS for transport.
 * Cached parsed event data may persist per widget instance, but secret feed URLs are never copied into localStorage.
 * Time scaled day timeline uses actual local day start and next day start, so 23 hour and 25 hour DST days do not assume 1440 minutes.
@@ -23,7 +23,7 @@ Author: `PackRat 🐀`
 * Concurrent events are lane packed. Overflow collapses instead of shrinking touch targets below useful size.
 * Small and portrait slots use chronological agenda compositions rather than a compressed 24 hour axis.
 * Multiple configured calendar feeds refresh in parallel.
-* A downloaded malformed feed is reported as FEED ERROR. A transport or CORS failure with no cache is reported as COMPANION NEEDED.
+* A downloaded malformed feed or exhausted direct-plus-relay transport failure is reported as FEED ERROR. No companion purchase state exists.
 
 ## Calendar Sync provenance
 
@@ -51,7 +51,7 @@ PASS: hero today versus next three days toggle, event detail open and close, and
 
 PASS: appearance-only iCUE property changes render immediately without refetching calendar data. Calendar URL changes trigger a refresh.
 
-PASS: failure state matrix covers unconfigured, empty valid feed, stale cache fallback, transport failure, malformed feed, partial multi-calendar failure, parallel refresh, and secret URL localStorage privacy.
+PASS: failure state matrix covers unconfigured, empty valid feed, stale cache fallback, direct-to-relay fallback, transport failure, malformed feed, partial multi-calendar failure, parallel refresh, and secret URL localStorage privacy.
 
 PASS: current `manifest.json` contains the required Widget API 1.4.0 manifest fields for this product and targets Windows `dashboard_lcd` with `interactive: true`.
 
@@ -92,4 +92,4 @@ The canonical workflows produced:
 
 ## Compatibility note
 
-See `NEEDS.md` for the provider-dependent Calendar Sync Pro loopback bridge contract. Calendar Panel itself is release ready. Direct-CORS-compatible ICS feeds work without the companion; providers that block browser CORS require the companion transport.
+See `NEEDS.md` for the standalone relay contract. Calendar Panel is independent: direct-CORS-compatible feeds load directly and providers that block browser CORS fall back automatically to Packrat's stateless HTTPS relay.
