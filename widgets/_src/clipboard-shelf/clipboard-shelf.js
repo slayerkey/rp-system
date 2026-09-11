@@ -109,7 +109,7 @@ function makeCard(e){
   card.appendChild(main);card.appendChild(actions);return card;
 }
 function showOnly(name){
-  ["shelf","emptyState","offlineState","privateState"].forEach(function(id){document.getElementById(id).hidden=id!==name;});
+  ["shelf","emptyState","offlineState","incompatibleState","privateState"].forEach(function(id){document.getElementById(id).hidden=id!==name;});
 }
 function render(){
   if(typeof document==="undefined"||!document.getElementById("bridgeStatus"))return;
