@@ -47,5 +47,7 @@ export async function assert(page,context){
  if(report.overflowX>.5||report.overflowY>.5)throw new Error('page overflow '+JSON.stringify(report));
  if(!context.variant?.privateMode&&report.cards<1)throw new Error('fixture cards missing');
  if(!context.variant&&report.current!==1)throw new Error('current copy highlight missing');
- if(report.minButton<36)throw new Error('touch target too small '+JSON.stringify(report));
+ if(report.minButton<40)throw new Error('touch target too small '+JSON.stringify(report));
+ if(!context.variant&&report.markupNodes!==0)throw new Error('clipboard text rendered as markup '+JSON.stringify(report));
+ if(!context.variant&&!report.hostileText)throw new Error('hostile text fixture missing '+JSON.stringify(report));
 }
