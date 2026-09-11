@@ -108,7 +108,7 @@ Use the local PC only for host application state, authenticated browser state th
 
 Physical Stream Deck behavior and final import validation remain useful for products that target actual Stream Deck hardware.
 
-XENEON Edge widgets do not require owned physical hardware for release candidate status. The canonical gate is source and structure QA, all eight deterministic browser fixtures, official iCUE CLI validation and packaging on Windows CI, and StreamSpell packaged-widget validation across all eight XENEON presets. A real device or iCUE host smoke test is optional extra confidence when available.
+XENEON Edge widgets do not require owned physical hardware for release candidate status. The canonical gate is source and structure QA, all eight deterministic browser fixtures, official iCUE CLI validation and packaging on Windows CI, exact-package integrity, lexical iCUE binding/settings regression where applicable, Corsair Labs Windows runner smoke, and StreamSpell packaged-widget validation across all eight XENEON presets. A real iCUE or physical-device smoke test is optional extra confidence when available, but any real-host observation overrides mocks and should be converted into an automated regression.
 
 Maker Console staging and upload are automated through the canonical Playwright driver. The signed in Maker Console browser profile remains local and is never copied into GitHub or CI. GitHub generates and validates the exact SHIP_KIT consumed by that local browser bridge.
 
@@ -150,6 +150,6 @@ QA: `skills/rat-qa/SKILL.md`
 
 Ship: `skills/rat-ship/SKILL.md`
 
-XENEON or iCUE work: `skills/icue-widget-builder/SKILL.md` and `platforms/icue-xeneon.md`
+XENEON or iCUE work: `skills/icue-widget-builder/SKILL.md`, `platforms/icue-xeneon.md`, and `docs/XENEON_TROUBLESHOOTING_PLAYBOOK.md`
 
 Fresh chat acceptance: `docs/FRESH_CHAT_ACCEPTANCE.md`
