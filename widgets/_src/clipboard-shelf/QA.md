@@ -11,8 +11,8 @@ Required deterministic cases:
 - rapid sequential ingestion in bridge self-test
 - pinned items and favorites
 - configured history limits with pins preserved
-- individual delete
-- clear history
+- individual delete with deliberate two-tap confirmation
+- clear history with deliberate confirmation
 - Private Mode pause/hide behavior
 - bridge offline and automatic reconnect
 - missing and rejected pairing codes
