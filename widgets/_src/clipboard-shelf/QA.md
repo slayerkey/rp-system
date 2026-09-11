@@ -15,11 +15,16 @@ Required deterministic cases:
 - clear history
 - Private Mode pause/hide behavior
 - bridge offline and automatic reconnect
+- missing and rejected pairing codes
+- non-text clipboard changes clear stale CURRENT state
+- long text preserves full local copy data while limiting display transport size
+- corrupt persistence recovery
 - all eight official XENEON layouts
 
 Privacy assertions:
-- no clipboard text in /health
-- no clipboard text written to console logs
+- no clipboard text or pairing token in /health
+- no clipboard text or pairing token written to console logs
+- per-user pairing required before any snapshot is sent
 - no cloud endpoint
 - loopback bind only
 - WebSocket subprotocol required
@@ -35,8 +40,9 @@ Release gate:
 6. official CORSAIR package
 7. exact ZIP/package integrity and root file checks
 8. lexical iCUE settings smoke
-9. Corsair Labs Windows runner smoke
-10. packaged loopback transport smoke
-11. StreamSpell packaged verification
-12. deterministic Rat Art
-13. Rat Ship marketplace kit
+9. no-callback iCUE settings autosync smoke
+10. Corsair Labs Windows runner smoke
+11. packaged loopback pairing/reconnect smoke
+12. StreamSpell packaged verification
+13. deterministic Rat Art
+14. Rat Ship marketplace kit
