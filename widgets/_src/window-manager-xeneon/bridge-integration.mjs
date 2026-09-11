@@ -154,7 +154,9 @@ try {
   const badPage = await badContext.newPage();
   await badPage.goto(pathToFileURL(entry).href, { waitUntil: "load" });
   await badPage.waitForFunction(() => document.body.getAttribute("data-connection") === "denied", { timeout: 10000 });
-  assert.match(await badPage.locator("#emptyTitle").innerText(), /REJECTED/, "bad pairing key did not render rejection");
+  await badPage.waitForTimeout(1200);
+  assert.equal(await badPage.evaluate(() => document.body.getAttribute("data-connection")), "denied", "bad pairing state was overwritten after socket close");
+  assert.match(await badPage.locator("#emptyTitle").innerText(), /REJECTED/, "bad pairing key did not render persistent rejection");
   report.badKeyRejected = true;
   await badContext.close();
 
@@ -162,6 +164,8 @@ try {
   await page.waitForFunction(() => document.body.getAttribute("data-connection") === "disconnected", { timeout: 10000 });
   await startBridge(["--fixture-protocol", "2"]);
   await page.waitForFunction(() => document.body.getAttribute("data-connection") === "version_mismatch", { timeout: 15000 });
+  await page.waitForTimeout(1200);
+  assert.equal(await page.evaluate(() => document.body.getAttribute("data-connection")), "version_mismatch", "protocol mismatch state was overwritten after socket close");
   assert.match(await page.locator("#emptyTitle").innerText(), /UPDATE NEEDED/, "protocol mismatch copy missing");
   report.protocolMismatch = true;
 
