@@ -52,6 +52,7 @@ jobs:
         run: |
           dotnet restore companions/clipboard-shelf/ClipboardShelfBridge.csproj
           dotnet build companions/clipboard-shelf/ClipboardShelfBridge.csproj -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { throw "Clipboard Shelf bridge build failed with exit code $LASTEXITCODE" }
           dotnet run --project companions/clipboard-shelf/ClipboardShelfBridge.csproj -c Release --no-build -- --self-test
           if ($LASTEXITCODE -ne 0) { throw "Clipboard Shelf bridge self-test failed with exit code $LASTEXITCODE" }
 
