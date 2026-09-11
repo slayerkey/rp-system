@@ -628,7 +628,9 @@
           selectedWindowId: model.selectedWindowId,
           pins: Object.keys(model.pins),
           commandLog: model.commandLog.slice(),
-          slot: document.body.getAttribute("data-slot")
+          slot: document.body.getAttribute("data-slot"),
+          booted: model.booted,
+          shuttingDown: model.shuttingDown
         };
       },
       snapshot: function (snapshot) { applySnapshot(snapshot || {}); },
