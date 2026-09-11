@@ -96,8 +96,10 @@ public sealed class GoveeClient {
             var devices=lan.Values.ToList();
             foreach(var d in devices)d.Reachable=false;
             foreach(var d in devices){
-                var status=Encoding.UTF8.GetBytes(BuildLanCommand("devStatus",new{}));
-                await udp.SendAsync(status,status.Length,new IPEndPoint(IPAddress.Parse(d.Ip),4003));
+                var legacy=Encoding.UTF8.GetBytes(BuildLanCommand("devStatus",new{}));
+                await udp.SendAsync(legacy,legacy.Length,new IPEndPoint(IPAddress.Parse(d.Ip),4003));
+                var current=Encoding.UTF8.GetBytes(BuildLanCommand("status",new{}));
+                await udp.SendAsync(current,current.Length,new IPEndPoint(IPAddress.Parse(d.Ip),4003));
             }
             var until=DateTime.UtcNow.AddMilliseconds(850);
             while(DateTime.UtcNow<until&&!ct.IsCancellationRequested){
@@ -108,6 +110,7 @@ public sealed class GoveeClient {
         }catch(SocketException){}catch(OperationCanceledException){}
     }
     public static string BuildLanCommand(string command,object data)=>JsonSerializer.Serialize(new{msg=new{cmd=command,data}},JsonDefaults.Options);
+    public static bool IsLanStatusCommand(string command)=>command is "devStatus" or "status";
 
     void ParseLanPacket(byte[] bytes,string remoteIp){
         try{
@@ -119,7 +122,7 @@ public sealed class GoveeClient {
                 var device=Str(data,"device");if(string.IsNullOrWhiteSpace(device))return;
                 foreach(var stale in lan.Where(x=>x.Value.Ip==ip&&x.Key.StartsWith("ip:",StringComparison.OrdinalIgnoreCase)).Select(x=>x.Key).ToList())lan.Remove(stale);
                 lan[device]=new LanDevice{Device=device,Ip=ip,Sku=Str(data,"sku"),Name=Str(data,"sku")+" "+device.Replace(":","").TakeLast(4).Aggregate("",(a,c)=>a+c),Reachable=true};
-            } else if(cmd=="devStatus"){
+            } else if(IsLanStatusCommand(cmd)){
                 var found=lan.Values.FirstOrDefault(x=>x.Ip==remoteIp);if(found is null)return;
                 found.Reachable=true;
                 if(data.TryGetProperty("onOff",out var on))found.On=on.GetInt32()==1;
