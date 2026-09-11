@@ -28,6 +28,7 @@ Physical XENEON hardware test: **not performed**. This file records the hardware
 - loopback/file origins are allowed while remote and localhost-lookalike origins are rejected
 - command schema rejects invalid volume, unknown commands, unknown endpoints and overlong endpoint IDs
 - fake bridge mode remains test-only and requires both the fixture flag and test environment variable
+- the customer startup installer is executed on the Windows runner and must create the LocalAppData bridge copy plus per-user Startup entry; the uninstaller must remove both
 - no iCUE Media provider is used for Windows audio routing
 - no localStorage/persistence exists in v1, so persistence-corruption testing is not applicable
 - no iCUE property bindings/providers are declared, so iCUE settings callback/autosync testing is not applicable

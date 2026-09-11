@@ -100,6 +100,31 @@ jobs:
           "$hash  PackRat.AudioBridge.exe" | Set-Content "$bundle/SHA256SUMS.txt"
           Compress-Archive -Path "$bundle/*" -DestinationPath "artifacts/PackRat-Audio-Bridge-1.0.0-win-x64.zip" -Force
 
+      - name: Customer startup install and uninstall smoke
+        shell: pwsh
+        env:
+          PACKRAT_AUDIO_BRIDGE_TEST: '1'
+        run: |
+          $bundle = (Resolve-Path "artifacts/audio-bridge-bundle").Path
+          $dest = Join-Path $env:LOCALAPPDATA 'PackRat\AudioBridge'
+          $startup = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Startup\PackRat Audio Bridge.cmd'
+          if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
+          if (Test-Path $startup) { Remove-Item -Force $startup }
+
+          & (Join-Path $bundle 'INSTALL_STARTUP.cmd')
+          if ($LASTEXITCODE -ne 0) { throw "INSTALL_STARTUP.cmd failed with exit code $LASTEXITCODE" }
+          if (-not (Test-Path (Join-Path $dest 'PackRat.AudioBridge.exe'))) { throw 'startup install did not copy bridge executable' }
+          $installedUninstaller = Join-Path $dest 'UNINSTALL_STARTUP.cmd'
+          if (-not (Test-Path $installedUninstaller)) { throw 'startup install did not copy its uninstaller' }
+          if (-not (Test-Path $startup)) { throw 'startup install did not create user Startup entry' }
+          $startupText = Get-Content $startup -Raw
+          if (-not $startupText.Contains('PackRat.AudioBridge.exe')) { throw 'Startup entry does not launch PackRat Audio Bridge' }
+
+          & $installedUninstaller
+          if ($LASTEXITCODE -ne 0) { throw "installed UNINSTALL_STARTUP.cmd failed with exit code $LASTEXITCODE" }
+          if (Test-Path $dest) { throw 'startup uninstall left installed bridge directory behind' }
+          if (Test-Path $startup) { throw 'startup uninstall left user Startup entry behind' }
+
       - uses: actions/upload-artifact@v4
         with:
           name: audio-control-center-product-qa
