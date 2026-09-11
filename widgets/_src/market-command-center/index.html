@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('Market Command Center')</title>
+
+<meta name="x-icue-property" content="coins" data-label="tr('Coins')" data-type="textfield" data-default="'bitcoin, ethereum'" />
+<meta name="x-icue-property" content="showMajorMarkets" data-label="tr('Show Major Markets')" data-type="switch" data-default="true" />
+<meta name="x-icue-property" content="symbols" data-label="tr('Stock Symbols')" data-type="textfield" data-default="'AAPL, MSFT, NVDA'" />
+<meta name="x-icue-property" content="finnhubKey" data-label="tr('Finnhub Key (free)')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="coingeckoKey" data-label="tr('CoinGecko Key (optional)')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="refreshMinutes" data-label="tr('Refresh')" data-type="slider" data-min="15" data-max="60" data-step="5" data-unit-label="'min'" data-default="15" />
+<meta name="x-icue-property" content="showSparklines" data-label="tr('Show Charts')" data-type="switch" data-default="true" />
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F2F5F7'" />
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'" />
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#0B0E11'" />
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Markets')",
+    "properties": ["showMajorMarkets", "symbols", "coins", "finnhubKey", "coingeckoKey", "refreshMinutes", "showSparklines"],
+    "info": "tr('Major Markets pins SPY, QQQ and DIA as S&P 500, Nasdaq 100 and Dow proxies. Stocks need a free Finnhub key from finnhub.io/register.')"
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"]
+  }
+]
+</script>
+
+<link rel="stylesheet" href="market-base.css" />
+<link rel="stylesheet" href="market-layout.css" />
+</head>
+<body>
+<div id="stage">
+    <div id="head">
+        <span id="title">Markets</span>
+        <span id="status" class="status"></span>
+    </div>
+    <div id="rows"></div>
+</div>
+<script src="runtime.js"></script>
+<script src="network.js"></script>
+<script src="widget-utils.js"></script>
+<script src="market.js"></script>
+</body>
+</html>
