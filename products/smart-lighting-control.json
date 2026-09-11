@@ -3,7 +3,7 @@
   "name": "Smart Lighting Control for Hue & Govee",
   "type": "widget",
   "status": "qa_passed",
-  "workflow_state": "QA_IN_PROGRESS",
+  "workflow_state": "READY_TO_SHIP",
   "blocker": null,
   "price_usd": 9.99,
   "version": "1.0.0",
@@ -42,42 +42,58 @@
     "automatic Govee LAN discovery throttled when no LAN devices exist",
     "clean Hue unpair and Govee cloud-cache reset flows",
     "single-instance installed companion plus clean Exit companion update path",
-    "permanent PackRat companion download redirect backed by a versioned GitHub Release asset"
+    "rapid multi-client WebSocket broadcast stress with serialized/coalesced server sends",
+    "real compiled Windows install to LocalAppData, startup enable/disable, second-instance guard, installed-copy launch, clean shutdown, and cross-origin setup rejection",
+    "Marketplace name/description/dependency preflight plus complete iCUE translation-key coverage",
+    "deterministic companion EXE and ZIP with source-revision metadata excluded",
+    "cross-commit companion reproducibility proven on unrelated commit with identical EXE/ZIP hashes",
+    "immutable versioned companion release gate fails closed on unexpected hash changes",
+    "permanent PackRat companion download redirect backed by a versioned GitHub Release asset and exact public SHA256 verification",
+    "Hue bridge IP recovery by saved bridge ID after DHCP/network address change",
+    "Govee failed manual-IP placeholder cleanup and rejected-cloud-key offline state"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "705e453ef09f3e60ac986dfd0bc417ba6f993e66",
-    "deep_qa_run": 34591991159,
+    "candidate_commit": "e41a6eecc1a60c21e78a4fe11f99e1bedd8898de",
+    "deep_qa_run": 34600105757,
+    "cross_commit_reproducibility": {
+      "baseline_commit": "833003ef62c8d18c1214bf20705f28580502b118",
+      "proof_commit": "e41a6eecc1a60c21e78a4fe11f99e1bedd8898de",
+      "companion_exe_sha256": "df08ba26808dd473d24e13a85c4d967835070922d07e7204a4fc046928bddbb6",
+      "companion_zip_sha256": "f919182ab19803ef39a69fbc7c9acae5cd51570ecf5aaf38bafdfeb164beaa04",
+      "immutable_release_gate": "PASS: existing v1.0.0 matches exact build"
+    },
     "final_rat_ship_artifact": {
-      "id": 10196142805,
-      "sha256": "660ca990e56b8642c00c59278696056a7d335a4330d4fc77345d21acc82ab51c"
+      "id": 10264031246,
+      "sha256": "9760f54e751e4b245821eb4fc8e711fb11c656bc190599200e0b16083c76cac7"
     },
     "official_package_artifact": {
-      "id": 10196066469,
-      "sha256": "b3fb9f1781551a439703b67ec25b845076be44d72c7c96ac590bcbd5430c6385"
+      "id": 10264140677,
+      "sha256": "55018ec193112ce8095ac74f9ca9d3881a51b17691c1e3b6ca1144d2dcdb6879"
     },
     "windows_companion_artifact": {
-      "id": 10196069588,
-      "sha256": "48d59ec27b0ca27858932908b387d26d0487288bfc9d0273c60158aa11014464"
+      "id": 10264165762,
+      "sha256": "70d1943d7ab14d773b5e88a19c497b8f7d6228ddfe7770967a3daf51a4b81198"
     },
     "windows_qa_artifact": {
-      "id": 10196070689,
-      "sha256": "1866cf85f7a196746c27aa2dc6fed700841b34180798df6d0119ee08618c5a0a"
+      "id": 10264330606,
+      "sha256": "e23aceb137c3586d1317988dc7bd33db6e477472eca1c66790accb29259c5957"
     },
     "streamspell_artifact": {
-      "id": 10196100552,
-      "sha256": "b4185f3a10dd80e75e0da3e4b90eb65c144995dc6d7945dd3c5813ec299ac6a9"
+      "id": 10263403899,
+      "sha256": "3ad7639ab95dd4c23b1899aa244c87e7b718118a68262a3f8e2fc721feb7753a"
     },
     "public_companion_release": {
-      "release_id": 386975261,
-      "asset_id": 557087009,
-      "sha256": "c3cf9665b2feac4b66443ead457daa07c7dbdf0d543231b4157021e84ea1f1bc",
+      "release_id": 387027174,
+      "asset_id": 557226553,
+      "sha256": "f919182ab19803ef39a69fbc7c9acae5cd51570ecf5aaf38bafdfeb164beaa04",
+      "checksum_asset_id": 557236131,
       "url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip",
       "verified_customer_url": "https://packrat-site.pages.dev/downloads/smart-lighting"
     }
   },
   "hardware_boundary": "No physical XENEON Edge, Hue Bridge/light, or Govee light/credentials were available in this build session. Real provider code compiled and passed deterministic protocol/API fixtures plus exact-package localhost-companion integration. A physical smoke test is recommended when hardware is available, but is not represented as completed.",
   "final_boundary": "Authenticated Maker Console submission through rat ship smart-lighting-control. Marketplace auto-publish remains disabled.",
-  "notes": "Final hardening QA in progress: Marketplace compliance, deterministic/immutable companion delivery, real Windows install/single-instance smoke, rapid WebSocket stress, provider recovery edge cases, and the production PackRat download route.",
+  "notes": "Final automated hardening complete. Exact package, real Windows companion install/startup/single-instance behavior, rapid multi-client WebSocket stress, official CORSAIR validation/package, Corsair Labs host smoke, StreamSpell all-eight, deterministic Rat Art, immutable cross-commit companion release, and exact public PackRat download SHA256 all pass. Remaining uncertainty is physical XENEON Edge + real Hue/Govee hardware.",
   "companion_download_url": "https://packrat-site.pages.dev/downloads/smart-lighting",
   "companion_release_tag": "smart-lighting-companion-v1.0.0",
   "companion_release_asset_url": "https://github.com/slayerkey/rp-system/releases/download/smart-lighting-companion-v1.0.0/PackRat-Lighting-Companion-win-x64.zip"
