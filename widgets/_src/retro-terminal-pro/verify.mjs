@@ -61,7 +61,13 @@ must(!/fake cpu|fake gpu|simulated sensor/i.test(js),"shipping runtime contains 
 must(js.includes("localStorage.setItem")&&js.includes("uniqueId"),"per-instance persistence");
 must(js.includes("pointerdown")&&js.includes("data-program"),"touch interaction path");
 must(js.includes("autoProgram")&&js.includes("autoStyle")&&js.includes("idleEnabled"),"rotation and idle logic present");
+must(js.includes("onICUEInitialized")&&js.includes("onDataUpdated")&&js.includes("refreshFromIcue"),"startup and settings lifecycle share one refresh path");
+must(js.includes("PERSIST_SCHEMA=1")&&js.includes("validStoreRecord"),"persisted state is versioned and defensively parsed");
+must(js.includes("SENSOR_STALE_MS")&&js.includes("STALE iCUE DATA")&&js.includes("SENSOR PROVIDER OFFLINE"),"provider stale and unavailable states are explicit");
+must(js.includes("function cleanup()")&&js.includes('addEventListener("pagehide",cleanup'),"pagehide cleanup owns timers and pending provider work");
 must(js.includes("prefers-reduced-motion"),"reduced-motion handling");
 must(css.includes("#scanlines")&&css.includes("#vignette")&&css.includes("#flicker"),"CRT effects present");
+const groups=JSON.parse(html.match(/<script type="application\/json" id="x-icue-groups">([\s\S]*?)<\/script>/)?.[1]||"[]");
+must(groups.length===3,"settings remain consolidated into three reachable top-level groups");
 
 console.log("RETRO TERMINAL PRO STATIC VERIFY PASS");
