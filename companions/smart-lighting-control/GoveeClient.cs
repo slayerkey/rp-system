@@ -19,10 +19,12 @@ public sealed class GoveeClient {
     public GoveeClient(LocalState state){this.state=state;}
     public bool CloudConfigured=>!string.IsNullOrWhiteSpace(state.GoveeApiKey());
     public string? LastCloudError { get; private set; }
+    public string? LastLanError { get; private set; }
 
     public async Task<List<LightingTarget>> GetTargetsAsync(bool scanLan=false,CancellationToken ct=default){
-        if(scanLan||lan.Count==0)await DiscoverLanAsync(null,ct);
-        else if(DateTime.UtcNow-lanStatusAt>TimeSpan.FromSeconds(4))await RefreshLanStatusAsync(ct);
+        if(scanLan||lan.Count==0){
+            try{await DiscoverLanAsync(null,ct);}catch(SocketException ex){LastLanError="LAN UDP 4002 unavailable: "+ex.Message;}
+        }else if(DateTime.UtcNow-lanStatusAt>TimeSpan.FromSeconds(4))await RefreshLanStatusAsync(ct);
         if(CloudConfigured){
             if(DateTime.UtcNow-cloudDevicesAt>TimeSpan.FromMinutes(10))
                 try{await RefreshCloudDevicesAsync(ct);}catch(Exception ex){LastCloudError=CloudError(ex);}
@@ -81,8 +83,9 @@ public sealed class GoveeClient {
                 var task=udp.ReceiveAsync(ct).AsTask();var done=await Task.WhenAny(task,Task.Delay(180,ct));if(done!=task)continue;
                 var packet=await task;ParseLanPacket(packet.Buffer,packet.RemoteEndPoint.Address.ToString());
             }
-        }catch(SocketException){}catch(OperationCanceledException){}
+        }catch(SocketException ex){LastLanError="LAN UDP 4002 unavailable: "+ex.Message;throw;}catch(OperationCanceledException){}
         if(lan.Count>0)await RefreshLanStatusAsync(ct);
+        if(lan.Count>0)LastLanError=null;
         return lan.Count;
     }
 
@@ -107,7 +110,8 @@ public sealed class GoveeClient {
                 var packet=await task;ParseLanPacket(packet.Buffer,packet.RemoteEndPoint.Address.ToString());
             }
             lanStatusAt=DateTime.UtcNow;
-        }catch(SocketException){}catch(OperationCanceledException){}
+            LastLanError=null;
+        }catch(SocketException ex){LastLanError="LAN status unavailable: "+ex.Message;}catch(OperationCanceledException){}
     }
     public static string BuildLanCommand(string command,object data)=>JsonSerializer.Serialize(new{msg=new{cmd=command,data}},JsonDefaults.Options);
     public static bool IsLanStatusCommand(string command)=>command is "devStatus" or "status";
