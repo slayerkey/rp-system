@@ -87,7 +87,8 @@ function renderControls(){
   var t=selected(),empty=document.getElementById('controlEmpty'),controls=document.getElementById('controls');
   if(!t){empty.hidden=false;controls.hidden=true;return;}
   empty.hidden=true;controls.hidden=false;
-  document.getElementById('controlProvider').textContent=providerName(t.provider)+' · '+String(t.kind||'light').toUpperCase();
+  var offline=t.reachable===false;
+  document.getElementById('controlProvider').textContent=providerName(t.provider)+' · '+String(t.kind||'light').toUpperCase()+(offline?' · OFFLINE':'');
   document.getElementById('controlName').textContent=t.name;
   var fav=document.getElementById('favoriteButton');fav.textContent=t.favorite?'★':'☆';fav.classList.toggle('on',Boolean(t.favorite));
   var isScene=t.kind==='scene';
@@ -97,15 +98,18 @@ function renderControls(){
   document.getElementById('temperatureControl').hidden=isScene||!cap(t,'temperature');
   document.getElementById('sceneControl').hidden=isScene||!Array.isArray(t.scenes)||!t.scenes.length;
   document.getElementById('activateSceneButton').hidden=!isScene;
+  document.getElementById('activateSceneButton').disabled=offline;
   if(!isScene){
-    var power=document.getElementById('powerButton');power.classList.toggle('on',Boolean(t.on));document.getElementById('powerLabel').textContent=t.on?'Turn off':'Turn on';
-    var b=Math.max(1,Math.min(100,Math.round(Number(t.brightness)||1)));document.getElementById('brightnessSlider').value=b;document.getElementById('brightnessValue').textContent=b+'%';
+    var power=document.getElementById('powerButton');power.classList.toggle('on',Boolean(t.on));power.disabled=offline;document.getElementById('powerLabel').textContent=offline?'Offline':(t.on?'Turn off':'Turn on');
+    var b=Math.max(1,Math.min(100,Math.round(Number(t.brightness)||1)));var bs=document.getElementById('brightnessSlider');bs.value=b;bs.disabled=offline;document.getElementById('brightnessValue').textContent=b+'%';
     var range=Array.isArray(t.temperatureRange)?t.temperatureRange:[2000,6500],temp=Math.round(Number(t.temperatureK)||4000),ts=document.getElementById('temperatureSlider');
-    ts.min=Number(range[0])||2000;ts.max=Number(range[1])||6500;ts.value=Math.max(Number(ts.min),Math.min(Number(ts.max),temp));document.getElementById('temperatureValue').textContent=Math.round(Number(ts.value))+'K';
+    ts.min=Number(range[0])||2000;ts.max=Number(range[1])||6500;ts.value=Math.max(Number(ts.min),Math.min(Number(ts.max),temp));ts.disabled=offline;document.getElementById('temperatureValue').textContent=Math.round(Number(ts.value))+'K';
     document.getElementById('colorValue').textContent=t.color?Math.round(t.color.r)+', '+Math.round(t.color.g)+', '+Math.round(t.color.b):'RGB';
+    document.getElementById('colorPad').setAttribute('aria-disabled',offline?'true':'false');
+    document.querySelectorAll('#swatches button').forEach(function(button){button.disabled=offline;});
     if(Array.isArray(t.scenes)){
       document.getElementById('sceneCount').textContent=t.scenes.length;
-      document.getElementById('sceneChips').innerHTML=t.scenes.map(function(s){return'<button class="scene-chip" data-scene="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</button>';}).join('');
+      document.getElementById('sceneChips').innerHTML=t.scenes.map(function(s){return'<button class="scene-chip" data-scene="'+escapeHtml(s.id)+'" '+(offline?'disabled':'')+'>'+escapeHtml(s.name)+'</button>';}).join('');
     }
   }
 }
@@ -211,7 +215,7 @@ function rgbToHex(c){return'#'+[c.r,c.g,c.b].map(function(n){return Math.round(M
 function hsv(h,s,v){var c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c,r=0,g=0,b=0;if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}return{r:(r+m)*255,g:(g+m)*255,b:(b+m)*255};}
 var colorTimer=null;
 function colorFromPoint(ev){
-  var t=selected();if(!t||!cap(t,'color'))return;
+  var t=selected();if(!t||t.reachable===false||!cap(t,'color'))return;
   var pad=document.getElementById('colorPad'),r=pad.getBoundingClientRect(),x=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)),y=Math.max(0,Math.min(1,(ev.clientY-r.top)/r.height)),rgb=hsv(x*360,1,1-y*.72);
   document.getElementById('colorCursor').style.left=(x*100)+'%';document.getElementById('colorCursor').style.top=(y*100)+'%';t.color=rgb;renderControls();
   var colorDelay=(t.kind==='room'||t.kind==='zone')?1050:((t.provider==='govee'&&t.transport==='cloud')?550:120);
