@@ -38,21 +38,22 @@ Privacy assertions:
 
 Release gate:
 1. companion Windows build + source and published-executable self-tests
-2. published customer EXE first-run self-install/startup/health smoke
-3. second-launch upgrade smoke proving the running installed bridge is replaced and relaunched
-4. shipped ZIP uninstall smoke proving process, HKCU startup entry, and local app-data directory cleanup
-5. widget pure-function verify
-6. inline build, translation sync, and stale check
-7. all-eight deterministic Rat Art capture assertions
-8. official CORSAIR validate
-9. official CORSAIR package
-10. exact ZIP/package integrity and root file checks
-11. lexical iCUE settings smoke
-12. no-callback iCUE settings autosync smoke
-13. Corsair Labs Windows runner smoke
-14. packaged loopback pairing/reconnect smoke
-15. StreamSpell packaged verification
-16. deterministic Rat Art
-17. Rat Ship marketplace kit
-18. complete companion ZIP integrity check, including security and uninstall files
-19. versioned companion GitHub Release published only after the preceding gates pass
+2. exact published customer EXE normal first-run self-install + HKCU startup registration smoke
+3. exact installed binary localhost health smoke via the CI-only headless lifecycle mode; this does not claim tray/WinForms behavior
+4. second-launch upgrade smoke proving the running installed bridge is replaced and relaunched
+5. shipped ZIP uninstall smoke proving process, HKCU startup entry, and local app-data directory cleanup
+6. widget pure-function verify
+7. inline build, translation sync, and stale check
+8. all-eight deterministic Rat Art capture assertions
+9. official CORSAIR validate
+10. official CORSAIR package
+11. exact ZIP/package integrity and root file checks
+12. lexical iCUE settings smoke
+13. no-callback iCUE settings autosync smoke
+14. Corsair Labs Windows runner smoke
+15. packaged loopback pairing/reconnect smoke
+16. StreamSpell packaged verification
+17. deterministic Rat Art
+18. Rat Ship marketplace kit
+19. complete companion ZIP integrity check, including security and uninstall files
+20. versioned companion GitHub Release published only after the preceding gates pass
