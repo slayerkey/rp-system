@@ -16,6 +16,7 @@ var SLOT_SPECS = [
   { id: "xl-v", w: 696, h: 2536 }
 ];
 var BRIDGE_URL = "http://127.0.0.1:38765/v1/ics?url=";
+var CALENDAR_SYNC_PRO_MARKETPLACE_URL = "https://marketplace.elgato.com/product/calendar-sync-pro-d957868e-d1a0-4c3b-8fe4-8291951a5170";
 var REFRESH_TIMER = null;
 var CLOCK_TIMER = null;
 var STATE = {
@@ -39,6 +40,16 @@ function getIcueProperty(name, fallback) {
   } catch (error) {
     return fallback;
   }
+}
+
+function openCalendarSyncPro() {
+  try {
+    if (globalThis.plugins && globalThis.plugins.Linkprovider && globalThis.pluginLinkprovider_initialized !== false) {
+      globalThis.plugins.Linkprovider.open(CALENDAR_SYNC_PRO_MARKETPLACE_URL);
+      return true;
+    }
+  } catch (error) {}
+  return false;
 }
 
 function instanceKey(name) {
