@@ -150,6 +150,12 @@
     "final_listing_rat_ship_artifact": {
       "id": 10196447482,
       "sha256": "36c69646cfd4be576a8b14885a1400a64b3b3256a718f0b28a333117e4352b18"
+    },
+    "lite_service_contract_run": 34600136343,
+    "lite_service_contract_runtime_commit": "30813f4d3df7e97c92c87edeefdce84ee14d31a5",
+    "lite_service_contract_artifact": {
+      "id": 10264000669,
+      "sha256": "1c77fe4592cd9d02673df7d43781239a8850d749a5e2e610dcba5e3919790eba"
     }
   },
   "hardware_boundary": "No physical XENEON Edge was available. The Windows companion compiled and ran in Windows CI and the exact packaged widget communicated with the actual published companion executable in deterministic fixture mode. Real foreground-lock/elevation restrictions and physical touch/iCUE behavior remain the only unclaimed hardware boundary.",
@@ -169,5 +175,11 @@
     "url": "https://github.com/slayerkey/rp-system/releases/download/window-manager-bridge-v1.0.0/PackRat-Window-Bridge-win-x64.zip",
     "asset_id": 557097117,
     "sha256": "80f28218748a86eadc82f8e930de3309f7127af405d484628942e5b22994815b"
-  }
+  },
+  "refactor_blockers": [
+    "Actual Window Manager Lite source is still only in the legacy local ratpack-projects checkout and has not yet been migrated into canonical GitHub.",
+    "The hidden XENEON service has not yet been wired into the real Window Manager Lite plugin entry point/native window engine.",
+    "The exact updated Window Manager Lite .streamDeckPlugin has not yet passed the pre/post visible-action conversion guard.",
+    "The exact updated Lite plugin and exact official XENEON package have not yet been run together end to end."
+  ]
 }
