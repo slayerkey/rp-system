@@ -25,13 +25,11 @@ internal static class Program
             return;
         }
 
-        if (CompanionInstall.EnsureInstalledAndRelaunched()) return;
+        var lifecycleSmoke = args.Any(x => string.Equals(x, "--lifecycle-smoke", StringComparison.OrdinalIgnoreCase));
+        if (CompanionInstall.EnsureInstalledAndRelaunched(lifecycleSmoke)) return;
 
         using var singleInstance = new Mutex(true, @"Local\PackRatClipboardShelfBridge", out var created);
         if (!created) return;
-
-        FreeConsole();
-        ApplicationConfiguration.Initialize();
 
         var storage = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -39,6 +37,17 @@ internal static class Program
 
         var history = new ClipboardHistory(storage);
         history.Load();
+
+        if (lifecycleSmoke)
+        {
+            using var smokeServer = new BridgeServer(history);
+            smokeServer.StartAsync().GetAwaiter().GetResult();
+            Thread.Sleep(Timeout.Infinite);
+            return;
+        }
+
+        FreeConsole();
+        ApplicationConfiguration.Initialize();
 
         using var window = new ClipboardWindow(history);
         using var server = new BridgeServer(history);
@@ -60,7 +69,7 @@ internal static class CompanionInstall
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PackRat", "ClipboardShelf", "PackRat.ClipboardShelfBridge.exe");
 
-    public static bool EnsureInstalledAndRelaunched()
+    public static bool EnsureInstalledAndRelaunched(bool lifecycleSmoke = false)
     {
         var current = Environment.ProcessPath;
         if (string.IsNullOrWhiteSpace(current)) return false;
@@ -79,6 +88,7 @@ internal static class CompanionInstall
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = installed,
+                    Arguments = lifecycleSmoke ? "--lifecycle-smoke" : "",
                     UseShellExecute = true
                 });
                 return true;
