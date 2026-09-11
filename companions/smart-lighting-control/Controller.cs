@@ -36,7 +36,7 @@ public sealed class LightingController : ILightingRuntime, IAsyncDisposable {
         if(!await refreshLock.WaitAsync(0,ct))return;
         try{
             var targets=new List<LightingTarget>();
-            var hp=new ProviderStatus(),gp=new ProviderStatus();
+            var hp=new ProviderStatus(); var gp=new ProviderStatus();
             if(hue.Configured){
                 try{var list=await hue.GetTargetsAsync(ct);targets.AddRange(list);hp.Connected=true;hp.Detail="Hue Bridge local";}
                 catch(Exception ex){hp.Connected=false;hp.Detail=SafeError(ex);}
@@ -111,7 +111,7 @@ public sealed class FixtureRuntime : ILightingRuntime {
         };
     }
     public Task HandleCommandAsync(JsonElement m,CancellationToken ct=default){
-        var cmd=m.TryGetProperty("command",out var c)?c.GetString():"",id=m.TryGetProperty("id",out var i)?i.GetString():"";
+        var cmd=m.TryGetProperty("command",out var c)?c.GetString():""; var id=m.TryGetProperty("id",out var i)?i.GetString():"";
         if(cmd=="scene"&&m.TryGetProperty("sceneId",out var s))id=s.GetString();
         var t=Snapshot.Targets.FirstOrDefault(x=>x.Id==id);
         if(t is not null){
