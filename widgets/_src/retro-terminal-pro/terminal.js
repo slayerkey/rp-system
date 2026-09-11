@@ -8,6 +8,8 @@ var SLOT_SPECS=[
 ];
 var PROGRAMS=["prompt","system","trace","rain","clock"];
 var ROTATING_STYLES=["green","amber","white","blue","cyber"];
+var PERSIST_SCHEMA=1;
+var SENSOR_STALE_MS=7000;
 var PALETTES={
   green:{text:"#B8FFC7",accent:"#5CFF7F",bg:"#031006",alt:"#8AF59F",label:"GREEN PHOSPHOR"},
   amber:{text:"#FFD79A",accent:"#FFB347",bg:"#120B02",alt:"#FFE3B2",label:"AMBER"},
@@ -21,7 +23,7 @@ var state={
   booting:true,idle:false,idlePrevious:"prompt",lastInteraction:Date.now(),
   lastProgramRotation:Date.now(),lastStyleRotation:Date.now(),
   cfg:null,settingsFingerprint:"",timers:[],requestId:9000,
-  pending:{},sensorConnected:false,sensorCatalog:{},sensorIds:{cpuLoad:null,cpuTemp:null,gpuLoad:null,gpuTemp:null,ram:null},
+  pending:{},sensorConnected:false,sensorPluginRef:null,sensorProviderState:"loading",sensorCatalog:{},sensorIds:{cpuLoad:null,cpuTemp:null,gpuLoad:null,gpuTemp:null,ram:null},
   sensorValues:{},promptIndex:0,promptChar:0,promptRendered:[],ambientTick:0
 };
 
@@ -87,7 +89,8 @@ function instanceKey(suffix){
 function loadStore(key,fallback){
   try{var raw=localStorage.getItem(instanceKey(key));return raw?JSON.parse(raw):fallback}catch(e){return fallback}
 }
-function saveStore(key,value){try{localStorage.setItem(instanceKey(key),JSON.stringify(value))}catch(e){}}
+function saveStore(key,value){try{localStorage.setItem(instanceKey(key),JSON.stringify(Object.assign({schema:PERSIST_SCHEMA},value)))}catch(e){}}
+function validStoreRecord(value){return !!value&&(value.schema===undefined||value.schema===PERSIST_SCHEMA)}
 
 function nearestSlot(){
   var w=Math.max(1,innerWidth||document.documentElement.clientWidth||840);
@@ -143,7 +146,7 @@ function nextProgram(reason){
 }
 function restoreProgram(cfg){
   var saved=loadStore("program",null);
-  if(saved&&saved.base===cfg.startProgram&&PROGRAMS.indexOf(saved.value)>=0)return saved.value;
+  if(validStoreRecord(saved)&&saved.base===cfg.startProgram&&PROGRAMS.indexOf(saved.value)>=0)return saved.value;
   return cfg.startProgram;
 }
 
