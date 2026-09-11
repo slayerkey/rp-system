@@ -157,7 +157,7 @@ try {
       assert.equal(next.windows.some((item) => item.id === "103"), false, "closed window remains");
 
       await page.evaluate(() => globalThis.__PACKRAT_WINDOW_TEST__.connection("disconnected"));
-      assert.match(await page.locator("#emptyTitle").innerText(), /BRIDGE OFFLINE/, "disconnected state copy missing");
+      assert.match(await page.locator("#emptyTitle").innerText(), /WINDOW MANAGER LITE OFFLINE/, "disconnected state copy missing");
       await page.evaluate(() => globalThis.__PACKRAT_WINDOW_TEST__.connection("pairing"));
       assert.match(await page.locator("#emptyTitle").innerText(), /PAIRING KEY NEEDED/, "pairing state copy missing");
       await page.evaluate(() => globalThis.__PACKRAT_WINDOW_TEST__.connection("version_mismatch"));
