@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('Window Manager for XENEON')</title>
+
+<meta name="x-icue-property" content="bridgeKey" data-label="tr('Window Bridge Key')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="showPinned" data-label="tr('Show Pinned Apps')" data-type="switch" data-default="true" />
+<meta name="x-icue-property" content="showIcons" data-label="tr('Show App Icons')" data-type="switch" data-default="true" />
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F4F6F8'" />
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'" />
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#080B0F'" />
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Connection')",
+    "properties": ["bridgeKey"],
+    "info": "tr('Run the free PackRat Window Bridge on this Windows PC, copy its local pairing key, and paste it here. The bridge listens only on localhost.')"
+  },
+  {
+    "title": "tr('Window Strip')",
+    "properties": ["showPinned", "showIcons"]
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"]
+  }
+]
+</script>
+
+<link rel="stylesheet" href="window-manager.css" />
+</head>
+<body data-slot="s-h" data-connection="starting">
+<main id="stage" aria-label="Window Manager for XENEON">
+  <header id="topbar">
+    <div id="brandMark" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 20h8M12 17v3"/></svg>
+    </div>
+    <div id="titleBlock">
+      <div id="eyebrow">PACKRAT • WINDOWS</div>
+      <div id="productTitle">Window Manager</div>
+    </div>
+    <div id="activeStatus">
+      <span id="activeDot"></span>
+      <span id="activeText">CONNECTING</span>
+    </div>
+    <div id="monitorBadge">0 MONITORS</div>
+  </header>
+
+  <section id="workspace">
+    <aside id="pinnedDock" aria-label="Pinned applications">
+      <div class="section-label">PINNED</div>
+      <div id="pinnedList"></div>
+    </aside>
+
+    <section id="windowStrip" aria-label="Open windows">
+      <div id="windowList"></div>
+      <div id="emptyState" role="status" aria-live="polite">
+        <div id="emptyGlyph">⌁</div>
+        <div id="emptyTitle">Starting Window Bridge</div>
+        <div id="emptyBody">The panel will connect automatically.</div>
+      </div>
+    </section>
+  </section>
+
+  <footer id="actionTray">
+    <div id="selectionSummary">
+      <div id="selectedApp">NO WINDOW SELECTED</div>
+      <div id="selectedTitle">Tap a window card to control it.</div>
+    </div>
+
+    <div id="actions" aria-label="Window actions">
+      <button id="pinAction" class="action-button" type="button" aria-label="Pin application" disabled>
+        <span class="action-icon">★</span><span class="action-label">Pin</span>
+      </button>
+      <button id="minimizeAction" class="action-button" type="button" aria-label="Minimize window" disabled>
+        <span class="action-icon">—</span><span class="action-label">Min</span>
+      </button>
+      <button id="maximizeAction" class="action-button" type="button" aria-label="Maximize or restore window" disabled>
+        <span class="action-icon">□</span><span class="action-label">Max</span>
+      </button>
+      <button id="snapLeftAction" class="action-button" type="button" aria-label="Snap window left" disabled>
+        <span class="action-icon">◧</span><span class="action-label">Left</span>
+      </button>
+      <button id="snapRightAction" class="action-button" type="button" aria-label="Snap window right" disabled>
+        <span class="action-icon">◨</span><span class="action-label">Right</span>
+      </button>
+      <button id="moveAction" class="action-button" type="button" aria-label="Move window to monitor" disabled>
+        <span class="action-icon">⇥</span><span class="action-label">Move</span>
+      </button>
+      <button id="closeAction" class="action-button danger" type="button" aria-label="Close window" disabled>
+        <span class="action-icon">×</span><span class="action-label">Close</span>
+      </button>
+    </div>
+  </footer>
+
+  <section id="monitorSheet" class="sheet" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Move to monitor">
+    <div class="sheet-head">
+      <div>
+        <div class="sheet-kicker">MOVE WINDOW</div>
+        <div class="sheet-title">Choose a monitor</div>
+      </div>
+      <button id="monitorSheetClose" class="sheet-close" type="button" aria-label="Close monitor picker">×</button>
+    </div>
+    <div id="monitorOptions"></div>
+  </section>
+
+  <section id="closeSheet" class="sheet compact-sheet" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Confirm close">
+    <div class="sheet-head">
+      <div>
+        <div class="sheet-kicker danger-copy">SAFE CLOSE</div>
+        <div class="sheet-title">Close this window?</div>
+      </div>
+    </div>
+    <div id="closeTarget">Selected window</div>
+    <div id="closeButtons">
+      <button id="cancelClose" class="confirm-button secondary" type="button">Cancel</button>
+      <button id="confirmClose" class="confirm-button danger-fill" type="button">Close window</button>
+    </div>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+</main>
+<script src="window-manager.js"></script>
+</body>
+</html>

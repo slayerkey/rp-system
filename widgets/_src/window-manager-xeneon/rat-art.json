@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "hero": {"subtitle": "See every open window and put it where you want from your dedicated touch display."},
+  "showcase": {"title": "Your Windows desktop, under your hand.", "subtitle": "Live window cards, active state and native controls without reopening Task View.", "shot": "XL_H.png"},
+  "features": {
+    "title": "Control the desktop without leaving what you are doing.",
+    "subtitle": "A visual control strip for open windows instead of another grid of stretched buttons.",
+    "shot": "M_H.png",
+    "items": [
+      ["See + focus open windows", "App icons, useful titles, foreground state and monitor placement stay visible at a glance."],
+      ["Place windows instantly", "Minimize, maximize or restore, snap left or right, and move a window to any detected monitor."],
+      ["Favorites stay close", "Pin the applications you care about and see whether each favorite is currently open or closed."],
+      ["Native control stays local", "The free PackRat Window Bridge performs Win32 actions over paired localhost only, with safe close confirmation."]
+    ]
+  },
+  "settings": {
+    "title": "A desktop strip for every XENEON layout.",
+    "subtitle": "One local bridge pairing key connects the panel; appearance and pinned-app visibility remain configurable in iCUE.",
+    "panels": [
+      {"label": "Wide desktop strip", "file": "XL_H.png"},
+      {"label": "Compact horizontal", "file": "S_H.png"},
+      {"label": "Vertical window list", "file": "M_V.png"},
+      {"label": "Tall workspace", "file": "L_V.png"}
+    ],
+    "tags": "focus   •   snap left/right   •   move monitors   •   pin favorites   •   safe close"
+  },
+  "sizes": {"title": "Built for all eight XENEON slots.", "subtitle": "Wide layouts prioritize the desktop strip; vertical layouts prioritize scan speed and touch reach.", "footer": "8 tuned layouts total   •   4 sizes   •   horizontal + vertical"}
+}
