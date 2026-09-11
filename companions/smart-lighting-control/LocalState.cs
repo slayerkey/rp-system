@@ -57,6 +57,10 @@ public sealed class LocalState {
     }
     public string? HueAppKey()=>WindowsCredentialStore.Read("PackRat.SmartLighting.HueAppKey");
     public void SetHueAppKey(string value)=>WindowsCredentialStore.Write("PackRat.SmartLighting.HueAppKey",value);
+    public void ClearHuePairing(){
+        WindowsCredentialStore.Delete("PackRat.SmartLighting.HueAppKey");
+        Config.HueBridgeIp=null;Config.HueBridgeId=null;Config.HueCertificateSha256=null;Save();
+    }
     public string? GoveeApiKey()=>WindowsCredentialStore.Read("PackRat.SmartLighting.GoveeApiKey");
     public void SetGoveeApiKey(string? value){if(string.IsNullOrWhiteSpace(value))WindowsCredentialStore.Delete("PackRat.SmartLighting.GoveeApiKey");else WindowsCredentialStore.Write("PackRat.SmartLighting.GoveeApiKey",value.Trim());}
 }
