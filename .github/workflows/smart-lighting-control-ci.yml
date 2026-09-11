@@ -118,6 +118,10 @@ jobs:
         shell: pwsh
         run: node tools/xeneon/native-style-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/native-style/$env:SLUG"
 
+      - name: Native iCUE no-callback autosync regression
+        shell: pwsh
+        run: node tools/xeneon/native-style-autosync-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/native-style-autosync/$env:SLUG"
+
       - name: Exact packaged file-origin to real companion gate
         shell: pwsh
         run: node widgets/_src/$env:SLUG/network-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/network-smoke" "artifacts/companion/PackRat-Lighting-Companion.exe"
@@ -184,6 +188,7 @@ jobs:
             artifacts/source-visual/
             artifacts/packaged-visual/
             artifacts/native-style/
+            artifacts/native-style-autosync/
             artifacts/network-smoke/
             artifacts/icue-runner/
             artifacts/package-audit.json
