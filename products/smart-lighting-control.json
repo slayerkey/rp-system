@@ -1,0 +1,68 @@
+{
+  "id": "smart-lighting-control",
+  "name": "Smart Lighting Control for Hue + Govee",
+  "type": "widget",
+  "status": "qa_passed",
+  "workflow_state": "BLOCKED",
+  "blocker": "Choose and publish a stable customer-accessible download URL for PackRat-Lighting-Companion-win-x64.zip, then place that URL in the Marketplace/customer setup flow. Engineering and automated release QA are complete.",
+  "price_usd": 9.99,
+  "version": "1.0.0",
+  "platform": "CORSAIR iCUE / XENEON Edge + Windows companion",
+  "source": "widgets/_src/smart-lighting-control",
+  "package": "widgets/smart-lighting-control",
+  "companion": "companions/smart-lighting-control",
+  "submission_metadata": "widgets/_src/smart-lighting-control/submission.json",
+  "release_gate": [
+    "canonical XENEON troubleshooting playbook applied",
+    "deterministic companion self-tests including Hue normalization/color, Govee LAN payload/status compatibility, Govee Developer API fixture parsing, and persisted-config recovery",
+    "all eight XENEON source and exact-package compositions",
+    "hostile long/Unicode/HTML-looking device-name rendering and clipping checks",
+    "offline, empty, unauthorized, incompatible, provider-degraded and no-data states",
+    "offline live controls disabled rather than failing silently",
+    "visible provider command error feedback",
+    "lexical iCUE Custom Style regression",
+    "no-callback iCUE autosync regression",
+    "repeated lifecycle callback idempotency / duplicate connection protection",
+    "exact packaged file:// widget to actual compiled localhost companion",
+    "companion kill/restart automatic recovery",
+    "wrong-token fail-closed behavior",
+    "widget/companion protocol mismatch fail-closed behavior",
+    "loopback-only listener and Credential Manager security audit",
+    "Govee multicast plus manual-IP LAN discovery fallback",
+    "Govee LAN live state refresh and LAN/cloud failure isolation",
+    "Govee cloud request budgeting and standard + DIY scene enumeration",
+    "stable scene IDs for persisted favorites",
+    "official CORSAIR CLI validation and packaging",
+    "Corsair Labs exact-package Windows host/settings smoke",
+    "StreamSpell exact-package verification at all eight presets",
+    "deterministic Rat Art",
+    "Rat Ship Maker Console kit preflight including customer companion ZIP and CUSTOMER-SETUP.txt"
+  ],
+  "automated_release_evidence": {
+    "candidate_commit": "7403906cb63b477509151247b089e53532bf5145",
+    "deep_qa_run": 34562916516,
+    "final_rat_ship_artifact": {
+      "id": 10185089877,
+      "sha256": "72fbdffd563ab666800a38248dccefa74afe09631df8d726449b42b3e7a2dd8d"
+    },
+    "official_package_artifact": {
+      "id": 10185035997,
+      "sha256": "d8b11c427931a7039b7515cbe73e31dc1088dfa15d4ec712d5917ad942137152"
+    },
+    "windows_companion_artifact": {
+      "id": 10185037720,
+      "sha256": "541486af0f9ecb9d1f960694e3fda6ab391eeb44aa5ac2b2b5b1f032c0bceb95"
+    },
+    "windows_qa_artifact": {
+      "id": 10185038247,
+      "sha256": "0c525e3cafdc820e1d3d6f8ab55b92482335cb0194afe607833f78cda2f9c234"
+    },
+    "streamspell_artifact": {
+      "id": 10185056427,
+      "sha256": "b2dedee7cad4d2bfa1c39dc521f2823773ee1cfc174e4c4dec92bee0ba3e350b"
+    }
+  },
+  "hardware_boundary": "No physical XENEON Edge, Hue Bridge/light, or Govee light/credentials were available in this build session. Real provider code compiled and passed deterministic protocol/API fixtures plus exact-package localhost-companion integration. A physical smoke test is recommended when hardware is available, but is not represented as completed.",
+  "final_boundary": "Publish the companion ZIP at a stable customer-accessible URL, add that URL to the release/customer setup surface, then run rat ship smart-lighting-control for authenticated Maker Console submission.",
+  "notes": "Version 1.0.0 is engineering-complete under the hardware-free XENEON release gate. Marketplace auto-publish remains disabled."
+}
