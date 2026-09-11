@@ -106,15 +106,17 @@ jobs:
           PACKRAT_AUDIO_BRIDGE_TEST: '1'
         run: |
           $bundle = (Resolve-Path "artifacts/audio-bridge-bundle").Path
-          $dest = Join-Path $env:LOCALAPPDATA 'PackRat\AudioBridge'
+          $root = Join-Path $env:LOCALAPPDATA 'PackRat'
+          $dest = Join-Path $root 'AudioBridge'
+          $installedUninstaller = Join-Path $root 'UNINSTALL_AUDIO_BRIDGE.cmd'
           $startup = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Startup\PackRat Audio Bridge.cmd'
           if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
+          if (Test-Path $installedUninstaller) { Remove-Item -Force $installedUninstaller }
           if (Test-Path $startup) { Remove-Item -Force $startup }
 
           & (Join-Path $bundle 'INSTALL_STARTUP.cmd')
           if ($LASTEXITCODE -ne 0) { throw "INSTALL_STARTUP.cmd failed with exit code $LASTEXITCODE" }
           if (-not (Test-Path (Join-Path $dest 'PackRat.AudioBridge.exe'))) { throw 'startup install did not copy bridge executable' }
-          $installedUninstaller = Join-Path $dest 'UNINSTALL_STARTUP.cmd'
           if (-not (Test-Path $installedUninstaller)) { throw 'startup install did not copy its uninstaller' }
           if (-not (Test-Path $startup)) { throw 'startup install did not create user Startup entry' }
           $startupText = Get-Content $startup -Raw
@@ -124,14 +126,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "installed UNINSTALL_STARTUP.cmd failed with exit code $LASTEXITCODE" }
           $clean = $false
           for ($i = 0; $i -lt 30; $i++) {
-            if (-not (Test-Path $dest) -and -not (Test-Path $startup)) {
+            if (-not (Test-Path $dest) -and -not (Test-Path $startup) -and -not (Test-Path $installedUninstaller)) {
               $clean = $true
               break
             }
             Start-Sleep -Milliseconds 250
           }
           if (-not $clean) {
-            throw "startup uninstall did not fully clean up. dest=$((Test-Path $dest)) startup=$((Test-Path $startup))"
+            throw "startup uninstall did not fully clean up. dest=$((Test-Path $dest)) startup=$((Test-Path $startup)) uninstaller=$((Test-Path $installedUninstaller))"
           }
 
       - uses: actions/upload-artifact@v4

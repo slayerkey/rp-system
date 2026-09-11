@@ -75,7 +75,7 @@ Recommended setup:
 2. Run `INSTALL_STARTUP.cmd`.
 3. Audio Control Center reconnects automatically.
 
-The installer is per-user only. It copies the bridge to `%LOCALAPPDATA%\PackRat\AudioBridge` and creates a user Startup entry. It does not require administrator access and does not install a Windows service.
+The installer is per-user only. It copies the bridge to `%LOCALAPPDATA%\PackRat\AudioBridge`, places its removable uninstaller at `%LOCALAPPDATA%\PackRat\UNINSTALL_AUDIO_BRIDGE.cmd`, and creates a user Startup entry. It does not require administrator access and does not install a Windows service.
 
 `START_AUDIO_BRIDGE.cmd` is the portable/manual option. `UNINSTALL_STARTUP.cmd` removes the Startup entry and installed copy.
 

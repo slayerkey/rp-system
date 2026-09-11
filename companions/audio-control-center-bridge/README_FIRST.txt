@@ -10,6 +10,7 @@ INSTALL_STARTUP.cmd copies only the bridge executable and documentation to:
 %LOCALAPPDATA%\PackRat\AudioBridge
 
 It creates one per-user Startup entry so the bridge starts when you sign in.
+Installed uninstaller: %LOCALAPPDATA%\PackRat\UNINSTALL_AUDIO_BRIDGE.cmd
 It does not require administrator access and does not install a Windows service.
 
 PORTABLE MODE
