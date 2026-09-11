@@ -74,38 +74,15 @@ test("service authenticates and executes without exposing Pro actions", async ()
   };
 
   const key = "window-manager-lite-test-key-123456";
-  const service = await startWindowManagerXeneonService({
+  const live = await startWindowManagerXeneonService({
     backend,
     pairingKey: key,
     pluginVersion: "1.2.3.4",
     port: 0,
     reconcileMs: 60_000,
   });
-  const actualPort = service.port || 0;
-
-  try {
-    // Node returns the requested port in the public contract. Use the default
-    // service port in production; this test binds an ephemeral port below by
-    // reading the listener through the health URL supplied by the helper.
-    assert.ok(actualPort >= 0);
-  } finally {
-    await service.close();
-  }
-
-  // Run the protocol against the production port shape using an explicit free port.
-  const net = await import("node:net");
-  const probe = net.createServer();
-  await new Promise((resolve) => probe.listen(0, "127.0.0.1", resolve));
-  const port = probe.address().port;
-  await new Promise((resolve) => probe.close(resolve));
-
-  const live = await startWindowManagerXeneonService({
-    backend,
-    pairingKey: key,
-    pluginVersion: "1.2.3.4",
-    port,
-    reconcileMs: 60_000,
-  });
+  const port = live.port;
+  assert.ok(Number.isInteger(port) && port > 0, "ephemeral listener port was not returned");
 
   try {
     const health = await fetch(`http://127.0.0.1:${port}/health`).then((response) => response.json());
