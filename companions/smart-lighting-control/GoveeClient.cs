@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace PackRat.SmartLighting;
 
-public sealed class GoveeClient {
+public sealed class GoveeClient : IDisposable {
     const string ApiBase="https://openapi.api.govee.com";
     readonly LocalState state;
     readonly Dictionary<string,LanDevice> lan=new(StringComparer.OrdinalIgnoreCase);
@@ -17,12 +17,14 @@ public sealed class GoveeClient {
     readonly Dictionary<string,CloudState> cloudStates=new(StringComparer.OrdinalIgnoreCase);
     DateTime cloudDevicesAt=DateTime.MinValue, scenesAt=DateTime.MinValue, cloudStatesAt=DateTime.MinValue, lanStatusAt=DateTime.MinValue, lanDiscoveryAt=DateTime.MinValue;
     int cloudStateCursor=0;
+    HttpClient? cloudHttp;
+    string? cloudHttpKey;
     public GoveeClient(LocalState state){this.state=state;}
     public bool CloudConfigured=>!string.IsNullOrWhiteSpace(state.GoveeApiKey());
     public string? LastCloudError { get; private set; }
     public string? LastLanError { get; private set; }
     public void ClearApiKeyAndCache(){
-        state.SetGoveeApiKey(null);
+        state.SetGoveeApiKey(null);ResetCloudHttp();
         cloud.Clear();cloudStates.Clear();sceneCache.Clear();
         cloudDevicesAt=DateTime.MinValue;cloudStatesAt=DateTime.MinValue;scenesAt=DateTime.MinValue;cloudStateCursor=0;
         LastCloudError=null;
@@ -157,17 +159,23 @@ public sealed class GoveeClient {
     }
 
     HttpClient CloudHttp(){
-        var h=new HttpClient{BaseAddress=new Uri(ApiBase),Timeout=TimeSpan.FromSeconds(8)};
-        h.DefaultRequestHeaders.TryAddWithoutValidation("Govee-API-Key",state.GoveeApiKey());
-        return h;
+        var key=state.GoveeApiKey()??"";
+        if(cloudHttp is not null&&string.Equals(cloudHttpKey,key,StringComparison.Ordinal))return cloudHttp;
+        ResetCloudHttp();
+        cloudHttp=new HttpClient{BaseAddress=new Uri(ApiBase),Timeout=TimeSpan.FromSeconds(8)};
+        cloudHttp.DefaultRequestHeaders.TryAddWithoutValidation("Govee-API-Key",key);
+        cloudHttpKey=key;
+        return cloudHttp;
     }
+    void ResetCloudHttp(){cloudHttp?.Dispose();cloudHttp=null;cloudHttpKey=null;}
+    public void Dispose()=>ResetCloudHttp();
     public async Task ValidateAndSaveApiKeyAsync(string key,CancellationToken ct=default){
-        var prior=state.GoveeApiKey();state.SetGoveeApiKey(key);
+        var prior=state.GoveeApiKey();state.SetGoveeApiKey(key);ResetCloudHttp();
         try{await RefreshCloudDevicesAsync(ct);if(cloud.Count==0)throw new InvalidOperationException("The key worked, but no supported Govee lights were returned.");}
-        catch{state.SetGoveeApiKey(prior);throw;}
+        catch{state.SetGoveeApiKey(prior);ResetCloudHttp();throw;}
     }
     async Task RefreshCloudDevicesAsync(CancellationToken ct){
-        using var http=CloudHttp();using var res=await http.GetAsync("/router/api/v1/user/devices",ct);NoteCloudResponse(res);res.EnsureSuccessStatusCode();
+        var http=CloudHttp();using var res=await http.GetAsync("/router/api/v1/user/devices",ct);NoteCloudResponse(res);res.EnsureSuccessStatusCode();
         using var doc=JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
         var data=doc.RootElement.TryGetProperty("data",out var d)&&d.ValueKind==JsonValueKind.Array?d:default;
         var next=new List<CloudDevice>();
@@ -208,7 +216,7 @@ public sealed class GoveeClient {
         if(cloudStateCursor>=candidates.Count)cloudStateCursor=0;
         var d=candidates[cloudStateCursor++];
         try{
-            using var http=CloudHttp();
+            var http=CloudHttp();
             var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku=d.Sku,device=d.Device}};
             using var res=await http.PostAsJsonAsync("/router/api/v1/device/state",payload,JsonDefaults.Options,ct);
             NoteCloudResponse(res);
@@ -264,7 +272,7 @@ public sealed class GoveeClient {
     }
 
     async Task RefreshScenesAsync(CancellationToken ct){
-        using var http=CloudHttp();
+        var http=CloudHttp();
         foreach(var d in cloud){
             var scenes=new List<CloudScene>(d.StaticScenes);
             await AppendScenesAsync(http,d,"/router/api/v1/device/scenes",scenes,ct);
@@ -362,7 +370,7 @@ public sealed class GoveeClient {
 
     async Task CloudControlAsync(string sku,string device,string type,string instance,object value,CancellationToken ct){
         if(!CloudConfigured)throw new InvalidOperationException("Govee Developer API key is not configured.");
-        using var http=CloudHttp();var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku,device,capability=new{type,instance,value}}};
+        var http=CloudHttp();var payload=new{requestId=Guid.NewGuid().ToString(),payload=new{sku,device,capability=new{type,instance,value}}};
         using var res=await http.PostAsJsonAsync("/router/api/v1/device/control",payload,JsonDefaults.Options,ct);NoteCloudResponse(res);res.EnsureSuccessStatusCode();
     }
 
