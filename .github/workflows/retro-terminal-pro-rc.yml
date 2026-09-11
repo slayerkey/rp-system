@@ -234,6 +234,8 @@ jobs:
       - name: Start StreamSpell community builder
         run: |
           git clone --depth 1 https://github.com/streamspell/xeneon-edge-widget-builder.git /tmp/xeneon-edge-widget-builder
+          mkdir -p "$GITHUB_WORKSPACE/artifacts/streamspell"
+          git -C /tmp/xeneon-edge-widget-builder rev-parse HEAD > "$GITHUB_WORKSPACE/artifacts/streamspell/streamspell-runner-commit.txt"
           cd /tmp/xeneon-edge-widget-builder
           npm install
           nohup npm run dev > /tmp/streamspell-server.log 2>&1 &
@@ -299,6 +301,20 @@ jobs:
           npm install --no-save playwright@1.62.1
           npx playwright install chromium
           python tools/xeneon/inline.py $env:WIDGET_SLUG
+          @'
+          import hashlib, os, pathlib, zipfile
+          slug=os.environ["WIDGET_SLUG"]
+          package=pathlib.Path("artifacts/input/package")/f"{slug}.icuewidget"
+          generated=pathlib.Path("widgets")/slug/"index.html"
+          with zipfile.ZipFile(package) as archive:
+              packaged=archive.read("index.html")
+          generated_bytes=generated.read_bytes()
+          packaged_sha=hashlib.sha256(packaged).hexdigest()
+          generated_sha=hashlib.sha256(generated_bytes).hexdigest()
+          if packaged_sha != generated_sha:
+              raise SystemExit(f"Rat Art source index differs from exact official package: {generated_sha} != {packaged_sha}")
+          print(f"RAT ART EXACT-PACKAGE HTML MATCH: {packaged_sha}")
+          '@ | python -
 
       - name: Deterministic native XENEON captures
         shell: pwsh
