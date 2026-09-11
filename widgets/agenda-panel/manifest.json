@@ -17,8 +17,5 @@
       "type": "dashboard_lcd"
     }
   ],
-  "interactive": true,
-  "required_plugins": [
-    "widgetbuilder.linkprovider:Url:1.0"
-  ]
+  "interactive": true
 }
