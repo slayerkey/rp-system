@@ -112,6 +112,7 @@ function showOnly(name){
   ["shelf","emptyState","offlineState","privateState"].forEach(function(id){document.getElementById(id).hidden=id!==name;});
 }
 function render(){
+  if(typeof document==="undefined"||!document.getElementById("bridgeStatus"))return;
   applySlot();applyAppearance();
   var status=document.getElementById("bridgeStatus");status.classList.toggle("online",state.connected);
   status.querySelector(".status-text").textContent=state.connected?"Bridge connected":(!state.pairingCode?"Pair bridge":(state.pairingError?"Pairing rejected":"Bridge offline"));
