@@ -688,9 +688,21 @@ internal sealed class ClipboardWindow : Form
         var pairing = new ToolStripMenuItem("Copy Pairing Code");
         pairing.Click += (_, _) =>
         {
-            _suppressNextClipboardText = _history.PairingToken;
-            Clipboard.SetText(_suppressNextClipboardText, TextDataFormat.UnicodeText);
-            _history.ClearCurrent();
+            try
+            {
+                _suppressNextClipboardText = _history.PairingToken;
+                Clipboard.SetText(_suppressNextClipboardText, TextDataFormat.UnicodeText);
+                _history.ClearCurrent();
+            }
+            catch
+            {
+                _suppressNextClipboardText = "";
+                MessageBox.Show(
+                    "Windows clipboard is busy. Try Copy Pairing Code again.",
+                    "Clipboard Shelf",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
         };
         var clear = new ToolStripMenuItem("Clear History");
         clear.Click += (_, _) =>
