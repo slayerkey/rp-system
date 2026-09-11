@@ -51,13 +51,14 @@ For XENEON Marketplace kits, fail closed on the current media contract:
 
 Prefer product names at or below the current Marketplace recommendation when that can be done without losing clarity. Treat the live create-product form as authoritative for immutable fields such as the final product name and monetization choice.
 
-Hardware-dependent products need an honest review-evidence boundary. When current Marketplace review guidance or the live flow requires a functionality video:
+Hardware-dependent products need an honest review-evidence boundary. When current Marketplace review guidance requires a functionality video:
 
 - use real hardware for hardware-origin claims
 - do not label browser fixtures, simulated providers, StreamSpell, or Corsair Labs runner output as physical-device evidence
 - include a short reviewer-demo checklist in the ship kit when owned hardware was unavailable during automated QA
-- if the live submission flow makes the video a required field, fail closed rather than uploading simulated evidence or guessing
-- if review requests a demo after submission, preserve the exact submitted package/version and provide the requested physical evidence against that candidate
+- allow kit generation and non-public staging to proceed, but keep final authenticated submission blocked until the required real-hardware demo is recorded or Marketplace explicitly provides another acceptable evidence route
+- if the live submission flow exposes a required video field, fail closed rather than uploading simulated evidence or guessing
+- preserve the exact submitted package/version when producing reviewer evidence so the demo corresponds to the candidate under review
 
 ## Release notes
 
