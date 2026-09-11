@@ -91,6 +91,12 @@ try{
   await page.waitForFunction(()=>globalThis.__PACKRAT_LIGHTING_TEST__.selected()?.favorite===false);
   report.tests.controls=true;
 
+  // Provider-side command failures must surface visibly instead of disappearing
+  // into console/log state.
+  await page.evaluate(()=>globalThis.__PACKRAT_LIGHTING_TEST__.state.socket.send(JSON.stringify({command:'forceError',id:'hue:room:studio'})));
+  await page.waitForFunction(()=>!document.getElementById('toast').hidden&&/rejected/i.test(document.getElementById('toast').textContent||''),null,{timeout:3000});
+  report.tests.commandErrorFeedback=true;
+
   // Kill the actual companion process. The exact packaged file:// widget must
   // show a deliberate offline state, then recover after the companion restarts.
   await stopCompanion(proc);
