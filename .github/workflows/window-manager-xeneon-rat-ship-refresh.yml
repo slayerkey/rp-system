@@ -1,0 +1,92 @@
+name: Window Manager Rat Ship Metadata Refresh
+
+on:
+  push:
+    branches:
+      - product/window-manager-xeneon
+    paths:
+      - '.github/workflows/window-manager-xeneon-rat-ship-refresh.yml'
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: product/window-manager-xeneon
+          fetch-depth: 0
+
+      - name: Dispatch canonical Rat Ship for latest metadata
+        id: dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: product/window-manager-xeneon
+          SLUG: window-manager-xeneon
+        shell: bash
+        run: |
+          set -euo pipefail
+          started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          gh workflow run rat-ship-xeneon.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH" -f slug="$SLUG"
+
+          run_id=""
+          for i in $(seq 1 40); do
+            run_id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow rat-ship-xeneon.yml --branch "$BRANCH" --event workflow_dispatch --limit 20 --json databaseId,createdAt --jq "[.[] | select(.createdAt >= \"$started\")][0].databaseId // empty")"
+            if [ -n "$run_id" ]; then break; fi
+            sleep 3
+          done
+          if [ -z "$run_id" ]; then
+            echo "Could not find dispatched Rat Ship run" >&2
+            exit 1
+          fi
+
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+
+      - name: Record refreshed ship evidence and remove one-time helper
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ steps.dispatch.outputs.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          artifact_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/artifacts")"
+          export ARTIFACT_ID="$(printf '%s' "$artifact_json" | jq -r '.artifacts[] | select(.name=="rat-ship-window-manager-xeneon") | .id' | head -n1)"
+          export ARTIFACT_DIGEST="$(printf '%s' "$artifact_json" | jq -r '.artifacts[] | select(.name=="rat-ship-window-manager-xeneon") | .digest' | head -n1 | sed 's/^sha256://')"
+
+          if [ -z "$ARTIFACT_ID" ] || [ "$ARTIFACT_ID" = "null" ] || [ -z "$ARTIFACT_DIGEST" ] || [ "$ARTIFACT_DIGEST" = "null" ]; then
+            echo "Could not resolve refreshed Rat Ship artifact" >&2
+            exit 1
+          fi
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          path = Path("products/window-manager-xeneon.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          evidence = data.setdefault("automated_release_evidence", {})
+          evidence["latest_metadata_rat_ship_run"] = int(os.environ["RUN_ID"])
+          evidence["latest_metadata_rat_ship_artifact"] = {
+              "id": int(os.environ["ARTIFACT_ID"]),
+              "sha256": os.environ["ARTIFACT_DIGEST"],
+          }
+          data["notes"] = (
+              "Version 1.0.0 is engineering-complete under the hardware-free XENEON troubleshooting/release gate. "
+              "The free PackRat Window Bridge has a stable customer-accessible v1.0.0 release. "
+              "Canonical Rat Ship was refreshed after the stable companion download URL was added to customer-facing metadata. "
+              "Marketplace submission itself has not been claimed as completed."
+          )
+          path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+          PY
+
+          rm -f .github/workflows/window-manager-xeneon-rat-ship-refresh.yml
+          git config user.name "packrat-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add products/window-manager-xeneon.json .github/workflows/window-manager-xeneon-rat-ship-refresh.yml
+          git commit -m "Finalize Window Manager release evidence [skip ci]"
+          git push origin HEAD:product/window-manager-xeneon
