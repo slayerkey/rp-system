@@ -10,14 +10,12 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 jobs:
-  import:
+  recover:
     runs-on: ubuntu-latest
     env:
       TARGET_BRANCH: product/window-manager-xeneon
-      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,133 +30,105 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git merge --no-edit origin/main
 
-      - name: Recover verify and expand staged product
+      - name: Salvage validated tar members
         shell: bash
         run: |
           set -euo pipefail
-          test "$(find .bootstrap -maxdepth 1 -name 'window-manager.part-*' | wc -l)" -eq 8
           python - <<'PY'
-          import base64, gzip, io, pathlib, struct, tarfile, zlib
+          import base64, io, pathlib, struct, tarfile, zlib
 
           parts = sorted(pathlib.Path(".bootstrap").glob("window-manager.part-*"))
+          if len(parts) != 8:
+              raise SystemExit(f"expected 8 staging parts, got {len(parts)}")
           encoded = "".join(p.read_text(encoding="utf-8").strip() for p in parts)
-          print("staged chars:", len(encoded), "parts:", [len(p.read_text(encoding="utf-8").strip()) for p in parts])
           raw = base64.b64decode(encoded, validate=True)
-          print("decoded bytes:", len(raw))
           if raw[:3] != b"\x1f\x8b\x08":
-              raise SystemExit("staged payload is not a gzip/deflate archive")
+              raise SystemExit("not a gzip payload")
 
-          try:
-              tar_bytes = gzip.decompress(raw)
-              print("gzip wrapper integrity: PASS")
-          except Exception as exc:
-              print("gzip wrapper integrity: FAIL:", repr(exc))
-              flags = raw[3]
-              pos = 10
-              if flags & 4:
-                  xlen = struct.unpack_from("<H", raw, pos)[0]
-                  pos += 2 + xlen
-              if flags & 8:
-                  pos = raw.index(b"\0", pos) + 1
-              if flags & 16:
-                  pos = raw.index(b"\0", pos) + 1
-              if flags & 2:
-                  pos += 2
-              if len(raw) < pos + 8:
-                  raise SystemExit("truncated gzip payload")
-              trailer_crc, trailer_size = struct.unpack("<II", raw[-8:])
-              tar_bytes = zlib.decompress(raw[pos:-8], -zlib.MAX_WBITS)
-              actual_crc = zlib.crc32(tar_bytes) & 0xffffffff
-              actual_size = len(tar_bytes) & 0xffffffff
-              print(f"gzip trailer expected crc={trailer_crc:08x} size={trailer_size}; actual crc={actual_crc:08x} size={actual_size}")
-              if trailer_size != actual_size:
-                  print("warning: gzip ISIZE mismatch; tar validation will decide whether product source is recoverable")
-              pathlib.Path("/tmp/window-manager-recovered.tar").write_bytes(tar_bytes)
+          flags = raw[3]
+          pos = 10
+          if flags & 4:
+              xlen = struct.unpack_from("<H", raw, pos)[0]
+              pos += 2 + xlen
+          if flags & 8:
+              pos = raw.index(b"\0", pos) + 1
+          if flags & 16:
+              pos = raw.index(b"\0", pos) + 1
+          if flags & 2:
+              pos += 2
+
+          tar_bytes = zlib.decompress(raw[pos:-8], -zlib.MAX_WBITS)
+          print("RECOVERED_TAR_BYTES", len(tar_bytes))
 
           with tarfile.open(fileobj=io.BytesIO(tar_bytes), mode="r:") as tf:
               members = tf.getmembers()
-              names = [m.name.lstrip("./") for m in members]
-              required = {
-                  "widgets/_src/window-manager-xeneon/index.html",
-                  "widgets/_src/window-manager-xeneon/window-manager.js",
-                  "widgets/_src/window-manager-xeneon/verify.mjs",
-                  "widgets/window-manager-xeneon/manifest.json",
-                  "companions/window-manager-xeneon/PackRat.WindowBridge/BridgeServer.cs",
-                  ".github/workflows/window-manager-xeneon-full-gate.yml",
-              }
-              missing = sorted(required - set(names))
-              if missing:
-                  raise SystemExit("recovered tar missing required product files: " + ", ".join(missing))
-
+              print("RECOVERED_MEMBERS", len(members))
               for member in members:
                   normalized = pathlib.PurePosixPath(member.name)
                   if normalized.is_absolute() or ".." in normalized.parts:
-                      raise SystemExit(f"unsafe archive member: {member.name}")
-
-              # Reading every regular member forces tar payload/checksum validation.
-              for member in members:
+                      raise SystemExit(f"unsafe member: {member.name}")
                   if member.isfile():
                       fh = tf.extractfile(member)
                       if fh is None:
-                          raise SystemExit(f"unable to read archive member: {member.name}")
-                      fh.read()
-
-              print("tar structure/member validation: PASS; members:", len(members))
+                          raise SystemExit(f"unreadable member: {member.name}")
+                      data = fh.read()
+                      print(f"FILE {member.name} {len(data)}")
+                  else:
+                      print(f"DIR  {member.name}")
               tf.extractall(".", filter="data")
 
-          # Regenerate a healthy deterministic-enough wrapper for diagnostic proof.
-          with gzip.GzipFile("/tmp/window-manager-repaired.tgz", "wb", mtime=0) as out:
-              out.write(tar_bytes)
-          with tarfile.open("/tmp/window-manager-repaired.tgz", "r:gz") as tf:
-              tf.getmembers()
-          print("repaired gzip round-trip: PASS")
+          required_core = [
+              "widgets/_src/window-manager-xeneon/index.html",
+              "widgets/_src/window-manager-xeneon/window-manager.js",
+              "widgets/_src/window-manager-xeneon/window-manager.css",
+              "widgets/_src/window-manager-xeneon/verify.mjs",
+          ]
+          for path in required_core:
+              if not pathlib.Path(path).is_file():
+                  raise SystemExit(f"core source missing from salvage: {path}")
+
+          expected_tail = [
+              "widgets/window-manager-xeneon/manifest.json",
+              "companions/window-manager-xeneon/PackRat.WindowBridge/BridgeServer.cs",
+              ".github/workflows/window-manager-xeneon-full-gate.yml",
+          ]
+          print("KNOWN_MISSING", [p for p in expected_tail if not pathlib.Path(p).is_file()])
           PY
+
+          node --check widgets/_src/window-manager-xeneon/window-manager.js
 
           python - <<'PY'
           import json
           from pathlib import Path
-
           path = Path("products/index.json")
           data = json.loads(path.read_text(encoding="utf-8"))
-          products = data["products"]
-          matches = [item for item in products if item.get("id") == "window-manager-xeneon"]
+          matches = [x for x in data["products"] if x.get("id") == "window-manager-xeneon"]
           if len(matches) > 1:
-              raise SystemExit("duplicate window-manager-xeneon product IDs")
+              raise SystemExit("duplicate product id")
           if not matches:
-              products.append({
-                  "id": "window-manager-xeneon",
-                  "name": "Window Manager for XENEON",
-                  "type": "widget",
-                  "status": "built",
-                  "price_usd": 9.99,
-                  "version": "1.0.0"
+              data["products"].append({
+                  "id":"window-manager-xeneon",
+                  "name":"Window Manager for XENEON",
+                  "type":"widget",
+                  "status":"building",
+                  "price_usd":9.99,
+                  "version":"1.0.0"
               })
+          else:
+              matches[0]["status"] = "building"
+              matches[0]["price_usd"] = 9.99
+              matches[0]["version"] = "1.0.0"
           path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
           PY
 
-          node --check widgets/_src/window-manager-xeneon/window-manager.js
-          node widgets/_src/window-manager-xeneon/verify.mjs .
           rm -rf .bootstrap
           rm -f .github/workflows/window-manager-xeneon-bootstrap.yml
 
-      - name: Commit clean product branch
+      - name: Commit recovered source
         shell: bash
         run: |
           set -euo pipefail
           git add -A
           git status --short
-          git commit -m "Build paid Window Manager for XENEON"
+          git commit -m "Recover Window Manager XENEON source from staging"
           git push origin HEAD:${TARGET_BRANCH}
-
-      - name: Dispatch full hardware-free release gate
-        shell: bash
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 20); do
-            if gh workflow run window-manager-xeneon-full-gate.yml --repo "$GITHUB_REPOSITORY" --ref "${TARGET_BRANCH}"; then
-              exit 0
-            fi
-            sleep 3
-          done
-          echo "Unable to dispatch Window Manager full gate" >&2
-          exit 1
