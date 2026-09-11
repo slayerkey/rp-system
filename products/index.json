@@ -60,7 +60,7 @@
     {"id":"neon-red","name":"Neon Red Icons","type":"icons","status":"published","price_usd":4.49,"version":"1.0.0"},
     {"id":"slot-machine","name":"Slot Machine","type":"widget","status":"submitted","price_usd":7.77,"version":"1.0.0"},
     {"id":"net-spike","name":"Packrat Network Probe","type":"widget","status":"built","price_usd":0,"version":"1.0.0"},
-    {"id":"market-command-center","name":"Market Command Center","type":"widget","status":"published","price_usd":9.99,"version":"1.0.1"},
+    {"id":"market-command-center","name":"Market Command Center","type":"widget","status":"published","price_usd":9.99,"version":"1.0.2"},
     {"id":"crypto-portfolio","name":"Crypto Portfolio","type":"widget","status":"published","price_usd":7.99,"version":"1.0.0"},
     {"id":"ambient-clock","name":"Ambient Clock Pack","type":"widget","status":"published","price_usd":6.99,"version":"1.0.0"},
     {"id":"retro-terminal","name":"Retro Terminal","type":"widget","status":"published","price_usd":0.0,"version":"1.0.0"},

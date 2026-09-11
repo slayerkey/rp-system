@@ -1,0 +1,98 @@
+{
+  "en": {
+    "translation": {
+      "Market Command Center": "Market Command Center",
+      "Markets": "Markets",
+      "Appearance": "Appearance",
+      "Coins": "Coins",
+      "Stock Symbols": "Stock Symbols",
+      "CoinGecko Key (optional)": "CoinGecko Key (optional)",
+      "Refresh": "Refresh",
+      "Show Sparklines": "Show Sparklines",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Offline": "Offline",
+      "Waiting for market data.": "Waiting for market data.",
+      "Coins need no setup. Stocks need a free Finnhub key from finnhub.io/register": "Coins need no setup. Stocks need a free Finnhub key from finnhub.io/register",
+      "Finnhub Key (free)": "Finnhub Key (free)",
+      "Stocks need a free Finnhub key. Get one at finnhub.io/register": "Stocks need a free Finnhub key. Get one at finnhub.io/register",
+      "Show Major Markets": "Show Major Markets",
+      "Show Charts": "Show Charts",
+      "Major Markets pins SPY, QQQ and DIA as S&P 500, Nasdaq 100 and Dow proxies. Stocks need a free Finnhub key from finnhub.io/register.": "Major Markets pins SPY, QQQ and DIA as S&P 500, Nasdaq 100 and Dow proxies. Stocks need a free Finnhub key from finnhub.io/register.",
+      "Stocks and Major Markets need a free Finnhub key. Get one at finnhub.io/register": "Stocks and Major Markets need a free Finnhub key. Get one at finnhub.io/register"
+    }
+  },
+  "de": {
+    "translation": {
+      "Market Command Center": "Market Command Center",
+      "Markets": "Markets",
+      "Appearance": "Appearance",
+      "Coins": "Coins",
+      "Stock Symbols": "Stock Symbols",
+      "CoinGecko Key (optional)": "CoinGecko Key (optional)",
+      "Refresh": "Refresh",
+      "Show Sparklines": "Show Sparklines",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Offline": "Offline",
+      "Waiting for market data.": "Waiting for market data.",
+      "Coins need no setup. Stocks need a free Finnhub key from finnhub.io/register": "Coins need no setup. Stocks need a free Finnhub key from finnhub.io/register",
+      "Finnhub Key (free)": "Finnhub Key (free)",
+      "Stocks need a free Finnhub key. Get one at finnhub.io/register": "Stocks need a free Finnhub key. Get one at finnhub.io/register",
+      "Show Major Markets": "Show Major Markets",
+      "Show Charts": "Show Charts",
+      "Major Markets pins SPY, QQQ and DIA as S&P 500, Nasdaq 100 and Dow proxies. Stocks need a free Finnhub key from finnhub.io/register.": "Major Markets pins SPY, QQQ and DIA as S&P 500, Nasdaq 100 and Dow proxies. Stocks need a free Finnhub key from finnhub.io/register.",
+      "Stocks and Major Markets need a free Finnhub key. Get one at finnhub.io/register": "Stocks and Major Markets need a free Finnhub key. Get one at finnhub.io/register"
+    }
+  },
+  "es": {
+    "translation": {
+      "Market Command Center": "Market Command Center",
+      "Markets": "Markets",
+      "Appearance": "Appearance",
+      "Coins": "Coins",
+      "Stock Symbols": "Stock Symbols",
+      "CoinGecko Key (optional)": "CoinGecko Key (optional)",
+      "Refresh": "Refresh",
+      "Show Sparklines": "Show Sparklines",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Offline": "Offline",
+      "Waiting for market data.": "Waiting for market data.",
+      "Coins need no setup. Stocks need a free Finnhub key from finnhub.io/register": "Coins need no setup. Stocks need a free Finnhub key from finnhub.io/register",
+      "Finnhub Key (free)": "Finnhub Key (free)",
+      "Stocks need a free Finnhub key. Get one at finnhub.io/register": "Stocks need a free Finnhub key. Get one at finnhub.io/register",
+      "Show Major Markets": "Show Major Markets",
+      "Show Charts": "Show Charts",
+      "Major Markets pins SPY, QQQ and DIA as S&P 500, Nasdaq 100 and Dow proxies. Stocks need a free Finnhub key from finnhub.io/register.": "Major Markets pins SPY, QQQ and DIA as S&P 500, Nasdaq 100 and Dow proxies. Stocks need a free Finnhub key from finnhub.io/register.",
+      "Stocks and Major Markets need a free Finnhub key. Get one at finnhub.io/register": "Stocks and Major Markets need a free Finnhub key. Get one at finnhub.io/register"
+    }
+  },
+  "fr": {
+    "translation": {
+      "Market Command Center": "Market Command Center",
+      "Markets": "Markets",
+      "Appearance": "Appearance",
+      "Coins": "Coins",
+      "Stock Symbols": "Stock Symbols",
+      "CoinGecko Key (optional)": "CoinGecko Key (optional)",
+      "Refresh": "Refresh",
+      "Show Sparklines": "Show Sparklines",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Offline": "Offline",
+      "Waiting for market data.": "Waiting for market data.",
+      "Coins need no setup. Stocks need a free Finnhub key from finnhub.io/register": "Coins need no setup. Stocks need a free Finnhub key from finnhub.io/register",
+      "Finnhub Key (free)": "Finnhub Key (free)",
+      "Stocks need a free Finnhub key. Get one at finnhub.io/register": "Stocks need a free Finnhub key. Get one at finnhub.io/register",
+      "Show Major Markets": "Show Major Markets",
+      "Show Charts": "Show Charts",
+      "Major Markets pins SPY, QQQ and DIA as S&P 500, Nasdaq 100 and Dow proxies. Stocks need a free Finnhub key from finnhub.io/register.": "Major Markets pins SPY, QQQ and DIA as S&P 500, Nasdaq 100 and Dow proxies. Stocks need a free Finnhub key from finnhub.io/register.",
+      "Stocks and Major Markets need a free Finnhub key. Get one at finnhub.io/register": "Stocks and Major Markets need a free Finnhub key. Get one at finnhub.io/register"
+    }
+  }
+}
