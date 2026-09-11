@@ -1,0 +1,78 @@
+name: Window Manager Companion Release
+
+on:
+  push:
+    branches:
+      - product/window-manager-xeneon
+    paths:
+      - '.github/workflows/window-manager-xeneon-companion-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PROJECT: companions/window-manager-xeneon/PackRat.WindowBridge/PackRat.WindowBridge.csproj
+  TAG: window-manager-bridge-v1.0.0
+  ZIP_NAME: PackRat-Window-Bridge-win-x64.zip
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build self-test and publish
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          dotnet restore $env:PROJECT
+          dotnet build $env:PROJECT -c Release --no-restore
+          dotnet run --project $env:PROJECT -c Release --no-build -- --self-test
+          dotnet publish $env:PROJECT -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o artifacts/publish
+
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          Copy-Item artifacts/publish/PackRat.WindowBridge.exe artifacts/package/PackRat.WindowBridge.exe
+          Copy-Item companions/window-manager-xeneon/Install.cmd artifacts/package/Install.cmd
+          Copy-Item companions/window-manager-xeneon/Install.ps1 artifacts/package/Install.ps1
+          Copy-Item companions/window-manager-xeneon/Uninstall.ps1 artifacts/package/Uninstall.ps1
+          Copy-Item companions/window-manager-xeneon/README.md artifacts/package/README.md
+          Copy-Item companions/window-manager-xeneon/SECURITY.md artifacts/package/SECURITY.md
+          Compress-Archive -Path artifacts/package/* -DestinationPath "artifacts/$env:ZIP_NAME" -Force
+
+      - name: Package sanity
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Test-Path "artifacts/$env:ZIP_NAME")) { throw 'companion zip missing' }
+          Expand-Archive "artifacts/$env:ZIP_NAME" artifacts/audit -Force
+          foreach ($file in @('PackRat.WindowBridge.exe','Install.cmd','Install.ps1','Uninstall.ps1','README.md','SECURITY.md')) {
+            if (-not (Test-Path "artifacts/audit/$file")) { throw "missing release file: $file" }
+          }
+
+      - name: Publish stable free companion release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $asset = "artifacts/$env:ZIP_NAME"
+          gh release view $env:TAG --repo $env:GITHUB_REPOSITORY 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:TAG $asset --repo $env:GITHUB_REPOSITORY --clobber
+          } else {
+            gh release create $env:TAG $asset --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "PackRat Window Bridge v1.0.0" --notes "Free local Windows companion for Window Manager for XENEON. Runs on localhost only. Includes no-admin install and uninstall scripts."
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-xeneon-companion-release
+          path: artifacts/PackRat-Window-Bridge-win-x64.zip
+          if-no-files-found: error
+          retention-days: 30
