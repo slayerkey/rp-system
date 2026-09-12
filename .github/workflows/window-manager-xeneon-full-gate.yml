@@ -78,11 +78,11 @@ jobs:
           allowed = (
               "widgets/_src/window-manager-xeneon/",
               "companions/window-manager-xeneon/",
-              ".github/workflows/window-manager-xeneon-full-gate.yml",
-              ".github/workflows/window-manager-xeneon-companion-release.yml",
           )
           hits = []
-          for root in ("widgets", "companions", "plugins", ".github/workflows"):
+          # Runtime collision check only. CI/workflow files may intentionally override
+          # ports for isolated smoke tests and do not represent customer runtime bindings.
+          for root in ("widgets", "companions", "plugins"):
               base = pathlib.Path(root)
               if not base.exists():
                   continue
