@@ -26,6 +26,7 @@ assert.equal(manifest.name, "Window Manager for XENEON");
 assert.equal(manifest.version, "1.0.0");
 assert.equal(manifest.interactive, true);
 assert.deepEqual(manifest.os, [{ platform: "windows" }]);
+assert.deepEqual(manifest.required_plugins, ["widgetbuilder.linkprovider:Url:1.0"]);
 assert.equal(submission.slug, "window-manager-xeneon");
 assert.equal(submission.type, "widget");
 assert.equal(submission.price_usd, 9.99);
@@ -65,7 +66,9 @@ assert.equal(/setInterval\s*\(/.test(js), false, "widget must not own a polling 
 assert.ok(js.includes("/^data:image\\/(?:png|svg\\+xml);/i.test(icon)"), "icon URI allowlist missing");
 assert.match(js, /__PACKRAT_WINDOW_FIXTURE__/);
 assert.match(js, /__PACKRAT_WINDOW_TEST__/);
-assert.equal(/https?:\/\//i.test(js), false, "widget runtime must not call remote HTTP services");
+assert.equal(/\bfetch\s*\(|XMLHttpRequest/i.test(js), false, "widget runtime must not call remote HTTP services");
+assert.match(js, /window\.plugins\.Linkprovider\.open/);
+assert.match(js, /window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23/);
 assert.equal(/<script[^>]+src=["']https?:/i.test(html), false, "no remote scripts");
 assert.equal(/<link[^>]+rel=["']stylesheet["'][^>]+href=["']https?:/i.test(html), false, "no remote stylesheets");
 assert.equal(js.includes("EnumWindows"), false, "widget must not pretend it can call Win32 directly");
@@ -76,6 +79,7 @@ assert.ok(directClose >= 0 && closeHandler > directClose, "safe close confirmati
 
 assert.match(html, /Window Manager Pairing Key/);
 assert.match(html, /Window Manager Lite Stream Deck plugin/);
+assert.match(html, /Install \/ Update Window Manager Lite/);
 assert.equal(/PackRat Window Bridge/i.test(html), false, "customer setup still references standalone bridge");
 
 console.log("WINDOW MANAGER XENEON DEV QA PASS: identity, paid-only metadata, Window Manager Lite localhost pairing, safe close, actions, fixtures, all eight layouts, Custom Style triplet and no remote runtime dependencies");
