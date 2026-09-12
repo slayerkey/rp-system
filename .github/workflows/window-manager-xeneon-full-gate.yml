@@ -252,12 +252,16 @@ jobs:
               raise SystemExit("package id changed")
           if manifest.get("version") != "1.0.0" or manifest.get("interactive") is not True:
               raise SystemExit("package version/interactive contract changed")
+          if manifest.get("required_plugins") != ["widgetbuilder.linkprovider:Url:1.0"]:
+              raise SystemExit(f"package Link Provider contract changed: {manifest.get('required_plugins')}")
           html = (out/"index.html").read_text(encoding="utf-8")
           checks = {
               "flattened_css": 'href="window-manager.css"' not in html,
               "flattened_js": 'src="window-manager.js"' not in html,
               "loopback_bridge": "ws://127.0.0.1:17487/widget" in html,
-              "no_remote_http": "https://" not in html and "http://" not in html,
+              "no_remote_fetch": "fetch(" not in html and "XMLHttpRequest" not in html,
+              "official_lite_link": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23" in html,
+              "link_provider": "window.plugins.Linkprovider.open" in html,
               "pairing_key": "bridgeKey" in html,
               "lifecycle": "onICUEInitialized" in html and "onDataUpdated" in html,
               "binding_bridge": "__ratpackIcueBindingBridge" in html,
