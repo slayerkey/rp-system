@@ -31,11 +31,17 @@ export function fixedTimeKeyEquals(supplied, expected) {
 
 export function isAllowedOrigin(origin, port = DEFAULT_PORT) {
   if (!origin) return true;
-  const value = String(origin).trim().toLowerCase();
-  return value === "null"
-    || value === "file://"
-    || value === `http://127.0.0.1:${port}`
-    || value === `http://localhost:${port}`;
+  const raw = String(origin).trim();
+  const value = raw.toLowerCase();
+  if (value === "null" || value.startsWith("file://") || value.startsWith("qrc://")) return true;
+  try {
+    const url = new URL(raw);
+    return (url.protocol === "http:" || url.protocol === "https:")
+      && ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname)
+      && (!url.port || Number(url.port) === Number(port));
+  } catch {
+    return false;
+  }
 }
 
 export function normalizeSnapshot(value, protocol = PROTOCOL_VERSION) {
@@ -186,7 +192,12 @@ export async function startWindowManagerXeneonService({
     }
 
     if (request.url === "/") {
-      response.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
+      response.writeHead(200, {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+        "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
+      });
       response.end(setupHtml({ port, pairingKey }));
       return;
     }
@@ -307,19 +318,31 @@ export async function startWindowManagerXeneonService({
   }, reconcileMs);
   reconcileTimer.unref?.();
 
-  await new Promise((resolve, reject) => {
-    const onError = (error) => {
-      server.off("listening", onListening);
-      reject(error);
-    };
-    const onListening = () => {
-      server.off("error", onError);
-      resolve();
-    };
-    server.once("error", onError);
-    server.once("listening", onListening);
-    server.listen(port, host);
-  });
+  let listenError = null;
+  for (let attempt = 1; attempt <= 12; attempt += 1) {
+    try {
+      await new Promise((resolve, reject) => {
+        const onError = (error) => {
+          server.off("listening", onListening);
+          reject(error);
+        };
+        const onListening = () => {
+          server.off("error", onError);
+          resolve();
+        };
+        server.once("error", onError);
+        server.once("listening", onListening);
+        server.listen(port, host);
+      });
+      listenError = null;
+      break;
+    } catch (error) {
+      listenError = error;
+      if (error?.code !== "EADDRINUSE" || attempt === 12) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+  if (listenError) throw listenError;
 
   const address = server.address();
   const actualPort = address && typeof address === "object" ? address.port : port;
