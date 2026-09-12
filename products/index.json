@@ -515,9 +515,9 @@
       "id": "window-manager",
       "name": "Window Manager Lite",
       "type": "plugin",
-      "status": "submitted",
+      "status": "qa_passed",
       "price_usd": 0,
-      "version": "1.0.0.0"
+      "version": "1.0.0.3"
     },
     {
       "id": "workflow-automation",
@@ -827,7 +827,7 @@
       "id": "window-manager-xeneon",
       "name": "Window Manager for XENEON",
       "type": "widget",
-      "status": "in_progress",
+      "status": "qa_passed",
       "price_usd": 9.99,
       "version": "1.0.0"
     }
