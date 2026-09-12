@@ -41,6 +41,18 @@
 
   function byId(id) { return document.getElementById(id); }
 
+  function openExternalLink(url) {
+    try {
+      if (window.plugins && window.plugins.Linkprovider &&
+          typeof pluginLinkprovider_initialized !== "undefined" && pluginLinkprovider_initialized) {
+        window.plugins.Linkprovider.open(url);
+        return true;
+      }
+    } catch (error) {}
+    try { window.open(url, "_blank"); return true; } catch (error) {}
+    return false;
+  }
+
   function boolValue(value, fallback) {
     if (typeof value === "boolean") return value;
     if (typeof value === "number") return value !== 0;
@@ -582,6 +594,10 @@
   }
 
   function installEvents() {
+    var installLite = byId("installLiteLink");
+    if (installLite) installLite.addEventListener("click", function () {
+      openExternalLink("https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23");
+    });
     byId("windowList").addEventListener("click", function (event) {
       var button = event.target.closest && event.target.closest("[data-window-id]");
       if (!button) return;
