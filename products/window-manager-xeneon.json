@@ -3,7 +3,7 @@
   "name": "Window Manager for XENEON",
   "type": "widget",
   "status": "qa_passed",
-  "workflow_state": "HARDENED_RELEASE_CANDIDATE",
+  "workflow_state": "READY_TO_SHIP",
   "price_usd": 9.99,
   "version": "1.0.0",
   "platform": "CORSAIR iCUE / XENEON Edge + Window Manager Lite",
@@ -203,7 +203,7 @@
     "native_icon_overlay_sha256": "2d431491f70f8cd710998dd8279173743f91d889092158377b4386cfd5ab8d22"
   },
   "hardware_boundary": "No physical XENEON Edge was available. The exact Lite production plugin.js lifecycle, Win32 snapshot, localhost service, pairing persistence/restart and native app-icon extraction all ran successfully on Windows automation. The exact XENEON package also passed CORSAIR validation/package/host/layout gates. The only unclaimed boundary is the actual Stream Deck desktop host plus physical XENEON Edge/iCUE touch/readability and real foreground/elevation behavior.",
-  "notes": "Hardened implementation and automated QA are complete. Window Manager Lite 1.0.0.3 was rebuilt from the exact shipped 1.0.0.2 baseline with the hidden localhost XENEON service wired into the real plugin process/native engine. Lite remains Lite: Snap Window + Cycle Windows are still the only visible actions, the existing Window Manager Pro upsell remains, and no Pro action UUIDs are added. Koffi is 3.1.6. Native Windows executable icons are now extracted locally, encoded as cached 32x32 PNG data URIs and delivered with window titles to XENEON; the exact icon path was validated on Windows with Notepad before the same production plugin lifecycle/restart suite passed. Elgato Stream Deck CLI validation/package passed and the exact package preserves its source tree byte-for-byte. The latest XENEON package is officially CORSAIR-packaged, uses the official Link Provider for the Lite Marketplace setup button, and passed the latest full gate plus all-eight-layout, exact-package regression, lexical settings, no-callback autosync, Corsair Labs host smoke and StreamSpell. Marketplace submission has not been performed. Remaining work is external real-host/hardware confirmation only.",
+  "notes": "Hardened implementation and automated QA are complete. Canonical release state is READY_TO_SHIP. Window Manager Lite 1.0.0.3 was rebuilt from the exact shipped 1.0.0.2 baseline with the hidden localhost XENEON service wired into the real plugin process/native engine. Lite remains Lite: Snap Window + Cycle Windows are still the only visible actions, the existing Window Manager Pro upsell remains, and no Pro action UUIDs are added. Koffi is 3.1.6. Native Windows executable icons are now extracted locally, encoded as cached 32x32 PNG data URIs and delivered with window titles to XENEON; the exact icon path was validated on Windows with Notepad before the same production plugin lifecycle/restart suite passed. Elgato Stream Deck CLI validation/package passed and the exact package preserves its source tree byte-for-byte. The latest XENEON package is officially CORSAIR-packaged, uses the official Link Provider for the Lite Marketplace setup button, and passed the latest full gate plus all-eight-layout, exact-package regression, lexical settings, no-callback autosync, Corsair Labs host smoke and StreamSpell. Marketplace submission has not been performed. Remaining work is external real-host/hardware confirmation only.",
   "window_manager_lite_dependency": {
     "id": "window-manager",
     "name": "Window Manager Lite",
