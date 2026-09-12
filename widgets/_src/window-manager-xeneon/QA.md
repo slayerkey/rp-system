@@ -27,7 +27,7 @@ The standalone PackRat Window Bridge remains historical/reference-only. It is no
 - existing Window Manager Pro Marketplace upsell remains
 - no Pro action UUIDs are exposed
 - XENEON service registers no Stream Deck action
-- Property Inspector includes XENEON Edge setup, pairing-key copy and local setup page
+- Property Inspector includes XENEON Edge setup, pairing-key copy and local setup page\n- native Windows executable app icons are extracted locally and cached as 32x32 PNG data URIs
 
 ### Window Manager for XENEON 1.0.0
 
@@ -119,7 +119,7 @@ Private Windows lifecycle gate:
 
 The gate reconstructs the exact PackRat-authored files from the final Lite package and then:
 
-- validates the unchanged Lite action surface and Pro Marketplace upsell
+- validates the unchanged Lite action surface and Pro Marketplace upsell\n- validates native app-icon extraction from `C:\\Windows\\System32\\notepad.exe` as a cached 32x32 PNG data URI
 - executes the exact shipping `win32.js` XENEON snapshot on Windows
 - starts the exact shipping `xeneon-service.js` directly on Windows
 - launches the real production `plugin.js` against a Stream Deck protocol WebSocket host
@@ -130,7 +130,7 @@ The gate reconstructs the exact PackRat-authored files from the final Lite packa
 - stops the plugin and launches it a second time
 - verifies the second launch starts the localhost service with the same persisted pairing key
 
-This closes the production-entry-point lifecycle gap without changing the candidate binaries.
+This closes the production-entry-point lifecycle gap and verifies the final icon-enabled Lite code before packaging.
 
 ## Remaining honest boundary
 
