@@ -43,6 +43,65 @@ jobs:
           npm test
           Pop-Location
 
+      - name: Windows native FFI smoke on stable Koffi
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $tmp = Join-Path $env:RUNNER_TEMP 'window-manager-koffi-smoke'
+          if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp }
+          New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+          Push-Location $tmp
+          npm init -y | Out-Null
+          npm install koffi@3.1.6 --save-exact
+          npm audit --audit-level=high
+          @'
+          const koffi = require("koffi");
+          const user32 = koffi.load("user32.dll");
+          const dwmapi = koffi.load("dwmapi.dll");
+          const RECT = koffi.struct("RECT", { left:"long", top:"long", right:"long", bottom:"long" });
+          const MONITORINFO = koffi.struct("MONITORINFO", {
+            cbSize:"uint32_t", rcMonitor:RECT, rcWork:RECT, dwFlags:"uint32_t"
+          });
+          if (koffi.sizeof(MONITORINFO) !== 40) throw new Error("MONITORINFO layout mismatch");
+
+          const PostMessageW = user32.func("bool __stdcall PostMessageW(void *hWnd, unsigned int Msg, uintptr_t wParam, intptr_t lParam)");
+          const DwmGetWindowAttribute = dwmapi.func("long __stdcall DwmGetWindowAttribute(void *hwnd, unsigned long dwAttribute, _Out_ void *pvAttribute, unsigned long cbAttribute)");
+          const WindowProto = koffi.proto("bool __stdcall WindowEnumProc(void *hWnd, long long lparam)");
+          const EnumWindows = user32.func("bool __stdcall EnumWindows(WindowEnumProc *callback, long long lparam)");
+          const MonitorProto = koffi.proto("bool __stdcall MonitorEnumProc(void *hMonitor, void *hdc, RECT *rect, long long lparam)");
+          const EnumDisplayMonitors = user32.func("bool __stdcall EnumDisplayMonitors(void *hdc, RECT *clip, MonitorEnumProc *callback, long long lparam)");
+          const GetMonitorInfoW = user32.func("bool __stdcall GetMonitorInfoW(void *hMonitor, _Inout_ MONITORINFO *lpmi)");
+
+          let windows = 0;
+          const wc = koffi.register((hwnd) => {
+            windows++;
+            const cloaked = Buffer.alloc(4);
+            DwmGetWindowAttribute(hwnd, 14, cloaked, 4);
+            return true;
+          }, koffi.pointer(WindowProto));
+          try {
+            if (!EnumWindows(wc, 0)) throw new Error("EnumWindows failed");
+          } finally { koffi.unregister(wc); }
+
+          let monitors = 0;
+          const mc = koffi.register((hmon) => {
+            const info = { cbSize:koffi.sizeof(MONITORINFO) };
+            if (!GetMonitorInfoW(hmon, info)) throw new Error("GetMonitorInfoW failed");
+            monitors++;
+            return true;
+          }, koffi.pointer(MonitorProto));
+          try {
+            if (!EnumDisplayMonitors(null, null, mc, 0)) throw new Error("EnumDisplayMonitors failed");
+          } finally { koffi.unregister(mc); }
+
+          if (monitors < 1) throw new Error("No monitor enumerated");
+          if (typeof PostMessageW !== "function") throw new Error("PostMessageW binding failed");
+          console.log("WINDOW MANAGER WIN32 FFI PASS", { windows, monitors });
+          '@ | Set-Content -Encoding UTF8 smoke.cjs
+          node smoke.cjs
+          Pop-Location
+
       - name: Validate Lite migration tooling
         shell: pwsh
         run: |
