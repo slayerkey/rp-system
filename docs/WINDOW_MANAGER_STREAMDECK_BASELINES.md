@@ -61,10 +61,11 @@ XENEON integration must never turn Window Manager Lite into Window Manager Pro. 
 
 - Latest XENEON full gate: run `34667669391` — success
 - Latest Lite service + Win32 FFI gate: run `34667669347` — success
-- Native app icon + exact production Lite lifecycle: private run `34672640410` — success
+- Native app icon + exact production Lite lifecycle + authenticated XENEON snapshot: private run `34672921698` — success
 - Exact official XENEON package artifact: `10289274525`
 - Lite/XENEON service evidence artifact: `10288829017`
 - Native icon overlay SHA-256: `2d431491f70f8cd710998dd8279173743f91d889092158377b4386cfd5ab8d22`
+- Production XENEON protocol snapshot: 2 windows / 2 native PNG icons on both first and second plugin launch
 
 ## Private recovery archive
 
