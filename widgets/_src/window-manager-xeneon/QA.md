@@ -109,11 +109,34 @@ Official XENEON package artifact:
 
 The exact officially packaged XENEON widget was also exercised against the actual Lite `xeneon-service.js` that ships. The path passed authentication, snapshot delivery, focus, minimize, maximize/restore, snap, monitor move, safe-close cancel/confirm and wrong-key rejection.
 
+## Exact production Lite lifecycle
+
+Private Windows lifecycle gate:
+- run: `34667612648`
+- job: `103482622370`
+- result: **success**
+- exact first-party archive SHA-256: `57d801cebb8c39a47680336d19f32719f99e50065df236acda3cd2356e11184a`
+
+The gate reconstructs the exact PackRat-authored files from the final Lite package and then:
+
+- validates the unchanged Lite action surface and Pro Marketplace upsell
+- executes the exact shipping `win32.js` XENEON snapshot on Windows
+- starts the exact shipping `xeneon-service.js` directly on Windows
+- launches the real production `plugin.js` against a Stream Deck protocol WebSocket host
+- verifies two plugin registrations
+- verifies two global-settings reads
+- verifies exactly one pairing-key persistence write
+- verifies the generated pairing key is 48 characters
+- stops the plugin and launches it a second time
+- verifies the second launch starts the localhost service with the same persisted pairing key
+
+This closes the production-entry-point lifecycle gap without changing the candidate binaries.
+
 ## Remaining honest boundary
 
 Implementation and automated QA are complete. The remaining checks require the real customer environment:
 
-1. install the exact Lite 1.0.0.3 package in the user's Windows Stream Deck desktop application and confirm the hidden service starts through the real Stream Deck plugin lifecycle
+1. install the exact Lite 1.0.0.3 package in the actual Windows Stream Deck desktop application as the final host-specific smoke
 2. install the exact XENEON 1.0.0 package in iCUE on a physical XENEON Edge and smoke touch/readability plus real foreground/elevation behavior
 
 These are real-runtime/hardware smokes, not missing implementation work.
