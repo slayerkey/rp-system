@@ -88,6 +88,13 @@ Before debugging host behavior, regenerate with `tools/xeneon/inline.py` and fai
 
 After official packaging, downstream tests must consume the exact package or exact extracted package. Do not rebuild between validation layers.
 
+The generated iCUE document is also consumed as XML-like markup by PackRat/CORSAIR tooling. Keep the non-script/non-style head well formed:
+
+- raw `&` in titles, attributes or metadata is invalid; use an XML-safe entity or simpler text
+- do not trust a browser rendering as proof that the source is XML-safe
+- when translated `tr('...')` keys contain escaped entities, normalize deliberately or avoid creating a second accidental translation key
+- add a source verifier for translation-key coverage when a widget declares localized iCUE settings
+
 ### 3. Property metadata
 
 Vendor CLI success is necessary but not sufficient.
@@ -249,6 +256,19 @@ Prefer:
 
 Test the widget with the companion healthy, unavailable, restarting, version-mismatched and already running when launched a second time.
 
+For Windows GUI/tray companions, do not treat a GitHub-hosted Windows runner as proof that the production desktop UI path works. Hosted runners execute in a non-interactive service session. A useful hardware-free split is:
+
+- launch the exact published customer executable normally and prove its production bootstrap side effects, such as per-user install location and startup registration
+- use a deliberately narrow headless CI mode only to prove the exact installed binary's localhost transport and process lifecycle when a desktop is unavailable
+- keep tray UI, clipboard listener and physical-device behavior outside the claims of that headless gate
+
+Windows process and filesystem teardown also need explicit testing:
+
+- before replacing a running installed executable, stop the exact installed process and wait for it to exit before overwriting the binary
+- before deleting an install/data directory, wait for the process to exit and retry deletion for transient executable/state-file locks
+- never suppress a final cleanup failure; fail visibly if the install directory or startup registration remains
+- execute the uninstaller from the exact customer release ZIP rather than a cleaner source-tree copy
+
 For companion-backed Marketplace products, also test the customer dependency path itself:
 
 - the Marketplace description clearly says a companion is required
@@ -258,6 +278,12 @@ For companion-backed Marketplace products, also test the customer dependency pat
 - the release ZIP contains the executable plus setup/recovery instructions
 - updating the companion does not require Task Manager or deleting local app data
 - removing credentials removes stale cloud-only/device state without breaking unrelated local transports
+- the exact public download is hashed and compared with the exact build artifact
+- versioned release tags are treated as immutable; unexpected hash changes fail closed instead of deleting/recreating the release
+- deterministic ZIP creation fixes entry order and timestamps rather than relying on archive-tool defaults
+- .NET companions that must be byte-stable across unrelated commits disable source-revision injection in informational version metadata (for example `IncludeSourceRevisionInInformationalVersion=false`)
+- reproducibility is proven across two different commit SHAs, not only by publishing twice inside one runner
+- rapid multi-client state changes serialize/coalesce sends per WebSocket; do not assume concurrent `SendAsync` calls on the same socket are safe
 
 ### 12. External tester or physical-device reports
 
@@ -294,7 +320,17 @@ A hardware-free XENEON release candidate should complete all applicable layers:
 - deterministic Rat Art from real widget captures
 - Rat Ship marketplace kit
 - stable dependency/download path for any required external companion
+- exact public companion-download hash verification
+- deterministic/immutable companion release behavior, including a cross-commit reproducibility proof when a versioned binary is published
 - companion install, update, reset and single-instance behavior when a native bridge is required
+
+For Marketplace-facing XENEON releases, also run a listing preflight:
+
+- validate the current Marketplace icon, cover and gallery dimensions rather than assuming the art renderer produced them
+- require the current minimum gallery count
+- validate name and description constraints before opening the submission flow
+- when review guidance requires a hardware functionality video, keep that as an explicit physical-evidence boundary; simulated provider or browser evidence must not be relabeled as hardware footage
+- if a companion is distributed separately, keep the stable download path and exact public hash verification green at the same time as the final listing candidate
 
 Record any remaining real-iCUE or physical-device uncertainty. Do not convert uncertainty into a fake blocker when all automatable evidence is green.
 

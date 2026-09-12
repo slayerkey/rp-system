@@ -1,0 +1,492 @@
+name: Smart Lighting Control Deep QA
+
+on:
+  push:
+    branches:
+      - product/smart-lighting-control
+    paths-ignore:
+      - 'products/smart-lighting-control.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SLUG: smart-lighting-control
+  COMPANION_PROJECT: companions/smart-lighting-control/PackRat.SmartLighting.Companion.csproj
+
+jobs:
+  official-package-host-companion:
+    name: Official package + Windows host + companion
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Companion deterministic self-tests
+        shell: pwsh
+        run: dotnet run --project $env:COMPANION_PROJECT -c Release -- --self-test
+
+      - name: Publish reproducible self-contained Windows companion
+        shell: pwsh
+        run: |
+          dotnet publish $env:COMPANION_PROJECT -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -p:ContinuousIntegrationBuild=true -p:Deterministic=true -o artifacts/companion/publish-a
+          dotnet publish $env:COMPANION_PROJECT -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -p:ContinuousIntegrationBuild=true -p:Deterministic=true -o artifacts/companion/publish-b
+          $exeA = Get-ChildItem artifacts/companion/publish-a -Filter *.exe -File | Select-Object -First 1
+          $exeB = Get-ChildItem artifacts/companion/publish-b -Filter *.exe -File | Select-Object -First 1
+          if (-not $exeA -or -not $exeB) { throw 'companion publish did not produce both executables' }
+          $hashA = (Get-FileHash $exeA.FullName -Algorithm SHA256).Hash
+          $hashB = (Get-FileHash $exeB.FullName -Algorithm SHA256).Hash
+          if ($hashA -ne $hashB) { throw "companion EXE is not reproducible: $hashA vs $hashB" }
+          Copy-Item $exeA.FullName artifacts/companion/PackRat-Lighting-Companion.exe
+          Copy-Item companions/smart-lighting-control/CUSTOMER-SETUP.txt artifacts/companion/CUSTOMER-SETUP.txt
+          @'
+          import pathlib, zipfile
+          root=pathlib.Path('artifacts/companion')
+          out=root/'PackRat-Lighting-Companion-win-x64.zip'
+          entries=[('CUSTOMER-SETUP.txt',root/'CUSTOMER-SETUP.txt'),('PackRat-Lighting-Companion.exe',root/'PackRat-Lighting-Companion.exe')]
+          with zipfile.ZipFile(out,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for name,path in sorted(entries):
+                  info=zipfile.ZipInfo(name,(2020,1,1,0,0,0))
+                  info.compress_type=zipfile.ZIP_DEFLATED
+                  info.create_system=0
+                  z.writestr(info,path.read_bytes(),compress_type=zipfile.ZIP_DEFLATED,compresslevel=9)
+          with zipfile.ZipFile(out) as z:
+              if z.testzip() is not None: raise SystemExit('deterministic companion ZIP is corrupt')
+              if sorted(z.namelist()) != sorted(name for name,_ in entries): raise SystemExit('deterministic companion ZIP contents mismatch')
+          '@ | python -
+          $zipHash = (Get-FileHash artifacts/companion/PackRat-Lighting-Companion-win-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$zipHash  PackRat-Lighting-Companion-win-x64.zip" | Set-Content artifacts/companion/PackRat-Lighting-Companion-win-x64.zip.sha256.txt -Encoding ascii
+          $sig = Get-AuthenticodeSignature artifacts/companion/PackRat-Lighting-Companion.exe
+          "Status=$($sig.Status)`nStatusMessage=$($sig.StatusMessage)" | Set-Content artifacts/companion/authenticode-status.txt -Encoding utf8
+          if ($sig.Status -notin @('NotSigned','Valid')) { throw "unexpected Authenticode status: $($sig.Status)" }
+          Write-Host "COMPANION REPRODUCIBILITY PASS exe=$hashA zip=$zipHash authenticode=$($sig.Status)"
+
+      - name: Companion install, origin, and single-instance smoke
+        shell: pwsh
+        run: |
+          $exe = (Resolve-Path artifacts/companion/PackRat-Lighting-Companion.exe).Path
+          $port = 17487
+          $base = "http://127.0.0.1:$port"
+          $proc = $null
+          $installedProc = $null
+          function Wait-Health {
+            for ($i = 0; $i -lt 60; $i++) {
+              try {
+                $h = Invoke-RestMethod "$base/health" -TimeoutSec 2
+                if ($h.ok -and $h.version -eq '1.0.0') { return }
+              } catch {}
+              Start-Sleep -Milliseconds 250
+            }
+            throw 'real companion did not become healthy during install smoke'
+          }
+          try {
+            $proc = Start-Process $exe -ArgumentList @('--no-browser','--port',"$port") -PassThru
+            Wait-Health
+            $evil = Invoke-WebRequest -UseBasicParsing "$base/api/setup/status" -Headers @{ Origin='https://example.invalid' } -SkipHttpErrorCheck
+            if ($evil.StatusCode -ne 403) { throw "cross-origin setup request was not rejected: $($evil.StatusCode)" }
+            $install = Invoke-RestMethod -Method Post "$base/api/setup/install"
+            if (-not $install.installed -or -not $install.startWithWindows) { throw 'install/startup status did not become enabled' }
+            $second = Start-Process $exe -ArgumentList @('--no-browser','--port',"$port") -PassThru
+            if (-not $second.WaitForExit(5000)) {
+              Stop-Process -Id $second.Id -Force
+              throw 'second companion instance did not exit promptly'
+            }
+            if ($second.ExitCode -ne 0) { throw "second companion instance exited $($second.ExitCode)" }
+            if ($proc.HasExited) { throw 'first companion instance exited when second instance launched' }
+            Invoke-RestMethod -Method Post "$base/api/setup/shutdown" | Out-Null
+            if (-not $proc.WaitForExit(5000)) { throw 'portable companion did not exit cleanly' }
+            $installed = Join-Path $env:LOCALAPPDATA 'PackRat/SmartLightingControl/PackRat-Lighting-Companion.exe'
+            if (-not (Test-Path $installed)) { throw 'installed companion executable missing' }
+            $installedProc = Start-Process $installed -ArgumentList @('--no-browser','--port',"$port") -PassThru
+            Wait-Health
+            $status = Invoke-RestMethod "$base/api/setup/install/status"
+            if (-not $status.runningInstalled -or -not $status.startWithWindows) { throw 'installed copy/startup status incorrect' }
+            $disabled = Invoke-RestMethod -Method Post "$base/api/setup/startup" -ContentType 'application/json' -Body '{"enabled":false}'
+            if ($disabled.startWithWindows) { throw 'Windows startup did not disable' }
+            Invoke-RestMethod -Method Post "$base/api/setup/shutdown" | Out-Null
+            if (-not $installedProc.WaitForExit(5000)) { throw 'installed companion did not exit cleanly' }
+            Write-Host 'COMPANION INSTALL PASS: origin guard, install, startup, second-instance, installed launch, shutdown'
+          }
+          finally {
+            foreach ($p in @($proc,$installedProc)) {
+              if ($p -and -not $p.HasExited) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue }
+            }
+            Remove-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name 'PackRat Smart Lighting Companion' -ErrorAction SilentlyContinue
+            Remove-Item (Join-Path $env:LOCALAPPDATA 'PackRat/SmartLightingControl') -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Install Playwright
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1
+          npm audit --audit-level=high
+          npx playwright install chromium
+
+      - name: Source verification
+        shell: pwsh
+        run: node widgets/_src/$env:SLUG/verify.mjs
+
+      - name: Build canonical shipping widget
+        shell: pwsh
+        run: |
+          python tools/xeneon/inline.py $env:SLUG
+          python tools/xeneon/inline.py $env:SLUG --check
+
+      - name: Eight-composition source fixture gate
+        shell: pwsh
+        run: node widgets/_src/$env:SLUG/visual-smoke.mjs "widgets/$env:SLUG/index.html" "artifacts/source-visual"
+
+      - name: Official CORSAIR validation
+        shell: pwsh
+        run: npx --yes icuewidget-cli@0.4.47 validate "widgets/$env:SLUG"
+
+      - name: Official CORSAIR package
+        shell: pwsh
+        run: |
+          npx --yes icuewidget-cli@0.4.47 package "widgets/$env:SLUG"
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          $pkg = Get-ChildItem -Path widgets -Filter *.icuewidget -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $pkg) { throw 'official package was not created' }
+          Copy-Item $pkg.FullName "artifacts/package/$env:SLUG.icuewidget"
+
+      - name: Exact official package audit
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "artifacts/extracted/$env:SLUG" | Out-Null
+          @'
+          import json, os, pathlib, zipfile
+          slug=os.environ['SLUG']
+          package=pathlib.Path('artifacts/package')/f'{slug}.icuewidget'
+          out=pathlib.Path('artifacts/extracted')/slug
+          if not zipfile.is_zipfile(package):
+              raise SystemExit('official package is not ZIP compatible')
+          with zipfile.ZipFile(package) as z:
+              bad=z.testzip()
+              if bad: raise SystemExit(f'corrupt package member: {bad}')
+              names={n.replace('\\','/') for n in z.namelist()}
+              for required in ('index.html','manifest.json','translation.json','resources/icon.svg'):
+                  if required not in names: raise SystemExit(f'missing root package member: {required}')
+              z.extractall(out)
+          text=(out/'index.html').read_text(encoding='utf-8')
+          checks={
+              'flattened_css':'href="lighting.css"' not in text,
+              'flattened_js':'src="lighting.js"' not in text,
+              'loopback_only':'ws://127.0.0.1:17486/widget' in text,
+              'no_govee_key':'Govee-API-Key' not in text,
+              'no_hue_key':'hue-application-key' not in text,
+          }
+          if not all(checks.values()): raise SystemExit(f'package audit failed: {checks}')
+          (pathlib.Path('artifacts')/'package-audit.json').write_text(json.dumps({'files':sorted(names),'checks':checks},indent=2),encoding='utf-8')
+          print(checks)
+          '@ | python -
+
+      - name: Packaged eight-composition regression
+        shell: pwsh
+        run: node widgets/_src/$env:SLUG/visual-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/packaged-visual"
+
+      - name: Native iCUE Custom Style regression
+        shell: pwsh
+        run: node tools/xeneon/native-style-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/native-style/$env:SLUG"
+
+      - name: Native iCUE no-callback autosync regression
+        shell: pwsh
+        run: node tools/xeneon/native-style-autosync-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/native-style-autosync/$env:SLUG"
+
+      - name: Exact packaged file-origin to real companion gate
+        shell: pwsh
+        run: node widgets/_src/$env:SLUG/network-smoke.mjs "artifacts/extracted/$env:SLUG/index.html" "artifacts/network-smoke" "artifacts/companion/PackRat-Lighting-Companion.exe"
+
+      - name: Clone Corsair Labs iCUE Widget Runner
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          if (Test-Path $runnerDir) { Remove-Item -Recurse -Force $runnerDir }
+          git clone --depth 1 https://github.com/Corsair-Labs/iCUE-widget-runner-windows.git $runnerDir
+          git -C $runnerDir rev-parse HEAD | Set-Content artifacts/corsair-runner-commit.txt
+          $target = Join-Path (Join-Path $runnerDir 'widgets') $env:SLUG
+          Copy-Item -Recurse -Force "artifacts/extracted/$env:SLUG" $target
+
+      - name: Corsair Labs exact-package host and settings smoke
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          $stdout = Join-Path $env:RUNNER_TEMP "corsair-$env:SLUG.out.log"
+          $stderr = Join-Path $env:RUNNER_TEMP "corsair-$env:SLUG.err.log"
+          $process = Start-Process node -ArgumentList 'web-server.js' -WorkingDirectory $runnerDir -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              try {
+                $r = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/api/widgets -TimeoutSec 2
+                if ($r.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+              Start-Sleep -Seconds 1
+            }
+            if (-not $ready) { throw 'Corsair Labs runner did not become ready' }
+            node tools/xeneon/icue-runner-smoke.mjs http://127.0.0.1:8080/ $env:SLUG "artifacts/icue-runner/$env:SLUG"
+            if ($LASTEXITCODE -ne 0) { throw 'Corsair Labs runner smoke failed' }
+          } finally {
+            if ($process -and -not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
+            if (Test-Path $stdout) { Copy-Item $stdout artifacts/corsair-runner.stdout.log }
+            if (Test-Path $stderr) { Copy-Item $stderr artifacts/corsair-runner.stderr.log }
+          }
+
+      - name: Upload exact package
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-lighting-control-official-package
+          path: artifacts/package/smart-lighting-control.icuewidget
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Windows companion
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-lighting-control-companion
+          path: |
+            artifacts/companion/PackRat-Lighting-Companion.exe
+            artifacts/companion/CUSTOMER-SETUP.txt
+            artifacts/companion/PackRat-Lighting-Companion-win-x64.zip
+            artifacts/companion/PackRat-Lighting-Companion-win-x64.zip.sha256.txt
+            artifacts/companion/authenticode-status.txt
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Windows QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-lighting-control-windows-qa
+          path: |
+            artifacts/source-visual/
+            artifacts/packaged-visual/
+            artifacts/native-style/
+            artifacts/native-style-autosync/
+            artifacts/network-smoke/
+            artifacts/icue-runner/
+            artifacts/package-audit.json
+            artifacts/corsair-runner-commit.txt
+            artifacts/corsair-runner.stdout.log
+            artifacts/corsair-runner.stderr.log
+          if-no-files-found: warn
+          retention-days: 30
+
+  streamspell:
+    name: StreamSpell exact package, all eight presets
+    needs: official-package-host-companion
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: smart-lighting-control-official-package
+          path: artifacts/package
+
+      - name: Install audited browser dependencies
+        shell: bash
+        run: |
+          rm -rf /tmp/ratpack-lighting-audit
+          mkdir -p /tmp/ratpack-lighting-audit
+          cd /tmp/ratpack-lighting-audit
+          npm init -y >/dev/null 2>&1
+          npm install --save-dev playwright@1.62.1
+          npm audit --audit-level=high
+          cd "$GITHUB_WORKSPACE"
+          npm install --no-save playwright@1.62.1
+          npx playwright install --with-deps chromium
+
+      - name: Start StreamSpell community builder locally
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/streamspell/xeneon-edge-widget-builder.git /tmp/xeneon-edge-widget-builder
+          cd /tmp/xeneon-edge-widget-builder
+          npm install
+          nohup npm run dev > /tmp/streamspell-server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8090/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/streamspell-server.log
+          exit 1
+
+      - name: Verify exact package with StreamSpell
+        env:
+          STREAMSPELL_URL: http://127.0.0.1:8090/
+        run: node tools/xeneon/streamspell.mjs artifacts/package/smart-lighting-control.icuewidget artifacts/streamspell
+
+      - name: Upload StreamSpell evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-lighting-control-streamspell
+          path: artifacts/streamspell/
+          if-no-files-found: warn
+          retention-days: 30
+
+  rat-art-ship:
+    name: Deterministic Rat Art + Rat Ship
+    needs: streamspell
+    runs-on: windows-latest
+    env:
+      RATPACK_ART_FONT: C:\Windows\Fonts\segoeui.ttf
+      RATPACK_ART_FONT_BOLD: C:\Windows\Fonts\segoeuib.ttf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: smart-lighting-control-official-package
+          path: artifacts/package
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: smart-lighting-control-companion
+          path: artifacts/companion
+
+      - name: Install deterministic art dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==12.3.0
+          npm install --no-save playwright@1.62.1
+          npm audit --audit-level=high
+          npx playwright install chromium
+
+      - name: Build canonical widget for capture
+        shell: pwsh
+        run: python tools/xeneon/inline.py $env:SLUG
+
+      - name: Capture all eight real widget compositions
+        shell: pwsh
+        run: node tools/art/capture_xeneon.mjs $env:SLUG "artifacts/rat-art/shots"
+
+      - name: Render deterministic Rat Art
+        shell: pwsh
+        run: python tools/art/rat_art.py xeneon $env:SLUG --shots "artifacts/rat-art/shots" --out "artifacts/rat-art/review"
+
+      - name: Render Marketplace search icon
+        shell: pwsh
+        run: node tools/ship/render_svg_icon.mjs "widgets/$env:SLUG/resources/icon.svg" "artifacts/rat-art/review/icon-288x288.png"
+
+      - name: Build Rat Ship kit from exact official package
+        shell: pwsh
+        run: |
+          python tools/ship/make_xeneon_kit.py $env:SLUG --package "artifacts/package/$env:SLUG.icuewidget" --art "artifacts/rat-art/review" --out "artifacts/ship/$env:SLUG/SHIP_KIT"
+          Copy-Item "artifacts/companion/PackRat-Lighting-Companion-win-x64.zip" "artifacts/ship/$env:SLUG/SHIP_KIT/PackRat-Lighting-Companion-win-x64.zip"
+          Copy-Item "artifacts/companion/PackRat-Lighting-Companion-win-x64.zip.sha256.txt" "artifacts/ship/$env:SLUG/SHIP_KIT/PackRat-Lighting-Companion-win-x64.zip.sha256.txt"
+
+      - name: Maker Console kit preflight
+        shell: pwsh
+        run: node tools/ship/maker_console.mjs $env:SLUG --kit="artifacts/ship/$env:SLUG/SHIP_KIT" --check-kit
+
+      - name: Rat Ship invariants
+        shell: pwsh
+        run: |
+          $kit = "artifacts/ship/$env:SLUG/SHIP_KIT"
+          foreach ($f in @("$env:SLUG.icuewidget","PackRat-Lighting-Companion-win-x64.zip","PackRat-Lighting-Companion-win-x64.zip.sha256.txt","01_search_icon.png","02_cover.png","03_gallery_01.png","04_gallery_02.png","05_gallery_03.png","06_gallery_04.png")) {
+            if (-not (Test-Path "$kit/$f")) { throw "missing Rat Ship file: $f" }
+          }
+          $sub = Get-Content "widgets/_src/$env:SLUG/submission.json" -Raw | ConvertFrom-Json
+          if ($sub.name -ne 'Smart Lighting Control for Hue & Govee') { throw 'Marketplace product name mismatch' }
+          if ($sub.description.Length -gt 1500) { throw "Marketplace description is $($sub.description.Length) characters; max is 1500" }
+          if ($sub.description -notmatch 'https://packrat-site\.pages\.dev/downloads/smart-lighting') { throw 'Marketplace description missing stable companion dependency URL' }
+
+      - name: Publish immutable free Windows companion download
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = 'smart-lighting-companion-v1.0.0'
+          $zip = 'artifacts/companion/PackRat-Lighting-Companion-win-x64.zip'
+          $sum = 'artifacts/companion/PackRat-Lighting-Companion-win-x64.zip.sha256.txt'
+          $builtHash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          $legacyHashes = @('c3cf9665b2feac4b66443ead457daa07c7dbdf0d543231b4157021e84ea1f1bc')
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            $existingDir = Join-Path $env:RUNNER_TEMP 'smart-lighting-existing-release'
+            if (Test-Path $existingDir) { Remove-Item -Recurse -Force $existingDir }
+            New-Item -ItemType Directory -Force $existingDir | Out-Null
+            gh release download $tag --repo $env:GITHUB_REPOSITORY --pattern 'PackRat-Lighting-Companion-win-x64.zip' --dir $existingDir
+            if ($LASTEXITCODE -ne 0) { throw 'Could not download existing Smart Lighting release' }
+            $publishedHash = (Get-FileHash (Join-Path $existingDir 'PackRat-Lighting-Companion-win-x64.zip') -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($publishedHash -eq $builtHash) {
+              Write-Host "IMMUTABLE RELEASE PASS: existing v1.0.0 matches $builtHash"
+              gh release upload $tag $sum --repo $env:GITHUB_REPOSITORY --clobber
+              if ($LASTEXITCODE -ne 0) { throw 'Could not refresh release checksum' }
+            }
+            elseif ($legacyHashes -contains $publishedHash) {
+              Write-Host "One-time migration from pre-deterministic release $publishedHash to $builtHash"
+              gh release delete $tag --repo $env:GITHUB_REPOSITORY --cleanup-tag --yes
+              if ($LASTEXITCODE -ne 0) { throw 'Could not remove legacy release' }
+              gh release create $tag $zip $sum --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Smart Lighting Companion 1.0.0' --notes 'Free local Windows companion required by Smart Lighting Control for Hue & Govee on XENEON Edge. Runs on localhost only. Hue and Govee credentials stay in Windows Credential Manager; no PackRat cloud or account is used.'
+              if ($LASTEXITCODE -ne 0) { throw 'Could not publish deterministic release' }
+            }
+            else {
+              throw "Published v1.0.0 differs from this build ($publishedHash vs $builtHash). Bump the version/tag instead of mutating a released version."
+            }
+          }
+          else {
+            gh release create $tag $zip $sum --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat Smart Lighting Companion 1.0.0' --notes 'Free local Windows companion required by Smart Lighting Control for Hue & Govee on XENEON Edge. Runs on localhost only. Hue and Govee credentials stay in Windows Credential Manager; no PackRat cloud or account is used.'
+            if ($LASTEXITCODE -ne 0) { throw 'Could not publish Smart Lighting release' }
+          }
+
+      - name: Verify public PackRat companion download
+        shell: pwsh
+        run: |
+          $url = 'https://packrat-site.pages.dev/downloads/smart-lighting'
+          $download = 'artifacts/public-PackRat-Lighting-Companion-win-x64.zip'
+          $ok = $false
+          for ($attempt = 1; $attempt -le 20; $attempt++) {
+            if (Test-Path $download) { Remove-Item $download -Force }
+            & curl.exe -L --fail --silent --show-error --output $download $url
+            if ($LASTEXITCODE -eq 0 -and (Test-Path $download) -and (Get-Item $download).Length -gt 1000000) {
+              $ok = $true
+              break
+            }
+            Write-Host "PackRat download not ready yet (attempt $attempt/20)"
+            Start-Sleep -Seconds 15
+          }
+          if (-not $ok) { throw 'Public PackRat companion download did not become available' }
+
+          $built = (Get-FileHash 'artifacts/companion/PackRat-Lighting-Companion-win-x64.zip' -Algorithm SHA256).Hash
+          $public = (Get-FileHash $download -Algorithm SHA256).Hash
+          if ($built -ne $public) { throw "Public companion hash mismatch: built=$built public=$public" }
+          $sumText = (Get-Content 'artifacts/companion/PackRat-Lighting-Companion-win-x64.zip.sha256.txt' -Raw).Trim().ToLowerInvariant()
+          if ($sumText -notmatch $public.ToLowerInvariant()) { throw 'checksum file does not match public ZIP' }
+
+          $check = Join-Path $env:RUNNER_TEMP 'smart-lighting-public-download'
+          if (Test-Path $check) { Remove-Item -Recurse -Force $check }
+          Expand-Archive $download $check
+          foreach ($required in @('PackRat-Lighting-Companion.exe','CUSTOMER-SETUP.txt')) {
+            if (-not (Test-Path (Join-Path $check $required))) { throw "Public companion ZIP missing $required" }
+          }
+          Write-Host "PUBLIC COMPANION DOWNLOAD PASS $public"
+
+      - name: Upload final Rat Ship kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: rat-ship-smart-lighting-control
+          path: artifacts/ship/smart-lighting-control/SHIP_KIT/
+          if-no-files-found: error
+          retention-days: 30

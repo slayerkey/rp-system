@@ -37,19 +37,23 @@ Privacy assertions:
 - deterministic fixtures only in CI
 
 Release gate:
-1. companion Windows build + self-test
-2. widget pure-function verify
-3. inline build, translation sync, and stale check
-4. all-eight deterministic Rat Art capture assertions
-5. official CORSAIR validate
-6. official CORSAIR package
-7. exact ZIP/package integrity and root file checks
-8. lexical iCUE settings smoke
-9. no-callback iCUE settings autosync smoke
-10. Corsair Labs Windows runner smoke
-11. packaged loopback pairing/reconnect smoke
-12. StreamSpell packaged verification
-13. deterministic Rat Art
-14. Rat Ship marketplace kit
-15. complete companion ZIP integrity check, including security and uninstall files
-16. versioned companion GitHub Release published only after the preceding gates pass
+1. companion Windows build + source and published-executable self-tests
+2. exact published customer EXE normal first-run self-install + HKCU startup registration smoke
+3. exact installed binary localhost health smoke via the CI-only headless lifecycle mode; this does not claim tray/WinForms behavior
+4. second-launch upgrade smoke proving the running installed bridge is replaced and relaunched
+5. shipped ZIP uninstall smoke proving process, HKCU startup entry, and local app-data directory cleanup
+6. widget pure-function verify
+7. inline build, translation sync, and stale check
+8. all-eight deterministic Rat Art capture assertions
+9. official CORSAIR validate
+10. official CORSAIR package
+11. exact ZIP/package integrity and root file checks
+12. lexical iCUE settings smoke
+13. no-callback iCUE settings autosync smoke
+14. Corsair Labs Windows runner smoke
+15. packaged loopback pairing/reconnect smoke
+16. StreamSpell packaged verification
+17. deterministic Rat Art
+18. Rat Ship marketplace kit
+19. complete companion ZIP integrity check, including security and uninstall files
+20. versioned companion GitHub Release published only after the preceding gates pass

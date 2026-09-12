@@ -25,13 +25,11 @@ internal static class Program
             return;
         }
 
-        if (CompanionInstall.EnsureInstalledAndRelaunched()) return;
+        var lifecycleSmoke = args.Any(x => string.Equals(x, "--lifecycle-smoke", StringComparison.OrdinalIgnoreCase));
+        if (CompanionInstall.EnsureInstalledAndRelaunched(lifecycleSmoke)) return;
 
         using var singleInstance = new Mutex(true, @"Local\PackRatClipboardShelfBridge", out var created);
         if (!created) return;
-
-        FreeConsole();
-        ApplicationConfiguration.Initialize();
 
         var storage = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -39,6 +37,17 @@ internal static class Program
 
         var history = new ClipboardHistory(storage);
         history.Load();
+
+        if (lifecycleSmoke)
+        {
+            using var smokeServer = new BridgeServer(history);
+            smokeServer.StartAsync().GetAwaiter().GetResult();
+            Thread.Sleep(Timeout.Infinite);
+            return;
+        }
+
+        FreeConsole();
+        ApplicationConfiguration.Initialize();
 
         using var window = new ClipboardWindow(history);
         using var server = new BridgeServer(history);
@@ -60,7 +69,7 @@ internal static class CompanionInstall
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PackRat", "ClipboardShelf", "PackRat.ClipboardShelfBridge.exe");
 
-    public static bool EnsureInstalledAndRelaunched()
+    public static bool EnsureInstalledAndRelaunched(bool lifecycleSmoke = false)
     {
         var current = Environment.ProcessPath;
         if (string.IsNullOrWhiteSpace(current)) return false;
@@ -73,11 +82,13 @@ internal static class CompanionInstall
             Directory.CreateDirectory(Path.GetDirectoryName(installed)!);
             if (!string.Equals(Path.GetFullPath(current), Path.GetFullPath(installed), StringComparison.OrdinalIgnoreCase))
             {
+                StopInstalledInstance(installed);
                 File.Copy(current, installed, true);
                 RegisterStartup(installed);
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = installed,
+                    Arguments = lifecycleSmoke ? "--lifecycle-smoke" : "",
                     UseShellExecute = true
                 });
                 return true;
@@ -91,6 +102,34 @@ internal static class CompanionInstall
         }
 
         return false;
+    }
+
+    private static void StopInstalledInstance(string installedPath)
+    {
+        foreach (var process in System.Diagnostics.Process.GetProcessesByName("PackRat.ClipboardShelfBridge"))
+        {
+            using (process)
+            {
+                if (process.Id == Environment.ProcessId) continue;
+                try
+                {
+                    var processPath = process.MainModule?.FileName;
+                    if (string.IsNullOrWhiteSpace(processPath)) continue;
+                    if (!string.Equals(
+                        Path.GetFullPath(processPath),
+                        Path.GetFullPath(installedPath),
+                        StringComparison.OrdinalIgnoreCase)) continue;
+
+                    process.Kill(entireProcessTree: true);
+                    process.WaitForExit(5_000);
+                }
+                catch
+                {
+                    // File.Copy below remains the final authority. If the old bridge cannot
+                    // be replaced, portable fallback behavior keeps the user's current bridge alive.
+                }
+            }
+        }
     }
 
     private static void RegisterStartup(string installedPath)
