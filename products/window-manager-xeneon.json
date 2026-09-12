@@ -177,10 +177,13 @@
       "artifact_digest_sha256": "63f785610a0bc688a2a051634791eb6f005d7f5f355f7572253f55cfff7b055e"
     },
     "koffi_3_1_6_bundle_run": 34661052322,
-    "streamdeck_cli_1_9_0_bundle_run": 34661312059
+    "streamdeck_cli_1_9_0_bundle_run": 34661312059,
+    "production_lifecycle_private_run": 34667612648,
+    "production_lifecycle_private_job": 103482622370,
+    "production_lifecycle_firstparty_sha256": "57d801cebb8c39a47680336d19f32719f99e50065df236acda3cd2356e11184a"
   },
   "hardware_boundary": "No physical XENEON Edge was available. The Windows companion compiled and ran in Windows CI and the exact packaged widget communicated with the actual published companion executable in deterministic fixture mode. Real foreground-lock/elevation restrictions and physical touch/iCUE behavior remain the only unclaimed hardware boundary.",
-  "notes": "Hardened release candidate complete. Window Manager Lite 1.0.0.3 was rebuilt from the exact shipped 1.0.0.2 baseline with the hidden localhost XENEON service wired into the real plugin process/native engine. Lite remains Lite: Snap Window + Cycle Windows are still the only visible actions, the existing Window Manager Pro upsell remains, and no Pro action UUIDs are added. Koffi was upgraded from 3.1.4 to stable 3.1.6 for Windows/native stability. Elgato Stream Deck CLI validation passed. The XENEON widget is officially CORSAIR-packaged, uses the official Link Provider for the Lite Marketplace setup button, and passed the hardened full gate including all eight layouts, exact-package regression, lexical settings, no-callback autosync, Corsair Labs host smoke and StreamSpell. Exact official XENEON -> actual Lite service integration also passed. Marketplace submission has not been performed. Remaining unclaimed boundary: running the exact Lite candidate inside the user's real Stream Deck desktop application and physical XENEON Edge touch/readability/elevation smoke.",
+  "notes": "Hardened release candidate complete. Window Manager Lite 1.0.0.3 was rebuilt from the exact shipped 1.0.0.2 baseline with the hidden localhost XENEON service wired into the real plugin process/native engine. Lite remains Lite: Snap Window + Cycle Windows are still the only visible actions, the existing Window Manager Pro upsell remains, and no Pro action UUIDs are added. Koffi was upgraded from 3.1.4 to stable 3.1.6 for Windows/native stability. Elgato Stream Deck CLI validation passed. The exact final first-party Lite payload was reconstructed and executed on a Windows runner through the real production plugin.js entry point against a Stream Deck protocol host: registration, global settings read/write, 48-character pairing-key creation, localhost service startup, shutdown, second launch and same-key restart all passed. The XENEON widget is officially CORSAIR-packaged, uses the official Link Provider for the Lite Marketplace setup button, and passed the hardened full gate including all eight layouts, exact-package regression, lexical settings, no-callback autosync, Corsair Labs host smoke and StreamSpell. Exact official XENEON -> actual Lite service integration also passed. Marketplace submission has not been performed. Remaining unclaimed boundary: installing inside the actual Stream Deck desktop application and physical XENEON Edge/iCUE touch/readability plus real Windows foreground/elevation behavior.",
   "window_manager_lite_dependency": {
     "id": "window-manager",
     "name": "Window Manager Lite",
@@ -236,6 +239,12 @@
     "setup_page_csp_and_nosniff": "pass",
     "xeneon_candidate_sha256": "d0fdcd3d53559eaf32c63b6c164e123e9283d88e175d638d225487c90ccdd50d",
     "xeneon_candidate_size_bytes": 65836,
-    "xeneon_zip_integrity": "pass"
+    "xeneon_zip_integrity": "pass",
+    "production_plugin_entrypoint_lifecycle": "pass",
+    "production_lifecycle_registrations": 2,
+    "production_lifecycle_global_settings_reads": 2,
+    "production_lifecycle_global_settings_writes": 1,
+    "production_lifecycle_pairing_key_length": 48,
+    "production_lifecycle_restart_same_key": true
   }
 }
