@@ -325,6 +325,8 @@ body[data-connection="live"][data-has-windows="false"] #windowList { visibility:
   font-size: 12px;
   font-weight: 800;
   text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 body[data-connection="pairing"] #installLiteLink,
 body[data-connection="disconnected"] #installLiteLink,
