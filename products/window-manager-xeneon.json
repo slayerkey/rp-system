@@ -180,10 +180,30 @@
     "streamdeck_cli_1_9_0_bundle_run": 34661312059,
     "production_lifecycle_private_run": 34667612648,
     "production_lifecycle_private_job": 103482622370,
-    "production_lifecycle_firstparty_sha256": "57d801cebb8c39a47680336d19f32719f99e50065df236acda3cd2356e11184a"
+    "production_lifecycle_firstparty_sha256": "57d801cebb8c39a47680336d19f32719f99e50065df236acda3cd2356e11184a",
+    "latest_public_lite_service_run": 34667669347,
+    "latest_public_lite_service_job": 103482786738,
+    "latest_public_lite_service_artifact": {
+      "id": 10288829017,
+      "artifact_digest_sha256": "00384ab856d47bcbf79c30f533cca827ce1f226503ffc2c0718e35ef1b6baf69"
+    },
+    "latest_public_xeneon_full_gate_run": 34667669391,
+    "latest_public_xeneon_full_gate_job": 103482786798,
+    "latest_public_xeneon_official_package_artifact": {
+      "id": 10289274525,
+      "artifact_digest_sha256": "df8c1ba839316760e0b213bc6f55ba9400881ae5d604bd4c50e0faadb316f8ae",
+      "package_sha256": "c26a07f8d374780b3f937102df942f7d0e27371f40253f9aeb69ac1c903336d4"
+    },
+    "latest_public_xeneon_streamspell_artifact": {
+      "id": 10289279667,
+      "artifact_digest_sha256": "1ded35d7a5a5b83fe7c8dc08dfc50233644c839644c9e2806e286fdd384d79a4"
+    },
+    "native_icon_production_lifecycle_private_run": 34672640410,
+    "native_icon_production_lifecycle_private_job": 103496798655,
+    "native_icon_overlay_sha256": "2d431491f70f8cd710998dd8279173743f91d889092158377b4386cfd5ab8d22"
   },
-  "hardware_boundary": "No physical XENEON Edge was available. The Windows companion compiled and ran in Windows CI and the exact packaged widget communicated with the actual published companion executable in deterministic fixture mode. Real foreground-lock/elevation restrictions and physical touch/iCUE behavior remain the only unclaimed hardware boundary.",
-  "notes": "Hardened release candidate complete. Window Manager Lite 1.0.0.3 was rebuilt from the exact shipped 1.0.0.2 baseline with the hidden localhost XENEON service wired into the real plugin process/native engine. Lite remains Lite: Snap Window + Cycle Windows are still the only visible actions, the existing Window Manager Pro upsell remains, and no Pro action UUIDs are added. Koffi was upgraded from 3.1.4 to stable 3.1.6 for Windows/native stability. Elgato Stream Deck CLI validation passed. The exact final first-party Lite payload was reconstructed and executed on a Windows runner through the real production plugin.js entry point against a Stream Deck protocol host: registration, global settings read/write, 48-character pairing-key creation, localhost service startup, shutdown, second launch and same-key restart all passed. The XENEON widget is officially CORSAIR-packaged, uses the official Link Provider for the Lite Marketplace setup button, and passed the hardened full gate including all eight layouts, exact-package regression, lexical settings, no-callback autosync, Corsair Labs host smoke and StreamSpell. Exact official XENEON -> actual Lite service integration also passed. Marketplace submission has not been performed. Remaining unclaimed boundary: installing inside the actual Stream Deck desktop application and physical XENEON Edge/iCUE touch/readability plus real Windows foreground/elevation behavior.",
+  "hardware_boundary": "No physical XENEON Edge was available. The exact Lite production plugin.js lifecycle, Win32 snapshot, localhost service, pairing persistence/restart and native app-icon extraction all ran successfully on Windows automation. The exact XENEON package also passed CORSAIR validation/package/host/layout gates. The only unclaimed boundary is the actual Stream Deck desktop host plus physical XENEON Edge/iCUE touch/readability and real foreground/elevation behavior.",
+  "notes": "Hardened implementation and automated QA are complete. Window Manager Lite 1.0.0.3 was rebuilt from the exact shipped 1.0.0.2 baseline with the hidden localhost XENEON service wired into the real plugin process/native engine. Lite remains Lite: Snap Window + Cycle Windows are still the only visible actions, the existing Window Manager Pro upsell remains, and no Pro action UUIDs are added. Koffi is 3.1.6. Native Windows executable icons are now extracted locally, encoded as cached 32x32 PNG data URIs and delivered with window titles to XENEON; the exact icon path was validated on Windows with Notepad before the same production plugin lifecycle/restart suite passed. Elgato Stream Deck CLI validation/package passed and the exact package preserves its source tree byte-for-byte. The latest XENEON package is officially CORSAIR-packaged, uses the official Link Provider for the Lite Marketplace setup button, and passed the latest full gate plus all-eight-layout, exact-package regression, lexical settings, no-callback autosync, Corsair Labs host smoke and StreamSpell. Marketplace submission has not been performed. Remaining work is external real-host/hardware confirmation only.",
   "window_manager_lite_dependency": {
     "id": "window-manager",
     "name": "Window Manager Lite",
@@ -192,12 +212,15 @@
     "visible_lite_actions_must_remain_unchanged": true,
     "pro_upsell_must_remain_unchanged": true,
     "version_candidate": "1.0.0.3",
-    "candidate_sha256": "c913f8eabe815561289e07d89b1ddbecccc458bf1303940625e5b903c272a82e",
-    "candidate_size_bytes": 1853237,
+    "candidate_sha256": "8f1fed423f871479c227a02d022d45205332c8d23cc1f0c2203d67ae32847b09",
+    "candidate_size_bytes": 1855979,
     "direct_setup_link_in_xeneon": true,
     "xeneon_setup_in_property_inspector": true,
     "koffi_version": "3.1.6",
-    "official_streamdeck_cli_validation": true
+    "official_streamdeck_cli_validation": true,
+    "native_app_icons": true,
+    "native_app_icon_format": "32x32 PNG data URI",
+    "native_app_icon_cache": true
   },
   "legacy_companion_release": {
     "tag": "window-manager-bridge-v1.0.0",
@@ -207,29 +230,30 @@
     "asset_id": 557097117,
     "sha256": "80f28218748a86eadc82f8e930de3309f7127af405d484628942e5b22994815b"
   },
-  "refactor_blockers": [
-    "Install the exact Window Manager Lite 1.0.0.3 hardened candidate in the real Windows Stream Deck desktop application and confirm the production plugin lifecycle starts the localhost XENEON service.",
-    "Connect the exact XENEON 1.0.0 hardened package on a real XENEON Edge and smoke focus/minimize/maximize/snap/move/close, including Windows elevation/foreground-lock edge cases."
-  ],
+  "refactor_blockers": [],
   "xeneon_candidate": {
     "version": "1.0.0",
-    "sha256": "d0fdcd3d53559eaf32c63b6c164e123e9283d88e175d638d225487c90ccdd50d",
+    "sha256": "c26a07f8d374780b3f937102df942f7d0e27371f40253f9aeb69ac1c903336d4",
     "size_bytes": 65836,
     "direct_lite_marketplace_link": true,
     "official_icue_cli_packaged": true,
     "required_plugins": [
       "widgetbuilder.linkprovider:Url:1.0"
-    ]
+    ],
+    "content_equivalent_previous_sha256": "d0fdcd3d53559eaf32c63b6c164e123e9283d88e175d638d225487c90ccdd50d",
+    "package_hash_difference_reason": "ZIP entry timestamps only; all four extracted package files are byte-identical."
   },
   "local_release_candidate_evidence": {
     "lite_baseline_version": "1.0.0.2",
     "lite_baseline_sha256": "9c486243be8d9dc30e133fa329e372a6d8d0195391a639868ab5b7adea481e7d",
     "lite_candidate_version": "1.0.0.3",
-    "lite_candidate_sha256": "c913f8eabe815561289e07d89b1ddbecccc458bf1303940625e5b903c272a82e",
-    "lite_candidate_size_bytes": 1853237,
+    "lite_candidate_sha256": "8f1fed423f871479c227a02d022d45205332c8d23cc1f0c2203d67ae32847b09",
+    "lite_candidate_size_bytes": 1855979,
     "koffi_version": "3.1.6",
     "conversion_guard": "pass",
     "official_streamdeck_cli_validation": "pass",
+    "official_streamdeck_cli_packaging": "pass",
+    "exact_package_byte_preserves_source_tree": "pass",
     "exact_lite_service_protocol_integration": "pass",
     "exact_xeneon_to_actual_lite_service": "pass",
     "malicious_origin_rejection": "pass",
@@ -237,7 +261,11 @@
     "protocol_mismatch_rejection": "pass",
     "port_collision_retry": "pass",
     "setup_page_csp_and_nosniff": "pass",
-    "xeneon_candidate_sha256": "d0fdcd3d53559eaf32c63b6c164e123e9283d88e175d638d225487c90ccdd50d",
+    "native_windows_app_icons": "pass",
+    "native_icon_test_executable": "C:\\Windows\\System32\\notepad.exe",
+    "native_icon_png_dimensions": "32x32",
+    "native_icon_cache": "pass",
+    "xeneon_candidate_sha256": "c26a07f8d374780b3f937102df942f7d0e27371f40253f9aeb69ac1c903336d4",
     "xeneon_candidate_size_bytes": 65836,
     "xeneon_zip_integrity": "pass",
     "production_plugin_entrypoint_lifecycle": "pass",
@@ -246,5 +274,9 @@
     "production_lifecycle_global_settings_writes": 1,
     "production_lifecycle_pairing_key_length": 48,
     "production_lifecycle_restart_same_key": true
-  }
+  },
+  "external_validation_boundary": [
+    "Install the exact Window Manager Lite 1.0.0.3 hardened candidate in the actual Windows Stream Deck desktop application as a final host-specific smoke.",
+    "Install the exact Window Manager for XENEON 1.0.0 package in iCUE on a physical XENEON Edge and smoke touch/readability plus focus/minimize/maximize/snap/move/close against normal and elevated windows."
+  ]
 }
