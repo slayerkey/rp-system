@@ -1,0 +1,36 @@
+name: Window Manager Koffi Bundle
+
+on:
+  push:
+    branches:
+      - product/window-manager-xeneon
+    paths:
+      - '.github/workflows/window-manager-koffi-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Fetch stable Koffi packages
+        run: |
+          mkdir -p artifacts/koffi
+          cd artifacts/koffi
+          npm pack koffi@3.1.6
+          npm pack @koromix/koffi-win32-x64@3.1.6
+          npm pack @koromix/koffi-darwin-x64@3.1.6
+          npm pack @koromix/koffi-darwin-arm64@3.1.6
+          sha256sum *.tgz > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-koffi-3.1.6
+          path: artifacts/koffi/
+          if-no-files-found: error
+          retention-days: 7
