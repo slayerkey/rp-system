@@ -1,0 +1,282 @@
+{
+  "id": "window-manager-xeneon",
+  "name": "Window Manager for XENEON",
+  "type": "widget",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "price_usd": 9.99,
+  "version": "1.0.0",
+  "platform": "CORSAIR iCUE / XENEON Edge + Window Manager Lite",
+  "source": "widgets/_src/window-manager-xeneon",
+  "package": "widgets/window-manager-xeneon",
+  "companion": "Window Manager Lite plugin internal XENEON service",
+  "submission_metadata": "widgets/_src/window-manager-xeneon/submission.json",
+  "release_gate": [
+    "canonical XENEON troubleshooting playbook applied",
+    "strict UTF-8 and JSON source validation",
+    "collision-safe localhost port regression",
+    "Windows companion build, deterministic self-test and self-contained x64 publish",
+    "loopback-only authenticated companion security invariants",
+    "all eight authored, shipping and exact-package XENEON layouts",
+    "Unicode, emoji, descender and HTML-looking title safety",
+    "remote icon URI rejection",
+    "corrupt and legacy pinned-app persistence recovery",
+    "repeated iCUE lifecycle idempotency and pagehide cleanup",
+    "official CORSAIR validation and packaging",
+    "exact official package integrity/contract audit",
+    "lexical iCUE Custom Style regression",
+    "no-callback iCUE autosync regression",
+    "exact packaged file:// widget to actual compiled Window Bridge process",
+    "focus, minimize, maximize/restore, snap left/right, move monitor and safe-close integration",
+    "companion kill/restart automatic recovery",
+    "wrong pairing key fail-closed persistent state",
+    "widget/companion protocol mismatch fail-closed persistent state",
+    "Corsair Labs exact-package Windows host smoke",
+    "StreamSpell exact-package verification at all eight presets",
+    "deterministic Rat Art",
+    "companion-inclusive Rat Ship kit preflight",
+    "canonical XENEON Widget CI, Rat Art XENEON and Rat Ship XENEON",
+    "exact customer companion ZIP install into the per-user LocalAppData path",
+    "per-user Startup shortcut creation and installed localhost health check",
+    "bounded wait for exact installed process exit before update/uninstall",
+    "retrying fail-closed install-directory and Startup-shortcut cleanup",
+    "exact published GitHub Release ZIP re-download, SHA-256 equality and install/uninstall smoke",
+    "release tag provenance pinned to the exact companion source commit"
+  ],
+  "automated_release_evidence": {
+    "candidate_commit": "e03b5eef1faff6bdc3c817a5411e144484adaea7",
+    "deep_qa_run": 34564009475,
+    "canonical_xeneon_ci_run": 34564349443,
+    "canonical_rat_art_run": 34564516266,
+    "canonical_rat_ship_run": 34564609837,
+    "official_package_artifact": {
+      "id": 10185394812,
+      "sha256": "65f0e85c06bc15add3b10c763e99867b429ff873cbf4ffe8306ce4b58505a397"
+    },
+    "windows_companion_artifact": {
+      "id": 10185397134,
+      "sha256": "1e586d37bdf5873d26e32931230019d3399f0f1a2122eada3e9ea6b15a95f806"
+    },
+    "windows_qa_artifact": {
+      "id": 10185397829,
+      "sha256": "1f5173865a78f644f21d0cfed3935a8098753c88f6dd479fcddf5f72fef14190"
+    },
+    "streamspell_artifact": {
+      "id": 10185416477,
+      "sha256": "74af13a569d34c053d6df67f05b9fe7c813d59af5cd084f5cb6de5c40d9cf148"
+    },
+    "companion_inclusive_rat_ship_artifact": {
+      "id": 10185443402,
+      "sha256": "af45a7b503595f2c0edf41a1c2199a8e99c173f8f843b5a2f8aa714081b3746d"
+    },
+    "canonical_rat_ship_artifact": {
+      "id": 10185569612,
+      "sha256": "b794b4757025eac8fa7386dfc09277b22c1015595c58a35fdef803c0427894de"
+    },
+    "latest_metadata_rat_ship_run": 34565492857,
+    "latest_metadata_rat_ship_artifact": {
+      "id": 10185880874,
+      "sha256": "3047502710af57b460d0835c2f4ad2d15c113dd1174df64e3b2475a8bf8c7bad"
+    },
+    "post_main_sync_full_gate_run": 34565815963,
+    "final_verified_runtime_commit": "89549cebd9aeeff4e016f0ac14cae18c2a2c0c69",
+    "post_main_sync_official_package_artifact": {
+      "id": 10186051062,
+      "sha256": "3fcb2cca27867cb1e36139c6e152cb0aae0630d40d14a3f3e3e58409567c4855"
+    },
+    "post_main_sync_windows_companion_artifact": {
+      "id": 10186053152,
+      "sha256": "c8a0cb3388784f13bb4c8f741b5a62458e4a94e216ed61b2fc74576f0592f1a9"
+    },
+    "post_main_sync_windows_qa_artifact": {
+      "id": 10186053941,
+      "sha256": "b3c3b482d039a2f4a8246341b778bfa9801c8aa80610d0903b6a605fe1839d50"
+    },
+    "post_main_sync_streamspell_artifact": {
+      "id": 10186072484,
+      "sha256": "54f298218686c48b6ed582de88d4538cacd38a45e0bdab6399e08879a4c309cb"
+    },
+    "post_main_sync_companion_inclusive_rat_ship_artifact": {
+      "id": 10186102084,
+      "sha256": "71a54f39cd27437e42a7228b921568d0e643be7deed5bfe86e3b9c3121c92c6a"
+    },
+    "post_main_sync_canonical_xeneon_ci_run": 34566300184,
+    "post_main_sync_canonical_rat_art_run": 34566492285,
+    "post_main_sync_canonical_rat_ship_run": 34566572016,
+    "post_main_sync_canonical_rat_ship_artifact": {
+      "id": 10186240057,
+      "sha256": "f706003dcef4dcf269aec3fba037b6568b09241de0a50ffe51d2c34973631e03"
+    },
+    "latest_playbook_hardening_runtime_commit": "1c597a7849cd62caedcaa8d7d22c70e8f4ad6f8f",
+    "latest_playbook_hardening_full_gate_run": 34591541476,
+    "latest_playbook_hardening_official_package_artifact": {
+      "id": 10195915566,
+      "sha256": "82974d25a847af871b9e47a4c4011bc46db46322213698969c91140245c592da"
+    },
+    "latest_playbook_hardening_companion_artifact": {
+      "id": 10195918689,
+      "sha256": "d34f8ede7790bc890a9662fa9ada178af3d6c72359cca142bdacf22a4526908d"
+    },
+    "latest_playbook_hardening_windows_qa_artifact": {
+      "id": 10195919542,
+      "sha256": "664e82dd09cc9755e89d6364d5c9d5307b4fbf26335522d44352594cd0c81bce"
+    },
+    "latest_playbook_hardening_streamspell_artifact": {
+      "id": 10195946476,
+      "sha256": "bea7e9d7ece73bd59f2cf6d047bc338bb6cd4df2b7839b3e41f03df67ebbdcdb"
+    },
+    "latest_playbook_hardening_companion_inclusive_rat_ship_artifact": {
+      "id": 10195982471,
+      "sha256": "2b5f915d8ae74d72021fe8ca28fcf387bae1fcd739adea526cb873c95b7ad8eb"
+    },
+    "latest_playbook_hardening_canonical_xeneon_ci_run": 34591992204,
+    "latest_playbook_hardening_canonical_rat_art_run": 34592326293,
+    "latest_playbook_hardening_canonical_rat_ship_run": 34592427606,
+    "latest_playbook_hardening_canonical_rat_ship_artifact": {
+      "id": 10196206569,
+      "sha256": "bcd8ada98f274de0dd0ef8604c592410aa8ddaf72f6de19f68dece3f9d5cfe2a"
+    },
+    "companion_release_workflow_run": 34592641509,
+    "companion_release_workflow_artifact": {
+      "id": 10196347227,
+      "sha256": "30c349c71af9be0eba55a6d753699c234af2421efa62cae9cc10d1856634b346"
+    },
+    "companion_release_tag_commit": "adbac94234214110eb03b0201d7ebd0dfd37d263",
+    "companion_release_asset": {
+      "id": 557097117,
+      "sha256": "80f28218748a86eadc82f8e930de3309f7127af405d484628942e5b22994815b"
+    },
+    "final_listing_rat_ship_run": 34593081772,
+    "final_listing_rat_ship_artifact": {
+      "id": 10196447482,
+      "sha256": "36c69646cfd4be576a8b14885a1400a64b3b3256a718f0b28a333117e4352b18"
+    },
+    "lite_service_contract_run": 34600136343,
+    "lite_service_contract_runtime_commit": "30813f4d3df7e97c92c87edeefdce84ee14d31a5",
+    "lite_service_contract_artifact": {
+      "id": 10264000669,
+      "sha256": "1c77fe4592cd9d02673df7d43781239a8850d749a5e2e610dcba5e3919790eba"
+    },
+    "hardened_xeneon_full_gate_run": 34660933437,
+    "hardened_xeneon_official_package_artifact": {
+      "id": 10287168322,
+      "artifact_digest_sha256": "b77123e3a85de564971e0f8b742864a66a7711f65392e415be96e471ae5b49e0",
+      "package_sha256": "d0fdcd3d53559eaf32c63b6c164e123e9283d88e175d638d225487c90ccdd50d"
+    },
+    "hardened_xeneon_windows_evidence_artifact": {
+      "id": 10286848885,
+      "artifact_digest_sha256": "8154ea4beacdcfc30c52cd9595d99759cef73cfe0677a89385a038c20e104ff8"
+    },
+    "hardened_xeneon_streamspell_artifact": {
+      "id": 10287128539,
+      "artifact_digest_sha256": "6004ea0bc0bdd193a6ead24f3e48b753d618f5ad0952cfef8a6cbd177961daba"
+    },
+    "hardened_lite_service_gate_run": 34661041324,
+    "hardened_lite_service_artifact": {
+      "id": 10286748960,
+      "artifact_digest_sha256": "63f785610a0bc688a2a051634791eb6f005d7f5f355f7572253f55cfff7b055e"
+    },
+    "koffi_3_1_6_bundle_run": 34661052322,
+    "streamdeck_cli_1_9_0_bundle_run": 34661312059,
+    "production_lifecycle_private_run": 34667612648,
+    "production_lifecycle_private_job": 103482622370,
+    "production_lifecycle_firstparty_sha256": "57d801cebb8c39a47680336d19f32719f99e50065df236acda3cd2356e11184a",
+    "latest_public_lite_service_run": 34667669347,
+    "latest_public_lite_service_job": 103482786738,
+    "latest_public_lite_service_artifact": {
+      "id": 10288829017,
+      "artifact_digest_sha256": "00384ab856d47bcbf79c30f533cca827ce1f226503ffc2c0718e35ef1b6baf69"
+    },
+    "latest_public_xeneon_full_gate_run": 34667669391,
+    "latest_public_xeneon_full_gate_job": 103482786798,
+    "latest_public_xeneon_official_package_artifact": {
+      "id": 10289274525,
+      "artifact_digest_sha256": "df8c1ba839316760e0b213bc6f55ba9400881ae5d604bd4c50e0faadb316f8ae",
+      "package_sha256": "c26a07f8d374780b3f937102df942f7d0e27371f40253f9aeb69ac1c903336d4"
+    },
+    "latest_public_xeneon_streamspell_artifact": {
+      "id": 10289279667,
+      "artifact_digest_sha256": "1ded35d7a5a5b83fe7c8dc08dfc50233644c839644c9e2806e286fdd384d79a4"
+    },
+    "native_icon_production_lifecycle_private_run": 34672640410,
+    "native_icon_production_lifecycle_private_job": 103496798655,
+    "native_icon_overlay_sha256": "2d431491f70f8cd710998dd8279173743f91d889092158377b4386cfd5ab8d22"
+  },
+  "hardware_boundary": "No physical XENEON Edge was available. The exact Lite production plugin.js lifecycle, Win32 snapshot, localhost service, pairing persistence/restart and native app-icon extraction all ran successfully on Windows automation. The exact XENEON package also passed CORSAIR validation/package/host/layout gates. The only unclaimed boundary is the actual Stream Deck desktop host plus physical XENEON Edge/iCUE touch/readability and real foreground/elevation behavior.",
+  "notes": "Hardened implementation and automated QA are complete. Canonical release state is READY_TO_SHIP. Window Manager Lite 1.0.0.3 was rebuilt from the exact shipped 1.0.0.2 baseline with the hidden localhost XENEON service wired into the real plugin process/native engine. Lite remains Lite: Snap Window + Cycle Windows are still the only visible actions, the existing Window Manager Pro upsell remains, and no Pro action UUIDs are added. Koffi is 3.1.6. Native Windows executable icons are now extracted locally, encoded as cached 32x32 PNG data URIs and delivered with window titles to XENEON; the exact icon path was validated on Windows with Notepad before the same production plugin lifecycle/restart suite passed. Elgato Stream Deck CLI validation/package passed and the exact package preserves its source tree byte-for-byte. The latest XENEON package is officially CORSAIR-packaged, uses the official Link Provider for the Lite Marketplace setup button, and passed the latest full gate plus all-eight-layout, exact-package regression, lexical settings, no-callback autosync, Corsair Labs host smoke and StreamSpell. Marketplace submission has not been performed. Remaining work is external real-host/hardware confirmation only.",
+  "window_manager_lite_dependency": {
+    "id": "window-manager",
+    "name": "Window Manager Lite",
+    "marketplace_url": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23",
+    "role": "Free Stream Deck plugin hosts the local native Windows engine used by the separately purchased XENEON widget.",
+    "visible_lite_actions_must_remain_unchanged": true,
+    "pro_upsell_must_remain_unchanged": true,
+    "version_candidate": "1.0.0.3",
+    "candidate_sha256": "8f1fed423f871479c227a02d022d45205332c8d23cc1f0c2203d67ae32847b09",
+    "candidate_size_bytes": 1855979,
+    "direct_setup_link_in_xeneon": true,
+    "xeneon_setup_in_property_inspector": true,
+    "koffi_version": "3.1.6",
+    "official_streamdeck_cli_validation": true,
+    "native_app_icons": true,
+    "native_app_icon_format": "32x32 PNG data URI",
+    "native_app_icon_cache": true
+  },
+  "legacy_companion_release": {
+    "tag": "window-manager-bridge-v1.0.0",
+    "source_commit": "adbac94234214110eb03b0201d7ebd0dfd37d263",
+    "asset": "PackRat-Window-Bridge-win-x64.zip",
+    "url": "https://github.com/slayerkey/rp-system/releases/download/window-manager-bridge-v1.0.0/PackRat-Window-Bridge-win-x64.zip",
+    "asset_id": 557097117,
+    "sha256": "80f28218748a86eadc82f8e930de3309f7127af405d484628942e5b22994815b"
+  },
+  "refactor_blockers": [],
+  "xeneon_candidate": {
+    "version": "1.0.0",
+    "sha256": "c26a07f8d374780b3f937102df942f7d0e27371f40253f9aeb69ac1c903336d4",
+    "size_bytes": 65836,
+    "direct_lite_marketplace_link": true,
+    "official_icue_cli_packaged": true,
+    "required_plugins": [
+      "widgetbuilder.linkprovider:Url:1.0"
+    ],
+    "content_equivalent_previous_sha256": "d0fdcd3d53559eaf32c63b6c164e123e9283d88e175d638d225487c90ccdd50d",
+    "package_hash_difference_reason": "ZIP entry timestamps only; all four extracted package files are byte-identical."
+  },
+  "local_release_candidate_evidence": {
+    "lite_baseline_version": "1.0.0.2",
+    "lite_baseline_sha256": "9c486243be8d9dc30e133fa329e372a6d8d0195391a639868ab5b7adea481e7d",
+    "lite_candidate_version": "1.0.0.3",
+    "lite_candidate_sha256": "8f1fed423f871479c227a02d022d45205332c8d23cc1f0c2203d67ae32847b09",
+    "lite_candidate_size_bytes": 1855979,
+    "koffi_version": "3.1.6",
+    "conversion_guard": "pass",
+    "official_streamdeck_cli_validation": "pass",
+    "official_streamdeck_cli_packaging": "pass",
+    "exact_package_byte_preserves_source_tree": "pass",
+    "exact_lite_service_protocol_integration": "pass",
+    "exact_xeneon_to_actual_lite_service": "pass",
+    "malicious_origin_rejection": "pass",
+    "wrong_key_rejection": "pass",
+    "protocol_mismatch_rejection": "pass",
+    "port_collision_retry": "pass",
+    "setup_page_csp_and_nosniff": "pass",
+    "native_windows_app_icons": "pass",
+    "native_icon_test_executable": "C:\\Windows\\System32\\notepad.exe",
+    "native_icon_png_dimensions": "32x32",
+    "native_icon_cache": "pass",
+    "xeneon_candidate_sha256": "c26a07f8d374780b3f937102df942f7d0e27371f40253f9aeb69ac1c903336d4",
+    "xeneon_candidate_size_bytes": 65836,
+    "xeneon_zip_integrity": "pass",
+    "production_plugin_entrypoint_lifecycle": "pass",
+    "production_lifecycle_registrations": 2,
+    "production_lifecycle_global_settings_reads": 2,
+    "production_lifecycle_global_settings_writes": 1,
+    "production_lifecycle_pairing_key_length": 48,
+    "production_lifecycle_restart_same_key": true
+  },
+  "external_validation_boundary": [
+    "Install the exact Window Manager Lite 1.0.0.3 hardened candidate in the actual Windows Stream Deck desktop application as a final host-specific smoke.",
+    "Install the exact Window Manager for XENEON 1.0.0 package in iCUE on a physical XENEON Edge and smoke touch/readability plus focus/minimize/maximize/snap/move/close against normal and elevated windows."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "author": "PackRat 🐀",
+  "id": "com.packrat.window-manager-xeneon",
+  "name": "Window Manager for XENEON",
+  "description": "A touch-first Windows desktop control strip for XENEON Edge. See open application windows, focus them, minimize, maximize or restore, snap left or right, move between detected monitors, pin favorite apps, and close with confirmation using the free Window Manager Lite Stream Deck plugin as the local Windows engine.",
+  "version": "1.0.0",
+  "preview_icon": "resources/icon.svg",
+  "min_framework_version": "1.0.0",
+  "min_app_version": "5.47",
+  "os": [
+    {
+      "platform": "windows"
+    }
+  ],
+  "supported_devices": [
+    {
+      "type": "dashboard_lcd"
+    }
+  ],
+  "interactive": true,
+  "required_plugins": [
+    "widgetbuilder.linkprovider:Url:1.0"
+  ]
+}

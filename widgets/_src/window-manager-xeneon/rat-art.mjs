@@ -1,0 +1,75 @@
+export const variants = [
+  { name: "no-active", slot: "M_H", activeWindowId: null },
+  { name: "empty", slot: "M_H", empty: true },
+];
+
+function dataIcon(label) {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#334155"/><text x="32" y="40" text-anchor="middle" fill="white" font-family="Arial" font-size="24">' + label + "</text></svg>";
+  return "data:image/svg+xml," + encodeURIComponent(svg);
+}
+
+function snapshotFor(variant) {
+  const empty = Boolean(variant?.empty);
+  return {
+    type: "snapshot",
+    protocol: 1,
+    activeWindowId: variant && Object.prototype.hasOwnProperty.call(variant, "activeWindowId")
+      ? variant.activeWindowId
+      : "102",
+    monitors: [
+      { id: "MONITOR-1", name: "Main Display", width: 2560, height: 1440, primary: true },
+      { id: "MONITOR-2", name: "Side Display", width: 1920, height: 1080, primary: false },
+      { id: "MONITOR-3", name: "Portrait", width: 1080, height: 1920, primary: false },
+      { id: "MONITOR-4", name: "Studio Ultrawide", width: 3440, height: 1440, primary: false },
+    ],
+    windows: empty ? [] : [
+      { id: "101", appKey: "browser", appName: "Browser", processName: "browser", title: "Creator Dashboard — Analytics", state: "normal", monitorId: "MONITOR-1", iconDataUri: dataIcon("B") },
+      { id: "102", appKey: "editor", appName: "Editor", processName: "editor", title: "window-manager-xeneon — rp-system", state: "maximized", monitorId: "MONITOR-1", iconDataUri: dataIcon("E") },
+      { id: "103", appKey: "terminal", appName: "Terminal", processName: "terminal", title: "PackRat build output", state: "normal", monitorId: "MONITOR-2", iconDataUri: dataIcon(">") },
+      { id: "104", appKey: "mail", appName: "Mail", processName: "mail", title: "Support inbox — 7 unread", state: "normal", monitorId: "MONITOR-2", iconDataUri: dataIcon("M") },
+      { id: "105", appKey: "music", appName: "Music", processName: "music", title: "Focus Mix", state: "minimized", monitorId: "MONITOR-1", iconDataUri: dataIcon("♪") },
+      { id: "106", appKey: "notes", appName: "Notes", processName: "notes", title: "<b>not markup</b> — 日本語 🎮 gyqp", state: "normal", monitorId: "MONITOR-4", iconDataUri: dataIcon("N") },
+    ],
+  };
+}
+
+export async function prepare(page, context) {
+  const snapshot = snapshotFor(context.variant || null);
+  await page.addInitScript(({ snapshot }) => {
+    globalThis.bridgeKey = "rat-art-window-key";
+    globalThis.showPinned = true;
+    globalThis.showIcons = true;
+    globalThis.textColor = "#F4F6F8";
+    globalThis.accentColor = "#2BE86A";
+    globalThis.backgroundColor = "#080B0F";
+    globalThis.icueEvents = {};
+    globalThis.tr = async (value) => value;
+    globalThis.__PACKRAT_WINDOW_FIXTURE__ = snapshot;
+  }, { snapshot });
+}
+
+export async function ready(page) {
+  await page.waitForFunction(() => (
+    Boolean(globalThis.__PACKRAT_WINDOW_TEST__) &&
+    document.body?.getAttribute("data-connection") === "live"
+  ), { timeout: 10000 });
+  await page.waitForTimeout(300);
+}
+
+export async function assert(page, context) {
+  const state = await page.evaluate(() => globalThis.__PACKRAT_WINDOW_TEST__.getState());
+  if (state.connection !== "live") {
+    throw new Error("Window Manager Rat Art fixture did not reach live state");
+  }
+  const expectedWindows = context.variant?.empty ? 0 : 6;
+  if (state.windows.length !== expectedWindows) {
+    throw new Error(`Window Manager Rat Art expected ${expectedWindows} windows, got ${state.windows.length}`);
+  }
+  if (state.monitors.length !== 4) {
+    throw new Error(`Window Manager Rat Art expected 4 monitors, got ${state.monitors.length}`);
+  }
+  if (!context.variant?.empty) {
+    const htmlBold = await page.locator("#windowList b").count();
+    if (htmlBold !== 0) throw new Error("HTML-looking window title rendered as markup");
+  }
+}

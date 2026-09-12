@@ -1,0 +1,62 @@
+{
+  "en": {
+    "translation": {
+      "Window Manager for XENEON": "Window Manager for XENEON",
+      "Show Pinned Apps": "Show Pinned Apps",
+      "Show App Icons": "Show App Icons",
+      "Text Color": "Text Color",
+      "Accent Color": "Accent Color",
+      "Background Color": "Background Color",
+      "Connection": "Connection",
+      "Window Strip": "Window Strip",
+      "Appearance": "Appearance",
+      "Window Manager Pairing Key": "Window Manager Pairing Key",
+      "Install the free Window Manager Lite Stream Deck plugin on this Windows PC, open its XENEON setup, copy the local pairing key, and paste it here. The service listens only on localhost.": "Install the free Window Manager Lite Stream Deck plugin on this Windows PC, open its XENEON setup, copy the local pairing key, and paste it here. The service listens only on localhost."
+    }
+  },
+  "de": {
+    "translation": {
+      "Window Manager for XENEON": "Window Manager for XENEON",
+      "Show Pinned Apps": "Angeheftete Apps anzeigen",
+      "Show App Icons": "App-Symbole anzeigen",
+      "Text Color": "Textfarbe",
+      "Accent Color": "Akzentfarbe",
+      "Background Color": "Hintergrundfarbe",
+      "Connection": "Verbindung",
+      "Window Strip": "Fensterleiste",
+      "Appearance": "Darstellung",
+      "Window Manager Pairing Key": "Window-Manager-Kopplungsschlüssel",
+      "Install the free Window Manager Lite Stream Deck plugin on this Windows PC, open its XENEON setup, copy the local pairing key, and paste it here. The service listens only on localhost.": "Installiere das kostenlose Stream-Deck-Plugin Window Manager Lite auf diesem Windows-PC, öffne dessen XENEON-Einrichtung, kopiere den lokalen Kopplungsschlüssel und füge ihn hier ein. Der Dienst hört nur auf localhost."
+    }
+  },
+  "es": {
+    "translation": {
+      "Window Manager for XENEON": "Window Manager for XENEON",
+      "Show Pinned Apps": "Mostrar apps fijadas",
+      "Show App Icons": "Mostrar iconos de apps",
+      "Text Color": "Color del texto",
+      "Accent Color": "Color de acento",
+      "Background Color": "Color de fondo",
+      "Connection": "Conexión",
+      "Window Strip": "Banda de ventanas",
+      "Appearance": "Apariencia",
+      "Window Manager Pairing Key": "Clave de vinculación de Window Manager",
+      "Install the free Window Manager Lite Stream Deck plugin on this Windows PC, open its XENEON setup, copy the local pairing key, and paste it here. The service listens only on localhost.": "Instala el plugin gratuito Window Manager Lite para Stream Deck en este PC con Windows, abre su configuración de XENEON, copia la clave local de vinculación y pégala aquí. El servicio solo escucha en localhost."
+    }
+  },
+  "fr": {
+    "translation": {
+      "Window Manager for XENEON": "Window Manager for XENEON",
+      "Show Pinned Apps": "Afficher les apps épinglées",
+      "Show App Icons": "Afficher les icônes des apps",
+      "Text Color": "Couleur du texte",
+      "Accent Color": "Couleur d'accentuation",
+      "Background Color": "Couleur d'arrière-plan",
+      "Connection": "Connexion",
+      "Window Strip": "Bande de fenêtres",
+      "Appearance": "Apparence",
+      "Window Manager Pairing Key": "Clé d’association Window Manager",
+      "Install the free Window Manager Lite Stream Deck plugin on this Windows PC, open its XENEON setup, copy the local pairing key, and paste it here. The service listens only on localhost.": "Installez le plugin Stream Deck gratuit Window Manager Lite sur ce PC Windows, ouvrez sa configuration XENEON, copiez la clé d’association locale et collez-la ici. Le service écoute uniquement sur localhost."
+    }
+  }
+}
