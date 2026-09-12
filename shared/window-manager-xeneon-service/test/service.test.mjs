@@ -27,10 +27,16 @@ test("fixed-time pairing equality", () => {
   assert.equal(fixedTimeKeyEquals("", "b".repeat(32)), false);
 });
 
-test("origin policy stays local/file only", () => {
+test("origin policy stays exact local/file/qrc only", () => {
   assert.equal(isAllowedOrigin("null"), true);
   assert.equal(isAllowedOrigin("file://"), true);
+  assert.equal(isAllowedOrigin("file:///C:/widget/index.html"), true);
+  assert.equal(isAllowedOrigin("qrc:///widget/index.html"), true);
   assert.equal(isAllowedOrigin("http://127.0.0.1:17487"), true);
+  assert.equal(isAllowedOrigin("http://localhost:17487"), true);
+  assert.equal(isAllowedOrigin("http://localhost.evil.com:17487"), false);
+  assert.equal(isAllowedOrigin("http://127.0.0.1.evil.com:17487"), false);
+  assert.equal(isAllowedOrigin("http://127.0.0.1:17488"), false);
   assert.equal(isAllowedOrigin("https://example.com"), false);
 });
 
@@ -88,6 +94,11 @@ test("service authenticates and executes without exposing Pro actions", async ()
     const health = await fetch(`http://127.0.0.1:${port}/health`).then((response) => response.json());
     assert.equal(health.product, "PackRat Window Manager Lite");
     assert.equal(health.service, "xeneon-window-manager");
+
+    const setup = await fetch(`http://127.0.0.1:${port}/`);
+    assert.match(setup.headers.get("content-security-policy") || "", /frame-ancestors 'none'/);
+    assert.equal(setup.headers.get("x-content-type-options"), "nosniff");
+    assert.match(await setup.text(), new RegExp(key));
 
     const rejected = new WebSocket(`ws://127.0.0.1:${port}/widget`);
     await new Promise((resolve, reject) => {
