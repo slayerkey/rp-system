@@ -1,88 +1,119 @@
-# Window Manager for XENEON - QA contract
+# Window Manager for XENEON - hardened QA contract
 
 ## Current architecture
 
-Customer architecture:
-
 ```text
-Window Manager for XENEON
+Window Manager for XENEON 1.0.0
   -> localhost protocol v1 on 127.0.0.1:17487
   -> free Window Manager Lite 1.0.0.3
   -> existing native Window Manager Win32 engine
   -> Windows
 ```
 
-The standalone PackRat Window Bridge is retained only as historical protocol/native-reference evidence. It is not the intended customer dependency.
+The standalone PackRat Window Bridge remains historical/reference-only. It is not the intended customer dependency.
 
-## Finished release candidates
+## Final hardened candidates
 
-### Window Manager Lite
+### Window Manager Lite 1.0.0.3
 
-Built from the exact uploaded 1.0.0.2 production package.
-
-Candidate:
-- version: `1.0.0.3`
-- SHA-256: `731e3ccc1262344f4cef0773cbe3ea660c6573f77ab1ad0594f1d39e61908845`
-- size: `1,693,823` bytes
+- exact candidate SHA-256: `c913f8eabe815561289e07d89b1ddbecccc458bf1303940625e5b903c272a82e`
+- size: `1,853,237` bytes
+- built from exact shipped Lite 1.0.0.2 baseline
+- Koffi upgraded to `3.1.6`
+- official Elgato Stream Deck CLI validation passed
 - visible actions remain exactly:
   - Snap Window: `com.packrat.windowmanager.snap`
   - Cycle Windows: `com.packrat.windowmanager.cycle`
-- existing Window Manager Pro Marketplace upsell remains present
+- existing Window Manager Pro Marketplace upsell remains
 - no Pro action UUIDs are exposed
 - XENEON service registers no Stream Deck action
-- Property Inspector adds XENEON Edge setup with pairing-key copy and local setup page controls
+- Property Inspector includes XENEON Edge setup, pairing-key copy and local setup page
 
-### Window Manager for XENEON
+### Window Manager for XENEON 1.0.0
 
-Candidate:
-- version: `1.0.0`
-- SHA-256: `0d3f618024374955a186b3b05591fb6c16257d377e2453c94d00d5b88fd1978c`
-- size: `15,662` bytes
-- direct Window Manager Lite Marketplace install/update link is shown during pairing/disconnected/version-mismatch setup states
+- exact candidate SHA-256: `d0fdcd3d53559eaf32c63b6c164e123e9283d88e175d638d225487c90ccdd50d`
+- size: `65,836` bytes
+- officially validated/packaged by CORSAIR iCUE widget CLI
+- official iCUE Link Provider opens the Window Manager Lite Marketplace listing
+- required plugin: `widgetbuilder.linkprovider:Url:1.0`
 
-## Passing automated/local gates
+## Hardened gates that pass
+
+### Lite / localhost service
 
 - exact Lite baseline captured before modification
 - Lite -> Pro conversion guard
-- JavaScript syntax for plugin, Win32 adapter, XENEON service and Property Inspector scripts
-- ZIP integrity of updated Lite package
-- localhost-only service
-- protocol v1
+- JavaScript syntax
+- ZIP/package integrity
+- localhost-only binding
+- exact local/file/qrc origin policy
+- malicious localhost-lookalike origin rejection
+- HTTP(S) origins restricted to service port
 - fixed-time pairing-key comparison
-- 64 KiB WebSocket message cap
+- 64 KiB WebSocket limit
+- malformed/fragmented/RSV frame rejection
 - narrow command allowlist
 - snapshot normalization
 - correct-key authentication
 - wrong-key rejection
 - protocol mismatch rejection
 - arbitrary-command rejection
-- focus/minimize/maximize-restore/snap-left/snap-right/move-monitor/close command routing
+- focus/minimize/maximize-restore/snap-left/snap-right/move-monitor/close routing
 - no shell/process execution API
-- direct XENEON -> Lite Marketplace setup affordance
-- XENEON candidate ZIP integrity
+- setup-page CSP + nosniff
+- port-collision/restart retry
+- Windows native Koffi 3.1.6 FFI smoke:
+  - user32.dll / dwmapi.dll load
+  - MONITORINFO layout
+  - EnumWindows
+  - EnumDisplayMonitors
+  - GetMonitorInfoW
+  - DwmGetWindowAttribute
+  - PostMessageW
 
-Existing XENEON QA retained from earlier full gates:
-- all eight XENEON viewports
-- overflow and touch-target checks
-- active/empty/disconnected/pairing/version-mismatch states
-- safe close confirmation
-- pinned-app persistence recovery
-- Unicode/emoji/descender/HTML-looking titles
-- remote icon URI rejection
-- repeated iCUE lifecycle idempotency
-- pagehide cleanup
-- lexical Custom Style regression
-- no-callback iCUE autosync
-- official CORSAIR package validation on the pre-link package
-- Corsair Labs host smoke on the previous bridge-backed package
-- StreamSpell all-eight-presets verification
+Hardened Lite service workflow:
+- run: `34661041324`
+- result: success
+- artifact: `10286748960`
 
-## Remaining real-runtime boundary
+### XENEON
 
-The software release candidates are built. Before claiming hardware verification, still perform:
+Hardened full gate:
+- run: `34660933437`
+- result: success
 
-1. install the exact Lite 1.0.0.3 candidate in the Windows Stream Deck application and confirm its hidden localhost service starts from the real plugin lifecycle
-2. connect the exact XENEON candidate and smoke focus/minimize/maximize/snap/move/close against real desktop windows, including expected Windows elevation restrictions
-3. perform physical XENEON Edge touch/readability testing when hardware is available
+Passed steps include:
+- strict UTF-8 / JSON
+- localhost port collision check
+- static verification
+- authored all-eight-layout interaction gate
+- shipping all-eight-layout interaction gate
+- official CORSAIR validation
+- official CORSAIR package
+- exact official package integrity/contract
+- exact-package all-eight-layout regression
+- lexical iCUE Custom Style regression
+- no-callback autosync
+- Corsair Labs host smoke
+- StreamSpell all eight presets
+- Unicode / emoji / descender / HTML-looking title safety
+- corrupted persistence recovery
+- safe-close confirmation
+- lifecycle idempotence / pagehide cleanup
+
+Official XENEON package artifact:
+- artifact: `10287168322`
+- package SHA-256: `d0fdcd3d53559eaf32c63b6c164e123e9283d88e175d638d225487c90ccdd50d`
+
+### Cross-product
+
+The exact officially packaged XENEON widget was also exercised against the actual Lite `xeneon-service.js` that ships. The path passed authentication, snapshot delivery, focus, minimize, maximize/restore, snap, monitor move, safe-close cancel/confirm and wrong-key rejection.
+
+## Remaining honest boundary
+
+Implementation and automated QA are complete. The remaining checks require the real customer environment:
+
+1. install the exact Lite 1.0.0.3 package in the user's Windows Stream Deck desktop application and confirm the hidden service starts through the real Stream Deck plugin lifecycle
+2. install the exact XENEON 1.0.0 package in iCUE on a physical XENEON Edge and smoke touch/readability plus real foreground/elevation behavior
 
 These are real-runtime/hardware smokes, not missing implementation work.
