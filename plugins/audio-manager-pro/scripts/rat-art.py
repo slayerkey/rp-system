@@ -106,30 +106,49 @@ def heading(canvas: Image.Image, headline: str, sub: str | None = None) -> None:
         d.text((W // 2, 165), sub, font=sf, fill=MUTED, anchor="mm")
 
 
-def audio_key(d: ImageDraw.ImageDraw, x: int, y: int, width: int, height: int, label: str, out_name: str, in_name: str, accent=ACC, active: bool = False) -> None:
-    radius = int(width * 0.105)
-    d.rounded_rectangle((x, y, x + width, y + height), radius, fill=KEY, outline=accent if active else LINE, width=5 if active else 3)
-    d.text((x + width // 2, y + int(height * 0.14)), label, font=fit_font(d, label, width - 42, 29, 17, True), fill=WHITE, anchor="mm")
+def audio_key(d: ImageDraw.ImageDraw, x: int, y: int, size: int, label: str, out_name: str, in_name: str, accent=ACC, active: bool = False) -> None:
+    radius = int(size * 0.14)
+    border = accent if active else LINE
+    d.rounded_rectangle((x, y, x + size, y + size), radius, fill=KEY, outline=border, width=5 if active else 3)
 
-    row_x = x + int(width * 0.10)
-    row_w = int(width * 0.80)
-    row_h = int(height * 0.19)
-    row1 = y + int(height * 0.27)
-    row2 = y + int(height * 0.51)
-    for ry in (row1, row2):
-        d.rounded_rectangle((row_x, ry, row_x + row_w, ry + row_h), int(row_h * 0.23), fill=PANEL)
+    d.text(
+        (x + size // 2, y + int(size * 0.31)),
+        label,
+        font=fit_font(d, label, size - 44, 28, 17, True),
+        fill=WHITE,
+        anchor="mm",
+    )
+    badge = "ACTIVE" if active else "PROFILE"
+    badge_color = accent if active else MUTED
+    d.text(
+        (x + size // 2, y + int(size * 0.53)),
+        badge,
+        font=font(max(13, int(size * 0.052)), True),
+        fill=badge_color,
+        anchor="mm",
+    )
 
-    tag_font = font(max(12, int(width * 0.045)), True)
-    value_font = font(max(13, int(width * 0.057)), True)
-    d.text((row_x + 20, row1 + row_h // 2), "OUT", font=tag_font, fill=accent, anchor="lm")
-    d.text((row_x + int(row_w * 0.34), row1 + row_h // 2), out_name, font=value_font, fill=WHITE, anchor="lm")
-    d.text((row_x + 20, row2 + row_h // 2), "IN", font=tag_font, fill=accent, anchor="lm")
-    d.text((row_x + int(row_w * 0.34), row2 + row_h // 2), in_name, font=value_font, fill=WHITE, anchor="lm")
+    line_y = y + int(size * 0.73)
+    d.line(
+        (x + int(size * 0.25), line_y, x + int(size * 0.75), line_y),
+        fill=badge_color,
+        width=max(6, int(size * 0.026)),
+    )
+    knob = max(8, int(size * 0.038))
+    d.ellipse(
+        (x + size // 2 - knob, line_y - knob, x + size // 2 + knob, line_y + knob),
+        fill=WHITE if active else badge_color,
+    )
 
-    line_y = y + int(height * 0.82)
-    d.line((x + int(width * 0.23), line_y, x + int(width * 0.77), line_y), fill=accent, width=max(6, int(width * 0.025)))
-    knob = max(8, int(width * 0.036))
-    d.ellipse((x + width // 2 - knob, line_y - knob, x + width // 2 + knob, line_y + knob), fill=WHITE if active else accent)
+    # OUT / IN are marketing annotations below the real key face, not fabricated key UI.
+    annotation_y = y + size + 42
+    tag_font = font(max(12, int(size * 0.048)), True)
+    value_font = fit_font(d, out_name, size - 78, 17, 13, True)
+    d.text((x + 12, annotation_y), "OUT", font=tag_font, fill=ACC, anchor="lm")
+    d.text((x + 74, annotation_y), out_name, font=value_font, fill=WHITE, anchor="lm")
+    value_font = fit_font(d, in_name, size - 78, 17, 13, True)
+    d.text((x + 12, annotation_y + 34), "IN", font=tag_font, fill=ACC, anchor="lm")
+    d.text((x + 74, annotation_y + 34), in_name, font=value_font, fill=WHITE, anchor="lm")
 
 
 def save_cover(out: Path) -> None:
@@ -146,11 +165,11 @@ def save_cover(out: Path) -> None:
         ("STREAMING", "Monitor", "Broadcast Mic"),
         ("VR", "VR Headset", "VR Mic"),
     ]
-    key_w, key_h, gap = 320, 410, 28
-    total = key_w * 5 + gap * 4
+    key_size, gap = 300, 40
+    total = key_size * 5 + gap * 4
     start = (W - total) // 2
     for index, spec in enumerate(specs):
-        audio_key(d, start + index * (key_w + gap), 262, key_w, key_h, *spec, active=index == 2)
+        audio_key(d, start + index * (key_size + gap), 255, key_size, *spec, active=index == 2)
 
     d.rounded_rectangle((390, 724, 1530, 807), 28, fill=(18, 45, 38, 230), outline=ACC, width=2)
     d.text((W // 2, 766), "OUTPUT + INPUT + COMMUNICATIONS ROLES + SAVED STATE", font=fit_font(d, "OUTPUT + INPUT + COMMUNICATIONS ROLES + SAVED STATE", 1060, 23, 17, True), fill=ACC, anchor="mm")
