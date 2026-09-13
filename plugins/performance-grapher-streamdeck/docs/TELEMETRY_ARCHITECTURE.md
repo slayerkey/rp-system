@@ -71,3 +71,9 @@ The session summary is preserved separately from graph history so a long session
 ## Pressure signal
 
 The plugin may label stutter buckets as GPU PRESSURE, CPU PRESSURE, or MIXED / UNKNOWN using contemporaneous utilization and bad-frame buckets. It is deliberately described as a **pressure signal**, not proof of a hardware bottleneck. A Stream Deck key cannot establish causality from utilization alone.
+
+### FPS semantics
+
+Performance Grapher intentionally runs PresentMon with display, GPU, and input tracking disabled to minimize monitoring overhead. The game FPS path therefore uses `MsBetweenPresents`: the cadence between application `Present()` calls. It is **not** a display-confirmed FPS metric and does not claim to measure scan-out/displayed-frame cadence.
+
+PresentMon v2.5.1 marks completed presents as `Presented` when display tracking is disabled, so `--exclude_dropped` would be a no-op in this mode and is intentionally not supplied.
