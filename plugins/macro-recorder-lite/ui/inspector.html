@@ -6,7 +6,7 @@
   <title>Macro Recorder Lite</title>
   <link rel="stylesheet" href="inspector.css" />
 </head>
-<body data-edition="lite">
+<body data-edition="lite" data-pro-url="">
 <main>
   <section class="status-card">
     <div class="status-row"><span id="dot" class="dot"></span><strong id="statusTitle">Macro Recorder ready</strong></div>
@@ -81,7 +81,8 @@
   <section class="group upsell lite-only">
     <strong>Macro Recorder Pro</strong>
     <p>Unlock mouse recording, 10-minute macros, playback speed, loops, reusable Macro Library, and import/export.</p>
-    <p class="hint">A direct Marketplace button is intentionally withheld until the Pro listing URL is verified.</p>
+    <button id="upgradePro" type="button" class="secondary" hidden>View Macro Recorder Pro</button>
+    <p id="upgradePending" class="hint">The upgrade button stays hidden until the exact Pro Marketplace listing is verified.</p>
   </section>
 
   <p id="errorText" class="error" hidden></p>
