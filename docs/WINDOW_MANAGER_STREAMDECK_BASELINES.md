@@ -47,6 +47,16 @@ XENEON integration must never turn Window Manager Lite into Window Manager Pro. 
   - Cycle Windows: `com.packrat.windowmanagerpro.cycle`
   - Nudge Window: `com.packrat.windowmanagerpro.nudge`
 
+### Workspace product redundancy gate - 2026-09-12
+
+The private 1.1.0.0 manifest is authoritative for the existing Window Layout customer job. Its action tooltip is:
+
+> Puts your whole arrangement back in one press. Hold the key to record where everything is now.
+
+Commercial verdict: do **not** create a separate Workspace Manager Pro SKU whose primary promise is saving the whole desktop arrangement and restoring it with one key. Window Manager Pro already owns that job.
+
+Future workspace improvements should land in Window Manager Pro while preserving `com.packrat.windowmanagerpro` and the existing `com.packrat.windowmanagerpro.layout` action UUID. The highest-value update path is named workspaces, reliable missing-app launch/retry, stronger multi-monitor topology remapping, restore progress/status, multiple-window matching, and repeated-restore idempotency. The existing Lite product and Lite -> Pro upsell remain unchanged.
+
 ## XENEON hardened candidate
 
 - Product: Window Manager for XENEON
