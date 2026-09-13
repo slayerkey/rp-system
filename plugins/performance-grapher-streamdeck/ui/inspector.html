@@ -27,7 +27,7 @@
         <option value="60000">60 seconds</option>
         <option value="300000">5 minutes</option>
         <option value="900000">15 minutes</option>
-        <option value="0">Session / available history</option>
+        <option value="0">Game session</option>
       </select>
       <p class="hint" data-kinds="graph">Press the key to cycle these windows.</p>
     </section>
@@ -81,7 +81,7 @@
     <section class="group diagnostics">
       <strong>Telemetry diagnostics</strong>
       <p class="hint">Game FPS uses PresentMon. If Windows blocks ETW capture, add your user to Performance Log Users or run Stream Deck with sufficient rights. Performance Grapher never installs a driver automatically.</p>
-      <button id="restartFps" type="button" class="secondary full">Restart game telemetry</button>
+      <button id="restartFps" type="button" class="secondary full">Restart game telemetry</button>\n      <button id="presentMonHelp" type="button" class="secondary full">Open PresentMon permission guide</button>
       <div id="sessionLine" class="session-line">No active game session.</div>
     </section>
   </main>
