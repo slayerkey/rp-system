@@ -458,6 +458,8 @@ test("Windows JSON-line smoke transport avoids PowerShell args/BOM corruption", 
   assert.match(smoke, /Smoke request JSON failed local round-trip validation/);
   assert.doesNotMatch(smoke, /StandardInput\.WriteLine/);
   assert.match(backend, /\$line = \$line\.TrimStart\(\[char\]0xFEFF\)/);
+  assert.match(backend, /Invalid request JSON \(length=\$\(\$line\.Length\), prefixCodes=\$prefixCodes\)/);
+  assert.match(backend, /Select-Object -First 12/);
 });
 
 test("Windows smoke enforces the safe HDR API boundary", async () => {
