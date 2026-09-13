@@ -12,6 +12,21 @@ Set-Location $Root
 
 Write-Host "== Macro Recorder local release QA ==" -ForegroundColor Cyan
 
+if ($ReleaseCandidate -and ($SkipAudit -or $SkipArt)) {
+  throw "-ReleaseCandidate cannot be combined with -SkipAudit or -SkipArt."
+}
+
+if ($ReleaseCandidate) {
+  $GatePath = Join-Path $Root "docs\MACRO_RECORDER_NATIVE_GATE.json"
+  if (-not (Test-Path $GatePath)) { throw "Missing native release gate: $GatePath" }
+  $Gate = Get-Content $GatePath -Raw | ConvertFrom-Json
+  $Open = @($Gate.blockers.PSObject.Properties | Where-Object { -not [bool]$_.Value } | ForEach-Object { $_.Name })
+  if (-not $Gate.ready -or $Open.Count -gt 0) {
+    $Reason = if ($Open.Count -gt 0) { $Open -join ', ' } else { "ready=false" }
+    throw "Release candidate blocked by native gates: $Reason"
+  }
+}
+
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) { throw "dotnet 8 SDK is required." }
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw "Node.js is required." }
 if (-not (Get-Command npm -ErrorAction SilentlyContinue)) { throw "npm is required." }
@@ -124,16 +139,6 @@ foreach ($Slug in @("macro-recorder-lite","macro-recorder-pro")) {
   if ($Package.Count -eq 1) {
     $PackageMb = [math]::Round($Package[0].Length / 1MB, 2)
     Write-Host "$Slug package size: $PackageMb MB"
-  }
-}
-
-if ($ReleaseCandidate) {
-  $GatePath = Join-Path $Root "docs\MACRO_RECORDER_NATIVE_GATE.json"
-  if (-not (Test-Path $GatePath)) { throw "Missing native release gate: $GatePath" }
-  $Gate = Get-Content $GatePath -Raw | ConvertFrom-Json
-  if (-not $Gate.ready) {
-    $Open = @($Gate.blockers.PSObject.Properties | Where-Object { -not [bool]$_.Value } | ForEach-Object { $_.Name })
-    throw "Release candidate blocked by native gates: $($Open -join ', ')"
   }
 }
 
