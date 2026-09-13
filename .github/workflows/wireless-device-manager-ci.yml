@@ -18,6 +18,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: wireless-device-manager-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   windows-release:
     name: Windows build, test, bridge, validate, pack
