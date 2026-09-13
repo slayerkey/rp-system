@@ -126,53 +126,40 @@ jobs:
             blocker = 'Discord approval pending'
             final_boundary = 'approval then submission'
           }
-          $testing = [PSCustomObject]@{
-            workflow_state = 'TESTING'
-            blocker = $null
-            final_boundary = 'automated verification pending'
-          }
-          $hardware = [PSCustomObject]@{
-            workflow_state = 'READY_FOR_HARDWARE_QA'
-            blocker = $null
-            final_boundary = 'physical hardware smoke pending'
-          }
-          $rejected = [PSCustomObject]@{
-            workflow_state = 'REJECTED'
-            blocker = 'Marketplace rejection must be resolved'
-            final_boundary = $null
-          }
           $ready = [PSCustomObject]@{
             workflow_state = 'READY_TO_SHIP'
             blocker = $null
             final_boundary = $null
           }
-          $submitted = [PSCustomObject]@{
-            workflow_state = 'SUBMITTED'
+          $testing = [PSCustomObject]@{
+            workflow_state = 'TESTING'
             blocker = $null
-            final_boundary = $null
+            final_boundary = 'finish automated QA'
           }
           $published = [PSCustomObject]@{
             workflow_state = 'PUBLISHED'
             blocker = $null
             final_boundary = $null
           }
-          $legacy = [PSCustomObject]@{
-            workflow_state = $null
+          $legacyNoState = [PSCustomObject]@{
             blocker = $null
             final_boundary = $null
           }
+          $legacyBlocked = [PSCustomObject]@{
+            workflow_state = 'BLOCKED_EXTERNAL_APPROVAL'
+            blocker = $null
+            final_boundary = 'legacy approval pending'
+          }
 
           foreach ($action in @('kit', 'stage')) {
-            foreach ($fixture in @($blocked, $testing, $hardware, $rejected)) {
+            foreach ($fixture in @($blocked, $testing, $published)) {
               Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction $action
             }
           }
+          Assert-ProductReleaseState -Product $ready -ProductSlug 'fixture' -RequestedAction 'ship'
+          Assert-ProductReleaseState -Product $legacyNoState -ProductSlug 'fixture' -RequestedAction 'ship'
 
-          foreach ($fixture in @($ready, $submitted, $published, $legacy)) {
-            Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction 'ship'
-          }
-
-          foreach ($fixture in @($blocked, $testing, $hardware, $rejected)) {
+          foreach ($fixture in @($blocked, $legacyBlocked, $testing, $published)) {
             $threw = $false
             try {
               Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction 'ship'
@@ -180,10 +167,10 @@ jobs:
             catch {
               $threw = $true
               if ($_.Exception.Message -notmatch 'READY_TO_SHIP') {
-                throw "Pre-release guard error did not name READY_TO_SHIP: $($_.Exception.Message)"
+                throw "Non-ready release error did not name READY_TO_SHIP: $($_.Exception.Message)"
               }
             }
-            if (-not $threw) { throw "Pre-release fixture '$($fixture.workflow_state)' did not fail closed." }
+            if (-not $threw) { throw "Non-ready fixture '$($fixture.workflow_state)' did not fail closed." }
           }
 
           $schema = Get-Content 'schemas/product-workflow-state.schema.json' -Raw | ConvertFrom-Json
@@ -204,8 +191,8 @@ jobs:
           if ($routerRaw -match 'throw\s+"Rat \$Action finished with') {
             throw 'Rat Marketplace still converts an expected queue stop into an unhandled exception stack trace.'
           }
-          if ($routerRaw -notmatch 'stopped at the release gate' -or $routerRaw -notmatch '(?m)^\s*exit 1\s*$') {
-            throw 'Rat Marketplace pre-release guard must report a controlled release-gate stop and return nonzero.'
+          if ($routerRaw -notmatch 'Rat \$Action stopped for blocked product' -or $routerRaw -notmatch '(?m)^\s*exit 1\s*$') {
+            throw 'Rat Marketplace blocked-release UX must report a blocked stop and return nonzero without an exception stack trace.'
           }
 
           Write-Host 'RELEASE STATE GUARD PASS'

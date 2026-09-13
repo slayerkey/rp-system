@@ -70,29 +70,38 @@ function Assert-ProductReleaseState {
         [string]$RequestedAction
     )
 
-    # Kit/stage are non-public preparation. Ship/submit can advance into authenticated
-    # Marketplace submission, so canonical workflow-aware products must have completed
-    # their final release gate first. Legacy products without workflow_state keep the
-    # historical path until they are migrated.
+    # Non-public preparation remains available in every workflow state. Rat Ship and
+    # Rat Submit cross the public Marketplace boundary, so an explicitly stateful
+    # product must be READY_TO_SHIP. Legacy products with no workflow_state keep the
+    # pre-state-machine behavior until they are migrated.
     if ($RequestedAction -notin @("ship", "submit")) { return }
 
     $state = if ($null -ne $Product.workflow_state) { ([string]$Product.workflow_state).Trim() } else { "" }
     if ([string]::IsNullOrWhiteSpace($state)) { return }
+    if ($state.Equals("READY_TO_SHIP", [System.StringComparison]::OrdinalIgnoreCase)) { return }
 
-    $allowed = @("READY_TO_SHIP", "SUBMITTED", "PUBLISHED")
-    if ($state.ToUpperInvariant() -in $allowed) { return }
-
+    $isBlocked = $state.Equals("BLOCKED", [System.StringComparison]::OrdinalIgnoreCase) -or
+        $state.StartsWith("BLOCKED_", [System.StringComparison]::OrdinalIgnoreCase)
     $blocker = if ($null -ne $Product.blocker) { ([string]$Product.blocker).Trim() } else { "" }
     $boundary = if ($null -ne $Product.final_boundary) { ([string]$Product.final_boundary).Trim() } else { "" }
 
-    $message = "Product '$ProductSlug' is marked '$state' on canonical main. Rat $RequestedAction will not submit a release that has not completed the READY_TO_SHIP gate."
-    if ($blocker) {
-        $message += " Blocker: $blocker."
+    if ($isBlocked) {
+        $message = "Product '$ProductSlug' is marked '$state' on canonical main. Rat $RequestedAction will not submit a blocked release to Marketplace."
+        if ($blocker) {
+            $message += " Blocker: $blocker."
+        }
+        elseif ($boundary) {
+            $message += " Required boundary: $boundary."
+        }
+        $message += " Resolve the blocker and move products/$ProductSlug.json to READY_TO_SHIP before shipping. You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
+        throw $message
     }
-    elseif ($boundary) {
-        $message += " Required boundary: $boundary."
+
+    $message = "Product '$ProductSlug' is marked '$state' on canonical main. Rat $RequestedAction only submits products explicitly marked READY_TO_SHIP."
+    if ($boundary) {
+        $message += " Remaining boundary: $boundary."
     }
-    $message += " Finish the release gate and move products/$ProductSlug.json to READY_TO_SHIP before shipping. You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
+    $message += " Finish the release gate and move products/$ProductSlug.json to READY_TO_SHIP before public submission. You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
     throw $message
 }
 
@@ -224,15 +233,15 @@ for ($i = 0; $i -lt $queue.Count; $i++) {
     }
     catch {
         $message = $_.Exception.Message
-        $isReleaseGateStop = $message -match "^Product '.+' is marked '.+' on canonical main\. Rat (ship|submit) will not submit a release that has not completed the READY_TO_SHIP gate\."
+        $isBlockedStop = $message -match "^Product '.+' is marked 'BLOCKED(?:_[^']*)?' on canonical main\."
         $failures += [PSCustomObject]@{
             Slug = $item
             Message = $message
-            Kind = if ($isReleaseGateStop) { "BLOCKED" } else { "FAILED" }
+            Kind = if ($isBlockedStop) { "BLOCKED" } else { "FAILED" }
         }
 
-        if ($isReleaseGateStop) {
-            Write-Host "Rat $Action stopped at the release gate for '$item'. Continuing the remaining queue." -ForegroundColor Yellow
+        if ($isBlockedStop) {
+            Write-Host "Rat $Action stopped for blocked product '$item'. Continuing the remaining queue." -ForegroundColor Yellow
             Write-Host $message -ForegroundColor Yellow
         }
         else {
