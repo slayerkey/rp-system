@@ -3,16 +3,16 @@
   "updated_at": "2026-09-13",
   "ready": false,
   "blockers": {
-    "recovery_before_hook_startup": false,
-    "release_inputs_before_clearing_recovery_journal": false,
-    "held_input_journal_write_fails_closed": false,
+    "recovery_before_hook_startup": true,
+    "release_inputs_before_clearing_recovery_journal": true,
+    "held_input_journal_write_fails_closed": true,
     "pro_records_single_idle_gap_over_60_seconds": false,
-    "exact_keyboard_release_descriptor_for_cleanup": false,
+    "exact_keyboard_release_descriptor_for_cleanup": true,
     "emergency_hotkey_only_intercepts_during_playback": false,
-    "helper_exits_when_plugin_parent_dies": false,
-    "single_active_input_session_across_lite_and_pro": false,
-    "shared_recovery_journal_requires_family_mutex_ownership": false,
-    "sendinput_failures_abort_and_preserve_recovery_state": false
+    "helper_exits_when_plugin_parent_dies": true,
+    "single_active_input_session_across_lite_and_pro": true,
+    "shared_recovery_journal_requires_family_mutex_ownership": true,
+    "sendinput_failures_abort_and_preserve_recovery_state": true
   },
   "required_smoke": [
     "modifier and Windows-key down/up",
@@ -57,16 +57,55 @@
     ]
   },
   "automated_evidence": {
-    "run_id": 34777832830,
-    "head_sha": "b91ed6e14e5b90ed97af2bed69b0dc0c39a7860f",
+    "run_id": 34785444355,
+    "head_sha": "db4cc5fa303053d86e494ff0f5dfb512e58942bf",
+    "artifact_id": 10326203717,
+    "artifact_digest": "sha256:31a31b789eea3434b2ac1c5dc4bedd8041f42ef38c847bba068c7f6c10ab506c",
+    "lite_package_sha256": "56B6ACFA71052524836836A36EA52FBE91675FCDD258D8127193688F649B0659",
+    "pro_package_sha256": "237322B589D9D469DE294CDD24344D8A555872159A812EA4BCC00D19C1E10125",
     "source_contract": "PASS",
     "windows_release": "PASS",
-    "artifact_id": 10323523216,
-    "artifact_digest": "sha256:350e2ff485add52a6591be0cf86ac14ef3755d65adc0bcc234647acbf864adf1",
-    "lite_package_sha256": "75F8ABD1829E72866B98D5FDC22DC9B5F65E1EBE5283D312D8F2A333C3D63965",
-    "pro_package_sha256": "29DE0D65292ED42785BA5BB5EDEDD9577B2B07E2694B0DA997F6318FFF429051",
-    "lite_tests": "19/19",
-    "pro_tests": "37/37",
-    "native_source_hash": "4d76365103b5"
-  }
+    "native_integration": "PASS"
+  },
+  "automated_acceptance": {
+    "run_id": 34785444355,
+    "tests": [
+      "recovery occurs before forced hook-start failure",
+      "only one family input session can be active",
+      "idle sibling helper leaves live journal untouched and next owner recovers it",
+      "journal write failure aborts before held-input injection",
+      "SendInput release failure preserves exact VK/scan/extended recovery state until next helper recovers",
+      "helper exits when configured parent process dies"
+    ],
+    "closed_blockers": [
+      "recovery_before_hook_startup",
+      "release_inputs_before_clearing_recovery_journal",
+      "held_input_journal_write_fails_closed",
+      "exact_keyboard_release_descriptor_for_cleanup",
+      "helper_exits_when_plugin_parent_dies",
+      "single_active_input_session_across_lite_and_pro",
+      "shared_recovery_journal_requires_family_mutex_ownership",
+      "sendinput_failures_abort_and_preserve_recovery_state"
+    ]
+  },
+  "remaining_native_blockers": [
+    "pro_records_single_idle_gap_over_60_seconds",
+    "emergency_hotkey_only_intercepts_during_playback"
+  ],
+  "remaining_manual_smoke": [
+    "real keyboard modifier and Windows-key down/up on target host",
+    "Stop action interruption from physical Stream Deck",
+    "Ctrl+Shift+F12 during playback using real non-injected keyboard input",
+    "Ctrl+Shift+F12 passes through normally while helper is idle",
+    "Ctrl+Shift+F12 does not corrupt an active recording when no playback is running",
+    "mouse click/drag/vertical wheel/horizontal wheel on target host",
+    "two-monitor virtual-desktop coordinates including negative coordinates",
+    "100/125/150 percent DPI",
+    "active-window-relative playback",
+    "single recorded idle gap over 60 seconds using real input",
+    "10-minute Pro recording boundary",
+    "Stream Deck restart persistence",
+    "count/while-held/toggle loop cancellation from physical deck",
+    "higher-integrity target clean failure on target host"
+  ]
 }
