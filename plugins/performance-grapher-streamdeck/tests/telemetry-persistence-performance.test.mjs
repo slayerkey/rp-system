@@ -387,3 +387,52 @@ test("hardware retry delay backs off and resets after provider recovery", () => 
   telemetry._consumeHardwareLine(JSON.stringify({ type: "catalog", sensors: [] }));
   assert.equal(telemetry.hardwareBackoffMs, 5000);
 });
+
+
+test("canonical GPU aliases follow the active adapter with hysteresis", () => {
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "multi-gpu"),
+    persistPath: resolve(tmpdir(), "packrat-multi-gpu.json"),
+    presentMonProvider: fakeProvider(),
+  });
+
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "catalog",
+    sensors: [
+      { id: "igpu.load", name: "GPU Core", sensorType: "Load", hardwareType: "GpuIntel", hardwareName: "Intel Graphics", hardwareId: "/gpu-intel/0", unit: "%" },
+      { id: "igpu.temp", name: "GPU Core", sensorType: "Temperature", hardwareType: "GpuIntel", hardwareName: "Intel Graphics", hardwareId: "/gpu-intel/0", unit: "°C" },
+      { id: "dgpu.load", name: "GPU Core", sensorType: "Load", hardwareType: "GpuNvidia", hardwareName: "RTX GPU", hardwareId: "/gpu-nvidia/0", unit: "%" },
+      { id: "dgpu.temp", name: "GPU Core", sensorType: "Temperature", hardwareType: "GpuNvidia", hardwareName: "RTX GPU", hardwareId: "/gpu-nvidia/0", unit: "°C" },
+    ],
+  }));
+
+  const at = Date.now();
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "sample",
+    at,
+    foregroundProcess: "game.exe",
+    values: { "igpu.load": 12, "igpu.temp": 51, "dgpu.load": 94, "dgpu.temp": 74 },
+  }));
+  assert.equal(telemetry.metricValue("gpu.load"), 94);
+  assert.equal(telemetry.metricValue("gpu.temperature"), 74);
+  assert.equal(telemetry.metricDescriptor("gpu.load").hardwareName, "RTX GPU");
+
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "sample",
+    at: at + 1000,
+    foregroundProcess: "game.exe",
+    values: { "igpu.load": 48, "igpu.temp": 59, "dgpu.load": 52, "dgpu.temp": 72 },
+  }));
+  assert.equal(telemetry.metricValue("gpu.load"), 52, "small utilization differences must not flap adapters");
+  assert.equal(telemetry.metricDescriptor("gpu.load").hardwareName, "RTX GPU");
+
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "sample",
+    at: at + 2000,
+    foregroundProcess: "desktop.exe",
+    values: { "igpu.load": 65, "igpu.temp": 63, "dgpu.load": 20, "dgpu.temp": 60 },
+  }));
+  assert.equal(telemetry.metricValue("gpu.load"), 65);
+  assert.equal(telemetry.metricValue("gpu.temperature"), 63);
+  assert.equal(telemetry.metricDescriptor("gpu.load").hardwareName, "Intel Graphics");
+});
