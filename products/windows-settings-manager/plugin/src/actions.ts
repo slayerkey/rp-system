@@ -79,6 +79,8 @@ class HdrBase extends LiveTitleAction<HdrSettings> {
     const snapshot = runtime.state.getSnapshot();
     if (!snapshot.hdr.available || snapshot.hdr.supportedCount === 0) return ev.action.showAlert();
     const operation = ev.payload.settings?.operation ?? "toggle";
+    if (operation === "toggle" && snapshot.hdr.errors.length > 0) return ev.action.showAlert();
+
     const currentOn = !snapshot.hdr.mixed && snapshot.hdr.enabledCount === snapshot.hdr.supportedCount;
     const enabled = operation === "on" ? true : operation === "off" ? false : !currentOn;
     const reply = await runtime.state.execute<any>("setHdr", { enabled });
