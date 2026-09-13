@@ -98,7 +98,7 @@ export class BoundedHistory {
   }
 
   toJSON() {
-    const archive = this.archive.slice();
+    const archive = this.archive.map(([at, value]) => [at, value]);
     if (this.pending) {
       const p = this.pending;
       const value = this.archiveMode === "min" ? p.min : this.archiveMode === "last" ? p.last : p.max;
