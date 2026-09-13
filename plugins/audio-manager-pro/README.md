@@ -27,7 +27,7 @@ Each profile can independently configure:
 
 For Audio Manager Pro, the user-facing **Default** role means Windows Console + Multimedia together. Applying a Default role sets both underlying Windows roles, and Status requires both to still match before reporting the profile ACTIVE.
 
-A missing or recreated endpoint is never replaced by a friendly-name guess. Profiles store endpoint ID plus Windows device-instance and hardware-container metadata. Safe matches can rebind automatically; weak name-only matches require an explicit user rebind.
+A missing or recreated endpoint is never replaced by a friendly-name guess. Profiles store endpoint identity plus hardware-container metadata. Automatic rebind is allowed only when the saved hardware Container ID and normalized endpoint name identify exactly one active endpoint; weak name-only matches require an explicit user rebind.
 
 Applying a profile reports one of three outcomes: SUCCESS, PARTIAL, or FAILED. If two configured roles target the same physical endpoint but request contradictory saved volume or mute state, routing can still apply but the contradictory state restore is skipped and reported instead of arbitrarily choosing a winner.
 
@@ -39,7 +39,7 @@ Both Audio Manager Pro and the existing XENEON Audio Control Center consume the 
 
 `companions/packrat-audio-core/src/PackRat.AudioCore/`
 
-That library owns MMDevice enumeration, endpoint volume/mute, role-aware default-device switching, friendly names, device instance IDs, and hardware container IDs.
+That library owns MMDevice enumeration, endpoint volume/mute, role-aware default-device switching, friendly names, diagnostic device-instance metadata, and hardware container IDs.
 
 Audio Control Center keeps its original behavior by using a thin adapter that sets Default and Communications roles together. Audio Manager Pro exposes the roles separately.
 
