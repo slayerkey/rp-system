@@ -5,6 +5,7 @@ import { cpus, freemem, homedir, totalmem } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { BoundedHistory } from "./history.js";
 import { PresentMonProvider } from "./presentmon.js";
 import { SessionTracker } from "./session.js";
@@ -87,7 +88,12 @@ export class TelemetryService extends EventEmitter {
       fps: { state: "starting", detail: null },
     };
 
-    const presentMonPath = resolve(this.pluginRoot, "third_party", "presentmon", "PresentMon.exe");
+    let presentMonExecutable = "PresentMon.exe";
+    try {
+      const provider = JSON.parse(readFileSync(resolve(this.pluginRoot, "third_party", "presentmon", "provider.json"), "utf8"));
+      if (provider?.executable) presentMonExecutable = String(provider.executable);
+    } catch {}
+    const presentMonPath = resolve(this.pluginRoot, "third_party", "presentmon", presentMonExecutable);
     this.presentMon = new PresentMonProvider({ executable: presentMonPath, log });
     this.presentMon.on("frame", (frame) => {
       const metrics = Object.fromEntries(this.values);
