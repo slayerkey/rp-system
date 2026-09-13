@@ -123,7 +123,15 @@ Final physical QA must cover:
 - partially failed profile
 - mute/volume restore
 - Stream Deck restart
+- Windows sleep/wake with Audio Manager actions visible, then verify key presses, dial events, Property Inspector messages, and live state updates still arrive
 - long/Unicode device names
 - Stream Deck + dial
 
 Use `REAL_WINDOWS_SMOKE.md` as the canonical checklist. After it passes, record the real-hardware evidence in `DEMO_VIDEO.md` before Marketplace submission when the live review flow requires a demonstration video.
+
+
+## Elgato SDK sleep/wake caveat
+
+As of September 2026, Elgato's public SDK repository has an open report where action- and Property Inspector-scoped events can intermittently stop being delivered after Windows sleep/wake even though the plugin process and registration socket still appear healthy. Audio Manager Pro refreshes its Windows audio snapshot on wake, but there is no documented SDK liveness signal that can prove action-event routing survived.
+
+Do not add the issue reporter's exit-on-wake workaround unless physical QA reproduces the problem and PackRat explicitly accepts the undocumented Stream Deck respawn dependency. Treat sleep/wake event delivery as a physical release check.
