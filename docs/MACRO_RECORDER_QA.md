@@ -46,3 +46,18 @@ The release workflow must pass on Windows:
 Automated QA can establish build, package, profile and deterministic engine invariants. It cannot honestly prove low-level hook behavior, DPI behavior or physical Stream Deck interruption on a hosted CI desktop.
 
 Do not call the family READY_TO_SHIP until the final Windows host + physical Stream Deck matrix is completed against the exact packaged artifacts produced by the passing workflow.
+
+
+## Current hosted-runner infrastructure blocker
+
+As of 2026-09-12, the Macro Recorder workflow is being created by GitHub Actions but is not receiving a hosted runner. The observed job has `runner_id: 0`, a blank runner name, zero steps, and zero billable Windows runner milliseconds. Other unrelated repository workflows show the same no-runner symptom.
+
+This is not evidence that Macro Recorder tests failed. No test process started.
+
+Until hosted runners are available again, run the equivalent local automated gate on Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1
+```
+
+The product remains TESTING until either that local automated gate or the canonical hosted workflow completes successfully, followed by the real Windows / physical Stream Deck smoke matrix.
