@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "testing",
   "workflow_state": "TESTING",
-  "blocker": "GitHub Actions currently fails before runner allocation (latest current-head job exposes steps=null). Current head still needs Windows .NET build/helper smoke, XENEON shared-core regression build, official Elgato validate/package, and final physical Windows audio-device / Stream Deck+ QA.",
+  "blocker": "Automated Windows release CI is green. Remaining gate is physical target-machine validation: rat dev + read-only rat audit, USB/Bluetooth/multi-mic profile switching, Stream Deck+ controls, restart/reboot/sleep-wake recovery, and real-hardware Marketplace demo evidence when required.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -24,30 +24,28 @@
     "Stream Deck sleep/wake action and Property Inspector event smoke",
     "read-only Audio Manager host audit on exact Rat Dev candidate"
   ],
-  "final_boundary": "Official current-head Elgato validate/package, physical USB/Bluetooth/reboot/endpoint-recreation/role separation and Stream Deck+ validation, plus real-hardware Marketplace demo evidence when required.",
+  "final_boundary": "Automated build/test/helper/Elgato validate/package/Rat Art gates PASS. Physical target-machine Audio Manager behavior and Stream Deck hardware validation remain before READY_TO_SHIP.",
   "automated_release_evidence": {
-    "last_executing_windows_run": 34739703004,
-    "passed_before_caught_defect": [
-      "shared PackRat AudioCore build",
+    "latest_successful_windows_run": 34770048489,
+    "automated_gate": "PASS",
+    "passed": [
+      "shared PackRat AudioCore Windows .NET build",
       "XENEON Audio Control Center bridge regression build",
-      "locked dependency install",
+      "locked npm install",
       "high-severity npm audit",
-      "profile/device fixture tests",
-      "win-x64 helper publish",
-      "Windows helper self-test"
+      "full npm test suite",
+      "self-contained win-x64 helper publish",
+      "Audio Manager static host audit on Windows PowerShell",
+      "native helper self-test",
+      "real Windows Core Audio snapshot protocol smoke",
+      "rejected-command request-correlation smoke",
+      "official Stream Deck CLI validation",
+      "official .streamDeckPlugin packaging",
+      "packaged native helper verification",
+      "deterministic Marketplace media generation",
+      "release QA artifact upload"
     ],
-    "caught_defect": "Stream Deck+ dial syntax error, fixed in cd084c68e1bc8527322a27cc256ac3672144bd5f",
-    "current_pure_suite": "Exact current GitHub source/test files execute 42/42 passing in the available JavaScript harness.",
-    "current_static_checks": [
-      "plugin.js syntax",
-      "audio-helper.js transformed module syntax",
-      "Property Inspector syntax",
-      "manifest/product/submission price and version consistency",
-      "conservative endpoint ID -> Container ID + endpoint name -> explicit rebind policy",
-      "post-operation snapshot verification for profiles/direct actions/dial state",
-      "read-only host-audit source contains snapshot-only helper access and balanced structure"
-    ],
-    "latest_runner_blocked_run": 34767167852,
-    "current_runner_state": "Latest current-head job fails before checkout/setup; GitHub reports steps=null and provides no job log."
+    "pure_suite": "Exact current GitHub source/test files execute 42/42 passing in the available JavaScript harness.",
+    "historical_runner_note": "Earlier runs failed before runner allocation with steps=null. Run 34770048489 later completed normally and passed every automated gate."
   }
 }
