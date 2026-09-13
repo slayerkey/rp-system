@@ -4,7 +4,7 @@ import { createInterface } from "node:readline";
 import { cpus, freemem, homedir, totalmem } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { BoundedHistory } from "./history.js";
 import { PresentMonProvider } from "./presentmon.js";
@@ -415,7 +415,14 @@ export class TelemetryService extends EventEmitter {
         lastCompleted: this.session.snapshot().lastCompleted,
       };
       await mkdir(dirname(this.persistPath), { recursive: true });
-      await writeFile(this.persistPath, JSON.stringify(payload), "utf8");
+      const temporary = this.persistPath + ".tmp";
+      await writeFile(temporary, JSON.stringify(payload), "utf8");
+      try {
+        await rename(temporary, this.persistPath);
+      } catch (error) {
+        await rm(temporary, { force: true }).catch(() => {});
+        throw error;
+      }
     } catch (error) {
       this.log("Persistence write failed: " + (error?.message || error));
     }
