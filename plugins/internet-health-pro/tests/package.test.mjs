@@ -74,3 +74,11 @@ test("property inspector re-requests live state instead of staying on startup te
   assert.match(inspectorSource, /setInterval\(requestState, 1500\)/);
   assert.match(inspectorSource, /setTimeout\(requestState, 250\)/);
 });
+
+
+test("physical key graphs use a dedicated 30 second visual window", () => {
+  assert.match(renderSource, /const KEY_GRAPH_SECONDS = 30/);
+  assert.match(renderSource, /const windowMs = seconds \* 1000/);
+  assert.match(renderSource, /graphPath\(samples, KEY_GRAPH_SECONDS, 116, 32, 14, 94\)/);
+  assert.doesNotMatch(renderSource, /graphPath\(samples, minutes/);
+});
