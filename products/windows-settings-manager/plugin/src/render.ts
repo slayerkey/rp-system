@@ -27,11 +27,13 @@ export function topologyTitle(snapshot: SystemSnapshot): string {
 }
 
 export function timeoutTitle(snapshot: SystemSnapshot): string {
+  if (!snapshot.backendOnline) return "TIMEOUT\nOFFLINE";
   if (!snapshot.timeout) return "TIMEOUT\nN/A";
   return `SCREEN\n${duration(snapshot.timeout.monitorAcSeconds)}`;
 }
 
 export function awakeTitle(snapshot: SystemSnapshot): string {
+  if (!snapshot.backendOnline) return "AWAKE\nOFFLINE";
   return snapshot.keepAwake ? "AWAKE\nON" : "AWAKE\nOFF";
 }
 
