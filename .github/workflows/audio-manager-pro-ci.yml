@@ -28,6 +28,10 @@ jobs:
         working-directory: plugins/audio-manager-pro
       - run: npm test
         working-directory: plugins/audio-manager-pro
+      - name: Validate canonical plugin release metadata
+        run: python tests/check_plugin_release_metadata.py
+      - name: Audit canonical Lite to Pro catalog relationships
+        run: python tools/lite_pro_audit.py
       - name: Verify Rat Ship blocks pre-hardware product state
         shell: pwsh
         run: |
