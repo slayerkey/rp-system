@@ -28,10 +28,10 @@ export type Device = RawDevice & {
 };
 
 export function stableId(raw: RawDevice): string {
-  const container = raw.containerId?.trim().toLowerCase();
-  if (container) return `container:${container}`;
   const address = raw.address?.replace(/[^a-fA-F0-9]/g, "").toLowerCase();
   if (address) return `bt:${address}`;
+  const container = raw.containerId?.trim().toLowerCase();
+  if (container) return `container:${container}`;
   return `id:${raw.id.toLowerCase()}`;
 }
 
@@ -108,7 +108,7 @@ export class DeviceCatalog {
 export function batteryLabel(device: Device | null): string {
   if (!device) return "SELECT\nDEVICE";
   if (!device.capabilities.BATTERY) return "BATTERY\nN/A";
-  return `${device.batteryPercent}%\nBATTERY`;
+  return `${device.batteryPercent}%\n${device.charging === true ? "CHARGING" : "BATTERY"}`;
 }
 
 export function statusLabel(device: Device | null): string {
