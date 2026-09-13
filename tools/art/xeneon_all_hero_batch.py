@@ -105,7 +105,13 @@ def safe_logo() -> Image.Image:
     return out
 
 
-def monitor(img: Image.Image, line1: str, line2: str) -> None:
+def monitor(
+    img: Image.Image,
+    line1: str,
+    line2: str,
+    *,
+    platform_subtitle: str | None = None,
+) -> None:
     x1, y1, x2, y2 = MON
     width = x2 - x1
     height = y2 - y1
@@ -130,7 +136,8 @@ def monitor(img: Image.Image, line1: str, line2: str) -> None:
 
     f1 = fit(draw, line1, int(width * 0.84), 116, 50)
     f2 = fit(draw, line2, int(width * 0.88), 126, 48)
-    fs = fit(draw, PLATFORM_SUBTITLE, int(width * 0.58), 46, 29)
+    subtitle = PLATFORM_SUBTITLE if platform_subtitle is None else platform_subtitle
+    fs = fit(draw, subtitle, int(width * 0.58), 46, 29)
 
     def center(text: str, font, center_y: float, color: tuple[int, int, int]) -> None:
         if not text:
@@ -149,10 +156,10 @@ def monitor(img: Image.Image, line1: str, line2: str) -> None:
     if line1:
         center(line1, f1, height * 0.10, WHITE)
         center(line2, f2, height * 0.31, ORANGE)
-        center(PLATFORM_SUBTITLE, fs, height * 0.49, WHITE)
+        center(subtitle, fs, height * 0.49, WHITE)
     else:
         center(line2, f2, height * 0.22, ORANGE)
-        center(PLATFORM_SUBTITLE, fs, height * 0.48, WHITE)
+        center(subtitle, fs, height * 0.48, WHITE)
 
     img.alpha_composite(panel, (x1, y1))
 
