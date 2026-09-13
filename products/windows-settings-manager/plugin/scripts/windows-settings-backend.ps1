@@ -88,6 +88,23 @@ public static class PackRatWindowsNative
         public uint id;
     }
 
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct RtlOsVersionInfoEx
+    {
+        public uint dwOSVersionInfoSize;
+        public uint dwMajorVersion;
+        public uint dwMinorVersion;
+        public uint dwBuildNumber;
+        public uint dwPlatformId;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string szCSDVersion;
+        public ushort wServicePackMajor;
+        public ushort wServicePackMinor;
+        public ushort wSuiteMask;
+        public byte wProductType;
+        public byte wReserved;
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     private struct AdvancedColorInfo
     {
@@ -136,6 +153,47 @@ public static class PackRatWindowsNative
         public string status { get; set; } = "FAILED";
         public string error { get; set; }
         public HdrSummary state { get; set; }
+    }
+
+    [DllImport("ntdll.dll", CharSet = CharSet.Unicode)]
+    private static extern int RtlGetVersion(ref RtlOsVersionInfoEx versionInfo);
+
+    private static readonly int RuntimeWindowsBuild = ReadWindowsBuild();
+
+    static PackRatWindowsNative()
+    {
+        AssertSize(typeof(DeviceInfoHeader), 20, "DISPLAYCONFIG_DEVICE_INFO_HEADER");
+        AssertSize(typeof(AdvancedColorInfo), 32, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO");
+        AssertSize(typeof(AdvancedColorSet), 24, "DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE");
+        AssertSize(typeof(AdvancedColorInfo2), 36, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2");
+        AssertSize(typeof(HdrSet), 24, "DISPLAYCONFIG_SET_HDR_STATE");
+    }
+
+    private static void AssertSize(Type type, int expected, string name)
+    {
+        int actual = Marshal.SizeOf(type);
+        if (actual != expected)
+            throw new TypeLoadException(name + " layout mismatch: " + actual + " bytes; expected " + expected + ".");
+    }
+
+    private static int ReadWindowsBuild()
+    {
+        var info = new RtlOsVersionInfoEx();
+        info.dwOSVersionInfoSize = (uint)Marshal.SizeOf(typeof(RtlOsVersionInfoEx));
+        int status = RtlGetVersion(ref info);
+        if (status != 0)
+            throw new InvalidOperationException("RtlGetVersion failed: " + status);
+        return checked((int)info.dwBuildNumber);
+    }
+
+    public static int GetWindowsBuild()
+    {
+        return RuntimeWindowsBuild;
+    }
+
+    private static bool SupportsSeparatedHdrApi()
+    {
+        return RuntimeWindowsBuild >= 26100;
     }
 
     [DllImport("user32.dll")]
@@ -274,11 +332,13 @@ public static class PackRatWindowsNative
             error = "GET_ADVANCED_COLOR_INFO_2 failed: " + rc;
             return false;
         }
-        supported = (info.flags & (1u << 4)) != 0;
+        bool limitedByPolicy = (info.flags & (1u << 3)) != 0;
+        bool hdrSupported = (info.flags & (1u << 4)) != 0;
         // activeColorMode is the truthful current output mode. The separate
         // highDynamicRangeUserEnabled bit can remain set even when HDR is not
         // actually active, so it must not be rendered as live HDR state.
         enabled = info.activeColorMode == 2;
+        supported = enabled || (hdrSupported && !limitedByPolicy);
         error = null;
         return true;
     }
@@ -326,21 +386,18 @@ public static class PackRatWindowsNative
             bool enabled;
             string error;
 
-            // Prefer the HDR-specific packet introduced with Windows 11 24H2.
-            // Feature-detect it instead of trusting an OS build string. Older
-            // Windows versions reject the packet, then we use the guarded legacy
-            // Advanced Color path below.
-            bool got = TryReadNewHdr(path.targetInfo, out supported, out enabled, out error);
-            if (got)
+            bool got;
+            if (SupportsSeparatedHdrApi())
             {
-                usedNew = true;
+                got = TryReadNewHdr(path.targetInfo, out supported, out enabled, out error);
+                if (got) usedNew = true;
+                else if (!String.IsNullOrWhiteSpace(error)) errors.Add(error);
             }
             else
             {
-                string newError = error;
                 got = TryReadLegacyHdr(path.targetInfo, out supported, out enabled, out error);
                 if (got) usedLegacy = true;
-                else if (!String.IsNullOrWhiteSpace(error ?? newError)) errors.Add(error ?? newError);
+                else if (!String.IsNullOrWhiteSpace(error)) errors.Add(error);
             }
 
             if (!got || !supported) continue;
@@ -390,11 +447,12 @@ public static class PackRatWindowsNative
 
     private static bool SetHdrForTarget(PathTargetInfo target, bool enabled)
     {
-        bool supported;
-        bool current;
-        string error;
-        if (TryReadNewHdr(target, out supported, out current, out error))
+        if (SupportsSeparatedHdrApi())
         {
+            bool supported;
+            bool current;
+            string error;
+            if (!TryReadNewHdr(target, out supported, out current, out error)) return false;
             if (!supported) return false;
 
             var packet = new HdrSet();
@@ -434,9 +492,9 @@ public static class PackRatWindowsNative
             bool isSupported;
             bool current;
             string error;
-            bool readable = TryReadNewHdr(path.targetInfo, out isSupported, out current, out error);
-            if (!readable)
-                readable = TryReadLegacyHdr(path.targetInfo, out isSupported, out current, out error);
+            bool readable = SupportsSeparatedHdrApi()
+                ? TryReadNewHdr(path.targetInfo, out isSupported, out current, out error)
+                : TryReadLegacyHdr(path.targetInfo, out isSupported, out current, out error);
 
             if (!readable || !isSupported) continue;
             supported++;
@@ -585,7 +643,7 @@ function Get-Snapshot {
     [pscustomobject]@{
         backendOnline = $true
         capturedAt = [DateTimeOffset]::UtcNow.ToString("o")
-        osBuild = [Environment]::OSVersion.Version.Build
+        osBuild = [PackRatWindowsNative]::GetWindowsBuild()
         hdr = $hdr
         topology = $topology
         powerPlanGuid = $(if ($power) { $power.guid } else { $null })
