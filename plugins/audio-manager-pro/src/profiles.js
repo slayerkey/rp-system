@@ -101,6 +101,7 @@ export function buildApplyPlan(profileInput, snapshot) {
   const operations = [];
   const failures = [];
   const seenState = new Map();
+  const blockedState = new Set();
 
   if (!profile) {
     return { profile: null, operations, failures: [{ slot: "profile", error: "Invalid Audio Profile." }] };
@@ -144,8 +145,14 @@ export function buildApplyPlan(profileInput, snapshot) {
         };
         const key = conflictKey(operation);
         const prior = seenState.get(key);
-        if (prior && prior.value !== operation.value) {
-          failures.push({ slot: def.key, error: `Conflicting saved volumes target ${endpoint.name}.` });
+        if (blockedState.has(key)) {
+          // A contradictory state for this endpoint was already found. Apply neither value.
+        } else if (prior && prior.value !== operation.value) {
+          const priorIndex = operations.indexOf(prior);
+          if (priorIndex >= 0) operations.splice(priorIndex, 1);
+          seenState.delete(key);
+          blockedState.add(key);
+          failures.push({ slot: def.key, error: `Conflicting saved volumes target ${endpoint.name}; volume restore was skipped.` });
         } else if (!prior) {
           seenState.set(key, operation);
           operations.push(operation);
@@ -166,8 +173,14 @@ export function buildApplyPlan(profileInput, snapshot) {
         };
         const key = conflictKey(operation);
         const prior = seenState.get(key);
-        if (prior && prior.value !== operation.value) {
-          failures.push({ slot: def.key, error: `Conflicting saved mute states target ${endpoint.name}.` });
+        if (blockedState.has(key)) {
+          // A contradictory state for this endpoint was already found. Apply neither value.
+        } else if (prior && prior.value !== operation.value) {
+          const priorIndex = operations.indexOf(prior);
+          if (priorIndex >= 0) operations.splice(priorIndex, 1);
+          seenState.delete(key);
+          blockedState.add(key);
+          failures.push({ slot: def.key, error: `Conflicting saved mute states target ${endpoint.name}; mute restore was skipped.` });
         } else if (!prior) {
           seenState.set(key, operation);
           operations.push(operation);
