@@ -56,15 +56,18 @@ export type GlobalSettings = {
   modes: ModeDefinition[];
 };
 
+export type ApplyStatus = "COMPLETE" | "PARTIAL" | "FAILED";
+
 export type ApplyStep = {
   key: keyof ModeSettings;
   label: string;
+  status: ApplyStatus;
   ok: boolean;
   error?: string;
 };
 
 export type ApplyResult = {
-  status: "COMPLETE" | "PARTIAL" | "FAILED";
+  status: ApplyStatus;
   modeId: string;
   modeName: string;
   steps: ApplyStep[];
