@@ -52,3 +52,20 @@ test("Game FPS shows a clear idle state when telemetry is ready but no game is a
   const svg = decodeURIComponent(renderKey(view, {}, 144));
   assert.match(svg, /START A GAME/);
 });
+
+
+test("long process and secondary labels are bounded on key", () => {
+  const image = renderKey({
+    label: "ExtremelyLongGameExecutableName",
+    value: 144,
+    unit: "FPS",
+    secondary: "An Extremely Long Session Context Label",
+    points: [],
+    state: "ready",
+  }, {}, 72);
+  const svg = decodeURIComponent(image);
+
+  assert.ok(svg.includes("EXTREMELYLONGGAM…"));
+  assert.ok(svg.includes("AN EXTREMELY LONG SE…"));
+  assert.ok(!svg.includes("EXTREMELYLONGGAMEEXECUTABLENAME"));
+});
