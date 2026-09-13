@@ -101,7 +101,6 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   assert.match(backend, /AssertSize\(typeof\(HdrSet\), 24/);
   assert.match(backend, /enabled = info\.activeColorMode == 2;/);
   assert.match(backend, /supported = enabled \|\| \(hdrSupported && !limitedByPolicy\);/);
-  assert.match(backend, /supported = enabled \|\| \(hdrSupported && !limitedByPolicy\);/);
   assert.doesNotMatch(backend, /activeColorMode == 2 \|\|/);
   assert.doesNotMatch(backend, /SET_ADVANCED_COLOR_STATE/);
   assert.doesNotMatch(backend, /TryReadLegacyHdr/);
@@ -110,7 +109,7 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   assert.match(backend, /sourceKeys\.Count == paths\.Length/);
   assert.match(backend, /mixed clone \+ extend graph/i);
   assert.match(backend, /WaitForNewHdrState/);
-  assert.match(backend, /WaitForLegacyHdrState/);
+  assert.doesNotMatch(backend, /WaitForLegacyHdrState/);
   assert.match(backend, /attempt < 12/);
 });
 
@@ -120,6 +119,15 @@ test("individual set actions fall back to the live value shown by the inspector"
   assert.match(actions, /guid = snapshot\.powerPlanGuid/);
   assert.match(actions, /values\.includes\(current/);
   assert.match(inspector, /context\.snapshot\?\.topology/);
+});
+
+test("HDR mode matching requires a genuinely controllable HDR display", async () => {
+  const source = await readFile(path.resolve("src", "modes.ts"), "utf8");
+  const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
+  assert.match(source, /snapshot\.hdr\.supportedCount === 0/);
+  assert.match(source, /snapshot\.hdr\.enabledCount === snapshot\.hdr\.supportedCount/);
+  assert.match(inspector, /hdrUsable = Boolean\(snapshot\?\.hdr\?\.available && snapshot\.hdr\.supportedCount > 0\)/);
+  assert.match(inspector, /option\.disabled = !hdrUsable/);
 });
 
 test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async () => {
