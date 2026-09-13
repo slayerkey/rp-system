@@ -1,5 +1,5 @@
 import streamDeck from "@elgato/streamdeck";
-import { DeviceCatalog, type Device } from "./model.js";
+import { DeviceCatalog, resolveSelectedDeviceId, type Device } from "./model.js";
 import { control, snapshot } from "./bridge.js";
 
 type GlobalSettings = {
@@ -63,9 +63,8 @@ export class WirelessRuntime {
   }
 
   async selectedDeviceId(localDeviceId?: string | null): Promise<string | null> {
-    if (this.edition === "pro") return localDeviceId ?? null;
-    const global = await this.globals();
-    return global.liteDeviceId ?? localDeviceId ?? null;
+    const global = this.edition === "lite" ? await this.globals() : {};
+    return resolveSelectedDeviceId(this.edition, global.liteDeviceId, localDeviceId);
   }
 
   async setLiteDeviceId(id: string): Promise<void> {
