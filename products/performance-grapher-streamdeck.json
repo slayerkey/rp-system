@@ -185,6 +185,27 @@
         "long key/process labels remain bounded"
       ],
       "note": "Latest committed JavaScript source executed through the isolated exact-source harness after the final main sync. Profile ZIP generation still requires real Node because the harness lacks Buffer/crypto/zlib/fs."
+    },
+    "catalog_profile_audit": {
+      "status": "PASS_STATIC_CONTRACT",
+      "registry_exactly_one": true,
+      "metadata_aligned": true,
+      "marketplace_description_characters": 1434,
+      "release_notes_bullets": 5,
+      "manifest_profiles": 4,
+      "profile_device_types": [
+        0,
+        2,
+        7,
+        9
+      ],
+      "profile_generation_wired_to_test": true,
+      "profile_generation_wired_to_build": true,
+      "workflow_profile_gate": true,
+      "workflow_profile_staging": true,
+      "marketplace_profile_gallery": true,
+      "lite_pro_pair_count": 0,
+      "xeneon_relationship": "SEPARATE_PUBLISHED_WIDGET_NOT_EDITION_UPSELL"
     }
   },
   "physical_release_evidence": null,
