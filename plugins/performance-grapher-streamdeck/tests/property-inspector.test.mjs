@@ -85,7 +85,7 @@ test("standard inspector fields persist through SDPI setting controls", async ()
     "scaleMax",
     "accent",
   ]) {
-    assert.match(html, new RegExp('setting=["\\\']' + key + '["\\\']'), "Missing SDPI setting binding for " + key);
+    assert.match(html, new RegExp('setting="' + key + '"'), "Missing SDPI setting binding for " + key);
   }
   assert.doesNotMatch(html, /Checking game telemetry/i);
   assert.doesNotMatch(html, /Checking hardware sensors/i);
