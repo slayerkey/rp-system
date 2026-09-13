@@ -8,8 +8,10 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 
 ## Hardware-free evidence completed
 
-- [x] 35 model/package/profile regression tests are defined and pass in the reconstructed branch test harness
+- [x] 37 model/package/profile regression cases are currently defined in the hardware-free suite
 - [x] capability flags are per device rather than global
+- [x] A2DP/HFP control eligibility is derived from Windows AssociationEndpointService contracts rather than broad Audio/Video device-class inference
+- [x] group names are canonicalized case-insensitively so `gaming` and `GAMING` feed the same dashboard
 - [x] battery and charging are absent when telemetry is absent
 - [x] Windows charging-property label behavior is covered
 - [x] duplicate friendly names remain distinct by stable identity
@@ -36,6 +38,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 - [x] profile labels preserve live battery/status/control values rather than hiding them
 - [x] no bundled profile or manifest exposes an Encoder action
 - [x] Marketplace SEO regression includes Bluetooth, wireless, battery, headphones, keyboard, mouse, controller, connect, disconnect, Windows, and Stream Deck
+- [x] Marketplace release notes follow Rat Ship's 3–6 bullet-line contract
 - [x] manifest FontSize values use the current numeric schema type
 - [x] deterministic Lite and Pro Rat Art each render exactly 6 Marketplace assets
 - [x] search icons render at 288 x 288
