@@ -107,6 +107,40 @@ def packrat_mark(canvas: Image.Image) -> None:
     rat.thumbnail((86, 86), Image.Resampling.LANCZOS)
     canvas.alpha_composite(rat, (W - 126, 44))
 
+
+def render_app_icon(slug: str, product: dict, out_dir: Path) -> Path:
+    """Render the separate 288x288 Marketplace app icon required by Maker Console."""
+    size = 288
+    icon = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    glow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    gd.ellipse((18, 18, 270, 270), fill=(*GREEN, 35))
+    glow = glow.filter(ImageFilter.GaussianBlur(34))
+    icon = Image.alpha_composite(icon, glow)
+
+    d = ImageDraw.Draw(icon)
+    d.rounded_rectangle((12, 12, 276, 276), radius=56, fill=(13, 17, 23, 255), outline=(72, 83, 98, 210), width=3)
+
+    # Record -> replay is the product mark: two large, readable elements.
+    d.ellipse((48, 86, 118, 156), fill=(*RED, 255))
+    play = [(168, 78), (168, 164), (238, 121)]
+    d.polygon(play, fill=(*GREEN, 255))
+
+    mark_font = fit(d, "MR", 190, 62, 48)
+    d.text((144, 211), "MR", font=mark_font, fill=(*WHITE, 255), anchor="mm")
+
+    edition = product["edition"]
+    ef = font(16, True)
+    eb = d.textbbox((0, 0), edition, font=ef)
+    ew = eb[2] - eb[0] + 24
+    d.rounded_rectangle((144 - ew // 2, 246, 144 + ew // 2, 274), radius=14, fill=(*GREEN, 30), outline=(*GREEN, 140), width=1)
+    d.text((144, 260), edition, font=ef, fill=(*GREEN, 255), anchor="mm")
+
+    out = out_dir / "00-app-icon.png"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    icon.convert("RGB").save(out, "PNG", optimize=True)
+    return out
+
 def render(slug: str, out: Path) -> None:
     product = PRODUCTS.get(slug)
     if not product:
@@ -114,6 +148,8 @@ def render(slug: str, out: Path) -> None:
     plugin = product["plugin"]
     record = plugin / "imgs" / "actions" / "record" / "key.png"
     replay = plugin / "imgs" / "actions" / "replay" / "key.png"
+
+    app_icon = render_app_icon(slug, product, out.parent)
 
     canvas = background()
     draw = ImageDraw.Draw(canvas)
@@ -180,7 +216,7 @@ def render(slug: str, out: Path) -> None:
         rd.text((20, y + sh + 7), f"{sw} × {sh}", font=font(18, False), fill=MUTED)
         y += sh + 55
     review.save(out.with_name("hero-thumbnail-review.png"), "PNG", optimize=True)
-    print(f"PASS {slug}: {out}")
+    print(f"PASS {slug}: app icon {app_icon} | hero {out}")
 
 def main() -> None:
     parser = argparse.ArgumentParser()
