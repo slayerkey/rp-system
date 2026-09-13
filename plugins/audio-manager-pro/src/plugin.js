@@ -29,7 +29,6 @@ const ACTIONS = {
 
 const helper = new AudioHelper({ log: logger });
 const visible = new Map();
-const profileResults = new Map();
 let globalSettings = emptyGlobalSettings();
 let latestSnapshot = null;
 let latestError = "";
@@ -64,6 +63,7 @@ async function refreshSnapshot({ quiet = true } = {}) {
     scheduleRender();
     return latestSnapshot;
   } catch (error) {
+    latestSnapshot = null;
     latestError = String(error?.message || error || "Audio helper unavailable.");
     if (!quiet) logger(latestError);
     scheduleRender();
@@ -101,8 +101,13 @@ function endpointForDeviceRecord(record) {
 }
 
 function profileOutput(profile) {
-  const slot = profile?.slots?.outputDefault;
-  if (!slot?.device) return { match: { status: "missing", reason: "Profile has no default output." }, endpoint: null };
+  if (!profile)
+    return { match: { status: "unconfigured", reason: "Select profile" }, endpoint: null };
+
+  const slot = profile.slots?.outputDefault;
+  if (!slot?.device)
+    return { match: { status: "unconfigured", reason: "No default output" }, endpoint: null };
+
   const match = matchEndpoint(slot.device, latestSnapshot?.outputs || []);
   return { match, endpoint: match.endpoint || null };
 }
@@ -113,7 +118,13 @@ async function renderRecord(record) {
   if (record.action.isDial?.()) {
     const profile = profileForRecord(record);
     const { match, endpoint } = profileOutput(profile);
-    const note = match.status === "matched" ? record.feedbackNote || "" : "Rebind output";
+    const note = match.status === "matched"
+      ? record.feedbackNote || ""
+      : match.status === "unconfigured"
+        ? match.reason
+        : latestError
+          ? "Audio unavailable"
+          : "Rebind output";
     const feedback = dialFeedback(profile, endpoint, note);
     const signature = JSON.stringify(feedback);
     if (signature !== record.lastFeedback) {
@@ -204,7 +215,6 @@ async function applyProfile(profile, record = null) {
   if (response?.snapshot) latestSnapshot = response.snapshot;
   else await refreshSnapshot({ quiet: true });
 
-  profileResults.set(profile?.id || "", result.status);
   if (result.status === "SUCCESS" && profile?.id) {
     await saveGlobal({ ...globalSettings, lastAppliedProfileId: profile.id });
   }
@@ -356,7 +366,13 @@ async function adjustProfileVolume(record, ticks) {
   await refreshSnapshot({ quiet: true });
   const { match, endpoint } = profileOutput(profile);
   if (match.status !== "matched" || !endpoint?.volumeAvailable) {
-    record.feedbackNote = "Rebind output";
+    record.feedbackNote = match.status === "unconfigured"
+      ? match.reason
+      : latestError
+        ? "Audio unavailable"
+        : match.status === "matched"
+          ? "Volume unavailable"
+          : "Rebind output";
     await record.action.showAlert().catch(() => {});
     scheduleRender(0);
     return;
@@ -391,7 +407,13 @@ async function toggleProfileOutputMute(record) {
   await refreshSnapshot({ quiet: true });
   const { match, endpoint } = profileOutput(profile);
   if (match.status !== "matched" || !endpoint?.muteAvailable) {
-    record.feedbackNote = match.status === "matched" ? "Mute unavailable" : "Rebind output";
+    record.feedbackNote = match.status === "unconfigured"
+      ? match.reason
+      : latestError
+        ? "Audio unavailable"
+        : match.status === "matched"
+          ? "Mute unavailable"
+          : "Rebind output";
     await record.action.showAlert().catch(() => {});
     scheduleRender(0);
     return;
