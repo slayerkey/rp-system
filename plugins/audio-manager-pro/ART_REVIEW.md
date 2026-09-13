@@ -19,6 +19,8 @@ The sequence answers the product/value question before implementation detail and
 
 PASS:
 
+- 288 × 288 Marketplace app icon makes the Audio Manager Pro product name the focus instead of using an ambiguous logo-only utility glyph.
+
 - Apply Profile key faces use the same product concept as the runtime key: profile name, status, and profile-state line.
 - OUT / IN mappings are outside the key face as marketing annotations.
 - The hero does not fabricate OUT / IN rows inside the actual Stream Deck key UI.
