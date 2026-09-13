@@ -13,6 +13,7 @@ export class MacroLibrary {
     this.file = file;
     this.macros = [];
     this.warning = "";
+    this.saveTail = Promise.resolve();
   }
 
   async load() {
@@ -71,10 +72,14 @@ export class MacroLibrary {
   }
 
   async save() {
-    await mkdir(dirname(this.file), { recursive: true });
-    const temp = `${this.file}.tmp`;
-    const body = JSON.stringify({ schema: 1, savedAt: new Date().toISOString(), macros: this.macros }, null, 2);
-    await writeFile(temp, body, "utf8");
-    await rename(temp, this.file);
+    const run = this.saveTail.then(async () => {
+      await mkdir(dirname(this.file), { recursive: true });
+      const temp = `${this.file}.tmp`;
+      const body = JSON.stringify({ schema: 1, savedAt: new Date().toISOString(), macros: this.macros }, null, 2);
+      await writeFile(temp, body, "utf8");
+      await rename(temp, this.file);
+    });
+    this.saveTail = run.catch(() => {});
+    return await run;
   }
 }
