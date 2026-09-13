@@ -44,7 +44,7 @@ Lite:
 - Screen & Sleep
 - Keep Awake
 - Lock PC
-- one starter profile for Standard, Mini, XL, Plus, and Neo
+- one starter profile for Standard, Mini, XL, Plus, Neo, Galleon 100 SD, and Stream Deck + XL
 
 Pro:
 - all Lite controls
@@ -77,3 +77,8 @@ Rollback is not included in v1 because display/HDR rollback can itself fail afte
 ## External state detection
 
 The plugin polls a fresh Windows snapshot every 2.5 seconds and after every write. Current Mode is derived from live state, not from the last PackRat command.
+
+
+## Stream Deck compatibility floor
+
+The plugin requires Stream Deck 7.3 or later. This deliberately trades older app compatibility for the current profile-device matrix and the profile-switching fixes shipped with the 7.3 generation. Bundled profiles cover Standard, Mini, XL, Stream Deck +, Neo, Galleon 100 SD, and Stream Deck + XL. Stream Deck Studio is not included because it does not use standard Stream Deck app profiles.
