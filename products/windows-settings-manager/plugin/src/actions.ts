@@ -264,7 +264,7 @@ class ProfilePageBase extends SingletonAction<PageSettings> {
 
 function safeSeconds(value: unknown, fallback: number): number {
   const number = Number(value);
-  return Number.isInteger(number) && number >= 0 ? number : fallback;
+  return Number.isInteger(number) && number >= 0 && number <= 0xffffffff ? number : fallback;
 }
 
 // Lite action UUIDs.
