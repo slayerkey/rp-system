@@ -148,6 +148,9 @@ run("dotnet", [
   "-o", nativeOut,
 ]);
 
+console.log("Generating resolved NuGet license inventory...");
+run(process.execPath, [resolve(root, "scripts", "dotnet-license-inventory.mjs")]);
+
 async function walk(directory) {
   const out = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
