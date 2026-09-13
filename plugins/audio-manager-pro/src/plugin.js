@@ -7,11 +7,14 @@ import {
   captureProfileFromSnapshot,
   cycleCurrentIndex,
   emptyGlobalSettings,
+  endpointMuteMatches,
+  endpointVolumeMatches,
   findProfile,
   mergeApplyResult,
   normalizeGlobalSettings,
   normalizeProfile,
   profileMatchesSnapshot,
+  roleMatchesSnapshot,
   snapshotDefaultRoleConflicts,
   verifyApplyResult,
 } from "./profiles.js";
@@ -355,9 +358,21 @@ async function setSelectedDevice(record) {
     response = { results: [], error: String(error?.message || error), snapshot };
   }
   const ok = response?.results?.[0]?.ok === true;
+  const verified = ok && roleMatchesSnapshot(
+    isOutput ? "output" : "input",
+    record.settings.role,
+    match.endpoint.id,
+    response?.snapshot || null,
+  );
   const result = {
-    status: ok ? "SUCCESS" : "FAILED",
-    failures: ok ? [] : [{ error: response?.results?.[0]?.error || response?.error || "Device switch failed." }],
+    status: verified ? "SUCCESS" : ok ? "PARTIAL" : "FAILED",
+    failures: verified
+      ? []
+      : [{
+          error: ok
+            ? "Windows accepted the device switch, but the final audio role could not be verified."
+            : response?.results?.[0]?.error || response?.error || "Device switch failed.",
+        }],
   };
   record.lastStatus = result.status;
   record.lastResult = result;
@@ -407,7 +422,18 @@ async function toggleDefaultMic(record) {
     response = { results: [], error: String(error?.message || error), snapshot };
   }
   const ok = response?.results?.[0]?.ok === true;
-  const result = { status: ok ? "SUCCESS" : "FAILED", failures: ok ? [] : [{ error: response?.results?.[0]?.error || response?.error || "Mute failed." }] };
+  const expectedMute = !endpoint.muted;
+  const verified = ok && endpointMuteMatches(response?.snapshot || null, endpoint.id, expectedMute);
+  const result = {
+    status: verified ? "SUCCESS" : ok ? "PARTIAL" : "FAILED",
+    failures: verified
+      ? []
+      : [{
+          error: ok
+            ? "Windows accepted the microphone mute change, but the final mute state could not be verified."
+            : response?.results?.[0]?.error || response?.error || "Mute failed.",
+        }],
+  };
   record.lastResult = result;
   record.lastStatus = result.status;
   if (response?.snapshot) latestSnapshot = response.snapshot;
@@ -444,9 +470,10 @@ async function adjustProfileVolume(record, ticks) {
   try {
     const response = await helper.apply([{ kind: "set-volume", endpointId: endpoint.id, value: next }]);
     const ok = response?.results?.[0]?.ok === true;
+    const verified = ok && endpointVolumeMatches(response?.snapshot || null, endpoint.id, next);
     if (response?.snapshot) latestSnapshot = response.snapshot;
-    record.feedbackNote = ok ? "" : "Volume failed";
-    if (!ok) await record.action.showAlert().catch(() => {});
+    record.feedbackNote = verified ? "" : ok ? "Verify failed" : "Volume failed";
+    if (!verified) await record.action.showAlert().catch(() => {});
   } catch (error) {
     record.feedbackNote = "Helper offline";
     await record.action.showAlert().catch(() => {});
@@ -481,10 +508,12 @@ async function toggleProfileOutputMute(record) {
   try {
     const response = await helper.apply([{ kind: "set-mute", endpointId: endpoint.id, value: !endpoint.muted }]);
     const ok = response?.results?.[0]?.ok === true;
+    const expectedMute = !endpoint.muted;
+    const verified = ok && endpointMuteMatches(response?.snapshot || null, endpoint.id, expectedMute);
     if (response?.snapshot) latestSnapshot = response.snapshot;
-    record.feedbackNote = ok ? "" : "Mute failed";
+    record.feedbackNote = verified ? "" : ok ? "Verify failed" : "Mute failed";
     record.lastFeedback = "";
-    if (!ok) await record.action.showAlert().catch(() => {});
+    if (!verified) await record.action.showAlert().catch(() => {});
     scheduleRender(0);
   } catch (error) {
     record.feedbackNote = "Helper offline";
