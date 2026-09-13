@@ -2,7 +2,7 @@ import { InputHost } from "./input-host.mjs";
 import { MacroLibrary } from "./storage.mjs";
 import {
   LITE_LIMITS, PRO_LIMITS, describeEvent, exportEnvelope, importEnvelope,
-  keysInMacro, normalizeMacro, playbackSettings, validateMacro
+  normalizeMacro, playbackSettings, validateMacro
 } from "./model.mjs";
 
 function recordingName() {
@@ -153,17 +153,12 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   host.on("crash", () => { void recoverFromCrash(); });
 
   async function recoverFromCrash() {
-    const failed = playback;
     playback = null;
     recording = null;
-    lastError = "The input engine stopped unexpectedly. Playback was cancelled and key-up cleanup was sent.";
+    lastError = "The input engine stopped unexpectedly. Playback was cancelled; exact held-input recovery will run when the local input host restarts.";
     await renderAll();
     await broadcastInspectors();
-    if (!failed?.macro) return;
-    try {
-      await host.ensure();
-      await host.command("releaseKeys", { keys: keysInMacro(failed.macro) }, { timeoutMs: 5000 });
-    } catch {}
+    try { await host.ensure(); } catch {}
   }
 
   async function startRecording(record) {
