@@ -35,15 +35,17 @@ while ((line = Console.ReadLine()) is not null)
     if (string.IsNullOrWhiteSpace(line)) continue;
 
     HelperResponse response;
+    var requestId = "";
     try
     {
         using var document = JsonDocument.Parse(line);
+        requestId = OptionalString(document.RootElement, "id");
         response = Handle(document.RootElement, audio);
     }
     catch (Exception error)
     {
         response = new HelperResponse(
-            "",
+            requestId,
             false,
             "FAILED",
             Array.Empty<OperationResult>(),
@@ -122,7 +124,7 @@ static HelperResponse Handle(JsonElement root, WindowsAudioSystem audio)
 static void ExecuteOperation(JsonElement operation, WindowsAudioSystem audio)
 {
     var kind = RequiredString(operation, "kind");
-    var endpointId = RequiredString(operation, "endpointId");
+    var endpointId = RequiredOpaqueString(operation, "endpointId");
 
     switch (kind)
     {
@@ -179,6 +181,18 @@ static string OptionalString(JsonElement root, string name)
 
     var text = (value.GetString() ?? "").Trim();
     return text.Length > 4096 ? text[..4096] : text;
+}
+
+static string RequiredOpaqueString(JsonElement root, string name)
+{
+    if (!root.TryGetProperty(name, out var value) || value.ValueKind != JsonValueKind.String)
+        throw new ArgumentException($"Missing {name}.");
+
+    var text = value.GetString() ?? "";
+    if (text.Length is 0 or > 4096)
+        throw new ArgumentException($"Invalid {name}.");
+
+    return text;
 }
 
 static int RequiredInt(JsonElement root, string name, int min, int max)
