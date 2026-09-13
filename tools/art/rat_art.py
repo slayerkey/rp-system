@@ -16,6 +16,8 @@ from typing import Any
 
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
+from xeneon_all_hero_batch import PRODUCTS as APPROVED_XENEON_HERO_PRODUCTS, SCENE_NAME as APPROVED_XENEON_HERO_SCENE, render_one as render_approved_xeneon_hero
+
 ROOT = Path(__file__).resolve().parents[2]
 W, H = 1920, 960
 BG = (5, 8, 11)
@@ -440,6 +442,8 @@ def render_xeneon(slug: str, shots: Path, out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     name = require_text(submission.get("name"), "submission name")
     hero(shots, out, name, config["hero"])
+    if slug in APPROVED_XENEON_HERO_PRODUCTS:
+        render_approved_xeneon_hero(slug, shots / "XL_H.png", out / "1-hero.png", write_metadata=False)
     showcase(shots, out, config["showcase"])
     features(shots, out, config["features"])
     settings(shots, out, config["settings"])
@@ -455,6 +459,11 @@ def render_xeneon(slug: str, shots: Path, out: Path) -> None:
         "product_config_sha256": sha(config_path),
         "marketplace_order": MARKETPLACE_ORDER,
         "footer_branding": "logo-only",
+        "hero_system": (
+            f"approved-xeneon:{APPROVED_XENEON_HERO_SCENE}"
+            if slug in APPROVED_XENEON_HERO_PRODUCTS
+            else "legacy-xeneon"
+        ),
         "outputs": {
             path.name: {"size": Image.open(path).size, "sha256": sha(path)}
             for path in sorted(out.glob("*.png"))
