@@ -66,10 +66,16 @@ export async function startPlugin(flavor: Flavor): Promise<void> {
     if (payload?.type === "capture-mode" && flavor === "pro") {
       const id = String(payload.id || "gaming");
       void import("./modes.js").then(async ({ captureModeSettings }) => {
+        await runtime.state.refresh();
+        const snapshot = runtime.state.getSnapshot();
+        if (!snapshot.backendOnline) {
+          await sendInspectorContext();
+          return;
+        }
         const existing = await runtime.store.getMode(id);
         await runtime.store.updateMode(id, {
           name: existing?.name || id.toUpperCase(),
-          settings: captureModeSettings(runtime.state.getSnapshot())
+          settings: captureModeSettings(snapshot)
         });
         await sendInspectorContext();
       });
