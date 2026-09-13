@@ -243,7 +243,11 @@ export class NetworkMonitor extends EventEmitter {
     this.unregisterTarget(id);
 
     const target = String(rawSettings.target || "1.1.1.1").trim();
-    const method = targetKind(target, rawSettings.targetMethod || "auto");
+    const requestedMethod = ["auto", "icmp", "tcp", "dns", "https"].includes(rawSettings.targetMethod)
+      ? rawSettings.targetMethod
+      : "auto";
+    const method = requestedMethod;
+    const expectedMethod = targetKind(target, requestedMethod);
     const port = Number(rawSettings.targetPort || 443);
     const family = rawSettings.family || "auto";
     const key = [method, target.toLowerCase(), port, family].join("|");
@@ -254,6 +258,7 @@ export class NetworkMonitor extends EventEmitter {
         key,
         target,
         method,
+        expectedMethod,
         port,
         family,
         subscribers: new Set(),
@@ -323,6 +328,7 @@ export class NetworkMonitor extends EventEmitter {
     return {
       target: record.target,
       configuredMethod: record.method,
+      expectedMethod: record.expectedMethod,
       port: record.port,
       family: record.family,
       reading: record.reading,
