@@ -238,11 +238,11 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       return;
     }
     if (settings.mode === "toggle" && playback?.actionId === record.id) {
-      await stopPlayback();
+      await stopPlayback(record.action);
       return;
     }
-    if (playback) await stopPlayback();
-    if (recording) await stopRecording();
+    if (playback) await stopPlayback(record.action);
+    if (recording) await stopRecording(record.action);
     playback = { actionId: record.id, macro, mode: settings.mode };
     lastError = "";
     await renderAll();
@@ -263,17 +263,19 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
 
   async function stopPlayback(action = null) {
     const knownPlayback = Boolean(playback);
+    let stopError = null;
     try {
       await host.command("stopPlayback", {}, knownPlayback
         ? { timeoutMs: 3000 }
         : { skipEnsure: true, timeoutMs: 1500 });
     } catch (error) {
+      stopError = error;
       if (knownPlayback) lastError = String(error?.message || error);
     }
     playback = null;
     await renderAll();
     await broadcastInspectors();
-    if (knownPlayback && lastError) await action?.showAlert?.().catch(() => {});
+    if (knownPlayback && stopError) await action?.showAlert?.().catch(() => {});
   }
 
   class MacroAction extends SingletonAction {
@@ -409,7 +411,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       const record = visible.get(String(ev.action?.id || ""));
       if (!record || record.kind !== "replay" || !pro) return;
       const settings = playbackSettings(record.settings, { pro:true });
-      if (settings.mode === "while-held" && playback?.actionId === record.id) await stopPlayback();
+      if (settings.mode === "while-held" && playback?.actionId === record.id) await stopPlayback(record.action);
     }
   }
 
