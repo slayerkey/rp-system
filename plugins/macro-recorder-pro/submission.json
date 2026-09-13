@@ -25,7 +25,7 @@
     "Record keyboard, mouse buttons, movement, drag, wheel and timing.",
     "Edit reusable macros in a local Macro Library with speed and loop controls.",
     "Import and export PackRat macro files and use absolute or active-window-relative mouse positioning.",
-    "Includes five starter profile pages for macros, gaming menus, productivity, mouse and loops."
+    "Includes five starter pages for macros, gaming menus, productivity, mouse, and loops across standard Stream Deck, XL, Plus, and Neo."
   ],
   "privacy": "Macro contents are never uploaded to PackRat. The reusable Macro Library is stored locally in AppData; macro contents leave the library only when the user explicitly exports a PackRat macro file.",
   "compatibility": {
@@ -47,5 +47,27 @@
   "limitations": [
     "Playback uses the Windows SendInput API and may be blocked when the target app runs at a higher Administrator integrity level than Stream Deck.",
     "Windows secure desktop, including UAC secure prompts, is outside normal recording and playback."
-  ]
+  ],
+  "bundled_profiles": {
+    "device_types": [
+      {
+        "name": "Stream Deck / MK.2",
+        "device_type": 0
+      },
+      {
+        "name": "Stream Deck XL",
+        "device_type": 2
+      },
+      {
+        "name": "Stream Deck +",
+        "device_type": 7
+      },
+      {
+        "name": "Stream Deck Neo",
+        "device_type": 9
+      }
+    ],
+    "auto_install": true,
+    "auto_switch": false
+  }
 }
