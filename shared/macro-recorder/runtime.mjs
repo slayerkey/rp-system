@@ -431,7 +431,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
         } else if (command === "duplicateMacro" && pro) {
           const macro = library.get(String(payload.macroId || record.settings.macroId));
           if (macro) {
-            const copy = await library.add({ ...macro, id: undefined, name: `${macro.name} Copy` });
+            const copy = await library.add({ ...macro, id: undefined, createdAt: undefined, updatedAt: undefined, name: `${macro.name} Copy` });
             const next = { ...record.settings, macroId: copy.id };
             await record.action.setSettings(next);
             record.settings = settingsFor("replay", next);
