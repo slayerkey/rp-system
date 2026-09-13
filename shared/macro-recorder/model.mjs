@@ -97,10 +97,16 @@ export function validateMacro(raw, { pro = true } = {}) {
 export function playbackSettings(raw = {}, { pro = true } = {}) {
   if (!pro) return { speed: 1, mode: "once", repeatCount: 1, coordinateMode: "absolute" };
   const mode = ["once","count","while-held","toggle"].includes(raw.playbackMode) ? raw.playbackMode : "once";
+  const rawSpeed = Number(raw.playbackSpeed);
+  const speed = Number.isFinite(rawSpeed) ? clamp(rawSpeed, 0.25, 4) : 1;
+  const rawRepeat = Number(raw.repeatCount);
+  const repeatCount = mode === "count"
+    ? Math.round(Number.isFinite(rawRepeat) ? clamp(rawRepeat, 1, 100) : 2)
+    : (mode === "once" ? 1 : 0);
   return {
-    speed: clamp(raw.playbackSpeed ?? 1, 0.25, 4),
+    speed,
     mode,
-    repeatCount: mode === "count" ? Math.round(clamp(raw.repeatCount ?? 2, 1, 100)) : (mode === "once" ? 1 : 0),
+    repeatCount,
     coordinateMode: raw.coordinateMode === "active-window" ? "active-window" : "absolute",
   };
 }
