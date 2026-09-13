@@ -5,8 +5,8 @@
   "status": "release-candidate",
   "workflow_state": "BLOCKED",
   "blocker_kind": "physical_validation",
-  "blocker": "Automated build/Elgato/package gates have not executed because available GitHub runners are not being assigned; real Windows HDR, multi-monitor, laptop, sleep/resume, reboot, external-state-change, physical Stream Deck, and Marketplace media review also remain required.",
-  "final_boundary": "Restore an executable CI/Windows runner, complete products/windows-settings-manager/QA.md, record release evidence, review deterministic Marketplace media, then move to READY_TO_SHIP.",
+  "blocker": "Automated build/test/native Windows smoke/Elgato validation/package and deterministic media gates pass. Remaining blockers are physical HDR/multi-monitor/laptop/sleep-resume/reboot/external-state/physical Stream Deck profile QA plus final Marketplace media review; after Pro publication, Lite also requires verified direct Lite/Pro Marketplace URLs and the strict routing audit.",
+  "final_boundary": "Complete products/windows-settings-manager/QA.md on real Windows hardware and physical Stream Deck devices, review Marketplace media, publish Pro first, record verified direct Lite/Pro Marketplace URLs/IDs, pass tools/lite_pro_audit.py --shipping windows-settings-manager-lite, then move Lite to READY_TO_SHIP.",
   "price_usd": 0,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -61,5 +61,31 @@
     "hidden_until_verified": true,
     "release_order": "publish Pro first, then record direct Pro and Lite Marketplace URLs before Lite publication"
   },
-  "commercial_release_boundary": "After technical/physical QA passes, publish Pro first. Lite remains BLOCKED until Pro is published, both exact direct Marketplace URLs/IDs are recorded in products/lite-pro-map.json, the rebuilt Lite package contains the exact Pro URL, and tools/lite_pro_audit.py --shipping windows-settings-manager-lite passes."
+  "commercial_release_boundary": "After technical/physical QA passes, publish Pro first. Lite remains BLOCKED until Pro is published, both exact direct Marketplace URLs/IDs are recorded in products/lite-pro-map.json, the rebuilt Lite package contains the exact Pro URL, and tools/lite_pro_audit.py --shipping windows-settings-manager-lite passes.",
+  "automated_release_evidence": {
+    "candidate_commit": "abd14d228b086d6e5af32f083ddb908d8e60b1bd",
+    "windows_ci_run": 34777753557,
+    "windows_ci_job": 103778871284,
+    "windows_package_artifact": {
+      "id": 10323468252,
+      "digest_sha256": "094778e9c834d12b812e4a301a53c5c647c0fa43d12e85a72b63bc70fcf564e8"
+    },
+    "portable_ci_run": 34777753573,
+    "portable_ci_job": 103778871410,
+    "portable_release_artifact": {
+      "id": 10324277249,
+      "digest_sha256": "44c6bf5c60cbb4a490cd43cfb0be392d331c607aa6428655b338b9bd497b53db"
+    },
+    "locked_dependency_install": "pass",
+    "strict_typescript_build": "pass",
+    "policy_tests": "pass",
+    "native_windows_backend_smoke": "pass",
+    "official_elgato_validation": "pass",
+    "production_dependency_audit": "pass",
+    "official_lite_package": "pass",
+    "official_pro_package": "pass",
+    "deterministic_lite_rat_art": "pass",
+    "deterministic_pro_rat_art": "pass",
+    "marketplace_media_dimensions": "pass"
+  }
 }
