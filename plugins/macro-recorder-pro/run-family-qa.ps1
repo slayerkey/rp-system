@@ -107,10 +107,11 @@ function Test-Plugin {
       }
       $PackedProfiles = @($EntryNames | Where-Object { $_ -match '/profiles/.*\.streamDeckProfile
     $Profiles = @(Get-ChildItem $ProfileRoot -Filter *.streamDeckProfile -File)
-    if ($Profiles.Count -ne 4) { throw "$Slug expected four bundled .streamDeckProfile files (MK.2, XL, Plus, Neo); found $($Profiles.Count)." }
+    if ($Profiles.Count -ne 5) { throw "$Slug expected five bundled .streamDeckProfile files (MK.2, Mini, XL, Plus, Neo); found $($Profiles.Count)." }
 
     $ExpectedProfileNames = @(
       "$Slug-starter-mk2.streamDeckProfile",
+      "$Slug-starter-mini.streamDeckProfile",
       "$Slug-starter-xl.streamDeckProfile",
       "$Slug-starter-plus.streamDeckProfile",
       "$Slug-starter-neo.streamDeckProfile"
@@ -122,7 +123,7 @@ function Test-Plugin {
     $BundledMaps = @(Get-ChildItem $ProfileRoot -Filter *.profile-map.json -File -ErrorAction SilentlyContinue)
     if ($BundledMaps.Count -ne 0) { throw "$Slug must not ship internal profile-map JSON files." }
 
-    foreach ($Suffix in @("mk2","xl","plus","neo")) {
+    foreach ($Suffix in @("mk2","mini","xl","plus","neo")) {
       $ProfileMap = Join-Path $Root "artifacts\profile-maps\$Slug-starter-$Suffix.profile-map.json"
       if (-not (Test-Path $ProfileMap)) { throw "$Slug did not generate external profile QA map for $Suffix." }
     }
@@ -246,7 +247,7 @@ Write-Host ""
 Write-Host "For the final release-candidate gate after native fixes:" -ForegroundColor Cyan
 Write-Host "  powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1 -ReleaseCandidate"
  })
-      if ($PackedProfiles.Count -ne 4) { throw "$Slug exact package expected four profiles; found $($PackedProfiles.Count)." }
+      if ($PackedProfiles.Count -ne 5) { throw "$Slug exact package expected five profiles; found $($PackedProfiles.Count)." }
       if ($EntryNames | Where-Object { $_ -match '\.profile-map\.json
     $Profiles = @(Get-ChildItem $ProfileRoot -Filter *.streamDeckProfile -File)
     if ($Profiles.Count -ne 4) { throw "$Slug expected four bundled .streamDeckProfile files (MK.2, XL, Plus, Neo); found $($Profiles.Count)." }
