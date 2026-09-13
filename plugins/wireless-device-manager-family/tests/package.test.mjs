@@ -167,3 +167,26 @@ test("Lite includes a truthful Pro upsell without inventing an unpublished Marke
   assert.match(submission.description,/Upgrade to Wireless Device Manager Pro/);
   assert.doesNotMatch(html,/marketplace\.elgato\.com\/product\/wireless-device-manager-pro/i);
 });
+
+
+test("PackRat catalog registers the Wireless Device Manager Lite/Pro family consistently",async()=>{
+  const index=JSON.parse(await readFile("../../products/index.json","utf8"));
+  const map=JSON.parse(await readFile("../../products/lite-pro-map.json","utf8"));
+  const lite=index.products.filter(product=>product.id==="wireless-device-manager");
+  const pro=index.products.filter(product=>product.id==="wireless-device-manager-pro");
+  assert.equal(lite.length,1);
+  assert.equal(pro.length,1);
+  assert.equal(lite[0].type,"plugin");
+  assert.equal(pro[0].type,"plugin");
+  assert.equal(lite[0].price_usd,0);
+  assert.equal(pro[0].price_usd,7.99);
+
+  const pairs=map.pairs.filter(pair=>pair.lite_id==="wireless-device-manager"||pair.pro_id==="wireless-device-manager-pro");
+  assert.equal(pairs.length,1);
+  assert.equal(pairs[0].lite_id,"wireless-device-manager");
+  assert.equal(pairs[0].pro_id,"wireless-device-manager-pro");
+  assert.equal(pairs[0].classification,"lite_to_pro");
+  assert.equal(pairs[0].platform,"streamdeck");
+  assert.equal("lite_marketplace_url" in pairs[0],false);
+  assert.equal("pro_marketplace_url" in pairs[0],false);
+});
