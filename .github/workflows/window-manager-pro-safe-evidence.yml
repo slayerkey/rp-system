@@ -8,7 +8,7 @@ on:
       - '.github/workflows/window-manager-pro-safe-evidence.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   VCS_REPOSITORY: slayerkey/vcs
@@ -68,6 +68,22 @@ jobs:
           rm -f package-lock.json
           npm install --package-lock-only --ignore-scripts
           test -f package-lock.json
+
+      - name: Publish reviewed lockfile to safe evidence branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          evidence_branch='evidence/window-manager-pro-lock'
+          git -C rp-system config user.name 'PackRat Release QA'
+          git -C rp-system config user.email 'actions@users.noreply.github.com'
+          git -C rp-system checkout -B "$evidence_branch"
+          mkdir -p rp-system/evidence/window-manager-pro
+          cp "$SOURCE_ROOT/package-lock.json" rp-system/evidence/window-manager-pro/package-lock.json
+          git -C rp-system add evidence/window-manager-pro/package-lock.json
+          if ! git -C rp-system diff --cached --quiet; then
+            git -C rp-system commit -m 'evidence: Window Manager Pro reviewed package lock'
+          fi
+          git -C rp-system push --force origin "HEAD:refs/heads/$evidence_branch"
 
       - name: Capture runtime-only npm audit
         working-directory: ${{ env.SOURCE_ROOT }}
