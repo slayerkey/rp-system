@@ -23,3 +23,12 @@ Run this on the exact release candidate after `rat dev audio-manager-pro`.
 - [ ] Stream Deck + dial rotates profile output volume, press reapplies profile, touch toggles output mute
 
 Record Windows version, Stream Deck version, devices tested, candidate package SHA256, and PASS/FAIL notes here before Marketplace submission.
+
+## Stream Deck session recovery
+
+- [ ] put Windows to sleep with Audio Manager actions visible
+- [ ] wake Windows and confirm key presses still invoke Apply / Set Device / Mute actions
+- [ ] confirm Stream Deck + dial rotate / press / touch events still arrive
+- [ ] open the Property Inspector and confirm refresh / save messages still work
+- [ ] confirm live Windows audio state continues to update after wake
+- [ ] if action/PI events stop while outgoing renders still work, record the Stream Deck version and reproduce against Elgato SDK issue #157 before adding any workaround
