@@ -137,3 +137,14 @@ test("PackRat import rejects envelopes with no playable events",()=>{
   macro:{name:"Empty",events:[{type:"not-real",delayMs:1}]}
  }),/no playable events/i);
 });
+
+test("malformed Pro playback settings fall back to UI defaults",()=>{
+ const settings=playbackSettings({
+  playbackMode:"count",
+  playbackSpeed:"not-a-number",
+  repeatCount:"not-a-number"
+ },{pro:true});
+ assert.equal(settings.speed,1);
+ assert.equal(settings.repeatCount,2);
+ assert.equal(settings.mode,"count");
+});
