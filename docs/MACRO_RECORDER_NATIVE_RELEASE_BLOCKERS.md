@@ -4,7 +4,23 @@ Date: 2026-09-13
 
 These items are required before Macro Recorder Lite or Pro can move to READY_TO_SHIP.
 
-The connected GitHub write path could not safely modify the native Windows input source during this session, so these requirements are intentionally recorded as unresolved rather than being represented as completed.
+The native implementation for the blockers below is now present on `product/macro-recorder` in commit `cc72c031546c883d0fc248882a7980a87e396b36`, with the plugin-parent watchdog wired in `b41ccbc9f76742f1a4f38ccdf03f0a5b63b92717`.
+
+The family remains blocked because these are low-level Windows input guarantees. Source implementation and regression-contract tests are necessary but not sufficient. Each acceptance case below must still pass on the canonical Windows build and the final real-host / physical Stream Deck smoke matrix before `docs/MACRO_RECORDER_NATIVE_GATE.json` can move to ready.
+
+Implementation summary:
+- held-input recovery runs before hook startup when the family session lock is available
+- Lite and Pro coordinate through an exclusive kernel-backed session-lock file; a crashed process automatically releases the handle
+- the shared recovery journal is read/written only by the session-lock owner
+- held keys persist exact VK + scan code + extended flag
+- journal persistence happens before key/button down injection and fails closed
+- release events happen before held state is removed from the journal
+- empty held state is atomically written before best-effort journal deletion
+- recorded delay uses the edition recording limit instead of a 60-second per-event clamp
+- Ctrl+Shift+F12 is consumed only while playback is active
+- the helper watches the plugin parent PID and disposes itself when the parent exits
+- every `SendInput` call is checked and a rejected injection becomes a playback error
+- the legacy broad “release all modifiers/buttons” cleanup path was removed
 
 ## 1. Recover held input before hook startup
 
