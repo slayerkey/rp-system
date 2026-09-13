@@ -182,6 +182,12 @@ function renderContext() {
     ? snapshot.errors.join(" | ")
     : "";
 
+  const hdrUsable = Boolean(snapshot?.hdr?.available && snapshot.hdr.supportedCount > 0);
+  const modeHdr = document.getElementById("modeHdr");
+  for (const option of modeHdr?.options ?? []) {
+    if (option.value === "on" || option.value === "off") option.disabled = !hdrUsable;
+  }
+
   renderDynamicSelects();
   if (!modeDirty) populateModeEditor();
 }
