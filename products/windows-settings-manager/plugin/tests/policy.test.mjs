@@ -208,6 +208,12 @@ test("Save Current Mode forces a fresh Windows read and refuses offline capture"
   assert.match(plugin, /settings: captureModeSettings\(snapshot\)/);
 });
 
+test("background action repaints tolerate keys disappearing during profile changes", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(actions, /for \(const instance of this\.actions\)[\s\S]*try \{[\s\S]*await this\.paint/);
+  assert.match(actions, /this\.paint\(ev\.action, ev\.payload\.settings \?\? \{\}\)\.catch/);
+});
+
 test("backend timeouts and failed startup force a clean PowerShell restart", async () => {
   const backend = await readFile(path.resolve("src", "backend.ts"), "utf8");
   assert.match(backend, /this\.dispose\(error\)[\s\S]*reject\(error\)/);
