@@ -453,6 +453,10 @@ test("Windows JSON-line smoke transport avoids PowerShell args/BOM corruption", 
   assert.match(smoke, /function Request\(\[int\]\$Id, \[string\]\$Op, \$RequestArgs = @\{\}\)/);
   assert.doesNotMatch(smoke, /function Request\([^\n]*\$Args/);
   assert.match(smoke, /ConvertTo-Json -Depth 6 -Compress/);
+  assert.match(smoke, /UTF8Encoding\]::new\(\$false\)/);
+  assert.match(smoke, /StandardInput\.BaseStream\.Write\(\$bytes, 0, \$bytes\.Length\)/);
+  assert.match(smoke, /Smoke request JSON failed local round-trip validation/);
+  assert.doesNotMatch(smoke, /StandardInput\.WriteLine/);
   assert.match(backend, /\$line = \$line\.TrimStart\(\[char\]0xFEFF\)/);
 });
 
