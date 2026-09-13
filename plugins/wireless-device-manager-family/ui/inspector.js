@@ -52,8 +52,22 @@ function render(){
   proLink.hidden=!(snapshot?.edition==="lite" && directProUrl);
   if(!proLink.hidden) proLink.href=proUrl;
   if(snapshot){
-    $("status").textContent=snapshot.adapterAvailable ? (snapshot.error||`${snapshot.devices.length} paired Bluetooth device(s) visible`) : "Bluetooth adapter unavailable or disabled";
-    $("status").className="status"+(snapshot.adapterAvailable?"":" bad");
+    const devices=snapshot.devices||[];
+    const bluetooth=snapshot.adapterAvailable===true;
+    const hid=snapshot.hidAvailable===true;
+    if(snapshot.error){
+      $("status").textContent=snapshot.error;
+      $("status").className="status bad";
+    }else if(devices.length){
+      $("status").textContent=`${devices.length} wireless device(s) visible${bluetooth?"":" · Bluetooth unavailable"}`;
+      $("status").className="status";
+    }else if(!bluetooth && hid){
+      $("status").textContent="No supported USB wireless devices found · Bluetooth unavailable";
+      $("status").className="status bad";
+    }else{
+      $("status").textContent="No supported wireless devices found";
+      $("status").className="status bad";
+    }
   }
   if(isDevice){
     const select=$("deviceId");
