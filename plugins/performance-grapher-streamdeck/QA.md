@@ -185,16 +185,20 @@ Promotion remains blocked at `BUILDING`.
 
 ## Exact current-head JavaScript core harness — 2026-09-13
 
-Because GitHub-hosted jobs are still failing before checkout, the current committed JavaScript modules were fetched directly from the product branch and executed in isolated module factories inside the ChatGPT V8 tool runtime.
+GitHub-hosted jobs are still failing before checkout, so the exact committed JavaScript modules were fetched directly from the product branch and executed in isolated module factories inside the ChatGPT V8 tool runtime.
 
-Result: **23 / 23 PASS**
+Result: **30 / 30 PASS**
 
 Covered:
 
+- frame-time based average FPS and 1% / 0.1% low-average statistics
+- migration of the pre-release FPS-histogram persistence shape
 - bounded raw/archive history and whole-session archive merge
 - game session start, idle finalization, process switching, and ignored compositor
-- percent-low, worst-frametime, and peak accounting
-- recent active-session restore without restoring a stale current FPS
+- dominant 8 FPS fallback detection when foreground telemetry is unavailable
+- refusal to select ambiguous fallback producers
+- foreground-process priority over fallback activity
+- recent active-session restore without restoring stale current FPS
 - stale persisted-session finalization at the saved boundary
 - PresentMon CSV parsing and live provider preference for `MsBetweenPresents`
 - quoted CSV process names
@@ -211,14 +215,19 @@ Covered:
 - session-scoped hardware history
 - hardware-helper replacement-child ownership
 - hardware-helper launch-error state and recovery scheduling
+- awaitable graceful-shutdown persistence
 
 Current-head synthetic V8 benchmark:
 
-- **250,000 frame events:** approximately **493 ms**
-- **5,000 144 px SVG renders:** approximately **250 ms**
+- **250,000 frame events:** approximately **516 ms**
+- **5,000 144 px SVG renders:** approximately **266 ms**
 - FPS recent raw history remained capped at **3,600** points
 - FPS 1-second archive contained **2,499** points for the synthetic run
 
+The 1% / 0.1% low-average implementation now averages the slowest accepted frame times for the selected fraction and converts that mean frame time back to FPS. Average FPS is total accepted frames divided by total accepted frame time.
+
 These timings are implementation-cost evidence only. They do not prove real Windows/game frametime overhead.
 
-The exact-head JavaScript core is therefore no longer stale. The remaining automated release blocker is the environment-dependent Windows/npm/.NET/Elgato/Rat Art pipeline, which GitHub Actions still has not started.
+The exact-head JavaScript core is no longer stale. The remaining automated release blocker is the environment-dependent Windows/npm/.NET/Elgato/Rat Art pipeline, which GitHub Actions still has not started.
+
+The dedicated run `34742207090` created job `103683691891` with no steps. A manual Actions API retry succeeded in creating replacement job `103734846092`, but that job also failed with zero steps and no log blob. This confirms the failure is upstream of workflow checkout/execution.
