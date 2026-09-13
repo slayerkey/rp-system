@@ -17,6 +17,8 @@
     "72, 96, and 144 pixel Stream Deck-native render tests",
     "multiple configured key fan-out from one shared telemetry service",
     "synthetic long-session CPU, memory, and render benchmark",
+    "profile archive structure, grid bounds, action UUID, settings, and byte-determinism tests",
+    "deterministic MK.2, XL, Plus, and Neo profile generation",
     "official Elgato manifest validation",
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media",
@@ -138,7 +140,10 @@
       "presentmon_display_confirmed_fps_claim": false,
       "marketplace_description_limit": 1500,
       "package_size_ceiling_mb": 500,
-      "package_size_ceiling_source": "PackRat internal CI guard"
+      "package_size_ceiling_source": "PackRat internal CI guard",
+      "bundled_profiles": "MK2_XL_PLUS_NEO_DETERMINISTIC_GENERATOR_ADDED",
+      "upsell_relationship": "NONE_STANDALONE_PAID_PLUGIN_NO_LITE_PRO_PAIR",
+      "xeneon_performance_grapher_relationship": "ADJACENT_PLATFORM_PRODUCT_NOT_EDITION_UPSELL"
     },
     "contracts": {
       "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
