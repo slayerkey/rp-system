@@ -33,6 +33,8 @@ assert.match(patched, /marketplace_product_id/);
 assert.match(patched, /prod\.marketplace_auto_publish !== false/);
 assert.match(patched, /auto publish preference mismatch, refusing submit/);
 assert.doesNotMatch(patched, /auto publish did not enable/);
+assert.match(patched, /state\.versionUpdateStarted = true/);
+assert.match(patched, /prior Rat Ship attempt already opened the Create version flow/);
 
 const temp = join(tmpdir(), `ratpack-maker-console-${process.pid}.mjs`);
 try {
