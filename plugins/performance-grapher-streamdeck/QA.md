@@ -133,7 +133,7 @@ Additional deterministic review after the core smoke found and fixed:
 - Persistence now writes a temporary state file and atomically renames it into place, with corrupt-state quarantine retained as a second recovery layer.
 - The package build now includes Libre Hardware Monitor's exact MPL-2.0 license and upstream third-party notices.
 - PresentMon documentation now matches the deterministic direct-binary download and pinned SHA-256 build.
-- Marketplace description reduced from 2,000 to 1,352 characters to fit the current 1,500-character limit while preserving primary search terms early.
+- Marketplace description is currently 1,388 characters, below the current 1,500-character limit while preserving primary search terms early.
 - Rat Art already enforces a 288×288 search icon and 1920×960 cover/gallery media.
 
 ### Latest hosted-runner evidence
@@ -175,7 +175,7 @@ Additional current-head release changes that require the fresh run:
 - manifest sidebar category is `Performance Grapher`
 - action name is `Performance Alert`
 - Marketplace discovery categories are Gaming / Monitoring / Utilities
-- listing description is 1,369 characters
+- listing description is 1,388 characters
 - Rat Art no longer draws an approximate Stream Deck chassis
 - Rat Art fails closed if the PackRat logo or deterministic font cannot be resolved
 - Windows build now gates on a resolved NuGet dependency/license inventory
