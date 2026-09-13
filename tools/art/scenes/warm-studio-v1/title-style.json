@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "name": "warm-studio-launch",
+  "reference": "Ultimate Bundle for XENEON Edge approved hero",
+  "layout": {
+    "title_top_y": 0.14,
+    "accent_title_y": 0.38,
+    "subtitle_y": 0.50,
+    "title_max_width": 0.82,
+    "accent_title_max_width": 0.82,
+    "subtitle_max_width": 0.64
+  },
+  "type": {
+    "title_weight": "bold",
+    "accent_title_weight": "bold",
+    "subtitle_prefix_weight": "regular",
+    "subtitle_product_weight": "bold",
+    "title_max_height": 0.21,
+    "accent_title_max_height": 0.23,
+    "subtitle_max_height": 0.075
+  },
+  "colors": {
+    "title": "#F7F9FC",
+    "accent": "#F27900",
+    "subtitle": "#F2F3F5"
+  },
+  "background": {
+    "screen": "#05070A",
+    "orange_wave": true,
+    "orange_dots": true
+  },
+  "notes": "Preserve the approved reference hierarchy: huge white first line, huge orange second line, smaller centered subtitle with regular 'for' and bold product/platform name. The title stack is intentionally biased upward so the near-full-width XENEON can overlap the lower monitor without covering the subtitle. Do not add extra marketing copy."
+}

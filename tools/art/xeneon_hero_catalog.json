@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "scene": "warm-studio-v1",
+  "platform_subtitle": "for XENEON Edge",
+  "products": [
+    { "slug": "agenda-panel", "name": "Calendar Panel", "title": ["CALENDAR", "PANEL"] },
+    { "slug": "desk-notes", "name": "Desk Notes Lite", "title": ["DESK", "NOTES LITE"] },
+    { "slug": "desk-notes-pro", "name": "Desk Notes Pro", "title": ["DESK", "NOTES PRO"] },
+    { "slug": "discord-panel", "name": "Discord Voice Panel", "title": ["DISCORD", "VOICE PANEL"] },
+    { "slug": "helldivers", "name": "Helldivers 2 Panel", "title": ["HELLDIVERS 2", "PANEL"] },
+    { "slug": "net-dashboard", "name": "Net Dashboard", "title": ["NET", "DASHBOARD"] },
+    { "slug": "now-playing", "name": "Now Playing Panel", "title": ["NOW", "PLAYING"] },
+    { "slug": "obs-dashboard", "name": "Stream Dashboard", "title": ["STREAM", "DASHBOARD"] },
+    { "slug": "pc-power-meter", "name": "PC Power Meter Lite", "title": ["PC POWER", "METER LITE"] },
+    { "slug": "pc-power-meter-pro", "name": "PC Power Meter Pro", "title": ["PC POWER", "METER PRO"] },
+    { "slug": "rig-battery", "name": "Peripheral Battery Panel", "title": ["PERIPHERAL", "BATTERY PANEL"] },
+    { "slug": "snake", "name": "Snake", "title": ["", "SNAKE"] },
+    { "slug": "weather-timeline", "name": "Weather Timeline Lite", "title": ["WEATHER", "TIMELINE LITE"] },
+    { "slug": "weather-timeline-pro", "name": "Weather Timeline Pro", "title": ["WEATHER", "TIMELINE PRO"] },
+    { "slug": "work-session-tracker", "name": "Work Session Tracker Lite", "title": ["WORK SESSION", "TRACKER LITE"] },
+    { "slug": "work-session-tracker-pro", "name": "Work Session Tracker Pro", "title": ["WORK SESSION", "TRACKER PRO"] },
+    { "slug": "xeneon-edge-ultimate", "name": "XENEON EDGE Ultimate", "title": ["ULTIMATE", "BUNDLE"] }
+  ]
+}
