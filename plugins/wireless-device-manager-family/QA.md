@@ -8,7 +8,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 
 ## Hardware-free evidence completed
 
-- [x] 47 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
+- [x] 48 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
 - [x] capability flags are per device rather than global
 - [x] A2DP/HFP control eligibility is derived from Windows AssociationEndpointService contracts rather than broad Audio/Video device-class inference
 - [x] group names are canonicalized case-insensitively so `gaming` and `GAMING` feed the same dashboard
@@ -21,6 +21,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 - [x] dual-mode merge preserves an explicit classic native control target regardless of endpoint order
 - [x] fresh snapshots replace stale connected/disconnected state instead of OR-ing history
 - [x] paired sleeping devices remain paired and render SLEEP/OFF
+- [x] native endpoint merge preserves Windows unknown/present/absent tri-state instead of converting unknown presence into false
 - [x] removed devices render UNPAIRED and lose stale battery/control capabilities
 - [x] present-but-disconnected audio fixture can expose CONNECT without DISCONNECT
 - [x] adapter-off / bridge-error snapshots are guarded from being applied as removals
@@ -39,6 +40,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 - [x] bundled HEADPHONES status/control keys share one logical slot and identical seed metadata regardless of configuration order
 - [x] Lite bundled profiles contain no Pro-only favorite/group settings
 - [x] profile labels preserve live battery/status/control values rather than hiding them
+- [x] Property Inspector changes repaint linked keys immediately through a non-recursive repaint notifier
 - [x] no bundled profile or manifest exposes an Encoder action
 - [x] Marketplace SEO regression includes Bluetooth, wireless, battery, headphones, keyboard, mouse, controller, connect, disconnect, Windows, and Stream Deck
 - [x] Marketplace release notes follow Rat Ship's 3–6 bullet-line contract
