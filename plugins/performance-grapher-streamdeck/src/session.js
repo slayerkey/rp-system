@@ -170,6 +170,7 @@ export class SessionTracker {
       this.currentFps = fps;
       this.recent.push(bucket.startedAt, fps);
     }
+    this.frametimeRecent.push(bucket.startedAt, bucket.worstFrameMs);
 
     this.active.worstFrametimeMs = Math.max(this.active.worstFrametimeMs, bucket.worstFrameMs);
     this._updatePeaks(metrics);
