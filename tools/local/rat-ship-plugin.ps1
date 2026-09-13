@@ -137,14 +137,6 @@ function Copy-SubmissionFiles {
     Copy-Item $SubmissionPath (Join-Path $Target "submission.json") -Force
     Set-Content -Path (Join-Path $Target "PASTE_description.txt") -Value ([string]$Submission.description).Trim() -Encoding UTF8
     Set-Content -Path (Join-Path $Target "PASTE_release_notes.txt") -Value ([string]$Submission.release_notes).Trim() -Encoding UTF8
-
-    $sourceDir = Split-Path -Parent $SubmissionPath
-    foreach ($evidenceName in @("QA.md", "REAL_WINDOWS_SMOKE.md", "DEMO_VIDEO.md", "ART_REVIEW.md")) {
-        $evidencePath = Join-Path $sourceDir $evidenceName
-        if (Test-Path $evidencePath -PathType Leaf) {
-            Copy-Item $evidencePath (Join-Path $Target $evidenceName) -Force
-        }
-    }
 }
 
 function Copy-ValidatedArtifactMedia {
