@@ -91,3 +91,27 @@ Everything in Lite plus:
 - A helper crash triggers a recovery release pass from the plugin.
 - The Stop action and Ctrl+Shift+F12 both cancel playback globally.
 - Bundled examples exclude anti-AFK, cheats, gameplay farming or abusive automation.
+
+
+## Current competitor verification update
+
+Verified against current Marketplace pages and vendor documentation on 2026-09-12:
+
+- **SuperMacro 2.5.1**, updated 2026-08-07, Windows, Stream Deck 7.1+. BarRaider's current getting-started flow begins by having the user type commands such as `{{F5}}`, `{{WIN}}`, and `{{CTRL}{C}}`. Current docs expose explicit keyboard commands, mouse coordinates, mouse button down/up, wheel actions, pauses, variables, functions, toggles, sticky/repeating macros, and a Mouse Location helper. This is powerful but materially different from Macro Recorder's capture-first workflow.
+- **Humble Macro 1.0.0.5**, updated 2026-06-10, Windows, Stream Deck 6.9+. Current Marketplace metadata shows no bundled profiles.
+- **Simple Macro 1.1.0.2**, updated 2026-06-09, Windows + macOS, Stream Deck 7+. Current Marketplace metadata shows no bundled profiles. A similarly named Hajsori GitHub project is specifically for controlling Simple Voice Chat and should not be mistaken for evidence about generic recorder behavior without additional verification.
+- **Mouse Magic 0.5.2**, updated 2026-05-21, macOS, Stream Deck 6.9+. Current Marketplace metadata shows no bundled profiles.
+- Native Stream Deck Multi Actions remain manually assembled action sequences rather than captured keyboard/mouse performances.
+
+### Competitive boundary retained
+
+The family remains a GO because the first-order UX is still distinct:
+
+1. press Record
+2. perform the real workflow
+3. press Stop
+4. assign/reuse the recording
+
+The product does not attempt to match SuperMacro's scripting language, variables, file functions, or arbitrary command DSL. Those are deliberately outside scope.
+
+PackRat's differentiation is capture-first authoring, visible recording state, timeline correction after capture, local reusable macros in Pro, bundled starter profiles, and a safety-first global stop / stuck-input recovery path.
