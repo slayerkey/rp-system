@@ -67,6 +67,23 @@ test("manifest targets Stream Deck 7.3 for current profile navigation and device
   }
 });
 
+test("Lite and Pro have collision-free catalog, plugin and action identities", async () => {
+  const catalog = JSON.parse(await readFile(path.resolve("..", "..", "index.json"), "utf8"));
+  for (const id of ["windows-settings-manager-lite", "windows-settings-manager-pro"]) {
+    assert.equal(catalog.products.filter((item) => item.id === id).length, 1, `${id} must appear exactly once in products/index.json`);
+  }
+
+  const lite = await manifest("lite");
+  const pro = await manifest("pro");
+  assert.notEqual(lite.UUID, pro.UUID);
+
+  const liteActions = lite.Actions.map((item) => item.UUID);
+  const proActions = pro.Actions.map((item) => item.UUID);
+  assert.equal(new Set(liteActions).size, liteActions.length, "Lite action UUID collision");
+  assert.equal(new Set(proActions).size, proActions.length, "Pro action UUID collision");
+  assert.deepEqual(liteActions.filter((uuid) => proActions.includes(uuid)), []);
+});
+
 test("Pro owns the PC Mode layer without inventing optimization actions", async () => {
   const value = await manifest("pro");
   const names = value.Actions.map((item) => item.Name);
