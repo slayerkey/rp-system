@@ -81,7 +81,7 @@ jobs:
             if (!(Test-Path "$plugin\bin\wireless-device-bridge-x64.exe")) { throw "$plugin missing x64 bridge" }
             if (!(Test-Path "$plugin\bin\wireless-device-bridge-arm64.exe")) { throw "$plugin missing arm64 bridge" }
             $profiles = @(Get-ChildItem "$plugin\profiles" -Filter *.streamDeckProfile -File)
-            if ($profiles.Count -ne 3) { throw "$plugin expected three profiles" }
+            if ($profiles.Count -ne 5) { throw "$plugin expected five profiles" }
             $manifest = Get-Content "$plugin\manifest.json" -Raw
             if ($manifest -match '"Encoder"') { throw "$plugin must not expose fake dial support" }
             Get-Item "$plugin\bin\wireless-device-bridge-x64.exe","$plugin\bin\wireless-device-bridge-arm64.exe" |
