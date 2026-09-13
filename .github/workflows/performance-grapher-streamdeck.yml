@@ -132,6 +132,7 @@ jobs:
           $thumbnailReview = "dist/marketplace-qa/hero-thumbnail-review.png"
           if (-not (Test-Path $thumbnailReview)) { throw "Missing Marketplace V2 thumbnail review sheet." }
           foreach ($licenseEvidence in @(
+            "com.packrat.performance-grapher.sdPlugin/licenses/PresentMon-MIT-v2.5.1.txt",
             "com.packrat.performance-grapher.sdPlugin/licenses/npm/NPM_LICENSE_INVENTORY.json",
             "com.packrat.performance-grapher.sdPlugin/licenses/npm/NPM_LICENSE_INVENTORY.md",
             "com.packrat.performance-grapher.sdPlugin/licenses/dotnet/NUGET_LICENSE_INVENTORY.json",
