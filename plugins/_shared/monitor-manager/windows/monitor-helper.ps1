@@ -396,7 +396,7 @@ public static class MonitorNative {
             if (!have) {
                 bool hs, he; bool hq=TryHdr(mi.szDevice, false, false, out hs, out he);
                 list.Add(new DisplayRecord {
-                    deviceName=mi.szDevice, monitorDevicePath=StableMonitorPath(mi.szDevice), description=mi.szDevice, internalDisplay=IsInternalDisplay(mi.szDevice), primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
+                    deviceName=mi.szDevice, monitorDevicePath=(StableMonitorPath(mi.szDevice) ?? mi.szDevice) + "#0", description=mi.szDevice, internalDisplay=IsInternalDisplay(mi.szDevice), primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
                     left=mi.rcMonitor.left, top=mi.rcMonitor.top, right=mi.rcMonitor.right, bottom=mi.rcMonitor.bottom,
                     physicalIndex=0, physicalCount=0, capabilities=null, ddcBrightness=false, ddcContrast=false,
                     currentMode=GetCurrentMode(mi.szDevice), modes=GetModes(mi.szDevice),
