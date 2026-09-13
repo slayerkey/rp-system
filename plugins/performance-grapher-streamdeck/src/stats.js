@@ -16,45 +16,47 @@ export function lowestAverage(values, fraction) {
   return total / count;
 }
 
-export class LowFpsHistogram {
-  constructor({ step = 0.5, maxFps = 1000 } = {}) {
-    this.step = step;
-    this.maxFps = maxFps;
-    this.counts = new Uint32Array(Math.ceil(maxFps / step) + 2);
+export class FrameTimeHistogram {
+  constructor({ stepMs = 0.25, maxFrameMs = 5000 } = {}) {
+    this.stepMs = Math.max(0.01, Number(stepMs) || 0.25);
+    this.maxFrameMs = Math.max(this.stepMs, Number(maxFrameMs) || 5000);
+    this.counts = new Uint32Array(Math.ceil(this.maxFrameMs / this.stepMs) + 2);
     this.sums = new Float64Array(this.counts.length);
     this.count = 0;
-    this.sum = 0;
+    this.totalFrameMs = 0;
   }
 
   add(value) {
-    const fps = Number(value);
-    if (!Number.isFinite(fps) || fps < 0) return;
-    const index = Math.min(this.counts.length - 1, Math.floor(fps / this.step));
+    const frameMs = Number(value);
+    if (!Number.isFinite(frameMs) || frameMs <= 0) return;
+    const index = Math.min(this.counts.length - 1, Math.floor(frameMs / this.stepMs));
     this.counts[index] += 1;
-    this.sums[index] += fps;
+    this.sums[index] += frameMs;
     this.count += 1;
-    this.sum += fps;
+    this.totalFrameMs += frameMs;
   }
 
   average() {
-    return this.count ? this.sum / this.count : null;
+    return this.count && this.totalFrameMs > 0 ? this.count * 1000 / this.totalFrameMs : null;
   }
 
   lowest(fraction) {
     if (!this.count) return null;
     let remaining = Math.max(1, Math.ceil(this.count * clamp(fraction, 0.0001, 1)));
-    let total = 0;
+    let totalFrameMs = 0;
     let taken = 0;
-    for (let i = 0; i < this.counts.length && remaining > 0; i += 1) {
+
+    for (let i = this.counts.length - 1; i >= 0 && remaining > 0; i -= 1) {
       const count = this.counts[i];
       if (!count) continue;
       const use = Math.min(count, remaining);
-      const mean = this.sums[i] / count;
-      total += mean * use;
+      const meanFrameMs = this.sums[i] / count;
+      totalFrameMs += meanFrameMs * use;
       taken += use;
       remaining -= use;
     }
-    return taken ? total / taken : null;
+
+    return taken && totalFrameMs > 0 ? taken * 1000 / totalFrameMs : null;
   }
 
   toJSON() {
@@ -62,28 +64,60 @@ export class LowFpsHistogram {
     for (let i = 0; i < this.counts.length; i += 1) {
       if (this.counts[i]) sparse.push([i, this.counts[i], this.sums[i]]);
     }
-    return { step: this.step, maxFps: this.maxFps, count: this.count, sum: this.sum, sparse };
+    return {
+      kind: "frame-time-histogram-v1",
+      stepMs: this.stepMs,
+      maxFrameMs: this.maxFrameMs,
+      count: this.count,
+      totalFrameMs: this.totalFrameMs,
+      sparse,
+    };
   }
 
   static fromJSON(value) {
-    const hist = new LowFpsHistogram({
-      step: Number(value?.step) || 0.5,
-      maxFps: Number(value?.maxFps) || 1000,
+    if (value?.kind !== "frame-time-histogram-v1" && (value?.step || value?.maxFps)) {
+      return FrameTimeHistogram._fromLegacyFpsHistogram(value);
+    }
+
+    const hist = new FrameTimeHistogram({
+      stepMs: Number(value?.stepMs) || 0.25,
+      maxFrameMs: Number(value?.maxFrameMs) || 5000,
     });
     for (const row of Array.isArray(value?.sparse) ? value.sparse : []) {
       const [iRaw, cRaw, sRaw] = row || [];
       const i = Number(iRaw);
-      const c = Number(cRaw);
-      const s = Number(sRaw);
-      if (!Number.isInteger(i) || i < 0 || i >= hist.counts.length || !Number.isFinite(c) || !Number.isFinite(s)) continue;
-      hist.counts[i] = Math.max(0, Math.floor(c));
-      hist.sums[i] = s;
+      const count = Math.max(0, Math.floor(Number(cRaw)));
+      const sum = Number(sRaw);
+      if (!Number.isInteger(i) || i < 0 || i >= hist.counts.length || !Number.isFinite(count) || !Number.isFinite(sum)) continue;
+      hist.counts[i] = count;
+      hist.sums[i] = sum;
     }
     hist.count = Number(value?.count) || hist.counts.reduce((a, b) => a + b, 0);
-    hist.sum = Number(value?.sum) || hist.sums.reduce((a, b) => a + b, 0);
+    hist.totalFrameMs = Number(value?.totalFrameMs) || hist.sums.reduce((a, b) => a + b, 0);
+    return hist;
+  }
+
+  static _fromLegacyFpsHistogram(value) {
+    const hist = new FrameTimeHistogram();
+    for (const row of Array.isArray(value?.sparse) ? value.sparse : []) {
+      const [, cRaw, sRaw] = row || [];
+      const count = Math.max(0, Math.floor(Number(cRaw)));
+      const fpsSum = Number(sRaw);
+      if (!count || !Number.isFinite(fpsSum) || fpsSum <= 0) continue;
+      const meanFps = fpsSum / count;
+      const frameMs = 1000 / meanFps;
+      const index = Math.min(hist.counts.length - 1, Math.floor(frameMs / hist.stepMs));
+      hist.counts[index] += count;
+      hist.sums[index] += frameMs * count;
+      hist.count += count;
+      hist.totalFrameMs += frameMs * count;
+    }
     return hist;
   }
 }
+
+// Backward-compatible export name for pre-release tests/state readers.
+export const LowFpsHistogram = FrameTimeHistogram;
 
 export function formatDuration(ms) {
   const seconds = Math.max(0, Math.floor(Number(ms) / 1000));
