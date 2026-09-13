@@ -1,4 +1,5 @@
 import test from "node:test";
+import { EventEmitter } from "node:events";
 import assert from "node:assert/strict";
 import { PresentMonProvider, parsePresentMonRows, splitCsv } from "../src/presentmon.js";
 
@@ -48,4 +49,63 @@ test("live provider prefers MsBetweenPresents over v2 FrameTime", () => {
   assert.equal(frames.length, 1);
   assert.equal(frames[0].application, "game.exe");
   assert.equal(frames[0].frameTimeMs, 16.67);
+});
+
+
+function fakePresentMonChild() {
+  const child = new EventEmitter();
+  child.stdout = new EventEmitter();
+  child.stderr = new EventEmitter();
+  child.killed = false;
+  child.kill = () => { child.killed = true; };
+  return child;
+}
+
+function fakeLineInterface() {
+  return { on() {}, close() {} };
+}
+
+test("stale PresentMon child cannot overwrite replacement status", () => {
+  const children = [];
+  const provider = new PresentMonProvider({
+    executable: "PresentMon.exe",
+    spawnProcess: () => {
+      const child = fakePresentMonChild();
+      children.push(child);
+      return child;
+    },
+    createLineInterface: fakeLineInterface,
+  });
+
+  provider.start();
+  const first = children[0];
+  provider.restart();
+  const second = children[1];
+
+  assert.equal(first.killed, true);
+  assert.equal(provider.child, second);
+  assert.equal(provider.status.state, "starting");
+
+  first.emit("close", 1);
+  assert.equal(provider.child, second);
+  assert.equal(provider.status.state, "starting");
+  assert.equal(provider.restartTimer, null);
+  provider.stop();
+});
+
+test("PresentMon launch error remains unavailable and schedules recovery after close", () => {
+  const child = fakePresentMonChild();
+  const provider = new PresentMonProvider({
+    executable: "PresentMon.exe",
+    spawnProcess: () => child,
+    createLineInterface: fakeLineInterface,
+  });
+
+  provider.start();
+  child.emit("error", new Error("spawn blocked"));
+  assert.equal(provider.status.state, "unavailable");
+  child.emit("close", -1);
+  assert.equal(provider.status.state, "unavailable");
+  assert.ok(provider.restartTimer);
+  provider.stop();
 });
