@@ -1,0 +1,24 @@
+{
+  "id": "monitor-manager-lite",
+  "name": "Monitor Manager Lite",
+  "type": "plugin",
+  "status": "testing",
+  "workflow_state": "TESTING",
+  "price_usd": 0,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/monitor-manager-lite",
+  "plugin_uuid": "com.packrat.monitormanagerlite",
+  "automated_feasibility": "PASS",
+  "release_gate": [
+    "Windows helper compile and scan smoke: REQUIRED",
+    "unit and capability parser fixtures: REQUIRED",
+    "four deterministic V2 bundled profiles: REQUIRED",
+    "official Stream Deck CLI validation and packaging: REQUIRED",
+    "deterministic Rat Art dimension gate: REQUIRED",
+    "physical external DDC/CI monitor smoke: REQUIRED before Marketplace submission",
+    "physical laptop internal brightness smoke: REQUIRED before Marketplace submission",
+    "direct Pro Marketplace CTA remains disabled until a verified public Pro product URL exists"
+  ],
+  "notes": "Lite intentionally controls one configured monitor and does not include saved monitor profiles or multi-monitor orchestration. DDC/CI low-level writes are restricted to the safe product allowlist and gated by advertised capabilities. No generic or placeholder PackRat Pro URL is allowed."
+}
