@@ -19,7 +19,7 @@ The direct URLs below were recovered from Elgato's live public Marketplace API f
 |---|---|---|---|
 | Better Hotkeys & Mouse | Better Hotkeys & Mouse Pro | Stream Deck | local source required |
 | DaVinci Resolve Lite | DaVinci Resolve Pro | Stream Deck profile | local source required |
-| Window Manager Lite | Window Manager Pro | Stream Deck | local source required |
+| Window Manager Lite | Window Manager Pro | Stream Deck | private source verified in `slayerkey/vcs` |
 | Workflow Automation Lite | Workflow Automation Pro | Stream Deck | local source required |
 | Calendar Sync Lite | Calendar Sync Pro | Stream Deck | local source required |
 | Epic Pen Profile | Epic Pen Pro Profile | Stream Deck profile | local source required |
@@ -76,7 +76,6 @@ The connected canonical repository does not contain the shipping source for thes
 
 - Better Hotkeys & Mouse Lite / Pro
 - Clipboard Manager / Pro
-- Window Manager Lite / Pro
 - Workflow Automation Lite / Pro
 - Calendar Sync Lite / Pro
 - Epic Pen Profile / Pro Profile

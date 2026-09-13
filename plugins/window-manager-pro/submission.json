@@ -27,5 +27,6 @@
   "release_notes": "- Added shared named workspaces and Capture Current Desktop.\n- Added one-key workspace restore with stronger multi-window matching and missing-app launch/retry.\n- Improved multi-monitor recovery for reordered, removed, and changed-resolution displays.\n- Improved repeated-restore idempotency, launch failure reporting, and minimized-window recovery.\n- Hardened Windows and macOS window/display identity while preserving existing Window Layout, Snap Window, Cycle Windows, and Nudge Window behavior.\n- Preserved the existing Window Manager Pro UUIDs, Stream Deck 6.9+ support, macOS + Windows compatibility, and Stream Deck + dial support.",
   "target_price_usd": 9.99,
   "marketplace_product_id": "f3ed6217-0282-419d-a71d-4b1548147b11",
-  "marketplace_existing_version": "1.1"
+  "marketplace_existing_version": "1.1",
+  "marketplace_existing_product_update": true
 }

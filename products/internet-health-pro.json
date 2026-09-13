@@ -1,0 +1,56 @@
+{
+  "id": "internet-health-pro",
+  "name": "Internet Health Pro",
+  "type": "plugin",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "blocker": null,
+  "price_usd": 7.99,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows + macOS",
+  "source": "plugins/internet-health-pro",
+  "submission_metadata": "plugins/internet-health-pro/submission.json",
+  "branch": "product/internet-health-pro",
+  "release_gate": [
+    "one shared monitoring engine per plugin process",
+    "native ICMP latency with honest TCP-connect, DNS lookup and HTTPS response timing labels",
+    "multi-signal outage detection with two-cycle confirmation",
+    "ICMP-blocked network fallback without false 100% probe loss",
+    "user-adjustable latency, jitter and probe-loss thresholds",
+    "bounded local-only 24-hour raw health history",
+    "manual-only throughput test capped at approximately 10 MB per run",
+    "deterministic healthy/latency/jitter/loss/outage/DNS/recovery/sleep/target/IPv4-IPv6/restart/storage tests",
+    "clean Windows and macOS live network smoke",
+    "official Elgato Stream Deck CLI validation",
+    "official .streamDeckPlugin packaging",
+    "deterministic Rat Art and marketplace kit preflight"
+  ],
+  "final_boundary": "Install the exact packaged .streamDeckPlugin in Stream Deck and physically observe live key rendering through a disconnect/reconnect and one manual speed test before Marketplace submission.",
+  "qa_note": "Final ship-readiness gate passed on source/listing candidate 81b3fd24f53aafaabda0211c856913a3058cd454. The audit fixed explicit ICMP family command construction (macOS IPv4 uses plain ping; macOS IPv6 uses ping6; Linux IPv6 uses -6), reduced first-release notes to six scan-friendly bullets, and added regression checks for version consistency and extensionless Elgato manifest asset paths. Windows and macOS tests/build/live smoke, npm audit/check, official Elgato validation/package, deterministic Rat Art, package/media verification, Lite Pro Portfolio Audit, and Rat Ship Marketplace Routing CI all passed.",
+  "automated_release_evidence": {
+    "candidate_commit": "81b3fd24f53aafaabda0211c856913a3058cd454",
+    "github_actions_run": 34775143252,
+    "status": "PASSED",
+    "windows_job": 103771789559,
+    "macos_job": 103771789657,
+    "package_job": 103772217662,
+    "artifact_id": 10323805400,
+    "artifact_digest": "sha256:935d5f42d08b547b72f414707c1c9921609308bf1bad40392a0d11fbcf7bc51d",
+    "package_sha256": "C87FA3F1A194F2578A6D183A3CCC214AF72D666D9033C8D6D5554201754E7E7F",
+    "lite_pro_audit_run": 34775143226,
+    "rat_ship_routing_run": 34775143224
+  },
+  "catalog_audit": {
+    "profiles": {
+      "included": false,
+      "decision": "intentional",
+      "reason": "Internet Health Pro is a standalone utility and does not promise a bundled dashboard profile. PackRat bundles profiles when layout is part of the product promise, such as Voice Deck and Valorant Tracker."
+    },
+    "upsell": {
+      "classification": "standalone_paid",
+      "lite_pro_pair": false,
+      "verified_against": "products/lite-pro-map.json",
+      "note": "Do not invent a Lite counterpart. net-spike remains explicitly classified as a standalone free XENEON network probe, not an Internet Health Lite edition."
+    }
+  }
+}
