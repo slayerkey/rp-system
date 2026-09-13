@@ -43,7 +43,7 @@
   ],
   "source_of_truth": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md",
   "implementation": {
-    "status": "implemented_and_windows_build_validated_pending_real_host_acceptance",
+    "status": "implemented_and_synchronized_windows_release_validated_pending_real_host_acceptance",
     "native_commit": "cc72c031546c883d0fc248882a7980a87e396b36",
     "parent_watch_commit": "b41ccbc9f76742f1a4f38ccdf03f0a5b63b92717",
     "regression_tests": [
@@ -57,13 +57,16 @@
     ]
   },
   "automated_evidence": {
-    "run_id": 34777365333,
-    "head_sha": "2f6aa418ffbbbd4927034689d224c6dccd3b1b0b",
-    "artifact_id": 10324027648,
-    "artifact_digest": "sha256:d54960f0be72105341d33810cd13e3eb8a5eadea909ca39c53eaa43ae91c62cd",
-    "lite_package_sha256": "01DFA188482FEF0E8F735F7408879C5B0AE77EEDE8D8961765792AB81E9F009A",
-    "pro_package_sha256": "B5D7C15C0B94E75A0900037EA36F1593168AE092A909F2386E00275D3972DCAF",
+    "run_id": 34777832830,
+    "head_sha": "b91ed6e14e5b90ed97af2bed69b0dc0c39a7860f",
+    "source_contract": "PASS",
+    "windows_release": "PASS",
+    "artifact_id": 10323523216,
+    "artifact_digest": "sha256:350e2ff485add52a6591be0cf86ac14ef3755d65adc0bcc234647acbf864adf1",
+    "lite_package_sha256": "75F8ABD1829E72866B98D5FDC22DC9B5F65E1EBE5283D312D8F2A333C3D63965",
+    "pro_package_sha256": "29DE0D65292ED42785BA5BB5EDEDD9577B2B07E2694B0DA997F6318FFF429051",
     "lite_tests": "19/19",
-    "pro_tests": "37/37"
+    "pro_tests": "37/37",
+    "native_source_hash": "4d76365103b5"
   }
 }
