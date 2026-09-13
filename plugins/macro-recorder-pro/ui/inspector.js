@@ -76,7 +76,6 @@
     settings={...(next||{})};
     if(pro){
       $("captureMouseMovement").checked=settings.captureMouseMovement!==false;
-      $("recordCoordinateMode").value=settings.coordinateMode==="active-window"?"active-window":"absolute";
       $("playbackSpeed").value=String(settings.playbackSpeed||1);
       $("playbackMode").value=["once","count","while-held","toggle"].includes(settings.playbackMode)?settings.playbackMode:"once";
       $("repeatCount").value=Number(settings.repeatCount||2);
@@ -97,7 +96,6 @@
   $("assignLatest").addEventListener("click",()=>command("assignLatest"));
   if(pro){
     $("captureMouseMovement").addEventListener("change",()=>saveSettings({captureMouseMovement:$("captureMouseMovement").checked}));
-    $("recordCoordinateMode").addEventListener("change",()=>saveSettings({coordinateMode:$("recordCoordinateMode").value}));
     $("macroSelect").addEventListener("change",()=>command("selectMacro",{macroId:$("macroSelect").value}));
     $("macroName").addEventListener("change",()=>{if(!state?.macro)return;const macro={...state.macro,name:$("macroName").value.trim()||state.macro.name};command("saveMacro",{macroId:macro.id,macro});});
     $("duplicateMacro").addEventListener("click",()=>command("duplicateMacro",{macroId:$("macroSelect").value}));
