@@ -86,11 +86,20 @@ export class DeviceCatalog {
     const seen = new Set<string>();
     for (const raw of rawDevices) {
       if (!raw?.id) continue;
-      const next = normalizeDevice(raw, now);
-      seen.add(next.stableId);
-      const previous = this.devices.get(next.stableId);
-      this.devices.set(next.stableId, { ...previous, ...next, lastObservedAt: now });
-      this.aliases.set(raw.id, next.stableId);
+      const normalized = normalizeDevice(raw, now);
+      const container = raw.containerId?.trim().toLowerCase();
+      const sameContainer = container
+        ? [...this.devices.values()].find(d => d.containerId?.trim().toLowerCase() === container)
+        : undefined;
+      const resolvedId = this.devices.has(normalized.stableId)
+        ? normalized.stableId
+        : (sameContainer?.stableId ?? normalized.stableId);
+      const next = { ...normalized, stableId: resolvedId };
+      seen.add(resolvedId);
+      const previous = this.devices.get(resolvedId);
+      this.devices.set(resolvedId, { ...previous, ...next, lastObservedAt: now });
+      this.aliases.set(raw.id, resolvedId);
+      this.aliases.set(normalized.stableId, resolvedId);
     }
     for (const [id, device] of this.devices) {
       if (!seen.has(id)) {
