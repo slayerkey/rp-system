@@ -112,6 +112,12 @@ Automatic resolution order:
 
 A friendly-name-only match is not sufficient for automatic rebinding.
 
+### Windows 11 StableId follow-up
+
+Microsoft added `PKEY_AudioEndpoint_StableId` for Windows 11 24H2+ and documents it specifically for remembering the same audio endpoint across operating-system and driver updates. It is a strong future identity tier when available.
+
+Do not hard-code that property until the exact property-key definition is verified against the current Windows SDK in the Windows build environment. Windows 10 remains supported, so StableId must stay optional and the existing fail-closed fallback chain remains required.
+
 ## Apply result contract
 
 Every Audio Profile application resolves to:
