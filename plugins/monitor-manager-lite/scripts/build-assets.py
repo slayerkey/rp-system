@@ -1,31 +1,39 @@
 from pathlib import Path
-from PIL import Image, ImageDraw
+import struct
+import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "com.packrat.monitormanagerlite.sdPlugin"
-OUT = PLUGIN / "imgs" / "plugin"
+OUT = ROOT / "com.packrat.monitormanagerlite.sdPlugin" / "imgs" / "plugin"
 OUT.mkdir(parents=True, exist_ok=True)
 
-def icon(size: int) -> Image.Image:
-    im = Image.new("RGBA", (size, size), (8, 11, 15, 255))
-    d = ImageDraw.Draw(im)
-    pad = int(size * 0.12)
-    radius = int(size * 0.12)
-    d.rounded_rectangle((pad, pad, size-pad, int(size*0.68)), radius=radius,
-                        fill=(17, 22, 29, 255), outline=(255, 255, 255, 255),
-                        width=max(2, size//64))
-    stand_y = int(size*0.76)
-    cx = size//2
-    d.line((cx, int(size*0.68), cx, stand_y), fill=(255,255,255,255), width=max(3,size//36))
-    d.line((int(size*0.34), stand_y, int(size*0.66), stand_y), fill=(255,255,255,255), width=max(3,size//36))
-    bar_x1, bar_x2 = int(size*0.23), int(size*0.77)
-    y = int(size*0.38)
-    d.rounded_rectangle((bar_x1, y, bar_x2, y+max(6,size//25)), radius=max(3,size//50), fill=(255,255,255,255))
-    knob = int(size*0.58)
-    r = max(5,size//24)
-    d.ellipse((knob-r, y-r//2, knob+r, y+max(6,size//25)+r//2), fill=(43,232,106,255))
-    return im
+def png(path: Path, size: int) -> None:
+    bg=(8,11,15,255); panel=(17,22,29,255); white=(255,255,255,255); green=(43,232,106,255)
+    px=[list(bg) for _ in range(size*size)]
+    def put(x,y,c):
+        if 0<=x<size and 0<=y<size: px[y*size+x]=list(c)
+    def rect(x1,y1,x2,y2,c):
+        for y in range(max(0,y1),min(size,y2)):
+            for x in range(max(0,x1),min(size,x2)): put(x,y,c)
+    def line_h(x1,x2,y,w,c): rect(x1,y-w//2,x2,y+(w+1)//2,c)
+    def line_v(x,y1,y2,w,c): rect(x-w//2,y1,x+(w+1)//2,y2,c)
+    pad=int(size*.13); top=int(size*.18); bottom=int(size*.67); sw=max(3,size//64)
+    rect(pad,top,size-pad,bottom,panel)
+    rect(pad,top,size-pad,top+sw,white); rect(pad,bottom-sw,size-pad,bottom,white)
+    rect(pad,top,pad+sw,bottom,white); rect(size-pad-sw,top,size-pad,bottom,white)
+    cx=size//2; stand=int(size*.79)
+    line_v(cx,bottom,stand,max(3,size//38),white); line_h(int(size*.34),int(size*.66),stand,max(3,size//38),white)
+    y=int(size*.40); bar=max(6,size//28)
+    line_h(int(size*.24),int(size*.76),y,bar,white)
+    knob=int(size*.59); r=max(5,size//24)
+    for yy in range(y-r,y+r+1):
+        for xx in range(knob-r,knob+r+1):
+            if (xx-knob)**2+(yy-y)**2<=r*r: put(xx,yy,green)
+    raw=b"".join(b"\x00"+bytes(sum((px[y*size+x] for x in range(size)),[])) for y in range(size))
+    def chunk(kind,data):
+        return struct.pack(">I",len(data))+kind+data+struct.pack(">I",zlib.crc32(kind+data)&0xffffffff)
+    data=b"\x89PNG\r\n\x1a\n"+chunk(b"IHDR",struct.pack(">IIBBBBB",size,size,8,6,0,0,0))+chunk(b"IDAT",zlib.compress(raw,9))+chunk(b"IEND",b"")
+    path.write_bytes(data)
 
-icon(256).save(OUT / "marketplace.png", "PNG", optimize=True)
-icon(512).save(OUT / "marketplace@2x.png", "PNG", optimize=True)
+png(OUT/"marketplace.png",256)
+png(OUT/"marketplace@2x.png",512)
 print("Monitor Manager Lite plugin assets built.")
