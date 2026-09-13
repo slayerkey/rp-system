@@ -140,6 +140,7 @@ test("Lite shares one selected device while Pro keeps per-key targets",()=>{
   assert.equal(resolveSelectedDeviceId("lite","bt:global","bt:local"),"bt:global");
   assert.equal(resolveSelectedDeviceId("lite",null,"bt:local"),"bt:local");
   assert.equal(resolveSelectedDeviceId("pro","bt:global","bt:local"),"bt:local");
+  assert.equal(resolveSelectedDeviceId("pro","bt:global","bt:local","bt:slot"),"bt:slot");
   assert.equal(resolveSelectedDeviceId("pro","bt:global",null),null);
 });
 
