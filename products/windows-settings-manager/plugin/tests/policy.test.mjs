@@ -129,6 +129,14 @@ test("Pro owns the PC Mode layer without inventing optimization actions", async 
   assert.ok(!JSON.stringify(value).match(/registry|cloudstore|sendkeys|quick settings/i));
 });
 
+test("Marketplace cover key grids fail closed instead of clipping outside the safe frame", async () => {
+  const art = await readFile(path.resolve("scripts", "rat-art.py"), "utf8");
+  assert.match(art, /available_top = 340/);
+  assert.match(art, /available_bottom = 920/);
+  assert.match(art, /if total_h > available_h:[\s\S]*key = \(available_h - \(rows - 1\) \* gap\) \/\/ rows/);
+  assert.match(art, /if oy \+ total_h > available_bottom:[\s\S]*Marketplace key grid exceeds safe cover bounds/);
+});
+
 test("Rat Art resolves the exact Lite or Pro ship destination instead of guessing", async () => {
   const script = await readFile(path.resolve("rat-art.ps1"), "utf8");
   assert.match(script, /"windows-settings-manager-lite" \{ "lite" \}/);
