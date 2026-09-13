@@ -27,7 +27,7 @@
     "Import and export PackRat macro files and use absolute or active-window-relative mouse positioning.",
     "Includes five starter profile pages for macros, gaming menus, productivity, mouse and loops."
   ],
-  "privacy": "Macro contents stay local on the Windows PC and are never uploaded to PackRat.",
+  "privacy": "Macro contents are never uploaded to PackRat. The reusable Macro Library is stored locally in AppData; macro contents leave the library only when the user explicitly exports a PackRat macro file.",
   "compatibility": {
     "platform": "Windows 10+",
     "stream_deck": "7.1+"
