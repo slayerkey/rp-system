@@ -16,7 +16,7 @@ Lite proves the underlying individual controls. Pro adds the orchestration layer
 
 ## Supported v1 controls
 
-- HDR: live state plus On / Off / Toggle. Windows 11 build 26100+ uses the separate HDR state device-info path when available. Older Windows uses the legacy Advanced Color path and verifies readback.
+- HDR: live state plus On / Off / Toggle. Windows 11 (build 22000+) uses the HDR-specific Advanced Color Info 2 / HDR State device-info path and reads the actual active color mode. Windows 10 uses the legacy Advanced Color path with readback. Windows 11 never falls back to the legacy path because legacy Advanced Color can also represent WCG/ACM on SDR displays.
 - Power Plan: live active plan, cycle, or select an exact installed plan.
 - Display Topology: live Internal / Clone / Extend / External state plus control through SetDisplayConfig.
 - Screen & Sleep: live timeouts plus configurable exact values; the default key cycles only the screen timeout.
