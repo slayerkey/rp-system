@@ -234,3 +234,12 @@ test("malformed destructive enum settings fail closed", async () => {
   assert.match(source,/validStoredPercent/);
   assert.match(source,/validStoredMode/);
 });
+
+test("Pro inspector does not visually substitute an unplugged configured monitor", async () => {
+  const pi=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.js","utf8");
+  assert.match(pi,/Configured monitor not connected/);
+  assert.match(pi,/settings\.monitorKey\?monitorRows\.find/);
+  assert.match(pi,/CONFIGURED MONITOR NOT CONNECTED/);
+  assert.match(pi,/if\(input&&!row\) input\.textContent=""/);
+  assert.match(pi,/if\(mode&&!row\) mode\.textContent=""/);
+});
