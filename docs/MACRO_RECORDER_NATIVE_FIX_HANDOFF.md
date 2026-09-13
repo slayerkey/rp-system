@@ -149,8 +149,13 @@ Requirements:
 - release on stop/cancel/completion/error/shutdown
 - safe abandoned mutex recovery after a crash
 - do not prevent both plugin helpers from existing idle; only active input work must be exclusive
+- guard the shared `%LOCALAPPDATA%\PackRat\InputHost\held-input.json` with the same mutex
+- never perform held-input journal recovery while another helper owns the session mutex
+- once this helper owns the mutex, recover any stale journal before injecting or recording new input
+- treat an abandoned mutex as crash ownership transfer: acquire it, recover stale held input, then continue
+- starting the idle helper for the other edition must never release/delete a live journal owned by the active edition
 
-This also makes the playback-only Ctrl+Shift+F12 emergency hook deterministic across the product family.
+This also makes the playback-only Ctrl+Shift+F12 emergency hook deterministic across the product family and prevents cross-edition crash-recovery corruption.
 
 ## Native safety constraints
 
