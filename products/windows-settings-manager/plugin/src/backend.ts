@@ -38,8 +38,13 @@ export class WindowsBackend {
   }
 
   dispose(): void {
-    this.process?.kill();
+    const child = this.process;
     this.process = null;
+    try {
+      child?.stdin.end();
+    } catch {
+      // Closing stdin lets the PowerShell loop exit and clear Keep Awake cleanly.
+    }
     this.failPending(new Error("Windows backend stopped"));
   }
 

@@ -75,6 +75,7 @@ export async function startPlugin(flavor: Flavor): Promise<void> {
     }
   });
   runtime.state.subscribe(() => void sendInspectorContext());
+  streamDeck.system.onSystemDidWakeUp(() => void runtime.state.refresh());
 
   await streamDeck.connect();
   try {

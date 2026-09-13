@@ -394,9 +394,19 @@ public static class PackRatWindowsNative
             bool isSupported;
             bool current;
             string error;
-            bool readable = Environment.OSVersion.Version.Build >= 26100
-                ? TryReadNewHdr(path.targetInfo, out isSupported, out current, out error)
-                : TryReadLegacyHdr(path.targetInfo, out isSupported, out current, out error);
+            bool readable = false;
+            if (Environment.OSVersion.Version.Build >= 26100)
+                readable = TryReadNewHdr(path.targetInfo, out isSupported, out current, out error);
+            else
+            {
+                isSupported = false;
+                current = false;
+                error = null;
+            }
+
+            if (!readable)
+                readable = TryReadLegacyHdr(path.targetInfo, out isSupported, out current, out error);
+
             if (!readable || !isSupported) continue;
             supported++;
             if (SetHdrForTarget(path.targetInfo, enabled)) succeeded++;

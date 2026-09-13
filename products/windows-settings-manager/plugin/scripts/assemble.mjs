@@ -65,10 +65,9 @@ async function assemble(flavor) {
     await copyFile(path.join(UI, file), path.join(plugin, "ui", file));
   }
 
-  const svg = actionSvg();
-  await writeFile(path.join(plugin, "imgs", "actions", "common", "icon.svg"), svg);
-  await writeFile(path.join(plugin, "imgs", "actions", "common", "key.svg"), svg);
-  await writeFile(path.join(plugin, "imgs", "plugin", "category-icon.svg"), svg);
+  await writeFile(path.join(plugin, "imgs", "actions", "common", "icon.svg"), iconSvg());
+  await writeFile(path.join(plugin, "imgs", "actions", "common", "key.svg"), keySvg());
+  await writeFile(path.join(plugin, "imgs", "plugin", "category-icon.svg"), iconSvg());
 
   const profiles = await buildProfiles(flavor, plugin);
   await writeFile(path.join(plugin, "manifest.json"), JSON.stringify(manifest(flavor, profiles), null, 2) + "\n");
@@ -365,6 +364,10 @@ function crc32(buffer) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-function actionSvg() {
+function iconSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56"><g fill="#FFFFFF"><rect x="8" y="8" width="17" height="17" rx="2"/><rect x="31" y="8" width="17" height="17" rx="2"/><rect x="8" y="31" width="17" height="17" rx="2"/><rect x="31" y="31" width="17" height="17" rx="2"/></g></svg>`;
+}
+
+function keySvg() {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144"><rect width="144" height="144" rx="24" fill="#0f1218"/><g fill="#eef1f5"><rect x="33" y="32" width="34" height="34" rx="4"/><rect x="77" y="32" width="34" height="34" rx="4"/><rect x="33" y="76" width="34" height="34" rx="4"/><rect x="77" y="76" width="34" height="34" rx="4"/></g></svg>`;
 }
