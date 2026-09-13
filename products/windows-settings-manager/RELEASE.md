@@ -23,13 +23,19 @@ Generated bundles:
 - `out/com.packrat.windows-settings-manager-lite.sdPlugin`
 - `out/com.packrat.windows-settings-manager-pro.sdPlugin`
 
+## Compatibility
+
+- Windows 10 / 11, subject to the QA matrix
+- Stream Deck 7.3 or later
+- Bundled profiles: Stream Deck, Mini, XL, Stream Deck +, Neo, Galleon 100 SD, Stream Deck + XL
+
 ## Branch
 
 `product/windows-settings-manager`
 
 ## Release sequence
 
-1. Complete automated CI.
+1. Complete automated CI: locked install, strict TypeScript compile, policy tests, Windows backend smoke, official Elgato validation, and package creation.
 2. Run the physical Windows QA matrix in QA.md.
 3. Run and review deterministic Rat Art.
 4. Change both product records from BLOCKED to READY_TO_SHIP only after the release evidence is recorded.
