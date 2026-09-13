@@ -97,6 +97,16 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     };
   }
 
+  function inspectorStatus() {
+    return {
+      type: "macroRecorder.status",
+      recording,
+      playback: playback ? { actionId: playback.actionId, macroName: playback.macro?.name || "" } : null,
+      hasLatestMacro: Boolean(latestMacro?.events?.length),
+      lastError,
+    };
+  }
+
   async function sendInspector(record) {
     if (!record?.action?.sendToPropertyInspector) return;
     await record.action.sendToPropertyInspector(await inspectorState(record)).catch(() => {});
@@ -104,6 +114,13 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
 
   async function broadcastInspectors() {
     await Promise.all([...visible.values()].filter((record) => record.inspectorOpen).map(sendInspector));
+  }
+
+  async function broadcastStatus() {
+    const status = inspectorStatus();
+    await Promise.all([...visible.values()]
+      .filter((record) => record.inspectorOpen && record.action?.sendToPropertyInspector)
+      .map((record) => record.action.sendToPropertyInspector(status).catch(() => {})));
   }
 
   async function finalizeCapture(raw) {
@@ -136,7 +153,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     if (!recording) return;
     recording = { ...recording, eventCount: Number(message.eventCount || 0), elapsedMs: Number(message.elapsedMs || 0) };
     await renderAll();
-    await broadcastInspectors();
+    await broadcastStatus();
   });
   host.on("recordingStopped", (message) => {
     void finalizeCapture(message.macro).catch(async (error) => {
