@@ -31,49 +31,74 @@ These checks were executed in an isolated local harness and are useful regressio
 
 ## Automated execution status
 
-Canonical automated gates now pass on candidate commit `abd14d228b086d6e5af32f083ddb908d8e60b1bd`.
+Canonical automated gates pass on the exact current candidate commit `af2e7d4e8f0ff68a1c0dbe196cf92321dace0725`.
 
 ### Hosted Windows evidence
 
 - Workflow: Windows Settings Manager CI
-- Run: `34777753557`
-- Job: `103778871284`
+- Run: `34778323686`
+- Job: `103780511518`
 - Result: PASS
+- Runner: Windows Server 2025, build 26100
+- Node runtime under test: 20.20.2
 - Locked dependency install: PASS
-- Strict TypeScript build / Lite + Pro assembly: PASS
-- Policy suite: PASS
-- Native Windows backend smoke: PASS
+- Strict TypeScript `tsc --noEmit`: PASS
+- Lite + Pro assembly / Rollup build: PASS
+- Policy suite: PASS, 40/40 tests
+- Native Windows backend smoke under Windows PowerShell 5.1: PASS
   - embedded C# Add-Type compile
+  - JSON-line transport
   - ping
   - live snapshot
-  - Windows build read
-  - HDR API boundary read
+  - real Windows build read
+  - HDR separated-state API selected on build 26100
+  - power-plan read
   - Keep Awake on/off
-- Official Elgato CLI validation: PASS
-- Production dependency audit: PASS
+- Official Elgato CLI validation: PASS for Lite and Pro
+- Production dependency audit: PASS, 0 vulnerabilities
 - Official Lite package: PASS
 - Official Pro package: PASS
-- Uploaded package artifact: `10323468252`
-- Artifact digest: `sha256:094778e9c834d12b812e4a301a53c5c647c0fa43d12e85a72b63bc70fcf564e8`
+- Uploaded package artifact: `10323244689`
+- Artifact digest: `sha256:badb69cfd206697b3fb618886be581b0b87b3a82acb6f0bfca1ab6dcf730cc4f`
 
 ### Portable release evidence
 
 - Workflow: Windows Settings Manager Portable CI
-- Run: `34777753573`
-- Job: `103778871410`
+- Run: `34778323587`
+- Job: `103780511173`
 - Result: PASS
 - Locked dependency install: PASS
 - Strict TypeScript build / Lite + Pro assembly: PASS
-- Policy suite: PASS
-- Official Elgato CLI validation: PASS
-- Production dependency audit: PASS
+- Policy suite: PASS, 40/40 tests
+- Official Elgato CLI validation: PASS for Lite and Pro
+- Production dependency audit: PASS, 0 vulnerabilities
 - Official Lite + Pro packaging: PASS
 - Lite + Pro deterministic Rat Art: PASS
 - Marketplace media dimension verification: PASS
-- Uploaded release-evidence artifact: `10324277249`
-- Artifact digest: `sha256:44c6bf5c60cbb4a490cd43cfb0be392d331c607aa6428655b338b9bd497b53db`
+- Uploaded release-evidence artifact: `10323859244`
+- Artifact digest: `sha256:20f4109405217d34476ae67408f5653bbfa7b2a354e194273e03041b3bf277d1`
 
-The separate PackRat self-hosted Windows workflow may still be used for additional confidence, but it is no longer the only executable Windows evidence: the hosted Windows gate above exercised the native backend successfully.
+### Repository / commercial release gates
+
+All relevant repository-level gates also pass on `af2e7d4e8f0ff68a1c0dbe196cf92321dace0725`:
+
+- Lite Pro Portfolio Audit: PASS
+  - Run: `34778323618`
+  - Job: `103780511203`
+- Rat Ship Marketplace Routing CI: PASS
+  - Run: `34778323793`
+  - Job: `103780511827`
+- RatPack Lightweight CI: PASS
+  - Run: `34778323662`
+  - Job: `103780511205`
+  - canonical context: PASS
+  - JSON validation: PASS
+  - plugin release metadata: PASS
+  - Maker Console runtime patch: PASS
+  - local PowerShell syntax: PASS
+  - Rat Dev / Rat Audit lifecycle checks: PASS
+
+The separate PackRat self-hosted Windows gate remains optional additional confidence. It is not required to establish an executable Windows backend signal because the hosted Windows gate above successfully compiled and exercised the backend on Windows build 26100.
 
 ## Remaining validation boundary
 
