@@ -32,6 +32,14 @@ plugins/claude-auto-queue/com.packrat.claude-auto-queue.sdPlugin/profiles/
 # Discord Bridge deterministically generates runtime and icon assets during build.
 plugins/discord-bridge/com.packrat.discord-bridge.sdPlugin/bin/
 plugins/discord-bridge/com.packrat.discord-bridge.sdPlugin/imgs/
+# Audio Manager Pro generates its runtime bundle, UI copy, icons, self-contained
+# native helper, and release package locally. Canonical source lives outside these
+# generated directories.
+plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin/bin/
+plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin/imgs/
+plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin/ui/
+plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin/native/
+plugins/audio-manager-pro/dist/
 
 # Generated XENEON widget outputs
 # tools/xeneon/inline.py writes the flattened shipping entry point here.
