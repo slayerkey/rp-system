@@ -73,20 +73,27 @@ function scheduleRender(delay = 25) {
   renderTimer.unref?.();
 }
 
+function inspectorRecord() {
+  const openAction = streamDeck.ui.action;
+  if (!openAction?.id) return null;
+  return visible.get(String(openAction.id)) || null;
+}
+
 function scheduleInspector() {
   if (inspectorTimer) return;
   inspectorTimer = setTimeout(() => {
     inspectorTimer = null;
-    for (const record of visible.values()) {
-      if (record.inspectorOpen) void sendInspector(record);
-    }
+    const record = inspectorRecord();
+    if (record) void sendInspector(record);
   }, 500);
   inspectorTimer.unref?.();
 }
 
-async function sendInspector(record) {
+async function sendInspector(record = inspectorRecord()) {
+  const openAction = streamDeck.ui.action;
+  if (!record || !openAction?.id || String(openAction.id) !== record.id) return;
   try {
-    await record.action.sendToPropertyInspector({
+    await streamDeck.ui.sendToPropertyInspector({
       type: "performanceGrapher.state",
       action: record.kind,
       buildVersion: BUILD_VERSION,
@@ -134,7 +141,6 @@ class PerformanceAction extends SingletonAction {
       settings: normalizeSettings(ev.payload?.settings, this.kind),
       lastImage: "",
       lastRenderAt: 0,
-      inspectorOpen: false,
     };
     visible.set(id, record);
     telemetry.watchMetric(record.settings.metricId);
@@ -152,19 +158,13 @@ class PerformanceAction extends SingletonAction {
     telemetry.watchMetric(record.settings.metricId);
     record.lastImage = "";
     await renderRecord(record, true);
-    if (record.inspectorOpen) await sendInspector(record);
+    await sendInspector(record);
   }
 
   async onPropertyInspectorDidAppear(ev) {
     const record = visible.get(String(ev.action?.id || ""));
     if (!record) return;
-    record.inspectorOpen = true;
     await sendInspector(record);
-  }
-
-  onPropertyInspectorDidDisappear(ev) {
-    const record = visible.get(String(ev.action?.id || ""));
-    if (record) record.inspectorOpen = false;
   }
 
   async onSendToPlugin(ev) {
