@@ -5,6 +5,7 @@ import { endpointIdentity, matchEndpoint } from "./device-matching.js";
 import {
   buildApplyPlan,
   captureProfileFromSnapshot,
+  cycleCurrentIndex,
   emptyGlobalSettings,
   findProfile,
   mergeApplyResult,
@@ -295,18 +296,10 @@ async function setSelectedDevice(record) {
   scheduleRender(0);
 }
 
-function currentlyActiveProfileIndex() {
-  const profiles = globalSettings.profiles;
-  if (!profiles.length) return -1;
-  const remembered = profiles.findIndex((profile) => profile.id === globalSettings.lastAppliedProfileId);
-  if (remembered >= 0) return remembered;
-  return profiles.findIndex((profile) => profileMatchesSnapshot(profile, latestSnapshot));
-}
-
 async function cycleProfile(record) {
   if (!globalSettings.profiles.length) return applySelected(record);
   await refreshSnapshot({ quiet: true });
-  const current = currentlyActiveProfileIndex();
+  const current = cycleCurrentIndex(globalSettings, latestSnapshot, record.settings.profileId);
   const nextIndex = current < 0 ? 0 : (current + 1) % globalSettings.profiles.length;
   const next = globalSettings.profiles[nextIndex];
   record.settings = { ...record.settings, profileId: next.id };
