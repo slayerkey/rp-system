@@ -65,3 +65,48 @@ test("restored histories are sorted chronologically before latest/series use", (
   assert.deepEqual(history.archive.map(([at]) => at), [0, 1000, 2000]);
   assert.equal(history.latest(), 3);
 });
+
+
+test("persistence snapshot does not erase an FPS drop later in the same archive bucket", () => {
+  const history = new BoundedHistory({ rawMax: 100, archiveMax: 100, archiveMs: 1000, archiveMode: "min" });
+  history.push(1000, 30);
+  const saved = history.toJSON();
+  history.push(1500, 144);
+  history.push(2100, 144);
+  const live = history.series(5000, 2500);
+  assert.ok(live.some(([at, value]) => at === 1000 && value === 30));
+
+  const restored = BoundedHistory.fromJSON(saved, { rawMax: 100, archiveMax: 100, archiveMs: 1000, archiveMode: "min" });
+  restored.push(1500, 144);
+  restored.push(2100, 144);
+  const afterRestart = restored.series(5000, 2500);
+  assert.ok(afterRestart.some(([at, value]) => at === 1000 && value === 30));
+});
+
+test("persistence snapshot does not erase a frametime spike later in the same archive bucket", () => {
+  const history = new BoundedHistory({ rawMax: 100, archiveMax: 100, archiveMs: 1000, archiveMode: "max" });
+  history.push(1000, 55);
+  const saved = history.toJSON();
+  history.push(1500, 7);
+  history.push(2100, 7);
+  const live = history.series(5000, 2500);
+  assert.ok(live.some(([at, value]) => at === 1000 && value === 55));
+
+  const restored = BoundedHistory.fromJSON(saved, { rawMax: 100, archiveMax: 100, archiveMs: 1000, archiveMode: "max" });
+  restored.push(1500, 7);
+  restored.push(2100, 7);
+  const afterRestart = restored.series(5000, 2500);
+  assert.ok(afterRestart.some(([at, value]) => at === 1000 && value === 55));
+});
+
+test("duplicate restored archive buckets merge using history semantics", () => {
+  const minHistory = BoundedHistory.fromJSON({
+    archive: [[1000, 30], [1000, 144]],
+  }, { rawMax: 10, archiveMax: 10, archiveMs: 1000, archiveMode: "min" });
+  assert.deepEqual(minHistory.archive, [[1000, 30]]);
+
+  const maxHistory = BoundedHistory.fromJSON({
+    archive: [[1000, 55], [1000, 7]],
+  }, { rawMax: 10, archiveMax: 10, archiveMs: 1000, archiveMode: "max" });
+  assert.deepEqual(maxHistory.archive, [[1000, 55]]);
+});
