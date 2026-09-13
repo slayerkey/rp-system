@@ -3,13 +3,16 @@ import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 
 export function splitCsv(line) {
+  const text = String(line);
+  if (!text.includes('"')) return text.split(",");
+
   const cells = [];
   let cell = "";
   let quoted = false;
-  for (let i = 0; i < String(line).length; i += 1) {
-    const ch = line[i];
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
     if (ch === '"') {
-      if (quoted && line[i + 1] === '"') {
+      if (quoted && text[i + 1] === '"') {
         cell += '"';
         i += 1;
       } else quoted = !quoted;
@@ -22,8 +25,34 @@ export function splitCsv(line) {
   return cells;
 }
 
+function columnIndex(header, names) {
+  for (const name of names) {
+    const index = header.findIndex((value) => value.toLowerCase() === name.toLowerCase());
+    if (index >= 0) return index;
+  }
+  return -1;
+}
+
+function presentMonColumns(header) {
+  return {
+    application: columnIndex(header, ["Application", "ProcessName", "Process"]),
+    pid: columnIndex(header, ["ProcessID", "PID"]),
+    frameTime: columnIndex(header, ["MsBetweenPresents", "FrameTime", "CPUFrameTime", "MsBetweenSimulationStart"]),
+  };
+}
+
+function frameFromCells(cells, columns) {
+  if (!columns || columns.application < 0 || columns.frameTime < 0) return null;
+  const application = String(cells[columns.application] || "").trim();
+  const pid = columns.pid >= 0 ? Number(cells[columns.pid]) : NaN;
+  const frameTimeMs = Number(cells[columns.frameTime]);
+  if (!application || !Number.isFinite(frameTimeMs) || frameTimeMs <= 0) return null;
+  return { application, pid: Number.isFinite(pid) ? pid : null, frameTimeMs };
+}
+
 export function parsePresentMonRows(lines) {
   let header = null;
+  let columns = null;
   const rows = [];
   for (const raw of lines) {
     const line = String(raw || "").replace(/^\uFEFF/, "").trim();
@@ -31,25 +60,16 @@ export function parsePresentMonRows(lines) {
     const cells = splitCsv(line);
     if (!header) {
       const normalized = cells.map((x) => x.trim());
-      const hasProcess = normalized.some((x) => /^(Application|ProcessName|Process)$/i.test(x));
-      const hasTiming = normalized.some((x) => /^(FrameTime|MsBetweenPresents|CPUFrameTime|MsBetweenSimulationStart)$/i.test(x));
-      if (hasProcess && hasTiming) header = normalized;
+      const candidate = presentMonColumns(normalized);
+      if (candidate.application >= 0 && candidate.frameTime >= 0) {
+        header = normalized;
+        columns = candidate;
+      }
       continue;
     }
     if (cells.length < header.length) continue;
-    const record = {};
-    for (let i = 0; i < header.length; i += 1) record[header[i]] = cells[i];
-    const pick = (names) => {
-      for (const name of names) {
-        const key = Object.keys(record).find((x) => x.toLowerCase() === name.toLowerCase());
-        if (key && String(record[key]).trim()) return record[key];
-      }
-      return null;
-    };
-    const application = pick(["Application", "ProcessName", "Process"]);
-    const pid = Number(pick(["ProcessID", "PID"]));
-    const frameTimeMs = Number(pick(["MsBetweenPresents", "FrameTime", "CPUFrameTime", "MsBetweenSimulationStart"]));
-    if (application && Number.isFinite(frameTimeMs) && frameTimeMs > 0) rows.push({ application, pid: Number.isFinite(pid) ? pid : null, frameTimeMs });
+    const frame = frameFromCells(cells, columns);
+    if (frame) rows.push(frame);
   }
   return rows;
 }
@@ -65,6 +85,7 @@ export class PresentMonProvider extends EventEmitter {
     this.running = false;
     this.status = { state: "stopped", detail: null };
     this.header = null;
+    this.columns = null;
     this.backoffMs = 1000;
     this.restartTimer = null;
     this.intentionalStop = false;
@@ -145,6 +166,7 @@ export class PresentMonProvider extends EventEmitter {
 
     this.child = child;
     this.header = null;
+    this.columns = null;
     this._setStatus("starting");
 
     const stdout = this.createLineInterface({ input: child.stdout });
@@ -185,10 +207,11 @@ export class PresentMonProvider extends EventEmitter {
     if (!line || line.startsWith("#")) return;
     const cells = splitCsv(line);
     if (!this.header) {
-      const hasProcess = cells.some((x) => /^(Application|ProcessName|Process)$/i.test(x.trim()));
-      const hasTiming = cells.some((x) => /^(FrameTime|MsBetweenPresents|CPUFrameTime|MsBetweenSimulationStart)$/i.test(x.trim()));
-      if (hasProcess && hasTiming) {
-        this.header = cells.map((x) => x.trim());
+      const normalized = cells.map((x) => x.trim());
+      const columns = presentMonColumns(normalized);
+      if (columns.application >= 0 && columns.frameTime >= 0) {
+        this.header = normalized;
+        this.columns = columns;
         this.backoffMs = 1000;
         this._setStatus("ready");
       }
@@ -196,19 +219,7 @@ export class PresentMonProvider extends EventEmitter {
     }
 
     if (cells.length < this.header.length) return;
-    const record = {};
-    for (let i = 0; i < this.header.length; i += 1) record[this.header[i]] = cells[i];
-    const pick = (names) => {
-      for (const name of names) {
-        const key = Object.keys(record).find((x) => x.toLowerCase() === name.toLowerCase());
-        if (key && String(record[key]).trim()) return record[key];
-      }
-      return null;
-    };
-    const application = pick(["Application", "ProcessName", "Process"]);
-    const pid = Number(pick(["ProcessID", "PID"]));
-    const frameTimeMs = Number(pick(["MsBetweenPresents", "FrameTime", "CPUFrameTime", "MsBetweenSimulationStart"]));
-    if (!application || !Number.isFinite(frameTimeMs) || frameTimeMs <= 0) return;
-    this.emit("frame", { application, pid: Number.isFinite(pid) ? pid : null, frameTimeMs });
+    const frame = frameFromCells(cells, this.columns);
+    if (frame) this.emit("frame", frame);
   }
 }
