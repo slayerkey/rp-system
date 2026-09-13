@@ -17,7 +17,7 @@ public static class MonitorNative {
     const int CDS_SET_PRIMARY = 0x00000010;
     const int DISP_CHANGE_SUCCESSFUL = 0;
     const uint MONITORINFOF_PRIMARY = 1;
-    const uint QDC_ONLY_ACTIVE_PATHS = 0x00000002;
+    const uint QDC_ONLY_ACTIVE_PATHS = 0x00000002;\n    const uint QDC_DATABASE_CURRENT = 0x00000004;
     const uint SDC_APPLY = 0x00000080;
     const uint SDC_TOPOLOGY_INTERNAL = 0x00000001;
     const uint SDC_TOPOLOGY_CLONE = 0x00000002;
@@ -391,6 +391,27 @@ public static class MonitorNative {
         return ChangeDisplaySettingsEx(deviceName,ref dm,IntPtr.Zero,flags,IntPtr.Zero)==DISP_CHANGE_SUCCESSFUL;
     }
 
+    public static string GetTopology() {
+        uint pathCount, modeCount;
+        if (GetDisplayConfigBufferSizes(QDC_DATABASE_CURRENT, out pathCount, out modeCount) != 0) return "unknown";
+        var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
+        var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
+        IntPtr topology = Marshal.AllocHGlobal(4);
+        try {
+            Marshal.WriteInt32(topology, 0);
+            if (QueryDisplayConfig(QDC_DATABASE_CURRENT, ref pathCount, paths, ref modeCount, modes, topology) != 0) return "unknown";
+            switch (Marshal.ReadInt32(topology)) {
+                case 1: return "internal";
+                case 2: return "duplicate";
+                case 4: return "extend";
+                case 8: return "external";
+                default: return "unknown";
+            }
+        } finally {
+            Marshal.FreeHGlobal(topology);
+        }
+    }
+
     public static bool SetTopology(string mode) {
         uint flag;
         switch((mode ?? "").ToLowerInvariant()) {
@@ -456,7 +477,7 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
             "scan" {
                 $records = @([MonitorNative]::Scan())
                 $internal = Get-InternalBrightness
-                Write-Reply $id $true @{ monitors = $records; internalBrightness = $internal }
+                Write-Reply $id $true @{ monitors = $records; internalBrightness = $internal; topology = [MonitorNative]::GetTopology() }
             }
             "set-brightness" {
                 if ($p.kind -eq "internal") {
