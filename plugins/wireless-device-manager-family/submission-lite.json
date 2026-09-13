@@ -1,14 +1,26 @@
 {
-  "slug":"wireless-device-manager",
-  "name":"Wireless Device Manager Lite",
-  "type":"plugin",
-  "price_usd":0,
-  "version":"0.1.0.0",
-  "marketplace_category":["Utilities"],
-  "marketplace_language":["English"],
-  "marketplace_operating_systems":["Windows"],
-  "marketplace_tags":["Bluetooth","Wireless","Battery","Windows","Productivity"],
-  "marketplace_auto_publish":true,
-  "description":"See what one wireless device is doing without opening Windows Settings.\n\nWireless Device Manager Lite is a Bluetooth device manager for Stream Deck that gives one selected device a reusable key for device status, Bluetooth battery information, and connect/disconnect control when Windows actually exposes a supported control path. Use it with supported headphones, headsets, keyboards, mice, controllers, and other Bluetooth devices that Windows can see.\n\nBattery percentage and charging state are shown only when Windows or the device reports them. Devices without Bluetooth battery telemetry simply show that the capability is unavailable. Connect/disconnect is also capability-gated rather than pretending every paired device can be forced online.\n\nOne configurable action can show STATUS, BATTERY, or CONTROL for your selected device. A ready-made Stream Deck profile includes MY DEVICE, BATTERY, and CONNECT keys for Standard, XL, and Stream Deck+. The Plus profile uses keys only; there is no fake dial action.\n\nWindows 10 or newer. No separate companion app, account, or cloud service is required.\n\nUpgrade to Wireless Device Manager Pro for multiple devices, favorites, device groups, low-battery alerts, Cycle Device, dashboards, and complete multi-device profiles.\n\nPart of the PackRat ecosystem.",
-  "release_notes":"Initial Lite release candidate. One selected Bluetooth device with status, battery/charging when Windows exposes it, and capability-gated connect/disconnect control. Bundled Standard, XL and Stream Deck+ key profiles."
+  "slug": "wireless-device-manager",
+  "name": "Wireless Device Manager",
+  "type": "plugin",
+  "price_usd": 0,
+  "version": "0.1.0.0",
+  "marketplace_category": [
+    "Utilities"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows"
+  ],
+  "marketplace_tags": [
+    "Bluetooth",
+    "Wireless",
+    "Battery",
+    "Windows",
+    "Productivity"
+  ],
+  "marketplace_auto_publish": true,
+  "description": "See what one wireless device is doing without opening Windows Settings.\n\nWireless Device Manager Lite is a Bluetooth device manager for Stream Deck that gives one selected device a reusable key for device status, Bluetooth battery information, and connect/disconnect control when Windows actually exposes a supported control path. Use it with supported headphones, headsets, keyboards, mice, controllers, and other Bluetooth devices that Windows can see.\n\nBattery percentage and charging state are shown only when Windows or the device reports them. Devices without Bluetooth battery telemetry simply show that the capability is unavailable. Connect/disconnect is also capability-gated rather than pretending every paired device can be forced online.\n\nOne configurable action can show STATUS, BATTERY, or CONTROL for your selected device. A ready-made Stream Deck profile includes MY DEVICE, BATTERY, and CONNECT keys for Standard, XL, and Stream Deck+. The Plus profile uses keys only; there is no fake dial action.\n\nWindows 10 or newer. No separate companion app, account, or cloud service is required.\n\nUpgrade to Wireless Device Manager Pro for multiple devices, favorites, device groups, low-battery alerts, Cycle Device, dashboards, and complete multi-device profiles.\n\nPart of the PackRat ecosystem.",
+  "release_notes": "Initial Lite release candidate. One selected Bluetooth device with status, battery/charging when Windows exposes it, and capability-gated connect/disconnect control. Bundled Standard, XL and Stream Deck+ key profiles."
 }
