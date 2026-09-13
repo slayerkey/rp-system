@@ -200,7 +200,7 @@ export class PresentMonProvider extends EventEmitter {
     };
     const application = pick(["Application", "ProcessName", "Process"]);
     const pid = Number(pick(["ProcessID", "PID"]));
-    const frameTimeMs = Number(pick(["FrameTime", "MsBetweenPresents", "CPUFrameTime", "MsBetweenSimulationStart"]));
+    const frameTimeMs = Number(pick(["MsBetweenPresents", "FrameTime", "CPUFrameTime", "MsBetweenSimulationStart"]));
     if (!application || !Number.isFinite(frameTimeMs) || frameTimeMs <= 0) return;
     this.emit("frame", { application, pid: Number.isFinite(pid) ? pid : null, frameTimeMs });
   }
