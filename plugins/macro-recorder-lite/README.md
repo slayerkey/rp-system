@@ -1,6 +1,6 @@
 # Macro Recorder Lite
 
-Free Windows Stream Deck macro recorder built around the workflow:
+Free Windows Stream Deck macro recorder built around:
 
 **RECORD -> DO IT -> STOP -> REPLAY**
 
@@ -15,7 +15,7 @@ Do not deliberately record passwords. Windows secure-desktop input is outside th
 ## Emergency stop
 
 - Add the bundled **Stop Recording / Playback** action to the deck.
-- **Ctrl + Shift + F12** is a helper-level emergency playback stop.
+- **Ctrl + Shift + F12** is an emergency playback stop and is only intercepted while playback is active.
 
 ## Limits
 
@@ -23,16 +23,25 @@ Do not deliberately record passwords. Windows secure-desktop input is outside th
 - 60 keyboard events
 - keyboard only
 
+## Included profiles
+
+Editable starter profiles are generated for standard/MK.2, Mini, XL, Plus, and Neo.
+
 ## Build
 
-The plugin expects the shared Windows input host to be published first:
+`npm run build` automatically publishes the exact current Windows input helper when its source hash changes, so no manual helper pre-build is required.
 
 ```powershell
-dotnet publish shared/windows-input/PackRat.InputHost/PackRat.InputHost.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/input-host
 cd plugins/macro-recorder-lite
 npm ci
 npm test
 npm run build
 npm run validate
 npm run pack
+```
+
+Family release QA:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1
 ```
