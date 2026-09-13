@@ -50,3 +50,22 @@ test("history stays bounded and archived max preserves spikes", () => {
   assert.equal(restored.raw.length, 10);
   assert.ok(restored.archive.length <= 5);
 });
+
+
+test("restored frame histogram derives totals from sparse bins", () => {
+  const restored = FrameTimeHistogram.fromJSON({
+    kind: "frame-time-histogram-v1",
+    stepMs: 0.25,
+    maxFrameMs: 5000,
+    count: 999999,
+    totalFrameMs: 1,
+    sparse: [
+      [40, 2, 20],
+      [80, 1, 20],
+    ],
+  });
+
+  assert.equal(restored.count, 3);
+  assert.equal(restored.totalFrameMs, 40);
+  assert.equal(restored.average(), 75);
+});
