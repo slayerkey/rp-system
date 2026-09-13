@@ -108,6 +108,9 @@ jobs:
             plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/profiles/*
             plugins/macro-recorder-lite/submission.json
             plugins/macro-recorder-pro/submission.json
+            products/macro-recorder-lite.json
+            products/macro-recorder-pro.json
+            products/lite-pro-map.json
             docs/MACRO_RECORDER_QA.md
             docs/MACRO_RECORDER_MARKET_RESEARCH_2026-09-12.md
             docs/MACRO_RECORDER_NATIVE_GATE.json
