@@ -395,6 +395,13 @@ export class TelemetryService extends EventEmitter {
       return;
     }
     if (message.type === "catalog") {
+      for (const sensor of this.hardwareCatalog) {
+        const id = String(sensor?.id || "");
+        if (!id) continue;
+        this.catalog.delete(id);
+        this.values.delete(id);
+        this.timestamps.delete(id);
+      }
       this.hardwareCatalog = Array.isArray(message.sensors) ? message.sensors.filter((x) => x?.id) : [];
       for (const sensor of this.hardwareCatalog) {
         this._registerDescriptor({
