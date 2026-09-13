@@ -8,7 +8,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 
 ## Hardware-free evidence completed
 
-- [x] 37 model/package/profile regression cases are currently defined in the hardware-free suite
+- [x] 39 model/package/profile regression cases are currently defined in the hardware-free suite
 - [x] capability flags are per device rather than global
 - [x] A2DP/HFP control eligibility is derived from Windows AssociationEndpointService contracts rather than broad Audio/Video device-class inference
 - [x] group names are canonicalized case-insensitively so `gaming` and `GAMING` feed the same dashboard
@@ -18,6 +18,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 - [x] endpoint-ID changes preserve identity when Bluetooth address is stable
 - [x] dual-mode BLE/classic endpoints sharing one container reconcile into one device
 - [x] complementary BLE battery/charging and classic audio-control capabilities are unioned within one current snapshot
+- [x] dual-mode merge preserves an explicit classic native control target regardless of endpoint order
 - [x] fresh snapshots replace stale connected/disconnected state instead of OR-ing history
 - [x] paired sleeping devices remain paired and render SLEEP/OFF
 - [x] removed devices render UNPAIRED and lose stale battery/control capabilities
