@@ -95,9 +95,11 @@ internal static class Program
         },
     };
 
-    private static List<object> ReadCatalog(Computer computer)
+    private static (List<object> Catalog, List<(ISensor Sensor, string Id)> Sensors) ReadCatalog(Computer computer)
     {
         var catalog = new List<object>();
+        var sensors = new List<(ISensor Sensor, string Id)>();
+
         foreach (var root in computer.Hardware)
         {
             foreach (var hardware in Walk(root))
@@ -106,26 +108,20 @@ internal static class Program
                 {
                     var id = SensorId(hardware, sensor);
                     catalog.Add(CatalogEntry(hardware, sensor, id));
+                    sensors.Add((sensor, id));
                 }
             }
         }
 
-        return catalog;
+        return (catalog, sensors);
     }
 
-    private static Dictionary<string, float> ReadValues(Computer computer)
+    private static Dictionary<string, float> ReadValues(IEnumerable<(ISensor Sensor, string Id)> sensors)
     {
         var values = new Dictionary<string, float>(StringComparer.Ordinal);
-        foreach (var root in computer.Hardware)
+        foreach (var (sensor, id) in sensors)
         {
-            foreach (var hardware in Walk(root))
-            {
-                foreach (var sensor in hardware.Sensors)
-                {
-                    if (sensor.Value is not float value || !float.IsFinite(value)) continue;
-                    values[SensorId(hardware, sensor)] = value;
-                }
-            }
+            if (sensor.Value is float value && float.IsFinite(value)) values[id] = value;
         }
 
         return values;
@@ -166,7 +162,7 @@ internal static class Program
         try
         {
             var visitor = new UpdateVisitor();
-            string lastCatalogSignature = "";
+            var sensorBindings = new List<(ISensor Sensor, string Id)>();
             var iteration = 0;
 
             while (true)
@@ -176,20 +172,16 @@ internal static class Program
                     computer.Accept(visitor);
                     if (iteration == 0 || iteration % 30 == 0)
                     {
-                        var catalog = ReadCatalog(computer);
-                        var signature = string.Join("|", catalog.Select(item => JsonSerializer.Serialize(item, JsonOptions)));
-                        if (signature != lastCatalogSignature || iteration % 30 == 0)
+                        var (catalog, sensors) = ReadCatalog(computer);
+                        sensorBindings = sensors;
+                        Emit(new
                         {
-                            lastCatalogSignature = signature;
-                            Emit(new
-                            {
-                                type = "catalog",
-                                sensors = catalog,
-                            });
-                        }
+                            type = "catalog",
+                            sensors = catalog,
+                        });
                     }
 
-                    var values = ReadValues(computer);
+                    var values = ReadValues(sensorBindings);
                     Emit(new
                     {
                         type = "sample",
