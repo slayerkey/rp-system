@@ -159,7 +159,7 @@ export function makeView(telemetry, kind, settings = {}) {
       points,
       breached,
       state: value === null ? "unavailable" : "ready",
-      mode: graphMode(id, settings),
+      mode: settings.thresholdDirection === "below" ? "min" : "max",
     };
   }
 
@@ -185,7 +185,7 @@ export function makeView(telemetry, kind, settings = {}) {
     points,
     breached,
     state: value === null ? "unavailable" : "ready",
-    mode: settings.thresholdDirection === "below" ? "min" : "max",
+    mode: graphMode(id, settings),
   };
 }
 
