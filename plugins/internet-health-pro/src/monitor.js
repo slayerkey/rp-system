@@ -38,6 +38,7 @@ export class NetworkMonitor extends EventEmitter {
     this.lastHttpsAt = 0;
     this.lastTargetPollAt = 0;
     this.offlineEvidence = 0;
+    this.offlineCandidateSince = null;
     this.dnsFailureEvidence = 0;
     this.icmpVerified = false;
     this.timer = null;
@@ -47,6 +48,7 @@ export class NetworkMonitor extends EventEmitter {
     this.speedRunning = false;
     this.targets = new Map();
     this.targetSubscriptions = new Map();
+    this.targetCursor = 0;
     this.state = this.history.load();
     this.history.markOnline(this.state.onlineSince || this.now());
   }
@@ -131,6 +133,7 @@ export class NetworkMonitor extends EventEmitter {
     const dnsWorks = diagnostic ? Boolean(diagnostic.dnsWorks) : true;
 
     if (!ipReachable) {
+      if (!this.offlineCandidateSince) this.offlineCandidateSince = now;
       this.offlineEvidence += 1;
       this.dnsFailureEvidence = 0;
       if (this.offlineEvidence >= 2) {
@@ -142,11 +145,13 @@ export class NetworkMonitor extends EventEmitter {
       }
     } else if (dnsKnown && !dnsWorks) {
       this.offlineEvidence = 0;
+      this.offlineCandidateSince = null;
       this.dnsFailureEvidence += 1;
       status = this.dnsFailureEvidence >= 2 ? "dns-failure" : "degraded";
       reason = this.dnsFailureEvidence >= 2 ? "DNS FAILURE" : "CHECKING DNS";
     } else {
       this.offlineEvidence = 0;
+      this.offlineCandidateSince = null;
       this.dnsFailureEvidence = 0;
       status = "online";
       reason = primary?.ok ? "CONNECTION HEALTHY" : "ICMP BLOCKED • TCP HEALTHY";
@@ -173,7 +178,7 @@ export class NetworkMonitor extends EventEmitter {
 
   updateOutageState(status, reason, now) {
     if (status === "offline") {
-      this.history.startOutage(reason, now);
+      this.history.startOutage(reason, this.offlineCandidateSince || now);
       return;
     }
     if (status === "online" || status === "dns-failure" || status === "degraded") {
@@ -212,12 +217,12 @@ export class NetworkMonitor extends EventEmitter {
       this.history.addSample(classified.sample);
       this.updateOutageState(classified.status, classified.reason, now);
 
-      if (now - this.lastHttpsAt >= this.settings.httpSeconds * 1000) {
+      if (classified.status !== "offline" && now - this.lastHttpsAt >= this.settings.httpSeconds * 1000) {
         this.lastHttpsAt = now;
         this.lastHttps = await this.probe.httpsTiming("https://www.google.com/generate_204", { timeoutMs: 3000 });
       }
 
-      if (now - this.lastTargetPollAt >= this.settings.targetSeconds * 1000) {
+      if (classified.status !== "offline" && now - this.lastTargetPollAt >= this.settings.targetSeconds * 1000) {
         this.lastTargetPollAt = now;
         await this.pollTargets();
       }
@@ -253,7 +258,9 @@ export class NetworkMonitor extends EventEmitter {
         family,
         subscribers: new Set(),
         reading: null,
-        history: []
+        history: [],
+        failureStreak: 0,
+        nextPollAt: 0
       };
       this.targets.set(key, record);
     }
@@ -275,7 +282,13 @@ export class NetworkMonitor extends EventEmitter {
 
   async pollTargets() {
     const now = this.now();
-    const records = [...this.targets.values()].slice(0, 8);
+    const all = [...this.targets.values()];
+    if (!all.length) return;
+
+    const ordered = all.slice(this.targetCursor).concat(all.slice(0, this.targetCursor));
+    const records = ordered.filter((record) => now >= Number(record.nextPollAt || 0)).slice(0, 8);
+    this.targetCursor = all.length ? (this.targetCursor + Math.max(1, records.length)) % all.length : 0;
+
     await Promise.all(records.map(async (record) => {
       const result = await this.probe.probeTarget(record.target, {
         method: record.method,
@@ -290,6 +303,14 @@ export class NetworkMonitor extends EventEmitter {
         ms: Number.isFinite(Number(result.ms)) ? Number(result.ms) : null,
         method: result.method || record.method
       });
+      if (result.ok) {
+        record.failureStreak = 0;
+        record.nextPollAt = now + this.settings.targetSeconds * 1000;
+      } else {
+        record.failureStreak += 1;
+        const backoffMs = Math.min(300_000, this.settings.targetSeconds * 1000 * (2 ** Math.max(0, record.failureStreak - 1)));
+        record.nextPollAt = now + backoffMs;
+      }
       const cutoff = now - 2 * 60 * 60 * 1000;
       record.history = record.history.filter((sample) => sample.t >= cutoff).slice(-500);
     }));
