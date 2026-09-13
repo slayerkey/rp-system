@@ -4,6 +4,7 @@ import {
   DeviceCatalog,
   batteryLabel,
   capabilities,
+  deviceViewTitle,
   groupSummary,
   nextFavorite,
   normalizeDevice,
@@ -238,4 +239,16 @@ test("fresh snapshot replaces prior connected state instead of OR-ing stale hist
   assert.equal(device?.connected,false);
   assert.equal(device?.capabilities.CONNECT,true);
   assert.equal(device?.capabilities.DISCONNECT,false);
+});
+
+
+test("labeled bundled keys preserve live values",()=>{
+  const connected=normalizeDevice(headphone);
+  const disconnected=normalizeDevice({...headphone,connected:false,present:true,control:{connect:true,disconnect:false}});
+  assert.equal(deviceViewTitle(connected,"status","HEADPHONES"),"HEADPHONES\nCONNECTED");
+  assert.equal(deviceViewTitle(connected,"battery","HEADPHONES"),"HEADPHONES\n64% CHG");
+  assert.equal(deviceViewTitle(normalizeDevice(keyboard),"battery","KEYBOARD"),"KEYBOARD\n41%");
+  assert.equal(deviceViewTitle(normalizeDevice(mouse),"battery","MOUSE"),"MOUSE\nN/A");
+  assert.equal(deviceViewTitle(connected,"control","CONNECT"),"DISCONNECT");
+  assert.equal(deviceViewTitle(disconnected,"control","CONNECT"),"CONNECT");
 });
