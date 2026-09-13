@@ -340,25 +340,19 @@ public static class MonitorNative {
             source.header.size = (uint)Marshal.SizeOf(typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME));
             source.header.adapterId = paths[i].sourceInfo.adapterId;
             source.header.id = paths[i].sourceInfo.id;
-            var header = source.header;
             IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME)));
             try {
                 Marshal.StructureToPtr(source, ptr, false);
                 if (DisplayConfigGetDeviceInfo(ptr) != 0) continue;
                 source = (DISPLAYCONFIG_SOURCE_DEVICE_NAME)Marshal.PtrToStructure(ptr, typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME));
             } finally { Marshal.FreeHGlobal(ptr); }
-            // DisplayConfigGetDeviceInfo mutates the full packet, so use a direct marshalled helper below when needed.
-            if (!string.Equals(source.viewGdiDeviceName, deviceName, StringComparison.OrdinalIgnoreCase)) {
-                // Fallback: source packet marshalling differs across runtime versions. Match source id to DISPLAYn when possible.
-                if (!deviceName.EndsWith((paths[i].sourceInfo.id + 1).ToString(), StringComparison.OrdinalIgnoreCase)) continue;
-            }
+            if (!string.Equals(source.viewGdiDeviceName, deviceName, StringComparison.OrdinalIgnoreCase)) continue;
 
             var info = new DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO();
             info.header.type = 9;
             info.header.size = (uint)Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO));
             info.header.adapterId = paths[i].targetInfo.adapterId;
             info.header.id = paths[i].targetInfo.id;
-            var infoHeader = info.header;
             IntPtr ip = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO)));
             try {
                 Marshal.StructureToPtr(info, ip, false);
@@ -375,8 +369,6 @@ public static class MonitorNative {
                 packet.header.adapterId = paths[i].targetInfo.adapterId;
                 packet.header.id = paths[i].targetInfo.id;
                 packet.value = enabled ? 1u : 0u;
-                var ph = packet.header;
-                // Header + bitfield packet is layout-compatible; call through pointer-safe helper.
                 IntPtr pp = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE)));
                 try {
                     Marshal.StructureToPtr(packet, pp, false);
