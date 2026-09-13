@@ -709,11 +709,13 @@ class AudioManagerAction extends SingletonAction {
     }
     if (payload.type !== "audioManager.command") return;
 
+    let createdProfileId = "";
     try {
       const command = String(payload.command || "");
       if (command === "refresh") await refreshSnapshot({ quiet: false });
       else if (command === "create-profile") {
         const profile = await createProfile(payload.name);
+        createdProfileId = profile.id;
         record.settings = { ...record.settings, profileId: profile.id };
         if (["apply", "status", "volume"].includes(record.kind))
           await record.action.setSettings(record.settings);
@@ -727,6 +729,12 @@ class AudioManagerAction extends SingletonAction {
       record.lastResult = { status: "FAILED", failures: [{ error: String(error?.message || error) }] };
     }
     await sendInspector(record);
+    if (createdProfileId) {
+      await record.action.sendToPropertyInspector({
+        type: "audioManager.profile-created",
+        profileId: createdProfileId,
+      }).catch(() => {});
+    }
   }
 
   async onKeyDown(ev) {
