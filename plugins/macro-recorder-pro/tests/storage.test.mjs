@@ -19,3 +19,28 @@ test("corrupt Macro Library is reset and preserved as a backup", async () => {
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("Macro Library persists add, update, duplicate source data and delete operations", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    const library=await new MacroLibrary(file).load();
+    const added=await library.add({name:"One",events:[
+      {type:"keyDown",vk:65,delayMs:1},
+      {type:"keyUp",vk:65,delayMs:1}
+    ]});
+    assert.equal(library.list().length,1);
+    await library.update(added.id,{name:"Renamed",events:added.events});
+    assert.equal(library.get(added.id).name,"Renamed");
+
+    const reloaded=await new MacroLibrary(file).load();
+    assert.equal(reloaded.get(added.id).name,"Renamed");
+    await reloaded.remove(added.id);
+    assert.equal(reloaded.list().length,0);
+
+    const final=await new MacroLibrary(file).load();
+    assert.equal(final.list().length,0);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
