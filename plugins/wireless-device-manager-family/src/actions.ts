@@ -31,8 +31,12 @@ export type CycleSettings = {
 async function paintDevice(key: KeyAction<DeviceSettings>, runtime: WirelessRuntime, settings: DeviceSettings) {
   const deviceId = await runtime.selectedDeviceId(settings.deviceId, settings.slot);
   const device = runtime.device(deviceId);
-  if (!runtime.adapterAvailable) {
-    await key.setTitle("BLUETOOTH\nOFF");
+  if (runtime.lastError) {
+    await key.setTitle("SCAN\nERROR");
+    return;
+  }
+  if (!device && runtime.devices().length === 0) {
+    await key.setTitle("NO DEVICES\nFOUND");
     return;
   }
   const view = settings.view ?? "status";
@@ -150,11 +154,15 @@ export class DashboardAction extends SingletonAction<DashboardSettings> {
   override async onKeyDown(): Promise<void> { await this.runtime.refresh(); }
 
   private async paint(key: KeyAction<DashboardSettings>, settings: DashboardSettings): Promise<void> {
-    if (!this.runtime.adapterAvailable) {
-      await key.setTitle("ALL DEVICES\nBT OFF");
+    if (this.runtime.lastError) {
+      await key.setTitle("ALL DEVICES\nSCAN ERROR");
       return;
     }
     const devices = this.runtime.devices();
+    if (!devices.length) {
+      await key.setTitle("ALL DEVICES\nNONE FOUND");
+      return;
+    }
     const members = settings.groupName ? await this.runtime.groupMembers(settings.groupName) : devices.map(d => d.stableId);
     const summary = groupSummary(devices, members, await this.runtime.thresholds());
     const prefix = settings.groupName?.trim().toUpperCase() || "ALL DEVICES";
