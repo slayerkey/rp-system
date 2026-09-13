@@ -117,3 +117,13 @@ test("saved-profile picker writes profileName into action settings", async () =>
   assert.match(pi,/getElementById\("profiles"\).*addEventListener\("change"/s);
   assert.match(pi,/settings=\{\.\.\.settings,profileName:name\}/);
 });
+
+test("true HDR uses Windows 11 24H2 dedicated packets and fails closed without them", async () => {
+  const helper=await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin","helper","monitor-helper.ps1"),"utf8");
+  assert.match(helper,/DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2/);
+  assert.match(helper,/header\.type = 15/);
+  assert.match(helper,/highDynamicRangeSupported/);
+  assert.match(helper,/DISPLAYCONFIG_SET_HDR_STATE/);
+  assert.match(helper,/header\.type = 16/);
+  assert.match(helper,/Older Windows exposes only "Advanced Color"/);
+});
