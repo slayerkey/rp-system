@@ -82,8 +82,14 @@ function Test-Plugin {
     $Packages = @(Get-ChildItem (Join-Path $PluginRoot "dist") -Filter *.streamDeckPlugin -File)
     if ($Packages.Count -ne 1) { throw "$Slug expected exactly one .streamDeckPlugin package; found $($Packages.Count)." }
 
-    $Profiles = @(Get-ChildItem (Join-Path $PluginRoot "com.packrat.$Slug.sdPlugin\profiles") -Filter *.streamDeckProfile -File)
+    $ProfileRoot = Join-Path $PluginRoot "com.packrat.$Slug.sdPlugin\profiles"
+    $Profiles = @(Get-ChildItem $ProfileRoot -Filter *.streamDeckProfile -File)
     if ($Profiles.Count -ne 1) { throw "$Slug expected exactly one bundled .streamDeckProfile; found $($Profiles.Count)." }
+    $BundledMaps = @(Get-ChildItem $ProfileRoot -Filter *.profile-map.json -File -ErrorAction SilentlyContinue)
+    if ($BundledMaps.Count -ne 0) { throw "$Slug must not ship internal profile-map JSON files." }
+
+    $ProfileMap = Join-Path $Root "artifacts\profile-maps\$Slug-starter.profile-map.json"
+    if (-not (Test-Path $ProfileMap)) { throw "$Slug did not generate its external profile QA map." }
 
     Write-Host "[$Slug] package SHA256"
     Get-FileHash $Packages[0].FullName -Algorithm SHA256 | Format-Table -AutoSize
