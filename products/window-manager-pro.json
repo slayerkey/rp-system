@@ -4,8 +4,8 @@
   "type": "plugin",
   "status": "release-candidate",
   "workflow_state": "BLOCKED",
-  "blocker": "GitHub-hosted Windows and macOS release gates currently fail before runner allocation (runner_id 0), so no exact validated 1.2 package artifact is pinned yet.",
-  "price_usd": 9.99,
+  "blocker": "GitHub-hosted Windows and macOS release gates currently fail before runner allocation (runner_id 0), so no exact validated 1.2 package artifact is pinned yet. The recommended $9.99 price also requires Elgato Maker Relations approval because monetization changes are locked for existing products.",
+  "price_usd": 6.99,
   "live_price_usd": 6.99,
   "version": "1.2.0.0",
   "live_version": "1.1.0.0",
@@ -31,6 +31,8 @@
     "official Elgato validation/package and exact package SHA: PENDING",
     "final deterministic Rat Art / validated release artifact pin: PENDING"
   ],
-  "final_boundary": "Successful private Windows + macOS release gates, exact validated package/media artifact pin, final Rat Art review, then authenticated Elgato Maker Console update submission.",
-  "notes": "Paid source remains private in slayerkey/vcs. Rat Ship must use the validated external-artifact path and must never copy the paid runtime into rp-system. Existing Lite customers already upsell to this same Marketplace product ID, so this is an in-place Pro update rather than a new SKU."
+  "final_boundary": "Successful private Windows + macOS release gates, exact validated package/media artifact pin, final Rat Art review, then existing-product version submission in Elgato Maker Console. If the $9.99 target is desired for launch, obtain Elgato Maker Relations price approval before final submission.",
+  "notes": "Paid source remains private in slayerkey/vcs. Rat Ship must use the validated external-artifact path and must never copy the paid runtime into rp-system. Existing Lite customers already upsell to this same Marketplace product ID, so this is an in-place Pro update rather than a new SKU. Current live price remains $6.99; $9.99 is the recommended post-upgrade target pending Elgato approval.",
+  "target_price_usd": 9.99,
+  "price_change_status": "REQUIRES_ELGATO_MAKER_RELATIONS"
 }
