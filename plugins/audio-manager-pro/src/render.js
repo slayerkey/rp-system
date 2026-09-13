@@ -29,7 +29,13 @@ function frame(body, color = ACCENT) {
 }
 
 function resultColor(status) {
-  return status === "SUCCESS" ? ACCENT : status === "PARTIAL" ? WARN : status === "FAILED" ? DANGER : MUTED;
+  return status === "SUCCESS" || status === "ACTIVE"
+    ? ACCENT
+    : status === "PARTIAL" || status === "INACTIVE"
+      ? WARN
+      : status === "FAILED"
+        ? DANGER
+        : MUTED;
 }
 
 function profileBody(profile, status = "", active = false) {
