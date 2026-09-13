@@ -30,12 +30,15 @@
     "core_smoke": {
       "status": "PASS_CURRENT_HEAD_EXACT_SOURCE_HARNESS",
       "environment": "ChatGPT V8 tool runtime using exact committed source modules",
-      "checks_passed": 23,
+      "checks_passed": 30,
       "checks_failed": 0,
       "coverage": [
+        "frame-time based average FPS plus 1% / 0.1% low-average math",
+        "legacy pre-release FPS histogram state migration",
         "bounded raw/archive history and whole-session archive merge",
         "session start/finalize/process change/ignored compositor",
-        "1% and 0.1% low session accounting",
+        "dominant low-FPS fallback selection without foreground telemetry",
+        "ambiguous fallback refusal and foreground priority",
         "short restart histogram/history resume and stale restart finalization",
         "PresentMon CSV parsing and live MsBetweenPresents cadence",
         "PresentMon stale-child restart ownership and launch-error recovery",
@@ -43,15 +46,16 @@
         "session-window zero propagation",
         "NVIDIA/AMD/Intel canonical GPU alias mapping",
         "missing GPU fallback and stale sensor expiry",
-        "atomic session persistence round trip and corrupt-state quarantine",
+        "atomic active-session persistence round trip and corrupt-state quarantine",
         "session-scoped hardware history",
-        "hardware-helper stale-child ownership and launch-error recovery"
+        "hardware-helper stale-child ownership and launch-error recovery",
+        "awaitable graceful-shutdown persistence"
       ],
       "synthetic_performance": {
         "frame_events": 250000,
-        "aggregation_ms_approx": 493,
+        "aggregation_ms_approx": 516,
         "svg_renders": 5000,
-        "render_ms_approx": 250,
+        "render_ms_approx": 266,
         "fps_recent_raw_points": 3600,
         "fps_archive_points": 2499
       },
@@ -62,6 +66,8 @@
       "workflow": "Performance Grapher Stream Deck",
       "run_id": 34742207090,
       "job_id": 103683691891,
+      "manual_retry_job_id": 103734846092,
+      "manual_retry_result": "RUNNER_DID_NOT_EXECUTE_STEPS",
       "windows_build_verified": false,
       "dependency_license_inventory_verified": false,
       "elgato_validation_verified": false,
@@ -88,7 +94,10 @@
       "presentmon_live_cadence": "FIXED_AND_EXACT_SOURCE_TESTED",
       "active_session_restart_persistence": "FIXED_AND_EXACT_SOURCE_TESTED",
       "presentmon_child_restart_race": "FIXED_AND_EXACT_SOURCE_TESTED",
-      "hardware_helper_child_restart_race": "FIXED_AND_EXACT_SOURCE_TESTED"
+      "hardware_helper_child_restart_race": "FIXED_AND_EXACT_SOURCE_TESTED",
+      "fps_low_formula": "SLOWEST_FRAME_TIME_AVERAGE_THEN_CONVERT_TO_FPS",
+      "low_fps_fallback_process_selection": "FIXED_AND_EXACT_SOURCE_TESTED",
+      "graceful_shutdown_persistence": "FIXED_AND_EXACT_SOURCE_TESTED"
     }
   },
   "physical_release_evidence": null,
