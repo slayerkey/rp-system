@@ -42,9 +42,9 @@ test("battery values are clamped only when telemetry exists",()=>{
   assert.equal(normalizeDevice({...mouse,batteryPercent:null}).batteryPercent,null);
 });
 
-test("stable identity prefers container then Bluetooth address then endpoint id",()=>{
-  assert.equal(stableId({...headphone,containerId:"ABC-123"}),"container:abc-123");
-  assert.equal(stableId(headphone),"bt:aabbccddeeff");
+test("stable identity prefers Bluetooth address, then container, then endpoint id",()=>{
+  assert.equal(stableId({...headphone,containerId:"ABC-123"}),"bt:aabbccddeeff");
+  assert.equal(stableId({id:"Endpoint-C",containerId:"ABC-123"}),"container:abc-123");
   assert.equal(stableId({id:"Endpoint-X"}),"id:endpoint-x");
 });
 
