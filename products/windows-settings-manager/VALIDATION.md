@@ -33,6 +33,14 @@ These checks were executed in an isolated local harness and are useful regressio
 
 Canonical automated gates pass on implementation/artifact commit `8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939`. Commits after that point only update validation/catalog evidence and do not change plugin runtime, profile generation, Marketplace art, packaging, or shipping behavior.
 
+### Current-main sync
+
+- Canonical main synchronized through: `65b24e824642c0465e6f3638a8fbc5d961a21a5e`
+- Pre-evidence branch head after the clean merge: `25449a53bfc2af6467888d5b4cd7a56e695e5cb8`
+- Compare result before this evidence-only update: 0 commits behind `main`
+- The incoming main changes were Rat Dev source-resolution/tooling changes and did not overlap the Windows Settings Manager product implementation paths.
+- This validation-only update intentionally re-triggers the product-scoped hosted, portable, and self-hosted workflows without changing plugin behavior.
+
 ### Hosted Windows evidence
 
 - Workflow: Windows Settings Manager CI
