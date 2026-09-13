@@ -13,12 +13,19 @@ $psi.CreateNoWindow = $true
 $p = [System.Diagnostics.Process]::new()
 $p.StartInfo = $psi
 if (-not $p.Start()) { throw "Could not start backend." }
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 
 try {
     function Request([int]$Id, [string]$Op, $RequestArgs = @{}) {
         $payload = @{ id = $Id; op = $Op; args = $RequestArgs } | ConvertTo-Json -Depth 6 -Compress
-        $p.StandardInput.WriteLine($payload)
-        $p.StandardInput.Flush()
+        $roundTrip = $payload | ConvertFrom-Json
+        if ([int]$roundTrip.id -ne $Id -or [string]$roundTrip.op -ne $Op) {
+            throw "Smoke request JSON failed local round-trip validation."
+        }
+
+        $bytes = $utf8NoBom.GetBytes($payload + "`n")
+        $p.StandardInput.BaseStream.Write($bytes, 0, $bytes.Length)
+        $p.StandardInput.BaseStream.Flush()
         $line = $p.StandardOutput.ReadLine()
         if ([string]::IsNullOrWhiteSpace($line)) {
             $stderr = $p.StandardError.ReadToEnd()
