@@ -223,7 +223,8 @@ jobs:
           $evidence = [ordered]@{
             product = "Performance Grapher for Stream Deck"
             version = "1.0.0.0"
-            commit = "${{ github.sha }}"
+            commit = "${{ github.event.pull_request.head.sha || github.sha }}"
+            checkout_commit = "${{ github.sha }}"
             run_id = "${{ github.run_id }}"
             package_sha256 = $packageHash
             package_bytes = $packageBytes
