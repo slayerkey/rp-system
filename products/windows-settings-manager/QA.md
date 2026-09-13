@@ -40,7 +40,7 @@
 - lock workstation
 - legacy Advanced Color/HDR path only on hardware where the OS exposes it
 
-Windows 10 HDR support is best-effort through the legacy Advanced Color API and must not be advertised as equivalent to the distinct Windows 11 24H2 HDR-state API until physical QA confirms the target hardware.
+Windows 11 uses the HDR-specific Advanced Color Info 2 / HDR State API available from Windows 11 GA. Windows 10 HDR support is best-effort through the legacy Advanced Color API and remains a separate physical-QA boundary.
 
 ## Not applicable in v1
 
