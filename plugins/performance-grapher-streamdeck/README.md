@@ -10,7 +10,7 @@ Performance Grapher for Stream Deck is a Windows-only PackRat Stream Deck plugin
 2. **Game FPS** — current FPS or frametime, compact history, 1% low, optional 0.1% low, and process-aware session tracking.
 3. **Session Summary** — press to cycle average FPS, 1% low, 0.1% low, worst frametime, peak GPU/CPU temperature, peak GPU load, session length, and a conservative pressure signal.
 4. **Sensor / Metric** — configurable CPU/GPU/RAM/storage/general sensor action.
-5. **Alert** — a selected metric becomes a high-visibility warning above or below a configured threshold.
+5. **Performance Alert** — a selected metric becomes a high-visibility warning above or below a configured threshold.
 
 No Stream Deck + dial action ships in 1.0 because changing a graph window is not enough value to justify a separate encoder action.
 
@@ -22,7 +22,7 @@ One TelemetryService instance is shared by every visible key.
 - **Hardware sensors:** a small PackRat .NET helper hosts LibreHardwareMonitorLib 0.9.6 at a 1 Hz update rate and streams a sensor catalog plus samples as JSON Lines.
 - **FPS / frametime:** PresentMon 2.5.1 is downloaded from its official GitHub release during the deterministic build, bundled in the plugin, and run as one private named capture session. PackRat consumes only presentation timing/process identity and disables unrelated console stats.
 - **Session engine:** frame events are aggregated into 100 ms FPS buckets. Percent-low calculations, worst raw frametime, hardware peaks, process changes, and completed-session summaries are maintained centrally.
-- **Persistence:** versioned, bounded JSON under %LOCALAPPDATA%\PackRat\PerformanceGrapher. Corrupt state is quarantined instead of crashing startup.
+- **Persistence:** versioned, bounded JSON under %LOCALAPPDATA%\PackRat\PerformanceGrapher. Writes are committed through a temporary file, and corrupt state is quarantined instead of crashing startup.
 
 Adding five keys does not create five PresentMon sessions or five Libre Hardware Monitor readers.
 
