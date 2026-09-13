@@ -105,3 +105,12 @@ test("monitor discovery prefers the stable Windows target device path", async ()
   assert.match(helper,/StableMonitorPath/);
   assert.match(helper,/StableMonitorPath\(mi\.szDevice\).*\+ "#0"/);
 });
+
+test("native helper prefers dedicated HDR packet types and has no DISPLAY-number heuristic", async () => {
+  const helper=await readFile("../../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
+  assert.match(helper,/DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2/);
+  assert.match(helper,/header\.type = 15/);
+  assert.match(helper,/DISPLAYCONFIG_SET_HDR_STATE/);
+  assert.match(helper,/header\.type = 16/);
+  assert.doesNotMatch(helper,/deviceName\.EndsWith/);
+});
