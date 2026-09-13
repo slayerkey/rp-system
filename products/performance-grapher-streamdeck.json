@@ -1,0 +1,31 @@
+{
+  "id": "performance-grapher-streamdeck",
+  "name": "Performance Grapher for Stream Deck",
+  "type": "plugin",
+  "status": "building",
+  "workflow_state": "BUILDING",
+  "blocker": null,
+  "price_usd": 9.99,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/performance-grapher-streamdeck",
+  "submission_metadata": "plugins/performance-grapher-streamdeck/submission.json",
+  "release_gate": [
+    "bounded history and persistence regression suite",
+    "PresentMon parsing, process change, game start/stop, and missing-provider fixtures",
+    "Libre Hardware Monitor native helper build and no-GPU probe",
+    "72, 96, and 144 pixel Stream Deck-native render tests",
+    "multiple configured key fan-out from one shared telemetry service",
+    "synthetic long-session CPU, memory, and render benchmark",
+    "official Elgato manifest validation",
+    "official .streamDeckPlugin packaging",
+    "deterministic Marketplace media",
+    "real Windows game capture with PresentMon permissions documented",
+    "NVIDIA, AMD, and Intel GPU coverage where available",
+    "physical Stream Deck Mini/MK.2/XL/+ smoke",
+    "real-game frametime overhead comparison"
+  ],
+  "automated_release_evidence": null,
+  "physical_release_evidence": null,
+  "final_boundary": "Real Windows game/GPU matrix plus physical Stream Deck smoke and frametime-overhead comparison before READY_TO_SHIP."
+}
