@@ -174,7 +174,8 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     await broadcastInspectors();
     try {
       await host.ensure();
-      lastError = "The input engine restarted after a crash and ran held-input recovery.";
+      lastError = "";
+      streamDeck.logger?.info?.("Macro Recorder input engine restarted after a crash and completed startup recovery.");
     } catch {
       lastError = "The input engine could not restart automatically. Playback remains stopped; the next action will retry the local helper.";
     } finally {
