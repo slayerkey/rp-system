@@ -1,0 +1,61 @@
+name: Internet Health Pro CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - product/internet-health-pro
+    paths:
+      - "plugins/internet-health-pro/**"
+      - ".github/workflows/internet-health-pro-ci.yml"
+  pull_request:
+    paths:
+      - "plugins/internet-health-pro/**"
+      - ".github/workflows/internet-health-pro-ci.yml"
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: plugins/internet-health-pro
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: plugins/internet-health-pro/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: node scripts/live-smoke.mjs
+
+  package:
+    name: Elgato validate and package
+    needs: test
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: plugins/internet-health-pro
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: plugins/internet-health-pro/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm run validate
+      - run: npm run pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: internet-health-pro-streamdeck-plugin
+          path: plugins/internet-health-pro/dist/*.streamDeckPlugin
+          if-no-files-found: error
