@@ -34,6 +34,11 @@
   "media": {
     "marketplace_app_icon": "artifacts/marketplace/macro-recorder-lite/00-app-icon.png",
     "thumbnail": "artifacts/marketplace/macro-recorder-lite/01-hero.png",
-    "thumbnail_review": "artifacts/marketplace/macro-recorder-lite/hero-thumbnail-review.png"
+    "thumbnail_review": "artifacts/marketplace/macro-recorder-lite/hero-thumbnail-review.png",
+    "gallery": [
+      "artifacts/marketplace/macro-recorder-lite/02-capture.png",
+      "artifacts/marketplace/macro-recorder-lite/03-edit.png",
+      "artifacts/marketplace/macro-recorder-lite/04-safety.png"
+    ]
   }
 }
