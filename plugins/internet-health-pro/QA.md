@@ -23,3 +23,16 @@ Automated coverage must include:
 - Elgato CLI validation and package creation on clean CI
 
 Final confidence boundary: install the exact packaged `.streamDeckPlugin` into Stream Deck and observe a healthy network, a temporary disconnect/reconnect, and one manual speed test. Automated QA should discover ordinary code, package, or manifest failures before that point.
+
+## Current automated gate status
+
+Candidate `925899d40ed6f894896ad6932205a6dd3829130a` triggered Internet Health Pro CI run `34761798011`.
+
+Both hosted test jobs failed before runner assignment:
+
+- `windows-latest`: runner_id 0, zero executed steps
+- `macos-latest`: runner_id 0, zero executed steps
+- Elgato validate/package job: skipped because the test matrix never started
+
+Other repository workflows on the same commit failed at the same pre-runner boundary. This is recorded as an infrastructure/runner allocation blocker, not as a product QA failure. Do not mark the plugin qa_passed until the deterministic test/build/live-smoke/Elgato validate/package gate actually executes and passes.
+
