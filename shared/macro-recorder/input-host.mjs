@@ -46,7 +46,14 @@ export class InputHost extends EventEmitter {
       this.pending.clear();
       if (!this.stopping) this.emit("crash", { code, signal });
     });
-    await this.command("ping", {}, { skipEnsure: true, timeoutMs: 5000 });
+    try {
+      await this.command("ping", {}, { skipEnsure: true, timeoutMs: 5000 });
+    } catch (error) {
+      this.stopping = true;
+      try { proc.kill(); } catch {}
+      if (this.proc === proc) this.proc = null;
+      throw error;
+    }
   }
 
   async command(command, payload = {}, { skipEnsure = false, timeoutMs = 10000 } = {}) {
