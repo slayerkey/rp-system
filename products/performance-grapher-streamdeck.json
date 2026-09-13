@@ -25,6 +25,7 @@
     "NVIDIA, AMD, and Intel GPU coverage where available",
     "physical Stream Deck Mini/MK.2/XL/+ smoke",
     "real-game frametime overhead comparison",
+    "runtime npm production dependency license inventory included in release kit",
     "resolved Windows publish dependency/license inventory included in release kit"
   ],
   "automated_release_evidence": {
@@ -33,7 +34,7 @@
       "environment": "ChatGPT V8 tool runtime using exact committed source modules",
       "checks_passed": 38,
       "checks_failed": 0,
-      "syntax_files_passed": 21,
+      "syntax_files_passed": 24,
       "syntax_files_failed": 0,
       "coverage": [
         "frame-time based average FPS plus 1% / 0.1% low-average math",
@@ -117,7 +118,17 @@
       "property_inspector_ready_reveal": "FIXED_AND_CONTRACT_TESTED",
       "marketplace_listing_v2": "ADOPTED",
       "rat_art_packrat_mark_position": "TOP_CENTER",
-      "rat_art_thumbnail_review": "GENERATED_SEPARATELY_AT_480x240_320x160_240x120_PENDING_WINDOWS_RENDER"
+      "rat_art_thumbnail_review": "GENERATED_SEPARATELY_AT_480x240_320x160_240x120_PENDING_WINDOWS_RENDER",
+      "product_registry_duplicate": "FIXED_AND_CONTRACT_TESTED",
+      "runtime_npm_license_inventory_gate": "ADDED_PENDING_WINDOWS_BUILD_EXECUTION",
+      "runtime_npm_license_evidence_staged": "ADDED_PENDING_WINDOWS_BUILD_EXECUTION",
+      "rat_art_python_compile_gate": "ADDED_PENDING_WINDOWS_WORKFLOW_EXECUTION"
+    },
+    "contracts": {
+      "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
+      "product_registry_unique_and_metadata_matched": "PASS_EXACT_SOURCE",
+      "current_elgato_manifest_fields": "VERIFIED_AGAINST_CURRENT_SCHEMA",
+      "node24_streamdeck73_compatibility": "VERIFIED_CURRENT_DOCS"
     }
   },
   "physical_release_evidence": null,
