@@ -1,10 +1,10 @@
 import { endpointIdentity, matchEndpoint } from "./device-matching.js";
 
 export const SLOT_DEFS = Object.freeze([
-  { key: "outputDefault", flow: "output", role: "default", snapshotId: "defaultOutputId", list: "outputs", restoreStateByDefault: true },
-  { key: "outputCommunications", flow: "output", role: "communications", snapshotId: "communicationsOutputId", list: "outputs", restoreStateByDefault: false },
-  { key: "inputDefault", flow: "input", role: "default", snapshotId: "defaultInputId", list: "inputs", restoreStateByDefault: true },
-  { key: "inputCommunications", flow: "input", role: "communications", snapshotId: "communicationsInputId", list: "inputs", restoreStateByDefault: false },
+  { key: "outputDefault", flow: "output", role: "default", snapshotId: "defaultOutputId", snapshotIds: ["defaultOutputId", "multimediaOutputId"], list: "outputs", restoreStateByDefault: true },
+  { key: "outputCommunications", flow: "output", role: "communications", snapshotId: "communicationsOutputId", snapshotIds: ["communicationsOutputId"], list: "outputs", restoreStateByDefault: false },
+  { key: "inputDefault", flow: "input", role: "default", snapshotId: "defaultInputId", snapshotIds: ["defaultInputId", "multimediaInputId"], list: "inputs", restoreStateByDefault: true },
+  { key: "inputCommunications", flow: "input", role: "communications", snapshotId: "communicationsInputId", snapshotIds: ["communicationsInputId"], list: "inputs", restoreStateByDefault: false },
 ]);
 
 function clampVolume(value) {
@@ -238,7 +238,11 @@ export function profileMatchesSnapshot(profileInput, snapshot) {
     const endpoints = Array.isArray(snapshot?.[def.list]) ? snapshot[def.list] : [];
     const match = matchEndpoint(slot.device, endpoints);
     if (match.status !== "matched" || !match.endpoint) return false;
-    if (String(snapshot?.[def.snapshotId] || "") !== String(match.endpoint.id || "")) return false;
+    const requiredRoleIds = Array.isArray(def.snapshotIds) && def.snapshotIds.length
+      ? def.snapshotIds
+      : [def.snapshotId];
+    if (requiredRoleIds.some((key) => String(snapshot?.[key] || "") !== String(match.endpoint.id || "")))
+      return false;
 
     if (slot.restoreVolume) {
       if (!match.endpoint.volumeAvailable || slot.volume === null) return false;
