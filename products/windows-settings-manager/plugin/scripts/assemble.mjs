@@ -220,7 +220,7 @@ function proSettingsPage(device, profileName) {
   ];
 
   const defs = controls
-    .filter(([kind]) => !(device.id === "mini" && kind === "timeout"))
+    .filter(([kind]) => !(device.id === "mini" && (kind === "timeout" || kind === "status")))
     .map(([kind, name]) => pluginAction("pro", kind, name, {}, `pro|${device.id}|settings|${kind}`));
 
   if (capacity >= 15) {
