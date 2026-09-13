@@ -140,7 +140,7 @@ def main():
                 ("SEE THE REAL STATE", "HDR, power, display, and timeout keys follow Windows itself."),
                 ("CHANGE COMMON SETTINGS FAST", "A focused control set instead of a page of random commands."),
                 ("NO QUICK SETTINGS CLICKING", "Direct system control without screen coordinates or hidden mouse movement."),
-                ("READY TO USE", "Editable starter profiles for five Stream Deck families.")
+                ("READY TO USE", "Editable starter profiles for seven current Stream Deck families.")
             ],
             args.output,
             "03_gallery_01.png",
@@ -187,8 +187,8 @@ def main():
         "READY-MADE",
         "PROFILES",
         [
-            ("STANDARD + XL", "Readable layouts with room for the full control set."),
-            ("STREAM DECK + + NEO", "Compact layouts keep the important mode and settings keys."),
+            ("STANDARD + XL + + XL", "Large layouts keep the full control set readable."),
+            ("PLUS + NEO + GALLEON", "Compact current-device layouts keep the important keys close."),
             ("MINI", "A focused six-key layout without tiny labels.")
         ],
         args.output,
