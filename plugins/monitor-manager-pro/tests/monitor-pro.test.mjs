@@ -43,6 +43,22 @@ function zipJsonDocuments(data) {
   return docs;
 }
 
+function assertControllerBounds(docs, keypadCols, keypadRows, encoderCols = null) {
+  for(const doc of docs){
+    for(const controller of doc.json.Controllers??[]){
+      for(const coordinate of Object.keys(controller.Actions??{})){
+        const [x,y]=coordinate.split(",").map(Number);
+        if(controller.Type==="Keypad"){
+          assert.ok(x>=0&&x<keypadCols&&y>=0&&y<keypadRows, "Out-of-bounds Keypad coordinate "+coordinate);
+        } else if(controller.Type==="Encoder"&&encoderCols!==null){
+          assert.ok(x>=0&&x<encoderCols&&y===0, "Out-of-bounds Encoder coordinate "+coordinate);
+        }
+      }
+    }
+  }
+}
+
+
 
 test("input switching is capability gated and uses advertised values", () => {
   const caps="(vcp(10 60(0F 11 1B) 62 D6(01 04)))";
@@ -274,4 +290,24 @@ test("native scan caches only successful capability strings and reuses logical d
   assert.match(helper,/if \(!String\.IsNullOrWhiteSpace\(value\)\) CapsCache\[key\] = value/);
   assert.match(helper,/var currentMode = GetCurrentMode\(mi\.szDevice\)/);
   assert.match(helper,/var availableModes = GetModes\(mi\.szDevice\)/);
+});
+
+test("Pro manifest declares the exact four generated profile variants", async () => {
+  const manifest=JSON.parse(await readFile("com.packrat.monitormanagerpro.sdPlugin/manifest.json","utf8"));
+  assert.deepEqual(
+    manifest.Profiles.map((profile)=>[profile.Name,profile.DeviceType]),
+    [
+      ["profiles/monitor-manager-pro-standard",0],
+      ["profiles/monitor-manager-pro-xl",2],
+      ["profiles/monitor-manager-pro-plus",7],
+      ["profiles/monitor-manager-pro-virtual",11]
+    ]
+  );
+});
+
+test("Pro generated profile coordinates fit Standard XL and Plus hardware", async () => {
+  const root=path.resolve("com.packrat.monitormanagerpro.sdPlugin","profiles");
+  assertControllerBounds(zipJsonDocuments(await readFile(path.join(root,"monitor-manager-pro-standard.streamDeckProfile"))),5,3);
+  assertControllerBounds(zipJsonDocuments(await readFile(path.join(root,"monitor-manager-pro-xl.streamDeckProfile"))),8,4);
+  assertControllerBounds(zipJsonDocuments(await readFile(path.join(root,"monitor-manager-pro-plus.streamDeckProfile"))),4,2,4);
 });
