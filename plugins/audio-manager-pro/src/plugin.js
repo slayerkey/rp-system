@@ -607,6 +607,8 @@ async function createProfile(name) {
 
   const profile = captureProfileFromSnapshot(String(name || "New Audio Profile").trim().slice(0, 80) || "New Audio Profile", snapshot, randomUUID());
   if (!profile) throw new Error("Could not capture an Audio Profile.");
+  if (!Object.values(profile.slots || {}).some((slot) => slot?.device))
+    throw new Error("No Windows audio defaults are available to capture.");
   await saveGlobal({ ...globalSettings, profiles: [...globalSettings.profiles, profile] });
   return profile;
 }
