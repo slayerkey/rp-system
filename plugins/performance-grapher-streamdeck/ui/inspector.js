@@ -192,6 +192,7 @@
   for (const id of ["metricId", "windowMs", "threshold", "thresholdDirection", "scaleMin", "scaleMax", "fpsMode", "lowMode", "accent"]) {
     $(id).addEventListener(id === "accent" || id === "threshold" || id === "scaleMin" || id === "scaleMax" ? "input" : "change", saveSoon);
   }
-  $("restartFps").addEventListener("click", () => command("restart-fps"));\n  $("presentMonHelp").addEventListener("click", () => command("open-presentmon-help"));
+  $("restartFps").addEventListener("click", () => command("restart-fps"));
+  $("presentMonHelp").addEventListener("click", () => command("open-presentmon-help"));
   $("resetSession").addEventListener("click", () => command("reset-session"));
 })();
