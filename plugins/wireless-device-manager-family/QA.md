@@ -34,7 +34,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 - [x] Lite and Pro each generate Standard / Mini / XL / Stream Deck+ / Neo profiles
 - [x] all ten generated profile archives use valid device-grid coordinates
 - [x] Mini Pro is an explicit 3 x 2 compact layout
-- [x] Stream Deck+ and Neo Pro are explicit 4 x 2 key-only layouts
+- [x] Stream Deck+ and Neo Pro are explicit 4 x 2 key-only layouts prioritizing ALL DEVICES / CONNECT / CYCLE / GAMING
 - [x] generated profiles are parsed in tests and all key coordinates are enforced within 5 x 3 / 3 x 2 / 8 x 4 / 4 x 2 device bounds
 - [x] Pro bundled device slots seed favorites and example multi-group memberships
 - [x] bundled HEADPHONES status/control keys share one logical slot and identical seed metadata regardless of configuration order
@@ -146,7 +146,7 @@ This cannot be honestly replaced by fixtures because generic CI runners do not p
     - import Neo profile
     - confirm Mini stays within 3 x 2
     - confirm Plus and Neo use keys only
-    - confirm HEADPHONES and CONNECT share the same selected headset on Standard / Mini / XL
+    - confirm HEADPHONES and CONNECT share the same selected headset on Standard / Mini / XL / Plus / Neo
     - confirm no fake dial/Encoder action appears
 
 Record the exact hardware models and the capability matrix Windows exposes for each one. Any capability that fails the reliability rule must be narrowed or removed before Marketplace submission.
