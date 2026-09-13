@@ -19,9 +19,10 @@
     "official Stream Deck CLI validation",
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media",
-    "physical Windows audio-device and Stream Deck Plus smoke"
+    "physical Windows audio-device and Stream Deck Plus smoke",
+    "real-hardware Marketplace demonstration video when required"
   ],
-  "final_boundary": "Official current-head Elgato validate/package, then physical USB/Bluetooth/reboot/endpoint-recreation/role separation and Stream Deck+ validation.",
+  "final_boundary": "Official current-head Elgato validate/package, physical USB/Bluetooth/reboot/endpoint-recreation/role separation and Stream Deck+ validation, plus real-hardware Marketplace demo evidence when required.",
   "automated_release_evidence": {
     "last_executing_windows_run": 34739703004,
     "passed_before_caught_defect": [
