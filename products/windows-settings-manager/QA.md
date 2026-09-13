@@ -39,9 +39,9 @@
 - screen/sleep timeout
 - Keep Awake
 - lock workstation
-- legacy Advanced Color/HDR path only on hardware where the OS exposes it
+- HDR reports N/A and no HDR write is attempted
 
-Windows 11 24H2+ (build 26100+) uses the separated Advanced Color Info 2 / HDR State path; older builds use the guarded legacy Advanced Color path. The runtime build comes from RtlGetVersion, not Environment.OSVersion or packet probing. QA must verify both branches, including an SDR automatic-color-management display so WCG/ACM is never surfaced as HDR.
+Windows 11 24H2+ (build 26100+) uses the separated Advanced Color Info 2 / HDR State path. Older Windows builds deliberately expose no PackRat HDR control path because legacy Advanced Color is ambiguous with SDR WCG/automatic color management. The runtime build comes from RtlGetVersion, not Environment.OSVersion or packet probing. QA must verify that pre-24H2 systems remain N/A and that an SDR automatic-color-management display is never surfaced as HDR.
 
 ## Not applicable in v1
 
