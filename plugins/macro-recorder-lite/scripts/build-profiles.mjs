@@ -7,6 +7,7 @@ import { deflateRawSync } from "node:zlib";
 const here=dirname(fileURLToPath(import.meta.url));
 const root=resolve(here,"..");
 const profileDir=resolve(root,"com.packrat.macro-recorder-lite.sdPlugin","profiles");
+const profileMapDir=resolve(root,"..","..","artifacts","profile-maps");
 const PREFIX="com.packrat.macro-recorder-lite";
 
 function uuid(seed){const h=createHash("sha256").update(seed).digest("hex").slice(0,32).split("");h[12]="4";h[16]=["8","9","a","b"][parseInt(h[16],16)%4];return `${h.slice(0,8).join("")}-${h.slice(8,12).join("")}-${h.slice(12,16).join("")}-${h.slice(16,20).join("")}-${h.slice(20).join("")}`.toUpperCase();}
@@ -53,5 +54,6 @@ function build(pages){const rootId=uuid("profile-root:macro-recorder-lite"),page
 await rm(profileDir,{recursive:true,force:true});await mkdir(profileDir,{recursive:true});
 const pages=litePages();
 await writeFile(resolve(profileDir,"macro-recorder-lite-starter.streamDeckProfile"),build(pages));
-await writeFile(resolve(profileDir,"macro-recorder-lite-starter.profile-map.json"),JSON.stringify({pages:pages.map((p,i)=>({index:i+1,label:p.label,actions:Object.values(p.actions).map(a=>a.Name)}))},null,2));
+await mkdir(profileMapDir,{recursive:true});
+await writeFile(resolve(profileMapDir,"macro-recorder-lite-starter.profile-map.json"),JSON.stringify({pages:pages.map((p,i)=>({index:i+1,label:p.label,actions:Object.values(p.actions).map(a=>a.Name)}))},null,2));
 console.log("Built Lite starter profile.");
