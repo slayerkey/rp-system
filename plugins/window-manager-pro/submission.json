@@ -1,0 +1,28 @@
+{
+  "slug": "window-manager-pro",
+  "name": "Window Manager Pro",
+  "type": "plugin",
+  "price_usd": 9.99,
+  "pricing_status": "APPROVED_AFTER_RELEASE_GATE",
+  "version": "1.2.0.0",
+  "marketplace_category": [
+    "Productivity"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows",
+    "macOS"
+  ],
+  "marketplace_tags": [
+    "Productivity",
+    "Window Management",
+    "Workspace",
+    "Multi-Monitor",
+    "Stream Deck +"
+  ],
+  "marketplace_auto_publish": false,
+  "description": "Save your entire desktop setup and restore it with one Stream Deck key.\n\nArrange your desktop once, capture it, and bring the setup back later as a named workspace for work, editing, streaming, gaming, meetings, or any other repeatable setup. Window Manager Pro restores your windows to the right monitors, sizes, and positions, and can launch missing apps when a safe captured launch target is available.\n\nThe restore system is built for real multi-window and multi-monitor setups. It uses stronger one-to-one window matching for apps with multiple windows, waits for slow apps when needed, avoids duplicate relaunches, and falls back to surviving displays when a monitor is removed, reordered, or changes resolution instead of intentionally restoring windows off-screen.\n\nYou also keep the existing Window Manager Pro tools: Window Layout, Snap Window, Cycle Windows, and Nudge Window. Nudge Window supports Stream Deck + dials for fine movement and resizing.\n\nSupports Windows and macOS with Stream Deck 6.9 or later. Some applications may restrict window movement, foreground control, or automation through operating-system permissions; Window Manager Pro reports partial restores instead of closing unrelated apps or forcing elevated access.\n\nPart of the PackRat ecosystem.",
+  "release_notes": "- Added shared named workspaces and Capture Current Desktop.\n- Added one-key workspace restore with stronger multi-window matching and missing-app launch/retry.\n- Improved multi-monitor recovery for reordered, removed, and changed-resolution displays.\n- Improved repeated-restore idempotency, launch failure reporting, and minimized-window recovery.\n- Hardened Windows and macOS window/display identity while preserving existing Window Layout, Snap Window, Cycle Windows, and Nudge Window behavior.\n- Preserved the existing Window Manager Pro UUIDs, Stream Deck 6.9+ support, macOS + Windows compatibility, and Stream Deck + dial support."
+}
