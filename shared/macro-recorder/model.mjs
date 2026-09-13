@@ -76,12 +76,13 @@ export function validateMacro(raw, { pro = true } = {}) {
   const events = Array.isArray(raw?.events) ? raw.events : [];
   if (!events.length) errors.push("Macro has no events.");
   if (!pro && events.some((event) => !String(event?.type || "").startsWith("key"))) errors.push("Lite macros can contain keyboard events only.");
-  const down = new Map();
+  const down = new Set();
   for (const event of events) {
-    if (event?.type === "keyDown") down.set(Number(event.vk), (down.get(Number(event.vk)) || 0) + 1);
-    if (event?.type === "keyUp") down.set(Number(event.vk), Math.max(0, (down.get(Number(event.vk)) || 0) - 1));
+    const vk = Number(event?.vk);
+    if (event?.type === "keyDown") down.add(vk);
+    if (event?.type === "keyUp") down.delete(vk);
   }
-  const unmatched = [...down.entries()].filter(([, count]) => count > 0).map(([vk]) => vk);
+  const unmatched = [...down].filter((vk) => Number.isFinite(vk));
   return { ok: errors.length === 0, errors, unmatchedKeys: unmatched };
 }
 
