@@ -138,8 +138,14 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     await renderAll();
     await broadcastInspectors();
   });
-  host.on("recordingStopped", async (message) => {
-    await finalizeCapture(message.macro);
+  host.on("recordingStopped", (message) => {
+    void finalizeCapture(message.macro).catch(async (error) => {
+      recording = null;
+      lastError = `The recording was captured but could not be saved: ${String(error?.message || error)}`;
+      streamDeck.logger?.error?.(lastError);
+      await renderAll();
+      await broadcastInspectors();
+    });
   });
   host.on("recordingCancelled", async () => {
     recording = null;
@@ -190,7 +196,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       await record.action.showAlert?.().catch(() => {});
       return;
     }
-    if (playback) await stopPlayback();
+    if (playback) await stopPlayback(record.action);
     lastError = "";
     try {
       await host.command("startRecording", {
@@ -295,15 +301,19 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
         settings: settingsFor(this.kind, ev.payload?.settings),
         inspectorOpen: false,
       };
-      if (pro && this.kind === "replay" && !record.settings.macroId && record.settings.seedMacro) {
-        const seed = record.settings.seedMacro;
-        const stored = library.get(seed.id) || await library.add(seed);
-        const next = { ...record.settings, macroId: stored.id };
-        delete next.seedMacro;
-        await ev.action.setSettings(next);
-        record.settings = settingsFor(this.kind, next);
-      }
       visible.set(id, record);
+      try {
+        if (pro && this.kind === "replay" && !record.settings.macroId && record.settings.seedMacro) {
+          const seed = record.settings.seedMacro;
+          const stored = library.get(seed.id) || await library.add(seed);
+          const next = { ...record.settings, macroId: stored.id };
+          delete next.seedMacro;
+          await ev.action.setSettings(next);
+          record.settings = settingsFor(this.kind, next);
+        }
+      } catch (error) {
+        await surfaceRecoverableError(error, record.action);
+      }
       await render(record);
     }
 
