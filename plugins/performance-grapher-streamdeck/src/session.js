@@ -81,10 +81,32 @@ export class SessionTracker {
     }
   }
 
+  _fallbackLeader(now) {
+    const candidates = [];
+    for (const [process, activity] of this.activity) {
+      if (!activity || now - activity.last > 1200) continue;
+      if (activity.count < 4 || now - activity.since < 500) continue;
+      candidates.push({ process, ...activity });
+    }
+    candidates.sort((a, b) =>
+      b.count - a.count ||
+      a.since - b.since ||
+      a.process.localeCompare(b.process)
+    );
+    if (!candidates.length) return "";
+
+    const leader = candidates[0];
+    const runner = candidates[1];
+    if (runner) {
+      const clearlyAhead = leader.count >= runner.count + 2 || leader.count >= runner.count * 1.25;
+      if (!clearlyAhead) return "";
+    }
+    return leader.process;
+  }
+
   _candidateProcess(app, now) {
     const preferred = Boolean(this.foreground && app === this.foreground);
-    const activity = this.activity.get(app);
-    const dominant = Boolean(activity && activity.count >= 20 && now - activity.since >= 500);
+    const dominant = this._fallbackLeader(now) === app;
     if (!preferred && !dominant) return null;
 
     if (!this.candidate || this.candidate.process !== app) {
