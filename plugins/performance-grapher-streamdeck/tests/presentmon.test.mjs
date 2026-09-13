@@ -27,3 +27,13 @@ test("PresentMon parser tolerates alternate timing headers and malformed rows", 
   assert.equal(rows.length, 1);
   assert.equal(rows[0].frameTimeMs, 8.25);
 });
+
+
+test("prefers MsBetweenPresents when v2 FrameTime is also present", () => {
+  const rows = parsePresentMonRows([
+    "Application,ProcessID,FrameTime,MsBetweenPresents",
+    "game.exe,4242,6.50,16.67",
+  ]);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].frameTimeMs, 16.67);
+});
