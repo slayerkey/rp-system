@@ -261,7 +261,10 @@ public static class PackRatWindowsNative
             return false;
         }
         supported = (info.flags & (1u << 4)) != 0;
-        enabled = info.activeColorMode == 2 || (info.flags & (1u << 5)) != 0;
+        // activeColorMode is the truthful current output mode. The separate
+        // highDynamicRangeUserEnabled bit can remain set even when HDR is not
+        // actually active, so it must not be rendered as live HDR state.
+        enabled = info.activeColorMode == 2;
         error = null;
         return true;
     }
@@ -301,25 +304,21 @@ public static class PackRatWindowsNative
             bool enabled;
             string error;
 
-            bool got = false;
-            if (Environment.OSVersion.Version.Build >= 26100)
+            bool got;
+            if (Environment.OSVersion.Version.Build >= 22000)
             {
+                // Windows 11 exposes HDR-specific state. Do not fall back to
+                // legacy "Advanced Color" here because that can also represent
+                // WCG/ACM on SDR displays and would create a false HDR state.
                 got = TryReadNewHdr(path.targetInfo, out supported, out enabled, out error);
                 if (got) usedNew = true;
+                else if (!String.IsNullOrWhiteSpace(error)) errors.Add(error);
             }
             else
             {
-                supported = false;
-                enabled = false;
-                error = null;
-            }
-
-            if (!got)
-            {
-                string legacyError;
-                got = TryReadLegacyHdr(path.targetInfo, out supported, out enabled, out legacyError);
+                got = TryReadLegacyHdr(path.targetInfo, out supported, out enabled, out error);
                 if (got) usedLegacy = true;
-                else if (!String.IsNullOrWhiteSpace(error ?? legacyError)) errors.Add(error ?? legacyError);
+                else if (!String.IsNullOrWhiteSpace(error)) errors.Add(error);
             }
 
             if (!got || !supported) continue;
@@ -339,28 +338,28 @@ public static class PackRatWindowsNative
 
     private static bool SetHdrForTarget(PathTargetInfo target, bool enabled)
     {
-        if (Environment.OSVersion.Version.Build >= 26100)
+        if (Environment.OSVersion.Version.Build >= 22000)
         {
             bool supported;
             bool current;
             string error;
-            if (TryReadNewHdr(target, out supported, out current, out error))
-            {
-                if (!supported) return true;
-                var packet = new HdrSet();
-                packet.header.type = DISPLAYCONFIG_DEVICE_INFO_SET_HDR_STATE;
-                packet.header.size = (uint)Marshal.SizeOf(typeof(HdrSet));
-                packet.header.adapterId = target.adapterId;
-                packet.header.id = target.id;
-                packet.enableHdr = enabled ? 1u : 0u;
-                int rc = SetHdrState(ref packet);
-                if (rc != 0) return false;
-                Thread.Sleep(120);
-                bool afterSupported;
-                bool after;
-                string afterError;
-                return TryReadNewHdr(target, out afterSupported, out after, out afterError) && (!afterSupported || after == enabled);
-            }
+            if (!TryReadNewHdr(target, out supported, out current, out error)) return false;
+            if (!supported) return true;
+
+            var packet = new HdrSet();
+            packet.header.type = DISPLAYCONFIG_DEVICE_INFO_SET_HDR_STATE;
+            packet.header.size = (uint)Marshal.SizeOf(typeof(HdrSet));
+            packet.header.adapterId = target.adapterId;
+            packet.header.id = target.id;
+            packet.enableHdr = enabled ? 1u : 0u;
+            int rc = SetHdrState(ref packet);
+            if (rc != 0) return false;
+            Thread.Sleep(120);
+            bool afterSupported;
+            bool after;
+            string afterError;
+            return TryReadNewHdr(target, out afterSupported, out after, out afterError)
+                && (!afterSupported || after == enabled);
         }
 
         bool legacySupported;
@@ -394,17 +393,10 @@ public static class PackRatWindowsNative
             bool isSupported;
             bool current;
             string error;
-            bool readable = false;
-            if (Environment.OSVersion.Version.Build >= 26100)
+            bool readable;
+            if (Environment.OSVersion.Version.Build >= 22000)
                 readable = TryReadNewHdr(path.targetInfo, out isSupported, out current, out error);
             else
-            {
-                isSupported = false;
-                current = false;
-                error = null;
-            }
-
-            if (!readable)
                 readable = TryReadLegacyHdr(path.targetInfo, out isSupported, out current, out error);
 
             if (!readable || !isSupported) continue;
