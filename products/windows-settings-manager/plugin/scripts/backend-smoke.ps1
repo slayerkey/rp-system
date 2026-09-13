@@ -8,6 +8,7 @@ $psi.UseShellExecute = $false
 $psi.RedirectStandardInput = $true
 $psi.RedirectStandardOutput = $true
 $psi.RedirectStandardError = $true
+$psi.StandardInputEncoding = New-Object System.Text.UTF8Encoding($false)
 $psi.CreateNoWindow = $true
 
 $p = [System.Diagnostics.Process]::new()
@@ -15,8 +16,8 @@ $p.StartInfo = $psi
 if (-not $p.Start()) { throw "Could not start backend." }
 
 try {
-    function Request([int]$Id, [string]$Op, $Args = @{}) {
-        $payload = @{ id = $Id; op = $Op; args = $Args } | ConvertTo-Json -Compress
+    function Request([int]$Id, [string]$Op, $RequestArgs = @{}) {
+        $payload = @{ id = $Id; op = $Op; args = $RequestArgs } | ConvertTo-Json -Depth 6 -Compress
         $p.StandardInput.WriteLine($payload)
         $p.StandardInput.Flush()
         $line = $p.StandardOutput.ReadLine()
