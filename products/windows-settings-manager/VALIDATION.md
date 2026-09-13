@@ -15,11 +15,15 @@
 ## Technical surfaces
 
 - Display topology: QueryDisplayConfig / SetDisplayConfig
-- HDR: DisplayConfigGetDeviceInfo / DisplayConfigSetDeviceInfo
+- HDR: DisplayConfigGetDeviceInfo / DisplayConfigSetDeviceInfo with RtlGetVersion-gated 24H2 separated HDR state and guarded legacy Advanced Color fallback
 - Power and timeout: powercfg.exe
 - Keep Awake: SetThreadExecutionState
 - Lock: LockWorkStation
 
+## Automated execution status
+
+GitHub-hosted Actions are currently failing before runner assignment (runner_id 0, zero executed steps), including unrelated repository workflows. The PackRat self-hosted Windows gate is queued while that runner is offline. These infrastructure failures are not treated as product test results.
+
 ## Remaining validation boundary
 
-The release remains blocked until real Windows 10/11 host, HDR, multi-monitor, laptop, sleep/resume, reboot, external-change, and physical Stream Deck tests pass.
+The release remains blocked until the actual automated build/validator/package gates execute successfully and the real Windows 10/11 host, HDR, multi-monitor, laptop, sleep/resume, reboot, external-change, profile-navigation, and physical Stream Deck checks pass.
