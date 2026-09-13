@@ -9,7 +9,7 @@ test("simulated 24h+ monitoring stays bounded and survives plugin restart", () =
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ihp-storage-"));
   const filePath = path.join(dir, "history.json");
   const store = new HistoryStore({ filePath, maxHours: 24 });
-  const start = 1_000_000;
+  const start = Date.now() - 48 * 60 * 60 * 1000;
   for (let i = 0; i < 17_500; i += 1) {
     store.addSample({
       t: start + i * 10_000,
