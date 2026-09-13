@@ -99,3 +99,13 @@ test("Lite bundled profiles stay free of Pro-only favorite and group settings",a
     }
   }
 });
+
+
+test("Marketplace release notes use concise bullets",async()=>{
+  for(const file of ["submission-lite.json","submission-pro.json"]){
+    const submission=JSON.parse(await readFile(file,"utf8"));
+    const lines=String(submission.release_notes||"").split(/\r?\n/).filter(Boolean);
+    assert.ok(lines.length>=3 && lines.length<=6,`${file} should have 3-6 release-note bullets`);
+    assert.ok(lines.every(line=>line.startsWith("- ")),`${file} release notes must be bullet lines`);
+  }
+});
