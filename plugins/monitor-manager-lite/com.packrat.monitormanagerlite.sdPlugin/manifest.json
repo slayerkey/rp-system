@@ -9,15 +9,48 @@
   "Icon": "imgs/plugin/marketplace",
   "CodePath": "bin/plugin.js",
   "SDKVersion": 3,
-  "Software": {"MinimumVersion": "7.0"},
-  "OS": [{"Platform": "windows", "MinimumVersion": "10"}],
-  "Nodejs": {"Version": "20"},
+  "Software": {
+    "MinimumVersion": "7.0"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20"
+  },
   "UUID": "com.packrat.monitormanagerlite",
   "Profiles": [
-    {"Name":"profiles/monitor-manager-lite-standard","DeviceType":0,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
-    {"Name":"profiles/monitor-manager-lite-xl","DeviceType":2,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
-    {"Name":"profiles/monitor-manager-lite-plus","DeviceType":7,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
-    {"Name":"profiles/monitor-manager-lite-virtual","DeviceType":11,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true}
+    {
+      "Name": "profiles/monitor-manager-lite-standard",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/monitor-manager-lite-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/monitor-manager-lite-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/monitor-manager-lite-virtual",
+      "DeviceType": 11,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
   ],
   "Actions": [
     {
@@ -26,9 +59,22 @@
       "Icon": "imgs/actions/common/icon",
       "Tooltip": "Set, raise or lower brightness on the selected monitor. Stream Deck+ can use the dial.",
       "PropertyInspectorPath": "ui/config.html",
-      "Controllers": ["Keypad","Encoder"],
-      "Encoder": {"layout":"$B1","TriggerDescription":{"Rotate":"Adjust brightness"}},
-      "States": [{"Image":"imgs/actions/common/key","TitleAlignment":"middle"}]
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": {
+          "Rotate": "Adjust brightness"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
     },
     {
       "Name": "Monitor Power",
@@ -36,8 +82,15 @@
       "Icon": "imgs/actions/common/icon",
       "Tooltip": "Power the selected monitor on/off only when its DDC/CI capabilities advertise the power VCP feature.",
       "PropertyInspectorPath": "ui/config.html",
-      "Controllers": ["Keypad"],
-      "States": [{"Image":"imgs/actions/common/key","TitleAlignment":"middle"}]
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
     },
     {
       "Name": "Refresh Rate Switch",
@@ -45,8 +98,15 @@
       "Icon": "imgs/actions/common/icon",
       "Tooltip": "Switch the selected monitor to a refresh rate Windows reports as available at the current resolution.",
       "PropertyInspectorPath": "ui/config.html",
-      "Controllers": ["Keypad"],
-      "States": [{"Image":"imgs/actions/common/key","TitleAlignment":"middle"}]
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
     },
     {
       "Name": "Current Display Status",
@@ -54,8 +114,15 @@
       "Icon": "imgs/actions/common/icon",
       "Tooltip": "Show the selected display's current refresh rate and resolution.",
       "PropertyInspectorPath": "ui/config.html",
-      "Controllers": ["Keypad"],
-      "States": [{"Image":"imgs/actions/common/key","TitleAlignment":"middle"}]
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
     }
   ]
 }
