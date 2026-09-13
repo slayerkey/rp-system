@@ -3,7 +3,7 @@
   "name": "Monitor Manager Lite",
   "type": "plugin",
   "status": "testing",
-  "workflow_state": "TESTING",
+  "workflow_state": "BLOCKED",
   "price_usd": 0,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -20,5 +20,7 @@
     "physical laptop internal brightness smoke: REQUIRED before Marketplace submission",
     "direct Pro Marketplace CTA remains disabled until a verified public Pro product URL exists"
   ],
-  "notes": "Lite intentionally controls one configured monitor and does not include saved monitor profiles or multi-monitor orchestration. DDC/CI low-level writes are restricted to the safe product allowlist and gated by advertised capabilities. No generic or placeholder PackRat Pro URL is allowed."
+  "notes": "Lite intentionally controls one configured monitor and does not include saved monitor profiles or multi-monitor orchestration. DDC/CI low-level writes are restricted to the safe product allowlist and gated by advertised capabilities. No generic or placeholder PackRat Pro URL is allowed.",
+  "blocker": "Monitor Manager Pro is not yet publicly published with a verified direct Marketplace product URL, and required physical Windows monitor QA is still incomplete.",
+  "final_boundary": "Complete Lite physical QA, publish Monitor Manager Pro first, record both exact direct Marketplace URLs in products/lite-pro-map.json, commit the exact Pro URL into Lite, pass the strict Lite-to-Pro shipping audit, then move this product to READY_TO_SHIP."
 }
