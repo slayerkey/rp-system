@@ -36,7 +36,7 @@
       "Windows helper self-test"
     ],
     "caught_defect": "Stream Deck+ dial syntax error, fixed in cd084c68e1bc8527322a27cc256ac3672144bd5f",
-    "current_pure_suite": "Exact current GitHub source/test files execute 39/39 passing in the available JavaScript harness.",
+    "current_pure_suite": "Exact current GitHub source/test files execute 41/41 passing in the available JavaScript harness.",
     "current_static_checks": [
       "plugin.js syntax",
       "audio-helper.js transformed module syntax",
