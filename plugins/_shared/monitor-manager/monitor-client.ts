@@ -19,6 +19,19 @@ export class MonitorBridge {
     return path.resolve(here, "..", "helper", "monitor-helper.ps1");
   }
 
+  private failPending(error: Error, terminate = false): void {
+    const child = this.child;
+    this.child = null;
+    for (const entry of this.pending.values()) {
+      clearTimeout(entry.timer);
+      entry.reject(error);
+    }
+    this.pending.clear();
+    if (terminate && child && !child.killed) {
+      try { child.kill(); } catch {}
+    }
+  }
+
   private ensure(): ChildProcessWithoutNullStreams {
     if (this.child && !this.child.killed) return this.child;
     const child = spawn("powershell.exe", [
@@ -33,21 +46,10 @@ export class MonitorBridge {
     });
     child.on("error", (cause) => {
       const error = cause instanceof Error ? cause : new Error(String(cause));
-      for (const entry of this.pending.values()) {
-        clearTimeout(entry.timer);
-        entry.reject(error);
-      }
-      this.pending.clear();
-      this.child = null;
+      this.failPending(error);
     });
     child.on("exit", (code) => {
-      const error = new Error("Monitor helper exited with code " + code);
-      for (const entry of this.pending.values()) {
-        clearTimeout(entry.timer);
-        entry.reject(error);
-      }
-      this.pending.clear();
-      this.child = null;
+      this.failPending(new Error("Monitor helper exited with code " + code));
     });
     this.child = child;
     return child;
@@ -77,8 +79,9 @@ export class MonitorBridge {
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        this.pending.delete(id);
-        reject(new Error("Monitor helper timed out during " + op));
+        const error = new Error("Monitor helper timed out during " + op);
+        if (!this.pending.has(id)) return;
+        this.failPending(error, true);
       }, timeoutMs);
       timer.unref();
       this.pending.set(id, { resolve, reject, timer });
