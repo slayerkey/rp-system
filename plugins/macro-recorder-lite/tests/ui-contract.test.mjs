@@ -28,6 +28,7 @@ test("Lite manifest keeps the intended platform and action contract",async()=>{
   assert.equal(manifest.Profiles[0].DeviceType,0);
   assert.equal(manifest.Profiles[0].Name,"profiles/macro-recorder-lite-starter");
   assert.ok(!manifest.Profiles[0].Name.endsWith(".streamDeckProfile"));
+  for(const action of manifest.Actions) assert.equal(action.UserTitleEnabled,false);
   const record=manifest.Actions.find(action=>action.UUID.endsWith(".record"));
   const stop=manifest.Actions.find(action=>action.UUID.endsWith(".stop"));
   assert.equal(record?.SupportedInKeyLogicActions,false);
