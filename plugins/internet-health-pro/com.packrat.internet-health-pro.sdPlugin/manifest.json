@@ -1,0 +1,158 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Actions": [
+    {
+      "UUID": "com.packrat.internet-health-pro.health",
+      "Name": "Internet Health",
+      "Tooltip": "Overall GOOD, DEGRADED, BAD or OFFLINE state with latency and history.",
+      "Icon": "imgs/actions/health/icon.svg",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/health/key.svg",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.internet-health-pro.latency",
+      "Name": "Latency",
+      "Tooltip": "Current native latency with an honest ICMP or fallback method label.",
+      "Icon": "imgs/actions/latency/icon.svg",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/latency/key.svg",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.internet-health-pro.jitter-loss",
+      "Name": "Jitter / Loss",
+      "Tooltip": "Show rolling jitter or observed probe loss.",
+      "Icon": "imgs/actions/jitter-loss/icon.svg",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/jitter-loss/key.svg",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.internet-health-pro.outage",
+      "Name": "Outage",
+      "Tooltip": "Show current uptime, current outage duration, last outage or recent outage count.",
+      "Icon": "imgs/actions/outage/icon.svg",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/outage/key.svg",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.internet-health-pro.target",
+      "Name": "Target Health",
+      "Tooltip": "Monitor one user-selected host or service using ICMP, TCP, DNS or HTTPS.",
+      "Icon": "imgs/actions/target/icon.svg",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/target/key.svg",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.internet-health-pro.speed-test",
+      "Name": "Speed Test",
+      "Tooltip": "Run a manual capped throughput test. Never runs automatically.",
+      "Icon": "imgs/actions/speed-test/icon.svg",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/speed-test/key.svg",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.internet-health-pro.summary",
+      "Name": "Health Summary",
+      "Tooltip": "Compact latency, jitter, probe loss and uptime summary.",
+      "Icon": "imgs/actions/summary/icon.svg",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/summary/key.svg",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ],
+  "Author": "PackRat",
+  "Category": "Internet Health Pro",
+  "CategoryIcon": "imgs/category/icon.svg",
+  "CodePath": "bin/plugin.js",
+  "Description": "Know when your internet is the problem with continuous local latency, jitter, probe-loss, outage and target health monitoring plus manual speed tests.",
+  "Icon": "imgs/plugin/icon.png",
+  "Name": "Internet Health Pro",
+  "Nodejs": {
+    "Version": "24"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    },
+    {
+      "Platform": "mac",
+      "MinimumVersion": "12"
+    }
+  ],
+  "PropertyInspectorPath": "ui/inspector.html",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.1"
+  },
+  "UUID": "com.packrat.internet-health-pro",
+  "Version": "1.0.0.0"
+}
