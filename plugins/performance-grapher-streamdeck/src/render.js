@@ -116,7 +116,7 @@ export function makeView(telemetry, kind, settings = {}) {
       value: isFrame ? frametime : fps,
       unit: isFrame ? "ms" : "FPS",
       secondary: (settings.lowMode === "pointOne" ? "0.1% " : "1% ") + formatNumber(low, "FPS"),
-      points: telemetry.metricSeries(isFrame ? "game.frametime" : "game.fps", Number(settings.windowMs) || 60_000),
+      points: telemetry.metricSeries(isFrame ? "game.frametime" : "game.fps", Number.isFinite(Number(settings.windowMs)) ? Number(settings.windowMs) : 60_000),
       state: telemetry.safeStatus().fps.state,
       mode: isFrame ? "max" : "min",
     };
@@ -133,7 +133,7 @@ export function makeView(telemetry, kind, settings = {}) {
   const descriptor = telemetry.metricDescriptor(id);
   const value = telemetry.metricValue(id);
   const unit = descriptor?.unit || "";
-  const points = telemetry.metricSeries(id, Number(settings.windowMs) || 60_000);
+  const points = telemetry.metricSeries(id, Number.isFinite(Number(settings.windowMs)) ? Number(settings.windowMs) : 60_000);
   const breached = thresholdState(value, settings);
 
   if (kind === "alert") {
