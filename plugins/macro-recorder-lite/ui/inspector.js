@@ -1,6 +1,8 @@
 (() => {
   const edition=document.body.dataset.edition;
   const pro=edition==="pro";
+  const proMarketplaceUrl=String(document.body.dataset.proUrl||"").trim();
+  const validProMarketplaceUrl=/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9-]+$/i.test(proMarketplaceUrl)?proMarketplaceUrl:"";
   let socket=null,uiUuid="",context="",actionUuid="",kind="",settings={},state=null;
   const PAGE_SIZE=200;
   const MAX_IMPORT_BYTES=16*1024*1024;
@@ -163,5 +165,15 @@
     $("playbackMode").addEventListener("change",()=>{const value=$("playbackMode").value;$("repeatRow").hidden=value!=="count";saveSettings({playbackMode:value});});
     $("repeatCount").addEventListener("change",()=>saveSettings({repeatCount:Math.max(1,Math.min(100,Number($("repeatCount").value||1)))}));
     $("coordinateMode").addEventListener("change",()=>saveSettings({coordinateMode:$("coordinateMode").value}));
+  }
+  if(!pro){
+    const upgrade=$("upgradePro"),pending=$("upgradePending");
+    if(upgrade){
+      upgrade.hidden=!validProMarketplaceUrl;
+      if(pending)pending.hidden=Boolean(validProMarketplaceUrl);
+      upgrade.addEventListener("click",()=>{
+        if(validProMarketplaceUrl)send({event:"openUrl",payload:{url:validProMarketplaceUrl}});
+      });
+    }
   }
 })();
