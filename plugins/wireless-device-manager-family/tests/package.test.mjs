@@ -152,6 +152,11 @@ test("wireless inspector does not block USB devices when Bluetooth is unavailabl
 });
 
 
+test("Property Inspector snapshot requests receive an immediate response",async()=>{
+  const actions=await readFile("src/actions.ts","utf8");
+  assert.match(actions,/payload\.type === "get-wireless-snapshot"[\s\S]*await this\.runtime\.sendInspector\(\);[\s\S]*return;/);
+});
+
 test("settings reads are side-effect free and global writes are explicit",async()=>{
   const actions=await readFile("src/actions.ts","utf8");
   const runtime=await readFile("src/runtime.ts","utf8");
