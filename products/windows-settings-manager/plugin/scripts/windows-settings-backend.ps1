@@ -573,19 +573,39 @@ function Get-ActivePowerPlan {
 }
 
 function Get-PowerPlans {
-    $active = Get-ActivePowerPlan
     $text = Invoke-PowerCfg /list
-    $regex = [regex]'(?im)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:\s+\(([^\r\n\)]*)\))?'
+    $regex = [regex]'(?im)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:\s+\(([^\r\n\)]*)\))?([^\r\n]*)'
     $plans = @()
     foreach ($match in $regex.Matches($text)) {
         $guid = $match.Groups[1].Value.ToLowerInvariant()
         $plans += [pscustomobject]@{
             guid = $guid
             name = $match.Groups[2].Value.Trim()
-            active = ($guid -eq $active.guid)
+            active = ($match.Groups[3].Value -match '\*')
         }
     }
-    @($plans | Group-Object guid | ForEach-Object { $_.Group[0] })
+    $plans = @($plans | Group-Object guid | ForEach-Object { $_.Group[0] })
+
+    if (-not ($plans | Where-Object { $_.active } | Select-Object -First 1)) {
+        $active = Get-ActivePowerPlan
+        $found = $false
+        foreach ($plan in $plans) {
+            if ($plan.guid -eq $active.guid) {
+                $plan.active = $true
+                $found = $true
+                break
+            }
+        }
+        if (-not $found) {
+            $plans += [pscustomobject]@{
+                guid = $active.guid
+                name = $active.name
+                active = $true
+            }
+        }
+    }
+
+    @($plans)
 }
 
 function Get-SettingSeconds {
@@ -710,8 +730,8 @@ function Get-Snapshot {
     catch { $errors.Add("Display: $($_.Exception.Message)"); $topology = "unknown" }
 
     try {
-        $power = Get-ActivePowerPlan
         $plans = @(Get-PowerPlans)
+        $power = $plans | Where-Object { $_.active } | Select-Object -First 1
     }
     catch {
         $errors.Add("Power: $($_.Exception.Message)")
