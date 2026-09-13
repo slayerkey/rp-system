@@ -112,9 +112,14 @@ function Resolve-RatDevPluginDirectory {
 
     $configured = if ($Config -and $Config.plugin_dir) { ([string]$Config.plugin_dir).Trim() } else { "" }
     if (-not [string]::IsNullOrWhiteSpace($configured)) {
-        $rootFull = [System.IO.Path]::GetFullPath((Resolve-Path $PluginRoot).Path).TrimEnd('\')
+        if ([System.IO.Path]::IsPathRooted($configured)) {
+            throw "Configured Rat Dev plugin_dir '$configured' must be relative to plugin source root '$PluginRoot'."
+        }
+
+        $trimChars = [char[]]@([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+        $rootFull = [System.IO.Path]::GetFullPath((Resolve-Path $PluginRoot).Path).TrimEnd($trimChars)
         $candidate = [System.IO.Path]::GetFullPath((Join-Path $rootFull $configured))
-        $rootPrefix = $rootFull + "\"
+        $rootPrefix = $rootFull + [System.IO.Path]::DirectorySeparatorChar
 
         if ($candidate -ne $rootFull -and -not $candidate.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
             throw "Configured Rat Dev plugin_dir '$configured' escapes plugin source root '$PluginRoot'."
