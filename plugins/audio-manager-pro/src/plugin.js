@@ -12,6 +12,7 @@ import {
   normalizeGlobalSettings,
   normalizeProfile,
   profileMatchesSnapshot,
+  snapshotDefaultRoleConflicts,
 } from "./profiles.js";
 import { dialFeedback, renderKey } from "./render.js";
 
@@ -411,6 +412,12 @@ async function toggleProfileOutputMute(record) {
 async function createProfile(name) {
   const snapshot = await refreshSnapshot({ quiet: false });
   if (!snapshot) throw new Error(latestError || "Windows audio state is unavailable.");
+
+  const conflicts = snapshotDefaultRoleConflicts(snapshot);
+  if (conflicts.length) {
+    throw new Error(`Cannot capture this setup exactly. ${conflicts.join(" ")} Align each Windows Default role, refresh, then capture again.`);
+  }
+
   const profile = captureProfileFromSnapshot(String(name || "New Audio Profile").trim().slice(0, 80) || "New Audio Profile", snapshot, randomUUID());
   if (!profile) throw new Error("Could not capture an Audio Profile.");
   await saveGlobal({ ...globalSettings, profiles: [...globalSettings.profiles, profile] });
