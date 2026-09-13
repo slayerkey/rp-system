@@ -282,7 +282,20 @@ async function applyProfile(profile, record = null) {
   else await refreshSnapshot({ quiet: true });
 
   if (result.status === "SUCCESS" && profile?.id) {
-    await saveGlobal({ ...globalSettings, lastAppliedProfileId: profile.id });
+    try {
+      await saveGlobal({ ...globalSettings, lastAppliedProfileId: profile.id });
+    } catch (error) {
+      result = {
+        ...result,
+        status: "PARTIAL",
+        failureCount: Number(result.failureCount || 0) + 1,
+        failures: [
+          ...(result.failures || []),
+          { slot: "settings", error: "Audio Profile applied, but Stream Deck could not persist the last-applied profile." },
+        ],
+      };
+      logger(error?.message || error);
+    }
   }
 
   if (record) {
