@@ -53,7 +53,8 @@ The corrected source received an additional implementation-session preflight:
 - current Property Inspector source parses successfully
 - current profile logic source parses successfully
 - current tests parse successfully
-- current branch pure logic executes successfully for role capture, endpoint recreation, safe rebinding, missing-device handling, Console/Multimedia drift detection, contradictory-state suppression, fail-closed status, Unicode rendering, and role-aware key labels
+- the exact current pure source/test files were materialized from GitHub and executed with Node's built-in test runner: **26 tests passed, 0 failed**
+- current branch pure logic executes successfully for role capture, endpoint recreation, safe rebinding, missing-device handling, Console/Multimedia drift detection, contradictory-state suppression, cycle recovery, exact-capture preflight, fail-closed status, Unicode rendering, and role-aware key labels
 - Rat Art V2 Python source compiles
 - Rat Art V2 renderer was exercised off-runner through all six required Marketplace outputs at the expected dimensions; exact canonical-logo release rendering still belongs to the official release gate
 - Rat Art V2 generates the required 480×240, 320×160, and 240×120 thumbnail review sheet
