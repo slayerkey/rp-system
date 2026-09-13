@@ -1,0 +1,136 @@
+name: Performance Grapher Stream Deck
+
+on:
+  push:
+    branches:
+      - product/performance-grapher-streamdeck
+    paths:
+      - "plugins/performance-grapher-streamdeck/**"
+      - "products/performance-grapher-streamdeck.json"
+      - "products/index.json"
+      - ".github/workflows/performance-grapher-streamdeck.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "plugins/performance-grapher-streamdeck/**"
+      - "products/performance-grapher-streamdeck.json"
+      - "products/index.json"
+      - ".github/workflows/performance-grapher-streamdeck.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    name: Windows build, provider probe, Stream Deck validation
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: plugins/performance-grapher-streamdeck
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: plugins/performance-grapher-streamdeck/package-lock.json
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Rat Art dependency
+        run: python -m pip install --disable-pip-version-check pillow==11.3.0
+
+      - name: Locked npm install
+        run: npm ci
+
+      - name: Unit, failure-state, and synthetic performance QA
+        run: npm test
+
+      - name: Build plugin and pinned telemetry providers
+        run: npm run build
+
+      - name: Probe Libre Hardware Monitor helper
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path "com.packrat.performance-grapher.sdPlugin/native/telemetry/PackRat.PerformanceTelemetry.exe"
+          $output = & $exe --probe
+          if ($LASTEXITCODE -ne 0) { throw "Native telemetry probe failed with $LASTEXITCODE" }
+          $joined = ($output -join [Environment]::NewLine)
+          if ($joined -notmatch '"type":"sample"') { throw "Native telemetry probe did not emit a sample record." }
+          Write-Host $joined
+
+      - name: Sample sensor-helper overhead ceiling
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path "com.packrat.performance-grapher.sdPlugin/native/telemetry/PackRat.PerformanceTelemetry.exe"
+          $stdout = Join-Path $env:RUNNER_TEMP "perf-helper-out.txt"
+          $stderr = Join-Path $env:RUNNER_TEMP "perf-helper-err.txt"
+          $p = Start-Process -FilePath $exe -PassThru -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+          Start-Sleep -Seconds 2
+          $p.Refresh()
+          $cpu0 = $p.TotalProcessorTime.TotalSeconds
+          Start-Sleep -Seconds 6
+          $p.Refresh()
+          $cpu1 = $p.TotalProcessorTime.TotalSeconds
+          $workingMb = $p.WorkingSet64 / 1MB
+          $normalizedCpu = (($cpu1 - $cpu0) / 6 / [Environment]::ProcessorCount) * 100
+          Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
+          Write-Host ("HELPER_BENCH normalized_cpu_pct={0:N3} working_set_mb={1:N1}" -f $normalizedCpu, $workingMb)
+          if ($normalizedCpu -gt 5.0) { throw "Sensor helper exceeded 5% normalized CI ceiling." }
+          if ($workingMb -gt 180) { throw "Sensor helper exceeded 180 MB CI working-set ceiling." }
+
+      - name: Validate with official Elgato CLI
+        run: npm run validate
+
+      - name: Package official .streamDeckPlugin
+        run: npm run pack
+
+      - name: Generate deterministic Marketplace media
+        run: python scripts/rat-art-release.py --destination dist/marketplace-media
+
+      - name: Verify media and package bounds
+        shell: pwsh
+        run: |
+          $required = @(
+            "01_search_icon.png",
+            "02_cover.png",
+            "03_gallery_01.png",
+            "04_gallery_02.png",
+            "05_gallery_03.png",
+            "06_gallery_04.png"
+          )
+          foreach ($name in $required) {
+            $path = Join-Path "dist/marketplace-media" $name
+            if (-not (Test-Path $path)) { throw "Missing media: $name" }
+          }
+          $package = Get-ChildItem -Path dist -Filter *.streamDeckPlugin | Select-Object -First 1
+          if (-not $package) { throw "No .streamDeckPlugin produced." }
+          $sizeMb = $package.Length / 1MB
+          Write-Host ("PACKAGE size_mb={0:N1} path={1}" -f $sizeMb, $package.FullName)
+          if ($sizeMb -ge 500) { throw "Marketplace package exceeds 500 MB." }
+
+      - name: Upload release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-grapher-streamdeck-${{ github.sha }}
+          path: |
+            plugins/performance-grapher-streamdeck/dist/*.streamDeckPlugin
+            plugins/performance-grapher-streamdeck/dist/marketplace-media/*
+            plugins/performance-grapher-streamdeck/com.packrat.performance-grapher.sdPlugin/third_party/presentmon/provider.json
+            plugins/performance-grapher-streamdeck/com.packrat.performance-grapher.sdPlugin/third_party/presentmon/SHA256.txt
+          if-no-files-found: error
+          retention-days: 14
