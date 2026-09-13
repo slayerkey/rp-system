@@ -1,5 +1,6 @@
 {
   "type": "streamdeck-plugin",
   "plugin_dir": "com.packrat.internet-health-pro.sdPlugin",
-  "plugin_uuid": "com.packrat.internet-health-pro"
+  "plugin_uuid": "com.packrat.internet-health-pro",
+  "open_dev_folder": true
 }
