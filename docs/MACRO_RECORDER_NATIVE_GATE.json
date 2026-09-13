@@ -41,5 +41,19 @@
     "force a SendInput failure and verify playback stops with an error rather than reporting success",
     "attempt replay into a higher-integrity target and verify failure leaves no stuck injected input"
   ],
-  "source_of_truth": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md"
+  "source_of_truth": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md",
+  "implementation": {
+    "status": "implemented_pending_windows_and_physical_acceptance",
+    "native_commit": "cc72c031546c883d0fc248882a7980a87e396b36",
+    "parent_watch_commit": "b41ccbc9f76742f1a4f38ccdf03f0a5b63b92717",
+    "regression_tests": [
+      "plugins/macro-recorder-lite/tests/native-contract.test.mjs",
+      "plugins/macro-recorder-pro/tests/native-contract.test.mjs"
+    ],
+    "notes": [
+      "All previously documented native blocker behaviors now have an implementation path in source.",
+      "Acceptance booleans remain false until the canonical Windows build and required real-host smoke cases pass.",
+      "Family-wide Lite/Pro exclusion uses a kernel-backed exclusive file handle so ownership is process-scoped rather than thread-affine."
+    ]
+  }
 }
