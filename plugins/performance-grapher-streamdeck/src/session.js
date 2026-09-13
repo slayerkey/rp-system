@@ -143,7 +143,6 @@ export class SessionTracker {
     const averageFrame = bucket.sumFrameMs / bucket.count;
     const fps = averageFrame > 0 ? 1000 / averageFrame : null;
     if (Number.isFinite(fps)) {
-      this.active.histogram.add(fps);
       this.currentFps = fps;
       this.recent.push(bucket.startedAt, fps);
     }
@@ -177,6 +176,7 @@ export class SessionTracker {
     this.active.lastFrameAt = now;
     this.lastFrameAt = now;
     this.active.worstFrametimeMs = Math.max(this.active.worstFrametimeMs, frameMs);
+    this.active.histogram.add(1000 / frameMs);
 
     if (!this.bucket) {
       this.bucket = { startedAt: now, count: 0, sumFrameMs: 0, worstFrameMs: 0 };
