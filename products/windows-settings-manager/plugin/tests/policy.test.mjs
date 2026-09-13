@@ -102,6 +102,7 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   assert.match(backend, /AssertSize\(typeof\(HdrSet\), 24/);
   assert.match(backend, /enabled = info\.activeColorMode == 2;/);
   assert.match(backend, /supported = enabled \|\| \(hdrSupported && !limitedByPolicy\);/);
+  assert.match(backend, /supported = enabled \|\| \(hdrSupported && !limitedByPolicy\);/);
   assert.doesNotMatch(backend, /activeColorMode == 2 \|\|/);
   assert.match(backend, /wideColorEnforced/);
   assert.match(backend, /advancedColorForceDisabled/);
