@@ -112,6 +112,14 @@
       "version": "1.0.0"
     },
     {
+      "id": "audio-manager-pro",
+      "name": "Audio Manager Pro",
+      "type": "plugin",
+      "status": "testing",
+      "price_usd": 9.99,
+      "version": "1.0.0.0"
+    },
+    {
       "id": "better-hotkeys",
       "name": "Better Hotkeys & Mouse",
       "type": "plugin",
