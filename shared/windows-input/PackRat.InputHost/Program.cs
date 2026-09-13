@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -18,14 +18,32 @@ internal static class Program
         if (!OperatingSystem.IsWindows()) return 2;
         if (args.Contains("--selftest", StringComparer.OrdinalIgnoreCase))
         {
-            Emit(new { ok = true, platform = "windows", inputSize = Marshal.SizeOf<Native.INPUT>(), emergencyStop = "Ctrl+Shift+F12" });
+            Emit(new
+            {
+                ok = true,
+                platform = "windows",
+                inputSize = Marshal.SizeOf<Native.INPUT>(),
+                emergencyStop = "Ctrl+Shift+F12",
+                recoveryBeforeHooks = true,
+                familySessionLock = "kernel-file-lock",
+                exactHeldKeyDescriptors = true,
+                sendInputChecked = true
+            });
             return 0;
         }
 
         Native.EnableDpiAwareness();
         using var engine = new Engine();
+
+        // Recovery is intentionally attempted before global hooks are installed.
+        // If Lite/Pro currently owns the family lock, the journal is live and untouched.
+        engine.RecoverBeforeHooks();
         engine.StartHooks();
-        engine.RecoverStuckInput();
+
+        var parentPid = ReadArgInt(args, "--parent-pid");
+        if (parentPid > 0 && parentPid != Environment.ProcessId)
+            StartParentWatch(parentPid, engine);
+
         string? line;
         while ((line = Console.ReadLine()) is not null)
         {
@@ -40,8 +58,15 @@ internal static class Program
                 switch (command)
                 {
                     case "ping":
-                        Reply(id, new { ok = true, version = "1.0.0", emergencyStop = "Ctrl+Shift+F12" });
+                        Reply(id, new
+                        {
+                            ok = true,
+                            version = "1.0.0",
+                            emergencyStop = "Ctrl+Shift+F12",
+                            familySessionLock = "kernel-file-lock"
+                        });
                         break;
+
                     case "startRecording":
                         engine.StartRecording(
                             includeMouse: ReadBool(root, "includeMouse"),
@@ -50,14 +75,17 @@ internal static class Program
                             maxEvents: ReadInt(root, "maxEvents", 60, 1, 25000));
                         Reply(id, new { ok = true, started = true });
                         break;
+
                     case "stopRecording":
                         engine.StopRecording("manual");
                         Reply(id, new { ok = true, stopped = true });
                         break;
+
                     case "cancelRecording":
                         engine.CancelRecording();
                         Reply(id, new { ok = true, cancelled = true });
                         break;
+
                     case "play":
                         var events = root.TryGetProperty("events", out var arr) && arr.ValueKind == JsonValueKind.Array
                             ? arr.Clone()
@@ -69,18 +97,21 @@ internal static class Program
                             coordinateMode: ReadString(root, "coordinateMode") == "active-window" ? "active-window" : "absolute");
                         Reply(id, new { ok = true, started = true });
                         break;
+
                     case "stopPlayback":
                         engine.StopPlayback("manual");
                         Reply(id, new { ok = true, stopped = true });
                         break;
+
                     case "releaseKeys":
                         var keys = new List<int>();
                         if (root.TryGetProperty("keys", out var keyArray) && keyArray.ValueKind == JsonValueKind.Array)
                             foreach (var item in keyArray.EnumerateArray())
                                 if (item.TryGetInt32(out var key)) keys.Add(key);
-                        engine.ReleaseKeys(keys);
+                        engine.ReleaseTrackedKeys(keys);
                         Reply(id, new { ok = true, released = true });
                         break;
+
                     default:
                         Reply(id, new { ok = false, error = "Unknown command." });
                         break;
@@ -91,7 +122,27 @@ internal static class Program
                 Reply(id, new { ok = false, error = ex.Message });
             }
         }
+
         return 0;
+    }
+
+    private static void StartParentWatch(int parentPid, Engine engine)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                using var parent = Process.GetProcessById(parentPid);
+                await parent.WaitForExitAsync();
+            }
+            catch
+            {
+                // Parent already gone or inaccessible. Treat either case as lost ownership.
+            }
+
+            try { engine.Dispose(); } catch { }
+            Environment.Exit(0);
+        });
     }
 
     internal static void Emit(object value)
@@ -107,8 +158,18 @@ internal static class Program
     {
         using var doc = JsonDocument.Parse(JsonSerializer.Serialize(value, JsonOptions));
         var map = new Dictionary<string, object?> { ["id"] = id };
-        foreach (var prop in doc.RootElement.EnumerateObject()) map[prop.Name] = JsonSerializer.Deserialize<object>(prop.Value.GetRawText(), JsonOptions);
+        foreach (var prop in doc.RootElement.EnumerateObject())
+            map[prop.Name] = JsonSerializer.Deserialize<object>(prop.Value.GetRawText(), JsonOptions);
         Emit(map);
+    }
+
+    private static int ReadArgInt(string[] args, string name)
+    {
+        for (var i = 0; i < args.Length - 1; i++)
+            if (string.Equals(args[i], name, StringComparison.OrdinalIgnoreCase) &&
+                int.TryParse(args[i + 1], out var value))
+                return value;
+        return 0;
     }
 
     private static string ReadString(JsonElement root, string name)
@@ -133,6 +194,12 @@ internal static class Program
 internal sealed class Engine : IDisposable
 {
     private readonly object _gate = new();
+    private readonly string _stateDirectory;
+    private readonly string _recoveryFile;
+    private readonly string _sessionLockFile;
+    private FileStream? _familySessionLock;
+    private int _disposed;
+
     private Thread? _hookThread;
     private readonly ManualResetEventSlim _hooksReady = new(false);
     private Native.HookProc? _keyboardProc;
@@ -155,19 +222,40 @@ internal sealed class Engine : IDisposable
 
     private CancellationTokenSource? _playbackCts;
     private Task? _playbackTask;
-    private readonly HashSet<int> _downKeys = [];
-    private readonly HashSet<string> _downButtons = [];
-    private readonly string _recoveryFile = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "PackRat", "InputHost", "held-input.json");
+    private readonly Dictionary<string, HeldKey> _downKeys = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _downButtons = new(StringComparer.OrdinalIgnoreCase);
+
+    public Engine()
+    {
+        _stateDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "PackRat", "InputHost");
+        _recoveryFile = Path.Combine(_stateDirectory, "held-input.json");
+        _sessionLockFile = Path.Combine(_stateDirectory, "macro-recorder-session.lock");
+    }
+
+    public void RecoverBeforeHooks()
+    {
+        if (!TryAcquireFamilySession(false)) return;
+        try
+        {
+            RecoverStuckInputOwned();
+        }
+        finally
+        {
+            ReleaseFamilySession();
+        }
+    }
 
     public void StartHooks()
     {
         if (_hookThread is not null) return;
         _hookThread = new Thread(HookLoop) { IsBackground = true, Name = "PackRat Input Hooks" };
         _hookThread.Start();
-        if (!_hooksReady.Wait(TimeSpan.FromSeconds(5))) throw new InvalidOperationException("Input hooks did not start.");
-        if (_keyboardHook == IntPtr.Zero || _mouseHook == IntPtr.Zero) throw new InvalidOperationException("Windows input hooks could not be installed.");
+        if (!_hooksReady.Wait(TimeSpan.FromSeconds(5)))
+            throw new InvalidOperationException("Input hooks did not start.");
+        if (_keyboardHook == IntPtr.Zero || _mouseHook == IntPtr.Zero)
+            throw new InvalidOperationException("Windows input hooks could not be installed.");
     }
 
     private void HookLoop()
@@ -179,6 +267,7 @@ internal sealed class Engine : IDisposable
         _mouseHook = Native.SetWindowsHookEx(Native.WH_MOUSE_LL, _mouseProc, module, 0);
         _hooksReady.Set();
         if (_keyboardHook == IntPtr.Zero || _mouseHook == IntPtr.Zero) return;
+
         while (Native.GetMessage(out var msg, IntPtr.Zero, 0, 0) > 0)
         {
             Native.TranslateMessage(ref msg);
@@ -190,22 +279,41 @@ internal sealed class Engine : IDisposable
     {
         lock (_gate)
         {
+            ThrowIfDisposed();
             if (_recording) throw new InvalidOperationException("A recording is already active.");
             if (_playbackCts is not null) throw new InvalidOperationException("Stop playback before recording.");
-            _events.Clear();
-            _includeMouse = includeMouse;
-            _includeMouseMove = includeMouseMove;
-            _maxDurationMs = maxDurationMs;
-            _maxEvents = maxEvents;
-            _truncated = false;
-            _recordClock = Stopwatch.StartNew();
-            _lastEventMs = 0;
-            _lastMoveMs = -1000;
-            _lastMovePoint = new Native.POINT { X = int.MinValue, Y = int.MinValue };
-            _recording = true;
-            _progressTimer?.Dispose();
-            _progressTimer = new Timer(_ => ProgressTick(), null, 500, 500);
         }
+
+        BeginFamilySession();
+        try
+        {
+            lock (_gate)
+            {
+                ThrowIfDisposed();
+                if (_recording || _playbackCts is not null)
+                    throw new InvalidOperationException("Macro Recorder is already active.");
+
+                _events.Clear();
+                _includeMouse = includeMouse;
+                _includeMouseMove = includeMouseMove;
+                _maxDurationMs = maxDurationMs;
+                _maxEvents = maxEvents;
+                _truncated = false;
+                _recordClock = Stopwatch.StartNew();
+                _lastEventMs = 0;
+                _lastMoveMs = -1000;
+                _lastMovePoint = new Native.POINT { X = int.MinValue, Y = int.MinValue };
+                _recording = true;
+                _progressTimer?.Dispose();
+                _progressTimer = new Timer(_ => ProgressTick(), null, 500, 500);
+            }
+        }
+        catch
+        {
+            ReleaseFamilySession();
+            throw;
+        }
+
         Program.Emit(new { @event = "recordingStarted", startedAt = DateTimeOffset.UtcNow.ToString("O") });
     }
 
@@ -222,6 +330,7 @@ internal sealed class Engine : IDisposable
             shouldStop = elapsed >= _maxDurationMs;
             if (shouldStop) _truncated = true;
         }
+
         Program.Emit(new { @event = "recordingProgress", eventCount = count, elapsedMs = elapsed });
         if (shouldStop) StopRecording("duration-cap");
     }
@@ -242,6 +351,8 @@ internal sealed class Engine : IDisposable
             _progressTimer?.Dispose();
             _progressTimer = null;
         }
+
+        ReleaseFamilySession();
         Program.Emit(new
         {
             @event = "recordingStopped",
@@ -251,6 +362,7 @@ internal sealed class Engine : IDisposable
 
     public void CancelRecording()
     {
+        var cancelled = false;
         lock (_gate)
         {
             if (!_recording) return;
@@ -258,13 +370,17 @@ internal sealed class Engine : IDisposable
             _events.Clear();
             _progressTimer?.Dispose();
             _progressTimer = null;
+            cancelled = true;
         }
-        Program.Emit(new { @event = "recordingCancelled" });
+
+        ReleaseFamilySession();
+        if (cancelled) Program.Emit(new { @event = "recordingCancelled" });
     }
 
     private IntPtr KeyboardHook(int code, IntPtr wParam, IntPtr lParam)
     {
         if (code < 0) return Native.CallNextHookEx(_keyboardHook, code, wParam, lParam);
+
         var data = Marshal.PtrToStructure<Native.KBDLLHOOKSTRUCT>(lParam);
         var injected = (data.flags & Native.LLKHF_INJECTED) != 0;
         var message = unchecked((int)wParam.ToInt64());
@@ -272,7 +388,8 @@ internal sealed class Engine : IDisposable
         var up = message is Native.WM_KEYUP or Native.WM_SYSKEYUP;
 
         if (!injected && down && data.vkCode == Native.VK_F12 &&
-            IsDown(Native.VK_CONTROL) && IsDown(Native.VK_SHIFT))
+            IsDown(Native.VK_CONTROL) && IsDown(Native.VK_SHIFT) &&
+            IsPlaybackActive())
         {
             StopPlayback("emergency-hotkey", false);
             return new IntPtr(1);
@@ -289,6 +406,7 @@ internal sealed class Engine : IDisposable
                 Name = Native.KeyName((int)data.vkCode)
             });
         }
+
         return Native.CallNextHookEx(_keyboardHook, code, wParam, lParam);
     }
 
@@ -296,15 +414,21 @@ internal sealed class Engine : IDisposable
     {
         if (code < 0) return Native.CallNextHookEx(_mouseHook, code, wParam, lParam);
         var data = Marshal.PtrToStructure<Native.MSLLHOOKSTRUCT>(lParam);
-        if ((data.flags & Native.LLMHF_INJECTED) != 0) return Native.CallNextHookEx(_mouseHook, code, wParam, lParam);
+        if ((data.flags & Native.LLMHF_INJECTED) != 0)
+            return Native.CallNextHookEx(_mouseHook, code, wParam, lParam);
 
         bool includeMouse;
         bool includeMove;
-        lock (_gate) { includeMouse = _recording && _includeMouse; includeMove = _includeMouseMove; }
+        lock (_gate)
+        {
+            includeMouse = _recording && _includeMouse;
+            includeMove = _includeMouseMove;
+        }
         if (!includeMouse) return Native.CallNextHookEx(_mouseHook, code, wParam, lParam);
 
         var message = unchecked((int)wParam.ToInt64());
         MacroEvent? ev = null;
+
         if (message == Native.WM_MOUSEMOVE && includeMove)
         {
             lock (_gate)
@@ -312,7 +436,8 @@ internal sealed class Engine : IDisposable
                 var now = _recordClock.ElapsedMilliseconds;
                 var dx = Math.Abs(data.pt.X - _lastMovePoint.X);
                 var dy = Math.Abs(data.pt.Y - _lastMovePoint.Y);
-                if (now - _lastMoveMs < 12 && dx < 2 && dy < 2) return Native.CallNextHookEx(_mouseHook, code, wParam, lParam);
+                if (now - _lastMoveMs < 12 && dx < 2 && dy < 2)
+                    return Native.CallNextHookEx(_mouseHook, code, wParam, lParam);
                 _lastMoveMs = now;
                 _lastMovePoint = data.pt;
             }
@@ -335,6 +460,7 @@ internal sealed class Engine : IDisposable
             ev.Delta = unchecked((short)((data.mouseData >> 16) & 0xffff));
             ev.Horizontal = message == Native.WM_MOUSEHWHEEL;
         }
+
         if (ev is not null) Record(ev);
         return Native.CallNextHookEx(_mouseHook, code, wParam, lParam);
     }
@@ -343,7 +469,9 @@ internal sealed class Engine : IDisposable
     {
         var ev = new MacroEvent { Type = type, X = point.X, Y = point.Y, Button = button };
         var hwnd = Native.GetForegroundWindow();
-        if (hwnd != IntPtr.Zero && Native.GetWindowRect(hwnd, out var rect) && rect.Right > rect.Left && rect.Bottom > rect.Top)
+        if (hwnd != IntPtr.Zero &&
+            Native.GetWindowRect(hwnd, out var rect) &&
+            rect.Right > rect.Left && rect.Bottom > rect.Top)
         {
             ev.RelX = (double)(point.X - rect.Left) / (rect.Right - rect.Left);
             ev.RelY = (double)(point.Y - rect.Top) / (rect.Bottom - rect.Top);
@@ -361,8 +489,9 @@ internal sealed class Engine : IDisposable
             {
                 if (!_includeMouse) return;
             }
+
             var now = _recordClock.ElapsedMilliseconds;
-            ev.DelayMs = (int)Math.Clamp(now - _lastEventMs, 0, 60000);
+            ev.DelayMs = (int)Math.Clamp(now - _lastEventMs, 0, _maxDurationMs);
             _lastEventMs = now;
             _events.Add(ev);
             if (_events.Count >= _maxEvents)
@@ -371,19 +500,39 @@ internal sealed class Engine : IDisposable
                 cap = true;
             }
         }
+
         if (cap) ThreadPool.QueueUserWorkItem(_ => StopRecording("event-cap"));
     }
 
     public void Play(JsonElement events, double speed, int repeatCount, string coordinateMode)
     {
-        CancellationTokenSource cts;
         lock (_gate)
         {
+            ThrowIfDisposed();
             if (_recording) throw new InvalidOperationException("Stop recording before playback.");
             if (_playbackCts is not null) throw new InvalidOperationException("Playback is already active.");
-            cts = new CancellationTokenSource();
-            _playbackCts = cts;
         }
+
+        BeginFamilySession();
+
+        CancellationTokenSource cts;
+        try
+        {
+            lock (_gate)
+            {
+                ThrowIfDisposed();
+                if (_recording || _playbackCts is not null)
+                    throw new InvalidOperationException("Macro Recorder is already active.");
+                cts = new CancellationTokenSource();
+                _playbackCts = cts;
+            }
+        }
+        catch
+        {
+            ReleaseFamilySession();
+            throw;
+        }
+
         var cloned = events.Clone();
         _playbackTask = Task.Run(() => PlaybackLoop(cloned, speed, repeatCount, coordinateMode, cts.Token));
         Program.Emit(new { @event = "playbackStarted" });
@@ -393,6 +542,7 @@ internal sealed class Engine : IDisposable
     {
         string reason = "completed";
         string? error = null;
+
         try
         {
             var iteration = 0;
@@ -409,17 +559,37 @@ internal sealed class Engine : IDisposable
                 iteration++;
             }
         }
-        catch (OperationCanceledException) { reason = "cancelled"; }
-        catch (Exception ex) { reason = "error"; error = ex.Message; }
+        catch (OperationCanceledException)
+        {
+            reason = "cancelled";
+        }
+        catch (Exception ex)
+        {
+            reason = "error";
+            error = ex.Message;
+        }
         finally
         {
-            ReleasePressed();
+            try
+            {
+                ReleasePressed();
+            }
+            catch (Exception cleanupEx)
+            {
+                reason = "error";
+                error = string.IsNullOrWhiteSpace(error)
+                    ? cleanupEx.Message
+                    : $"{error} Cleanup: {cleanupEx.Message}";
+            }
+
             lock (_gate)
             {
                 _playbackCts?.Dispose();
                 _playbackCts = null;
                 _playbackTask = null;
             }
+
+            ReleaseFamilySession();
             Program.Emit(new { @event = "playbackStopped", reason, error });
         }
     }
@@ -427,28 +597,31 @@ internal sealed class Engine : IDisposable
     private void SendEvent(JsonElement ev, string coordinateMode)
     {
         var type = ev.TryGetProperty("type", out var typeEl) ? typeEl.GetString() ?? "" : "";
+
         if (type is "keyDown" or "keyUp")
         {
-            var vk = GetInt(ev, "vk");
-            var scan = GetInt(ev, "scan");
-            var extended = GetBool(ev, "extended");
+            var key = new HeldKey(
+                GetInt(ev, "vk"),
+                GetInt(ev, "scan"),
+                GetBool(ev, "extended"));
+
             if (type == "keyDown")
             {
-                lock (_gate)
+                AddHeldKeyBeforeInjection(key);
+                try
                 {
-                    _downKeys.Add(vk);
-                    PersistHeldInputLocked();
+                    Native.SendKey(key.Vk, key.Scan, false, key.Extended);
                 }
-                Native.SendKey(vk, scan, false, extended);
+                catch
+                {
+                    RollBackHeldKeyAfterFailedDown(key);
+                    throw;
+                }
             }
             else
             {
-                Native.SendKey(vk, scan, true, extended);
-                lock (_gate)
-                {
-                    _downKeys.Remove(vk);
-                    PersistHeldInputLocked();
-                }
+                Native.SendKey(key.Vk, key.Scan, true, key.Extended);
+                RemoveHeldKeyAfterSuccessfulRelease(key);
             }
             return;
         }
@@ -461,24 +634,24 @@ internal sealed class Engine : IDisposable
 
         if (type is "mouseDown" or "mouseUp")
         {
-            var button = ev.TryGetProperty("button", out var buttonEl) ? buttonEl.GetString() ?? "left" : "left";
+            var button = NormalizeButton(ev.TryGetProperty("button", out var buttonEl) ? buttonEl.GetString() : null);
             if (type == "mouseDown")
             {
-                lock (_gate)
+                AddHeldButtonBeforeInjection(button);
+                try
                 {
-                    _downButtons.Add(button);
-                    PersistHeldInputLocked();
+                    Native.SendMouseButton(button, false);
                 }
-                Native.SendMouseButton(button, false);
+                catch
+                {
+                    RollBackHeldButtonAfterFailedDown(button);
+                    throw;
+                }
             }
             else
             {
                 Native.SendMouseButton(button, true);
-                lock (_gate)
-                {
-                    _downButtons.Remove(button);
-                    PersistHeldInputLocked();
-                }
+                RemoveHeldButtonAfterSuccessfulRelease(button);
             }
         }
         else if (type == "wheel")
@@ -491,17 +664,21 @@ internal sealed class Engine : IDisposable
     {
         var x = GetInt(ev, "x");
         var y = GetInt(ev, "y");
+
         if (coordinateMode == "active-window" &&
             ev.TryGetProperty("relX", out var rx) && rx.TryGetDouble(out var relX) &&
             ev.TryGetProperty("relY", out var ry) && ry.TryGetDouble(out var relY))
         {
             var hwnd = Native.GetForegroundWindow();
-            if (hwnd != IntPtr.Zero && Native.GetWindowRect(hwnd, out var rect) && rect.Right > rect.Left && rect.Bottom > rect.Top)
+            if (hwnd != IntPtr.Zero &&
+                Native.GetWindowRect(hwnd, out var rect) &&
+                rect.Right > rect.Left && rect.Bottom > rect.Top)
             {
                 x = rect.Left + (int)Math.Round(relX * (rect.Right - rect.Left));
                 y = rect.Top + (int)Math.Round(relY * (rect.Bottom - rect.Top));
             }
         }
+
         return new Native.POINT { X = x, Y = y };
     }
 
@@ -514,104 +691,406 @@ internal sealed class Engine : IDisposable
             try { _playbackCts.Cancel(); } catch { }
             task = _playbackTask;
         }
+
         if (wait && task is not null && !task.IsCompleted)
         {
-            try { task.Wait(TimeSpan.FromSeconds(2)); } catch { }
+            try { task.Wait(TimeSpan.FromSeconds(3)); } catch { }
         }
     }
 
-    public void RecoverStuckInput()
+    public void ReleaseTrackedKeys(IEnumerable<int> keys)
     {
-        try
-        {
-            if (!File.Exists(_recoveryFile)) return;
-            using var doc = JsonDocument.Parse(File.ReadAllText(_recoveryFile));
-            var keys = new List<int>();
-            var buttons = new List<string>();
-            if (doc.RootElement.TryGetProperty("keys", out var keyArray) && keyArray.ValueKind == JsonValueKind.Array)
-                foreach (var item in keyArray.EnumerateArray())
-                    if (item.TryGetInt32(out var key) && key > 0 && key <= 255) keys.Add(key);
-            if (doc.RootElement.TryGetProperty("buttons", out var buttonArray) && buttonArray.ValueKind == JsonValueKind.Array)
-                foreach (var item in buttonArray.EnumerateArray())
-                    if (item.ValueKind == JsonValueKind.String && item.GetString() is { } button) buttons.Add(button);
-            foreach (var key in keys.Distinct()) Native.SendKey(key, 0, true, false);
-            foreach (var button in buttons.Distinct()) Native.SendMouseButton(button, true);
-        }
-        catch { }
-        finally
-        {
-            try { File.Delete(_recoveryFile); } catch { }
-        }
-    }
-
-    public void ReleaseKeys(IEnumerable<int> keys)
-    {
-        foreach (var key in keys.Concat([Native.VK_SHIFT, Native.VK_CONTROL, Native.VK_MENU, Native.VK_LWIN, Native.VK_RWIN]).Distinct())
-            if (key > 0 && key <= 255) Native.SendKey(key, 0, true, false);
-        foreach (var button in new[] { "left", "right", "middle", "x1", "x2" }) Native.SendMouseButton(button, true);
+        var requested = keys.Where(v => v is > 0 and <= 255).ToHashSet();
+        HeldKey[] tracked;
         lock (_gate)
         {
-            _downKeys.Clear();
-            _downButtons.Clear();
-            ClearHeldInputJournalLocked();
+            tracked = _downKeys.Values.Where(key => requested.Contains(key.Vk)).ToArray();
+        }
+
+        foreach (var key in tracked)
+        {
+            Native.SendKey(key.Vk, key.Scan, true, key.Extended);
+            RemoveHeldKeyAfterSuccessfulRelease(key);
+        }
+    }
+
+    private bool IsPlaybackActive()
+    {
+        lock (_gate) return _playbackCts is not null;
+    }
+
+    private void BeginFamilySession()
+    {
+        if (!TryAcquireFamilySession(true))
+            throw new InvalidOperationException("Macro Recorder Lite or Pro already has an active recording or playback session.");
+
+        try
+        {
+            RecoverStuckInputOwned();
+        }
+        catch
+        {
+            ReleaseFamilySession();
+            throw;
+        }
+    }
+
+    private bool TryAcquireFamilySession(bool throwOnFilesystemError)
+    {
+        lock (_gate)
+        {
+            if (_familySessionLock is not null) return true;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(_stateDirectory);
+            var stream = new FileStream(
+                _sessionLockFile,
+                FileMode.OpenOrCreate,
+                FileAccess.ReadWrite,
+                FileShare.None,
+                bufferSize: 1,
+                FileOptions.WriteThrough);
+
+            lock (_gate)
+            {
+                if (_familySessionLock is not null)
+                {
+                    stream.Dispose();
+                    return true;
+                }
+                _familySessionLock = stream;
+            }
+
+            return true;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch when (!throwOnFilesystemError)
+        {
+            return false;
+        }
+    }
+
+    private void ReleaseFamilySession()
+    {
+        FileStream? stream;
+        lock (_gate)
+        {
+            stream = _familySessionLock;
+            _familySessionLock = null;
+        }
+
+        try { stream?.Dispose(); } catch { }
+    }
+
+    private bool OwnsFamilySession()
+    {
+        lock (_gate) return _familySessionLock is not null;
+    }
+
+    private void RecoverStuckInputOwned()
+    {
+        if (!OwnsFamilySession())
+            throw new InvalidOperationException("Held-input recovery requires Macro Recorder family session ownership.");
+
+        if (!File.Exists(_recoveryFile)) return;
+
+        var state = ReadRecoveryState();
+        var failedKeys = new List<HeldKey>();
+        var failedButtons = new List<string>();
+        var errors = new List<string>();
+
+        foreach (var key in state.Keys.DistinctBy(key => key.Id))
+        {
+            try
+            {
+                Native.SendKey(key.Vk, key.Scan, true, key.Extended);
+            }
+            catch (Exception ex)
+            {
+                failedKeys.Add(key);
+                errors.Add($"key {key.Vk}: {ex.Message}");
+            }
+        }
+
+        foreach (var button in state.Buttons.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            try
+            {
+                Native.SendMouseButton(button, true);
+            }
+            catch (Exception ex)
+            {
+                failedButtons.Add(button);
+                errors.Add($"{button} mouse: {ex.Message}");
+            }
+        }
+
+        WriteRecoveryState(failedKeys, failedButtons);
+
+        if (errors.Count > 0)
+            throw new InvalidOperationException("Could not recover all held input: " + string.Join(" | ", errors));
+    }
+
+    private RecoveryState ReadRecoveryState()
+    {
+        using var doc = JsonDocument.Parse(File.ReadAllText(_recoveryFile));
+        var keys = new List<HeldKey>();
+        var buttons = new List<string>();
+
+        if (doc.RootElement.TryGetProperty("keys", out var keyArray) && keyArray.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in keyArray.EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.Number && item.TryGetInt32(out var legacyVk))
+                {
+                    if (legacyVk is > 0 and <= 255) keys.Add(new HeldKey(legacyVk, 0, false));
+                    continue;
+                }
+
+                if (item.ValueKind != JsonValueKind.Object) continue;
+                var vk = GetInt(item, "vk");
+                if (vk is <= 0 or > 255) continue;
+                keys.Add(new HeldKey(vk, GetInt(item, "scan"), GetBool(item, "extended")));
+            }
+        }
+
+        if (doc.RootElement.TryGetProperty("buttons", out var buttonArray) && buttonArray.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in buttonArray.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.String) continue;
+                var raw = item.GetString();
+                if (string.IsNullOrWhiteSpace(raw)) continue;
+                buttons.Add(NormalizeButton(raw));
+            }
+        }
+
+        return new RecoveryState(keys, buttons);
+    }
+
+    private void AddHeldKeyBeforeInjection(HeldKey key)
+    {
+        lock (_gate)
+        {
+            EnsureFamilySessionOwnedLocked();
+            _downKeys[key.Id] = key;
+            try
+            {
+                PersistHeldInputLocked();
+            }
+            catch
+            {
+                _downKeys.Remove(key.Id);
+                throw;
+            }
+        }
+    }
+
+    private void RollBackHeldKeyAfterFailedDown(HeldKey key)
+    {
+        lock (_gate)
+        {
+            _downKeys.Remove(key.Id);
+            try { PersistHeldInputLocked(); } catch { }
+        }
+    }
+
+    private void RemoveHeldKeyAfterSuccessfulRelease(HeldKey key)
+    {
+        lock (_gate)
+        {
+            if (!_downKeys.Remove(key.Id)) return;
+            try
+            {
+                PersistHeldInputLocked();
+            }
+            catch
+            {
+                _downKeys[key.Id] = key;
+                throw;
+            }
+        }
+    }
+
+    private void AddHeldButtonBeforeInjection(string button)
+    {
+        lock (_gate)
+        {
+            EnsureFamilySessionOwnedLocked();
+            _downButtons.Add(button);
+            try
+            {
+                PersistHeldInputLocked();
+            }
+            catch
+            {
+                _downButtons.Remove(button);
+                throw;
+            }
+        }
+    }
+
+    private void RollBackHeldButtonAfterFailedDown(string button)
+    {
+        lock (_gate)
+        {
+            _downButtons.Remove(button);
+            try { PersistHeldInputLocked(); } catch { }
+        }
+    }
+
+    private void RemoveHeldButtonAfterSuccessfulRelease(string button)
+    {
+        lock (_gate)
+        {
+            if (!_downButtons.Remove(button)) return;
+            try
+            {
+                PersistHeldInputLocked();
+            }
+            catch
+            {
+                _downButtons.Add(button);
+                throw;
+            }
         }
     }
 
     private void ReleasePressed()
     {
-        int[] keys;
+        HeldKey[] keys;
         string[] buttons;
         lock (_gate)
         {
-            keys = _downKeys.ToArray();
+            keys = _downKeys.Values.ToArray();
             buttons = _downButtons.ToArray();
-            _downKeys.Clear();
-            _downButtons.Clear();
-            ClearHeldInputJournalLocked();
         }
-        foreach (var key in keys) Native.SendKey(key, 0, true, false);
-        foreach (var button in buttons) Native.SendMouseButton(button, true);
+
+        var errors = new List<string>();
+
+        foreach (var key in keys)
+        {
+            try
+            {
+                Native.SendKey(key.Vk, key.Scan, true, key.Extended);
+                RemoveHeldKeyAfterSuccessfulRelease(key);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"key {key.Vk}: {ex.Message}");
+            }
+        }
+
+        foreach (var button in buttons)
+        {
+            try
+            {
+                Native.SendMouseButton(button, true);
+                RemoveHeldButtonAfterSuccessfulRelease(button);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"{button} mouse: {ex.Message}");
+            }
+        }
+
+        if (errors.Count > 0)
+            throw new InvalidOperationException("Could not release all injected held input: " + string.Join(" | ", errors));
     }
 
     private void PersistHeldInputLocked()
     {
-        try
-        {
-            if (_downKeys.Count == 0 && _downButtons.Count == 0)
-            {
-                ClearHeldInputJournalLocked();
-                return;
-            }
-            var directory = Path.GetDirectoryName(_recoveryFile);
-            if (!string.IsNullOrWhiteSpace(directory)) Directory.CreateDirectory(directory);
-            var temp = _recoveryFile + ".tmp";
-            File.WriteAllText(temp, JsonSerializer.Serialize(new { keys = _downKeys.ToArray(), buttons = _downButtons.ToArray() }));
-            File.Move(temp, _recoveryFile, true);
-        }
-        catch { }
+        EnsureFamilySessionOwnedLocked();
+        WriteRecoveryState(_downKeys.Values, _downButtons);
     }
 
-    private void ClearHeldInputJournalLocked()
+    private void WriteRecoveryState(IEnumerable<HeldKey> keys, IEnumerable<string> buttons)
     {
-        try { File.Delete(_recoveryFile); } catch { }
-        try { File.Delete(_recoveryFile + ".tmp"); } catch { }
+        Directory.CreateDirectory(_stateDirectory);
+
+        var state = new
+        {
+            keys = keys.Select(key => new { vk = key.Vk, scan = key.Scan, extended = key.Extended }).ToArray(),
+            buttons = buttons.ToArray()
+        };
+
+        var temp = _recoveryFile + ".tmp";
+        File.WriteAllText(temp, JsonSerializer.Serialize(state));
+        File.Move(temp, _recoveryFile, true);
+
+        if (state.keys.Length == 0 && state.buttons.Length == 0)
+        {
+            // The empty file is the durable tombstone. Deletion is only a cleanup optimization.
+            try { File.Delete(_recoveryFile); } catch { }
+            try { File.Delete(temp); } catch { }
+        }
     }
+
+    private void EnsureFamilySessionOwnedLocked()
+    {
+        if (_familySessionLock is null)
+            throw new InvalidOperationException("Held-input journal access requires Macro Recorder family session ownership.");
+    }
+
+    private static string NormalizeButton(string? value)
+        => value?.ToLowerInvariant() switch
+        {
+            "right" => "right",
+            "middle" => "middle",
+            "x1" => "x1",
+            "x2" => "x2",
+            _ => "left"
+        };
 
     private static bool IsDown(int vk) => (Native.GetAsyncKeyState(vk) & 0x8000) != 0;
-    private static int GetInt(JsonElement root, string name) => root.TryGetProperty(name, out var el) && el.TryGetInt32(out var value) ? value : 0;
-    private static bool GetBool(JsonElement root, string name) => root.TryGetProperty(name, out var el) && (el.ValueKind is JsonValueKind.True or JsonValueKind.False) && el.GetBoolean();
+
+    private static int GetInt(JsonElement root, string name)
+        => root.TryGetProperty(name, out var el) && el.TryGetInt32(out var value) ? value : 0;
+
+    private static bool GetBool(JsonElement root, string name)
+        => root.TryGetProperty(name, out var el) &&
+           el.ValueKind is JsonValueKind.True or JsonValueKind.False &&
+           el.GetBoolean();
+
+    private void ThrowIfDisposed()
+    {
+        if (Volatile.Read(ref _disposed) != 0)
+            throw new ObjectDisposedException(nameof(Engine));
+    }
 
     public void Dispose()
     {
-        CancelRecording();
-        StopPlayback("dispose");
-        ReleasePressed();
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+
+        try { CancelRecording(); } catch { }
+        try { StopPlayback("dispose"); } catch { }
+
+        try
+        {
+            if (OwnsFamilySession()) ReleasePressed();
+        }
+        catch { }
+
+        ReleaseFamilySession();
+
         if (_keyboardHook != IntPtr.Zero) Native.UnhookWindowsHookEx(_keyboardHook);
         if (_mouseHook != IntPtr.Zero) Native.UnhookWindowsHookEx(_mouseHook);
         _progressTimer?.Dispose();
         _hooksReady.Dispose();
     }
 }
+
+internal sealed record HeldKey(int Vk, int Scan, bool Extended)
+{
+    public string Id => $"{Vk}:{Scan}:{(Extended ? 1 : 0)}";
+}
+
+internal sealed record RecoveryState(List<HeldKey> Keys, List<string> Buttons);
 
 internal sealed class MacroEvent
 {
@@ -639,6 +1118,7 @@ internal static class Native
     internal const int WM_MBUTTONDOWN = 0x0207, WM_MBUTTONUP = 0x0208, WM_MOUSEWHEEL = 0x020A, WM_XBUTTONDOWN = 0x020B, WM_XBUTTONUP = 0x020C, WM_MOUSEHWHEEL = 0x020E;
     internal const uint LLKHF_EXTENDED = 0x01, LLKHF_INJECTED = 0x10, LLMHF_INJECTED = 0x01;
     internal const int VK_SHIFT = 0x10, VK_CONTROL = 0x11, VK_MENU = 0x12, VK_LWIN = 0x5B, VK_RWIN = 0x5C, VK_F12 = 0x7B;
+
     private const uint INPUT_MOUSE = 0, INPUT_KEYBOARD = 1;
     private const uint KEYEVENTF_EXTENDEDKEY = 0x0001, KEYEVENTF_KEYUP = 0x0002, KEYEVENTF_SCANCODE = 0x0008;
     private const uint MOUSEEVENTF_MOVE = 0x0001, MOUSEEVENTF_LEFTDOWN = 0x0002, MOUSEEVENTF_LEFTUP = 0x0004, MOUSEEVENTF_RIGHTDOWN = 0x0008, MOUSEEVENTF_RIGHTUP = 0x0010;
@@ -666,7 +1146,7 @@ internal static class Native
     [DllImport("user32.dll")] internal static extern bool TranslateMessage(ref MSG msg);
     [DllImport("user32.dll")] internal static extern IntPtr DispatchMessage(ref MSG msg);
     [DllImport("user32.dll")] internal static extern short GetAsyncKeyState(int vKey);
-    [DllImport("user32.dll")] internal static extern uint SendInput(uint count, INPUT[] inputs, int size);
+    [DllImport("user32.dll", SetLastError = true)] internal static extern uint SendInput(uint count, INPUT[] inputs, int size);
     [DllImport("user32.dll")] internal static extern int GetSystemMetrics(int index);
     [DllImport("user32.dll")] internal static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] internal static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
@@ -679,12 +1159,28 @@ internal static class Native
 
     internal static void SendKey(int vk, int scan, bool up, bool extended)
     {
+        if (vk is <= 0 or > 255) throw new ArgumentOutOfRangeException(nameof(vk));
+
         uint flags = up ? KEYEVENTF_KEYUP : 0;
-        ushort wVk = (ushort)Math.Clamp(vk, 0, 255);
+        ushort wVk = (ushort)vk;
         ushort wScan = (ushort)Math.Clamp(scan, 0, 65535);
-        if (scan > 0) { flags |= KEYEVENTF_SCANCODE; wVk = 0; }
+        if (scan > 0)
+        {
+            flags |= KEYEVENTF_SCANCODE;
+            wVk = 0;
+        }
         if (extended) flags |= KEYEVENTF_EXTENDEDKEY;
-        SendInput(1, [new INPUT { type = INPUT_KEYBOARD, U = new InputUnion { ki = new KEYBDINPUT { wVk = wVk, wScan = wScan, dwFlags = flags } } }], Marshal.SizeOf<INPUT>());
+
+        SendOne(
+            new INPUT
+            {
+                type = INPUT_KEYBOARD,
+                U = new InputUnion
+                {
+                    ki = new KEYBDINPUT { wVk = wVk, wScan = wScan, dwFlags = flags }
+                }
+            },
+            up ? "keyboard release" : "keyboard press");
     }
 
     internal static void MovePointer(int x, int y)
@@ -693,11 +1189,10 @@ internal static class Native
         var vy = GetSystemMetrics(SM_YVIRTUALSCREEN);
         var vw = Math.Max(2, GetSystemMetrics(SM_CXVIRTUALSCREEN));
         var vh = Math.Max(2, GetSystemMetrics(SM_CYVIRTUALSCREEN));
-        var dx = (int)Math.Round((x - vx) * 65535.0 / (vw - 1));
-        var dy = (int)Math.Round((y - vy) * 65535.0 / (vh - 1));
-        dx = Math.Clamp(dx, 0, 65535);
-        dy = Math.Clamp(dy, 0, 65535);
-        SendMouse(dx, dy, 0, MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK);
+        var dx = Math.Clamp((int)Math.Round((x - vx) * 65535.0 / (vw - 1)), 0, 65535);
+        var dy = Math.Clamp((int)Math.Round((y - vy) * 65535.0 / (vh - 1)), 0, 65535);
+
+        SendMouse(dx, dy, 0, MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK, "pointer move");
     }
 
     internal static void SendMouseButton(string button, bool up)
@@ -712,23 +1207,62 @@ internal static class Native
             case "x2": flags = up ? MOUSEEVENTF_XUP : MOUSEEVENTF_XDOWN; data = 2; break;
             default: flags = up ? MOUSEEVENTF_LEFTUP : MOUSEEVENTF_LEFTDOWN; break;
         }
-        SendMouse(0, 0, data, flags);
+
+        SendMouse(0, 0, data, flags, up ? $"{button} mouse release" : $"{button} mouse press");
     }
 
     internal static void SendWheel(int delta, bool horizontal)
-        => SendMouse(0, 0, unchecked((uint)delta), horizontal ? MOUSEEVENTF_HWHEEL : MOUSEEVENTF_WHEEL);
+        => SendMouse(0, 0, unchecked((uint)delta), horizontal ? MOUSEEVENTF_HWHEEL : MOUSEEVENTF_WHEEL, horizontal ? "horizontal wheel" : "vertical wheel");
 
-    private static void SendMouse(int dx, int dy, uint data, uint flags)
-        => SendInput(1, [new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = new MOUSEINPUT { dx = dx, dy = dy, mouseData = data, dwFlags = flags } } }], Marshal.SizeOf<INPUT>());
+    private static void SendMouse(int dx, int dy, uint data, uint flags, string operation)
+    {
+        SendOne(
+            new INPUT
+            {
+                type = INPUT_MOUSE,
+                U = new InputUnion
+                {
+                    mi = new MOUSEINPUT { dx = dx, dy = dy, mouseData = data, dwFlags = flags }
+                }
+            },
+            operation);
+    }
+
+    private static void SendOne(INPUT input, string operation)
+    {
+        Marshal.SetLastPInvokeError(0);
+        var sent = SendInput(1, [input], Marshal.SizeOf<INPUT>());
+        if (sent == 1) return;
+
+        var error = Marshal.GetLastPInvokeError();
+        var detail = error == 0
+            ? "Windows rejected the input. This can happen when the target runs at a higher integrity level (UIPI)."
+            : new Win32Exception(error).Message;
+        throw new InvalidOperationException($"{operation} failed: {detail}");
+    }
 
     internal static string KeyName(int vk)
     {
-        if (vk is >= 0x30 and <= 0x39 || vk is >= 0x41 and <= 0x5A) return ((char)vk).ToString();
+        if (vk is >= 0x30 and <= 0x39 || vk is >= 0x41 and <= 0x5A)
+            return ((char)vk).ToString();
+
         return vk switch
         {
-            0x08 => "Backspace", 0x09 => "Tab", 0x0D => "Enter", 0x10 => "Shift", 0x11 => "Ctrl", 0x12 => "Alt",
-            0x1B => "Esc", 0x20 => "Space", 0x25 => "Left", 0x26 => "Up", 0x27 => "Right", 0x28 => "Down",
-            0x2E => "Delete", 0x5B => "Left Windows", 0x5C => "Right Windows",
+            0x08 => "Backspace",
+            0x09 => "Tab",
+            0x0D => "Enter",
+            0x10 => "Shift",
+            0x11 => "Ctrl",
+            0x12 => "Alt",
+            0x1B => "Esc",
+            0x20 => "Space",
+            0x25 => "Left",
+            0x26 => "Up",
+            0x27 => "Right",
+            0x28 => "Down",
+            0x2E => "Delete",
+            0x5B => "Left Windows",
+            0x5C => "Right Windows",
             >= 0x70 and <= 0x7B => $"F{vk - 0x6F}",
             _ => $"VK {vk:X2}"
         };
