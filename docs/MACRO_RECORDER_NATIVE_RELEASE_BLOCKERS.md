@@ -59,7 +59,26 @@ Acceptance:
 - start a macro containing a held modifier or mouse-button-down
 - verify playback stops before injecting the held state
 
-## 4. Preserve Pro idle gaps longer than 60 seconds
+## 4. Preserve the exact keyboard descriptor for cleanup and crash recovery
+
+Current held-key tracking and the recovery journal keep only a virtual-key integer. Interrupted-playback cleanup then sends a generic key-up with scan code 0 and `extended=false`.
+
+Required behavior:
+- when a keyboard down-event is successfully injected, track enough information to release that exact injected key later
+- preserve at minimum the virtual key, scan code, and extended-key flag used for the down-event
+- persist the same exact descriptor in the crash-recovery journal
+- normal cancellation cleanup and next-launch crash recovery must use that stored descriptor
+- do not collapse distinct injected held keys into an ambiguous generic modifier release
+
+Reason:
+Extended/right-side keys can require different injection flags from their left/non-extended counterparts. The stuck-input guarantee must not depend on a generic VK-only key-up matching every injected key.
+
+Acceptance:
+- cancel playback while Right Ctrl / Right Alt and representative extended navigation keys are held
+- force-kill the helper while one of those injected keys is held, restart it, and verify the exact key is released
+- verify cleanup does not release unrelated physical keys
+
+## 5. Preserve Pro idle gaps longer than 60 seconds
 
 Current native recording clamps a single delay between events to 60 seconds even though Pro supports recordings up to 10 minutes.
 
@@ -77,7 +96,7 @@ Acceptance:
 
 ## Final native smoke matrix
 
-After all four fixes:
+After all five fixes:
 - Ctrl / Shift / Alt down-up
 - Windows key
 - rapid key repeat
@@ -85,6 +104,7 @@ After all four fixes:
 - Ctrl+Shift+F12 interruption
 - helper kill while modifier is held
 - helper kill while mouse button is held
+- forced cancellation while Right Ctrl / Right Alt or an extended navigation key is held
 - journal directory unwritable
 - left/right/middle/X mouse buttons
 - drag and wheel
