@@ -75,3 +75,13 @@ test("active-window relative coordinates survive normalization",()=>{
 test("invalid PackRat macro envelope is rejected",()=>{
  assert.throws(()=>importEnvelope({format:"other",schema:1,macro:{events:[]}}),/Unsupported PackRat macro file/);
 });
+
+test("auto-repeat key-downs clear with one logical key-up",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"keyDown",vk:65,delayMs:1},
+  {type:"keyDown",vk:65,delayMs:30},
+  {type:"keyDown",vk:65,delayMs:30},
+  {type:"keyUp",vk:65,delayMs:30}
+ ]},{pro,limits});
+ assert.equal(validateMacro(macro,{pro}).unmatchedKeys.length,0);
+});
