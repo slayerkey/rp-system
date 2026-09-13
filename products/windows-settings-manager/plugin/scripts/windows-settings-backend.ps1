@@ -105,6 +105,23 @@ public static class PackRatWindowsNative
         public byte wReserved;
     }
 
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct RtlOsVersionInfoEx
+    {
+        public uint dwOSVersionInfoSize;
+        public uint dwMajorVersion;
+        public uint dwMinorVersion;
+        public uint dwBuildNumber;
+        public uint dwPlatformId;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string szCSDVersion;
+        public ushort wServicePackMajor;
+        public ushort wServicePackMinor;
+        public ushort wSuiteMask;
+        public byte wProductType;
+        public byte wReserved;
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     private struct AdvancedColorInfo
     {
@@ -153,6 +170,47 @@ public static class PackRatWindowsNative
         public string status { get; set; } = "FAILED";
         public string error { get; set; }
         public HdrSummary state { get; set; }
+    }
+
+    [DllImport("ntdll.dll", CharSet = CharSet.Unicode)]
+    private static extern int RtlGetVersion(ref RtlOsVersionInfoEx versionInfo);
+
+    private static readonly int RuntimeWindowsBuild = ReadWindowsBuild();
+
+    static PackRatWindowsNative()
+    {
+        AssertSize(typeof(DeviceInfoHeader), 20, "DISPLAYCONFIG_DEVICE_INFO_HEADER");
+        AssertSize(typeof(AdvancedColorInfo), 32, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO");
+        AssertSize(typeof(AdvancedColorSet), 24, "DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE");
+        AssertSize(typeof(AdvancedColorInfo2), 36, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2");
+        AssertSize(typeof(HdrSet), 24, "DISPLAYCONFIG_SET_HDR_STATE");
+    }
+
+    private static void AssertSize(Type type, int expected, string name)
+    {
+        int actual = Marshal.SizeOf(type);
+        if (actual != expected)
+            throw new TypeLoadException(name + " layout mismatch: " + actual + " bytes; expected " + expected + ".");
+    }
+
+    private static int ReadWindowsBuild()
+    {
+        var info = new RtlOsVersionInfoEx();
+        info.dwOSVersionInfoSize = (uint)Marshal.SizeOf(typeof(RtlOsVersionInfoEx));
+        int status = RtlGetVersion(ref info);
+        if (status != 0)
+            throw new InvalidOperationException("RtlGetVersion failed: " + status);
+        return checked((int)info.dwBuildNumber);
+    }
+
+    public static int GetWindowsBuild()
+    {
+        return RuntimeWindowsBuild;
+    }
+
+    private static bool SupportsSeparatedHdrApi()
+    {
+        return RuntimeWindowsBuild >= 26100;
     }
 
     [DllImport("ntdll.dll", CharSet = CharSet.Unicode)]
