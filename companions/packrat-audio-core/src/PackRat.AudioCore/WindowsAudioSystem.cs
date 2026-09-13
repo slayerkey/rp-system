@@ -90,6 +90,9 @@ public sealed class WindowsAudioSystem
         lock (_gate)
         {
             if (!_defaultSwitchingAvailable)
+                _defaultSwitchingAvailable = PolicyConfig.TryProbe();
+
+            if (!_defaultSwitchingAvailable)
                 throw new NotSupportedException("Default-device switching is unavailable.");
 
             var nativeFlow = flow == AudioFlowKind.Output ? AudioFlow.Render : AudioFlow.Capture;
