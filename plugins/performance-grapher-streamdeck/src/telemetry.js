@@ -14,6 +14,10 @@ const CANONICAL = new Set([
   "cpu.load", "ram.load", "cpu.temperature", "gpu.temperature", "gpu.load", "gpu.power", "cpu.power",
 ]);
 
+const HARDWARE_ALIASES = new Set([
+  "cpu.temperature", "gpu.temperature", "gpu.load", "gpu.power", "cpu.power",
+]);
+
 function finite(value) {
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
@@ -397,6 +401,10 @@ export class TelemetryService extends EventEmitter {
       return;
     }
     if (message.type === "catalog") {
+      for (const alias of HARDWARE_ALIASES) {
+        this.values.delete(alias);
+        this.timestamps.delete(alias);
+      }
       for (const sensor of this.hardwareCatalog) {
         const id = String(sensor?.id || "");
         if (!id) continue;
