@@ -596,7 +596,9 @@ export class TelemetryService extends EventEmitter {
     }
 
     for (const id of Array.isArray(state.watched) ? state.watched.slice(-32) : []) this.watched.add(String(id));
+    const restoreIds = new Set([...CANONICAL, ...this.watched]);
     for (const [id, value] of Object.entries(state.histories)) {
+      if (!restoreIds.has(id)) continue;
       this.histories.set(id, BoundedHistory.fromJSON(value, { archiveMode: "max" }));
       const latest = this.histories.get(id).latest();
       if (latest !== null) this.values.set(id, latest);
