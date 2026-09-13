@@ -116,3 +116,9 @@ test("native helper prefers dedicated HDR packet types and has no DISPLAY-number
   assert.match(helper,/advancedColorLimitedByPolicy/);
   assert.doesNotMatch(helper,/deviceName\.EndsWith/);
 });
+
+test("B1 dial feedback updates text and progress indicator", async () => {
+  const source=await readFile("src/actions.ts","utf8");
+  assert.match(source,/value: String\(value\) \+ "%", indicator: value/);
+  assert.match(source,/value: String\(value \?\? 0\) \+ "%", indicator: value \?\? 0/);
+});
