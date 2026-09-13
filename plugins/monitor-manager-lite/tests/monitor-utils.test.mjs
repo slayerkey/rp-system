@@ -26,6 +26,41 @@ function zipText(data) {
   return parts.join("\n");
 }
 
+function zipJsonDocuments(data) {
+  const docs=[];
+  let offset=0;
+  while(offset+30<=data.length && data.readUInt32LE(offset)===0x04034b50){
+    const method=data.readUInt16LE(offset+8);
+    const compressedSize=data.readUInt32LE(offset+18);
+    const nameLength=data.readUInt16LE(offset+26);
+    const extraLength=data.readUInt16LE(offset+28);
+    const name=data.subarray(offset+30,offset+30+nameLength).toString("utf8");
+    const dataStart=offset+30+nameLength+extraLength;
+    const compressed=data.subarray(dataStart,dataStart+compressedSize);
+    const raw=method===8?inflateRawSync(compressed):method===0?compressed:null;
+    assert.ok(raw, "Unsupported ZIP compression method: "+method);
+    if(name.endsWith("/manifest.json")) docs.push({name,json:JSON.parse(raw.toString("utf8"))});
+    offset=dataStart+compressedSize;
+  }
+  return docs;
+}
+
+function assertControllerBounds(docs, keypadCols, keypadRows, encoderCols = null) {
+  for(const doc of docs){
+    for(const controller of doc.json.Controllers??[]){
+      const keys=Object.keys(controller.Actions??{});
+      for(const coordinate of keys){
+        const [x,y]=coordinate.split(",").map(Number);
+        if(controller.Type==="Keypad"){
+          assert.ok(x>=0&&x<keypadCols&&y>=0&&y<keypadRows, "Out-of-bounds Keypad coordinate "+coordinate);
+        } else if(controller.Type==="Encoder"&&encoderCols!==null){
+          assert.ok(x>=0&&x<encoderCols&&y===0, "Out-of-bounds Encoder coordinate "+coordinate);
+        }
+      }
+    }
+  }
+}
+
 
 test("capability parser discovers safe VCP codes and advertised input values", () => {
   const caps = "(prot(monitor)type(LCD)model(TEST)vcp(10 12 60(0F 10 11 12) 62 D6(01 04 05)))";
@@ -188,4 +223,30 @@ test("successful DDC capability strings are cached while failed reads remain ret
   assert.match(helper,/if \(!String\.IsNullOrWhiteSpace\(value\)\) CapsCache\[key\] = value/);
   assert.match(helper,/string stablePath = StableMonitorPath\(mi\.szDevice\) \?\? mi\.szDevice/);
   assert.match(helper,/var availableModes = GetModes\(mi\.szDevice\)/);
+});
+
+test("Lite manifest declares the exact four generated profile variants", async () => {
+  const manifest=JSON.parse(await readFile("com.packrat.monitormanagerlite.sdPlugin/manifest.json","utf8"));
+  assert.deepEqual(
+    manifest.Profiles.map((profile)=>[profile.Name,profile.DeviceType]),
+    [
+      ["profiles/monitor-manager-lite-standard",0],
+      ["profiles/monitor-manager-lite-xl",2],
+      ["profiles/monitor-manager-lite-plus",7],
+      ["profiles/monitor-manager-lite-virtual",11]
+    ]
+  );
+});
+
+test("Lite generated profile coordinates fit Standard XL and Plus hardware", async () => {
+  const root=path.resolve("com.packrat.monitormanagerlite.sdPlugin","profiles");
+  assertControllerBounds(zipJsonDocuments(await readFile(path.join(root,"monitor-manager-lite-standard.streamDeckProfile"))),5,3);
+  assertControllerBounds(zipJsonDocuments(await readFile(path.join(root,"monitor-manager-lite-xl.streamDeckProfile"))),8,4);
+  const plus=zipJsonDocuments(await readFile(path.join(root,"monitor-manager-lite-plus.streamDeckProfile")));
+  assertControllerBounds(plus,4,2,4);
+  const encoderUuids=[];
+  for(const doc of plus) for(const controller of doc.json.Controllers??[]) {
+    if(controller.Type==="Encoder") for(const action of Object.values(controller.Actions??{})) encoderUuids.push(action.UUID);
+  }
+  assert.deepEqual([...new Set(encoderUuids)],["com.packrat.monitormanagerlite.brightness"]);
 });
