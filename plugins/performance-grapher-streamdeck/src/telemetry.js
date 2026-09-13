@@ -83,6 +83,7 @@ export class TelemetryService extends EventEmitter {
     this.histories = new Map();
     this.watched = new Set();
     this.aliases = new Map();
+    this.activeGpuKey = null;
     this.hardwareCatalog = [];
     this.hardware = null;
     this.hardwareBackoff = null;
@@ -479,28 +480,38 @@ export class TelemetryService extends EventEmitter {
       gpuGroups.get(key).push(sensor);
     }
 
-    let selectedKey = null;
-    let selectedLoad = -Infinity;
-    let selectedScore = -1;
-
+    const candidates = [];
     for (const [key, sensors] of gpuGroups) {
       const loadSensor = this._bestAliasSensor("gpu.load", sensors);
       if (!loadSensor) continue;
-      const load = finite(values?.[loadSensor.id]);
-      const score = descriptorScore(loadSensor, "gpu.load");
-      if (load !== null) {
-        if (selectedKey === null || load > selectedLoad || (load === selectedLoad && score > selectedScore)) {
-          selectedKey = key;
-          selectedLoad = load;
-          selectedScore = score;
-        }
-      } else if (selectedKey === null && score > selectedScore) {
-        selectedKey = key;
-        selectedScore = score;
+      candidates.push({
+        key,
+        loadSensor,
+        load: finite(values?.[loadSensor.id]),
+        score: descriptorScore(loadSensor, "gpu.load"),
+      });
+    }
+
+    candidates.sort((a, b) => {
+      const aHasLoad = a.load !== null;
+      const bHasLoad = b.load !== null;
+      if (aHasLoad !== bHasLoad) return aHasLoad ? -1 : 1;
+      if (aHasLoad && bHasLoad && a.load !== b.load) return b.load - a.load;
+      return b.score - a.score;
+    });
+
+    let selectedKey = candidates[0]?.key ?? (gpuGroups.size ? gpuGroups.keys().next().value : null);
+    if (this.activeGpuKey && gpuGroups.has(this.activeGpuKey) && values) {
+      const activeCandidate = candidates.find((item) => item.key === this.activeGpuKey);
+      const challenger = candidates[0];
+      if (activeCandidate?.load !== null && challenger?.load !== null && challenger.key !== this.activeGpuKey) {
+        if (challenger.load < activeCandidate.load + 10) selectedKey = this.activeGpuKey;
+      } else if (!challenger || challenger.load === null) {
+        selectedKey = this.activeGpuKey;
       }
     }
 
-    if (selectedKey === null && gpuGroups.size) selectedKey = gpuGroups.keys().next().value;
+    this.activeGpuKey = selectedKey;
     const selectedGpu = selectedKey === null ? [] : gpuGroups.get(selectedKey) || [];
     for (const target of ["gpu.temperature", "gpu.load", "gpu.power"]) {
       const best = this._bestAliasSensor(target, selectedGpu);
