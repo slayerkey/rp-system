@@ -105,6 +105,16 @@ export function playbackSettings(raw = {}, { pro = true } = {}) {
   };
 }
 
+
+export function playbackSafetyError(macro, settings) {
+  const repeatCount = Number(settings?.repeatCount ?? 1);
+  const durationMs = Number(macro?.durationMs ?? 0);
+  if (repeatCount === 0 && durationMs < 25) {
+    return "While-held and toggle loops need at least 25 ms of macro timing.";
+  }
+  return "";
+}
+
 export function keysInMacro(macro) {
   return [...new Set((macro?.events || []).filter((event) => event.type === "keyDown" || event.type === "keyUp").map((event) => Number(event.vk)).filter((vk) => vk > 0 && vk <= 255))];
 }
