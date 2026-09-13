@@ -76,7 +76,7 @@ Rollback is not included in v1 because display/HDR rollback can itself fail afte
 
 ## External state detection
 
-The plugin polls a fresh Windows snapshot every 2.5 seconds and after every write. Current Mode is derived from live state, not from the last PackRat command.
+The plugin polls Windows every 5 seconds and refreshes immediately after every write. Current Mode is derived from Windows readback, not from the last PackRat command. The slower background cadence avoids continuously spawning excessive powercfg processes while keeping external changes near-live.
 
 
 ## Stream Deck compatibility floor
