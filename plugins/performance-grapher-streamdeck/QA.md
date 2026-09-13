@@ -181,3 +181,44 @@ Additional current-head release changes that require the fresh run:
 - Windows build now gates on a resolved NuGet dependency/license inventory
 
 Promotion remains blocked at `BUILDING`.
+
+
+## Exact current-head JavaScript core harness — 2026-09-13
+
+Because GitHub-hosted jobs are still failing before checkout, the current committed JavaScript modules were fetched directly from the product branch and executed in isolated module factories inside the ChatGPT V8 tool runtime.
+
+Result: **23 / 23 PASS**
+
+Covered:
+
+- bounded raw/archive history and whole-session archive merge
+- game session start, idle finalization, process switching, and ignored compositor
+- percent-low, worst-frametime, and peak accounting
+- recent active-session restore without restoring a stale current FPS
+- stale persisted-session finalization at the saved boundary
+- PresentMon CSV parsing and live provider preference for `MsBetweenPresents`
+- quoted CSV process names
+- PresentMon replacement-child ownership during manual restart
+- PresentMon launch-error state and recovery scheduling
+- permission-required key rendering
+- 72, 96, and 144 px SVG generation
+- `windowMs = 0` Session propagation
+- NVIDIA / AMD / Intel sensor alias mapping
+- missing-GPU CPU/RAM fallback
+- stale sensor expiry
+- atomic state persistence + active-session history round trip
+- corrupt state quarantine
+- session-scoped hardware history
+- hardware-helper replacement-child ownership
+- hardware-helper launch-error state and recovery scheduling
+
+Current-head synthetic V8 benchmark:
+
+- **250,000 frame events:** approximately **493 ms**
+- **5,000 144 px SVG renders:** approximately **250 ms**
+- FPS recent raw history remained capped at **3,600** points
+- FPS 1-second archive contained **2,499** points for the synthetic run
+
+These timings are implementation-cost evidence only. They do not prove real Windows/game frametime overhead.
+
+The exact-head JavaScript core is therefore no longer stale. The remaining automated release blocker is the environment-dependent Windows/npm/.NET/Elgato/Rat Art pipeline, which GitHub Actions still has not started.
