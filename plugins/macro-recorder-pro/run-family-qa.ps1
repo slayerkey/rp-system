@@ -141,6 +141,16 @@ Test-Plugin -Slug "macro-recorder-lite"
 Write-Host "[4/7] Pro QA"
 Test-Plugin -Slug "macro-recorder-pro"
 
+$Catalog = Get-Content (Join-Path $Root "products\lite-pro-map.json") -Raw | ConvertFrom-Json
+$Pair = @($Catalog.pairs | Where-Object { $_.lite_id -eq "macro-recorder-lite" }) | Select-Object -First 1
+if ($null -eq $Pair) { throw "Macro Recorder Lite/Pro catalog pair is missing." }
+$CanonicalProUrl = [string]$Pair.pro_marketplace_url
+$BuiltLiteInspector = Get-Content (Join-Path $Root "plugins\macro-recorder-lite\com.packrat.macro-recorder-lite.sdPlugin\ui\inspector.html") -Raw
+$ExpectedAttribute = 'data-pro-url="' + $CanonicalProUrl + '"'
+if ($BuiltLiteInspector -notlike "*$ExpectedAttribute*") {
+  throw "Built Lite inspector Pro URL does not match products/lite-pro-map.json."
+}
+
 if (-not $SkipArt) {
   Write-Host "[5/7] Marketplace art"
   if (-not (Get-Command python -ErrorAction SilentlyContinue)) { throw "Python is required unless -SkipArt is used." }
