@@ -9,6 +9,7 @@ $DevRoot = Join-Path $RepoRoot "out\dev"
 $WorktreeRoot = Join-Path $DevRoot "worktrees"
 $Worktree = Join-Path $WorktreeRoot $Slug
 . (Join-Path $PSScriptRoot "rat-dev-dependencies.ps1")
+. (Join-Path $PSScriptRoot "rat-dev-source.ps1")
 
 function Require-Command {
     param([string]$Name, [string]$Hint)
@@ -78,46 +79,16 @@ function Ensure-XeneonTools {
 }
 
 function Read-OriginMainRegistration {
-    $configObject = "origin/main:plugins/$Slug/rat-dev.json"
-    $raw = & git -C $RepoRoot show $configObject 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $raw) {
-        return $null
-    }
-    try {
-        return (($raw -join "`n") | ConvertFrom-Json)
-    }
-    catch {
-        throw "Invalid rat-dev.json registration for $Slug on origin/main."
-    }
+    return (Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object "origin/main:plugins/$Slug/rat-dev.json")
 }
 
 function Resolve-Source {
     Write-Host "Fetching canonical RatPack source..." -ForegroundColor Cyan
     Invoke-Checked -Command "git" -Arguments @("-C", $RepoRoot, "fetch", "--prune", "origin") -Failure "Git fetch failed"
 
-    $productRef = "refs/remotes/origin/product/$Slug"
-    if (Test-GitRef $productRef) {
-        $productWidget = "origin/product/${Slug}:widgets/_src/${Slug}"
-        if (Test-GitObject $productWidget) {
-            return [PSCustomObject]@{
-                Kind = "xeneon"
-                Ref = "origin/product/$Slug"
-                Config = $null
-                SourceRoot = "widgets\_src\$Slug"
-                Display = "origin/product/$Slug"
-            }
-        }
-
-        $productPlugin = "origin/product/${Slug}:plugins/${Slug}"
-        if (Test-GitObject $productPlugin) {
-            return [PSCustomObject]@{
-                Kind = "ratpack"
-                Ref = "origin/product/$Slug"
-                Config = $null
-                SourceRoot = "plugins\$Slug"
-                Display = "origin/product/$Slug"
-            }
-        }
+    $productSource = Resolve-RatDevInternalProductSource -RepoRoot $RepoRoot -Slug $Slug
+    if ($productSource) {
+        return $productSource
     }
 
     $registration = Read-OriginMainRegistration
