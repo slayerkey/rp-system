@@ -9,17 +9,26 @@ const DEFAULTS: GlobalSettings = {
 };
 
 export class ModeStore {
+  private cache: GlobalSettings | null = null;
+
   async load(): Promise<GlobalSettings> {
+    if (this.cache) return sanitizeSettings(this.cache);
+
     const raw = await (streamDeck.settings as any).getGlobalSettings();
     const parsed = sanitizeSettings(raw);
     if (!raw || raw.schemaVersion !== 1 || !Array.isArray(raw.modes)) {
       await this.save(parsed);
+      return sanitizeSettings(parsed);
     }
-    return parsed;
+
+    this.cache = parsed;
+    return sanitizeSettings(parsed);
   }
 
   async save(settings: GlobalSettings): Promise<void> {
-    await (streamDeck.settings as any).setGlobalSettings(settings);
+    const clean = sanitizeSettings(settings);
+    await (streamDeck.settings as any).setGlobalSettings(clean);
+    this.cache = clean;
   }
 
   async getMode(id: string): Promise<ModeDefinition | undefined> {
