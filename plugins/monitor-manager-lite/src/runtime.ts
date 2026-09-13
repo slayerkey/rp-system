@@ -48,10 +48,17 @@ export class MonitorLiteRuntime {
     return { monitor, snapshot };
   }
 
-  capabilitySummary(monitor: any): Record<string, any> {
+  capabilitySummary(monitor: any, snapshot?: Snapshot): Record<string, any> {
+    const brightnessVcp = vcpSupport(monitor.capabilities, 0x10);
+    const contrastVcp = vcpSupport(monitor.capabilities, 0x12);
+    const internalBrightness = Boolean(monitor.internalDisplay && snapshot?.internalBrightness?.available);
     return {
-      brightness: monitor.ddcBrightness ? SUPPORT.SUPPORTED : SUPPORT.UNKNOWN,
-      contrast: monitor.ddcContrast ? SUPPORT.SUPPORTED : SUPPORT.UNKNOWN,
+      brightness: monitor.ddcBrightness || internalBrightness
+        ? SUPPORT.SUPPORTED
+        : (brightnessVcp.state === SUPPORT.NOT_SUPPORTED ? SUPPORT.NOT_SUPPORTED : SUPPORT.UNKNOWN),
+      contrast: monitor.ddcContrast
+        ? SUPPORT.SUPPORTED
+        : (contrastVcp.state === SUPPORT.NOT_SUPPORTED ? SUPPORT.NOT_SUPPORTED : SUPPORT.UNKNOWN),
       input: vcpSupport(monitor.capabilities, SAFE_VCP.INPUT_SOURCE),
       volume: vcpSupport(monitor.capabilities, SAFE_VCP.AUDIO_VOLUME),
       power: vcpSupport(monitor.capabilities, SAFE_VCP.POWER_MODE),
