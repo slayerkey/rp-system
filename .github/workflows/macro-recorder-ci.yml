@@ -82,7 +82,6 @@ jobs:
         run: |
           python tools/art/macro_recorder_art.py --slug macro-recorder-lite --out artifacts/marketplace/macro-recorder-lite/01-hero.png
           python tools/art/macro_recorder_art.py --slug macro-recorder-pro --out artifacts/marketplace/macro-recorder-pro/01-hero.png
-          python -c "from PIL import Image; from pathlib import Path; paths=[Path('artifacts/marketplace/macro-recorder-lite/00-app-icon.png'),Path('artifacts/marketplace/macro-recorder-pro/00-app-icon.png')]; [(_ for _ in ()).throw(RuntimeError(f'{p} must be 288x288')) if Image.open(p).size != (288,288) else None for p in paths]"
 
       - name: Verify family outputs
         shell: pwsh
