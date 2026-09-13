@@ -123,6 +123,7 @@ test("timeout settings reject blank, negative and out-of-range values instead of
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
   const html = await readFile(path.resolve("ui", "config.html"), "utf8");
+  assert.match(store, /typeof value === "number"/);
   assert.match(store, /value <= 0xffffffff/);
   assert.match(actions, /number <= 0xffffffff/);
   assert.match(inspector, /if \(raw === ""\) return null/);
