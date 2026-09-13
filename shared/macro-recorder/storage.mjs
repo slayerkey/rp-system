@@ -86,6 +86,7 @@ export class MacroLibrary {
   async add(raw) {
     return await this.transact(() => {
       let macro = normalizeMacro({ ...raw, updatedAt: new Date().toISOString() }, { pro: true });
+      if (!macro.events.length) throw new Error("Macro must contain at least one playable event.");
       if (this.get(macro.id)) macro = normalizeMacro({ ...macro, id: undefined, createdAt: undefined, updatedAt: new Date().toISOString(), name: `${macro.name} Copy` }, { pro: true });
       this.macros.push(macro);
       return macro;
@@ -98,6 +99,7 @@ export class MacroLibrary {
       if (index < 0) throw new Error("Macro not found.");
       const current = this.macros[index];
       const next = normalizeMacro({ ...current, ...raw, id: current.id, createdAt: current.createdAt, updatedAt: new Date().toISOString() }, { pro: true });
+      if (!next.events.length) throw new Error("Macro must contain at least one playable event.");
       this.macros[index] = next;
       return next;
     });
