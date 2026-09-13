@@ -8,6 +8,7 @@ export type HdrState = {
   supportedCount: number;
   enabledCount: number;
   mixed: boolean;
+  errors: string[];
 };
 
 export type TimeoutState = {
