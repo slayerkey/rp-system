@@ -4,10 +4,13 @@ Run this on the exact release candidate after `rat dev audio-manager-pro`.
 
 - [ ] USB headset is discoverable and can be used for Default + Communications output
 - [ ] speakers can become Default output without changing Communications output when the profile says so
+- [ ] applying Default output aligns both Windows Console and Multimedia output roles
+- [ ] manually drift Windows Multimedia output away from Console and confirm Audio Profile Status becomes INACTIVE
 - [ ] microphone A can be Default input while microphone B is Communications input
 - [ ] saved output volume restores correctly
 - [ ] saved mic volume restores correctly
 - [ ] saved mute states restore correctly
+- [ ] contradictory saved volume/mute state for the same endpoint is skipped and reported instead of choosing a winner
 - [ ] Bluetooth output disconnect shows missing instead of switching to another device
 - [ ] reconnect restores a safe identity match when metadata still matches
 - [ ] endpoint ID recreation either safely rebinds by stronger metadata or requires explicit rebind
