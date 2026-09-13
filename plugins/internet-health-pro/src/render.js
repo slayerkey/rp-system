@@ -25,9 +25,12 @@ function metricState(value, warn, bad, connectivityStatus) {
   return "GOOD";
 }
 
-function graphPath(samples, minutes = 30, width = 116, height = 29, x = 14, y = 92) {
+const KEY_GRAPH_SECONDS = 30;
+
+function graphPath(samples, seconds = KEY_GRAPH_SECONDS, width = 116, height = 32, x = 14, y = 94) {
   const now = Date.now();
-  const cutoff = now - minutes * 60_000;
+  const windowMs = seconds * 1000;
+  const cutoff = now - windowMs;
   const list = (samples || []).filter((sample) =>
     sample && sample.ok === true && Number(sample.t) >= cutoff && Number.isFinite(Number(sample.ms))
   );
@@ -40,7 +43,7 @@ function graphPath(samples, minutes = 30, width = 116, height = 29, x = 14, y = 
     max += 2.5;
   }
   return list.map((sample, index) => {
-    const px = x + ((Number(sample.t) - cutoff) / (minutes * 60_000)) * width;
+    const px = x + ((Number(sample.t) - cutoff) / windowMs) * width;
     const py = y + height - ((Number(sample.ms) - min) / (max - min)) * height;
     return (index ? "L" : "M") + px.toFixed(1) + " " + py.toFixed(1);
   }).join(" ");
@@ -55,7 +58,7 @@ function fitFont(value, large, medium, small) {
 
 function baseSvg({ label, primary, secondary = "", status = "CHECK", accent = "#2BE86A", samples = [], minutes = 30, footer = "" }) {
   const color = stateColor(status, accent);
-  const path = graphPath(samples, minutes, 116, 25, 14, 96);
+  const path = graphPath(samples, KEY_GRAPH_SECONDS, 116, 32, 14, 94);
   const primarySize = fitFont(primary, 30, 25, 19);
   const secondarySize = fitFont(secondary, 12.5, 11.5, 10.5);
   const footerSize = fitFont(footer, 11, 10.5, 9.5);
@@ -65,7 +68,7 @@ function baseSvg({ label, primary, secondary = "", status = "CHECK", accent = "#
     <text x="14" y="24" fill="#B9C0CB" font-family="Arial,sans-serif" font-size="12.5" font-weight="800" letter-spacing=".45">${escapeXml(label)}</text>
     <text x="14" y="61" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="${primarySize}" font-weight="800">${escapeXml(primary)}</text>
     <text x="14" y="82" fill="${color}" font-family="Arial,sans-serif" font-size="${secondarySize}" font-weight="800">${escapeXml(secondary)}</text>
-    <line x1="14" y1="94" x2="130" y2="94" stroke="#252A32" stroke-width="1"/>
+    <line x1="14" y1="91" x2="130" y2="91" stroke="#252A32" stroke-width="1"/>
     ${path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
     <text x="14" y="137" fill="#929AA7" font-family="Arial,sans-serif" font-size="${footerSize}" font-weight="700">${escapeXml(footer)}</text>
   </svg>`);
