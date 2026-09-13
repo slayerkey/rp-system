@@ -1,0 +1,302 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "Monitor Manager Pro",
+  "Version": "1.0.0.0",
+  "Author": "Packrat",
+  "Description": "Control your whole Windows monitor setup from Stream Deck with display modes, DDC/CI hardware controls and saved Monitor Profiles.",
+  "Category": "Monitor Manager Pro",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "Icon": "imgs/plugin/marketplace",
+  "CodePath": "bin/plugin.js",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.0"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20"
+  },
+  "UUID": "com.packrat.monitormanagerpro",
+  "Profiles": [
+    {
+      "Name": "profiles/monitor-manager-pro-standard",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/monitor-manager-pro-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/monitor-manager-pro-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/monitor-manager-pro-virtual",
+      "DeviceType": 11,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
+  ],
+  "Actions": [
+    {
+      "Name": "Monitor Brightness",
+      "UUID": "com.packrat.monitormanagerpro.brightness",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Set or dial brightness on the selected monitor.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": {
+          "Rotate": "Adjust brightness"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Monitor Contrast",
+      "UUID": "com.packrat.monitormanagerpro.contrast",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Set or dial contrast when the selected monitor supports it.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": {
+          "Rotate": "Adjust contrast"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Monitor Volume",
+      "UUID": "com.packrat.monitormanagerpro.volume",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Set or dial monitor speaker volume when DDC/CI advertises it.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": {
+          "Rotate": "Adjust monitor volume"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Monitor Power",
+      "UUID": "com.packrat.monitormanagerpro.power",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Control monitor power only when DDC/CI advertises the safe power feature.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Input Source",
+      "UUID": "com.packrat.monitormanagerpro.input",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Switch HDMI, DisplayPort, USB-C or another input only when the monitor advertises that VCP value.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Refresh Rate",
+      "UUID": "com.packrat.monitormanagerpro.refresh-rate",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Switch Hz using Windows-reported modes for the selected monitor.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Resolution",
+      "UUID": "com.packrat.monitormanagerpro.resolution",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Switch resolution and Hz to an exact Windows-reported display mode.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Windows HDR",
+      "UUID": "com.packrat.monitormanagerpro.hdr",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Toggle or set Windows HDR where the active display path supports advanced color.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Display Mode",
+      "UUID": "com.packrat.monitormanagerpro.topology",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Switch Windows display topology: Extend, Duplicate, PC Screen Only or Second Screen Only.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Set Primary Display",
+      "UUID": "com.packrat.monitormanagerpro.primary",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Make the selected monitor the Windows primary display.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Orientation",
+      "UUID": "com.packrat.monitormanagerpro.orientation",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Set landscape, portrait or flipped orientation through Windows display APIs.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Save Monitor Profile",
+      "UUID": "com.packrat.monitormanagerpro.save-profile",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Save the current supported monitor setup as a reusable profile.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Apply Monitor Profile",
+      "UUID": "com.packrat.monitormanagerpro.apply-profile",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Restore a saved monitor setup and report COMPLETE, PARTIAL or FAILED.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Current Display Status",
+      "UUID": "com.packrat.monitormanagerpro.status",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Show current refresh rate and resolution for the selected monitor.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/common/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    }
+  ]
+}
