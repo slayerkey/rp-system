@@ -169,7 +169,9 @@ A physical XENEON Edge is optional extra confidence, not a release requirement u
 
 `/rat-art` is repository tooling, never ChatGPT image generation.
 
-Use the real widget capture through the deterministic Rat Art pipeline. If a required capture, device plate, brand asset, font, or mapping is missing, fail and repair the pipeline rather than substituting generated imagery.
+The approved XENEON marketplace hero standard is `standards/xeneon-marketplace-hero-v1.md`. Catalogued products render through the deterministic `warm-studio-v1` hero: real `XL_H` widget capture, approved transparent XENEON Edge plate, large product title on the background monitor, and a clearly visible upper-right PackRat mark.
+
+Use the real widget capture through the deterministic Rat Art pipeline. If a required capture, device plate, brand asset, font, scene asset, or mapping is missing, fail and repair the pipeline rather than substituting generated imagery.
 
 ## Shipping rule
 

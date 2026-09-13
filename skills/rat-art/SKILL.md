@@ -35,6 +35,8 @@ Do not use generated images for product keys, text, device representations, mark
 
 ## XENEON and iCUE widget products
 
+`standards/xeneon-marketplace-hero-v1.md` is the approved XENEON hero standard. For catalogued XENEON products, the hero uses the deterministic `warm-studio-v1` environment, a real `XL_H` product capture, the approved transparent XENEON Edge hardware plate, a large product name on the background monitor, and the PackRat rat/package mark in the upper-right. The approved mark is rendered at twice the original September prototype size for clearer browsing-scale brand recognition.
+
 Do not substitute a contextual background for the real widget.
 
 First build the widget and run deterministic browser captures at the required native sizes. Art preflight must fail if those captures are absent.
