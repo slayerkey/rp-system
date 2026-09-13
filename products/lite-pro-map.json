@@ -189,8 +189,8 @@
         "products/windows-settings-manager-lite.json",
         "products/windows-settings-manager-pro.json"
       ],
-      "source_status": "shared_core_release_candidate_automated_gates_pass_physical_qa_blocked",
-      "notes": "Lite provides focused live Windows controls. Pro adds user-created multi-setting PC Modes with verified COMPLETE/PARTIAL/FAILED outcomes. Both target Stream Deck 7.3+ with seven bundled device profiles. HDR control is intentionally limited to Windows 11 24H2+ to avoid ambiguous legacy Advanced Color writes. Current-head Windows/portable build, native backend smoke, Elgato validation/package, metadata, portfolio, Marketplace-routing, and deterministic media gates pass. Remaining release boundary is physical Windows/Stream Deck QA plus human media review. Release order is Pro first; after verified direct Marketplace URLs/IDs are captured, the Lite build injects the Pro URL into its Property Inspector.",
+      "source_status": "shared_core_release_candidate_automated_and_media_pass_physical_qa_blocked",
+      "notes": "Lite provides focused live Windows controls. Pro adds user-created multi-setting PC Modes with verified COMPLETE/PARTIAL/FAILED outcomes. Both target Stream Deck 7.3+ with seven bundled device profiles. HDR control is intentionally limited to Windows 11 24H2+ to avoid ambiguous legacy Advanced Color writes. Current-head Windows/portable build, native backend smoke, Elgato validation/package, metadata, portfolio, Marketplace-routing, deterministic media, and human media review gates pass. Remaining release boundary is physical Windows/Stream Deck QA. Release order is Pro first; after verified direct Marketplace URLs/IDs are captured, the Lite build injects the Pro URL into its Property Inspector.",
       "upsell_surface": "Lite Property Inspector",
       "url_injection": "Build reads pro_marketplace_url from this map; the Lite upsell stays hidden until the URL is a verified direct Marketplace product URL."
     }
