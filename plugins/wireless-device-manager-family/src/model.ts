@@ -199,6 +199,34 @@ export function controlLabel(device: Device | null): string {
   return "CONTROL\nN/A";
 }
 
+export function deviceViewTitle(
+  device: Device | null,
+  view: "status" | "battery" | "control",
+  label?: string
+): string {
+  const cleanLabel = label?.trim().toUpperCase();
+  if (!cleanLabel) {
+    return view === "battery"
+      ? batteryLabel(device)
+      : view === "control"
+        ? controlLabel(device)
+        : statusLabel(device);
+  }
+
+  if (view === "control") {
+    return controlLabel(device);
+  }
+
+  if (!device) return `${cleanLabel}\nSELECT`;
+  if (view === "battery") {
+    if (!device.capabilities.BATTERY) return `${cleanLabel}\nN/A`;
+    return `${cleanLabel}\n${device.batteryPercent}%${device.charging === true ? " CHG" : ""}`;
+  }
+
+  const status = statusLabel(device).split("\n").slice(-1)[0] ?? "UNKNOWN";
+  return `${cleanLabel}\n${status}`;
+}
+
 export function shortName(name: string, max = 12): string {
   const clean = name.replace(/\s+/g, " ").trim();
   return clean.length <= max ? clean.toUpperCase() : `${clean.slice(0, max - 1).toUpperCase()}…`;
