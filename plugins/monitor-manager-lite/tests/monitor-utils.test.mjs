@@ -181,3 +181,11 @@ test("monitor scans are coalesced and slow DDC discovery gets a dedicated timeou
   assert.match(clientSource,/failPending\(error, true\)/);
   assert.match(clientSource,/child\.kill\(\)/);
 });
+
+test("successful DDC capability strings are cached while failed reads remain retryable", async () => {
+  const helper=await readFile("../../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
+  assert.match(helper,/CapsCache/);
+  assert.match(helper,/if \(!String\.IsNullOrWhiteSpace\(value\)\) CapsCache\[key\] = value/);
+  assert.match(helper,/string stablePath = StableMonitorPath\(mi\.szDevice\) \?\? mi\.szDevice/);
+  assert.match(helper,/var availableModes = GetModes\(mi\.szDevice\)/);
+});
