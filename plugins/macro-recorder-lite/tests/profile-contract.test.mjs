@@ -10,5 +10,7 @@ test("Lite starter profile source includes REC STOP PLAY and safe examples",asyn
     assert.ok(source.includes(token),`missing ${token}`);
   }
   assert.ok(source.includes('act("lite-play","replay","PLAY")'));
+  assert.ok(source.includes('const settings={macro:m,...extra}'));
+  assert.equal(source.includes('const settings={seedMacro:m,...extra}'),false);
   assert.equal(/anti[- ]?afk|cheat|farm/i.test(source),false);
 });
