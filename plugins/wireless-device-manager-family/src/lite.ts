@@ -1,0 +1,18 @@
+import streamDeck from "@elgato/streamdeck";
+import { LiteDeviceAction } from "./actions.js";
+import { WirelessRuntime } from "./runtime.js";
+
+streamDeck.logger.setLevel("info");
+const runtime = new WirelessRuntime("lite");
+streamDeck.actions.registerAction(new LiteDeviceAction(runtime));
+streamDeck.ui.onDidAppear(() => void runtime.sendInspector());
+streamDeck.ui.onSendToPlugin(() => void runtime.sendInspector());
+
+streamDeck.connect().then(async () => {
+  try {
+    await runtime.start();
+    streamDeck.logger.info("Wireless Device Manager Lite started");
+  } catch (error) {
+    streamDeck.logger.error("Wireless Device Manager Lite failed to start", error);
+  }
+});
