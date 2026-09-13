@@ -149,6 +149,9 @@ test("bundled Pro headset status and control keys share one logical slot",async(
     const control=devices.find(action=>action.Settings?.view==="control");
     assert.equal(headset?.Settings?.slot,"HEADPHONES");
     assert.equal(control?.Settings?.slot,"HEADPHONES");
+    assert.equal(control?.Settings?.favorite,headset?.Settings?.favorite);
+    assert.equal(control?.Settings?.groupName,headset?.Settings?.groupName);
+    assert.equal(control?.Settings?.lowBatteryThreshold,headset?.Settings?.lowBatteryThreshold);
   }
 });
 
