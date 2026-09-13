@@ -149,6 +149,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
     const { monitor }=await this.selected(settings);
     if(monitor.hdrState!==SUPPORT.SUPPORTED) throw new Error("Windows HDR is not supported on this active display.");
     const requested=settings.hdr??"toggle";
+    if(!["toggle","on","off"].includes(requested)) throw new Error("Invalid HDR behavior.");
     const enabled=requested==="on"||(requested==="toggle"&&!Boolean(monitor.hdrEnabled));
     await this.bridge.request("set-hdr",{deviceName:monitor.deviceName,enabled});
     this.invalidate();
@@ -157,6 +158,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
 
   async setTopology(settings: ProSettings): Promise<string> {
     const topology=settings.topology??"extend";
+    if(!["internal","duplicate","extend","external"].includes(topology)) throw new Error("Invalid display topology.");
     await this.bridge.request("set-topology",{mode:topology},12000);
     this.invalidate();
     return topology;
