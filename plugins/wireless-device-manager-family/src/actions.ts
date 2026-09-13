@@ -6,7 +6,7 @@ import {
   SingletonAction,
   type WillAppearEvent
 } from "@elgato/streamdeck";
-import { batteryLabel, controlLabel, groupSummary, nextFavorite, shortName, shouldLowBatteryAlert, statusLabel } from "./model.js";
+import { deviceViewTitle, groupSummary, nextFavorite, shortName, shouldLowBatteryAlert } from "./model.js";
 import type { WirelessRuntime } from "./runtime.js";
 
 export type DeviceSettings = {
@@ -34,9 +34,7 @@ async function paintDevice(key: KeyAction<DeviceSettings>, runtime: WirelessRunt
     return;
   }
   const view = settings.view ?? "status";
-  const base = view === "battery" ? batteryLabel(device) : view === "control" ? controlLabel(device) : statusLabel(device);
-  const label = settings.label?.trim();
-  await key.setTitle(label ? `${label.toUpperCase()}\n${base.split("\n").slice(-1)[0]}` : base);
+  await key.setTitle(deviceViewTitle(device, view, settings.label));
 }
 
 abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
@@ -184,7 +182,7 @@ export class CycleDeviceAction extends SingletonAction<CycleSettings> {
       await key.setTitle("CYCLE\nFAVORITES");
       return;
     }
-    const state = device.connected ? "ON" : device.present === false ? "SLEEP" : "OFF";
+    const state = device.paired === false ? "UNPAIRED" : device.connected ? "ON" : device.present === false ? "SLEEP" : "OFF";
     const battery = device.capabilities.BATTERY ? ` ${device.batteryPercent}%` : "";
     await key.setTitle(`${shortName(device.name)}\n${state}${battery}`);
   }
