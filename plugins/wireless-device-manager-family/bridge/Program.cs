@@ -244,7 +244,7 @@ internal static class Program
         }
     };
 
-    private static async Task<object> ControlAsync(string addressText, string operation)
+    private static async Task<dynamic> ControlAsync(string addressText, string operation)
     {
         var normalized = NormalizeAddress(addressText);
         if (!ulong.TryParse(normalized, System.Globalization.NumberStyles.HexNumber, null, out var address))
