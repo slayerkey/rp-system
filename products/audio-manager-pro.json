@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "testing",
   "workflow_state": "TESTING",
-  "blocker": "GitHub Actions currently fails before runner allocation (jobs report steps=null). Current head still needs official Elgato validate/package plus final physical Windows audio-device and Stream Deck+ smoke.",
+  "blocker": "GitHub Actions currently fails before runner allocation (latest current-head job exposes steps=null). Current head still needs Windows .NET build/helper smoke, XENEON shared-core regression build, official Elgato validate/package, and final physical Windows audio-device / Stream Deck+ QA.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -20,7 +20,8 @@
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media",
     "physical Windows audio-device and Stream Deck Plus smoke",
-    "real-hardware Marketplace demonstration video when required"
+    "real-hardware Marketplace demonstration video when required",
+    "Stream Deck sleep/wake action and Property Inspector event smoke"
   ],
   "final_boundary": "Official current-head Elgato validate/package, physical USB/Bluetooth/reboot/endpoint-recreation/role separation and Stream Deck+ validation, plus real-hardware Marketplace demo evidence when required.",
   "automated_release_evidence": {
@@ -35,6 +36,16 @@
       "Windows helper self-test"
     ],
     "caught_defect": "Stream Deck+ dial syntax error, fixed in cd084c68e1bc8527322a27cc256ac3672144bd5f",
-    "current_runner_state": "Subsequent jobs fail before runner allocation and expose no executed steps."
+    "current_pure_suite": "Exact current GitHub source/test files execute 39/39 passing in the available JavaScript harness.",
+    "current_static_checks": [
+      "plugin.js syntax",
+      "audio-helper.js transformed module syntax",
+      "Property Inspector syntax",
+      "manifest/product/submission price and version consistency",
+      "conservative endpoint ID -> Container ID + endpoint name -> explicit rebind policy",
+      "post-operation snapshot verification for profiles/direct actions/dial state"
+    ],
+    "latest_runner_blocked_run": 34767167852,
+    "current_runner_state": "Latest current-head job fails before checkout/setup; GitHub reports steps=null and provides no job log."
   }
 }
