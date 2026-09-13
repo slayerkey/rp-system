@@ -402,13 +402,13 @@ public static class MonitorNative {
             var phys = count > 0 ? new PHYSICAL_MONITOR[count] : new PHYSICAL_MONITOR[0];
             bool have = count > 0 && GetPhysicalMonitorsFromHMONITOR(h, count, phys);
             if (!have) {
-                bool hs, he; TryHdr(mi.szDevice, false, false, out hs, out he);
+                bool hs, he; bool hq=TryHdr(mi.szDevice, false, false, out hs, out he);
                 list.Add(new DisplayRecord {
                     deviceName=mi.szDevice, monitorDevicePath=StableMonitorPath(mi.szDevice), description=mi.szDevice, internalDisplay=IsInternalDisplay(mi.szDevice), primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
                     left=mi.rcMonitor.left, top=mi.rcMonitor.top, right=mi.rcMonitor.right, bottom=mi.rcMonitor.bottom,
                     physicalIndex=0, physicalCount=0, capabilities=null, ddcBrightness=false, ddcContrast=false,
                     currentMode=GetCurrentMode(mi.szDevice), modes=GetModes(mi.szDevice),
-                    hdrState=hs ? "SUPPORTED" : "UNKNOWN", hdrEnabled=he
+                    hdrState=hq ? (hs ? "SUPPORTED" : "NOT_SUPPORTED") : "UNKNOWN", hdrEnabled=he
                 });
                 return true;
             }
@@ -417,7 +417,7 @@ public static class MonitorNative {
                     uint bmin=0,bcur=0,bmax=0,cmin=0,ccur=0,cmax=0;
                     bool bs=GetMonitorBrightness(phys[i].hPhysicalMonitor, out bmin, out bcur, out bmax);
                     bool cs=GetMonitorContrast(phys[i].hPhysicalMonitor, out cmin, out ccur, out cmax);
-                    bool hs, he; TryHdr(mi.szDevice, false, false, out hs, out he);
+                    bool hs, he; bool hq=TryHdr(mi.szDevice, false, false, out hs, out he);
                     list.Add(new DisplayRecord {
                         deviceName=mi.szDevice, monitorDevicePath=(StableMonitorPath(mi.szDevice) ?? mi.szDevice) + "#" + i, description=phys[i].szPhysicalMonitorDescription, internalDisplay=IsInternalDisplay(mi.szDevice), primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
                         left=mi.rcMonitor.left, top=mi.rcMonitor.top, right=mi.rcMonitor.right, bottom=mi.rcMonitor.bottom,
@@ -425,7 +425,7 @@ public static class MonitorNative {
                         ddcBrightness=bs, brightness=bcur, brightnessMin=bmin, brightnessMax=bmax,
                         ddcContrast=cs, contrast=ccur, contrastMin=cmin, contrastMax=cmax,
                         currentMode=GetCurrentMode(mi.szDevice), modes=GetModes(mi.szDevice),
-                        hdrState=hs ? "SUPPORTED" : "UNKNOWN", hdrEnabled=he
+                        hdrState=hq ? (hs ? "SUPPORTED" : "NOT_SUPPORTED") : "UNKNOWN", hdrEnabled=he
                     });
                 }
             } finally { DestroyPhysicalMonitors((uint)phys.Length, phys); }
