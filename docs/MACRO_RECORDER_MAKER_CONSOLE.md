@@ -111,21 +111,27 @@ Do not claim the category is empty.
 
 ## Profiles
 
-Lite bundled profile:
+Bundled device variants for both editions:
+- Stream Deck / MK.2 (DeviceType 0)
+- Stream Deck XL (DeviceType 2)
+- Stream Deck + keypad (DeviceType 7)
+- Stream Deck Neo (DeviceType 9)
+
+Lite starter layout:
 - BASIC
 - REC
 - STOP
 - PLAY
 - safe keyboard examples
 
-Pro bundled profile pages:
+Pro starter pages:
 - MACROS
 - GAMING
 - PRODUCTIVITY
 - MOUSE
 - LOOPS
 
-Current bundled profile targets standard 15-key Stream Deck layout.
+Plus/Neo use compact 4×2 keypad layouts. XL preserves the same logical pages with additional empty grid space. Macro Recorder does not claim encoder actions because its current action surface is keypad-only.
 
 Examples must remain generic and harmless:
 - no anti-AFK
