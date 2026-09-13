@@ -14,7 +14,7 @@ test("Lite exposes curated live Windows controls only", async () => {
   const value = await manifest("lite");
   assert.equal(value.Name, "Windows Settings Manager Lite");
   assert.equal(value.UUID, "com.packrat.windows-settings-manager-lite");
-  assert.equal(value.Profiles.length, 5);
+  assert.equal(value.Profiles.length, 7);
   const names = value.Actions.map((item) => item.Name);
   assert.deepEqual(names, [
     "System Status",
@@ -28,6 +28,13 @@ test("Lite exposes curated live Windows controls only", async () => {
   assert.ok(!JSON.stringify(value).includes("apply-mode"));
 });
 
+test("manifest targets Stream Deck 7.3 for current profile navigation and device coverage", async () => {
+  for (const flavor of ["lite", "pro"]) {
+    const value = await manifest(flavor);
+    assert.equal(value.Software.MinimumVersion, "7.3");
+  }
+});
+
 test("Pro owns the PC Mode layer without inventing optimization actions", async () => {
   const value = await manifest("pro");
   const names = value.Actions.map((item) => item.Name);
@@ -37,10 +44,10 @@ test("Pro owns the PC Mode layer without inventing optimization actions", async 
   assert.ok(!JSON.stringify(value).match(/registry|cloudstore|sendkeys|quick settings/i));
 });
 
-test("all five canonical bundled profile device families are generated", async () => {
+test("all seven current bundled profile device families are generated", async () => {
   for (const flavor of ["lite", "pro"]) {
     const value = await manifest(flavor);
-    assert.deepEqual(value.Profiles.map((item) => item.DeviceType).sort((a, b) => a - b), [0, 1, 2, 7, 9]);
+    assert.deepEqual(value.Profiles.map((item) => item.DeviceType).sort((a, b) => a - b), [0, 1, 2, 7, 9, 12, 13]);
     for (const profile of value.Profiles) {
       const stem = profile.Name.replace(/^profiles\//, "");
       const data = await readFile(path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`, "profiles", `${stem}.streamDeckProfile`));
@@ -54,7 +61,7 @@ test("all five canonical bundled profile device families are generated", async (
 
 test("every Pro profile keeps two-way Modes / Settings navigation", async () => {
   const profileDir = path.join(root, "com.packrat.windows-settings-manager-pro.sdPlugin", "profiles");
-  for (const device of ["standard", "mini", "xl", "plus", "neo"]) {
+  for (const device of ["standard", "mini", "xl", "plus", "neo", "galleon", "plus-xl"]) {
     const data = (await readFile(path.join(profileDir, `windows-settings-pro-${device}.streamDeckProfile`))).toString("utf8");
     const matches = data.match(/com\.packrat\.windows-settings-manager-pro\.profile-page/g) ?? [];
     assert.equal(matches.length, 2, `${device} should contain one navigation key on each of two pages`);

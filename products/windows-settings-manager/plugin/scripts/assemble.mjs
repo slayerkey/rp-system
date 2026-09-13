@@ -14,7 +14,9 @@ const DEVICES = [
   { id: "mini", label: "Stream Deck Mini", deviceType: 1, columns: 3, rows: 2 },
   { id: "xl", label: "Stream Deck XL", deviceType: 2, columns: 8, rows: 4 },
   { id: "plus", label: "Stream Deck +", deviceType: 7, columns: 4, rows: 2 },
-  { id: "neo", label: "Stream Deck Neo", deviceType: 9, columns: 4, rows: 2 }
+  { id: "neo", label: "Stream Deck Neo", deviceType: 9, columns: 4, rows: 2 },
+  { id: "galleon", label: "Galleon 100 SD", deviceType: 12, columns: 4, rows: 3 },
+  { id: "plus-xl", label: "Stream Deck + XL", deviceType: 13, columns: 9, rows: 4 }
 ];
 
 const ACTIONS = {
@@ -113,7 +115,7 @@ function manifest(flavor, profiles) {
     Icon: "imgs/plugin/marketplace",
     CodePath: "bin/plugin.js",
     SDKVersion: 3,
-    Software: { MinimumVersion: "6.9" },
+    Software: { MinimumVersion: "7.3" },
     OS: [{ Platform: "windows", MinimumVersion: "10" }],
     Nodejs: { Version: "20", Debug: "enabled" },
     UUID: uuid,
