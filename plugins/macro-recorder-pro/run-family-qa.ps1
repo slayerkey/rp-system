@@ -27,9 +27,11 @@ dotnet publish "shared\windows-input\PackRat.InputHost\PackRat.InputHost.csproj"
 $HelperExe = Join-Path $HelperOut "PackRat.InputHost.exe"
 if (-not (Test-Path $HelperExe)) { throw "PackRat.InputHost.exe was not produced." }
 
-Write-Host "[2/7] Native helper self-test"
+Write-Host "[2/7] Native helper self-test + daemon ping"
 $SelfTest = & $HelperExe --selftest
 if (($SelfTest -join "") -notmatch '"ok":true') { throw "Input host self-test failed: $SelfTest" }
+$Ping = '{"id":"localqa","command":"ping"}' | & $HelperExe --daemon
+if (($Ping -join "") -notmatch '"ok":true') { throw "Input host daemon ping failed: $Ping" }
 
 function Test-Plugin {
   param([Parameter(Mandatory=$true)][string]$Slug)
@@ -50,6 +52,10 @@ function Test-Plugin {
 
     Write-Host "[$Slug] build"
     npm run build
+
+    $EmbeddedHelper = Join-Path $PluginRoot "com.packrat.$Slug.sdPlugin\helpers\PackRat.InputHost.exe"
+    if (-not (Test-Path $EmbeddedHelper)) { throw "$Slug build did not embed PackRat.InputHost.exe." }
+    if ((Get-Item $EmbeddedHelper).Length -le 0) { throw "$Slug embedded input host is empty." }
 
     Write-Host "[$Slug] Elgato validation"
     npm run validate
@@ -79,6 +85,7 @@ Test-Plugin -Slug "macro-recorder-pro"
 
 if (-not $SkipArt) {
   Write-Host "[5/7] Marketplace art"
+  if (-not (Get-Command python -ErrorAction SilentlyContinue)) { throw "Python is required unless -SkipArt is used." }
   python -c "import PIL" 2>$null
   if ($LASTEXITCODE -ne 0) { python -m pip install --disable-pip-version-check pillow }
   python "tools\art\macro_recorder_art.py" --slug macro-recorder-lite --out "artifacts\marketplace\macro-recorder-lite\01-hero.png"
