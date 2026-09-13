@@ -86,6 +86,7 @@ export class TelemetryService extends EventEmitter {
     this.hardwareCatalog = [];
     this.hardware = null;
     this.hardwareBackoff = null;
+    this.hardwareBackoffMs = 5000;
     this.nativeTimer = null;
     this.sessionTimer = null;
     this.persistTimer = null;
@@ -333,6 +334,17 @@ export class TelemetryService extends EventEmitter {
     }
   }
 
+  _scheduleHardwareRestart() {
+    if (this.stopping || this.hardware || this.hardwareBackoff) return;
+    const delay = this.hardwareBackoffMs;
+    this.hardwareBackoffMs = Math.min(60_000, Math.round(this.hardwareBackoffMs * 1.8));
+    this.hardwareBackoff = setTimeout(() => {
+      this.hardwareBackoff = null;
+      this._startHardware();
+    }, delay);
+    this.hardwareBackoff.unref?.();
+  }
+
   _startHardware() {
     if (this.stopping || this.hardware) return;
     const exe = resolve(this.pluginRoot, "native", "telemetry", "PackRat.PerformanceTelemetry.exe");
@@ -342,6 +354,7 @@ export class TelemetryService extends EventEmitter {
     } catch (error) {
       this.status.hardware = { state: "unavailable", detail: error?.message || String(error) };
       this.emit("status", this.safeStatus());
+      this._scheduleHardwareRestart();
       return;
     }
 
@@ -368,11 +381,7 @@ export class TelemetryService extends EventEmitter {
         this.status.hardware = { state: "offline", detail: ("Sensor helper exited " + code + ". " + stderr).trim().slice(0, 700) };
       }
       this.emit("status", this.safeStatus());
-      this.hardwareBackoff = setTimeout(() => {
-        this.hardwareBackoff = null;
-        this._startHardware();
-      }, 5000);
-      this.hardwareBackoff.unref?.();
+      this._scheduleHardwareRestart();
     });
   }
 
@@ -398,6 +407,7 @@ export class TelemetryService extends EventEmitter {
         });
       }
       this._selectAliases();
+      this.hardwareBackoffMs = 5000;
       this.status.hardware = { state: "ready", detail: null };
       this.emit("catalog", this.metricCatalog());
       this.emit("status", this.safeStatus());
@@ -427,6 +437,7 @@ export class TelemetryService extends EventEmitter {
         });
       }
     }
+    this.hardwareBackoffMs = 5000;
     this.status.hardware = { state: "ready", detail: null };
     this.emit("update", { kind: "sensor" });
   }
