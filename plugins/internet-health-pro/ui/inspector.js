@@ -2,7 +2,8 @@
   const DEFAULT_ACTION = {
     historyWindow: 30, latencyWarn: 80, latencyBad: 150, jitterWarn: 15, jitterBad: 30,
     lossWarn: 3, lossBad: 10, metric: "jitter", outageMode: "uptime", target: "1.1.1.1",
-    targetMethod: "auto", targetPort: 443, family: "auto", accent: "#2BE86A"
+    targetMethod: "auto", targetPort: 443, family: "auto", expectedDownloadMbps: 0,
+    expectedUploadMbps: 0, lowSpeedPercent: 70, accent: "#2BE86A"
   };
   const DEFAULT_GLOBAL = { intervalSeconds: 10, diagnosticSeconds: 30, httpSeconds: 60, targetSeconds: 30, historyHours: 24 };
   const ID_TO_KIND = {
@@ -51,6 +52,9 @@
       targetMethod: $("targetMethod").value,
       targetPort: number("targetPort", 443),
       family: $("family").value,
+      expectedDownloadMbps: number("expectedDownloadMbps", 0),
+      expectedUploadMbps: number("expectedUploadMbps", 0),
+      lowSpeedPercent: number("lowSpeedPercent", 70),
       accent: $("accent").value.toUpperCase()
     };
   }
@@ -71,7 +75,9 @@
       historyWindow: settings.historyWindow, latencyWarn: settings.latencyWarn, latencyBad: settings.latencyBad,
       jitterWarn: settings.jitterWarn, jitterBad: settings.jitterBad, lossWarn: settings.lossWarn, lossBad: settings.lossBad,
       metric: settings.metric, outageMode: settings.outageMode, target: settings.target,
-      targetMethod: settings.targetMethod, targetPort: settings.targetPort, family: settings.family
+      targetMethod: settings.targetMethod, targetPort: settings.targetPort, family: settings.family,
+      expectedDownloadMbps: settings.expectedDownloadMbps, expectedUploadMbps: settings.expectedUploadMbps,
+      lowSpeedPercent: settings.lowSpeedPercent
     })) if ($(id)) $(id).value = value;
     const accent = /^#[0-9A-Fa-f]{6}$/.test(String(settings.accent || "")) ? settings.accent : DEFAULT_ACTION.accent;
     $("accent").value = accent;
@@ -144,7 +150,7 @@
     };
   };
 
-  for (const id of ["historyWindow","latencyWarn","latencyBad","jitterWarn","jitterBad","lossWarn","lossBad","metric","outageMode","target","targetMethod","targetPort","family","accent","intervalSeconds"]) {
+  for (const id of ["historyWindow","latencyWarn","latencyBad","jitterWarn","jitterBad","lossWarn","lossBad","metric","outageMode","target","targetMethod","targetPort","family","expectedDownloadMbps","expectedUploadMbps","lowSpeedPercent","accent","intervalSeconds"]) {
     $(id).addEventListener(id === "target" || id === "accent" ? "input" : "change", queueSave);
   }
   $("refresh").addEventListener("click", () => command("refresh"));
