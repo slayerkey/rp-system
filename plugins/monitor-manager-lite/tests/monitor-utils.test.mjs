@@ -4,7 +4,7 @@ import path from "node:path";
 import test from "node:test";
 
 import {
-  SAFE_VCP, SUPPORT, classifyProfileResult, modeSupported, parseVcpCapabilities, vcpSupport
+  SAFE_VCP, SUPPORT, classifyProfileResult, matchSavedMonitor, modeSupported, parseVcpCapabilities, vcpSupport
 } from "../../_shared/monitor-manager/monitor-utils.mjs";
 
 test("capability parser discovers safe VCP codes and advertised input values", () => {
@@ -51,4 +51,55 @@ test("Lite Pro CTA stays fail closed until the real Marketplace product URL is c
   const text=await readFile("src/product.ts","utf8");
   assert.match(text,/PRO_MARKETPLACE_URL: string \| null = null/);
   assert.doesNotMatch(text,/packrat.*\.com\/.*pro/i);
+});
+
+test("all common high-refresh fixtures are accepted when Windows enumerates them", () => {
+  const modes = [60,120,144,165,240].map((frequency) => ({
+    width:2560,height:1440,frequency,orientation:0
+  }));
+  for (const frequency of [60,120,144,165,240]) {
+    assert.equal(modeSupported(modes,{width:2560,height:1440,frequency,orientation:0}),true);
+  }
+  assert.equal(modeSupported(modes,{width:2560,height:1440,frequency:360,orientation:0}),false);
+});
+
+test("saved monitor matching handles one through four monitors and rejects ambiguous fallback", () => {
+  for (const count of [1,2,3,4]) {
+    const current = Array.from({length:count},(_,index)=>({
+      monitorKey:"path:display-"+index,
+      description:"Monitor "+index
+    }));
+    for (let index=0; index<count; index+=1) {
+      assert.equal(
+        matchSavedMonitor({monitorKey:"path:display-"+index,description:"Monitor "+index},current),
+        current[index]
+      );
+    }
+  }
+  assert.equal(matchSavedMonitor({monitorKey:"path:missing",description:"Missing"},[]),null);
+  assert.equal(
+    matchSavedMonitor({monitorKey:"",description:"Same"},[
+      {monitorKey:"a",description:"Same"},
+      {monitorKey:"b",description:"Same"}
+    ]),
+    null
+  );
+});
+
+test("Lite binds monitor choice globally and never falls through from an external display to laptop brightness", async () => {
+  const runtimeSource=await readFile("src/runtime.ts","utf8");
+  const pluginSource=await readFile("src/plugin.ts","utf8");
+  const piSource=await readFile("com.packrat.monitormanagerlite.sdPlugin/ui/pi.js","utf8");
+  assert.match(runtimeSource,/monitor\.internalDisplay && snapshot\.internalBrightness\?\.available/);
+  assert.match(pluginSource,/getGlobalSettings<LiteGlobalSettings>/);
+  assert.match(pluginSource,/setGlobalSettings<LiteGlobalSettings>/);
+  assert.match(piSource,/setGlobalSettings/);
+  assert.match(piSource,/globalSettings\.monitorKey/);
+});
+
+test("monitor discovery prefers the stable Windows target device path", async () => {
+  const helper=await readFile("../../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
+  assert.match(helper,/DISPLAYCONFIG_TARGET_DEVICE_NAME/);
+  assert.match(helper,/monitorDevicePath/);
+  assert.match(helper,/StableMonitorPath/);
 });
