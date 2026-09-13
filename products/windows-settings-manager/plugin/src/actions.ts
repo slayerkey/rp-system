@@ -203,7 +203,9 @@ class ApplyModeBase extends LiveTitleAction<ModeActionSettings> {
 }
 
 class CycleModeBase extends LiveTitleAction<Record<string, never>> {
-  private lastId = "";
+  private cursorId = "";
+  private advancePastFailedAttempt = false;
+
   protected async title(): Promise<string> {
     const all = await runtime.store.load();
     return currentModeTitle(all.modes, runtime.state.getSnapshot(), modeMatchesSnapshot);
@@ -216,16 +218,17 @@ class CycleModeBase extends LiveTitleAction<Record<string, never>> {
 
     const snapshot = runtime.state.getSnapshot();
     const matching = available.find((mode) => modeMatchesSnapshot(mode, snapshot));
-    const baseId = matching?.id || this.lastId;
+    const baseId = this.advancePastFailedAttempt && this.cursorId
+      ? this.cursorId
+      : (matching?.id || this.cursorId);
     const index = Math.max(-1, available.findIndex((mode) => mode.id === baseId));
     const mode = available[(index + 1) % available.length];
     const result = await applyMode(mode, (op, args) => runtime.state.execute(op, args));
-    if (result.status === "COMPLETE") {
-      this.lastId = mode.id;
-      await ev.action.showOk();
-    } else {
-      await ev.action.showAlert();
-    }
+
+    this.cursorId = mode.id;
+    this.advancePastFailedAttempt = result.status !== "COMPLETE";
+    if (result.status === "COMPLETE") await ev.action.showOk();
+    else await ev.action.showAlert();
   }
 }
 
