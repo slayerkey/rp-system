@@ -29,6 +29,12 @@ This is the remaining release boundary after automated QA. Use the exact validat
 - [ ] Confirm profiles remain editable and do not auto-switch on installation.
 - [ ] Confirm Stream Deck + profile uses keypad actions only; no phantom encoder action appears.
 - [ ] Confirm a profile key opens the correct Property Inspector settings and can be customized.
+- [ ] Change Sensor / Metric from CPU Load to RAM Used and confirm the physical key changes immediately.
+- [ ] Change Sensor / Metric to GPU Temperature and confirm the picker reports the same live source the key is using, not a false "unavailable" row.
+- [ ] Change Accent, close/reopen the Property Inspector, and confirm the color persists and the key redraws.
+- [ ] Change a Performance Graph history window from 60 sec to 5 min, close/reopen the Property Inspector, and confirm the window persists and the key redraws.
+- [ ] Confirm healthy providers do not leave permanent "Checking game telemetry" / "Checking hardware sensors" cards at the top of every action.
+- [ ] Confirm provider warnings appear only when the selected action/metric actually depends on the failing provider.
 
 ## Game telemetry
 
