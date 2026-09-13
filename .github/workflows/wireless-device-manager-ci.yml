@@ -1,0 +1,122 @@
+name: Wireless Device Manager Family CI
+
+on:
+  push:
+    branches:
+      - product/wireless-device-manager
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'plugins/wireless-device-manager-family/**'
+      - 'products/wireless-device-manager*.json'
+      - 'products/index.json'
+      - 'products/lite-pro-map.json'
+      - '.github/workflows/wireless-device-manager-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wireless-device-manager-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-release:
+    name: Hosted Windows build, test, bridge, validate, pack
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: plugins/wireless-device-manager-family
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Install Pillow
+        shell: pwsh
+        run: python -m pip install pillow==12.3.0
+      - name: Install locked dependencies
+        shell: pwsh
+        run: npm ci --no-fund --no-audit
+      - name: Audit dependencies
+        shell: pwsh
+        run: npm audit --audit-level=high
+      - name: Build plugins, profiles, assets and bundled bridge
+        shell: pwsh
+        run: npm run build
+      - name: Run fixture and package tests
+        shell: pwsh
+        run: npm test
+      - name: Smoke bundled bridge and persistent stdio protocol
+        shell: pwsh
+        run: |
+          $bridge = '.\com.packrat.wireless-device-manager.sdPlugin\bin\wireless-device-bridge-x64.exe'
+          $result = & $bridge snapshot
+          if ($LASTEXITCODE -notin @(0,2)) { throw "Bridge snapshot failed: $result" }
+          $result | Write-Host
+
+          $request = '{"id":"ci-snapshot","command":"snapshot"}'
+          $serverResponse = @($request | & $bridge server)
+          if ($LASTEXITCODE -ne 0) { throw "Persistent bridge server failed." }
+          $line = $serverResponse | Where-Object { $_ -match '^\s*\{' } | Select-Object -Last 1
+          if (-not $line) { throw "Persistent bridge returned no JSON response." }
+          $parsed = $line | ConvertFrom-Json
+          if ($parsed.id -ne 'ci-snapshot' -or $null -eq $parsed.result.ok) {
+            throw "Persistent bridge protocol response was invalid: $line"
+          }
+          Write-Host "PERSISTENT BRIDGE PASS: $line"
+      - name: Verify capability boundary and packaging structure
+        shell: pwsh
+        run: |
+          foreach ($plugin in @('com.packrat.wireless-device-manager.sdPlugin','com.packrat.wireless-device-manager-pro.sdPlugin')) {
+            if (!(Test-Path "$plugin\bin\plugin.js")) { throw "$plugin missing plugin.js" }
+            if (!(Test-Path "$plugin\bin\wireless-device-bridge-x64.exe")) { throw "$plugin missing x64 bridge" }
+            if (!(Test-Path "$plugin\bin\wireless-device-bridge-arm64.exe")) { throw "$plugin missing arm64 bridge" }
+            $profiles = @(Get-ChildItem "$plugin\profiles" -Filter *.streamDeckProfile -File)
+            if ($profiles.Count -ne 5) { throw "$plugin expected five profiles" }
+            $manifest = Get-Content "$plugin\manifest.json" -Raw
+            if ($manifest -match '"Encoder"') { throw "$plugin must not expose fake dial support" }
+            Get-Item "$plugin\bin\wireless-device-bridge-x64.exe","$plugin\bin\wireless-device-bridge-arm64.exe" |
+              Select-Object Name,Length | Format-Table -AutoSize
+          }
+      - name: Validate with official Elgato CLI
+        shell: pwsh
+        run: npm run validate
+      - name: Package both editions with official Elgato CLI
+        shell: pwsh
+        run: npm run pack
+      - name: Render deterministic Marketplace media
+        shell: pwsh
+        run: |
+          python scripts/rat-art-release.py --destination dist/marketplace-lite --edition lite
+          python scripts/rat-art-release.py --destination dist/marketplace-pro --edition pro
+      - name: Verify packages
+        shell: pwsh
+        run: |
+          $lite=@(Get-ChildItem dist\lite -Filter *.streamDeckPlugin -File)
+          $pro=@(Get-ChildItem dist\pro -Filter *.streamDeckPlugin -File)
+          if($lite.Count -ne 1 -or $pro.Count -ne 1){throw 'Expected one Lite and one Pro package'}
+          Get-FileHash $lite[0].FullName -Algorithm SHA256
+          Get-FileHash $pro[0].FullName -Algorithm SHA256
+          $lite[0],$pro[0] | Select-Object Name,Length,@{Name='MiB';Expression={[math]::Round($_.Length/1MB,2)}} | Format-Table -AutoSize
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wireless-device-manager-family
+          path: |
+            plugins/wireless-device-manager-family/dist/**/*.streamDeckPlugin
+            plugins/wireless-device-manager-family/QA.md
+            plugins/wireless-device-manager-family/dist/marketplace-lite/*.png
+            plugins/wireless-device-manager-family/dist/marketplace-pro/*.png
+            plugins/wireless-device-manager-family/FEASIBILITY.md
+            plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json
+            plugins/wireless-device-manager-family/com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json
+          if-no-files-found: error
+          retention-days: 30

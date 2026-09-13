@@ -91,31 +91,91 @@ function Read-OriginMainRegistration {
     }
 }
 
+function Read-ProductMetadataFromRef {
+    param([string]$Ref)
+
+    $object = "${Ref}:products/$Slug.json"
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $raw = & git -C $RepoRoot show $object 2>$null
+        $code = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previous
+    }
+
+    if ($code -ne 0 -or -not $raw) { return $null }
+
+    try {
+        return (($raw -join "`n") | ConvertFrom-Json)
+    }
+    catch {
+        throw "Invalid product metadata for $Slug at $object"
+    }
+}
+
+function Resolve-RatPackProductMetadataSource {
+    param(
+        [string]$Ref,
+        $Metadata
+    )
+
+    if (-not $Metadata) { return $null }
+    if ([string]$Metadata.type -ne "plugin") { return $null }
+    if (-not $Metadata.source) { return $null }
+
+    $sourceRoot = ([string]$Metadata.source).Replace("/", "\")
+    if (-not (Test-GitObject "${Ref}:$([string]$Metadata.source)")) {
+        return $null
+    }
+
+    $config = [PSCustomObject]@{
+        type = "streamdeck-plugin"
+        plugin_dir = if ($Metadata.ship_plugin_dir) { [string]$Metadata.ship_plugin_dir } else { $null }
+        plugin_uuid = if ($Metadata.plugin_uuid) { [string]$Metadata.plugin_uuid } else { $null }
+    }
+
+    return [PSCustomObject]@{
+        Kind = "ratpack"
+        Ref = $Ref
+        Config = $config
+        SourceRoot = $sourceRoot
+        Display = "$Ref via products/$Slug.json"
+    }
+}
+
 function Resolve-Source {
     Write-Host "Fetching canonical RatPack source..." -ForegroundColor Cyan
     Invoke-Checked -Command "git" -Arguments @("-C", $RepoRoot, "fetch", "--prune", "origin") -Failure "Git fetch failed"
 
-    $productRef = "refs/remotes/origin/product/$Slug"
+    $exactRef = "origin/product/$Slug"
+    $productRef = "refs/remotes/$exactRef"
     if (Test-GitRef $productRef) {
-        $productWidget = "origin/product/${Slug}:widgets/_src/${Slug}"
+        $metadataSource = Resolve-RatPackProductMetadataSource -Ref $exactRef -Metadata (Read-ProductMetadataFromRef $exactRef)
+        if ($metadataSource) {
+            return $metadataSource
+        }
+
+        $productWidget = "${exactRef}:widgets/_src/${Slug}"
         if (Test-GitObject $productWidget) {
             return [PSCustomObject]@{
                 Kind = "xeneon"
-                Ref = "origin/product/$Slug"
+                Ref = $exactRef
                 Config = $null
                 SourceRoot = "widgets\_src\$Slug"
-                Display = "origin/product/$Slug"
+                Display = $exactRef
             }
         }
 
-        $productPlugin = "origin/product/${Slug}:plugins/${Slug}"
+        $productPlugin = "${exactRef}:plugins/${Slug}"
         if (Test-GitObject $productPlugin) {
             return [PSCustomObject]@{
                 Kind = "ratpack"
-                Ref = "origin/product/$Slug"
+                Ref = $exactRef
                 Config = $null
                 SourceRoot = "plugins\$Slug"
-                Display = "origin/product/$Slug"
+                Display = $exactRef
             }
         }
     }
@@ -132,6 +192,11 @@ function Resolve-Source {
             SourceRoot = $sourceRoot
             Display = "$($registration.repository) @ $externalRef"
         }
+    }
+
+    $mainMetadataSource = Resolve-RatPackProductMetadataSource -Ref "origin/main" -Metadata (Read-ProductMetadataFromRef "origin/main")
+    if ($mainMetadataSource) {
+        return $mainMetadataSource
     }
 
     $mainWidget = "origin/main:widgets/_src/$Slug"
@@ -153,6 +218,21 @@ function Resolve-Source {
             Config = $null
             SourceRoot = "plugins\$Slug"
             Display = "origin/main"
+        }
+    }
+
+    # Multi-SKU product families can intentionally share one branch/source root.
+    # Before merge, the Pro slug may not have a same-named product branch. Search
+    # product refs for canonical metadata that explicitly declares this slug.
+    $candidateRefs = @(& git -C $RepoRoot for-each-ref --sort=-committerdate --format="%(refname:short)" "refs/remotes/origin/product/*" 2>$null)
+    foreach ($candidateRef in $candidateRefs) {
+        $candidateRef = [string]$candidateRef
+        if ([string]::IsNullOrWhiteSpace($candidateRef) -or $candidateRef -eq $exactRef) { continue }
+
+        $metadata = Read-ProductMetadataFromRef $candidateRef
+        $metadataSource = Resolve-RatPackProductMetadataSource -Ref $candidateRef -Metadata $metadata
+        if ($metadataSource) {
+            return $metadataSource
         }
     }
 

@@ -1,0 +1,72 @@
+{
+  "id": "wireless-device-manager-pro",
+  "name": "Wireless Device Manager Pro",
+  "type": "plugin",
+  "status": "build_candidate",
+  "workflow_state": "TESTING",
+  "price_usd": 7.99,
+  "version": "0.1.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/wireless-device-manager-family",
+  "plugin_uuid": "com.packrat.wireless-device-manager-pro",
+  "automated_feasibility": "GO",
+  "hardware_smoke": "REQUIRED_BEFORE_READY_TO_SHIP",
+  "notes": "Paid Pro edition. Multiple devices, favorites, groups, low-battery alerts, dashboard, Cycle Device and capability-gated control. Groups do not auto-connect devices.",
+  "ship_plugin_dir": "com.packrat.wireless-device-manager-pro.sdPlugin",
+  "submission_metadata": "plugins/wireless-device-manager-family/submission-pro.json",
+  "blocker": "Physical Bluetooth hardware QA is still required, especially real headset A2DP/HFP connect/disconnect and device lifecycle behavior.",
+  "release_gate": [
+    "locked dependency install and npm audit with 0 vulnerabilities",
+    "51 deterministic model/package/profile/catalog/source regressions",
+    "five Pro profiles: Standard, Mini, XL, Plus and Neo",
+    "linked HEADPHONES status/control slot on every bundled Pro profile",
+    "x64 and ARM64 self-contained native Windows Bluetooth bridge publish",
+    "one-shot bridge snapshot and persistent stdio protocol smoke",
+    "official Elgato Stream Deck CLI validation",
+    "official .streamDeckPlugin packaging",
+    "deterministic Marketplace media generation",
+    "PackRat Lite Pro Portfolio Audit and Rat Ship Marketplace Routing CI",
+    "real Windows Bluetooth hardware matrix before release"
+  ],
+  "automated_release_evidence": {
+    "candidate_commit": "95ce3902bd6a49f4b5d2b196fd5fd7d26334a30a",
+    "github_actions_run": 34785291188,
+    "windows_job": 103799541037,
+    "status": "PASSED",
+    "artifact_id": 10326163681,
+    "artifact_digest": "sha256:202939d672004dd10934634e9c7cb07c014524d5314c84c01f059d2bd308ecfd",
+    "package_sha256": "ED3231F67576FA1FC6AEE47795FFEC94D195D9B936CB211FE6CEDB4DEA818815",
+    "package_size_bytes": 70951706,
+    "lite_pro_audit_run": 34785293330,
+    "rat_ship_routing_run": 34785293337,
+    "lightweight_ci_run": 34785293383
+  },
+  "catalog_audit": {
+    "profiles": {
+      "included": true,
+      "device_types": [
+        0,
+        1,
+        2,
+        7,
+        9
+      ],
+      "devices": [
+        "Stream Deck",
+        "Stream Deck Mini",
+        "Stream Deck XL",
+        "Stream Deck +",
+        "Stream Deck Neo"
+      ],
+      "decision": "intentional",
+      "note": "Pro profiles expose dedicated device slots, linked headset control, dashboard/group views and Cycle Device. Plus/Neo prioritize ALL DEVICES, CONNECT, CYCLE and GAMING in the 4x2 layout."
+    },
+    "upsell": {
+      "classification": "pro_counterpart",
+      "lite_id": "wireless-device-manager",
+      "verified_against": "products/lite-pro-map.json",
+      "note": "Publish Pro first so Lite can rebuild against the exact verified direct Pro Marketplace URL. Do not invent or guess the destination."
+    }
+  },
+  "final_boundary": "Pass the QA.md real-device matrix and record exact hardware/capabilities. If audio service control is reliable, move Pro to READY_TO_SHIP and publish it first. If not, narrow or remove the control claim before Marketplace submission."
+}

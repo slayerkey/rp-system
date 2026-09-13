@@ -1,0 +1,37 @@
+{
+  "name": "@packrat/wireless-device-manager-family",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build:profiles": "node scripts/build-profiles.mjs",
+    "build:assets": "python scripts/render-assets.py",
+    "build:bridge": "dotnet publish bridge/WirelessDeviceBridge.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o bridge/dist/x64 && dotnet publish bridge/WirelessDeviceBridge.csproj -c Release -r win-arm64 --self-contained true -p:PublishSingleFile=true -o bridge/dist/arm64 && node scripts/stage-bridge.mjs",
+    "build": "npm run typecheck && npm run build:profiles && npm run build:assets && rollup -c && npm run build:bridge",
+    "test": "npm run build:profiles && npm run build:assets && node --experimental-strip-types --test tests/*.test.mjs",
+    "validate:lite": "streamdeck validate com.packrat.wireless-device-manager.sdPlugin --no-update-check",
+    "validate:pro": "streamdeck validate com.packrat.wireless-device-manager-pro.sdPlugin --no-update-check",
+    "validate": "npm run validate:lite && npm run validate:pro",
+    "pack:lite": "streamdeck pack com.packrat.wireless-device-manager.sdPlugin --no-update-check --force --output dist/lite",
+    "pack:pro": "streamdeck pack com.packrat.wireless-device-manager-pro.sdPlugin --no-update-check --force --output dist/pro",
+    "pack": "npm run pack:lite && npm run pack:pro",
+    "host:audit": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-audit.ps1",
+    "host:audit:static": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-audit.ps1 -StaticOnly",
+    "verify:windows": "npm run build && npm test && npm run host:audit && npm run validate && npm run pack"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^2.1.0"
+  },
+  "devDependencies": {
+    "@elgato/cli": "^1.7.4",
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^15.2.2",
+    "@rollup/plugin-terser": "^1.0.0",
+    "@rollup/plugin-typescript": "^12.1.0",
+    "@types/node": "~24.1.0",
+    "rollup": "^4.0.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2"
+  }
+}
