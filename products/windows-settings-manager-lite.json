@@ -5,8 +5,8 @@
   "status": "release-candidate",
   "workflow_state": "BLOCKED",
   "blocker_kind": "physical_validation",
-  "blocker": "Current-head automated build/test/native Windows smoke/Elgato validation/package, repository metadata/routing audits, and deterministic media generation all pass. Remaining blockers are physical HDR/multi-monitor/laptop/sleep-resume/reboot/external-state/physical Stream Deck profile QA plus final human Marketplace media review; after Pro publication, Lite also requires verified direct Lite/Pro Marketplace URLs and the strict shipping routing audit.",
-  "final_boundary": "Complete products/windows-settings-manager/QA.md on real Windows hardware and physical Stream Deck devices, visually review generated Marketplace media, publish Pro first, record verified direct Lite/Pro Marketplace URLs/IDs, pass tools/lite_pro_audit.py --shipping windows-settings-manager-lite, then move Lite to READY_TO_SHIP.",
+  "blocker": "Current-head automated build/test/native Windows smoke/Elgato validation/package, repository metadata/routing audits, deterministic media generation, and human Marketplace media review all pass. Remaining blockers are physical HDR/multi-monitor/laptop/sleep-resume/reboot/external-state/physical Stream Deck profile QA; after Pro publication, Lite also requires verified direct Lite/Pro Marketplace URLs and the strict shipping routing audit.",
+  "final_boundary": "Complete products/windows-settings-manager/QA.md on real Windows hardware and physical Stream Deck devices, publish Pro first, record verified direct Lite/Pro Marketplace URLs/IDs, pass tools/lite_pro_audit.py --shipping windows-settings-manager-lite, then move Lite to READY_TO_SHIP.",
   "price_usd": 0,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -63,37 +63,37 @@
   },
   "commercial_release_boundary": "After technical/physical QA passes, publish Pro first. Lite remains BLOCKED until Pro is published, both exact direct Marketplace URLs/IDs are recorded in products/lite-pro-map.json, the rebuilt Lite package contains the exact Pro URL, and tools/lite_pro_audit.py --shipping windows-settings-manager-lite passes.",
   "automated_release_evidence": {
-    "candidate_commit": "af2e7d4e8f0ff68a1c0dbe196cf92321dace0725",
-    "windows_ci_run": 34778323686,
-    "windows_ci_job": 103780511518,
+    "candidate_commit": "8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939",
+    "windows_ci_run": 34785418162,
+    "windows_ci_job": 103799897210,
     "windows_package_artifact": {
-      "id": 10323244689,
-      "digest_sha256": "badb69cfd206697b3fb618886be581b0b87b3a82acb6f0bfca1ab6dcf730cc4f"
+      "id": 10325769771,
+      "digest_sha256": "4db9c02a66c1c3dd40f8c3bf5c8b98e2e2b2322c45ae5781365936890e86480a"
     },
-    "portable_ci_run": 34778323587,
-    "portable_ci_job": 103780511173,
+    "portable_ci_run": 34785418201,
+    "portable_ci_job": 103799896918,
     "portable_release_artifact": {
-      "id": 10323859244,
-      "digest_sha256": "20f4109405217d34476ae67408f5653bbfa7b2a354e194273e03041b3bf277d1"
+      "id": 10326347964,
+      "digest_sha256": "b39fa27e0d92877d1a63a7181c6c1a7f4352ea6b2ed0cf1c46d05f74c600d7f8"
     },
     "lite_pro_portfolio_audit": {
-      "run": 34778323618,
-      "job": 103780511203,
+      "run": 34785417411,
+      "job": 103799893940,
       "status": "pass"
     },
     "rat_ship_marketplace_routing_ci": {
-      "run": 34778323793,
-      "job": 103780511827,
+      "run": 34785417400,
+      "job": 103799893701,
       "status": "pass"
     },
     "ratpack_lightweight_ci": {
-      "run": 34778323662,
-      "job": 103780511205,
+      "run": 34785417398,
+      "job": 103799893665,
       "status": "pass"
     },
     "locked_dependency_install": "pass",
     "strict_typescript_build": "pass",
-    "policy_tests": "pass_40_of_40",
+    "policy_tests": "pass_41_of_41",
     "native_windows_backend_smoke": "pass_windows_build_26100",
     "official_elgato_validation": "pass_lite_and_pro",
     "production_dependency_audit": "pass_0_vulnerabilities",
@@ -101,6 +101,8 @@
     "official_pro_package": "pass",
     "deterministic_lite_rat_art": "pass",
     "deterministic_pro_rat_art": "pass",
-    "marketplace_media_dimensions": "pass"
+    "marketplace_media_dimensions": "pass",
+    "human_marketplace_media_review": "pass",
+    "pro_cover_safe_bounds_regression": "pass_and_visually_confirmed"
   }
 }
