@@ -17,7 +17,8 @@ public static class MonitorNative {
     const int CDS_SET_PRIMARY = 0x00000010;
     const int DISP_CHANGE_SUCCESSFUL = 0;
     const uint MONITORINFOF_PRIMARY = 1;
-    const uint QDC_ONLY_ACTIVE_PATHS = 0x00000002;\n    const uint QDC_DATABASE_CURRENT = 0x00000004;
+    const uint QDC_ONLY_ACTIVE_PATHS = 0x00000002;
+    const uint QDC_DATABASE_CURRENT = 0x00000004;
     const uint SDC_APPLY = 0x00000080;
     const uint SDC_TOPOLOGY_INTERNAL = 0x00000001;
     const uint SDC_TOPOLOGY_CLONE = 0x00000002;
