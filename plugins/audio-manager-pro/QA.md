@@ -6,45 +6,112 @@ Branch: product/audio-manager-pro
 Version: 1.0.0.0  
 Price: $9.99
 
-## Automated release gate
+## Current release state
 
-Status: **PENDING CI**
+Status: **TESTING**
 
-The release workflow must pass all of the following before this file can be marked automated-pass:
+The product implementation is complete enough for release-candidate testing, but it is **not READY_TO_SHIP** yet.
 
-- locked Node dependency install and high-severity dependency audit
-- pure fixture tests for USB/headset, speakers, two microphones, Bluetooth-style endpoint recreation, Unicode names, missing devices, role separation, partial failure, and rapid repeated profile planning
-- shared `PackRat.AudioCore` .NET build
-- regression build of the existing XENEON `PackRat.AudioBridge` against that shared core
-- Windows helper self-test
-- real Windows helper snapshot process smoke on a GitHub-hosted Windows runner
-- plugin bundle build
+Current external blocker:
+
+- GitHub Actions jobs are presently failing before runner allocation. The failed jobs report no executed steps (`steps = null`), so the corrected branch head has not yet completed the official Elgato validate/package gate.
+
+Still required before READY_TO_SHIP:
+
+- current-head locked dependency install/audit
+- current-head automated fixture suite
+- current-head shared AudioCore + XENEON regression build
+- current-head bundled Windows helper build/self-test
 - official Elgato CLI validation
 - official `.streamDeckPlugin` packaging
-- deterministic Marketplace media render and dimension checks
-- package-content checks proving the Windows helper is bundled
+- final physical Windows audio-device smoke
+- physical Stream Deck + dial smoke
+
+## Automated evidence already obtained
+
+A prior Windows product run, GitHub Actions run **34739703004**, executed successfully through these gates before later catching a plugin syntax defect:
+
+- checkout/setup
+- shared `PackRat.AudioCore` .NET build
+- regression build of the existing XENEON `PackRat.AudioBridge`
+- locked npm install
+- high-severity npm audit
+- profile/device fixture tests
+- win-x64 helper publish
+- helper executable self-test returning `SUCCESS`
+
+That run then caught a syntax error in the new Stream Deck + dial path during bundle build. The defect was fixed in commit `cd084c68e1bc8527322a27cc256ac3672144bd5f`.
+
+After that fix, subsequent Windows and temporary Ubuntu workflow attempts began failing before any runner step started. This is treated as infrastructure evidence, not as a product pass.
+
+## Off-runner implementation checks
+
+The corrected source received an additional implementation-session preflight:
+
+- current plugin source parses successfully
+- current Property Inspector source parses successfully
+- current profile logic source parses successfully
+- current tests parse successfully
+- Rat Art V2 Python source compiles
+- Rat Art V2 renders all six required Marketplace files at the expected dimensions
+- Rat Art V2 generates the required 480×240, 320×160, and 240×120 thumbnail review sheet
+- Marketplace cover/gallery outputs are distinct
+
+These checks do not replace the official Elgato CLI or physical Windows hardware gate.
 
 ## Device resilience contract
 
 Automatic matching order:
 
 1. exact active endpoint ID
-2. unique Windows device-instance ID
-3. unique hardware container ID + exact normalized friendly name
+2. unique Windows Device Instance ID
+3. unique hardware Container ID + exact normalized friendly name
 4. otherwise stop and require explicit rebind
 
 A friendly-name-only match is intentionally insufficient. Ambiguous or missing devices must never silently apply to another endpoint.
 
-## Result contract
+## Audio Profile result contract
 
 Every profile application returns:
 
-- **SUCCESS** when every requested role/state operation succeeds
+- **SUCCESS** when every requested operation succeeds
 - **PARTIAL** when at least one requested operation succeeds and at least one requested operation fails or cannot be safely resolved
 - **FAILED** when no requested operation succeeds
 
+The Audio Profile Status action is read-only. It refreshes current Windows audio state and reports whether the selected profile matches; it does not apply the profile.
+
+If a profile requests saved volume or mute state and Windows cannot read that state, the profile does not count as active.
+
+## Rat Art V2 contract
+
+The current deterministic renderer:
+
+- uses the canonical repository PackRat mark
+- has no silent bitmap-font fallback
+- keeps the product/key cluster dominant
+- uses restrained V2 hero chrome
+- generates a thumbnail review sheet
+- keeps the six-file Rat Ship Marketplace contract
+- uses the listing sequence: hero → four-role value proof → saved-state proof → device resilience → Stream Deck + dial
+
 ## Physical hardware boundary
 
-Physical USB headset, speakers, two microphones, Bluetooth device, actual disconnect/reconnect, reboot, real endpoint recreation, and Stream Deck + dial operation cannot be honestly certified by GitHub Actions. The automated suite models those state transitions and the Windows runner executes the real Core Audio binary, but final physical-device smoke remains required before public submission.
+Final physical QA must cover:
 
-Use the checklist in `REAL_WINDOWS_SMOKE.md`.
+- USB headset
+- speakers
+- two microphones
+- Bluetooth device
+- disconnect/reconnect
+- Windows reboot
+- real endpoint identity changes
+- Default vs Communications role separation
+- profile containing a missing device
+- rapid profile switching
+- partially failed profile
+- mute/volume restore
+- Stream Deck restart
+- long/Unicode device names
+- Stream Deck + dial
+
+Use `REAL_WINDOWS_SMOKE.md` as the canonical checklist.
