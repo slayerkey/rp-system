@@ -78,22 +78,22 @@
       "note": "Exact current committed JavaScript logic executed in an isolated V8 harness. This does not replace npm/node execution, Windows native helper compilation, PresentMon executable execution, Elgato CLI/package validation, deterministic Python art render, or physical-device validation."
     },
     "github_actions": {
-      "status": "PASS_WINDOWS_RELEASE_PIPELINE",
+      "status": "PASS_WINDOWS_RELEASE_PIPELINE_AFTER_SDPI_REWORK",
       "workflow": "Performance Grapher Stream Deck",
-      "run_id": 34785403209,
-      "job_id": 103799853041,
-      "verified_source_head": "579da5df225b8d90ed3a338d6a46e64e13c16f9f",
-      "runner": "Windows Server 2025 hosted runner",
-      "node_version": "24.20.0",
+      "run_id": 34789307755,
+      "job_id": 103810449220,
+      "verified_source_head": "4040b66873f01e1931e06954e54bceb636944086",
+      "runner": "Windows hosted runner",
+      "node_version": "24",
       "npm_tests": {
-        "passed": 88,
+        "passed": 93,
         "failed": 0
       },
       "windows_build_verified": true,
       "native_provider_probe": "PASS_SAMPLE",
       "native_helper_benchmark": {
-        "normalized_cpu_pct": 0.326,
-        "working_set_mb": 49.1
+        "normalized_cpu_pct": 0.195,
+        "working_set_mb": 48.8
       },
       "dependency_license_inventory_verified": true,
       "runtime_npm_packages_in_inventory": 5,
@@ -105,11 +105,13 @@
       "packaged_profiles": "PASS_MK2_XL_PLUS_NEO",
       "marketplace_art_rendered": true,
       "marketplace_thumbnail_review": true,
-      "package_sha256": "1aa0f28dd64c08e41ceaf4eb8e4682c02c2e2154091f700a61903ca4fbfbb8bc",
-      "package_bytes": 33097796,
-      "release_candidate_artifact_id": 10326039229,
-      "release_candidate_artifact_sha256": "64c73277d01edbe994626bad9e84da169ed7235db77ad9e6f84b5c7c635b524a",
-      "physical_hardware_game_qa_verified": false
+      "package_sha256": "3fca20ff283c80209cf5128471026290912b2d1db3c4315c8327b3fe6a07c073",
+      "package_bytes": 33116191,
+      "release_candidate_artifact_id": 10326799727,
+      "release_candidate_artifact_sha256": "6df7833286d39579573f965a24d23cf7141031ce0c0fcc900100f7c77d51c241",
+      "physical_hardware_game_qa_verified": false,
+      "javascript_syntax_files_passed": 30,
+      "note": "Windows release pipeline passed after the Property Inspector was moved to vendored SDPI Components 4.0.1. Later branch commits only update hardware-QA documentation/metadata; physical retest remains required."
     },
     "hardening": {
       "session_window_zero_regression": "FIXED",
@@ -139,7 +141,7 @@
       "lazy_sensor_history_allocation": "FIXED_AND_EXACT_SOURCE_TESTED",
       "compact_per_frame_metric_snapshot": "FIXED_AND_EXACT_SOURCE_TESTED",
       "final_bucket_diagnostic_context": "FIXED_AND_EXACT_SOURCE_TESTED",
-      "property_inspector_syntax_gate": "REPLACED_BY_RECURSIVE_29_OF_29_JS_SYNTAX_GATE",
+      "property_inspector_syntax_gate": "PASS_30_OF_30_JS_WINDOWS",
       "property_inspector_ready_reveal": "FIXED_AND_CONTRACT_TESTED",
       "marketplace_listing_v2": "ADOPTED",
       "rat_art_packrat_mark_position": "TOP_CENTER",
@@ -178,11 +180,11 @@
       "marketplace_v2_thumbnail_review": "PASS_WINDOWS_RENDER_480x240_320x160_240x120",
       "official_streamdeck_package_profile_check": "PASS_EXACTLY_ONE_EACH",
       "native_helper_windows_probe": "PASS_SAMPLE_AMD_EPYC_HOST",
-      "native_helper_ci_benchmark": "0.326_PERCENT_NORMALIZED_CPU_49.1_MB_WORKING_SET",
-      "release_candidate_package_sha256": "1aa0f28dd64c08e41ceaf4eb8e4682c02c2e2154091f700a61903ca4fbfbb8bc",
-      "release_candidate_package_bytes": 33097796,
-      "property_inspector_settings_transport": "REPLACED_CUSTOM_WEBSOCKET_WITH_VENDORED_SDPI_COMPONENTS_4_0_1_PENDING_WINDOWS_CI_AND_PHYSICAL_RETEST",
-      "property_inspector_metric_catalog": "LIVE_PLUGIN_SNAPSHOT_REQUIRED_FALSE_UNAVAILABLE_FALLBACK_REMOVED_PENDING_PHYSICAL_RETEST"
+      "native_helper_ci_benchmark": "0.195_PERCENT_NORMALIZED_CPU_48.8_MB_WORKING_SET",
+      "release_candidate_package_sha256": "3fca20ff283c80209cf5128471026290912b2d1db3c4315c8327b3fe6a07c073",
+      "release_candidate_package_bytes": 33116191,
+      "property_inspector_settings_transport": "PASS_WINDOWS_CI_VENDORED_SDPI_COMPONENTS_4_0_1_PENDING_PHYSICAL_RETEST",
+      "property_inspector_metric_catalog": "PASS_WINDOWS_CI_LIVE_PLUGIN_SNAPSHOT_PATH_PENDING_PHYSICAL_RETEST"
     },
     "contracts": {
       "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
