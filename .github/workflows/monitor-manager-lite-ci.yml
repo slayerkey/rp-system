@@ -99,19 +99,6 @@ jobs:
             Write-Host "Lite-to-Pro ship gate deferred while workflow_state=$($product.workflow_state)"
           }
 
-      - name: Restore tracked manifest after direct CLI smoke
-        shell: pwsh
-        run: |
-          $manifest = 'plugins/monitor-manager-lite/com.packrat.monitormanagerlite.sdPlugin/manifest.json'
-          $dirty = @(git status --porcelain -- $manifest)
-          if ($dirty.Count) {
-            Write-Host 'Direct Elgato CLI smoke modified the tracked Lite manifest:'
-            git diff -- $manifest
-            git restore --worktree --staged -- $manifest
-          }
-          $remaining = @(git status --porcelain -- $manifest)
-          if ($remaining.Count) { throw 'Could not restore tracked Monitor Manager Lite manifest before isolated Rat Ship.' }
-
       - name: Exercise canonical Rat Ship plugin kit
         shell: pwsh
         run: |
