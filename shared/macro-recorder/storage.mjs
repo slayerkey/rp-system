@@ -47,7 +47,7 @@ export class MacroLibrary {
   }
 
   async add(raw) {
-    let macro = normalizeMacro(raw, { pro: true });
+    let macro = normalizeMacro({ ...raw, updatedAt: new Date().toISOString() }, { pro: true });
     if (this.get(macro.id)) macro = normalizeMacro({ ...macro, id: undefined, name: `${macro.name} Copy` }, { pro: true });
     this.macros.push(macro);
     await this.save();
@@ -58,7 +58,7 @@ export class MacroLibrary {
     const index = this.macros.findIndex((macro) => macro.id === String(id || ""));
     if (index < 0) throw new Error("Macro not found.");
     const current = this.macros[index];
-    const next = normalizeMacro({ ...current, ...raw, id: current.id, createdAt: current.createdAt }, { pro: true });
+    const next = normalizeMacro({ ...current, ...raw, id: current.id, createdAt: current.createdAt, updatedAt: new Date().toISOString() }, { pro: true });
     this.macros[index] = next;
     await this.save();
     return next;
