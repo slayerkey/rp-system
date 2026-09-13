@@ -275,6 +275,8 @@ export class TelemetryService extends EventEmitter {
 
   resume() {
     if (!this.started) return this.start();
+    this.previousCpu = null;
+    this._sampleWindows();
     this.presentMon.restart();
     if (!this.hardware) this._startHardware();
   }
