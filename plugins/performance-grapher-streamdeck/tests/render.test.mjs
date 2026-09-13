@@ -31,3 +31,24 @@ test("permission state is visible instead of showing stale FPS", () => {
   assert.match(svg, /PERM/);
   assert.match(svg, /CHECK SETUP/);
 });
+
+
+test("Game FPS shows a clear idle state when telemetry is ready but no game is active", () => {
+  const telemetry = {
+    metricValue() { return null; },
+    metricSeries() { return []; },
+    safeStatus() { return { fps: { state: "ready" }, hardware: { state: "ready" } }; },
+    session: {
+      snapshot() {
+        return { active: false, process: "", current: null, lastCompleted: null };
+      },
+    },
+  };
+
+  const view = makeView(telemetry, "fps", { fpsMode: "fps", lowMode: "one", windowMs: 60_000 });
+  assert.equal(view.value, null);
+  assert.equal(view.secondary, "START A GAME");
+
+  const svg = decodeURIComponent(renderKey(view, {}, 144));
+  assert.match(svg, /START A GAME/);
+});
