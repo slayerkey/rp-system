@@ -6,9 +6,10 @@ const root=new URL("../",import.meta.url);
 const repoRoot=new URL("../../",root);
 
 test("native input host keeps Macro Recorder release-safety invariants",async()=>{
-  const [cs,hostJs]=await Promise.all([
+  const [cs,hostJs,buildHost]=await Promise.all([
     readFile(new URL("shared/windows-input/PackRat.InputHost/Program.cs",repoRoot),"utf8"),
-    readFile(new URL("shared/macro-recorder/input-host.mjs",repoRoot),"utf8")
+    readFile(new URL("shared/macro-recorder/input-host.mjs",repoRoot),"utf8"),
+    readFile(new URL("shared/windows-input/build-host.mjs",repoRoot),"utf8")
   ]);
 
   const recover=cs.indexOf("engine.RecoverBeforeHooks();");
@@ -21,6 +22,11 @@ test("native input host keeps Macro Recorder release-safety invariants",async()=
 
   assert.match(cs,/ev\.DelayMs = \(int\)Math\.Clamp\(now - _lastEventMs, 0, _maxDurationMs\)/);
   assert.match(cs,/data\.vkCode == Native\.VK_F12[\s\S]*IsPlaybackActive\(\)/);
+
+  assert.match(buildHost,/--self-contained","true"/);
+  assert.match(buildHost,/LOCALAPPDATA/);
+  assert.match(buildHost,/dotnet-install\.ps1/);
+  assert.match(buildHost,/"-Channel","8\.0"/);
 
   assert.match(hostJs,/--parent-pid/);
   assert.match(hostJs,/String\(process\.pid\)/);
