@@ -261,6 +261,15 @@ public static class MonitorNative {
         var sb = new StringBuilder((int)length);
         return CapabilitiesRequestAndCapabilitiesReply(h, sb, length) ? sb.ToString() : null;
     }
+    static readonly Dictionary<string,string> CapsCache = new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+
+    static string CapsCached(string key, IntPtr h) {
+        string value;
+        if (CapsCache.TryGetValue(key, out value)) return value;
+        value = Caps(h);
+        if (!String.IsNullOrWhiteSpace(value)) CapsCache[key] = value;
+        return value;
+    }
 
     public static List<ModeRecord> GetModes(string deviceName) {
         var modes = new List<ModeRecord>();
@@ -426,34 +435,44 @@ public static class MonitorNative {
             var mi = new MONITORINFOEX();
             mi.cbSize = Marshal.SizeOf(typeof(MONITORINFOEX));
             if (!GetMonitorInfo(h, ref mi)) return true;
+
+            string stablePath = StableMonitorPath(mi.szDevice) ?? mi.szDevice;
+            bool internalDisplay = IsInternalDisplay(mi.szDevice);
+            bool hs, he;
+            bool hq = TryHdr(mi.szDevice, false, false, out hs, out he);
+            var currentMode = GetCurrentMode(mi.szDevice);
+            var availableModes = GetModes(mi.szDevice);
+
             uint count = 0;
             GetNumberOfPhysicalMonitorsFromHMONITOR(h, out count);
             var phys = count > 0 ? new PHYSICAL_MONITOR[count] : new PHYSICAL_MONITOR[0];
             bool have = count > 0 && GetPhysicalMonitorsFromHMONITOR(h, count, phys);
             if (!have) {
-                bool hs, he; bool hq=TryHdr(mi.szDevice, false, false, out hs, out he);
                 list.Add(new DisplayRecord {
-                    deviceName=mi.szDevice, monitorDevicePath=(StableMonitorPath(mi.szDevice) ?? mi.szDevice) + "#0", description=mi.szDevice, internalDisplay=IsInternalDisplay(mi.szDevice), primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
+                    deviceName=mi.szDevice, monitorDevicePath=stablePath + "#0", description=mi.szDevice,
+                    internalDisplay=internalDisplay, primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
                     left=mi.rcMonitor.left, top=mi.rcMonitor.top, right=mi.rcMonitor.right, bottom=mi.rcMonitor.bottom,
                     physicalIndex=0, physicalCount=0, capabilities=null, ddcBrightness=false, ddcContrast=false,
-                    currentMode=GetCurrentMode(mi.szDevice), modes=GetModes(mi.szDevice),
+                    currentMode=currentMode, modes=availableModes,
                     hdrState=hq ? (hs ? "SUPPORTED" : "NOT_SUPPORTED") : "UNKNOWN", hdrEnabled=he
                 });
                 return true;
             }
+
             try {
                 for (int i=0; i<phys.Length; i++) {
                     uint bmin=0,bcur=0,bmax=0,cmin=0,ccur=0,cmax=0;
                     bool bs=GetMonitorBrightness(phys[i].hPhysicalMonitor, out bmin, out bcur, out bmax);
                     bool cs=GetMonitorContrast(phys[i].hPhysicalMonitor, out cmin, out ccur, out cmax);
-                    bool hs, he; bool hq=TryHdr(mi.szDevice, false, false, out hs, out he);
+                    string monitorKey = stablePath + "#" + i;
                     list.Add(new DisplayRecord {
-                        deviceName=mi.szDevice, monitorDevicePath=(StableMonitorPath(mi.szDevice) ?? mi.szDevice) + "#" + i, description=phys[i].szPhysicalMonitorDescription, internalDisplay=IsInternalDisplay(mi.szDevice), primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
+                        deviceName=mi.szDevice, monitorDevicePath=monitorKey, description=phys[i].szPhysicalMonitorDescription,
+                        internalDisplay=internalDisplay, primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
                         left=mi.rcMonitor.left, top=mi.rcMonitor.top, right=mi.rcMonitor.right, bottom=mi.rcMonitor.bottom,
-                        physicalIndex=i, physicalCount=phys.Length, capabilities=Caps(phys[i].hPhysicalMonitor),
+                        physicalIndex=i, physicalCount=phys.Length, capabilities=CapsCached(monitorKey, phys[i].hPhysicalMonitor),
                         ddcBrightness=bs, brightness=bcur, brightnessMin=bmin, brightnessMax=bmax,
                         ddcContrast=cs, contrast=ccur, contrastMin=cmin, contrastMax=cmax,
-                        currentMode=GetCurrentMode(mi.szDevice), modes=GetModes(mi.szDevice),
+                        currentMode=currentMode, modes=availableModes,
                         hdrState=hq ? (hs ? "SUPPORTED" : "NOT_SUPPORTED") : "UNKNOWN", hdrEnabled=he
                     });
                 }
