@@ -92,7 +92,7 @@ test("Lite binds monitor choice globally and never falls through from an externa
   const piSource=await readFile("com.packrat.monitormanagerlite.sdPlugin/ui/pi.js","utf8");
   assert.match(runtimeSource,/monitor\.internalDisplay && snapshot\.internalBrightness\?\.available/);
   assert.match(pluginSource,/getGlobalSettings<LiteGlobalSettings>/);
-  assert.match(pluginSource,/setGlobalSettings<LiteGlobalSettings>/);
+  assert.match(pluginSource,/setGlobalSettings\(\{ monitorKey:/);
   assert.match(piSource,/setGlobalSettings/);
   assert.match(piSource,/globalSettings\.monitorKey/);
 });
