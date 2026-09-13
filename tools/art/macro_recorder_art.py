@@ -27,6 +27,11 @@ PRODUCTS = {
         "subtitle": "Record short keyboard workflows once. Replay them from Stream Deck.",
         "plugin": ROOT / "plugins" / "macro-recorder-lite" / "com.packrat.macro-recorder-lite.sdPlugin",
         "badges": ["KEYBOARD", "30 SEC", "60 EVENTS"],
+        "gallery": [
+            ("02-capture.png", "PERFORM IT ONCE", "Capture keyboard order and timing while you do the real workflow.", ["KEY DOWN + KEY UP", "SHORTCUT COMBINATIONS", "TIMING INCLUDED"]),
+            ("03-edit.png", "FIX THE TIMELINE", "Review the captured sequence and adjust delays without writing macro syntax.", ["HUMAN-READABLE EVENTS", "EDIT DELAYS", "30 SEC · 60 EVENTS"]),
+            ("04-safety.png", "STOP MEANS STOP", "Cancel recording or playback from Stream Deck, with a keyboard emergency fallback.", ["LOCAL MACRO DATA", "GLOBAL STOP ACTION", "CTRL + SHIFT + F12"]),
+        ],
     },
     "macro-recorder-pro": {
         "title": "MACRO RECORDER PRO",
@@ -34,6 +39,11 @@ PRODUCTS = {
         "subtitle": "Record keyboard + mouse workflows once. Replay, edit, loop, and reuse.",
         "plugin": ROOT / "plugins" / "macro-recorder-pro" / "com.packrat.macro-recorder-pro.sdPlugin",
         "badges": ["KEYBOARD + MOUSE", "MACRO LIBRARY", "LOOPS"],
+        "gallery": [
+            ("02-capture.png", "RECORD KEYBOARD + MOUSE", "Capture keystrokes, clicks, movement, drag, wheel and timing in one performed workflow.", ["KEYBOARD", "MOUSE", "10 MIN · 25,000 EVENTS"]),
+            ("03-library.png", "BUILD A LOCAL MACRO LIBRARY", "Reuse captured workflows, rename them, edit timing, duplicate, import and export.", ["REUSABLE MACROS", "TIMELINE EDITING", "IMPORT + EXPORT"]),
+            ("04-playback.png", "CONTROL THE REPLAY", "Choose playback speed, repeat behavior and mouse positioning for each Replay key.", ["0.25× TO 4×", "COUNT · HELD · TOGGLE", "SCREEN OR ACTIVE WINDOW"]),
+        ],
     },
 }
 
@@ -164,6 +174,66 @@ def render_app_icon(slug: str, product: dict, out_dir: Path) -> Path:
     icon.convert("RGB").save(out, "PNG", optimize=True)
     return out
 
+
+def render_gallery(slug: str, product: dict, out_dir: Path) -> list[Path]:
+    """Render three factual 1920x960 Marketplace gallery slides."""
+    outputs = []
+    for index, (filename, title, subtitle, points) in enumerate(product["gallery"], start=1):
+        canvas = background()
+        draw = ImageDraw.Draw(canvas)
+        packrat_mark(canvas)
+
+        edition_font = font(22, True)
+        edition = product["edition"]
+        draw.rounded_rectangle((70, 58, 185, 102), radius=22, fill=(*GREEN, 30), outline=(*GREEN, 140), width=2)
+        draw.text((127, 80), edition, font=edition_font, fill=(*GREEN, 255), anchor="mm")
+
+        tf = fit(draw, title, 1580, 76, 46)
+        draw.text((90, 185), title, font=tf, fill=(*WHITE, 255), anchor="lm")
+
+        sf = fit(draw, subtitle, 1420, 31, 22, False)
+        draw.text((92, 260), subtitle, font=sf, fill=(*MUTED, 255), anchor="lm")
+
+        card_y = 380
+        card_w = 500
+        gap = 44
+        total = card_w * 3 + gap * 2
+        start_x = (W - total) // 2
+        pf = font(24, True)
+        number_font = font(28, True)
+        for point_index, point in enumerate(points, start=1):
+            x = start_x + (point_index - 1) * (card_w + gap)
+            draw.rounded_rectangle(
+                (x, card_y, x + card_w, card_y + 265),
+                radius=34,
+                fill=(17, 21, 28, 240),
+                outline=(67, 78, 92, 190),
+                width=2,
+            )
+            draw.ellipse((x + 34, card_y + 32, x + 88, card_y + 86), fill=(*GREEN, 35), outline=(*GREEN, 170), width=2)
+            draw.text((x + 61, card_y + 59), str(point_index), font=number_font, fill=(*GREEN, 255), anchor="mm")
+            point_font = fit(draw, point, card_w - 70, 28, 18)
+            draw.multiline_text(
+                (x + card_w // 2, card_y + 145),
+                point,
+                font=point_font,
+                fill=(*WHITE, 255),
+                anchor="mm",
+                align="center",
+                spacing=8,
+            )
+
+        footer = "RECORD → DO IT → REPLAY"
+        draw.text((W // 2, 790), footer, font=font(42, True), fill=(*WHITE, 255), anchor="mm")
+        draw.text((W // 2, 855), product["title"], font=font(24, False), fill=(*MUTED, 255), anchor="mm")
+
+        output = out_dir / filename
+        out_dir.mkdir(parents=True, exist_ok=True)
+        canvas.convert("RGB").save(output, "PNG", optimize=True)
+        verify_dimensions(output, (1920, 960))
+        outputs.append(output)
+    return outputs
+
 def render(slug: str, out: Path) -> None:
     product = PRODUCTS.get(slug)
     if not product:
@@ -173,6 +243,7 @@ def render(slug: str, out: Path) -> None:
     replay = plugin / "imgs" / "actions" / "replay" / "key@2x.png"
 
     app_icon = render_app_icon(slug, product, out.parent)
+    gallery = render_gallery(slug, product, out.parent)
 
     canvas = background()
     draw = ImageDraw.Draw(canvas)
@@ -240,7 +311,7 @@ def render(slug: str, out: Path) -> None:
         y += sh + 55
     review.save(out.with_name("hero-thumbnail-review.png"), "PNG", optimize=True)
     verify_product_assets(product, app_icon, out)
-    print(f"PASS {slug}: validated plugin art | app icon {app_icon} | hero {out}")
+    print(f"PASS {slug}: validated plugin art | app icon {app_icon} | hero {out} | gallery {len(gallery)} slides")
 
 def main() -> None:
     parser = argparse.ArgumentParser()
