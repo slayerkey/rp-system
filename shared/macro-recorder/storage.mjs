@@ -20,8 +20,10 @@ export class MacroLibrary {
     this.warning = "";
     try {
       const parsed = JSON.parse(await readFile(this.file, "utf8"));
-      const source = Array.isArray(parsed?.macros) ? parsed.macros : [];
-      this.macros = source.map((macro) => normalizeMacro(macro, { pro: true }));
+      if (Number(parsed?.schema) !== 1 || !Array.isArray(parsed?.macros)) {
+        throw new Error("Unsupported or malformed Macro Library.");
+      }
+      this.macros = parsed.macros.map((macro) => normalizeMacro(macro, { pro: true }));
     } catch (error) {
       if (error?.code === "ENOENT") {
         this.macros = [];
