@@ -99,6 +99,11 @@ test("Rat Art resolves the exact Lite or Pro ship destination instead of guessin
   assert.match(script, /"windows-settings-manager-pro" \{ "pro" \}/);
   assert.match(script, /cannot infer edition from destination/);
   assert.doesNotMatch(script, /Destination -match 'lite'/);
+  assert.match(script, /Get-Command python/);
+  assert.match(script, /import PIL/);
+  assert.match(script, /01_search_icon\.png/);
+  assert.match(script, /expectedWidth = if \(\$file -eq "01_search_icon\.png"\) \{ 288 \} else \{ 1920 \}/);
+  assert.match(script, /expectedHeight = if \(\$file -eq "01_search_icon\.png"\) \{ 288 \} else \{ 960 \}/);
 });
 
 test("generated profile names and Marketplace copy avoid long dashes", async () => {
