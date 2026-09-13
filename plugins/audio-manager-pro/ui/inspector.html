@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Audio Manager Pro</title>
+  <link rel="stylesheet" href="inspector.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">AUDIO MANAGER PRO</div>
+      <div class="status-row"><span id="statusDot" class="dot"></span><strong id="statusTitle">Connecting to Windows audio…</strong></div>
+      <p id="statusDetail">Audio Profiles switch input, output, communications roles, volume and mute together.</p>
+      <div id="resultBox" class="result" hidden></div>
+    </section>
+
+    <section id="profileAction" class="card">
+      <label for="actionProfile">Audio Profile</label>
+      <select id="actionProfile"></select>
+      <p class="hint">One press applies the complete saved state. Missing devices fail visibly instead of switching to a guess.</p>
+    </section>
+
+    <section id="deviceAction" class="card" hidden>
+      <label for="actionRole">Windows role</label>
+      <select id="actionRole">
+        <option value="default">Default</option>
+        <option value="communications">Communications</option>
+      </select>
+      <label for="actionDevice">Device</label>
+      <select id="actionDevice"></select>
+      <p id="actionDeviceHint" class="hint"></p>
+    </section>
+
+    <section id="dialAction" class="card" hidden>
+      <label for="dialStep">Dial step</label>
+      <select id="dialStep">
+        <option value="1">1% per tick</option>
+        <option value="2">2% per tick</option>
+        <option value="5">5% per tick</option>
+        <option value="10">10% per tick</option>
+      </select>
+      <p class="hint">Rotate adjusts the selected profile's live default-output volume. Press reapplies the profile. Touch toggles output mute.</p>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">AUDIO PROFILES</div>
+          <strong>Whole setup presets</strong>
+        </div>
+        <button id="refresh" class="secondary">Refresh</button>
+      </div>
+      <div class="button-row">
+        <button id="captureCurrent">Capture current setup</button>
+      </div>
+      <label for="editorProfile">Edit profile</label>
+      <select id="editorProfile"></select>
+      <label for="profileName">Profile name</label>
+      <input id="profileName" maxlength="80" placeholder="Headset">
+      <label for="profileAccent">Accent</label>
+      <input id="profileAccent" type="color" value="#56f2a5">
+
+      <div class="slot" data-slot="outputDefault">
+        <div class="slot-title"><strong>Default output</strong><span>games + system</span></div>
+        <select id="outputDefaultDevice"></select>
+        <div class="state-grid">
+          <label class="check"><input id="outputDefaultRestoreVolume" type="checkbox"> restore volume</label>
+          <input id="outputDefaultVolume" type="number" min="0" max="100" value="50">
+          <label class="check"><input id="outputDefaultRestoreMute" type="checkbox"> restore mute</label>
+          <select id="outputDefaultMuted"><option value="false">unmuted</option><option value="true">muted</option></select>
+        </div>
+      </div>
+
+      <div class="slot" data-slot="outputCommunications">
+        <div class="slot-title"><strong>Communications output</strong><span>calls + chat apps</span></div>
+        <select id="outputCommunicationsDevice"></select>
+        <div class="state-grid">
+          <label class="check"><input id="outputCommunicationsRestoreVolume" type="checkbox"> restore volume</label>
+          <input id="outputCommunicationsVolume" type="number" min="0" max="100" value="50">
+          <label class="check"><input id="outputCommunicationsRestoreMute" type="checkbox"> restore mute</label>
+          <select id="outputCommunicationsMuted"><option value="false">unmuted</option><option value="true">muted</option></select>
+        </div>
+      </div>
+
+      <div class="slot" data-slot="inputDefault">
+        <div class="slot-title"><strong>Default input</strong><span>primary microphone</span></div>
+        <select id="inputDefaultDevice"></select>
+        <div class="state-grid">
+          <label class="check"><input id="inputDefaultRestoreVolume" type="checkbox"> restore volume</label>
+          <input id="inputDefaultVolume" type="number" min="0" max="100" value="75">
+          <label class="check"><input id="inputDefaultRestoreMute" type="checkbox"> restore mute</label>
+          <select id="inputDefaultMuted"><option value="false">unmuted</option><option value="true">muted</option></select>
+        </div>
+      </div>
+
+      <div class="slot" data-slot="inputCommunications">
+        <div class="slot-title"><strong>Communications input</strong><span>call microphone</span></div>
+        <select id="inputCommunicationsDevice"></select>
+        <div class="state-grid">
+          <label class="check"><input id="inputCommunicationsRestoreVolume" type="checkbox"> restore volume</label>
+          <input id="inputCommunicationsVolume" type="number" min="0" max="100" value="75">
+          <label class="check"><input id="inputCommunicationsRestoreMute" type="checkbox"> restore mute</label>
+          <select id="inputCommunicationsMuted"><option value="false">unmuted</option><option value="true">muted</option></select>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="saveProfile">Save profile</button>
+        <button id="deleteProfile" class="danger">Delete</button>
+      </div>
+      <p class="hint">A profile can leave any role blank to preserve it. Device identity is saved with Windows endpoint, instance and hardware-container metadata.</p>
+    </section>
+
+    <section class="card note">
+      <strong>Wave Link</strong>
+      <p>Audio Manager Pro manages Windows audio roles. It does not use private Wave Link internals. If Wave Link Monitor Mix is set to Windows Default Output, it can follow these profile changes.</p>
+    </section>
+  </main>
+  <script src="inspector.js"></script>
+</body>
+</html>
