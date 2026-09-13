@@ -1,124 +1,328 @@
 #!/usr/bin/env python3
-from pathlib import Path
+from __future__ import annotations
+
 import argparse
-from PIL import Image, ImageDraw, ImageFont
+import os
+from pathlib import Path
 
-W,H=1920,960
-BG=(8,12,18); PANEL=(17,23,31); KEY=(21,29,38); WHITE=(246,248,251); MUTED=(151,163,178); ACC=(86,242,165); WARN=(255,204,102); RED=(255,107,118)
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-def font(size,bold=False):
-    names=["arialbd.ttf" if bold else "arial.ttf","segoeuib.ttf" if bold else "segoeui.ttf","DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf"]
-    for name in names:
-        try:return ImageFont.truetype(name,size)
-        except OSError:pass
-    return ImageFont.load_default()
+ROOT = Path(__file__).resolve().parents[3]
+W, H = 1920, 960
+SAFE = 72
+BG = (6, 10, 15)
+PANEL = (17, 24, 32)
+KEY = (20, 29, 39)
+WHITE = (246, 249, 252)
+MUTED = (169, 180, 194)
+ACC = (86, 242, 165)
+WARN = (255, 204, 102)
+RED = (255, 107, 118)
+LINE = (53, 66, 79)
+RAT = ROOT / "tools" / "art" / "assets" / "ratpack-icon-transparent.png"
 
-def bg():
-    im=Image.new("RGB",(W,H),BG);d=ImageDraw.Draw(im)
-    for x in range(0,W,96): d.line((x,0,x,H),fill=(11,17,24),width=1)
-    for y in range(0,H,96): d.line((0,y,W,y),fill=(11,17,24),width=1)
-    return im
 
-def title(im,head,sub):
-    d=ImageDraw.Draw(im); d.text((100,80),head,font=font(62,True),fill=WHITE)
-    d.text((104,160),sub,font=font(25),fill=MUTED)
+def fail(message: str) -> None:
+    raise SystemExit(f"RAT ART FAIL: {message}")
 
-def footer(im):
-    d=ImageDraw.Draw(im); d.text((100,900),"PACKRAT  ·  AUDIO MANAGER PRO",font=font(18,True),fill=(99,115,129))
-    d.text((1810,900),"$9.99",font=font(18,True),fill=(99,115,129),anchor="ra")
 
-def key(d,x,y,label,out_name,in_name,accent=ACC):
-    d.rounded_rectangle((x,y,x+290,y+350),34,fill=KEY,outline=accent,width=5)
-    d.text((x+145,y+48),label,font=font(25,True),fill=WHITE,anchor="mm")
-    d.rounded_rectangle((x+34,y+92,x+256,y+162),16,fill=PANEL)
-    d.text((x+54,y+115),"OUT",font=font(14,True),fill=accent)
-    d.text((x+110,y+115),out_name,font=font(17,True),fill=WHITE)
-    d.rounded_rectangle((x+34,y+181,x+256,y+251),16,fill=PANEL)
-    d.text((x+54,y+204),"IN",font=font(14,True),fill=accent)
-    d.text((x+110,y+204),in_name,font=font(17,True),fill=WHITE)
-    d.line((x+66,y+291,x+224,y+291),fill=accent,width=8)
-    d.ellipse((x+135,y+278,x+161,y+304),fill=accent)
+def font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
+    env = os.getenv("RATPACK_ART_FONT_BOLD" if bold else "RATPACK_ART_FONT")
+    candidates = [env] if env else []
+    if os.name == "nt":
+        candidates += [
+            r"C:\Windows\Fonts\segoeuib.ttf" if bold else r"C:\Windows\Fonts\segoeui.ttf",
+            r"C:\Windows\Fonts\bahnschrift.ttf",
+            r"C:\Windows\Fonts\arialbd.ttf" if bold else r"C:\Windows\Fonts\arial.ttf",
+        ]
+    else:
+        candidates += [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+            if bold
+            else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"
+            if bold
+            else "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+        ]
+    for candidate in candidates:
+        if candidate and Path(candidate).exists():
+            return ImageFont.truetype(candidate, size)
+    fail("required deterministic marketplace font was not found; no silent fallback is allowed")
 
-def save_cover(out):
-    im=bg(); title(im,"Switch your entire audio setup with one key.","Each Audio Profile changes input + output together, including Windows Communications roles.")
-    d=ImageDraw.Draw(im)
-    specs=[("HEADSET","Headset","Headset Mic"),("SPEAKERS","Speakers","Desk Mic"),("MEETING","Headset","Shure Mic"),("STREAMING","Monitor","Broadcast Mic"),("VR","VR Headset","VR Mic")]
-    xs=[75,430,785,1140,1495]
-    for x,s in zip(xs,specs): key(d,x,300,*s)
-    d.text((960,755),"DEFAULT OUTPUT  +  COMMUNICATIONS OUTPUT  +  DEFAULT INPUT  +  COMMUNICATIONS INPUT",font=font(21,True),fill=ACC,anchor="mm")
-    footer(im); im.save(out/"02_cover.png")
 
-def gallery_roles(out):
-    im=bg(); title(im,"One press. Four Windows audio roles.","Apps do not all follow the same Windows device role. Audio Profiles can own them separately.")
-    d=ImageDraw.Draw(im)
-    roles=[("DEFAULT OUTPUT","Speakers"),("COMM OUTPUT","Headset"),("DEFAULT INPUT","Shure MV7"),("COMM INPUT","Headset Mic")]
-    for i,(a,b) in enumerate(roles):
-        x=150+i*430
-        d.rounded_rectangle((x,300,x+350,610),28,fill=PANEL,outline=(49,63,76),width=2)
-        d.text((x+175,375),a,font=font(18,True),fill=ACC,anchor="mm")
-        d.text((x+175,475),b,font=font(27,True),fill=WHITE,anchor="mm")
-        d.text((x+175,540),"saved per profile",font=font(16),fill=MUTED,anchor="mm")
-    d.rounded_rectangle((630,690,1290,790),24,fill=(22,48,40),outline=ACC,width=3)
-    d.text((960,740),"APPLY PROFILE  →  SUCCESS",font=font(28,True),fill=WHITE,anchor="mm")
-    footer(im); im.save(out/"03_gallery_01.png")
+def fit_font(draw: ImageDraw.ImageDraw, text: str, max_width: int, max_size: int, min_size: int = 18, bold: bool = True):
+    for size in range(max_size, min_size - 1, -2):
+        f = font(size, bold)
+        box = draw.textbbox((0, 0), text, font=f)
+        if box[2] - box[0] <= max_width:
+            return f
+    return font(min_size, bold)
 
-def gallery_state(out):
-    im=bg(); title(im,"Save the state, not just the device.","Restore endpoint volume and mute together with routing when your profile needs it.")
-    d=ImageDraw.Draw(im)
-    items=[("OUTPUT","Headset","42%","UNMUTED"),("INPUT","Shure MV7","76%","UNMUTED")]
-    for i,(kind,name,vol,mute) in enumerate(items):
-        x=280+i*720
-        d.rounded_rectangle((x,300,x+640,660),36,fill=PANEL,outline=ACC,width=3)
-        d.text((x+55,370),kind,font=font(18,True),fill=ACC)
-        d.text((x+55,430),name,font=font(32,True),fill=WHITE)
-        d.text((x+55,530),vol,font=font(62,True),fill=WHITE)
-        d.text((x+300,530),mute,font=font(20,True),fill=MUTED)
-        d.text((x+55,608),"volume + mute restore are opt-in per role",font=font(17),fill=MUTED)
-    footer(im); im.save(out/"04_gallery_02.png")
 
-def gallery_resilience(out):
-    im=bg(); title(im,"Audio devices change IDs. Your profiles should not guess.","PackRat saves endpoint + hardware metadata and makes missing devices explicit.")
-    d=ImageDraw.Draw(im)
-    stages=[("USB RECONNECT","endpoint ID changed",ACC),("SAFE MATCH","hardware identity found",ACC),("MISSING DEVICE","rebind required",WARN)]
-    for i,(a,b,c) in enumerate(stages):
-        x=160+i*560
-        d.rounded_rectangle((x,320,x+480,610),30,fill=PANEL,outline=c,width=4)
-        d.text((x+240,405),a,font=font(24,True),fill=c,anchor="mm")
-        d.text((x+240,475),b,font=font(19),fill=WHITE,anchor="mm")
-        if i<2:
-            d.line((x+160,540,x+320,540),fill=c,width=7)
-            d.ellipse((x+226,526,x+254,554),fill=c)
-        else:
-            d.text((x+240,545),"NO SILENT FALLBACK",font=font(17,True),fill=WARN,anchor="mm")
-    d.text((960,720),"SUCCESS   ·   PARTIAL   ·   FAILED",font=font(34,True),fill=WHITE,anchor="mm")
-    footer(im); im.save(out/"05_gallery_03.png")
+def background() -> Image.Image:
+    base = Image.new("RGBA", (W, H), (*BG, 255))
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(glow)
+    d.ellipse((260, 145, 1660, 1180), fill=(*ACC, 20))
+    d.ellipse((-300, -250, 620, 560), fill=(32, 103, 93, 18))
+    d.ellipse((1320, -220, 2210, 560), fill=(55, 88, 133, 16))
+    return Image.alpha_composite(base, glow.filter(ImageFilter.GaussianBlur(170)))
 
-def gallery_dial(out):
-    im=bg(); title(im,"Stream Deck+ gets a profile-aware volume dial.","Rotate live output volume. Press to reapply the profile. Touch to toggle output mute.")
-    d=ImageDraw.Draw(im)
-    d.rounded_rectangle((600,300,1320,690),44,fill=PANEL,outline=(49,63,76),width=3)
-    d.text((960,385),"MEETING",font=font(34,True),fill=WHITE,anchor="mm")
-    d.text((960,455),"Headset · 42%",font=font(25),fill=MUTED,anchor="mm")
-    d.line((760,550,1160,550),fill=(55,68,82),width=18)
-    d.line((760,550,930,550),fill=ACC,width=18)
-    d.ellipse((910,530,950,570),fill=WHITE)
-    d.text((960,625),"ROTATE  ·  PRESS  ·  TOUCH",font=font(18,True),fill=ACC,anchor="mm")
-    footer(im); im.save(out/"06_gallery_04.png")
 
-def search(out):
-    im=Image.new("RGB",(288,288),BG);d=ImageDraw.Draw(im)
-    d.rounded_rectangle((18,18,270,270),56,fill=KEY,outline=ACC,width=8)
-    for y,cx in [(86,104),(144,178),(202,128)]:
-        d.line((64,y,224,y),fill=WHITE,width=10);d.ellipse((cx-18,y-18,cx+18,y+18),fill=ACC)
-    im.save(out/"01_search_icon.png")
+def packrat_mark(canvas: Image.Image, center_x: int, center_y: int, size: int = 48) -> None:
+    if not RAT.exists():
+        fail(f"canonical PackRat mark is missing: {RAT}")
+    rat = Image.open(RAT).convert("RGBA")
+    box = rat.getbbox()
+    if not box:
+        fail("canonical PackRat mark is empty")
+    rat = rat.crop(box)
+    scale = min(size / rat.width, size / rat.height)
+    rat = rat.resize((max(1, int(rat.width * scale)), max(1, int(rat.height * scale))), Image.Resampling.LANCZOS)
+    canvas.alpha_composite(rat, (center_x - rat.width // 2, center_y - rat.height // 2))
 
-def main():
-    p=argparse.ArgumentParser();p.add_argument("--destination",required=True);a=p.parse_args();out=Path(a.destination);out.mkdir(parents=True,exist_ok=True)
-    search(out);save_cover(out);gallery_roles(out);gallery_state(out);gallery_resilience(out);gallery_dial(out)
-    for path in out.glob("*.png"):
+
+def hero_chrome(canvas: Image.Image, left: str = "AUDIO PROFILES", right: str = "STREAM DECK · WINDOWS") -> None:
+    d = ImageDraw.Draw(canvas)
+    packrat_mark(canvas, W // 2, 66, 52)
+    d.text((SAFE, 66), left, font=font(23, True), fill=WHITE, anchor="lm")
+    d.text((W - SAFE, 66), right, font=font(20, True), fill=ACC, anchor="rm")
+
+
+def footer(canvas: Image.Image, left: str = "WINDOWS AUDIO", right: str = "STREAM DECK") -> None:
+    d = ImageDraw.Draw(canvas)
+    d.line((SAFE, 850, W - SAFE, 850), fill=(*LINE, 160), width=1)
+    d.text((SAFE, 900), left, font=font(18, True), fill=MUTED, anchor="lm")
+    d.text((W - SAFE, 900), right, font=font(18, True), fill=MUTED, anchor="rm")
+    packrat_mark(canvas, W // 2, 900, 42)
+
+
+def heading(canvas: Image.Image, headline: str, sub: str | None = None) -> None:
+    d = ImageDraw.Draw(canvas)
+    f = fit_font(d, headline, 1500, 62, 36, True)
+    d.text((W // 2, 108), headline, font=f, fill=WHITE, anchor="mm")
+    if sub:
+        sf = fit_font(d, sub, 1580, 27, 19, False)
+        d.text((W // 2, 165), sub, font=sf, fill=MUTED, anchor="mm")
+
+
+def audio_key(d: ImageDraw.ImageDraw, x: int, y: int, width: int, height: int, label: str, out_name: str, in_name: str, accent=ACC, active: bool = False) -> None:
+    radius = int(width * 0.105)
+    d.rounded_rectangle((x, y, x + width, y + height), radius, fill=KEY, outline=accent if active else LINE, width=5 if active else 3)
+    d.text((x + width // 2, y + int(height * 0.14)), label, font=fit_font(d, label, width - 42, 29, 17, True), fill=WHITE, anchor="mm")
+
+    row_x = x + int(width * 0.10)
+    row_w = int(width * 0.80)
+    row_h = int(height * 0.19)
+    row1 = y + int(height * 0.27)
+    row2 = y + int(height * 0.51)
+    for ry in (row1, row2):
+        d.rounded_rectangle((row_x, ry, row_x + row_w, ry + row_h), int(row_h * 0.23), fill=PANEL)
+
+    tag_font = font(max(12, int(width * 0.045)), True)
+    value_font = font(max(13, int(width * 0.057)), True)
+    d.text((row_x + 20, row1 + row_h // 2), "OUT", font=tag_font, fill=accent, anchor="lm")
+    d.text((row_x + int(row_w * 0.34), row1 + row_h // 2), out_name, font=value_font, fill=WHITE, anchor="lm")
+    d.text((row_x + 20, row2 + row_h // 2), "IN", font=tag_font, fill=accent, anchor="lm")
+    d.text((row_x + int(row_w * 0.34), row2 + row_h // 2), in_name, font=value_font, fill=WHITE, anchor="lm")
+
+    line_y = y + int(height * 0.82)
+    d.line((x + int(width * 0.23), line_y, x + int(width * 0.77), line_y), fill=accent, width=max(6, int(width * 0.025)))
+    knob = max(8, int(width * 0.036))
+    d.ellipse((x + width // 2 - knob, line_y - knob, x + width // 2 + knob, line_y + knob), fill=WHITE if active else accent)
+
+
+def save_cover(out: Path) -> None:
+    im = background()
+    hero_chrome(im)
+    d = ImageDraw.Draw(im)
+
+    d.text((W // 2, 151), "ONE KEY. YOUR WHOLE AUDIO SETUP.", font=fit_font(d, "ONE KEY. YOUR WHOLE AUDIO SETUP.", 1500, 51, 32, True), fill=WHITE, anchor="mm")
+
+    specs = [
+        ("HEADSET", "Headset", "Headset Mic"),
+        ("SPEAKERS", "Speakers", "Desk Mic"),
+        ("MEETING", "Headset", "Shure Mic"),
+        ("STREAMING", "Monitor", "Broadcast Mic"),
+        ("VR", "VR Headset", "VR Mic"),
+    ]
+    key_w, key_h, gap = 320, 410, 28
+    total = key_w * 5 + gap * 4
+    start = (W - total) // 2
+    for index, spec in enumerate(specs):
+        audio_key(d, start + index * (key_w + gap), 262, key_w, key_h, *spec, active=index == 2)
+
+    d.rounded_rectangle((390, 724, 1530, 807), 28, fill=(18, 45, 38, 230), outline=ACC, width=2)
+    d.text((W // 2, 766), "OUTPUT + INPUT + COMMUNICATIONS ROLES + SAVED STATE", font=fit_font(d, "OUTPUT + INPUT + COMMUNICATIONS ROLES + SAVED STATE", 1060, 23, 17, True), fill=ACC, anchor="mm")
+    im.convert("RGB").save(out / "02_cover.png", quality=95)
+
+
+def gallery_roles(out: Path) -> None:
+    im = background()
+    heading(im, "One profile can own all four Windows audio roles.", "Games, system audio, calls, and voice apps do not always follow the same Windows default.")
+    d = ImageDraw.Draw(im)
+    roles = [
+        ("DEFAULT OUTPUT", "Speakers", "games + system"),
+        ("COMM OUTPUT", "Headset", "calls + voice"),
+        ("DEFAULT INPUT", "Shure MV7", "primary mic"),
+        ("COMM INPUT", "Headset Mic", "call mic"),
+    ]
+    x0, card_w, gap = 106, 397, 42
+    for i, (role, name, purpose) in enumerate(roles):
+        x = x0 + i * (card_w + gap)
+        d.rounded_rectangle((x, 280, x + card_w, 635), 30, fill=PANEL, outline=LINE, width=2)
+        d.text((x + card_w // 2, 349), role, font=font(18, True), fill=ACC, anchor="mm")
+        d.text((x + card_w // 2, 453), name, font=fit_font(d, name, card_w - 54, 33, 20, True), fill=WHITE, anchor="mm")
+        d.text((x + card_w // 2, 512), purpose, font=font(17), fill=MUTED, anchor="mm")
+        d.line((x + 95, 570, x + card_w - 95, 570), fill=ACC, width=7)
+        d.ellipse((x + card_w // 2 - 13, 557, x + card_w // 2 + 13, 583), fill=WHITE)
+    d.rounded_rectangle((617, 690, 1303, 777), 24, fill=(18, 45, 38), outline=ACC, width=2)
+    d.text((W // 2, 734), "APPLY PROFILE  →  SUCCESS", font=font(27, True), fill=WHITE, anchor="mm")
+    footer(im)
+    im.convert("RGB").save(out / "03_gallery_01.png", quality=95)
+
+
+def gallery_state(out: Path) -> None:
+    im = background()
+    heading(im, "Save the state, not just the device.", "Restore the useful volume and mute state alongside routing when a profile needs it.")
+    d = ImageDraw.Draw(im)
+
+    items = [
+        ("HEADSET OUTPUT", "42%", "UNMUTED", "default + communications"),
+        ("SHURE MIC", "76%", "UNMUTED", "default input"),
+    ]
+    for i, (name, vol, mute, scope) in enumerate(items):
+        x = 250 + i * 770
+        d.rounded_rectangle((x, 285, x + 650, 660), 36, fill=PANEL, outline=LINE, width=2)
+        d.text((x + 50, 350), name, font=font(20, True), fill=ACC)
+        d.text((x + 50, 440), vol, font=font(66, True), fill=WHITE)
+        d.text((x + 285, 431), mute, font=font(21, True), fill=MUTED)
+        d.text((x + 50, 505), scope, font=font(18), fill=MUTED)
+        d.rounded_rectangle((x + 50, 555, x + 600, 612), 18, fill=(13, 19, 27))
+        d.text((x + 325, 584), "ROUTING + VOLUME + MUTE", font=font(16, True), fill=WHITE, anchor="mm")
+
+    d.text((W // 2, 744), "Volume and mute restore are opt-in per profile role.", font=font(22, True), fill=ACC, anchor="mm")
+    footer(im)
+    im.convert("RGB").save(out / "04_gallery_02.png", quality=95)
+
+
+def gallery_resilience(out: Path) -> None:
+    im = background()
+    heading(im, "Reconnected device? Safe match. Wrong device? Stop.", "Profiles keep hardware identity metadata instead of trusting one fragile endpoint ID.")
+    d = ImageDraw.Draw(im)
+
+    stages = [
+        ("1", "ENDPOINT CHANGED", "USB / Bluetooth reconnect", ACC),
+        ("2", "CHECK HARDWARE ID", "instance + container metadata", ACC),
+        ("3", "SAFE REBIND", "only when identity is strong", ACC),
+        ("!", "REBIND REQUIRED", "never guess by name alone", WARN),
+    ]
+    x0, card_w, gap = 98, 402, 38
+    for i, (badge, title, body, color) in enumerate(stages):
+        x = x0 + i * (card_w + gap)
+        d.rounded_rectangle((x, 294, x + card_w, 624), 30, fill=PANEL, outline=color if i == 3 else LINE, width=3)
+        d.ellipse((x + 34, 330, x + 104, 400), fill=(25, 52, 45) if color == ACC else (70, 54, 25))
+        d.text((x + 69, 365), badge, font=font(26, True), fill=color, anchor="mm")
+        d.text((x + card_w // 2, 455), title, font=fit_font(d, title, card_w - 38, 23, 16, True), fill=WHITE, anchor="mm")
+        d.text((x + card_w // 2, 514), body, font=fit_font(d, body, card_w - 52, 18, 14, False), fill=MUTED, anchor="mm")
+        d.text((x + card_w // 2, 574), "SAFE" if i < 3 else "NO SILENT FALLBACK", font=font(15, True), fill=color, anchor="mm")
+
+    d.text((W // 2, 736), "SUCCESS  ·  PARTIAL  ·  FAILED", font=font(31, True), fill=WHITE, anchor="mm")
+    footer(im)
+    im.convert("RGB").save(out / "05_gallery_03.png", quality=95)
+
+
+def gallery_dial(out: Path) -> None:
+    im = background()
+    heading(im, "Stream Deck+ gets a profile-aware output dial.", "Rotate volume. Press to reapply the whole profile. Touch to toggle profile output mute.")
+    d = ImageDraw.Draw(im)
+
+    d.rounded_rectangle((495, 265, 1425, 675), 44, fill=PANEL, outline=LINE, width=3)
+    d.text((960, 340), "MEETING", font=font(32, True), fill=WHITE, anchor="mm")
+    d.text((960, 398), "Headset · 42%", font=font(23), fill=MUTED, anchor="mm")
+    d.line((660, 500, 1260, 500), fill=(52, 65, 79), width=22)
+    d.line((660, 500, 912, 500), fill=ACC, width=22)
+    d.ellipse((890, 478, 934, 522), fill=WHITE)
+
+    labels = [("ROTATE", "volume"), ("PRESS", "apply profile"), ("TOUCH", "mute output")]
+    for i, (verb, action) in enumerate(labels):
+        x = 655 + i * 305
+        d.text((x, 589), verb, font=font(17, True), fill=ACC, anchor="mm")
+        d.text((x, 621), action, font=font(15), fill=MUTED, anchor="mm")
+
+    d.text((W // 2, 744), "The dial follows the selected Audio Profile's primary output.", font=font(21, True), fill=WHITE, anchor="mm")
+    footer(im, right="STREAM DECK +")
+    im.convert("RGB").save(out / "06_gallery_04.png", quality=95)
+
+
+def search_icon(out: Path) -> None:
+    im = Image.new("RGBA", (288, 288), (*BG, 255))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((18, 18, 270, 270), 56, fill=KEY, outline=ACC, width=8)
+    for y, cx in ((82, 103), (144, 181), (206, 127)):
+        d.line((62, y, 226, y), fill=WHITE, width=11)
+        d.ellipse((cx - 19, y - 19, cx + 19, y + 19), fill=ACC)
+    im.convert("RGB").save(out / "01_search_icon.png", quality=95)
+
+
+def thumbnail_review(out: Path) -> None:
+    cover = Image.open(out / "02_cover.png").convert("RGB")
+    sizes = [(480, 240), (320, 160), (240, 120)]
+    canvas = Image.new("RGB", (560, 650), BG)
+    d = ImageDraw.Draw(canvas)
+    d.text((28, 28), "AUDIO MANAGER PRO · V2 THUMBNAIL REVIEW", font=font(18, True), fill=WHITE)
+    y = 74
+    for width, height in sizes:
+        shot = cover.resize((width, height), Image.Resampling.LANCZOS)
+        canvas.paste(shot, (28, y))
+        d.text((28, y + height + 8), f"{width} × {height}", font=font(14, True), fill=MUTED)
+        y += height + 52
+    review = out / "review"
+    review.mkdir(parents=True, exist_ok=True)
+    canvas.save(review / "thumbnail-sheet.png", quality=95)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--destination", required=True)
+    args = parser.parse_args()
+    out = Path(args.destination)
+    out.mkdir(parents=True, exist_ok=True)
+
+    search_icon(out)
+    save_cover(out)
+    gallery_roles(out)
+    gallery_state(out)
+    gallery_resilience(out)
+    gallery_dial(out)
+    thumbnail_review(out)
+
+    required = [
+        "01_search_icon.png",
+        "02_cover.png",
+        "03_gallery_01.png",
+        "04_gallery_02.png",
+        "05_gallery_03.png",
+        "06_gallery_04.png",
+    ]
+    for name in required:
+        path = out / name
+        if not path.is_file():
+            fail(f"missing Marketplace output: {name}")
         with Image.open(path) as im:
-            expected=(288,288) if path.name=="01_search_icon.png" else (W,H)
-            if im.size!=expected: raise SystemExit(f"{path.name}: {im.size} != {expected}")
-    print(f"Audio Manager Pro Rat Art ready: {out}")
+            expected = (288, 288) if name == "01_search_icon.png" else (W, H)
+            if im.size != expected:
+                fail(f"{name}: {im.size} != {expected}")
 
-if __name__=="__main__": main()
+    if not (out / "review" / "thumbnail-sheet.png").is_file():
+        fail("V2 thumbnail review sheet was not generated")
+
+    payloads = [Path(out / name).read_bytes() for name in required[1:]]
+    if len(set(payloads)) != len(payloads):
+        fail("Marketplace cover/gallery outputs must be visually distinct files")
+
+    print(f"Audio Manager Pro Rat Art V2 ready: {out}")
+
+
+if __name__ == "__main__":
+    main()
