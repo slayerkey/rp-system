@@ -172,9 +172,16 @@ public static class PackRatWindowsNative
 
     static PackRatWindowsNative()
     {
+        AssertSize(typeof(Luid), 8, "LUID");
+        AssertSize(typeof(Rational), 8, "DISPLAYCONFIG_RATIONAL");
+        AssertSize(typeof(PathSourceInfo), 20, "DISPLAYCONFIG_PATH_SOURCE_INFO");
+        AssertSize(typeof(PathTargetInfo), 48, "DISPLAYCONFIG_PATH_TARGET_INFO");
+        AssertSize(typeof(PathInfo), 72, "DISPLAYCONFIG_PATH_INFO");
+        AssertSize(typeof(ModeInfo), 64, "DISPLAYCONFIG_MODE_INFO");
         AssertSize(typeof(DeviceInfoHeader), 20, "DISPLAYCONFIG_DEVICE_INFO_HEADER");
         AssertSize(typeof(AdvancedColorInfo2), 36, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2");
         AssertSize(typeof(HdrSet), 24, "DISPLAYCONFIG_SET_HDR_STATE");
+        AssertSize(typeof(RtlOsVersionInfoEx), 284, "RTL_OSVERSIONINFOEXW");
     }
 
     private static void AssertSize(Type type, int expected, string name)
