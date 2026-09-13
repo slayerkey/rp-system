@@ -22,6 +22,7 @@ Still required before READY_TO_SHIP:
 - current-head automated fixture suite
 - current-head shared AudioCore + XENEON regression build
 - current-head bundled Windows helper build/self-test
+- current-head Audio Manager static host audit on Windows PowerShell
 - official Elgato CLI validation
 - official `.streamDeckPlugin` packaging
 - final physical Windows audio-device smoke
@@ -63,6 +64,8 @@ The corrected source received an additional implementation-session preflight:
 The branch has also been merged forward to current `main` so its canonical Rat Art / Marketplace V2 standards are no longer stale.
 
 The Windows CI definition now performs both the helper executable self-test and a real JSON `snapshot` request through the helper stdin/stdout protocol, then verifies that the packaged `.streamDeckPlugin` actually contains the native helper.
+
+The product also exposes a read-only local host audit through `rat audit audio-manager-pro`. It snapshots the exact validated candidate and host environment without issuing any audio mutation commands. CI runs the same audit in `-StaticOnly` mode so PowerShell syntax and packaged-file assumptions are checked on the Windows runner.
 
 These checks do not replace the official Elgato CLI or physical Windows hardware gate.
 
