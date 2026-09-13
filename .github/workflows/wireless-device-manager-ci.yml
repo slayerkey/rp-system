@@ -1,0 +1,96 @@
+name: Wireless Device Manager Family CI
+
+on:
+  push:
+    branches:
+      - product/wireless-device-manager
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'plugins/wireless-device-manager-family/**'
+      - 'products/wireless-device-manager*.json'
+      - 'products/index.json'
+      - 'products/lite-pro-map.json'
+      - '.github/workflows/wireless-device-manager-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-release:
+    name: Windows build, test, bridge, validate, pack
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: plugins/wireless-device-manager-family
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Install Pillow
+        shell: pwsh
+        run: python -m pip install pillow==11.3.0
+      - name: Install locked dependencies
+        shell: pwsh
+        run: npm ci --no-fund --no-audit
+      - name: Audit dependencies
+        shell: pwsh
+        run: npm audit --audit-level=high
+      - name: Build plugins, profiles, assets and bundled bridge
+        shell: pwsh
+        run: npm run build
+      - name: Run fixture and package tests
+        shell: pwsh
+        run: npm test
+      - name: Smoke bundled bridge without Bluetooth hardware requirement
+        shell: pwsh
+        run: |
+          $result = & .\com.packrat.wireless-device-manager.sdPlugin\bin\wireless-device-bridge-x64.exe snapshot
+          if ($LASTEXITCODE -notin @(0,2)) { throw "Bridge snapshot failed: $result" }
+          $result | Write-Host
+      - name: Verify capability boundary and packaging structure
+        shell: pwsh
+        run: |
+          foreach ($plugin in @('com.packrat.wireless-device-manager.sdPlugin','com.packrat.wireless-device-manager-pro.sdPlugin')) {
+            if (!(Test-Path "$plugin\bin\plugin.js")) { throw "$plugin missing plugin.js" }
+            if (!(Test-Path "$plugin\bin\wireless-device-bridge-x64.exe")) { throw "$plugin missing x64 bridge" }
+            if (!(Test-Path "$plugin\bin\wireless-device-bridge-arm64.exe")) { throw "$plugin missing arm64 bridge" }
+            $profiles = @(Get-ChildItem "$plugin\profiles" -Filter *.streamDeckProfile -File)
+            if ($profiles.Count -ne 3) { throw "$plugin expected three profiles" }
+            $manifest = Get-Content "$plugin\manifest.json" -Raw
+            if ($manifest -match '"Encoder"') { throw "$plugin must not expose fake dial support" }
+          }
+      - name: Validate with official Elgato CLI
+        shell: pwsh
+        run: npm run validate
+      - name: Package both editions with official Elgato CLI
+        shell: pwsh
+        run: npm run pack
+      - name: Verify packages
+        shell: pwsh
+        run: |
+          $lite=@(Get-ChildItem dist\lite -Filter *.streamDeckPlugin -File)
+          $pro=@(Get-ChildItem dist\pro -Filter *.streamDeckPlugin -File)
+          if($lite.Count -ne 1 -or $pro.Count -ne 1){throw 'Expected one Lite and one Pro package'}
+          Get-FileHash $lite[0].FullName -Algorithm SHA256
+          Get-FileHash $pro[0].FullName -Algorithm SHA256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wireless-device-manager-family
+          path: |
+            plugins/wireless-device-manager-family/dist/**/*.streamDeckPlugin
+            plugins/wireless-device-manager-family/QA.md
+            plugins/wireless-device-manager-family/FEASIBILITY.md
+            plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json
+            plugins/wireless-device-manager-family/com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json
+          if-no-files-found: error
+          retention-days: 30
