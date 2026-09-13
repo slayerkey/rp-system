@@ -119,5 +119,6 @@ jobs:
             docs/MACRO_RECORDER_MAKER_CONSOLE.md
             artifacts/marketplace/macro-recorder-lite/*
             artifacts/marketplace/macro-recorder-pro/*
+            artifacts/profile-maps/*
           if-no-files-found: error
           retention-days: 30
