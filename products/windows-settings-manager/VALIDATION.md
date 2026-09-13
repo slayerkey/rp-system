@@ -20,6 +20,15 @@
 - Keep Awake: SetThreadExecutionState
 - Lock: LockWorkStation
 
+## Supplemental local static evidence
+
+These checks were executed in an isolated local harness and are useful regression evidence, but they do **not** replace the canonical locked dependency build, Elgato validator, Windows backend smoke, or physical QA:
+
+- current JavaScript-side Property Inspector, profile assembler, validator, and policy-test syntax: PASS
+- current TypeScript source under strict mode with minimal Node / Stream Deck API declarations: PASS
+- pure PC Mode logic: PASS for HDR matching, prerequisite skips, and COMPLETE / PARTIAL / FAILED aggregation
+- ModeStore sanitization: PASS for defaults, valid timeouts, name cleanup, and rejection of blank/null/boolean/fractional/out-of-range timeout values
+
 ## Automated execution status
 
 GitHub-hosted Actions are currently failing before runner assignment (runner_id 0, zero executed steps), including unrelated repository workflows. The PackRat self-hosted Windows gate is queued while that runner is offline. These infrastructure failures are not treated as product test results.
