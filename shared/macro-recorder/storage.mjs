@@ -24,17 +24,34 @@ export class MacroLibrary {
       if (Number(parsed?.schema) !== 1 || !Array.isArray(parsed?.macros)) {
         throw new Error("Unsupported or malformed Macro Library.");
       }
-      this.macros = parsed.macros.map((macro) => normalizeMacro(macro, { pro: true }));
+      const normalized = parsed.macros.map((macro) => {
+        if (!macro || typeof macro !== "object" || !Array.isArray(macro.events)) {
+          throw new Error("Malformed macro entry in Macro Library.");
+        }
+        const next = normalizeMacro(macro, { pro: true });
+        if (!next.events.length) throw new Error("Macro Library entry contains no playable events.");
+        return next;
+      });
+      const ids = new Set();
+      for (const macro of normalized) {
+        if (ids.has(macro.id)) throw new Error("Macro Library contains duplicate macro IDs.");
+        ids.add(macro.id);
+      }
+      this.macros = normalized;
     } catch (error) {
       if (error?.code === "ENOENT") {
         this.macros = [];
         return this;
       }
-      this.warning = "The macro library was corrupt and was reset. A backup was preserved.";
+      let backupPreserved = false;
       try {
         await mkdir(dirname(this.file), { recursive: true });
         await rename(this.file, `${this.file}.corrupt-${Date.now()}`);
+        backupPreserved = true;
       } catch {}
+      this.warning = backupPreserved
+        ? "The macro library was corrupt and was reset. A backup was preserved."
+        : "The macro library was corrupt and was reset. The original file could not be preserved as a backup.";
       this.macros = [];
     }
     return this;
