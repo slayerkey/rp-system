@@ -54,11 +54,11 @@ Do not move this product to `READY_TO_SHIP` based only on GitHub Actions.
 
 ## Current build evidence — 2026-09-12
 
-### Core automated smoke: PASS
+### Core automated smoke: PASS ON EARLIER HEAD — CURRENT HEAD RERUN REQUIRED
 
 The current committed history/session/PresentMon parser/renderer core was reconstructed in a clean local Node environment after the GitHub-hosted Windows runner stopped executing jobs.
 
-Result: **10 / 10 PASS**
+Result: **10 / 10 PASS** on the earlier validated head.\n\nThe exact current branch head has changed since this smoke due to additional PresentMon cadence, whole-session history, atomic persistence, Property Inspector, Marketplace, and license-inventory hardening. A fresh `npm test` run is required before promotion.
 
 Covered:
 
