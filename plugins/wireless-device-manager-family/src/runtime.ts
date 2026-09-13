@@ -13,6 +13,7 @@ export class WirelessRuntime {
   readonly catalog = new DeviceCatalog();
   private listeners = new Set<() => void>();
   private timer: NodeJS.Timeout | null = null;
+  private refreshTask: Promise<void> | null = null;
   adapterAvailable = true;
   lastError: string | null = null;
 
@@ -38,6 +39,16 @@ export class WirelessRuntime {
   }
 
   async refresh(): Promise<void> {
+    if (this.refreshTask) return this.refreshTask;
+    this.refreshTask = this.refreshOnce();
+    try {
+      await this.refreshTask;
+    } finally {
+      this.refreshTask = null;
+    }
+  }
+
+  private async refreshOnce(): Promise<void> {
     const result = await snapshot();
     this.adapterAvailable = result.adapterAvailable;
     this.lastError = result.ok ? null : (result.error ?? "Bluetooth unavailable");
