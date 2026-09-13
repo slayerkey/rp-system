@@ -7,7 +7,8 @@
     "release_inputs_before_clearing_recovery_journal": false,
     "held_input_journal_write_fails_closed": false,
     "pro_records_single_idle_gap_over_60_seconds": false,
-    "exact_keyboard_release_descriptor_for_cleanup": false
+    "exact_keyboard_release_descriptor_for_cleanup": false,
+    "emergency_hotkey_only_intercepts_during_playback": false
   },
   "required_smoke": [
     "modifier and Windows-key down/up",
@@ -24,7 +25,9 @@
     "single recorded idle gap over 60 seconds",
     "10-minute Pro recording boundary",
     "Stream Deck restart persistence",
-    "count/while-held/toggle loop cancellation"
+    "count/while-held/toggle loop cancellation",
+    "Ctrl+Shift+F12 passes through normally while helper is idle",
+    "Ctrl+Shift+F12 does not pollute an active recording when no playback is running"
   ],
   "source_of_truth": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md"
 }
