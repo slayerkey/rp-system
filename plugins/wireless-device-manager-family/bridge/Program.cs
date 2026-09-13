@@ -103,7 +103,10 @@ internal static class Program
                     && NativeBluetooth.TryGetClassOfDevice(numericAddress, out var classOfDevice))
                 {
                     // Bluetooth Class of Device major class occupies bits 8-12; Audio/Video is value 4.
-                    audioControl = ((classOfDevice >> 8) & 0x1F) == 4;
+                    // Do not advertise control merely from the class. Require Windows to report
+                    // at least one installed service that this bridge knows how to toggle.
+                    audioControl = ((classOfDevice >> 8) & 0x1F) == 4
+                        && NativeBluetooth.SupportsAnyService(numericAddress, AudioSink, HandsFree);
                 }
             }
 
@@ -301,6 +304,13 @@ internal static class NativeBluetooth
     private static extern bool BluetoothFindDeviceClose(IntPtr hFind);
 
     [DllImport("bthprops.cpl", SetLastError = true)]
+    private static extern uint BluetoothEnumerateInstalledServices(
+        IntPtr hRadio,
+        ref BLUETOOTH_DEVICE_INFO pbtdi,
+        ref uint pcServiceInout,
+        [Out] Guid[] pGuidServices);
+
+    [DllImport("bthprops.cpl", SetLastError = true)]
     public static extern uint BluetoothSetServiceState(
         IntPtr hRadio,
         ref BLUETOOTH_DEVICE_INFO pbtdi,
@@ -367,6 +377,30 @@ internal static class NativeBluetooth
     public static void CloseRadio(IntPtr radio)
     {
         if (radio != IntPtr.Zero) CloseHandle(radio);
+    }
+
+    public static bool SupportsAnyService(ulong address, params Guid[] wanted)
+    {
+        if (!FindDevice(address, out var radio, out var device)) return false;
+        try
+        {
+            uint count = 32;
+            var services = new Guid[count];
+            var result = BluetoothEnumerateInstalledServices(radio, ref device, ref count, services);
+            if (result == 234) // ERROR_MORE_DATA
+            {
+                services = new Guid[count];
+                result = BluetoothEnumerateInstalledServices(radio, ref device, ref count, services);
+            }
+            if (result != 0) return false;
+
+            var actual = services.Take((int)Math.Min(count, (uint)services.Length));
+            return wanted.Any(target => actual.Contains(target));
+        }
+        finally
+        {
+            CloseRadio(radio);
+        }
     }
 
     public static bool TryGetClassOfDevice(ulong address, out uint classOfDevice)
