@@ -69,8 +69,10 @@ export class InputHost extends EventEmitter {
 
   async close() {
     this.stopping = true;
-    try { await this.command("stopPlayback", {}, { timeoutMs: 1500 }); } catch {}
-    try { this.proc?.kill(); } catch {}
-    this.proc = null;
+    const proc = this.proc;
+    if (!proc) return;
+    try { await this.command("stopPlayback", {}, { skipEnsure: true, timeoutMs: 1500 }); } catch {}
+    try { proc.kill(); } catch {}
+    if (this.proc === proc) this.proc = null;
   }
 }
