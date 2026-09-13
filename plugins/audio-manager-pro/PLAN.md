@@ -148,3 +148,12 @@ The Status action is read-only. Pressing it refreshes and checks the selected pr
 - friendly-name-only silent rebinding
 - cloud account or service
 - a second independent Windows Core Audio implementation
+
+
+## Catalog packaging decision
+
+Audio Manager Pro intentionally has **no bundled Stream Deck profile archives**. Unlike Voice Deck or Auto Queue, its useful presets contain machine-specific Windows audio endpoint identities. Shipping HEADSET / SPEAKERS / MEETING layouts with unresolved profile IDs would create attractive but nonfunctional keys.
+
+The onboarding path is therefore the product itself: add an Audio Manager action, capture the current Windows setup into an Audio Profile, then pin that user-created profile to Apply / Status / Stream Deck + actions.
+
+Audio Manager Pro is also intentionally a standalone paid product. There is no verified Audio Manager Lite edition in `products/lite-pro-map.json`, so no Lite→Pro upsell is invented. Related PackRat products such as Better Hotkeys, Voice Deck, or XENEON Audio Control Center solve different jobs and are not cross-sold inside this plugin or its Marketplace description.
