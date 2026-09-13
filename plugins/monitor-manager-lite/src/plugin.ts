@@ -16,7 +16,7 @@ async function sendInspectorData(): Promise<void> {
     const snapshot = await runtime.scan(true);
     if (!runtime.getConfiguredMonitorKey() && snapshot.monitors?.[0]?.monitorKey) {
       runtime.setConfiguredMonitorKey(snapshot.monitors[0].monitorKey);
-      await streamDeck.settings.setGlobalSettings<LiteGlobalSettings>({ monitorKey: snapshot.monitors[0].monitorKey });
+      await streamDeck.settings.setGlobalSettings({ monitorKey: snapshot.monitors[0].monitorKey });
     }
     await streamDeck.ui.sendToPropertyInspector({
       type: "monitor-data",
