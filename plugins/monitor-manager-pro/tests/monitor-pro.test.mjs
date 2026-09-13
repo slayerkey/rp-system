@@ -243,3 +243,19 @@ test("Pro inspector does not visually substitute an unplugged configured monitor
   assert.match(pi,/if\(input&&!row\) input\.textContent=""/);
   assert.match(pi,/if\(mode&&!row\) mode\.textContent=""/);
 });
+
+test("Pro manifest action UUIDs exactly match backend handlers", async () => {
+  const manifest=JSON.parse(await readFile("com.packrat.monitormanagerpro.sdPlugin/manifest.json","utf8"));
+  const files=["src/actions/continuous.ts","src/actions/hardware.ts","src/actions/windows.ts","src/actions/profiles.ts"];
+  let source="";
+  for(const file of files) source+="\n"+await readFile(file,"utf8");
+  const handlers=[...source.matchAll(/@action\(\{\s*UUID:\s*"([^"]+)"/g)].map((match)=>match[1]).sort();
+  const exposed=manifest.Actions.map((action)=>action.UUID).sort();
+  assert.deepEqual(handlers,exposed);
+  const encoders=manifest.Actions.filter((action)=>action.Controllers?.includes("Encoder")).map((action)=>action.UUID).sort();
+  assert.deepEqual(encoders,[
+    "com.packrat.monitormanagerpro.brightness",
+    "com.packrat.monitormanagerpro.contrast",
+    "com.packrat.monitormanagerpro.volume"
+  ].sort());
+});
