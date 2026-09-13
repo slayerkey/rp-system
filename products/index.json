@@ -779,7 +779,7 @@
       "id": "window-manager",
       "name": "Window Manager Lite",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 0,
       "version": "1.0.0.3"
     },
