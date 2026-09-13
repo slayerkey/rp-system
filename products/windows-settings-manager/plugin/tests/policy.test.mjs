@@ -76,6 +76,11 @@ test("backend forbids brittle UI automation and uses supported Windows control s
     "LockWorkStation",
     "powercfg.exe"
   ]) assert.match(backend, new RegExp(required));
+
+  assert.match(backend, /Build >= 22000/);
+  assert.doesNotMatch(backend, /Build >= 26100/);
+  assert.match(backend, /enabled = info\.activeColorMode == 2;/);
+  assert.doesNotMatch(backend, /activeColorMode == 2 \|\|/);
 });
 
 test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async () => {
