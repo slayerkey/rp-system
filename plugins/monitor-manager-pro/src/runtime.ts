@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -54,6 +54,8 @@ function nativePercent(min:number,max:number,value:number): number {
 }
 
 export class MonitorProRuntime extends MonitorLiteRuntime {
+  private profileMutationQueue: Promise<unknown> = Promise.resolve();
+
   private profilePath(): string {
     const appData=process.env.APPDATA || path.join(os.homedir(),"AppData","Roaming");
     return path.join(appData,"PackRat","Monitor Manager","profiles.json");
@@ -192,7 +194,13 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
     try {
       const raw=await readFile(file,"utf8");
       const parsed=JSON.parse(raw);
-      if(parsed?.schemaVersion!==1||!Array.isArray(parsed.profiles)) throw new Error("invalid schema");
+      const validProfiles=Array.isArray(parsed?.profiles)&&parsed.profiles.every((profile:any)=>
+        profile&&typeof profile.name==="string"&&typeof profile.savedAt==="string"&&Array.isArray(profile.monitors)&&
+        profile.monitors.every((monitor:any)=>
+          monitor&&typeof monitor.monitorKey==="string"&&typeof monitor.description==="string"&&typeof monitor.deviceName==="string"
+        )
+      );
+      if(parsed?.schemaVersion!==1||!validProfiles) throw new Error("invalid schema");
       return parsed;
     } catch(error:any) {
       if(error?.code==="ENOENT") return {schemaVersion:1,profiles:[]};
@@ -202,8 +210,15 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
 
   private async writeStore(store:{schemaVersion:number;profiles:MonitorProfile[]}): Promise<void> {
     const file=this.profilePath();
+    const temp=file+".tmp-"+process.pid;
     await mkdir(path.dirname(file),{recursive:true});
-    await writeFile(file,JSON.stringify(store,null,2)+"\n","utf8");
+    try {
+      await writeFile(temp,JSON.stringify(store,null,2)+"\n","utf8");
+      await rename(temp,file);
+    } catch(error) {
+      await rm(temp,{force:true}).catch(()=>{});
+      throw error;
+    }
   }
 
   async listProfiles(): Promise<string[]> {
@@ -255,12 +270,16 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
   async saveProfile(name:string): Promise<MonitorProfile> {
     const clean=name.trim().slice(0,48);
     if(!clean) throw new Error("Profile name is required.");
-    const profile=await this.capture(clean);
-    const store=await this.readStore();
-    const index=store.profiles.findIndex(p=>p.name.toLowerCase()===clean.toLowerCase());
-    if(index>=0) store.profiles[index]=profile; else store.profiles.push(profile);
-    await this.writeStore(store);
-    return profile;
+    const operation=this.profileMutationQueue.then(async()=>{
+      const profile=await this.capture(clean);
+      const store=await this.readStore();
+      const index=store.profiles.findIndex(p=>p.name.toLowerCase()===clean.toLowerCase());
+      if(index>=0) store.profiles[index]=profile; else store.profiles.push(profile);
+      await this.writeStore(store);
+      return profile;
+    });
+    this.profileMutationQueue=operation.then(()=>undefined,()=>undefined);
+    return operation;
   }
 
   private async restoreSnapshot(profile:MonitorProfile): Promise<string[]> {
