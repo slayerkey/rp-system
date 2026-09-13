@@ -472,6 +472,8 @@ test("system wake resets the Windows CPU delta baseline", () => {
   const telemetry = new TelemetryService({
     pluginRoot: resolve(tmpdir(), "wake-baseline"),
     persistPath: resolve(tmpdir(), "packrat-wake-baseline.json"),
+    spawnProcess: fakeHardwareChild,
+    createLineInterface: fakeHardwareLines,
     presentMonProvider: provider,
   });
 
