@@ -10,7 +10,7 @@ Performance Grapher for Stream Deck is PackRat software that redistributes and i
 - License: Mozilla Public License 2.0 (MPL-2.0)
 - Usage: unmodified library dependency inside the PackRat sensor helper.
 
-The MPL is file-level copyleft. PackRat does not modify Libre Hardware Monitor source files in this product. The corresponding upstream source for the exact 0.9.6 library release remains available from the project repository and NuGet release. PackRat's helper source remains a separate work.
+The MPL is file-level copyleft. PackRat does not modify Libre Hardware Monitor source files in this product. The corresponding Source Code Form for the exact 0.9.6 release is available from the Libre Hardware Monitor v0.9.6 source tag and NuGet package. The distributed plugin also includes the MPL-2.0 license text and Libre Hardware Monitor's upstream third-party notices. PackRat's helper source remains a separate work.
 
 Libre Hardware Monitor documents additional third-party components under its repository notices. The release process preserves the library's license metadata and does not remove notices shipped with upstream packages.
 
