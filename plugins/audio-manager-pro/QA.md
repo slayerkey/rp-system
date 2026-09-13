@@ -71,11 +71,10 @@ These checks do not replace the official Elgato CLI or physical Windows hardware
 Automatic matching order:
 
 1. exact active endpoint ID
-2. unique Windows Device Instance ID
-3. unique hardware Container ID + exact normalized friendly name
-4. otherwise stop and require explicit rebind
+2. unique hardware Container ID + exact normalized friendly name
+3. otherwise stop and require explicit rebind
 
-A friendly-name-only match is intentionally insufficient. Ambiguous or missing devices must never silently apply to another endpoint.
+Device Instance ID alone and friendly-name-only matches are intentionally insufficient. Ambiguous or missing devices must never silently apply to another endpoint.
 
 ## Audio Profile result contract
 
