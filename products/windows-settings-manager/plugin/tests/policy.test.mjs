@@ -98,6 +98,14 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   assert.match(backend, /attempt < 12/);
 });
 
+test("individual set actions fall back to the live value shown by the inspector", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
+  assert.match(actions, /guid = snapshot\.powerPlanGuid/);
+  assert.match(actions, /values\.includes\(current/);
+  assert.match(inspector, /context\.snapshot\?\.topology/);
+});
+
 test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async () => {
   const source = await readFile(path.resolve("src", "modes.ts"), "utf8");
   assert.match(source, /"COMPLETE"/);

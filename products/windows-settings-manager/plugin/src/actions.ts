@@ -95,6 +95,8 @@ class PowerBase extends LiveTitleAction<PowerSettings> {
       if (!plans.length) return ev.action.showAlert();
       const index = plans.findIndex((plan) => plan.active);
       guid = plans[(index + 1 + plans.length) % plans.length]?.guid;
+    } else if (!guid) {
+      guid = snapshot.powerPlanGuid;
     }
     if (!guid) return ev.action.showAlert();
     const reply = await runtime.state.execute("setPowerPlan", { guid });
@@ -108,11 +110,13 @@ class TopologyBase extends LiveTitleAction<TopologySettings> {
   override async onKeyDown(ev: KeyDownEvent<TopologySettings>): Promise<void> {
     const settings = ev.payload.settings ?? {};
     let topology = settings.topology;
+    const current = runtime.state.getSnapshot().topology;
+    const values: Array<Exclude<Topology, "unknown">> = ["internal", "clone", "extend", "external"];
     if ((settings.operation ?? "cycle") === "cycle") {
-      const values: Array<Exclude<Topology, "unknown">> = ["internal", "clone", "extend", "external"];
-      const current = runtime.state.getSnapshot().topology;
       const index = values.indexOf(current as Exclude<Topology, "unknown">);
       topology = values[(index + 1 + values.length) % values.length];
+    } else if (!topology && values.includes(current as Exclude<Topology, "unknown">)) {
+      topology = current as Exclude<Topology, "unknown">;
     }
     if (!topology) return ev.action.showAlert();
     const reply = await runtime.state.execute<any>("setTopology", { topology });

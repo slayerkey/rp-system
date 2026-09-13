@@ -128,7 +128,11 @@ function renderActionSettings() {
   } else if (suffix === "display") {
     show("displayFields");
     setValue("displayOperation", settings.operation ?? "cycle");
-    setValue("displayTopology", settings.topology ?? "extend");
+    const liveTopology = context.snapshot?.topology;
+    setValue(
+      "displayTopology",
+      settings.topology ?? (["internal", "clone", "extend", "external"].includes(liveTopology) ? liveTopology : "extend")
+    );
   } else if (suffix === "timeout") {
     show("timeoutFields");
     setValue("timeoutOperation", settings.operation ?? "cycle-screen");
