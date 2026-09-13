@@ -96,3 +96,49 @@ test("Macro Library quarantines structurally invalid schema files", async () => 
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("Macro Library quarantines a malformed individual macro entry", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    await writeFile(file,JSON.stringify({schema:1,macros:[{id:"bad",name:"Bad",events:[{type:"not-real"}]}]}),"utf8");
+    const library=await new MacroLibrary(file).load();
+    assert.equal(library.list().length,0);
+    assert.match(library.warning,/corrupt/i);
+    const names=await readdir(dir);
+    assert.ok(names.some(name=>name.startsWith("library.json.corrupt-")));
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
+
+test("Macro Library quarantines duplicate macro IDs", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  const macro={id:"same",name:"One",events:[
+    {type:"keyDown",vk:65,delayMs:1},
+    {type:"keyUp",vk:65,delayMs:1}
+  ]};
+  try {
+    await writeFile(file,JSON.stringify({schema:1,macros:[macro,{...macro,name:"Two"}]}),"utf8");
+    const library=await new MacroLibrary(file).load();
+    assert.equal(library.list().length,0);
+    assert.match(library.warning,/corrupt/i);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
+
+test("Macro Library rolls back memory when a save fails", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  try {
+    const library=await new MacroLibrary(dir).load();
+    await assert.rejects(()=>library.add({name:"Unsaved",events:[
+      {type:"keyDown",vk:65,delayMs:1},
+      {type:"keyUp",vk:65,delayMs:1}
+    ]}));
+    assert.equal(library.list().length,0);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
