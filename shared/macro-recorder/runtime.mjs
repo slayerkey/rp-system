@@ -331,7 +331,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
         }
         if (pro && this.kind === "replay" && !record.settings.macroId && record.settings.seedMacro) {
           const seed = record.settings.seedMacro;
-          const stored = library.get(seed.id) || await library.add(seed);
+          const stored = await library.ensure(seed);
           const next = { ...record.settings, macroId: stored.id };
           delete next.seedMacro;
           await ev.action.setSettings(next);
