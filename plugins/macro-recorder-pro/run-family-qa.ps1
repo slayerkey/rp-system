@@ -107,8 +107,13 @@ foreach ($Path in $Expected) {
 
 if (-not $SkipArt) {
   foreach ($Slug in @("macro-recorder-lite","macro-recorder-pro")) {
-    $AppIcon = Join-Path $Root "artifacts\marketplace\$Slug\00-app-icon.png"
+    $MediaRoot = Join-Path $Root "artifacts\marketplace\$Slug"
+    $AppIcon = Join-Path $MediaRoot "00-app-icon.png"
+    $Hero = Join-Path $MediaRoot "01-hero.png"
     if (-not (Test-Path $AppIcon)) { throw "Missing 288x288 Marketplace app icon: $AppIcon" }
+    if (-not (Test-Path $Hero)) { throw "Missing Marketplace thumbnail: $Hero" }
+    $Gallery = @(Get-ChildItem $MediaRoot -Filter "0[2-4]-*.png" -File)
+    if ($Gallery.Count -ne 3) { throw "$Slug expected exactly three Marketplace gallery images; found $($Gallery.Count)." }
   }
 }
 
