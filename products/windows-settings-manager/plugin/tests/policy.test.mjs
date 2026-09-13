@@ -199,6 +199,14 @@ test("Save Current Mode forces a fresh Windows read and refuses offline capture"
   assert.match(plugin, /settings: captureModeSettings\(snapshot\)/);
 });
 
+test("backend timeouts and failed startup force a clean PowerShell restart", async () => {
+  const backend = await readFile(path.resolve("src", "backend.ts"), "utf8");
+  assert.match(backend, /this\.dispose\(error\)[\s\S]*reject\(error\)/);
+  assert.match(backend, /this\.process\.exitCode === null/);
+  assert.match(backend, /catch \(error\)[\s\S]*this\.dispose\(failure\)[\s\S]*throw failure/);
+  assert.match(backend, /child && child\.exitCode === null\) child\.kill\(\)/);
+});
+
 test("state refresh polls Windows and the inspector refresh button forces a real read", async () => {
   const state = await readFile(path.resolve("src", "state.ts"), "utf8");
   const plugin = await readFile(path.resolve("src", "plugin.ts"), "utf8");
