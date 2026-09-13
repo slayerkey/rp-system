@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Enumeration;
+using Windows.Devices.Radios;
 
 internal static class Program
 {
@@ -68,6 +69,10 @@ internal static class Program
         if (adapter is null)
             return new { ok = true, adapterAvailable = false, devices = Array.Empty<object>(), error = (string?)null };
 
+        var radio = await adapter.GetRadioAsync();
+        if (radio is null || radio.State != RadioState.On)
+            return new { ok = true, adapterAvailable = false, devices = Array.Empty<object>(), error = (string?)null };
+
         var output = new Dictionary<string, DeviceDto>(StringComparer.OrdinalIgnoreCase);
         await AddDevicesAsync(output, BluetoothLEDevice.GetDeviceSelectorFromPairingState(true), "ble", false);
         await AddDevicesAsync(output, BluetoothDevice.GetDeviceSelectorFromPairingState(true), "classic", true);
@@ -95,7 +100,8 @@ internal static class Program
         foreach (var info in devices)
         {
             var address = StringProp(info, AddressKey);
-            bool audioControl = false;
+            bool audioClass = false;
+            bool installedAudioService = false;
             if (classic && !string.IsNullOrWhiteSpace(address))
             {
                 var normalizedAddress = NormalizeAddress(address);
@@ -103,10 +109,9 @@ internal static class Program
                     && NativeBluetooth.TryGetClassOfDevice(numericAddress, out var classOfDevice))
                 {
                     // Bluetooth Class of Device major class occupies bits 8-12; Audio/Video is value 4.
-                    // Do not advertise control merely from the class. Require Windows to report
-                    // at least one installed service that this bridge knows how to toggle.
-                    audioControl = ((classOfDevice >> 8) & 0x1F) == 4
-                        && NativeBluetooth.SupportsAnyService(numericAddress, AudioSink, HandsFree);
+                    audioClass = ((classOfDevice >> 8) & 0x1F) == 4;
+                    if (audioClass)
+                        installedAudioService = NativeBluetooth.SupportsAnyService(numericAddress, AudioSink, HandsFree);
                 }
             }
 
@@ -125,6 +130,8 @@ internal static class Program
                 ? "bt:" + NormalizeAddress(address)
                 : "id:" + info.Id.ToLowerInvariant();
 
+            var connected = BoolProp(info, ConnectedKey) ?? false;
+            var present = BoolProp(info, PresentKey);
             var next = new DeviceDto
             {
                 id = address is not null ? NormalizeAddress(address) : info.Id,
@@ -134,11 +141,19 @@ internal static class Program
                 containerId = StringProp(info, ContainerKey),
                 kind = kind,
                 paired = BoolProp(info, PairedKey) ?? info.Pairing.IsPaired,
-                connected = BoolProp(info, ConnectedKey) ?? false,
-                present = BoolProp(info, PresentKey),
+                connected = connected,
+                present = present,
                 batteryPercent = battery,
                 charging = charging,
-                control = new ControlDto { connect = audioControl, disconnect = audioControl }
+                control = new ControlDto
+                {
+                    // A disconnected audio endpoint may no longer enumerate an enabled service,
+                    // so CONNECT retains the standard audio-class fallback while requiring the
+                    // device to be presently discoverable. DISCONNECT requires an enabled
+                    // service plus a live connected state.
+                    connect = audioClass && present != false,
+                    disconnect = audioClass && connected && installedAudioService
+                }
             };
 
             if (output.TryGetValue(key, out var previous))
