@@ -1,30 +1,68 @@
 {
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-  "Name": "Wireless Device Manager Lite",
+  "Name": "Wireless Device Manager",
   "Version": "0.1.0.0",
   "Author": "Packrat",
   "Description": "See one selected Bluetooth device's Windows connection state and battery when available, with control only when the device exposes a supported Windows Bluetooth service.",
-  "Category": "Wireless Device Manager Lite",
+  "Category": "Wireless Device Manager",
   "CategoryIcon": "imgs/plugin/marketplace",
   "Icon": "imgs/plugin/marketplace",
   "CodePath": "bin/plugin.js",
   "SDKVersion": 3,
-  "Software": { "MinimumVersion": "6.9" },
-  "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
-  "Nodejs": { "Version": "20", "Debug": "disabled" },
+  "Software": {
+    "MinimumVersion": "6.9"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "disabled"
+  },
   "UUID": "com.packrat.wireless-device-manager",
   "Profiles": [
-    {"Name":"profiles/wireless-device-manager-standard","DeviceType":0,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
-    {"Name":"profiles/wireless-device-manager-xl","DeviceType":2,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
-    {"Name":"profiles/wireless-device-manager-plus","DeviceType":7,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true}
+    {
+      "Name": "profiles/wireless-device-manager-standard",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/wireless-device-manager-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/wireless-device-manager-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
   ],
-  "Actions": [{
-    "Name": "Wireless Device",
-    "UUID": "com.packrat.wireless-device-manager.device",
-    "Icon": "imgs/actions/device/icon",
-    "Tooltip": "Show status, battery, or supported connect/disconnect control for one selected Bluetooth device.",
-    "PropertyInspectorPath": "ui/inspector.html",
-    "Controllers": ["Keypad"],
-    "States": [{"Image":"imgs/actions/device/key","TitleAlignment":"middle","FontSize":"10"}]
-  }]
+  "Actions": [
+    {
+      "Name": "Wireless Device",
+      "UUID": "com.packrat.wireless-device-manager.device",
+      "Icon": "imgs/actions/device/icon",
+      "Tooltip": "Show status, battery, or supported connect/disconnect control for one selected Bluetooth device.",
+      "PropertyInspectorPath": "ui/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/device/key",
+          "TitleAlignment": "middle",
+          "FontSize": "10"
+        }
+      ]
+    }
+  ]
 }
