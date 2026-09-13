@@ -3,7 +3,7 @@
   "name": "Audio Manager Pro",
   "type": "plugin",
   "status": "testing",
-  "workflow_state": "QA_IN_PROGRESS",
+  "workflow_state": "TESTING",
   "blocker": "Automated CI and final physical Windows audio-device smoke are not yet complete.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
