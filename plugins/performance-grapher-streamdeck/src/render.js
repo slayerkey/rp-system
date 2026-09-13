@@ -115,7 +115,9 @@ export function makeView(telemetry, kind, settings = {}) {
       label: session.process ? session.process.replace(/\.exe$/i, "") : "GAME FPS",
       value: isFrame ? frametime : fps,
       unit: isFrame ? "ms" : "FPS",
-      secondary: (settings.lowMode === "pointOne" ? "0.1% " : "1% ") + formatNumber(low, "FPS"),
+      secondary: session.active
+        ? (settings.lowMode === "pointOne" ? "0.1% " : "1% ") + formatNumber(low, "FPS")
+        : "START A GAME",
       points: telemetry.metricSeries(isFrame ? "game.frametime" : "game.fps", Number.isFinite(Number(settings.windowMs)) ? Number(settings.windowMs) : 60_000),
       state: telemetry.safeStatus().fps.state,
       mode: isFrame ? "max" : "min",
