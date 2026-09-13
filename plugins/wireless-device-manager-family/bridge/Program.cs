@@ -428,12 +428,11 @@ internal static class NativeBluetooth
     public readonly record struct ServiceTransition(string Status, bool Exists, bool IsAcceptable);
 
     private const uint ERROR_SUCCESS = 0;
-    private const uint ERROR_INVALID_PARAMETER = 87;
     private const uint ERROR_SERVICE_DOES_NOT_EXIST = 1060;
     private const uint E_INVALIDARG = 0x80070057;
 
     private static bool IsAlreadyInState(uint code) =>
-        code == ERROR_INVALID_PARAMETER || code == E_INVALIDARG;
+        code == E_INVALIDARG;
 
     public static ServiceTransition TransitionService(
         IntPtr radio,
