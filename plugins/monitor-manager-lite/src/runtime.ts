@@ -17,6 +17,8 @@ export class MonitorLiteRuntime {
   private cache: { at: number; value: Snapshot } | null = null;
   private configuredMonitorKey: string | null = null;
 
+  constructor(private readonly requireConfiguredMonitor = false) {}
+
   invalidate(): void { this.cache = null; }
 
   setConfiguredMonitorKey(monitorKey: string | null | undefined): void {
@@ -38,7 +40,9 @@ export class MonitorLiteRuntime {
   async selected(settings: MonitorSettings): Promise<{ monitor: any; snapshot: Snapshot }> {
     const snapshot = await this.scan();
     const monitors = snapshot.monitors ?? [];
-    const requestedKey = this.configuredMonitorKey ?? settings.monitorKey;
+    const requestedKey = this.requireConfiguredMonitor
+      ? this.configuredMonitorKey
+      : (this.configuredMonitorKey ?? settings.monitorKey);
     const monitor = requestedKey ? monitors.find((m) => m.monitorKey === requestedKey) : monitors[0];
     if (!monitor) throw new Error("No active monitor was found.");
     return { monitor, snapshot };
@@ -139,4 +143,4 @@ export class MonitorLiteRuntime {
   dispose(): void { this.bridge.dispose(); }
 }
 
-export const runtime = new MonitorLiteRuntime();
+export const runtime = new MonitorLiteRuntime(true);
