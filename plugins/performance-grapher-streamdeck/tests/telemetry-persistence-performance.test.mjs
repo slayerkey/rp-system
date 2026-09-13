@@ -513,3 +513,24 @@ test("canonical GPU aliases invalidate immediately when hardware disappears", ()
   assert.equal(telemetry.metricValue("gpu.load"), null);
   assert.equal(telemetry.metricValue("gpu.temperature"), null);
 });
+
+
+test("watched sensor history buffers stay bounded with the watch LRU", () => {
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "watch-lru"),
+    persistPath: resolve(tmpdir(), "packrat-watch-lru.json"),
+    presentMonProvider: fakeProvider(),
+  });
+  const at = Date.now();
+
+  for (let i = 0; i < 80; i += 1) {
+    const id = "lhm.sensor." + i;
+    telemetry.watchMetric(id);
+    telemetry._setMetric(id, i, at + i, { id, name: id, source: "Libre Hardware Monitor" });
+  }
+
+  assert.equal(telemetry.watched.size, 32);
+  assert.ok(telemetry.histories.size <= 32 + 7, "non-canonical history buffers must be pruned with the watch LRU");
+  assert.equal(telemetry.histories.has("lhm.sensor.0"), false);
+  assert.equal(telemetry.histories.has("lhm.sensor.79"), true);
+});
