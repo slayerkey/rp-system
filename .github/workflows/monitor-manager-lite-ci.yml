@@ -84,6 +84,18 @@ jobs:
         run: |
           python -c "from PIL import Image; from pathlib import Path; p=Path('dist/marketplace'); expected={'01_search_icon.png':(512,512),'02_cover.png':(1920,960),'03_gallery_01.png':(1920,960),'04_gallery_02.png':(1920,960),'05_gallery_03.png':(1920,960),'06_gallery_04.png':(1920,960)}; bad=[(n,Image.open(p/n).size,s) for n,s in expected.items() if Image.open(p/n).size!=s]; assert not bad,bad; print('MARKETPLACE MEDIA PASS')"
 
+      - name: Strict Lite-to-Pro shipping audit when release-ready
+        shell: pwsh
+        run: |
+          $product = Get-Content products/monitor-manager-lite.json -Raw | ConvertFrom-Json
+          if ([string]$product.workflow_state -eq 'READY_TO_SHIP') {
+            python tools/lite_pro_audit.py --shipping monitor-manager-lite
+            if ($LASTEXITCODE -ne 0) { throw 'Monitor Manager Lite strict Lite-to-Pro shipping audit failed.' }
+          }
+          else {
+            Write-Host "Lite-to-Pro ship gate deferred while workflow_state=$($product.workflow_state)"
+          }
+
       - name: Exercise canonical Rat Ship plugin kit
         shell: pwsh
         run: |
