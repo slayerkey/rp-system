@@ -45,6 +45,15 @@ export function resolveSelectedDeviceId(
     : (localDeviceId ?? null);
 }
 
+export function parseGroupNames(value: string): string[] {
+  return [...new Set(
+    value
+      .split(",")
+      .map(name => name.trim().toUpperCase())
+      .filter(Boolean)
+  )];
+}
+
 export function shouldApplySnapshot(ok: boolean, adapterAvailable: boolean): boolean {
   return ok && adapterAvailable;
 }
