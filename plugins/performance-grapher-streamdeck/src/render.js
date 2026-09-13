@@ -86,6 +86,13 @@ function pathFor(points, x, y, width, height, scaleMin = null, scaleMax = null, 
   }).join(" ");
 }
 
+function graphMode(metricId, settings) {
+  const id = String(metricId || "");
+  if (id === "game.fps") return "min";
+  if (id === "game.frametime") return "max";
+  return settings?.thresholdDirection === "below" ? "min" : "max";
+}
+
 function thresholdState(value, settings) {
   const current = finite(value);
   const threshold = finite(settings?.threshold);
@@ -152,7 +159,7 @@ export function makeView(telemetry, kind, settings = {}) {
       points,
       breached,
       state: value === null ? "unavailable" : "ready",
-      mode: settings.thresholdDirection === "below" ? "min" : "max",
+      mode: graphMode(id, settings),
     };
   }
 
