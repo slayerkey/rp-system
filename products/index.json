@@ -801,7 +801,7 @@
     },
     {
       "id": "wireless-device-manager",
-      "name": "Wireless Device Manager Lite",
+      "name": "Wireless Device Manager",
       "type": "plugin",
       "status": "build_candidate",
       "price_usd": 0,
