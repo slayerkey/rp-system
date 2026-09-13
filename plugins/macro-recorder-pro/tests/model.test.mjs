@@ -38,3 +38,40 @@ test("Pro preserves mouse events, loop modes and import/export",()=>{
  assert.equal(round.name,"Mouse");
  assert.equal(round.events.length,3);
 });
+
+test("mouse drag and wheel sequences preserve Pro event semantics",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"mouseMove",x:-1600,y:220,relX:.2,relY:.3,delayMs:0},
+  {type:"mouseDown",button:"left",x:-1600,y:220,relX:.2,relY:.3,delayMs:15},
+  {type:"mouseMove",x:2400,y:900,relX:.8,relY:.7,delayMs:16},
+  {type:"mouseUp",button:"left",x:2400,y:900,relX:.8,relY:.7,delayMs:15},
+  {type:"wheel",delta:-120,horizontal:false,x:2400,y:900,delayMs:20},
+  {type:"wheel",delta:120,horizontal:true,x:2400,y:900,delayMs:20}
+ ]},{pro:true,limits});
+ assert.deepEqual(macro.events.map(e=>e.type),["mouseMove","mouseDown","mouseMove","mouseUp","wheel","wheel"]);
+ assert.equal(macro.events[0].x,-1600);
+ assert.equal(macro.events[2].x,2400);
+ assert.equal(macro.events[4].delta,-120);
+ assert.equal(macro.events[5].horizontal,true);
+});
+
+test("Pro playback settings clamp speed and repeat count safely",()=>{
+ assert.equal(playbackSettings({playbackSpeed:99},{pro:true}).speed,4);
+ assert.equal(playbackSettings({playbackSpeed:0},{pro:true}).speed,.25);
+ assert.equal(playbackSettings({playbackMode:"count",repeatCount:999},{pro:true}).repeatCount,100);
+ assert.equal(playbackSettings({playbackMode:"count",repeatCount:0},{pro:true}).repeatCount,1);
+ assert.equal(playbackSettings({playbackMode:"while-held"},{pro:true}).repeatCount,0);
+});
+
+test("active-window relative coordinates survive normalization",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"mouseMove",x:100,y:200,relX:.125,relY:.875,delayMs:4}
+ ]},{pro:true,limits});
+ assert.equal(macro.events[0].relX,.125);
+ assert.equal(macro.events[0].relY,.875);
+ assert.equal(playbackSettings({coordinateMode:"active-window"},{pro:true}).coordinateMode,"active-window");
+});
+
+test("invalid PackRat macro envelope is rejected",()=>{
+ assert.throws(()=>importEnvelope({format:"other",schema:1,macro:{events:[]}}),/Unsupported PackRat macro file/);
+});
