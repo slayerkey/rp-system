@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Monitor Manager Pro</title><link rel="stylesheet" href="pi.css">
+</head>
+<body><main>
+<section class="hero"><div class="eyebrow">PACKRAT</div><h1>Monitor Manager Pro</h1><p>Control the Windows display layer and supported monitor hardware from one Stream Deck plugin.</p></section>
+<section class="card">
+  <div class="row"><h2>Monitor</h2><button id="refresh" class="small" type="button">Refresh</button></div>
+  <label for="monitor">Selected monitor</label><select id="monitor"><option value="">Detecting monitors…</option></select>
+  <div id="capabilities" class="caps">Capability scan pending.</div>
+</section>
+<section id="continuousCard" class="card hidden">
+  <h2 id="continuousTitle">Value</h2>
+  <label for="continuousValue">Set value</label><input id="continuousValue" type="number" min="0" max="100" step="1" value="65">
+  <label for="continuousStep">Dial step</label><input id="continuousStep" type="number" min="1" max="25" step="1" value="2">
+</section>
+<section id="powerCard" class="card hidden"><h2>Monitor Power</h2><label for="power">Behavior</label><select id="power"><option value="toggle">Toggle</option><option value="on">On</option><option value="off">Off / standby</option></select></section>
+<section id="inputCard" class="card hidden"><h2>Input Source</h2><label for="inputValue">Advertised input</label><select id="inputValue"></select><p class="help">Only input values advertised by this monitor are offered.</p></section>
+<section id="refreshCard" class="card hidden"><h2>Refresh Rate</h2><label for="refreshRate">Hz</label><select id="refreshRate"></select></section>
+<section id="resolutionCard" class="card hidden"><h2>Resolution / Hz</h2><label for="resolutionMode">Windows-reported mode</label><select id="resolutionMode"></select></section>
+<section id="hdrCard" class="card hidden"><h2>Windows HDR</h2><label for="hdr">Behavior</label><select id="hdr"><option value="toggle">Toggle</option><option value="on">On</option><option value="off">Off</option></select></section>
+<section id="topologyCard" class="card hidden"><h2>Display Mode</h2><label for="topology">Windows topology</label><select id="topology"><option value="extend">Extend</option><option value="duplicate">Duplicate</option><option value="internal">PC Screen Only</option><option value="external">Second Screen Only</option></select></section>
+<section id="orientationCard" class="card hidden"><h2>Orientation</h2><label for="orientation">Rotation</label><select id="orientation"><option value="0">Landscape</option><option value="1">Portrait</option><option value="2">Landscape flipped</option><option value="3">Portrait flipped</option></select></section>
+<section id="profileCard" class="card hidden"><h2>Monitor Profile</h2><label for="profileName">Profile name</label><input id="profileName" list="profiles" maxlength="48" placeholder="PC"><datalist id="profiles"></datalist><p class="help">Save captures the current supported setup. Apply reports COMPLETE, PARTIAL or FAILED.</p></section>
+<section class="privacy"><strong>Hardware honest</strong><p>DDC/CI varies by monitor. Pro uses advertised capabilities and safe allowlisted VCP controls. Unknown support is not treated as supported.</p></section>
+</main><script src="pi.js"></script></body></html>
