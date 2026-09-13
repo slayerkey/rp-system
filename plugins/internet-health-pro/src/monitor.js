@@ -346,9 +346,11 @@ export class NetworkMonitor extends EventEmitter {
       this.emitUpdate();
       try {
         const result = await this.probe.runCloudflareSpeedTest({
-          downloadBytes: 8_000_000,
-          uploadBytes: 2_000_000,
-          timeoutMs: 25_000
+          downloadBytes: 64_000_000,
+          uploadBytes: 4_000_000,
+          warmupBytes: 1_000_000,
+          probeBytes: 4_000_000,
+          timeoutMs: 45_000
         });
         this.history.addSpeedTest(result);
         this.history.flush(true, this.now());
@@ -385,7 +387,7 @@ export class NetworkMonitor extends EventEmitter {
       monitoringIntervalSeconds: this.settings.intervalSeconds,
       bandwidthBudget: {
         backgroundProbePayload: "tiny control traffic only",
-        speedTest: "manual only, capped at about 10 MB per run"
+        speedTest: "manual only, warmed adaptive test capped at about 80 MB per run"
       }
     };
   }

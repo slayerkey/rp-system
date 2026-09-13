@@ -172,16 +172,19 @@ test("manual speed test is the only path that runs throughput and respects decla
     nowRef,
     speed: async (options) => {
       speedCalls += 1;
-      assert.equal(options.downloadBytes, 8_000_000);
-      assert.equal(options.uploadBytes, 2_000_000);
-      return { ok: true, downloadMbps: 80, uploadMbps: 15, totalBytes: 10_000_000, completedAt: nowRef.value };
+      assert.equal(options.downloadBytes, 64_000_000);
+      assert.equal(options.uploadBytes, 4_000_000);
+      assert.equal(options.warmupBytes, 1_000_000);
+      assert.equal(options.probeBytes, 4_000_000);
+      assert.equal(options.timeoutMs, 45_000);
+      return { ok: true, downloadMbps: 800, uploadMbps: 95, totalBytes: 73_000_000, completedAt: nowRef.value };
     }
   });
   await monitor.runCycle();
   assert.equal(speedCalls, 0);
   await monitor.runSpeedTest();
   assert.equal(speedCalls, 1);
-  assert.equal(monitor.snapshot().latestSpeed.totalBytes, 10_000_000);
+  assert.equal(monitor.snapshot().latestSpeed.totalBytes, 73_000_000);
 });
 
 

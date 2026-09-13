@@ -216,48 +216,94 @@ async function readResponseBytes(response) {
   return buffer.byteLength;
 }
 
-export async function runCloudflareSpeedTest({
-  downloadBytes = 8_000_000,
-  uploadBytes = 2_000_000,
-  timeoutMs = 25_000
-} = {}) {
-  const safeDownload = Math.min(8_000_000, Math.max(1_000_000, Number(downloadBytes) || 8_000_000));
-  const safeUpload = Math.min(2_000_000, Math.max(250_000, Number(uploadBytes) || 2_000_000));
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const downStart = performance.now();
-    const downResponse = await fetch("https://speed.cloudflare.com/__down?bytes=" + safeDownload + "&r=" + Date.now(), {
-      cache: "no-store",
-      signal: controller.signal
-    });
-    const received = await readResponseBytes(downResponse);
-    const downMs = performance.now() - downStart;
-    const downloadMbps = received * 8 / (downMs / 1000) / 1_000_000;
+export function chooseMeasuredDownloadBytes(probeMbps, maxBytes = 64_000_000) {
+  const cap = Math.min(64_000_000, Math.max(8_000_000, Number(maxBytes) || 64_000_000));
+  const speed = Number(probeMbps);
+  let target = 8_000_000;
+  if (Number.isFinite(speed) && speed >= 500) target = 64_000_000;
+  else if (Number.isFinite(speed) && speed >= 250) target = 40_000_000;
+  else if (Number.isFinite(speed) && speed >= 100) target = 24_000_000;
+  else if (Number.isFinite(speed) && speed >= 40) target = 16_000_000;
+  return Math.min(cap, target);
+}
 
-    const body = Buffer.alloc(safeUpload, 0x61);
-    const upStart = performance.now();
-    const upResponse = await fetch("https://speed.cloudflare.com/__up", {
+async function measureDownload(bytes, signal, parallel = 1) {
+  const count = Math.max(1, Math.min(4, Number(parallel) || 1));
+  const perRequest = Math.max(1, Math.ceil(Number(bytes) / count));
+  const started = performance.now();
+  const transfers = Array.from({ length: count }, async (_, index) => {
+    const response = await fetch(
+      "https://speed.cloudflare.com/__down?bytes=" + perRequest + "&r=" + Date.now() + "-" + index + "-" + Math.random(),
+      { cache: "no-store", signal }
+    );
+    return readResponseBytes(response);
+  });
+  const received = (await Promise.all(transfers)).reduce((sum, value) => sum + value, 0);
+  const elapsedMs = Math.max(1, performance.now() - started);
+  return {
+    bytes: received,
+    elapsedMs,
+    mbps: received * 8 / (elapsedMs / 1000) / 1_000_000
+  };
+}
+
+async function measureUpload(bytes, signal, parallel = 2) {
+  const count = Math.max(1, Math.min(2, Number(parallel) || 1));
+  const perRequest = Math.max(1, Math.ceil(Number(bytes) / count));
+  const started = performance.now();
+  await Promise.all(Array.from({ length: count }, async () => {
+    const body = Buffer.alloc(perRequest, 0x61);
+    const response = await fetch("https://speed.cloudflare.com/__up", {
       method: "POST",
       body,
       cache: "no-store",
-      signal: controller.signal,
+      signal,
       headers: { "content-type": "application/octet-stream" }
     });
-    if (!upResponse.ok) throw new Error("Upload HTTP " + upResponse.status);
-    try { await upResponse.body?.cancel?.(); } catch {}
-    const upMs = performance.now() - upStart;
-    const uploadMbps = safeUpload * 8 / (upMs / 1000) / 1_000_000;
+    if (!response.ok) throw new Error("Upload HTTP " + response.status);
+    try { await response.body?.cancel?.(); } catch {}
+  }));
+  const elapsedMs = Math.max(1, performance.now() - started);
+  const sent = perRequest * count;
+  return {
+    bytes: sent,
+    elapsedMs,
+    mbps: sent * 8 / (elapsedMs / 1000) / 1_000_000
+  };
+}
+
+export async function runCloudflareSpeedTest({
+  downloadBytes = 64_000_000,
+  uploadBytes = 4_000_000,
+  warmupBytes = 1_000_000,
+  probeBytes = 4_000_000,
+  timeoutMs = 45_000
+} = {}) {
+  const safeDownload = Math.min(64_000_000, Math.max(8_000_000, Number(downloadBytes) || 64_000_000));
+  const safeUpload = Math.min(4_000_000, Math.max(1_000_000, Number(uploadBytes) || 4_000_000));
+  const safeWarmup = Math.min(1_000_000, Math.max(250_000, Number(warmupBytes) || 1_000_000));
+  const safeProbe = Math.min(4_000_000, Math.max(1_000_000, Number(probeBytes) || 4_000_000));
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const warmup = await measureDownload(safeWarmup, controller.signal, 1);
+    const probe = await measureDownload(safeProbe, controller.signal, 1);
+    const measuredBytes = chooseMeasuredDownloadBytes(probe.mbps, safeDownload);
+    const download = await measureDownload(measuredBytes, controller.signal, 4);
+    const upload = await measureUpload(safeUpload, controller.signal, 2);
+    const totalDownloadBytes = warmup.bytes + probe.bytes + download.bytes;
 
     return {
       ok: true,
-      downloadMbps,
-      uploadMbps,
-      downloadBytes: received,
-      uploadBytes: safeUpload,
-      totalBytes: received + safeUpload,
+      downloadMbps: download.mbps,
+      uploadMbps: upload.mbps,
+      downloadBytes: totalDownloadBytes,
+      measurementDownloadBytes: download.bytes,
+      uploadBytes: upload.bytes,
+      totalBytes: totalDownloadBytes + upload.bytes,
       completedAt: Date.now(),
-      provider: "Cloudflare"
+      provider: "Cloudflare",
+      mode: "warmed-adaptive"
     };
   } catch (error) {
     return {
@@ -265,7 +311,8 @@ export async function runCloudflareSpeedTest({
       error: error?.name || error?.message || "speed test failed",
       totalBytes: 0,
       completedAt: Date.now(),
-      provider: "Cloudflare"
+      provider: "Cloudflare",
+      mode: "warmed-adaptive"
     };
   } finally {
     clearTimeout(timer);

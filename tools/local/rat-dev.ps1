@@ -353,6 +353,7 @@ function Build-And-TestPlugin {
         Uuid = [string]$manifest.UUID
         Version = [string]$manifest.Version
         OpenUrl = if ($config -and $config.open_url) { [string]$config.open_url } else { $null }
+        OpenDevFolder = [bool]($config -and $config.open_dev_folder)
     }
 }
 
@@ -383,6 +384,29 @@ function Install-DevPlugin {
     Write-Host "Version: $($Plugin.Version)"
     Write-Host "Source:  $($Plugin.Root)"
     Write-Host "Plugin:  $($Plugin.PluginDir)"
+
+    $profiles = @(Get-ChildItem -Path $Plugin.PluginDir -Recurse -Filter "*.streamDeckProfile" -File -ErrorAction SilentlyContinue)
+    if ($profiles.Count) {
+        Write-Host "Profiles:" -ForegroundColor DarkGray
+        foreach ($profile in $profiles) {
+            Write-Host "  $($profile.FullName)"
+        }
+    }
+    else {
+        Write-Host "Profiles: none bundled" -ForegroundColor DarkGray
+    }
+
+    if ($Plugin.OpenDevFolder) {
+        Start-Sleep -Milliseconds 600
+        $openPath = if ($profiles.Count) { $profiles[0].Directory.FullName } else { $Plugin.PluginDir }
+        Write-Host "Opening development bundle: $openPath" -ForegroundColor DarkGray
+        if ($env:OS -eq "Windows_NT") {
+            Start-Process explorer.exe $openPath
+        }
+        else {
+            Start-Process $openPath
+        }
+    }
 
     if ($Plugin.OpenUrl) {
         Start-Sleep -Seconds 2
