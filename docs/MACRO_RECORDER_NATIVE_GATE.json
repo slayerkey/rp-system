@@ -6,7 +6,8 @@
     "recovery_before_hook_startup": false,
     "release_inputs_before_clearing_recovery_journal": false,
     "held_input_journal_write_fails_closed": false,
-    "pro_records_single_idle_gap_over_60_seconds": false
+    "pro_records_single_idle_gap_over_60_seconds": false,
+    "exact_keyboard_release_descriptor_for_cleanup": false
   },
   "required_smoke": [
     "modifier and Windows-key down/up",
@@ -14,6 +15,7 @@
     "Ctrl+Shift+F12 interruption",
     "forced helper crash while keyboard input is held",
     "forced helper crash while mouse button is held",
+    "forced cancellation while an extended/right-side keyboard key is held",
     "unwritable held-input journal path",
     "mouse click/drag/wheel",
     "two-monitor virtual-desktop coordinates",
