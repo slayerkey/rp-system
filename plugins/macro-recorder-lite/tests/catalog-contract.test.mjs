@@ -34,6 +34,7 @@ test("Lite Pro upsell matches canonical PackRat catalog routing",async()=>{
     assert.match(canonical,/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9-]+$/i);
   }else{
     assert.equal(product.upgrade_url_state,"withheld_until_verified_direct_pro_listing");
+    assert.notEqual(product.workflow_state,"READY_TO_SHIP","Lite cannot be READY_TO_SHIP without the verified direct Pro Marketplace URL");
   }
 
   assert.match(build,/lite-pro-map\.json/);
