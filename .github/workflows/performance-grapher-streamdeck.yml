@@ -117,6 +117,35 @@ jobs:
       - name: Package official .streamDeckPlugin
         run: npm run pack
 
+      - name: Verify bundled profiles are inside official package
+        shell: pwsh
+        run: |
+          $package = Get-ChildItem -Path dist -Filter *.streamDeckPlugin | Select-Object -First 1
+          if (-not $package) { throw "No .streamDeckPlugin produced." }
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive = [System.IO.Compression.ZipFile]::OpenRead($package.FullName)
+          try {
+            $entries = @($archive.Entries | ForEach-Object { $_.FullName.Replace('\\', '/') })
+            $profiles = @(
+              "performance-dashboard-mk2.streamDeckProfile",
+              "performance-dashboard-xl.streamDeckProfile",
+              "performance-dashboard-plus.streamDeckProfile",
+              "performance-dashboard-neo.streamDeckProfile"
+            )
+            foreach ($profile in $profiles) {
+              $suffix = "/profiles/$profile"
+              $matches = @($entries | Where-Object { $_ -eq "profiles/$profile" -or $_.EndsWith($suffix, [System.StringComparison]::Ordinal) })
+              if ($matches.Count -ne 1) {
+                throw "Official package must contain exactly one bundled profile '$profile'; found $($matches.Count)."
+              }
+              Write-Host "PACKAGED PROFILE PASS: $($matches[0])"
+            }
+          }
+          finally {
+            $archive.Dispose()
+          }
+
       - name: Generate deterministic Marketplace media
         run: python scripts/rat-art-release.py --destination dist/marketplace-media
 
