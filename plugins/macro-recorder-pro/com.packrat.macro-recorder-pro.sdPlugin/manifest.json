@@ -18,7 +18,8 @@
           "ShowTitle": true,
           "TitleAlignment": "middle"
         }
-      ]
+      ],
+      "SupportedInKeyLogicActions": false
     },
     {
       "UUID": "com.packrat.macro-recorder-pro.stop",
@@ -37,7 +38,8 @@
           "ShowTitle": true,
           "TitleAlignment": "middle"
         }
-      ]
+      ],
+      "SupportedInKeyLogicActions": false
     },
     {
       "UUID": "com.packrat.macro-recorder-pro.replay",
@@ -56,7 +58,8 @@
           "ShowTitle": true,
           "TitleAlignment": "middle"
         }
-      ]
+      ],
+      "SupportedInKeyLogicActions": false
     }
   ],
   "Author": "PackRat",
