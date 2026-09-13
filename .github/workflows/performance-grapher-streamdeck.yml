@@ -126,6 +126,8 @@ jobs:
             $path = Join-Path "dist/marketplace-media" $name
             if (-not (Test-Path $path)) { throw "Missing media: $name" }
           }
+          $thumbnailReview = "dist/marketplace-qa/hero-thumbnail-review.png"
+          if (-not (Test-Path $thumbnailReview)) { throw "Missing Marketplace V2 thumbnail review sheet." }
           $package = Get-ChildItem -Path dist -Filter *.streamDeckPlugin | Select-Object -First 1
           if (-not $package) { throw "No .streamDeckPlugin produced." }
           $sizeMb = $package.Length / 1MB
@@ -141,8 +143,10 @@ jobs:
           $stage = Join-Path $env:RUNNER_TEMP "performance-grapher-streamdeck-release"
           if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
           New-Item -ItemType Directory -Force -Path (Join-Path $stage "dist/marketplace-art") | Out-Null
+          New-Item -ItemType Directory -Force -Path (Join-Path $stage "dist/marketplace-qa") | Out-Null
           Copy-Item $package.FullName (Join-Path $stage "dist/com.packrat.performance-grapher.streamDeckPlugin")
           Copy-Item "dist/marketplace-media/*" (Join-Path $stage "dist/marketplace-art") -Force
+          Copy-Item "dist/marketplace-qa/*" (Join-Path $stage "dist/marketplace-qa") -Force
           Copy-Item "com.packrat.performance-grapher.sdPlugin/third_party/presentmon/provider.json" (Join-Path $stage "provider.json")
           Copy-Item "com.packrat.performance-grapher.sdPlugin/third_party/presentmon/SHA256.txt" (Join-Path $stage "SHA256.txt")
           Copy-Item "QA.md" (Join-Path $stage "QA.md")
@@ -169,6 +173,7 @@ jobs:
             official_elgato_validation = "PASS"
             official_elgato_packaging = "PASS"
             deterministic_marketplace_media = "PASS"
+            marketplace_v2_thumbnail_review = "PASS"
             real_game_hardware_smoke = "PENDING"
           }
           $evidence | ConvertTo-Json -Depth 4 | Set-Content -Path (Join-Path $stage "evidence.json") -Encoding UTF8
