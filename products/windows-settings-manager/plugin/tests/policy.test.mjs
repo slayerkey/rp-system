@@ -132,6 +132,13 @@ test("timeout settings reject blank, negative and out-of-range values instead of
   assert.match(html, /max="4294967295"/);
 });
 
+test("power-plan cycling never guesses when the active plan cannot be confirmed", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(actions, /const activeGuid = snapshot\.powerPlanGuid\?\.toLowerCase\(\)/);
+  assert.match(actions, /plan\.active \|\| \(activeGuid && plan\.guid\.toLowerCase\(\) === activeGuid\)/);
+  assert.match(actions, /if \(index < 0\) return ev\.action\.showAlert\(\)/);
+});
+
 test("display cycling never guesses from an unknown mixed topology", async () => {
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
