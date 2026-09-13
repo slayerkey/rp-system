@@ -190,3 +190,10 @@ test("PackRat catalog registers the Wireless Device Manager Lite/Pro family cons
   assert.equal("lite_marketplace_url" in pairs[0],false);
   assert.equal("pro_marketplace_url" in pairs[0],false);
 });
+
+
+test("wireless repaint notifier is non-recursive",async()=>{
+  const runtime=await readFile("src/runtime.ts","utf8");
+  assert.match(runtime,/notify\(\): void \{[\s\S]*for \(const listener of this\.listeners\) listener\(\);[\s\S]*\}/);
+  assert.doesNotMatch(runtime,/notify\(\): void \{\s*this\.notify\(\);\s*\}/);
+});
