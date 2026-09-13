@@ -534,3 +534,36 @@ test("watched sensor history buffers stay bounded with the watch LRU", () => {
   assert.equal(telemetry.histories.has("lhm.sensor.0"), false);
   assert.equal(telemetry.histories.has("lhm.sensor.79"), true);
 });
+
+
+test("restore ignores histories outside canonical metrics and the retained watch LRU", async () => {
+  const path = resolve(tmpdir(), "packrat-legacy-history-bound.json");
+  const state = {
+    version: 1,
+    savedAt: Date.now(),
+    watched: Array.from({ length: 80 }, (_, i) => "lhm.sensor." + i),
+    histories: {},
+    session: {},
+  };
+  for (let i = 0; i < 80; i += 1) {
+    state.histories["lhm.sensor." + i] = {
+      raw: [[Date.now(), i]],
+      archive: [],
+    };
+  }
+  state.histories["cpu.load"] = { raw: [[Date.now(), 50]], archive: [] };
+  await writeFile(path, JSON.stringify(state), "utf8");
+
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "legacy-history-bound"),
+    persistPath: path,
+    presentMonProvider: fakeProvider(),
+  });
+  await telemetry._restore();
+
+  assert.equal(telemetry.watched.size, 32);
+  assert.ok(telemetry.histories.size <= 33);
+  assert.equal(telemetry.histories.has("lhm.sensor.0"), false);
+  assert.equal(telemetry.histories.has("lhm.sensor.79"), true);
+  assert.equal(telemetry.histories.has("cpu.load"), true);
+});
