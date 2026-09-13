@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "qa_passed",
   "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Automated Windows release CI is green. Remaining gate is physical target-machine validation: rat dev + read-only rat audit, USB/Bluetooth/multi-mic profile switching, Stream Deck+ controls, restart/reboot/sleep-wake recovery, and real-hardware Marketplace demo evidence when required.",
+  "blocker": "Automated release, catalog, package, and Marketplace-art gates are green. Remaining gate is physical target-machine validation: rat dev + read-only rat audit, USB/Bluetooth/multi-mic switching, Stream Deck+ controls, restart/reboot/sleep-wake recovery, and real-hardware Marketplace demo evidence when required.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -24,16 +24,26 @@
     "Stream Deck sleep/wake action and Property Inspector event smoke",
     "read-only Audio Manager host audit on exact Rat Dev candidate"
   ],
-  "final_boundary": "Automated build/test/helper/Elgato validate/package/Rat Art gates PASS. Physical target-machine Audio Manager behavior and Stream Deck hardware validation remain before READY_TO_SHIP.",
+  "final_boundary": "Current merged candidate passes 48/48 tests, canonical plugin metadata preflight, full Lite/Pro catalog audit, Windows native/helper smoke, official Elgato validate/package, package hygiene, and Rat Art. Physical target-machine and Stream Deck hardware validation remain before READY_TO_SHIP.",
   "automated_release_evidence": {
-    "latest_successful_windows_run": 34770168738,
+    "latest_successful_windows_run": 34777162074,
     "automated_gate": "PASS",
+    "test_suite": "48/48 passing",
+    "catalog_checks": [
+      "canonical plugin release metadata preflight PASS",
+      "PackRat Lite to Pro catalog audit PASS",
+      "Audio Manager intentionally has no bundled Stream Deck profiles",
+      "Audio Manager intentionally has no Lite to Pro catalog relationship or unrelated in-product upsell"
+    ],
     "passed": [
       "shared PackRat AudioCore Windows .NET build",
       "XENEON Audio Control Center bridge regression build",
       "locked npm install",
       "high-severity npm audit",
       "full npm test suite",
+      "canonical plugin release metadata preflight",
+      "full Lite to Pro catalog audit",
+      "pre-hardware Rat Ship workflow-state guard",
       "self-contained win-x64 helper publish",
       "Audio Manager static host audit on Windows PowerShell",
       "native helper self-test",
@@ -42,11 +52,14 @@
       "official Stream Deck CLI validation",
       "official .streamDeckPlugin packaging",
       "packaged native helper verification",
+      "release payload hygiene with no PDB/source/tests/node_modules/maps/env/key material",
       "deterministic Marketplace media generation",
       "release QA artifact upload"
     ],
-    "pure_suite": "Exact current GitHub source/test files execute 42/42 passing in the available JavaScript harness.",
-    "historical_runner_note": "Earlier runs failed before runner allocation with steps=null. Current-head Windows run 34770168738 later completed normally and passed every automated gate."
+    "packaged_files": 41,
+    "unpacked_size": "33.6 MiB",
+    "release_artifact_id": 10324202033,
+    "release_artifact_zip_sha256": "a34a1e3b4427f336cbd992111dac2637536551d2cc2fe3b40fffa3d168b3722e"
   },
   "legacy_status": "qa_passed"
 }
