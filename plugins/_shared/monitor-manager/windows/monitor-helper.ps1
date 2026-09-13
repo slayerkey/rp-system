@@ -162,6 +162,7 @@ public static class MonitorNative {
         public string deviceName { get; set; }
         public string monitorDevicePath { get; set; }
         public string description { get; set; }
+        public bool internalDisplay { get; set; }
         public bool primary { get; set; }
         public int left { get; set; }
         public int top { get; set; }
@@ -263,6 +264,31 @@ public static class MonitorNative {
         var dm = EmptyMode();
         if (!EnumDisplaySettingsEx(deviceName, ENUM_CURRENT_SETTINGS, ref dm, 0)) return null;
         return new ModeRecord { width=dm.dmPelsWidth, height=dm.dmPelsHeight, frequency=dm.dmDisplayFrequency, orientation=dm.dmDisplayOrientation };
+    }
+
+    static bool IsInternalDisplay(string deviceName) {
+        uint pathCount, modeCount;
+        if (GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, out pathCount, out modeCount) != 0 || pathCount == 0) return false;
+        var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
+        var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
+        if (QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero) != 0) return false;
+        for (int i=0; i<pathCount; i++) {
+            var source = new DISPLAYCONFIG_SOURCE_DEVICE_NAME();
+            source.header.type = 1;
+            source.header.size = (uint)Marshal.SizeOf(typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME));
+            source.header.adapterId = paths[i].sourceInfo.adapterId;
+            source.header.id = paths[i].sourceInfo.id;
+            IntPtr sp = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME)));
+            try {
+                Marshal.StructureToPtr(source, sp, false);
+                if (DisplayConfigGetDeviceInfo(sp) != 0) continue;
+                source = (DISPLAYCONFIG_SOURCE_DEVICE_NAME)Marshal.PtrToStructure(sp, typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME));
+            } finally { Marshal.FreeHGlobal(sp); }
+            if (!string.Equals(source.viewGdiDeviceName, deviceName, StringComparison.OrdinalIgnoreCase)) continue;
+            int tech = paths[i].targetInfo.outputTechnology;
+            return tech == 6 || tech == 11 || tech == 13 || unchecked((uint)tech) == 0x80000000u;
+        }
+        return false;
     }
 
     static string StableMonitorPath(string deviceName) {
@@ -378,7 +404,7 @@ public static class MonitorNative {
             if (!have) {
                 bool hs, he; TryHdr(mi.szDevice, false, false, out hs, out he);
                 list.Add(new DisplayRecord {
-                    deviceName=mi.szDevice, monitorDevicePath=StableMonitorPath(mi.szDevice), description=mi.szDevice, primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
+                    deviceName=mi.szDevice, monitorDevicePath=StableMonitorPath(mi.szDevice), description=mi.szDevice, internalDisplay=IsInternalDisplay(mi.szDevice), primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
                     left=mi.rcMonitor.left, top=mi.rcMonitor.top, right=mi.rcMonitor.right, bottom=mi.rcMonitor.bottom,
                     physicalIndex=0, physicalCount=0, capabilities=null, ddcBrightness=false, ddcContrast=false,
                     currentMode=GetCurrentMode(mi.szDevice), modes=GetModes(mi.szDevice),
@@ -393,7 +419,7 @@ public static class MonitorNative {
                     bool cs=GetMonitorContrast(phys[i].hPhysicalMonitor, out cmin, out ccur, out cmax);
                     bool hs, he; TryHdr(mi.szDevice, false, false, out hs, out he);
                     list.Add(new DisplayRecord {
-                        deviceName=mi.szDevice, monitorDevicePath=(StableMonitorPath(mi.szDevice) ?? mi.szDevice) + "#" + i, description=phys[i].szPhysicalMonitorDescription, primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
+                        deviceName=mi.szDevice, monitorDevicePath=(StableMonitorPath(mi.szDevice) ?? mi.szDevice) + "#" + i, description=phys[i].szPhysicalMonitorDescription, internalDisplay=IsInternalDisplay(mi.szDevice), primary=(mi.dwFlags & MONITORINFOF_PRIMARY) != 0,
                         left=mi.rcMonitor.left, top=mi.rcMonitor.top, right=mi.rcMonitor.right, bottom=mi.rcMonitor.bottom,
                         physicalIndex=i, physicalCount=phys.Length, capabilities=Caps(phys[i].hPhysicalMonitor),
                         ddcBrightness=bs, brightness=bcur, brightnessMin=bmin, brightnessMax=bmax,
