@@ -148,6 +148,13 @@ test("display cycling never guesses from an unknown mixed topology", async () =>
   assert.match(html, /<option value="">Choose topology<\/option>/);
 });
 
+test("Property Inspector re-renders action defaults when live Windows context arrives", async () => {
+  const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
+  assert.match(inspector, /const liveTimeout = context\.snapshot\?\.timeout/);
+  assert.match(inspector, /settings\[id\] \?\? liveTimeout\?\.\[id\] \?\? ""/);
+  assert.match(inspector, /renderActionSettings\(\);[\s\S]*if \(!modeDirty\) populateModeEditor\(\)/);
+});
+
 test("individual set actions fall back to the live value shown by the inspector", async () => {
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
