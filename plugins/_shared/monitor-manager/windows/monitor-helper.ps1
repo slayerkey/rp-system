@@ -188,8 +188,8 @@ public static class MonitorNative {
 
     [DllImport("user32.dll")] static extern int GetDisplayConfigBufferSizes(uint flags, out uint pathCount, out uint modeCount);
     [DllImport("user32.dll")] static extern int QueryDisplayConfig(uint flags, ref uint pathCount, [Out] DISPLAYCONFIG_PATH_INFO[] paths, ref uint modeCount, [Out] DISPLAYCONFIG_MODE_INFO[] modes, IntPtr topology);
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int DisplayConfigGetDeviceInfo(ref DISPLAYCONFIG_DEVICE_INFO_HEADER header);
-    [DllImport("user32.dll")] static extern int DisplayConfigSetDeviceInfo(ref DISPLAYCONFIG_DEVICE_INFO_HEADER header);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int DisplayConfigGetDeviceInfo(IntPtr packet);
+    [DllImport("user32.dll")] static extern int DisplayConfigSetDeviceInfo(IntPtr packet);
 
     static DEVMODE EmptyMode() {
         var mode = new DEVMODE();
@@ -266,8 +266,7 @@ public static class MonitorNative {
             IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME)));
             try {
                 Marshal.StructureToPtr(source, ptr, false);
-                var hdr = (DISPLAYCONFIG_DEVICE_INFO_HEADER)Marshal.PtrToStructure(ptr, typeof(DISPLAYCONFIG_DEVICE_INFO_HEADER));
-                if (DisplayConfigGetDeviceInfo(ref hdr) != 0) continue;
+                if (DisplayConfigGetDeviceInfo(ptr) != 0) continue;
                 source = (DISPLAYCONFIG_SOURCE_DEVICE_NAME)Marshal.PtrToStructure(ptr, typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME));
             } finally { Marshal.FreeHGlobal(ptr); }
             // DisplayConfigGetDeviceInfo mutates the full packet, so use a direct marshalled helper below when needed.
@@ -285,8 +284,7 @@ public static class MonitorNative {
             IntPtr ip = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO)));
             try {
                 Marshal.StructureToPtr(info, ip, false);
-                var hh = (DISPLAYCONFIG_DEVICE_INFO_HEADER)Marshal.PtrToStructure(ip, typeof(DISPLAYCONFIG_DEVICE_INFO_HEADER));
-                int rc = DisplayConfigGetDeviceInfo(ref hh);
+                int rc = DisplayConfigGetDeviceInfo(ip);
                 if (rc != 0) return false;
                 info = (DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO)Marshal.PtrToStructure(ip, typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO));
             } finally { Marshal.FreeHGlobal(ip); }
@@ -304,8 +302,7 @@ public static class MonitorNative {
                 IntPtr pp = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE)));
                 try {
                     Marshal.StructureToPtr(packet, pp, false);
-                    var pheader = (DISPLAYCONFIG_DEVICE_INFO_HEADER)Marshal.PtrToStructure(pp, typeof(DISPLAYCONFIG_DEVICE_INFO_HEADER));
-                    int rc = DisplayConfigSetDeviceInfo(ref pheader);
+                    int rc = DisplayConfigSetDeviceInfo(pp);
                     if (rc != 0) return false;
                 } finally { Marshal.FreeHGlobal(pp); }
                 current = enabled;
