@@ -27,8 +27,10 @@ public sealed record EndpointInfo(
 public sealed record AudioSystemSnapshot(
     bool DefaultDeviceSwitching,
     string DefaultOutputId,
+    string MultimediaOutputId,
     string CommunicationsOutputId,
     string DefaultInputId,
+    string MultimediaInputId,
     string CommunicationsInputId,
     IReadOnlyList<EndpointInfo> Outputs,
     IReadOnlyList<EndpointInfo> Inputs,
@@ -57,8 +59,10 @@ public sealed class WindowsAudioSystem
                 return new AudioSystemSnapshot(
                     _defaultSwitchingAvailable,
                     core.GetDefaultId(AudioFlow.Render, AudioRole.Console),
+                    core.GetDefaultId(AudioFlow.Render, AudioRole.Multimedia),
                     core.GetDefaultId(AudioFlow.Render, AudioRole.Communications),
                     core.GetDefaultId(AudioFlow.Capture, AudioRole.Console),
+                    core.GetDefaultId(AudioFlow.Capture, AudioRole.Multimedia),
                     core.GetDefaultId(AudioFlow.Capture, AudioRole.Communications),
                     core.List(AudioFlow.Render),
                     core.List(AudioFlow.Capture),
@@ -68,6 +72,8 @@ public sealed class WindowsAudioSystem
             {
                 return new AudioSystemSnapshot(
                     _defaultSwitchingAvailable,
+                    "",
+                    "",
                     "",
                     "",
                     "",
