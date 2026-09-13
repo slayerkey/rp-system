@@ -14,6 +14,7 @@ function json(path) {
 
 const manifest = json(resolve(productRoot, "com.packrat.audio-manager-pro.sdPlugin", "manifest.json"));
 const submission = json(resolve(productRoot, "submission.json"));
+const ratDev = json(resolve(productRoot, "rat-dev.json"));
 const product = json(resolve(repoRoot, "products", "audio-manager-pro.json"));
 const index = json(resolve(repoRoot, "products", "index.json"));
 const editionMap = json(resolve(repoRoot, "products", "lite-pro-map.json"));
@@ -52,13 +53,16 @@ test("Audio Manager canonical catalog paths and product identity stay aligned", 
   assert.equal(submission.name, "Audio Manager Pro");
 });
 
+test("Audio Manager declares that Rat Dev may defer the .NET SDK prerequisite to its private bootstrap", () => {
+  assert.equal(ratDev.build_prerequisites?.dotnet_sdk, "self-managed");
+});
+
 test("Audio Manager listing follows current PackRat standalone paid conventions", () => {
   assert.equal(submission.marketplace_auto_publish, true);
   assert.match(submission.description, /Part of the Packrat Ecosystem\.$/);
   assert.match(submission.headline, /Switch your entire audio setup with one key\./);
   assert.equal(submission.marketplace_operating_systems?.includes("Windows"), true);
 });
-
 
 test("Audio Manager stays on the current PackRat Stream Deck runtime baseline", () => {
   assert.equal(manifest.Author, "PackRat");
