@@ -14,6 +14,7 @@ export class MacroLibrary {
     this.macros = [];
     this.warning = "";
     this.saveTail = Promise.resolve();
+    this.operationTail = Promise.resolve();
   }
 
   async load() {
@@ -49,28 +50,49 @@ export class MacroLibrary {
     return this.macros.find((macro) => macro.id === String(id || "")) || null;
   }
 
+  async transact(mutator) {
+    const run = this.operationTail.then(async () => {
+      const before = [...this.macros];
+      try {
+        const value = mutator();
+        await this.save();
+        return value;
+      } catch (error) {
+        this.macros = before;
+        throw error;
+      }
+    });
+    this.operationTail = run.catch(() => {});
+    return await run;
+  }
+
   async add(raw) {
-    let macro = normalizeMacro({ ...raw, updatedAt: new Date().toISOString() }, { pro: true });
-    if (this.get(macro.id)) macro = normalizeMacro({ ...macro, id: undefined, name: `${macro.name} Copy` }, { pro: true });
-    this.macros.push(macro);
-    await this.save();
-    return macro;
+    return await this.transact(() => {
+      let macro = normalizeMacro({ ...raw, updatedAt: new Date().toISOString() }, { pro: true });
+      if (this.get(macro.id)) macro = normalizeMacro({ ...macro, id: undefined, createdAt: undefined, updatedAt: new Date().toISOString(), name: `${macro.name} Copy` }, { pro: true });
+      this.macros.push(macro);
+      return macro;
+    });
   }
 
   async update(id, raw) {
-    const index = this.macros.findIndex((macro) => macro.id === String(id || ""));
-    if (index < 0) throw new Error("Macro not found.");
-    const current = this.macros[index];
-    const next = normalizeMacro({ ...current, ...raw, id: current.id, createdAt: current.createdAt, updatedAt: new Date().toISOString() }, { pro: true });
-    this.macros[index] = next;
-    await this.save();
-    return next;
+    return await this.transact(() => {
+      const index = this.macros.findIndex((macro) => macro.id === String(id || ""));
+      if (index < 0) throw new Error("Macro not found.");
+      const current = this.macros[index];
+      const next = normalizeMacro({ ...current, ...raw, id: current.id, createdAt: current.createdAt, updatedAt: new Date().toISOString() }, { pro: true });
+      this.macros[index] = next;
+      return next;
+    });
   }
 
   async remove(id) {
-    const before = this.macros.length;
-    this.macros = this.macros.filter((macro) => macro.id !== String(id || ""));
-    if (this.macros.length !== before) await this.save();
+    const target = String(id || "");
+    if (!this.get(target)) return false;
+    return await this.transact(() => {
+      this.macros = this.macros.filter((macro) => macro.id !== target);
+      return true;
+    });
   }
 
   async save() {
