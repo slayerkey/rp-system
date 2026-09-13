@@ -87,8 +87,11 @@ function sanitizeModeSettings(raw: any): ModeSettings {
   }
   if (raw?.timeout && ["monitorAcSeconds", "monitorDcSeconds", "sleepAcSeconds", "sleepDcSeconds"]
     .every((key) => {
-      const value = Number(raw.timeout[key]);
-      return Number.isInteger(value) && value >= 0 && value <= 0xffffffff;
+      const value = raw.timeout[key];
+      return typeof value === "number"
+        && Number.isInteger(value)
+        && value >= 0
+        && value <= 0xffffffff;
     })) {
     result.timeout = {
       monitorAcSeconds: Number(raw.timeout.monitorAcSeconds),
