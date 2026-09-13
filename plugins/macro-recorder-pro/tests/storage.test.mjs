@@ -177,3 +177,39 @@ test("Macro Library refuses adding an empty macro", async () => {
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("Macro Library recovers a valid interrupted first-save temp file", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  const temp=file+".tmp";
+  try {
+    await writeFile(temp,JSON.stringify({schema:1,macros:[{
+      id:"recovered",
+      name:"Recovered",
+      events:[
+        {type:"keyDown",vk:65,delayMs:1},
+        {type:"keyUp",vk:65,delayMs:1}
+      ]
+    }]}),"utf8");
+    const library=await new MacroLibrary(file).load();
+    assert.equal(library.get("recovered").name,"Recovered");
+    assert.match(library.warning,/interrupted save/i);
+    const reloaded=await new MacroLibrary(file).load();
+    assert.equal(reloaded.get("recovered").name,"Recovered");
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
+
+test("Macro Library does not load malformed interrupted temp data", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    await writeFile(file+".tmp","{bad-json","utf8");
+    const library=await new MacroLibrary(file).load();
+    assert.equal(library.list().length,0);
+    assert.match(library.warning,/could not be recovered/i);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
