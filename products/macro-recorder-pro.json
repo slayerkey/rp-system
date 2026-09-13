@@ -4,8 +4,8 @@
   "type": "plugin",
   "status": "built",
   "workflow_state": "TESTING",
-  "blocker_kind": "native_long_idle_timing_ci_runner_unavailable_and_final_host_validation",
-  "blocker": "Before shipping, preserve Pro single-event delays beyond 60 seconds up to the recording-duration limit. GitHub-hosted Actions is also not assigning the Windows runner, so run the local family QA or restore hosted-runner availability, then complete the Windows + physical Stream Deck smoke matrix.",
+  "blocker_kind": "native_input_safety_and_long_idle_timing_ci_runner_unavailable_and_final_host_validation",
+  "blocker": "Before shipping, complete the native held-input safety and long-idle timing fixes in docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md. GitHub-hosted Actions is also not assigning the Windows runner, so run the local family QA or restore hosted-runner availability, then complete the Windows + physical Stream Deck smoke matrix.",
   "final_boundary": "Do not move to READY_TO_SHIP until docs/MACRO_RECORDER_QA.md final host/device checks pass.",
   "price_usd": 7.99,
   "version": "1.0.0.0",
@@ -73,5 +73,6 @@
     "macro_recorder_run_id": 34741738309,
     "run_attempt": 2,
     "local_fallback": "plugins/macro-recorder-pro/run-family-qa.ps1"
-  }
+  },
+  "native_release_blockers": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md"
 }
