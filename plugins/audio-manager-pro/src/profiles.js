@@ -249,6 +249,45 @@ export function mergeApplyResult(plan, helperResponse) {
   };
 }
 
+export function roleMatchesSnapshot(flow, role, endpointId, snapshot) {
+  const wanted = String(endpointId || "");
+  if (!wanted || !snapshot || snapshot.error) return false;
+
+  const keys = flow === "output"
+    ? role === "communications"
+      ? ["communicationsOutputId"]
+      : ["defaultOutputId", "multimediaOutputId"]
+    : flow === "input"
+      ? role === "communications"
+        ? ["communicationsInputId"]
+        : ["defaultInputId", "multimediaInputId"]
+      : [];
+
+  return keys.length > 0 && keys.every((key) => String(snapshot?.[key] || "") === wanted);
+}
+
+function snapshotEndpoint(snapshot, endpointId) {
+  const wanted = String(endpointId || "");
+  if (!wanted || !snapshot || snapshot.error) return null;
+  const endpoints = [
+    ...(Array.isArray(snapshot.outputs) ? snapshot.outputs : []),
+    ...(Array.isArray(snapshot.inputs) ? snapshot.inputs : []),
+  ];
+  return endpoints.find((endpoint) => String(endpoint.id || "") === wanted) || null;
+}
+
+export function endpointVolumeMatches(snapshot, endpointId, value, tolerance = 1) {
+  const endpoint = snapshotEndpoint(snapshot, endpointId);
+  if (!endpoint?.volumeAvailable) return false;
+  return Math.abs(Number(endpoint.volume) - Number(value)) <= Math.max(0, Number(tolerance) || 0);
+}
+
+export function endpointMuteMatches(snapshot, endpointId, value) {
+  const endpoint = snapshotEndpoint(snapshot, endpointId);
+  if (!endpoint?.muteAvailable) return false;
+  return Boolean(endpoint.muted) === Boolean(value);
+}
+
 export function verifyApplyResult(profileInput, resultInput, snapshot) {
   const result = resultInput && typeof resultInput === "object"
     ? { ...resultInput, failures: [...(resultInput.failures || [])] }
