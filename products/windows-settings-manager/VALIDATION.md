@@ -15,7 +15,7 @@
 ## Technical surfaces
 
 - Display topology: QueryDisplayConfig / SetDisplayConfig
-- HDR: DisplayConfigGetDeviceInfo / DisplayConfigSetDeviceInfo with RtlGetVersion-gated 24H2 separated HDR state and guarded legacy Advanced Color fallback
+- HDR: DisplayConfigGetDeviceInfo / DisplayConfigSetDeviceInfo through the RtlGetVersion-gated Windows 11 24H2 separated HDR path only; older ambiguous Advanced Color writes are intentionally not used
 - Power and timeout: powercfg.exe
 - Keep Awake: SetThreadExecutionState
 - Lock: LockWorkStation
