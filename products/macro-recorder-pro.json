@@ -1,0 +1,69 @@
+{
+  "id": "macro-recorder-pro",
+  "name": "Macro Recorder Pro",
+  "type": "plugin",
+  "status": "built",
+  "workflow_state": "TESTING",
+  "blocker_kind": "final_host_validation",
+  "blocker": "Run mouse/DPI/multi-monitor/loop/library tests and physical Stream Deck interruption tests against the exact passing CI package.",
+  "final_boundary": "Do not move to READY_TO_SHIP until docs/MACRO_RECORDER_QA.md final host/device checks pass.",
+  "price_usd": 7.99,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/macro-recorder-pro",
+  "plugin_uuid": "com.packrat.macro-recorder-pro",
+  "build_flavor": "pro",
+  "minimum_stream_deck": "7.0",
+  "node_runtime": "24",
+  "shared_engine": [
+    "shared/macro-recorder",
+    "shared/windows-input/PackRat.InputHost"
+  ],
+  "qa": "docs/MACRO_RECORDER_QA.md",
+  "market_research": "docs/MACRO_RECORDER_MARKET_RESEARCH_2026-09-12.md",
+  "submission": "plugins/macro-recorder-pro/submission.json",
+  "limits": {
+    "recording_seconds": 600,
+    "events": 25000,
+    "input": "keyboard + mouse",
+    "playback_speed": "0.25x-4x",
+    "repeat_modes": [
+      "count",
+      "while-held",
+      "toggle"
+    ]
+  },
+  "library": {
+    "location": "%APPDATA%/PackRat/Macro Recorder Pro/library.json",
+    "network_upload": false,
+    "import_export": "PackRat macro JSON"
+  },
+  "bundled_profiles": {
+    "layouts": [
+      "MACROS",
+      "GAMING",
+      "PRODUCTIVITY",
+      "MOUSE",
+      "LOOPS"
+    ],
+    "device_types": [
+      "Stream Deck"
+    ],
+    "auto_install": true,
+    "auto_switch_on_install": false,
+    "editable": true
+  },
+  "release_gate": [
+    "Windows CI build",
+    "input-host selftest and daemon ping",
+    "unit tests",
+    "profile generation",
+    "official Elgato CLI validation",
+    "official plugin packaging",
+    "multi-monitor and DPI smoke",
+    "mouse drag/wheel smoke",
+    "loop cancellation smoke",
+    "library corruption/import-export smoke",
+    "physical Stream Deck emergency stop smoke"
+  ]
+}

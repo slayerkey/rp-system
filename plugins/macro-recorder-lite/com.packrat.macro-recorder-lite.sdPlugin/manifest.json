@@ -1,0 +1,94 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Actions": [
+    {
+      "UUID": "com.packrat.macro-recorder-lite.record",
+      "Name": "Record Keyboard Macro",
+      "Tooltip": "Start recording keyboard input.",
+      "Icon": "imgs/actions/record/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/record/key",
+          "ShowTitle": true,
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.macro-recorder-lite.stop",
+      "Name": "Stop Recording / Playback",
+      "Tooltip": "Stop the active recording or immediately cancel playback.",
+      "Icon": "imgs/actions/stop/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/stop/key",
+          "ShowTitle": true,
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.macro-recorder-lite.replay",
+      "Name": "Replay Macro",
+      "Tooltip": "Replay the keyboard macro assigned to this key.",
+      "Icon": "imgs/actions/replay/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/replay/key",
+          "ShowTitle": true,
+          "TitleAlignment": "middle"
+        }
+      ]
+    }
+  ],
+  "Author": "PackRat",
+  "Category": "Macro Recorder Lite",
+  "CategoryIcon": "imgs/category/icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "Record short keyboard macros once, then assign and replay them from Stream Deck on Windows.",
+  "Icon": "imgs/plugin/icon",
+  "Name": "Macro Recorder Lite",
+  "Nodejs": {
+    "Version": "24"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Profiles": [
+    {
+      "Name": "profiles/macro-recorder-lite-starter",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
+  ],
+  "PropertyInspectorPath": "ui/inspector.html",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.0"
+  },
+  "UUID": "com.packrat.macro-recorder-lite",
+  "Version": "1.0.0.0"
+}

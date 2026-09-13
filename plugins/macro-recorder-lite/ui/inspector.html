@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Macro Recorder Lite</title>
+  <link rel="stylesheet" href="inspector.css" />
+</head>
+<body data-edition="lite">
+<main>
+  <section class="status-card">
+    <div class="status-row"><span id="dot" class="dot"></span><strong id="statusTitle">Macro Recorder ready</strong></div>
+    <div id="statusDetail" class="muted">Everything stays on this PC.</div>
+  </section>
+
+  <section class="group" data-kind="record">
+    <h3>Record a keyboard macro</h3>
+    <p class="hint">Press the Stream Deck key, perform the workflow once, then press STOP.</p>
+    <div class="pro-only">
+      <label class="check"><input id="captureMouseMovement" type="checkbox" /> Record mouse movement</label>
+      <label for="recordCoordinateMode">Mouse reference</label>
+      <select id="recordCoordinateMode"><option value="absolute">Screen coordinates</option><option value="active-window">Active-window relative</option></select>
+    </div>
+    <p id="recordLimit" class="limit"></p>
+    <button id="cancelRecording" class="danger" type="button">Cancel current recording</button>
+  </section>
+
+  <section class="group" data-kind="stop">
+    <h3>Emergency stop</h3>
+    <p class="hint">This key stops recording or playback globally. Keyboard fallback: <strong>Ctrl + Shift + F12</strong>.</p>
+    <button id="stopPlayback" class="danger" type="button">Stop playback now</button>
+  </section>
+
+  <section class="group" data-kind="replay">
+    <h3>Assigned macro</h3>
+    <div class="lite-only">
+      <button id="assignLatest" type="button">Assign latest recording</button>
+      <p class="hint">Each Replay Macro key stores its own keyboard macro.</p>
+    </div>
+    <div class="pro-only">
+      <label for="macroSelect">Macro Library</label>
+      <select id="macroSelect"><option value="">Choose a macro</option></select>
+      <div class="button-row">
+        <button id="duplicateMacro" type="button" class="secondary">Duplicate</button>
+        <button id="deleteMacro" type="button" class="danger">Delete</button>
+      </div>
+      <div class="button-row">
+        <label class="file-button">Import<input id="importFile" type="file" accept=".json,.packrat-macro.json" /></label>
+        <button id="exportMacro" type="button" class="secondary">Export</button>
+      </div>
+    </div>
+
+    <div class="pro-only">
+      <label for="playbackSpeed">Playback speed</label>
+      <select id="playbackSpeed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4">4×</option></select>
+      <label for="playbackMode">Playback mode</label>
+      <select id="playbackMode"><option value="once">Once</option><option value="count">Repeat count</option><option value="while-held">Repeat while held</option><option value="toggle">Toggle repeat</option></select>
+      <div id="repeatRow"><label for="repeatCount">Repeat count</label><input id="repeatCount" type="number" min="1" max="100" /></div>
+      <label for="coordinateMode">Mouse playback</label>
+      <select id="coordinateMode"><option value="absolute">Recorded screen coordinates</option><option value="active-window">Relative to active window</option></select>
+    </div>
+
+    <div class="timeline-head">
+      <strong>Timeline</strong><span id="macroMeta" class="muted"></span>
+    </div>
+    <div id="timeline" class="timeline"></div>
+    <p id="timelineWarning" class="warning" hidden></p>
+  </section>
+
+  <section class="group privacy">
+    <strong>Local by design</strong>
+    <p class="hint">Macro contents are never uploaded to PackRat. Do not deliberately record passwords. Windows secure-desktop input is outside the normal recording desktop, but ordinary app password fields cannot be identified reliably.</p>
+  </section>
+
+  <section class="group upsell lite-only">
+    <strong>Macro Recorder Pro</strong>
+    <p>Unlock mouse recording, 10-minute macros, playback speed, loops, reusable Macro Library, and import/export.</p>
+    <p class="hint">A direct Marketplace button is intentionally withheld until the Pro listing URL is verified.</p>
+  </section>
+
+  <p id="errorText" class="error" hidden></p>
+</main>
+<script src="inspector.js"></script>
+</body>
+</html>

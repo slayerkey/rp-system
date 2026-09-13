@@ -854,6 +854,22 @@
       "status": "qa_passed",
       "price_usd": 34.99,
       "version": "1.0.0"
+    },
+    {
+      "id": "macro-recorder-lite",
+      "name": "Macro Recorder Lite",
+      "type": "plugin",
+      "status": "built",
+      "price_usd": 0,
+      "version": "1.0.0.0"
+    },
+    {
+      "id": "macro-recorder-pro",
+      "name": "Macro Recorder Pro",
+      "type": "plugin",
+      "status": "built",
+      "price_usd": 7.99,
+      "version": "1.0.0.0"
     }
   ]
 }

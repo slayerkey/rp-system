@@ -1,0 +1,104 @@
+name: Macro Recorder Family Release QA
+
+on:
+  push:
+    branches:
+      - product/macro-recorder
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build shared Windows input host
+        shell: pwsh
+        run: |
+          dotnet publish shared/windows-input/PackRat.InputHost/PackRat.InputHost.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o artifacts/input-host
+          if (!(Test-Path artifacts/input-host/PackRat.InputHost.exe)) { throw 'Input host publish did not produce PackRat.InputHost.exe' }
+
+      - name: Input host selftest
+        shell: pwsh
+        run: |
+          & .\artifacts\input-host\PackRat.InputHost.exe --selftest
+          $ping = '{"id":"ci","command":"ping"}' | & .\artifacts\input-host\PackRat.InputHost.exe --daemon
+          if (($ping -join "") -notmatch '"ok":true') { throw "Input host daemon ping failed: $ping" }
+
+      - name: Install Lite dependencies
+        working-directory: plugins/macro-recorder-lite
+        run: npm ci --no-fund --no-audit
+
+      - name: Audit Lite dependencies
+        working-directory: plugins/macro-recorder-lite
+        run: npm audit --audit-level=high
+
+      - name: Test and build Lite
+        working-directory: plugins/macro-recorder-lite
+        run: |
+          npm test
+          npm run build
+          npm run validate
+          npm run pack
+
+      - name: Install Pro dependencies
+        working-directory: plugins/macro-recorder-pro
+        run: npm ci --no-fund --no-audit
+
+      - name: Audit Pro dependencies
+        working-directory: plugins/macro-recorder-pro
+        run: npm audit --audit-level=high
+
+      - name: Test and build Pro
+        working-directory: plugins/macro-recorder-pro
+        run: |
+          npm test
+          npm run build
+          npm run validate
+          npm run pack
+
+      - name: Verify family outputs
+        shell: pwsh
+        run: |
+          $lite = @(Get-ChildItem plugins/macro-recorder-lite/dist -Filter *.streamDeckPlugin -File)
+          $pro = @(Get-ChildItem plugins/macro-recorder-pro/dist -Filter *.streamDeckPlugin -File)
+          if ($lite.Count -ne 1) { throw "Expected one Lite package; found $($lite.Count)" }
+          if ($pro.Count -ne 1) { throw "Expected one Pro package; found $($pro.Count)" }
+          $liteProfiles = @(Get-ChildItem plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/profiles -Filter *.streamDeckProfile -File)
+          $proProfiles = @(Get-ChildItem plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/profiles -Filter *.streamDeckProfile -File)
+          if ($liteProfiles.Count -ne 1) { throw "Expected one Lite starter profile; found $($liteProfiles.Count)" }
+          if ($proProfiles.Count -ne 1) { throw "Expected one Pro starter profile; found $($proProfiles.Count)" }
+          Get-FileHash $lite[0].FullName -Algorithm SHA256
+          Get-FileHash $pro[0].FullName -Algorithm SHA256
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: macro-recorder-family-release-qa
+          path: |
+            plugins/macro-recorder-lite/dist/*.streamDeckPlugin
+            plugins/macro-recorder-pro/dist/*.streamDeckPlugin
+            plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/profiles/*
+            plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/profiles/*
+            plugins/macro-recorder-lite/submission.json
+            plugins/macro-recorder-pro/submission.json
+            docs/MACRO_RECORDER_QA.md
+            docs/MACRO_RECORDER_MARKET_RESEARCH_2026-09-12.md
+          if-no-files-found: error
+          retention-days: 30

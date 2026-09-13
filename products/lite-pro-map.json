@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-01",
+  "updated_at": "2026-09-12",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -178,6 +178,20 @@
       ],
       "source_status": "free_catalog_only_source_unavailable_pro_qa_passed",
       "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
+    },
+    {
+      "lite_id": "macro-recorder-lite",
+      "pro_id": "macro-recorder-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "plugins/macro-recorder-lite",
+        "plugins/macro-recorder-pro",
+        "shared/macro-recorder",
+        "shared/windows-input/PackRat.InputHost"
+      ],
+      "source_status": "source_built_marketplace_urls_unverified",
+      "notes": "Lite is keyboard-only with 30-second / 60-event limits and one macro per Replay action. Pro adds mouse capture, 10-minute / 25,000-event recordings, speed, loops and a reusable Macro Library. No Lite-to-Pro URL is shipped until a verified direct Macro Recorder Pro Marketplace listing exists."
     }
   ],
   "standalone_free": [

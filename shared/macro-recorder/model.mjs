@@ -1,0 +1,148 @@
+import { randomUUID } from "node:crypto";
+
+export const MACRO_SCHEMA = 1;
+export const LITE_LIMITS = Object.freeze({ maxDurationMs: 30_000, maxEvents: 60 });
+export const PRO_LIMITS = Object.freeze({ maxDurationMs: 600_000, maxEvents: 25_000 });
+
+const TYPES = new Set(["keyDown","keyUp","mouseMove","mouseDown","mouseUp","wheel"]);
+
+export function clamp(value, min, max) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return min;
+  return Math.max(min, Math.min(max, number));
+}
+
+export function normalizeEvent(raw = {}, { pro = true } = {}) {
+  const type = TYPES.has(raw.type) ? raw.type : "keyDown";
+  if (!pro && !type.startsWith("key")) return null;
+  const out = {
+    type,
+    delayMs: Math.round(clamp(raw.delayMs ?? 0, 0, 60_000)),
+  };
+  if (type.startsWith("key")) {
+    out.vk = Math.round(clamp(raw.vk ?? 0, 0, 255));
+    out.scan = Math.round(clamp(raw.scan ?? 0, 0, 65535));
+    out.extended = raw.extended === true;
+    out.name = String(raw.name || keyLabel(out.vk)).slice(0, 40);
+  } else if (type === "mouseMove") {
+    addPosition(out, raw);
+  } else if (type === "mouseDown" || type === "mouseUp") {
+    out.button = ["left","right","middle","x1","x2"].includes(raw.button) ? raw.button : "left";
+    addPosition(out, raw);
+  } else if (type === "wheel") {
+    out.delta = Math.round(clamp(raw.delta ?? 0, -12000, 12000));
+    out.horizontal = raw.horizontal === true;
+    addPosition(out, raw);
+  }
+  return out;
+}
+
+function addPosition(out, raw) {
+  out.x = Math.round(clamp(raw.x ?? 0, -100000, 100000));
+  out.y = Math.round(clamp(raw.y ?? 0, -100000, 100000));
+  if (Number.isFinite(Number(raw.relX)) && Number.isFinite(Number(raw.relY))) {
+    out.relX = clamp(raw.relX, -2, 3);
+    out.relY = clamp(raw.relY, -2, 3);
+  }
+}
+
+export function normalizeMacro(raw = {}, { pro = true, limits = pro ? PRO_LIMITS : LITE_LIMITS } = {}) {
+  const sourceEvents = Array.isArray(raw.events) ? raw.events : [];
+  const events = sourceEvents
+    .slice(0, limits.maxEvents)
+    .map((event) => normalizeEvent(event, { pro }))
+    .filter(Boolean);
+  let elapsed = 0;
+  const bounded = [];
+  for (const event of events) {
+    elapsed += event.delayMs;
+    if (elapsed > limits.maxDurationMs) break;
+    bounded.push(event);
+  }
+  return {
+    schema: MACRO_SCHEMA,
+    id: String(raw.id || randomUUID()),
+    name: String(raw.name || "Recorded Macro").trim().slice(0, 80) || "Recorded Macro",
+    createdAt: String(raw.createdAt || new Date().toISOString()),
+    updatedAt: new Date().toISOString(),
+    durationMs: bounded.reduce((sum, event) => sum + event.delayMs, 0),
+    events: bounded,
+  };
+}
+
+export function validateMacro(raw, { pro = true } = {}) {
+  const errors = [];
+  if (!raw || typeof raw !== "object") errors.push("Macro must be an object.");
+  const events = Array.isArray(raw?.events) ? raw.events : [];
+  if (!events.length) errors.push("Macro has no events.");
+  if (!pro && events.some((event) => !String(event?.type || "").startsWith("key"))) errors.push("Lite macros can contain keyboard events only.");
+  const down = new Map();
+  for (const event of events) {
+    if (event?.type === "keyDown") down.set(Number(event.vk), (down.get(Number(event.vk)) || 0) + 1);
+    if (event?.type === "keyUp") down.set(Number(event.vk), Math.max(0, (down.get(Number(event.vk)) || 0) - 1));
+  }
+  const unmatched = [...down.entries()].filter(([, count]) => count > 0).map(([vk]) => vk);
+  return { ok: errors.length === 0, errors, unmatchedKeys: unmatched };
+}
+
+export function playbackSettings(raw = {}, { pro = true } = {}) {
+  if (!pro) return { speed: 1, mode: "once", repeatCount: 1, coordinateMode: "absolute" };
+  const mode = ["once","count","while-held","toggle"].includes(raw.playbackMode) ? raw.playbackMode : "once";
+  return {
+    speed: clamp(raw.playbackSpeed ?? 1, 0.25, 4),
+    mode,
+    repeatCount: mode === "count" ? Math.round(clamp(raw.repeatCount ?? 2, 1, 100)) : (mode === "once" ? 1 : 0),
+    coordinateMode: raw.coordinateMode === "active-window" ? "active-window" : "absolute",
+  };
+}
+
+export function keysInMacro(macro) {
+  return [...new Set((macro?.events || []).filter((event) => event.type === "keyDown" || event.type === "keyUp").map((event) => Number(event.vk)).filter((vk) => vk > 0 && vk <= 255))];
+}
+
+export function describeEvent(event) {
+  if (!event) return "Unknown";
+  if (event.type === "keyDown") return `Key down · ${event.name || keyLabel(event.vk)}`;
+  if (event.type === "keyUp") return `Key up · ${event.name || keyLabel(event.vk)}`;
+  if (event.type === "mouseMove") return `Move mouse · ${event.x}, ${event.y}`;
+  if (event.type === "mouseDown") return `${title(event.button)} mouse down`;
+  if (event.type === "mouseUp") return `${title(event.button)} mouse up`;
+  if (event.type === "wheel") return `${event.horizontal ? "Horizontal" : "Vertical"} wheel · ${event.delta}`;
+  return "Unknown";
+}
+
+export function keyLabel(vk) {
+  const n = Number(vk);
+  const common = {
+    8:"Backspace",9:"Tab",13:"Enter",16:"Shift",17:"Ctrl",18:"Alt",20:"Caps Lock",27:"Esc",32:"Space",
+    33:"Page Up",34:"Page Down",35:"End",36:"Home",37:"Left",38:"Up",39:"Right",40:"Down",
+    44:"Print Screen",45:"Insert",46:"Delete",91:"Left Windows",92:"Right Windows",
+    112:"F1",113:"F2",114:"F3",115:"F4",116:"F5",117:"F6",118:"F7",119:"F8",120:"F9",121:"F10",122:"F11",123:"F12"
+  };
+  if (common[n]) return common[n];
+  if (n >= 48 && n <= 57) return String.fromCharCode(n);
+  if (n >= 65 && n <= 90) return String.fromCharCode(n);
+  return `VK ${n.toString(16).toUpperCase().padStart(2,"0")}`;
+}
+
+function title(value) {
+  const text = String(value || "");
+  return text ? text[0].toUpperCase() + text.slice(1) : "";
+}
+
+export function exportEnvelope(macro) {
+  return {
+    format: "packrat-macro",
+    schema: MACRO_SCHEMA,
+    exportedAt: new Date().toISOString(),
+    macro: normalizeMacro(macro, { pro: true }),
+  };
+}
+
+export function importEnvelope(raw) {
+  const source = typeof raw === "string" ? JSON.parse(raw) : raw;
+  if (!source || source.format !== "packrat-macro" || Number(source.schema) !== MACRO_SCHEMA) {
+    throw new Error("Unsupported PackRat macro file.");
+  }
+  return normalizeMacro(source.macro, { pro: true });
+}

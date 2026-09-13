@@ -1,0 +1,53 @@
+{
+  "id": "macro-recorder-lite",
+  "name": "Macro Recorder Lite",
+  "type": "plugin",
+  "status": "built",
+  "workflow_state": "TESTING",
+  "blocker_kind": "final_host_validation",
+  "blocker": "Run the Windows + physical Stream Deck matrix against the exact passing CI package before READY_TO_SHIP.",
+  "final_boundary": "Do not move to READY_TO_SHIP until docs/MACRO_RECORDER_QA.md final host/device checks pass.",
+  "price_usd": 0,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/macro-recorder-lite",
+  "plugin_uuid": "com.packrat.macro-recorder-lite",
+  "build_flavor": "lite",
+  "minimum_stream_deck": "7.0",
+  "node_runtime": "24",
+  "shared_engine": [
+    "shared/macro-recorder",
+    "shared/windows-input/PackRat.InputHost"
+  ],
+  "qa": "docs/MACRO_RECORDER_QA.md",
+  "market_research": "docs/MACRO_RECORDER_MARKET_RESEARCH_2026-09-12.md",
+  "submission": "plugins/macro-recorder-lite/submission.json",
+  "upgrade_url": null,
+  "upgrade_url_state": "withheld_until_verified_direct_pro_listing",
+  "limits": {
+    "recording_seconds": 30,
+    "events": 60,
+    "input": "keyboard only"
+  },
+  "bundled_profiles": {
+    "layouts": [
+      "BASIC"
+    ],
+    "device_types": [
+      "Stream Deck"
+    ],
+    "auto_install": true,
+    "auto_switch_on_install": false,
+    "editable": true
+  },
+  "release_gate": [
+    "Windows CI build",
+    "input-host selftest and daemon ping",
+    "unit tests",
+    "profile generation",
+    "official Elgato CLI validation",
+    "official plugin packaging",
+    "final Windows host smoke",
+    "physical Stream Deck stop/interruption smoke"
+  ]
+}

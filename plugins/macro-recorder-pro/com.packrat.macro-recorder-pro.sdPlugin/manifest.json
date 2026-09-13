@@ -1,0 +1,94 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Actions": [
+    {
+      "UUID": "com.packrat.macro-recorder-pro.record",
+      "Name": "Record Macro",
+      "Tooltip": "Start recording keyboard and mouse input.",
+      "Icon": "imgs/actions/record/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/record/key",
+          "ShowTitle": true,
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.macro-recorder-pro.stop",
+      "Name": "Stop Recording / Playback",
+      "Tooltip": "Stop the active recording or immediately cancel playback.",
+      "Icon": "imgs/actions/stop/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/stop/key",
+          "ShowTitle": true,
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.macro-recorder-pro.replay",
+      "Name": "Replay Macro",
+      "Tooltip": "Replay a saved Macro Library item with optional speed and loop controls.",
+      "Icon": "imgs/actions/replay/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": true,
+      "States": [
+        {
+          "Image": "imgs/actions/replay/key",
+          "ShowTitle": true,
+          "TitleAlignment": "middle"
+        }
+      ]
+    }
+  ],
+  "Author": "PackRat",
+  "Category": "Macro Recorder Pro",
+  "CategoryIcon": "imgs/category/icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "Record keyboard and mouse actions once, then replay, edit, loop and reuse them from Stream Deck on Windows.",
+  "Icon": "imgs/plugin/icon",
+  "Name": "Macro Recorder Pro",
+  "Nodejs": {
+    "Version": "24"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Profiles": [
+    {
+      "Name": "profiles/macro-recorder-pro-starter",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
+  ],
+  "PropertyInspectorPath": "ui/inspector.html",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.0"
+  },
+  "UUID": "com.packrat.macro-recorder-pro",
+  "Version": "1.0.0.0"
+}
