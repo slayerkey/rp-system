@@ -9,6 +9,11 @@ const plugin = resolve(root, "com.packrat.audio-manager-pro.sdPlugin");
 const bin = resolve(plugin, "bin");
 const imgs = resolve(plugin, "imgs");
 const uiOut = resolve(plugin, "ui");
+const nativeOut = resolve(plugin, "native", "win-x64");
+
+for (const debugFile of ["PackRat.AudioCore.pdb", "PackRat.AudioManager.Helper.pdb"]) {
+  await rm(resolve(nativeOut, debugFile), { force: true });
+}
 
 await rm(bin, { recursive: true, force: true });
 await rm(imgs, { recursive: true, force: true });
