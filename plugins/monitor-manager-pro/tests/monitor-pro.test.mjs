@@ -127,6 +127,8 @@ test("true HDR uses Windows 11 24H2 dedicated packets and fails closed without t
   assert.match(helper,/highDynamicRangeSupported/);
   assert.match(helper,/DISPLAYCONFIG_SET_HDR_STATE/);
   assert.match(helper,/header\.type = 16/);
+  assert.match(helper,/current = hdr\.activeColorMode == 2/);
+  assert.match(helper,/supported = current \|\| \(hdrCapable && !policyLimited\)/);
   assert.match(helper,/Older Windows exposes only "Advanced Color"/);
 });
 
