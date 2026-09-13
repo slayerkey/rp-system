@@ -2,7 +2,7 @@ import { InputHost } from "./input-host.mjs";
 import { MacroLibrary } from "./storage.mjs";
 import {
   LITE_LIMITS, PRO_LIMITS, exportEnvelope, importEnvelope,
-  normalizeMacro, playbackSettings, validateMacro
+  normalizeMacro, playbackSafetyError, playbackSettings, validateMacro
 } from "./model.mjs";
 
 function recordingName() {
@@ -37,7 +37,6 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     if (kind === "record") {
       return {
         captureMouseMovement: pro ? source.captureMouseMovement !== false : false,
-        coordinateMode: pro && source.coordinateMode === "active-window" ? "active-window" : "absolute",
       };
     }
     if (kind === "replay") {
@@ -184,7 +183,6 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       includeMouseMove: pro && record.settings.captureMouseMovement !== false,
       maxDurationMs: limits.maxDurationMs,
       maxEvents: limits.maxEvents,
-      coordinateMode: record.settings.coordinateMode,
     });
   }
 
@@ -205,6 +203,14 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       return;
     }
     const settings = playbackSettings(record.settings, { pro });
+    const safetyError = playbackSafetyError(macro, settings);
+    if (safetyError) {
+      lastError = safetyError;
+      await renderAll();
+      await broadcastInspectors();
+      await record.action.showAlert?.().catch(() => {});
+      return;
+    }
     if (settings.mode === "toggle" && playback?.actionId === record.id) {
       await stopPlayback();
       return;
