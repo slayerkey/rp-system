@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parsePresentMonRows, splitCsv } from "../src/presentmon.js";
+import { PresentMonProvider, parsePresentMonRows, splitCsv } from "../src/presentmon.js";
 
 test("CSV splitter handles quoted application names", () => {
   assert.deepEqual(splitCsv('"Game, Test.exe",123,16.7'), ["Game, Test.exe", "123", "16.7"]);
@@ -36,4 +36,16 @@ test("prefers MsBetweenPresents when v2 FrameTime is also present", () => {
   ]);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].frameTimeMs, 16.67);
+});
+
+
+test("live provider prefers MsBetweenPresents over v2 FrameTime", () => {
+  const provider = new PresentMonProvider({ executable: "unused" });
+  const frames = [];
+  provider.on("frame", (frame) => frames.push(frame));
+  provider._consumeLine("Application,ProcessID,FrameTime,MsBetweenPresents");
+  provider._consumeLine("game.exe,4242,6.50,16.67");
+  assert.equal(frames.length, 1);
+  assert.equal(frames[0].application, "game.exe");
+  assert.equal(frames[0].frameTimeMs, 16.67);
 });
