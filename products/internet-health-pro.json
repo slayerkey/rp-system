@@ -3,7 +3,7 @@
   "name": "Internet Health Pro",
   "type": "plugin",
   "status": "testing",
-  "workflow_state": "QA",
+  "workflow_state": "TESTING",
   "blocker": null,
   "price_usd": 7.99,
   "version": "1.0.0.0",
@@ -25,5 +25,6 @@
     "official .streamDeckPlugin packaging",
     "deterministic Rat Art and marketplace kit preflight"
   ],
-  "final_boundary": "Install the exact packaged .streamDeckPlugin in Stream Deck and physically observe live key rendering through a disconnect/reconnect and one manual speed test before Marketplace submission."
+  "final_boundary": "Install the exact packaged .streamDeckPlugin in Stream Deck and physically observe live key rendering through a disconnect/reconnect and one manual speed test before Marketplace submission.",
+  "qa_note": "GitHub Actions runs 34761485032 and 34761591445 failed before runner assignment on both windows-latest and macos-latest (runner_id 0, zero steps). Unrelated repository workflows failed the same way, so automated product QA remains pending rather than failed by a test assertion."
 }
