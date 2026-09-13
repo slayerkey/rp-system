@@ -10,6 +10,8 @@ test("Pro starter profile source contains required pages and a blank PLAY action
     assert.ok(source.includes(`label:"${label}"`),`missing ${label}`);
   }
   assert.ok(source.includes('act("p-play","replay","PLAY")'));
+  assert.ok(source.includes('const settings={seedMacro:m,...extra}'));
+  assert.equal(source.includes('const settings={macro:m,...extra}'),false);
   assert.ok(source.includes('playbackMode:"while-held"'));
   assert.ok(source.includes('playbackMode:"toggle"'));
   assert.equal(/anti[- ]?afk|cheat|farm/i.test(source),false);
