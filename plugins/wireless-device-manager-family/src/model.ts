@@ -13,6 +13,7 @@ export type RawDevice = {
   address?: string | null;
   containerId?: string | null;
   kind?: string | null;
+  transport?: "bluetooth" | "usb-hid" | "unknown" | null;
   paired?: boolean;
   connected?: boolean;
   present?: boolean | null;
@@ -56,8 +57,23 @@ export function parseGroupNames(value: string): string[] {
   )];
 }
 
-export function shouldApplySnapshot(ok: boolean, adapterAvailable: boolean): boolean {
-  return ok && adapterAvailable;
+export function shouldApplySnapshot(ok: boolean, bluetoothAvailable: boolean, hidAvailable = false): boolean {
+  return ok && (bluetoothAvailable || hidAvailable);
+}
+
+export type ObservedSources = {
+  bluetooth: boolean;
+  hid: boolean;
+};
+
+function sourceObserved(device: Device, observed: ObservedSources): boolean {
+  if (device.transport === "bluetooth" || (!device.transport && Boolean(device.address))) {
+    return observed.bluetooth;
+  }
+  if (device.transport === "usb-hid") {
+    return observed.hid;
+  }
+  return true;
 }
 
 export function capabilities(raw: RawDevice): Capabilities {
@@ -104,6 +120,7 @@ function mergeCurrentEndpoints(previous: Device | undefined, next: Device, now: 
     address: next.address ?? previous.address ?? null,
     containerId: next.containerId ?? previous.containerId ?? null,
     kind: previous.kind && next.kind && previous.kind !== next.kind ? "dual" : (next.kind ?? previous.kind ?? null),
+    transport: next.transport ?? previous.transport ?? null,
     paired: previous.paired !== false || next.paired !== false,
     connected: previous.connected === true || next.connected === true,
     present:
@@ -139,7 +156,11 @@ export class DeviceCatalog {
   private devices = new Map<string, Device>();
   private aliases = new Map<string, string>();
 
-  ingest(rawDevices: RawDevice[], now = Date.now()): Device[] {
+  ingest(
+    rawDevices: RawDevice[],
+    now = Date.now(),
+    observed: ObservedSources = { bluetooth: true, hid: true }
+  ): Device[] {
     const current = new Map<string, Device>();
 
     for (const raw of rawDevices) {
@@ -159,6 +180,10 @@ export class DeviceCatalog {
 
     for (const [id, device] of this.devices) {
       if (current.has(id)) continue;
+      if (!sourceObserved(device, observed)) {
+        nextCatalog.set(id, device);
+        continue;
+      }
       nextCatalog.set(id, {
         ...device,
         paired: false,
