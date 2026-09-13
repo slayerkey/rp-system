@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
-import { SAFE_VCP, SUPPORT, classifyProfileResult, modeSupported, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
+import { SAFE_VCP, SUPPORT, classifyProfileResult, matchSavedMonitor, modeSupported, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
 
 test("input switching is capability gated and uses advertised values", () => {
   const caps="(vcp(10 60(0F 11 1B) 62 D6(01 04)))";
@@ -61,4 +61,46 @@ test("low-level helper keeps the VCP write surface allowlisted", async () => {
   const helper=await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin","helper","monitor-helper.ps1"),"utf8");
   assert.match(helper,/\$allowed = @\(0x60,0x62,0xD6\)/);
   assert.match(helper,/outside the PackRat safe allowlist/);
+});
+
+test("60 / 120 / 144 / 165 / 240 Hz fixtures pass when Windows reports them", () => {
+  const modes=[60,120,144,165,240].map((frequency)=>({width:2560,height:1440,frequency,orientation:0}));
+  for(const frequency of [60,120,144,165,240]){
+    assert.equal(modeSupported(modes,{width:2560,height:1440,frequency,orientation:0}),true);
+  }
+  assert.equal(modeSupported(modes,{width:2560,height:1440,frequency:360,orientation:0}),false);
+});
+
+test("saved profile matching survives 1-4 monitor sets by stable key and fails closed on ambiguity", () => {
+  for(const count of [1,2,3,4]){
+    const current=Array.from({length:count},(_,i)=>({monitorKey:"path:monitor-"+i,description:"Panel "+i}));
+    for(let i=0;i<count;i+=1){
+      assert.equal(matchSavedMonitor({monitorKey:"path:monitor-"+i,description:"Panel "+i},current),current[i]);
+    }
+  }
+  assert.equal(matchSavedMonitor({monitorKey:"path:gone",description:"Gone"},[]),null);
+  assert.equal(matchSavedMonitor({monitorKey:"",description:"Twin"},[
+    {monitorKey:"one",description:"Twin"},{monitorKey:"two",description:"Twin"}
+  ]),null);
+});
+
+test("Monitor Profiles exclude monitor power and apply volume before input switching", async () => {
+  const source=await readFile("src/runtime.ts","utf8");
+  assert.doesNotMatch(source,/power\?: number/);
+  assert.doesNotMatch(source,/\["power",SAFE_VCP\.POWER_MODE\]/);
+  assert.match(source,/\[\["volume",SAFE_VCP\.AUDIO_VOLUME\],\["input",SAFE_VCP\.INPUT_SOURCE\]\]/);
+});
+
+test("primary-display helper places the requested primary at the Windows origin", async () => {
+  const helper=await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin","helper","monitor-helper.ps1"),"utf8");
+  assert.match(helper,/dm\.dmPositionX=0; dm\.dmPositionY=0;/);
+  assert.match(helper,/CDS_SET_PRIMARY/);
+  assert.match(helper,/CDS_TEST/);
+});
+
+test("stable target paths and internal-panel detection are present in the bundled helper", async () => {
+  const helper=await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin","helper","monitor-helper.ps1"),"utf8");
+  assert.match(helper,/DISPLAYCONFIG_TARGET_DEVICE_NAME/);
+  assert.match(helper,/monitorDevicePath/);
+  assert.match(helper,/IsInternalDisplay/);
 });
