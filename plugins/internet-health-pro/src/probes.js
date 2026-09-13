@@ -126,17 +126,18 @@ export async function fullConnectivityDiagnostic({
   secondaryIcmpTarget = "8.8.8.8",
   timeoutMs = 1800
 } = {}) {
-  const [secondaryPing, cloudflareTcp, googleTcp, cloudflareDns, googleDns] = await Promise.all([
+  const [secondaryPing, cloudflareTcp, googleTcp, cloudflareDns, googleDns, googleHttps] = await Promise.all([
     pingHost(secondaryIcmpTarget, { timeoutMs }),
     tcpConnect("1.1.1.1", 443, { timeoutMs }),
     tcpConnect("8.8.8.8", 443, { timeoutMs }),
     dnsLookup("one.one.one.one", { timeoutMs }),
-    dnsLookup("dns.google", { timeoutMs })
+    dnsLookup("dns.google", { timeoutMs }),
+    httpsTiming("https://www.google.com/generate_204", { timeoutMs: Math.max(2500, timeoutMs) })
   ]);
 
-  const ipReachable = secondaryPing.ok || cloudflareTcp.ok || googleTcp.ok;
+  const ipReachable = secondaryPing.ok || cloudflareTcp.ok || googleTcp.ok || googleHttps.ok;
   const dnsWorks = cloudflareDns.ok || googleDns.ok;
-  const fallbackLatency = [secondaryPing, cloudflareTcp, googleTcp].find((result) => result.ok && Number.isFinite(result.ms)) || null;
+  const fallbackLatency = [secondaryPing, cloudflareTcp, googleTcp, googleHttps].find((result) => result.ok && Number.isFinite(result.ms)) || null;
 
   return {
     ipReachable,
@@ -146,6 +147,7 @@ export async function fullConnectivityDiagnostic({
     googleTcp,
     cloudflareDns,
     googleDns,
+    googleHttps,
     fallbackLatency
   };
 }
