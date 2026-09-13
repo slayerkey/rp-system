@@ -859,7 +859,7 @@
       "id": "internet-health-pro",
       "name": "Internet Health Pro",
       "type": "plugin",
-      "status": "testing",
+      "status": "qa_passed",
       "price_usd": 7.99,
       "version": "1.0.0.0"
     }
