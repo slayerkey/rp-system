@@ -186,9 +186,9 @@ Promotion remains blocked at `BUILDING`.
 
 The product branch was resynced with current `main` through PR #168 before this evidence was recorded. The incoming main commits changed canonical Rat Art / Marketplace standards and assets, not Performance Grapher runtime files.
 
-Result: **38 / 38 behavior checks PASS**
+Result: **43 / 43 behavior checks PASS**
 
-Separate syntax gate: **25 / 25 JavaScript runtime, build, Property Inspector, license-inventory, and test files PASS**
+Separate syntax gate: **26 / 26 JavaScript runtime, build, Property Inspector, license-inventory, and test files PASS**
 
 Current merged-head coverage includes:
 
@@ -217,9 +217,9 @@ Current merged-head coverage includes:
 
 Merged-head synthetic V8 benchmark:
 
-- **250,000 frame events:** approximately **648 ms**
-- **5,000 144 px SVG renders:** approximately **236 ms**
-- **250,000 PresentMon CSV rows:** approximately **193 ms**
+- **250,000 frame events:** approximately **706 ms**
+- **5,000 144 px SVG renders:** approximately **248 ms**
+- **250,000 PresentMon CSV rows:** approximately **198 ms**
 - FPS recent raw history capped at **3,600**
 - frametime recent raw history capped at **3,600**
 - FPS and frametime 1-second archives each contained **2,499** points in the synthetic run
@@ -297,3 +297,18 @@ The npm inventory script itself passes exact-source JavaScript syntax validation
 - **PASS:** manifest UUID remains `com.packrat.performance-grapher` with exactly five actions.
 - **PASS:** required customer disclosures remain present for PresentMon, Libre Hardware Monitor, Performance Log Users permission, hardware-dependent sensor availability, and the PackRat ecosystem close.
 - A dedicated `metadata-contract.test.mjs` now guards these relationships.
+
+
+### Latest hardening additions
+
+- **PASS:** PresentMon permission-required state becomes quiescent instead of continuously relaunching a capture that Windows will deny. Manual restart remains available after permissions are fixed.
+- **PASS:** hardware-helper restart delay grows from 5 seconds toward a 60-second ceiling and resets after valid catalog/sample recovery.
+- **FIXED:** idle session timer no longer emits a 250 ms render/update heartbeat when no game/session state changed.
+- **PASS:** canonical GPU load/temperature/power follow the active adapter on dual-GPU systems with utilization hysteresis to prevent idle iGPU/dGPU flapping.
+- **PASS:** long executable names and secondary key labels are bounded for 72 / 96 / 144 px key rendering.
+- **HARDENED:** the native LHM helper refreshes catalog metadata every 30 seconds rather than serializing the whole catalog every second.
+- **HARDENED:** native LHM sensor object → stable ID bindings are cached between catalog refreshes instead of recalculating SHA-256 IDs every sample.
+- **VERIFIED:** the exact LibreHardwareMonitor 0.9.6 SensorType enum is mapped to appropriate units.
+- **VERIFIED:** all PresentMon launch flags exist in v2.5.1 and the chosen `--no_track_display --no_track_gpu --no_track_input` combination preserves `MsBetweenPresents`.
+- **CORRECTED:** PresentMon's pinned v2.5.1 copyright notice is 2017–2024 Intel Corporation.
+- **ADDED:** exact standalone PresentMon v2.5.1 MIT license is copied into the built plugin and required by the release workflow.
