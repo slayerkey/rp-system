@@ -87,7 +87,7 @@
   "PropertyInspectorPath": "ui/inspector.html",
   "SDKVersion": 3,
   "Software": {
-    "MinimumVersion": "7.0"
+    "MinimumVersion": "7.1"
   },
   "UUID": "com.packrat.macro-recorder-pro",
   "Version": "1.0.0.0"

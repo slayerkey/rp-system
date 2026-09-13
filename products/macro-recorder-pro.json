@@ -13,7 +13,7 @@
   "source": "plugins/macro-recorder-pro",
   "plugin_uuid": "com.packrat.macro-recorder-pro",
   "build_flavor": "pro",
-  "minimum_stream_deck": "7.0",
+  "minimum_stream_deck": "7.1",
   "node_runtime": "24",
   "shared_engine": [
     "shared/macro-recorder",

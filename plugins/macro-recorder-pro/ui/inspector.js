@@ -28,6 +28,7 @@
     select.replaceChildren(new Option("Choose a macro",""));
     for(const item of state?.library||[])select.appendChild(new Option(`${item.name} · ${item.eventCount} events`,item.id));
     select.value=(state?.library||[]).some(x=>x.id===chosen)?chosen:"";
+    $("macroName").value=state?.macro?.name||"";
     if(state?.libraryWarning){$("errorText").hidden=false;$("errorText").textContent=state.libraryWarning;}
   }
 
@@ -98,6 +99,7 @@
     $("captureMouseMovement").addEventListener("change",()=>saveSettings({captureMouseMovement:$("captureMouseMovement").checked}));
     $("recordCoordinateMode").addEventListener("change",()=>saveSettings({coordinateMode:$("recordCoordinateMode").value}));
     $("macroSelect").addEventListener("change",()=>command("selectMacro",{macroId:$("macroSelect").value}));
+    $("macroName").addEventListener("change",()=>{if(!state?.macro)return;const macro={...state.macro,name:$("macroName").value.trim()||state.macro.name};command("saveMacro",{macroId:macro.id,macro});});
     $("duplicateMacro").addEventListener("click",()=>command("duplicateMacro",{macroId:$("macroSelect").value}));
     $("deleteMacro").addEventListener("click",()=>{if(confirm("Delete this macro from the local library?"))command("deleteMacro",{macroId:$("macroSelect").value});});
     $("exportMacro").addEventListener("click",()=>command("exportMacro",{macroId:$("macroSelect").value}));

@@ -22,8 +22,10 @@ internal static class Program
             return 0;
         }
 
+        Native.EnableDpiAwareness();
         using var engine = new Engine();
         engine.StartHooks();
+        engine.ReleaseKeys(Enumerable.Range(1, 254));
         string? line;
         while ((line = Console.ReadLine()) is not null)
         {
@@ -184,7 +186,7 @@ internal sealed class Engine : IDisposable
         lock (_gate)
         {
             if (_recording) throw new InvalidOperationException("A recording is already active.");
-            StopPlaybackLocked("recording-start");
+            if (_playbackCts is not null) throw new InvalidOperationException("Stop playback before recording.");
             _events.Clear();
             _includeMouse = includeMouse;
             _includeMouseMove = includeMouseMove;
@@ -267,7 +269,7 @@ internal sealed class Engine : IDisposable
         if (!injected && down && data.vkCode == Native.VK_F12 &&
             IsDown(Native.VK_CONTROL) && IsDown(Native.VK_SHIFT))
         {
-            StopPlayback("emergency-hotkey");
+            StopPlayback("emergency-hotkey", false);
             return new IntPtr(1);
         }
 
@@ -373,7 +375,7 @@ internal sealed class Engine : IDisposable
         lock (_gate)
         {
             if (_recording) throw new InvalidOperationException("Stop recording before playback.");
-            StopPlaybackLocked("replaced");
+            if (_playbackCts is not null) throw new InvalidOperationException("Playback is already active.");
             cts = new CancellationTokenSource();
             _playbackCts = cts;
         }
@@ -474,15 +476,19 @@ internal sealed class Engine : IDisposable
         return new Native.POINT { X = x, Y = y };
     }
 
-    public void StopPlayback(string reason)
+    public void StopPlayback(string reason, bool wait = true)
     {
-        lock (_gate) StopPlaybackLocked(reason);
-    }
-
-    private void StopPlaybackLocked(string reason)
-    {
-        if (_playbackCts is null) return;
-        try { _playbackCts.Cancel(); } catch { }
+        Task? task;
+        lock (_gate)
+        {
+            if (_playbackCts is null) return;
+            try { _playbackCts.Cancel(); } catch { }
+            task = _playbackTask;
+        }
+        if (wait && task is not null && !task.IsCompleted)
+        {
+            try { task.Wait(TimeSpan.FromSeconds(2)); } catch { }
+        }
     }
 
     public void ReleaseKeys(IEnumerable<int> keys)
@@ -580,6 +586,12 @@ internal static class Native
     [DllImport("user32.dll")] internal static extern int GetSystemMetrics(int index);
     [DllImport("user32.dll")] internal static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] internal static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+    [DllImport("user32.dll")] private static extern bool SetProcessDpiAwarenessContext(IntPtr value);
+
+    internal static void EnableDpiAwareness()
+    {
+        try { SetProcessDpiAwarenessContext(new IntPtr(-4)); } catch { }
+    }
 
     internal static void SendKey(int vk, int scan, bool up, bool extended)
     {

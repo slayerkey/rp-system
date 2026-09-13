@@ -30,7 +30,7 @@
   "privacy": "Macro contents stay local on the Windows PC and are never uploaded to PackRat.",
   "compatibility": {
     "platform": "Windows 10+",
-    "stream_deck": "7.0+"
+    "stream_deck": "7.1+"
   },
   "pro_marketplace_url": null,
   "pro_url_policy": null
