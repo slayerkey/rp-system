@@ -10,7 +10,7 @@ import { runtime, type ProSettings } from "../runtime.js";
 
 async function fail(target:any):Promise<void>{
   if(target.isKey?.()) await target.showAlert();
-  if(target.isDial?.()) await target.setFeedback({title:"UNSUPPORTED",value:0});
+  if(target.isDial?.()) await target.setFeedback({title:"UNSUPPORTED",value:"0%",indicator:0});
 }
 
 abstract class ContinuousAction extends SingletonAction<ProSettings>{
@@ -33,14 +33,14 @@ abstract class ContinuousAction extends SingletonAction<ProSettings>{
     const s=ev.payload.settings??{};
     try{
       const value=await this.adjust(s,ev.payload.ticks*Math.max(1,Number(s.step??2)));
-      await ev.action.setFeedback({title:this.label,value});
+      await ev.action.setFeedback({title:this.label,value:String(value)+"%",indicator:value});
     }catch{await fail(ev.action);}
   }
   private async paint(target:any,s:ProSettings):Promise<void>{
     try{
       const value=await this.read(s);
       if(target.isKey()) await target.setTitle(value===null?"UNKNOWN\n"+this.label:String(value)+"%\n"+this.label);
-      if(target.isDial()) await target.setFeedback({title:this.label,value:value??0});
+      if(target.isDial()) await target.setFeedback({title:this.label,value:String(value??0)+"%",indicator:value??0});
     }catch{if(target.isKey()) await target.setTitle("NO MONITOR");}
   }
 }
