@@ -57,6 +57,9 @@ jobs:
       - name: Locked npm install
         run: npm ci
 
+      - name: JavaScript syntax gate
+        run: npm run check:syntax
+
       - name: Unit, failure-state, and synthetic performance QA
         run: npm test
 
