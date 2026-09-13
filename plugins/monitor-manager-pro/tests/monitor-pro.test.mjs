@@ -199,3 +199,11 @@ test("Pro capability reporting receives scan context for internal-panel brightne
   const source=await readFile("src/plugin.ts","utf8");
   assert.match(source,/capabilitySummary\(m,snapshot\)/);
 });
+
+test("saved primary display is restored independently from saved mode", async () => {
+  const source=await readFile("src/runtime.ts","utf8");
+  assert.doesNotMatch(source,/\.\.\.saved\.mode,primary:Boolean\(saved\.primary\)/);
+  assert.match(source,/const savedPrimary=profile\.monitors\.find\(\(item\)=>item\.primary\)/);
+  assert.match(source,/item:savedPrimary\.description\+" primary display"/);
+  assert.match(source,/primary:true/);
+});
