@@ -15,15 +15,25 @@
   "submission_metadata": "products/windows-settings-manager/submission-lite.json",
   "plugin_uuid": "com.packrat.windows-settings-manager-lite",
   "build_flavor": "lite",
-  "minimum_stream_deck": "6.9",
+  "minimum_stream_deck": "7.3",
   "node_runtime": "20",
   "plan": "products/windows-settings-manager/PLAN.md",
   "qa": "products/windows-settings-manager/QA.md",
   "validation": "products/windows-settings-manager/VALIDATION.md",
   "release": "products/windows-settings-manager/RELEASE.md",
   "bundled_profiles": {
-    "layouts": ["Windows Starter"],
-    "device_types": ["Stream Deck", "Stream Deck Mini", "Stream Deck XL", "Stream Deck +", "Stream Deck Neo"],
+    "layouts": [
+      "Windows Starter"
+    ],
+    "device_types": [
+      "Stream Deck",
+      "Stream Deck Mini",
+      "Stream Deck XL",
+      "Stream Deck +",
+      "Stream Deck Neo",
+      "Galleon 100 SD",
+      "Stream Deck + XL"
+    ],
     "auto_install": true,
     "auto_switch_on_install": false,
     "editable": true
