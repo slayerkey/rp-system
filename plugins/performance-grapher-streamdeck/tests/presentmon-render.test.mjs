@@ -48,3 +48,20 @@ test("FPS action exposes one useful low statistic rather than cramming the key",
   assert.equal(one.secondary, "1% 111");
   assert.equal(pointOne.secondary, "0.1% 93");
 });
+
+
+test("whole-session history window passes zero through to telemetry", () => {
+  const windows = [];
+  const fake = {
+    metricValue() { return 144; },
+    metricSeries(id, windowMs) { windows.push([id, windowMs]); return [[1, 120], [2, 144]]; },
+    safeStatus() { return { fps: { state: "ready" }, hardware: { state: "ready" } }; },
+    watchMetric() {},
+    metricDescriptor() { return { id: "cpu.load", name: "CPU Load", unit: "%", source: "Windows" }; },
+    session: { snapshot() { return { process: "game.exe", current: { onePercentLow: 120, pointOnePercentLow: 100 } }; } },
+  };
+
+  makeView(fake, "fps", { fpsMode: "fps", lowMode: "one", windowMs: 0 });
+  makeView(fake, "graph", { metricId: "cpu.load", windowMs: 0 });
+  assert.deepEqual(windows, [["game.fps", 0], ["cpu.load", 0]]);
+});
