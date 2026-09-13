@@ -30,5 +30,10 @@
     "stream_deck": "7.1+"
   },
   "pro_marketplace_url": null,
-  "pro_url_policy": "Do not populate until a verified direct Macro Recorder Pro Marketplace URL exists."
+  "pro_url_policy": "Do not populate until a verified direct Macro Recorder Pro Marketplace URL exists.",
+  "media": {
+    "marketplace_app_icon": "artifacts/marketplace/macro-recorder-lite/00-app-icon.png",
+    "thumbnail": "artifacts/marketplace/macro-recorder-lite/01-hero.png",
+    "thumbnail_review": "artifacts/marketplace/macro-recorder-lite/hero-thumbnail-review.png"
+  }
 }
