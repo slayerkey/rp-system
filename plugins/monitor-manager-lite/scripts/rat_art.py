@@ -1,5 +1,5 @@
 from __future__ import annotations
-import argparse, os
+import argparse, os, hashlib
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -116,9 +116,35 @@ def compatibility(path):
         x+=600
     footer(im); save(im,path)
 
+def validate_outputs(out):
+    if not RAT.is_file():
+        raise SystemExit("RAT ART FAIL: PackRat logo asset missing: "+str(RAT))
+    expected={
+        "01_search_icon.png":(512,512),
+        "02_cover.png":(1920,960),
+        "03_gallery_01.png":(1920,960),
+        "04_gallery_02.png":(1920,960),
+        "05_gallery_03.png":(1920,960),
+        "06_gallery_04.png":(1920,960),
+    }
+    digests={}
+    for name,size in expected.items():
+        file=out/name
+        if not file.is_file():
+            raise SystemExit("RAT ART FAIL: missing output "+name)
+        with Image.open(file) as image:
+            if image.size!=size:
+                raise SystemExit(f"RAT ART FAIL: {name} is {image.size}, expected {size}")
+        digest=hashlib.sha256(file.read_bytes()).hexdigest()
+        if digest in digests:
+            raise SystemExit(f"RAT ART FAIL: {name} is byte-identical to {digests[digest]}")
+        digests[digest]=name
+
 def main():
     p=argparse.ArgumentParser(); p.add_argument("--out",required=True); args=p.parse_args(); out=Path(args.out).resolve(); out.mkdir(parents=True,exist_ok=True)
+    if not RAT.is_file(): raise SystemExit("RAT ART FAIL: PackRat logo asset missing: "+str(RAT))
     search_icon(out/"01_search_icon.png"); hero(out/"02_cover.png"); controls(out/"03_gallery_01.png"); capabilities(out/"04_gallery_02.png"); profiles(out/"05_gallery_03.png"); plus(out/"06_gallery_04.png")
+    validate_outputs(out)
     print("RAT ART PASS:",out)
 
 if __name__=="__main__": main()
