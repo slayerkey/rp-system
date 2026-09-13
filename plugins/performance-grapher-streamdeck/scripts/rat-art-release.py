@@ -65,7 +65,7 @@ def signature(img):
             rat = rat.crop(box)
         scale = min(64 / rat.width, 64 / rat.height)
         rat = rat.resize((max(1, int(rat.width * scale)), max(1, int(rat.height * scale))), Image.Resampling.LANCZOS)
-        img.alpha_composite(rat, (W - 82 - rat.width, 48))
+        img.alpha_composite(rat, ((W - rat.width) // 2, 34))
     else:
         raise SystemExit(f"required PackRat logo missing: {RAT}")
 
@@ -137,10 +137,9 @@ def search_icon(out):
 def hero(out):
     img = background()
     d = ImageDraw.Draw(img)
-    d.text((96, 92), "PC PERFORMANCE HISTORY", font=font(24, True), fill=ACCENT)
-    d.text((96, 165), "See what", font=font(66, True), fill=WHITE)
-    d.text((96, 238), "just happened.", font=font(66, True), fill=WHITE)
-    d.text((100, 340), "FPS lows  •  frametime spikes  •  session peaks", font=font(21, True), fill=MUTED)
+    d.text((96, 96), "PC PERFORMANCE HISTORY", font=font(24, True), fill=ACCENT)
+    d.text((96, 172), "See what just happened.", font=font(58, True), fill=WHITE)
+    d.text((98, 250), "FPS lows  •  frametime spikes  •  session peaks", font=font(20, True), fill=MUTED)
 
     keys = [
         dict(label="FPS", value="144", unit="", secondary="1% 118", values=[122, 138, 145, 142, 139, 147, 144, 143, 146, 144]),
@@ -149,7 +148,10 @@ def hero(out):
         dict(label="FRAMETIME", value="31.4", unit="ms", secondary="SPIKE", values=[7, 7, 8, 8, 31, 9, 8, 7, 8, 7], color=DANGER, alert=True),
         dict(label="SESSION", value="42m", unit="", secondary="AVG 141", values=[]),
     ]
-    deck(img, 700, 300, keys, key_size=210, gap=18, cols=5)
+    key_size = 252
+    gap = 20
+    cluster_width = 5 * key_size + 4 * gap
+    deck(img, (W - cluster_width) // 2, 360, keys, key_size=key_size, gap=gap, cols=5)
     signature(img)
     img.convert("RGB").save(out / "02_cover.png", quality=95)
 
@@ -243,6 +245,30 @@ def local_architecture(out):
     img.convert("RGB").save(out / "06_gallery_04.png", quality=95)
 
 
+def thumbnail_review(out):
+    source = out / "02_cover.png"
+    if not source.is_file():
+        raise SystemExit("Hero must exist before thumbnail review")
+    hero = Image.open(source).convert("RGB")
+    sizes = [(480, 240), (320, 160), (240, 120)]
+    gap = 24
+    label_h = 34
+    width = max(w for w, _ in sizes) + 96
+    height = sum(h + label_h for _, h in sizes) + gap * (len(sizes) + 1)
+    sheet = Image.new("RGB", (width, height), BG)
+    d = ImageDraw.Draw(sheet)
+    y = gap
+    for w, h in sizes:
+        shot = hero.resize((w, h), Image.Resampling.LANCZOS)
+        x = (width - w) // 2
+        sheet.paste(shot, (x, y))
+        d.text((width // 2, y + h + 18), f"{w} × {h}", font=font(18, True), fill=MUTED, anchor="mm")
+        y += h + label_h + gap
+    qa_dir = out.parent / "marketplace-qa"
+    qa_dir.mkdir(parents=True, exist_ok=True)
+    sheet.save(qa_dir / "hero-thumbnail-review.png", quality=95)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--destination", required=True)
@@ -255,6 +281,7 @@ def main():
     session_summary(out)
     readable_keys(out)
     local_architecture(out)
+    thumbnail_review(out)
     required = ["01_search_icon.png", "02_cover.png", "03_gallery_01.png", "04_gallery_02.png", "05_gallery_03.png", "06_gallery_04.png"]
     for name in required:
         path = out / name
@@ -264,6 +291,9 @@ def main():
             expected = (288, 288) if name == "01_search_icon.png" else (W, H)
             if check.size != expected:
                 raise SystemExit(f"Wrong Rat Art size for {name}: {check.size} != {expected}")
+    qa_sheet = out.parent / "marketplace-qa" / "hero-thumbnail-review.png"
+    if not qa_sheet.is_file():
+        raise SystemExit("Missing Marketplace V2 thumbnail review sheet")
     print(f"Performance Grapher Rat Art ready: {out}")
 
 
