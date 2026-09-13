@@ -1,6 +1,6 @@
 # Real Windows smoke
 
-Status: **NOT YET RUN**
+Status: **IN PROGRESS — PROPERTY INSPECTOR / FPS PERMISSION RETEST REQUIRED**
 
 This is the remaining release boundary after automated QA. Use the exact validated packaged candidate, not loose source files.
 
