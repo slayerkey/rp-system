@@ -36,6 +36,11 @@ const controller={
   paired:true,connected:true,present:true,batteryPercent:18,charging:false,
   control:{connect:false,disconnect:false}
 };
+const maya={
+  id:"lamzu:maya-x",name:"LAMZU Maya X",kind:"2.4ghz-receiver",transport:"usb-hid",
+  paired:true,connected:true,present:true,batteryPercent:100,charging:true,
+  control:{connect:false,disconnect:false}
+};
 
 test("capabilities are advertised per-device, never globally",()=>{
   assert.deepEqual(capabilities(headphone),{STATUS:true,CONNECT:true,DISCONNECT:true,BATTERY:true,CHARGING:true});
@@ -159,11 +164,33 @@ test("disconnected but present audio device can advertise CONNECT without DISCON
   assert.equal(statusLabel(d).endsWith("DISCONNECTED"),true);
 });
 
-test("adapter-off and bridge-error snapshots are preserved rather than applied as removals",()=>{
-  assert.equal(shouldApplySnapshot(true,true),true);
-  assert.equal(shouldApplySnapshot(true,false),false);
-  assert.equal(shouldApplySnapshot(false,true),false);
-  assert.equal(shouldApplySnapshot(false,false),false);
+test("snapshot application can continue through USB HID when Bluetooth is unavailable",()=>{
+  assert.equal(shouldApplySnapshot(true,true,false),true);
+  assert.equal(shouldApplySnapshot(true,false,true),true);
+  assert.equal(shouldApplySnapshot(true,false,false),false);
+  assert.equal(shouldApplySnapshot(false,true,true),false);
+});
+
+test("USB HID wireless telemetry works without Bluetooth control capabilities",()=>{
+  const d=normalizeDevice(maya);
+  assert.equal(d.capabilities.STATUS,true);
+  assert.equal(d.capabilities.BATTERY,true);
+  assert.equal(d.capabilities.CHARGING,true);
+  assert.equal(d.capabilities.CONNECT,false);
+  assert.equal(d.capabilities.DISCONNECT,false);
+  assert.equal(d.batteryPercent,100);
+});
+
+test("USB-only refresh updates HID devices without invalidating cached Bluetooth devices",()=>{
+  const c=new DeviceCatalog();
+  c.ingest([headphone,maya],1000);
+  c.ingest([{...maya,batteryPercent:99,charging:false}],2000,{bluetooth:false,hid:true});
+  const cachedBluetooth=c.get(stableId(headphone));
+  const refreshedMaya=c.get(stableId(maya));
+  assert.equal(cachedBluetooth?.connected,true);
+  assert.equal(cachedBluetooth?.batteryPercent,64);
+  assert.equal(refreshedMaya?.batteryPercent,99);
+  assert.equal(refreshedMaya?.lastObservedAt,2000);
 });
 
 test("sleep-resume transition restores live telemetry for the same stable device",()=>{
