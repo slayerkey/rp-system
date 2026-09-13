@@ -35,6 +35,16 @@ export function stableId(raw: RawDevice): string {
   return `id:${raw.id.toLowerCase()}`;
 }
 
+export function resolveSelectedDeviceId(
+  edition: "lite" | "pro",
+  liteDeviceId?: string | null,
+  localDeviceId?: string | null
+): string | null {
+  return edition === "lite"
+    ? (liteDeviceId ?? localDeviceId ?? null)
+    : (localDeviceId ?? null);
+}
+
 export function capabilities(raw: RawDevice): Capabilities {
   return {
     STATUS: true,
