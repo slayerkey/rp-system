@@ -5,7 +5,7 @@
       "UUID": "com.packrat.internet-health-pro.health",
       "Name": "Internet Health",
       "Tooltip": "Overall GOOD, DEGRADED, BAD or OFFLINE state with latency and history.",
-      "Icon": "imgs/actions/health/icon.svg",
+      "Icon": "imgs/actions/health/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -14,7 +14,7 @@
       "UserTitleEnabled": true,
       "States": [
         {
-          "Image": "imgs/actions/health/key.svg",
+          "Image": "imgs/actions/health/key",
           "ShowTitle": false
         }
       ]
@@ -23,7 +23,7 @@
       "UUID": "com.packrat.internet-health-pro.latency",
       "Name": "Latency",
       "Tooltip": "Current native latency with an honest ICMP or fallback method label.",
-      "Icon": "imgs/actions/latency/icon.svg",
+      "Icon": "imgs/actions/latency/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -32,7 +32,7 @@
       "UserTitleEnabled": true,
       "States": [
         {
-          "Image": "imgs/actions/latency/key.svg",
+          "Image": "imgs/actions/latency/key",
           "ShowTitle": false
         }
       ]
@@ -41,7 +41,7 @@
       "UUID": "com.packrat.internet-health-pro.jitter-loss",
       "Name": "Jitter / Loss",
       "Tooltip": "Show rolling jitter or observed probe loss.",
-      "Icon": "imgs/actions/jitter-loss/icon.svg",
+      "Icon": "imgs/actions/jitter-loss/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -50,7 +50,7 @@
       "UserTitleEnabled": true,
       "States": [
         {
-          "Image": "imgs/actions/jitter-loss/key.svg",
+          "Image": "imgs/actions/jitter-loss/key",
           "ShowTitle": false
         }
       ]
@@ -59,7 +59,7 @@
       "UUID": "com.packrat.internet-health-pro.outage",
       "Name": "Outage",
       "Tooltip": "Show current uptime, current outage duration, last outage or recent outage count.",
-      "Icon": "imgs/actions/outage/icon.svg",
+      "Icon": "imgs/actions/outage/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -68,7 +68,7 @@
       "UserTitleEnabled": true,
       "States": [
         {
-          "Image": "imgs/actions/outage/key.svg",
+          "Image": "imgs/actions/outage/key",
           "ShowTitle": false
         }
       ]
@@ -77,7 +77,7 @@
       "UUID": "com.packrat.internet-health-pro.target",
       "Name": "Target Health",
       "Tooltip": "Monitor one user-selected host or service using ICMP, TCP, DNS or HTTPS.",
-      "Icon": "imgs/actions/target/icon.svg",
+      "Icon": "imgs/actions/target/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -86,7 +86,7 @@
       "UserTitleEnabled": true,
       "States": [
         {
-          "Image": "imgs/actions/target/key.svg",
+          "Image": "imgs/actions/target/key",
           "ShowTitle": false
         }
       ]
@@ -95,7 +95,7 @@
       "UUID": "com.packrat.internet-health-pro.speed-test",
       "Name": "Speed Test",
       "Tooltip": "Run a manual capped throughput test. Never runs automatically.",
-      "Icon": "imgs/actions/speed-test/icon.svg",
+      "Icon": "imgs/actions/speed-test/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -104,7 +104,7 @@
       "UserTitleEnabled": true,
       "States": [
         {
-          "Image": "imgs/actions/speed-test/key.svg",
+          "Image": "imgs/actions/speed-test/key",
           "ShowTitle": false
         }
       ]
@@ -113,7 +113,7 @@
       "UUID": "com.packrat.internet-health-pro.summary",
       "Name": "Health Summary",
       "Tooltip": "Compact latency, jitter, probe loss and uptime summary.",
-      "Icon": "imgs/actions/summary/icon.svg",
+      "Icon": "imgs/actions/summary/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -122,7 +122,7 @@
       "UserTitleEnabled": true,
       "States": [
         {
-          "Image": "imgs/actions/summary/key.svg",
+          "Image": "imgs/actions/summary/key",
           "ShowTitle": false
         }
       ]
@@ -130,7 +130,7 @@
   ],
   "Author": "PackRat",
   "Category": "Internet Health Pro",
-  "CategoryIcon": "imgs/category/icon.svg",
+  "CategoryIcon": "imgs/category/icon",
   "CodePath": "bin/plugin.js",
   "Description": "Know when your internet is the problem with continuous local latency, jitter, probe-loss, outage and target health monitoring plus manual speed tests.",
   "Icon": "imgs/plugin/icon",
