@@ -279,6 +279,14 @@ test("backend timeouts and failed startup force a clean PowerShell restart", asy
   assert.match(backend, /child && child\.exitCode === null\) child\.kill\(\)/);
 });
 
+test("backend loss clears Keep Awake and stateful keys stop showing stale values", async () => {
+  const state = await readFile(path.resolve("src", "state.ts"), "utf8");
+  const render = await readFile(path.resolve("src", "render.ts"), "utf8");
+  assert.match(state, /backendOnline: false,[\s\S]*keepAwake: false/);
+  assert.match(render, /timeoutTitle[\s\S]*!snapshot\.backendOnline\) return "TIMEOUT\\nOFFLINE"/);
+  assert.match(render, /awakeTitle[\s\S]*!snapshot\.backendOnline\) return "AWAKE\\nOFFLINE"/);
+});
+
 test("state refresh polls Windows and the inspector refresh button forces a real read", async () => {
   const state = await readFile(path.resolve("src", "state.ts"), "utf8");
   const plugin = await readFile(path.resolve("src", "plugin.ts"), "utf8");
