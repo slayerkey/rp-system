@@ -8,7 +8,6 @@
   "description": "Record short keyboard macros by performing them once. Macro Recorder Lite captures key down/up events, combinations and timing on Windows, then lets you assign the recording to a Stream Deck key and replay it without writing scripts. Great for keyboard shortcuts, hotkeys and simple automation. Mouse recording, long macros, loops and Macro Library are available in Pro.",
   "keywords": [
     "keyboard",
-    "mouse",
     "macro",
     "macro recorder",
     "shortcuts",
@@ -22,7 +21,7 @@
   "release_notes": [
     "Record keyboard key-down/key-up events, shortcuts and timing.",
     "Assign the latest recording to any Replay Macro key and edit event delays.",
-    "Includes a ready-to-use REC / STOP / PLAY starter profile.",
+    "Includes a ready-to-use REC / STOP starter profile with safe replay examples.",
     "Adds a global Stop action and Ctrl+Shift+F12 emergency playback stop."
   ],
   "privacy": "Macro contents stay local on the Windows PC and are never uploaded to PackRat.",
