@@ -17,7 +17,16 @@ export function emptyGlobalSettings() {
 }
 
 export function normalizeGlobalSettings(raw = {}) {
-  const profiles = Array.isArray(raw?.profiles) ? raw.profiles.map(normalizeProfile).filter(Boolean) : [];
+  const profiles = [];
+  const seenIds = new Set();
+
+  for (const source of Array.isArray(raw?.profiles) ? raw.profiles : []) {
+    const profile = normalizeProfile(source);
+    if (!profile || seenIds.has(profile.id)) continue;
+    seenIds.add(profile.id);
+    profiles.push(profile);
+  }
+
   return {
     schemaVersion: 1,
     profiles,
