@@ -186,3 +186,19 @@ test("dashboard low count respects per-device thresholds",()=>{
   assert.deepEqual(groupSummary(devices,ids,{[devices[0].stableId]:80,[devices[1].stableId]:10}),{connected:2,total:2,low:1});
   assert.deepEqual(groupSummary(devices,ids,{[devices[0].stableId]:80,[devices[1].stableId]:20}),{connected:2,total:2,low:2});
 });
+
+
+test("dual-mode endpoints sharing one Windows container reconcile into one device",()=>{
+  const c=new DeviceCatalog();
+  c.ingest([
+    {...headphone,id:"ble-endpoint",address:"AA:BB:CC:DD:EE:01",containerId:"physical-headset",kind:"ble",control:{connect:false,disconnect:false}},
+    {...headphone,id:"classic-endpoint",address:"AA:BB:CC:DD:EE:02",containerId:"physical-headset",kind:"classic",control:{connect:true,disconnect:true}}
+  ],1000);
+  assert.equal(c.list().length,1);
+  const device=c.list()[0];
+  assert.equal(device.containerId,"physical-headset");
+  assert.equal(device.kind,"classic");
+  assert.equal(device.capabilities.CONNECT,true);
+  assert.equal(c.get("classic-endpoint")?.stableId,device.stableId);
+  assert.equal(c.get("ble-endpoint")?.stableId,device.stableId);
+});
