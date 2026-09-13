@@ -342,3 +342,20 @@ test("session frame metrics ignore unrelated hardware sensors", () => {
     "gpu.temperature": 73,
   });
 });
+
+
+test("frametime series preserves the worst raw frame instead of FPS bucket average", () => {
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "frametime-history"),
+    persistPath: resolve(tmpdir(), "packrat-frametime-history.json"),
+    presentMonProvider: fakeProvider(),
+  });
+
+  const base = Date.now() - 500;
+  telemetry.session._start("game.exe", base);
+  telemetry.session.observeFrame({ application: "game.exe", frameTimeMs: 45 }, {}, base + 10);
+  telemetry.session.observeFrame({ application: "game.exe", frameTimeMs: 10 }, {}, base + 120);
+
+  assert.equal(telemetry.metricSeries("game.frametime", 60_000).at(-1)[1], 45);
+  assert.ok(telemetry.metricSeries("game.fps", 60_000).at(-1)[1] < 100);
+});
