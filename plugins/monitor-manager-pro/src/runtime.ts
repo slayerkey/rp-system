@@ -229,11 +229,16 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
       if(monitor.ddcBrightness) item.brightness=percent(Number(monitor.brightnessMin??0),Number(monitor.brightness??0),Number(monitor.brightnessMax??100));
       if(monitor.ddcContrast) item.contrast=percent(Number(monitor.contrastMin??0),Number(monitor.contrast??0),Number(monitor.contrastMax??100));
       for(const [field,code] of [["volume",SAFE_VCP.AUDIO_VOLUME],["input",SAFE_VCP.INPUT_SOURCE]] as const) {
-        if(vcpSupport(monitor.capabilities,code).state!==SUPPORT.SUPPORTED) continue;
+        const support=vcpSupport(monitor.capabilities,code);
+        if(support.state!==SUPPORT.SUPPORTED) continue;
         try {
           const v=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code});
-          if(field==="volume"&&Number(v.maximum)>0) item.volume=Math.round((Number(v.current)/Number(v.maximum))*100);
-          else (item as any)[field]=Number(v.current);
+          if(field==="volume"&&Number(v.maximum)>0) {
+            item.volume=Math.round((Number(v.current)/Number(v.maximum))*100);
+          } else if(field==="input") {
+            const current=Number(v.current);
+            if(support.values.length&&support.values.includes(current)) item.input=current;
+          }
         } catch {}
       }
       monitors.push(item);
@@ -319,7 +324,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
         const support=vcpSupport(monitor.capabilities,SAFE_VCP.INPUT_SOURCE);
         const native=Number(saved.input);
         if(support.state!==SUPPORT.SUPPORTED) continue;
-        if(support.values.length&&!support.values.includes(native)) continue;
+        if(!support.values.length||!support.values.includes(native)) continue;
         await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.INPUT_SOURCE,value:native});
       } catch(e:any) { errors.push(saved.description+" input: "+e.message); }
     }
@@ -430,8 +435,8 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
           steps.push({item:saved.description+" input",status:"SKIPPED",message:"Input switching is not advertised."});
           continue;
         }
-        if(support.values.length&&!support.values.includes(native)) {
-          steps.push({item:saved.description+" input",status:"SKIPPED",message:"Saved input is not advertised by the current monitor."});
+        if(!support.values.length||!support.values.includes(native)) {
+          steps.push({item:saved.description+" input",status:"SKIPPED",message:"Saved input is not an advertised value on the current monitor."});
           continue;
         }
         await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.INPUT_SOURCE,value:native});
