@@ -1,5 +1,9 @@
 $ErrorActionPreference = "Stop"
 
+$script:utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[Console]::InputEncoding = $script:utf8NoBom
+[Console]::OutputEncoding = $script:utf8NoBom
+
 Add-Type -TypeDefinition @'
 using System;
 using System.Collections.Generic;
