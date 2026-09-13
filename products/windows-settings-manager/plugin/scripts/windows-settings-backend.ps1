@@ -711,7 +711,13 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
     $line = $line.TrimStart([char]0xFEFF)
     $id = 0
     try {
-        $request = $line | ConvertFrom-Json
+        try {
+            $request = $line | ConvertFrom-Json
+        }
+        catch {
+            $prefixCodes = @($line.ToCharArray() | Select-Object -First 12 | ForEach-Object { [int][char]$_ }) -join ','
+            throw "Invalid request JSON (length=$($line.Length), prefixCodes=$prefixCodes): $($_.Exception.Message)"
+        }
         $id = [int]$request.id
         $requestArgs = $request.args
         switch ([string]$request.op) {
