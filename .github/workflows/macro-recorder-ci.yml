@@ -73,6 +73,16 @@ jobs:
           npm run validate
           npm run pack
 
+      - name: Install Rat Art dependency
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check pillow
+
+      - name: Render deterministic Marketplace heroes
+        shell: pwsh
+        run: |
+          python tools/art/macro_recorder_art.py --slug macro-recorder-lite --out artifacts/marketplace/macro-recorder-lite/01-hero.png
+          python tools/art/macro_recorder_art.py --slug macro-recorder-pro --out artifacts/marketplace/macro-recorder-pro/01-hero.png
+
       - name: Verify family outputs
         shell: pwsh
         run: |
@@ -100,5 +110,7 @@ jobs:
             plugins/macro-recorder-pro/submission.json
             docs/MACRO_RECORDER_QA.md
             docs/MACRO_RECORDER_MARKET_RESEARCH_2026-09-12.md
+            artifacts/marketplace/macro-recorder-lite/*
+            artifacts/marketplace/macro-recorder-pro/*
           if-no-files-found: error
           retention-days: 30
