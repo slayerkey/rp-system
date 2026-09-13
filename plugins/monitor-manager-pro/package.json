@@ -9,10 +9,12 @@
     "build:profiles": "node scripts/build-profiles.mjs",
     "typecheck": "tsc --noEmit",
     "build": "npm run copy:helper && npm run build:assets && npm run typecheck && npm run build:profiles && rollup -c",
-    "test": "node --test tests/*.test.mjs",
+    "test": "npm run copy:helper && npm run build:profiles && node --test tests/*.test.mjs",
     "watch": "npm run copy:helper && npm run build:assets && npm run build:profiles && rollup -c -w"
   },
-  "dependencies": {"@elgato/streamdeck": "^2.1.0"},
+  "dependencies": {
+    "@elgato/streamdeck": "^2.1.0"
+  },
   "devDependencies": {
     "@elgato/cli": "^1.7.4",
     "@rollup/plugin-commonjs": "^29.0.2",
