@@ -24,6 +24,25 @@ function zipText(data) {
   return parts.join("\n");
 }
 
+function zipJsonDocuments(data) {
+  const docs=[];
+  let offset=0;
+  while(offset+30<=data.length && data.readUInt32LE(offset)===0x04034b50){
+    const method=data.readUInt16LE(offset+8);
+    const compressedSize=data.readUInt32LE(offset+18);
+    const nameLength=data.readUInt16LE(offset+26);
+    const extraLength=data.readUInt16LE(offset+28);
+    const name=data.subarray(offset+30,offset+30+nameLength).toString("utf8");
+    const dataStart=offset+30+nameLength+extraLength;
+    const compressed=data.subarray(dataStart,dataStart+compressedSize);
+    const raw=method===8?inflateRawSync(compressed):method===0?compressed:null;
+    assert.ok(raw, "Unsupported ZIP compression method: "+method);
+    if(name.endsWith("/manifest.json")) docs.push({name,json:JSON.parse(raw.toString("utf8"))});
+    offset=dataStart+compressedSize;
+  }
+  return docs;
+}
+
 
 test("input switching is capability gated and uses advertised values", () => {
   const caps="(vcp(10 60(0F 11 1B) 62 D6(01 04)))";
@@ -64,11 +83,24 @@ test("Pro bundled profiles are V2 archives with four real control surfaces", asy
 });
 
 test("Stream Deck Plus bundle contains only continuous encoder actions", async () => {
-  const text=(await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin","profiles","monitor-manager-pro-plus.streamDeckProfile"))).toString("utf8");
-  assert.match(text,/"Type": "Encoder"/);
-  assert.match(text,/com\.packrat\.monitormanagerpro\.brightness/);
-  assert.match(text,/com\.packrat\.monitormanagerpro\.contrast/);
-  assert.match(text,/com\.packrat\.monitormanagerpro\.volume/);
+  const data=await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin","profiles","monitor-manager-pro-plus.streamDeckProfile"));
+  const docs=zipJsonDocuments(data);
+  const encoderUuids=[];
+  for(const doc of docs){
+    for(const controller of doc.json.Controllers??[]){
+      if(controller.Type!=="Encoder") continue;
+      for(const action of Object.values(controller.Actions??{})) encoderUuids.push(action.UUID);
+    }
+  }
+  assert.ok(encoderUuids.length>0);
+  assert.deepEqual(
+    [...new Set(encoderUuids)].sort(),
+    [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume"
+    ].sort()
+  );
 });
 
 test("profile storage refuses to silently overwrite corrupt saved data", async () => {
