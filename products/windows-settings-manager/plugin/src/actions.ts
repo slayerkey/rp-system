@@ -78,7 +78,7 @@ class HdrBase extends LiveTitleAction<HdrSettings> {
     const currentOn = !snapshot.hdr.mixed && snapshot.hdr.enabledCount === snapshot.hdr.supportedCount;
     const enabled = operation === "on" ? true : operation === "off" ? false : !currentOn;
     const reply = await runtime.state.execute<any>("setHdr", { enabled });
-    if (!reply.ok || reply.result?.status === "FAILED") await ev.action.showAlert();
+    if (!reply.ok || reply.result?.status !== "COMPLETE") await ev.action.showAlert();
     else await ev.action.showOk();
   }
 }
@@ -93,8 +93,8 @@ class PowerBase extends LiveTitleAction<PowerSettings> {
     if ((settings.operation ?? "cycle") === "cycle") {
       const plans = snapshot.powerPlans;
       if (!plans.length) return ev.action.showAlert();
-      const index = Math.max(0, plans.findIndex((plan) => plan.active));
-      guid = plans[(index + 1) % plans.length]?.guid;
+      const index = plans.findIndex((plan) => plan.active);
+      guid = plans[(index + 1 + plans.length) % plans.length]?.guid;
     }
     if (!guid) return ev.action.showAlert();
     const reply = await runtime.state.execute("setPowerPlan", { guid });
