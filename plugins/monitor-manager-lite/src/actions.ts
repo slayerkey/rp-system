@@ -10,7 +10,7 @@ import { runtime, type MonitorSettings } from "./runtime.js";
 
 async function showFailure(target: any): Promise<void> {
   if (target.isKey?.()) await target.showAlert();
-  if (target.isDial?.()) await target.setFeedback({ title: "UNSUPPORTED", value: 0 });
+  if (target.isDial?.()) await target.setFeedback({ title: "UNSUPPORTED", value: "0%", indicator: 0 });
 }
 
 @action({ UUID: "com.packrat.monitormanagerlite.brightness" })
@@ -42,7 +42,7 @@ export class BrightnessAction extends SingletonAction<MonitorSettings> {
     try {
       const step = Math.max(1, Number(settings.step ?? 2));
       const value = await runtime.adjustBrightness(settings, ev.payload.ticks * step);
-      await ev.action.setFeedback({ title: "BRIGHTNESS", value });
+      await ev.action.setFeedback({ title: "BRIGHTNESS", value: String(value) + "%", indicator: value });
     } catch {
       await showFailure(ev.action);
     }
@@ -51,7 +51,7 @@ export class BrightnessAction extends SingletonAction<MonitorSettings> {
     try {
       const value = await runtime.brightnessPercent(settings);
       if (target.isKey()) await target.setTitle(value === null ? "UNKNOWN\nBRIGHTNESS" : String(value) + "%\nBRIGHTNESS");
-      if (target.isDial()) await target.setFeedback({ title: "BRIGHTNESS", value: value ?? 0 });
+      if (target.isDial()) await target.setFeedback({ title: "BRIGHTNESS", value: String(value ?? 0) + "%", indicator: value ?? 0 });
     } catch {
       if (target.isKey()) await target.setTitle("NO MONITOR");
     }
