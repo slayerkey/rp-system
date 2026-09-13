@@ -26,6 +26,7 @@ Still required before READY_TO_SHIP:
 - official `.streamDeckPlugin` packaging
 - final physical Windows audio-device smoke
 - physical Stream Deck + dial smoke
+- real-hardware Marketplace demonstration video, if required by the live Maker Console/review flow
 
 ## Automated evidence already obtained
 
@@ -124,4 +125,4 @@ Final physical QA must cover:
 - long/Unicode device names
 - Stream Deck + dial
 
-Use `REAL_WINDOWS_SMOKE.md` as the canonical checklist.
+Use `REAL_WINDOWS_SMOKE.md` as the canonical checklist. After it passes, record the real-hardware evidence in `DEMO_VIDEO.md` before Marketplace submission when the live review flow requires a demonstration video.
