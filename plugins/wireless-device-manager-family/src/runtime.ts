@@ -35,7 +35,7 @@ export class WirelessRuntime {
   }
 
   notify(): void {
-    this.notify();
+    for (const listener of this.listeners) listener();
   }
 
   devices(): Device[] {
@@ -126,7 +126,7 @@ export class WirelessRuntime {
     const current = await this.globals();
     if (current.liteDeviceId === id) return;
     await this.mutateGlobals(value => ({ ...value, liteDeviceId: id }));
-    for (const listener of this.listeners) listener();
+    this.notify();
   }
 
   async favorites(): Promise<string[]> {
