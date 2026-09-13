@@ -173,18 +173,22 @@ jobs:
             blocker = 'Discord approval pending'
             final_boundary = 'approval then submission'
           }
-          $building = [PSCustomObject]@{
-            workflow_state = 'BUILDING'
-            blocker = 'Windows release QA pending'
-            final_boundary = 'automated and physical QA'
-          }
-          $hardwareQa = [PSCustomObject]@{
-            workflow_state = 'READY_FOR_HARDWARE_QA'
-            blocker = $null
-            final_boundary = 'real Windows hardware smoke'
-          }
           $ready = [PSCustomObject]@{
             workflow_state = 'READY_TO_SHIP'
+            blocker = $null
+            final_boundary = $null
+          }
+          $testing = [PSCustomObject]@{
+            workflow_state = 'TESTING'
+            blocker = $null
+            final_boundary = 'finish automated QA'
+          }
+          $published = [PSCustomObject]@{
+            workflow_state = 'PUBLISHED'
+            blocker = $null
+            final_boundary = $null
+          }
+          $legacyNoState = [PSCustomObject]@{
             blocker = $null
             final_boundary = $null
           }
@@ -193,20 +197,16 @@ jobs:
             blocker = $null
             final_boundary = 'legacy approval pending'
           }
-          $legacyNoState = [PSCustomObject]@{
-            blocker = $null
-            final_boundary = $null
-          }
 
-          foreach ($fixture in @($blocked, $building, $hardwareQa)) {
-            foreach ($action in @('kit', 'stage')) {
+          foreach ($action in @('kit', 'stage')) {
+            foreach ($fixture in @($blocked, $testing, $published)) {
               Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction $action
             }
           }
           Assert-ProductReleaseState -Product $ready -ProductSlug 'fixture' -RequestedAction 'ship'
           Assert-ProductReleaseState -Product $legacyNoState -ProductSlug 'fixture' -RequestedAction 'ship'
 
-          foreach ($fixture in @($blocked, $building, $hardwareQa, $legacyBlocked)) {
+          foreach ($fixture in @($blocked, $legacyBlocked, $testing, $published)) {
             $threw = $false
             try {
               Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction 'ship'
