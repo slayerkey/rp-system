@@ -236,8 +236,8 @@ export class TelemetryService extends EventEmitter {
       if (completed) {
         this._schedulePersist();
         this.emit("session", completed);
+        this.emit("update", { kind: "frame" });
       }
-      this.emit("update", { kind: "frame" });
     }, 250);
     this.sessionTimer.unref?.();
     this._startHardware();
@@ -292,7 +292,7 @@ export class TelemetryService extends EventEmitter {
 
   _emitFrameUpdate() {
     const now = Date.now();
-    if (this.lastFrameEmit && now - this.lastFrameEmit < 90) return;
+    if (this.lastFrameEmit && now - this.lastFrameEmit < 200) return;
     this.lastFrameEmit = now;
     this.emit("update", { kind: "frame" });
   }
