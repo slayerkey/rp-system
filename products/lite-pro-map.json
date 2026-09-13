@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-01",
+  "updated_at": "2026-09-12",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -178,6 +178,17 @@
       ],
       "source_status": "free_catalog_only_source_unavailable_pro_qa_passed",
       "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
+    },
+    {
+      "lite_id": "wireless-device-manager",
+      "pro_id": "wireless-device-manager-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "plugins/wireless-device-manager-family"
+      ],
+      "source_status": "build_candidate_hardware_smoke_required",
+      "notes": "Lite supports one selected Bluetooth device. Pro adds multiple devices, favorites, groups, low-battery alerts, dashboard and Cycle Device. Battery, charging, connect and disconnect remain capability-gated per device. No public Marketplace URLs are recorded until real listings exist."
     }
   ],
   "standalone_free": [
