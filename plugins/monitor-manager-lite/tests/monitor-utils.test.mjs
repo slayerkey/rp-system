@@ -2,10 +2,30 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { inflateRawSync } from "node:zlib";
 
 import {
-  SAFE_VCP, SUPPORT, classifyProfileResult, matchSavedMonitor, modeSupported, parseVcpCapabilities, vcpSupport
+  SAFE_VCP, SUPPORT, boundedPercent, classifyProfileResult, matchSavedMonitor, modeSupported, parseVcpCapabilities, vcpSupport
 } from "../../_shared/monitor-manager/monitor-utils.mjs";
+function zipText(data) {
+  const parts=[];
+  let offset=0;
+  while(offset+30<=data.length && data.readUInt32LE(offset)===0x04034b50){
+    const method=data.readUInt16LE(offset+8);
+    const compressedSize=data.readUInt32LE(offset+18);
+    const nameLength=data.readUInt16LE(offset+26);
+    const extraLength=data.readUInt16LE(offset+28);
+    const dataStart=offset+30+nameLength+extraLength;
+    const compressed=data.subarray(dataStart,dataStart+compressedSize);
+    const raw=method===8?inflateRawSync(compressed):method===0?compressed:null;
+    assert.ok(raw, "Unsupported ZIP compression method: "+method);
+    parts.push(raw.toString("utf8"));
+    offset=dataStart+compressedSize;
+  }
+  assert.ok(parts.length>0,"Expected at least one local ZIP entry");
+  return parts.join("\n");
+}
+
 
 test("capability parser discovers safe VCP codes and advertised input values", () => {
   const caps = "(prot(monitor)type(LCD)model(TEST)vcp(10 12 60(0F 10 11 12) 62 D6(01 04 05)))";
@@ -41,7 +61,7 @@ test("bundled profiles are V2 archives with real Monitor Manager actions", async
   for(const name of ["monitor-manager-lite-standard","monitor-manager-lite-xl","monitor-manager-lite-plus","monitor-manager-lite-virtual"]){
     const data=await readFile(path.join(root,name+".streamDeckProfile"));
     assert.equal(data.readUInt32LE(0),0x04034b50);
-    const text=data.toString("utf8");
+    const text=zipText(data);
     assert.match(text,/"Version": "2\.0"/);
     assert.match(text,/com\.packrat\.monitormanagerlite\.brightness/);
     assert.match(text,/com\.packrat\.monitormanagerlite\.refresh-rate/);
@@ -112,5 +132,60 @@ test("native helper prefers dedicated HDR packet types and has no DISPLAY-number
   assert.match(helper,/header\.type = 15/);
   assert.match(helper,/DISPLAYCONFIG_SET_HDR_STATE/);
   assert.match(helper,/header\.type = 16/);
+  assert.match(helper,/current = hdr\.activeColorMode == 2/);
+  assert.match(helper,/advancedColorLimitedByPolicy/);
   assert.doesNotMatch(helper,/deviceName\.EndsWith/);
+});
+
+test("B1 dial feedback updates text and progress indicator", async () => {
+  const source=await readFile("src/actions.ts","utf8");
+  assert.match(source,/value: String\(value\) \+ "%", indicator: value/);
+  assert.match(source,/value: String\(value \?\? 0\) \+ "%", indicator: value \?\? 0/);
+});
+
+test("non-finite hardware percentages fail closed", () => {
+  assert.equal(boundedPercent(65),65);
+  assert.equal(boundedPercent(150),100);
+  assert.equal(boundedPercent(-5),0);
+  assert.throws(()=>boundedPercent(Number.NaN),/finite number/);
+  assert.throws(()=>boundedPercent("not-a-number"),/finite number/);
+});
+
+test("malformed power behavior is rejected before a write", async () => {
+  const source=await readFile("src/runtime.ts","utf8");
+  assert.match(source,/if \(!\["toggle","on","off"\]\.includes\(wanted\)\) throw new Error\("Invalid monitor power behavior\."/);
+});
+
+test("Lite inspector does not visually substitute an unplugged configured monitor", async () => {
+  const pi=await readFile("com.packrat.monitormanagerlite.sdPlugin/ui/pi.js","utf8");
+  assert.match(pi,/Configured monitor not connected/);
+  assert.match(pi,/globalSettings\.monitorKey\?monitorRows\.find/);
+  assert.match(pi,/CONFIGURED MONITOR NOT CONNECTED/);
+});
+
+test("Lite manifest action UUIDs exactly match backend handlers", async () => {
+  const manifest=JSON.parse(await readFile("com.packrat.monitormanagerlite.sdPlugin/manifest.json","utf8"));
+  const source=await readFile("src/actions.ts","utf8");
+  const handlers=[...source.matchAll(/@action\(\{\s*UUID:\s*"([^"]+)"/g)].map((match)=>match[1]).sort();
+  const exposed=manifest.Actions.map((action)=>action.UUID).sort();
+  assert.deepEqual(handlers,exposed);
+  const encoders=manifest.Actions.filter((action)=>action.Controllers?.includes("Encoder")).map((action)=>action.UUID);
+  assert.deepEqual(encoders,["com.packrat.monitormanagerlite.brightness"]);
+});
+
+test("monitor scans are coalesced and slow DDC discovery gets a dedicated timeout", async () => {
+  const runtimeSource=await readFile("src/runtime.ts","utf8");
+  const clientSource=await readFile("../../_shared/monitor-manager/monitor-client.ts","utf8");
+  assert.match(runtimeSource,/scanInFlight/);
+  assert.match(runtimeSource,/request\("scan",\{\},30000\)/);
+  assert.match(clientSource,/failPending\(error, true\)/);
+  assert.match(clientSource,/child\.kill\(\)/);
+});
+
+test("successful DDC capability strings are cached while failed reads remain retryable", async () => {
+  const helper=await readFile("../../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
+  assert.match(helper,/CapsCache/);
+  assert.match(helper,/if \(!String\.IsNullOrWhiteSpace\(value\)\) CapsCache\[key\] = value/);
+  assert.match(helper,/string stablePath = StableMonitorPath\(mi\.szDevice\) \?\? mi\.szDevice/);
+  assert.match(helper,/var availableModes = GetModes\(mi\.szDevice\)/);
 });
