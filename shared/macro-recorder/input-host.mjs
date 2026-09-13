@@ -22,7 +22,7 @@ export class InputHost extends EventEmitter {
   async ensure() {
     if (this.proc && !this.proc.killed) return;
     this.stopping = false;
-    const proc = spawn(this.helperPath(), ["--daemon"], { windowsHide: true, stdio: ["pipe","pipe","pipe"] });
+    const proc = spawn(this.helperPath(), ["--daemon","--parent-pid",String(process.pid)], { windowsHide: true, stdio: ["pipe","pipe","pipe"] });
     this.proc = proc;
     const lines = createInterface({ input: proc.stdout });
     lines.on("line", (line) => {
