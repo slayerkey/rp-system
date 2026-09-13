@@ -278,9 +278,17 @@ def search_icon(out: Path) -> None:
     im = Image.new("RGBA", (288, 288), (*BG, 255))
     d = ImageDraw.Draw(im)
     d.rounded_rectangle((18, 18, 270, 270), 56, fill=KEY, outline=ACC, width=8)
-    for y, cx in ((82, 103), (144, 181), (206, 127)):
-        d.line((62, y, 226, y), fill=WHITE, width=11)
-        d.ellipse((cx - 19, y - 19, cx + 19, y + 19), fill=ACC)
+
+    # Product identity must remain readable at Marketplace search size.
+    for y, cx in ((62, 96), (88, 180)):
+        d.line((62, y, 226, y), fill=WHITE, width=8)
+        d.ellipse((cx - 13, y - 13, cx + 13, y + 13), fill=ACC)
+
+    d.text((144, 136), "AUDIO", font=fit_font(d, "AUDIO", 210, 52, 34, True), fill=WHITE, anchor="mm")
+    d.text((144, 184), "MANAGER", font=fit_font(d, "MANAGER", 220, 36, 26, True), fill=WHITE, anchor="mm")
+    d.rounded_rectangle((88, 214, 200, 252), 14, fill=ACC)
+    d.text((144, 233), "PRO", font=font(24, True), fill=BG, anchor="mm")
+
     im.convert("RGB").save(out / "01_search_icon.png", quality=95)
 
 
