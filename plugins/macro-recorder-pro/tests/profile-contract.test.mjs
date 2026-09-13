@@ -14,9 +14,10 @@ test("Pro starter profile source contains required pages and a blank PLAY action
   assert.equal(source.includes('const settings={macro:m,...extra}'),false);
   assert.ok(source.includes('playbackMode:"while-held"'));
   assert.ok(source.includes('playbackMode:"toggle"'));
-  for(const deviceType of ["deviceType:0","deviceType:2","deviceType:7","deviceType:9"]) {
+  for(const deviceType of ["deviceType:0","deviceType:1","deviceType:2","deviceType:7","deviceType:9"]) {
     assert.ok(source.includes(deviceType),`missing ${deviceType}`);
   }
+  assert.ok(source.includes("compactPages(basePages,3,2)"));
   assert.ok(source.includes("compactPages(basePages,4)"));
   assert.equal(/anti[- ]?afk|cheat|farm/i.test(source),false);
 });
