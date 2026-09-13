@@ -488,6 +488,9 @@ public static class PackRatWindowsNative
 
         int supported = 0;
         int succeeded = 0;
+        int unreadable = 0;
+        var errors = new List<string>();
+
         foreach (var path in ActivePaths())
         {
             bool isSupported;
@@ -495,25 +498,43 @@ public static class PackRatWindowsNative
             string error;
             bool readable = TryReadNewHdr(path.targetInfo, out isSupported, out current, out error);
 
-            if (!readable || !isSupported) continue;
+            if (!readable)
+            {
+                unreadable++;
+                if (!String.IsNullOrWhiteSpace(error)) errors.Add(error);
+                continue;
+            }
+            if (!isSupported) continue;
+
             supported++;
             if (SetHdrForTarget(path.targetInfo, enabled)) succeeded++;
+            else errors.Add("An HDR-capable display did not confirm the requested state.");
         }
 
         var state = GetHdr();
         if (supported == 0)
-            return new SetResult { status = "FAILED", error = "No active HDR-capable display was found.", state = state };
+        {
+            string noTargetError = unreadable > 0
+                ? "HDR capability could not be confirmed for one or more active displays."
+                : "No active HDR-capable display was found.";
+            return new SetResult { status = "FAILED", error = noTargetError, state = state };
+        }
 
         bool verified = enabled
             ? state.supportedCount > 0 && state.enabledCount == state.supportedCount
             : state.enabledCount == 0;
+        bool uncertain = unreadable > 0 || (state.errors != null && state.errors.Length > 0);
 
-        string status = verified && succeeded == supported ? "COMPLETE"
+        string status = verified && succeeded == supported && !uncertain ? "COMPLETE"
             : succeeded > 0 ? "PARTIAL"
             : "FAILED";
+
+        string detail = errors.Count > 0
+            ? String.Join(" | ", errors)
+            : "One or more displays did not confirm the requested HDR state.";
         return new SetResult {
             status = status,
-            error = status == "COMPLETE" ? null : "One or more displays did not confirm the requested HDR state.",
+            error = status == "COMPLETE" ? null : detail,
             state = state
         };
     }
@@ -672,10 +693,17 @@ function Set-Timeout {
 function Get-Snapshot {
     $errors = [System.Collections.Generic.List[string]]::new()
 
-    try { $hdr = [PackRatWindowsNative]::GetHdr() }
+    try {
+        $hdr = [PackRatWindowsNative]::GetHdr()
+        foreach ($hdrError in @($hdr.errors)) {
+            if (-not [string]::IsNullOrWhiteSpace([string]$hdrError)) {
+                $errors.Add("HDR: $hdrError")
+            }
+        }
+    }
     catch {
         $errors.Add("HDR: $($_.Exception.Message)")
-        $hdr = [pscustomobject]@{ available = $false; api = "unavailable"; supportedCount = 0; enabledCount = 0; mixed = $false }
+        $hdr = [pscustomobject]@{ available = $false; api = "unavailable"; supportedCount = 0; enabledCount = 0; mixed = $false; errors = @() }
     }
 
     try { $topology = [PackRatWindowsNative]::GetTopology() }
