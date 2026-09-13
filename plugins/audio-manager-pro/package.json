@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs && rollup -c && node scripts/cleanup-build.mjs",
+    "build": "npm run native && node scripts/build.mjs && rollup -c && node scripts/cleanup-build.mjs",
     "test": "node --check src/plugin.js && node --check ui/inspector.js && node --check scripts/build.mjs && node --test tests/*.test.mjs",
-    "check": "npm run test && npm run build",
+    "check": "npm run test && npm run build && npm run validate",
     "native": "dotnet publish native/PackRat.AudioManager.Helper/PackRat.AudioManager.Helper.csproj -c Release -r win-x64 --self-contained true -o com.packrat.audio-manager-pro.sdPlugin/native/win-x64",
     "native:selftest": "com.packrat.audio-manager-pro.sdPlugin\\native\\win-x64\\PackRat.AudioManager.Helper.exe --self-test",
     "validate": "streamdeck validate com.packrat.audio-manager-pro.sdPlugin --no-update-check",
