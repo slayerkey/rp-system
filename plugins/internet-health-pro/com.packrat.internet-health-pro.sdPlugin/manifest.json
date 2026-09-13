@@ -133,7 +133,7 @@
   "CategoryIcon": "imgs/category/icon.svg",
   "CodePath": "bin/plugin.js",
   "Description": "Know when your internet is the problem with continuous local latency, jitter, probe-loss, outage and target health monitoring plus manual speed tests.",
-  "Icon": "imgs/plugin/icon.png",
+  "Icon": "imgs/plugin/icon",
   "Name": "Internet Health Pro",
   "Nodejs": {
     "Version": "24"
