@@ -178,6 +178,13 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
   }
 
+  async function surfaceRecoverableError(error, action = null) {
+    lastError = String(error?.message || error || "Macro Recorder command failed.");
+    await renderAll();
+    await broadcastInspectors();
+    await action?.showAlert?.().catch(() => {});
+  }
+
   async function startRecording(record) {
     if (recording) {
       await record.action.showAlert?.().catch(() => {});
@@ -185,22 +192,34 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
     if (playback) await stopPlayback();
     lastError = "";
-    await host.command("startRecording", {
-      includeMouse: pro,
-      includeMouseMove: pro && record.settings.captureMouseMovement !== false,
-      maxDurationMs: limits.maxDurationMs,
-      maxEvents: limits.maxEvents,
-    });
+    try {
+      await host.command("startRecording", {
+        includeMouse: pro,
+        includeMouseMove: pro && record.settings.captureMouseMovement !== false,
+        maxDurationMs: limits.maxDurationMs,
+        maxEvents: limits.maxEvents,
+      });
+    } catch (error) {
+      await surfaceRecoverableError(error, record.action);
+    }
   }
 
-  async function cancelRecording() {
+  async function cancelRecording(action = null) {
     if (!recording) return;
-    await host.command("cancelRecording");
+    try {
+      await host.command("cancelRecording");
+    } catch (error) {
+      await surfaceRecoverableError(error, action);
+    }
   }
 
-  async function stopRecording() {
+  async function stopRecording(action = null) {
     if (!recording) return;
-    await host.command("stopRecording");
+    try {
+      await host.command("stopRecording");
+    } catch (error) {
+      await surfaceRecoverableError(error, action);
+    }
   }
 
   async function startPlayback(record) {
@@ -242,11 +261,19 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
   }
 
-  async function stopPlayback() {
-    if (!playback) return;
-    try { await host.command("stopPlayback"); } catch {}
+  async function stopPlayback(action = null) {
+    const knownPlayback = Boolean(playback);
+    try {
+      await host.command("stopPlayback", {}, knownPlayback
+        ? { timeoutMs: 3000 }
+        : { skipEnsure: true, timeoutMs: 1500 });
+    } catch (error) {
+      if (knownPlayback) lastError = String(error?.message || error);
+    }
     playback = null;
     await renderAll();
+    await broadcastInspectors();
+    if (knownPlayback && lastError) await action?.showAlert?.().catch(() => {});
   }
 
   class MacroAction extends SingletonAction {
@@ -316,8 +343,8 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       if (payload.type !== "macroRecorder.command") return;
       try {
         const command = String(payload.command || "");
-        if (command === "cancelRecording") await cancelRecording();
-        else if (command === "stopPlayback") await stopPlayback();
+        if (command === "cancelRecording") await cancelRecording(record.action);
+        else if (command === "stopPlayback") await stopPlayback(record.action);
         else if (command === "assignLatest" && !pro && latestMacro) {
           const next = { ...record.settings, macro: normalizeMacro(latestMacro, { pro:false, limits }) };
           await record.action.setSettings(next);
@@ -372,8 +399,8 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       if (!record) return;
       if (record.kind === "record") return startRecording(record);
       if (record.kind === "stop") {
-        if (recording) return stopRecording();
-        return stopPlayback();
+        if (recording) return stopRecording(record.action);
+        return stopPlayback(record.action);
       }
       if (record.kind === "replay") return startPlayback(record);
     }
