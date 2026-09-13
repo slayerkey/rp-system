@@ -32,12 +32,6 @@ export function matchEndpoint(identity, endpoints = []) {
   const exact = list.find((endpoint) => String(endpoint.id || "") === wanted.endpointId);
   if (exact) return { status: "matched", endpoint: exact, strategy: "endpoint-id", reason: "" };
 
-  if (wanted.instanceId) {
-    const byInstance = uniqueMatch(list, (endpoint) =>
-      normalizeText(endpoint.instanceId) === normalizeText(wanted.instanceId));
-    if (byInstance) return { status: "matched", endpoint: byInstance, strategy: "device-instance", reason: "" };
-  }
-
   if (wanted.containerId && wanted.name) {
     const byContainerAndName = uniqueMatch(list, (endpoint) =>
       normalizeText(endpoint.containerId) === normalizeText(wanted.containerId) &&
