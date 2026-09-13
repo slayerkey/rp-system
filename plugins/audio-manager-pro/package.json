@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "npm run native && node scripts/build.mjs && rollup -c && node scripts/cleanup-build.mjs",
-    "test": "node --check src/plugin.js && node --check ui/inspector.js && node --check scripts/build.mjs && node --test tests/*.test.mjs",
+    "test": "node --check src/plugin.js && node --check src/audio-helper.js && node --check src/device-matching.js && node --check src/profiles.js && node --check src/render.js && node --check ui/inspector.js && node --check scripts/build.mjs && node --check scripts/cleanup-build.mjs && node --test tests/*.test.mjs",
     "check": "npm run test && npm run build && npm run validate",
     "native": "dotnet publish native/PackRat.AudioManager.Helper/PackRat.AudioManager.Helper.csproj -c Release -r win-x64 --self-contained true -o com.packrat.audio-manager-pro.sdPlugin/native/win-x64",
     "native:selftest": "com.packrat.audio-manager-pro.sdPlugin\\native\\win-x64\\PackRat.AudioManager.Helper.exe --self-test",
