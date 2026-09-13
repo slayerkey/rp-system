@@ -38,9 +38,20 @@ let latestSnapshot = null;
 let latestError = "";
 let renderTimer = null;
 let pollTimer = null;
+let audioMutationQueue = Promise.resolve();
 
 function logger(message) {
   try { streamDeck.logger.error(String(message)); } catch {}
+}
+
+function enqueueAudioMutation(task) {
+  const run = audioMutationQueue
+    .catch(() => {})
+    .then(task);
+  audioMutationQueue = run.catch((error) => {
+    logger(error?.stack || error?.message || error);
+  });
+  return run;
 }
 
 function actionSettings(raw = {}) {
@@ -678,30 +689,36 @@ class AudioManagerAction extends SingletonAction {
   async onKeyDown(ev) {
     const record = visible.get(String(ev.action?.id || ""));
     if (!record) return;
-    record.lastStatus = "";
-    record.lastStatusAt = 0;
-    if (record.kind === "apply") return applySelected(record);
-    if (record.kind === "set-output" || record.kind === "set-input") return setSelectedDevice(record);
-    if (record.kind === "cycle") return cycleProfile(record);
-    if (record.kind === "status") return checkSelectedProfile(record);
-    if (record.kind === "mute-mic") return toggleDefaultMic(record);
+
+    return enqueueAudioMutation(async () => {
+      record.lastStatus = "";
+      record.lastStatusAt = 0;
+      if (record.kind === "apply") return applySelected(record);
+      if (record.kind === "set-output" || record.kind === "set-input") return setSelectedDevice(record);
+      if (record.kind === "cycle") return cycleProfile(record);
+      if (record.kind === "status") return checkSelectedProfile(record);
+      if (record.kind === "mute-mic") return toggleDefaultMic(record);
+    });
   }
 
   async onDialDown(ev) {
     const record = visible.get(String(ev.action?.id || ""));
-    if (record?.kind === "volume") await applySelected(record);
+    if (record?.kind === "volume")
+      return enqueueAudioMutation(() => applySelected(record));
   }
 
   async onDialRotate(ev) {
     const record = visible.get(String(ev.action?.id || ""));
     if (record?.kind !== "volume") return;
     const ticks = Number(ev.payload?.ticks || 0);
-    if (ticks) await adjustProfileVolume(record, ticks);
+    if (ticks)
+      return enqueueAudioMutation(() => adjustProfileVolume(record, ticks));
   }
 
   async onTouchTap(ev) {
     const record = visible.get(String(ev.action?.id || ""));
-    if (record?.kind === "volume") await toggleProfileOutputMute(record);
+    if (record?.kind === "volume")
+      return enqueueAudioMutation(() => toggleProfileOutputMute(record));
   }
 }
 
