@@ -121,3 +121,20 @@ test("native Bluetooth boundary uses AEP services and fail-closed service errors
   assert.doesNotMatch(source,/AudioVideo-class|MajorClass\.AudioVideo|ERROR_INVALID_PARAMETER\s*\|\|/);
   assert.match(source,/code\s*==\s*E_INVALIDARG/);
 });
+
+
+test("settings reads are side-effect free and global writes are explicit",async()=>{
+  const actions=await readFile("src/actions.ts","utf8");
+  const runtime=await readFile("src/runtime.ts","utf8");
+  const inspector=await readFile("ui/inspector.js","utf8");
+
+  const didReceive=actions.match(/onDidReceiveSettings[\s\S]*?\n  }/m)?.[0]||"";
+  assert.doesNotMatch(didReceive,/setFavorite|assignGroups|setThreshold|setLiteDeviceId/);
+  assert.match(actions,/onSendToPlugin/);
+  assert.match(inspector,/type:"set-favorite"/);
+  assert.match(inspector,/type:"set-groups"/);
+  assert.match(inspector,/type:"set-threshold"/);
+  assert.match(runtime,/globalCache/);
+  assert.match(runtime,/globalWrite/);
+  assert.match(runtime,/mutateGlobals/);
+});
