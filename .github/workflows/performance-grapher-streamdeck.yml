@@ -51,6 +51,9 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Compile Rat Art script
+        run: python -m py_compile scripts/rat-art-release.py
+
       - name: Install Rat Art dependency
         run: python -m pip install --disable-pip-version-check pillow==11.3.0
 
