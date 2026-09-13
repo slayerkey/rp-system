@@ -138,7 +138,9 @@ The approved hardware plate is `tools/art/assets/streamdeck-mk2-straight.png` an
 
 The hardware plate contains real transparent LCD windows. Product key art must be rendered on an underlay **behind** those windows, then the untouched photographed hardware plate must be composited on top. Never draw key art over the physical button bezel, glass rim, chassis, or lighting.
 
-Transparent key assets must be alpha-trimmed before fitting so invisible canvas padding cannot make the visible artwork undersized. Opaque key-face screenshots fill the calibrated LCD window. The compositor must reject bad calibration that does not match the plate's transparent LCD holes.
+The source PNG alpha channel is authoritative. The calibration stores coarse physical button bounds and cached expected LCD bounds, but the compositor must detect each real LCD hole as an internal connected alpha component at render time. Every detected LCD pixel must receive a fully opaque screen underlay, with a small under-bezel safety bleed, before product art is added. A successful render requires exactly 15 detected LCDs and zero uncovered LCD pixels.
+
+Transparent key assets must be alpha-trimmed before fitting so invisible canvas padding cannot make the visible artwork undersized. Their transparency reveals the intentional screen background, never the marketplace scene. Opaque key-face screenshots fill the detected LCD area. The compositor must reject bad calibration that does not match the plate's real alpha holes.
 
 Stream Deck hero titles use the same deterministic font resolver, warm-studio scene, white/orange hierarchy, and source PackRat mark as the approved XENEON hero system.
 
