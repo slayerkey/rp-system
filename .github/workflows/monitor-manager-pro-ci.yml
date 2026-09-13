@@ -2,6 +2,7 @@ name: Monitor Manager Pro CI
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
       - product/monitor-manager-lite
@@ -18,8 +19,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: monitor-manager-pro-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   windows-streamdeck:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     runs-on: windows-latest
     steps:
       - name: Checkout
