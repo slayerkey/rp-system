@@ -232,7 +232,10 @@ async function feedbackForResult(record, result) {
 async function applySelected(record) {
   const profile = profileForRecord(record);
   if (!profile) {
-    const result = { status: "FAILED", failures: [{ error: "Create an Audio Profile first." }] };
+    const message = globalSettings.profiles.length
+      ? "Select an Audio Profile for this action first."
+      : "Create an Audio Profile first.";
+    const result = { status: "FAILED", failures: [{ error: message }] };
     record.lastStatus = "FAILED";
     record.lastStatusAt = Date.now();
     record.lastResult = result;
