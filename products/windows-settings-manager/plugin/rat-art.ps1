@@ -8,9 +8,13 @@ $Root = $PSScriptRoot
 if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
     throw "Python is required for Windows Settings Manager Rat Art."
 }
-& python -c "import PIL" *> $null
+& python -c "import PIL,sys; sys.exit(0 if PIL.__version__ == '12.3.0' else 1)" *> $null
 if ($LASTEXITCODE -ne 0) {
-    throw "Pillow is required for Windows Settings Manager Rat Art."
+    Write-Host "Windows Settings Manager Rat Art: installing deterministic Pillow 12.3.0..." -ForegroundColor DarkGray
+    & python -m pip install --disable-pip-version-check Pillow==12.3.0
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not install deterministic Pillow 12.3.0 for Windows Settings Manager Rat Art."
+    }
 }
 $leaf = Split-Path -Leaf $Destination
 $flavor = switch ($leaf) {
