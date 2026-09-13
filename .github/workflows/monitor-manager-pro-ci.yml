@@ -91,6 +91,19 @@ jobs:
         run: |
           python -c "from PIL import Image; from pathlib import Path; p=Path('dist/marketplace'); expected={'01_search_icon.png':(512,512),'02_cover.png':(1920,960),'03_gallery_01.png':(1920,960),'04_gallery_02.png':(1920,960),'05_gallery_03.png':(1920,960),'06_gallery_04.png':(1920,960)}; bad=[(n,Image.open(p/n).size,s) for n,s in expected.items() if Image.open(p/n).size!=s]; assert not bad,bad; print('MARKETPLACE MEDIA PASS')"
 
+      - name: Restore tracked manifest after direct CLI smoke
+        shell: pwsh
+        run: |
+          $manifest = 'plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json'
+          $dirty = @(git status --porcelain -- $manifest)
+          if ($dirty.Count) {
+            Write-Host 'Direct Elgato CLI smoke modified the tracked manifest:'
+            git diff -- $manifest
+            git restore --worktree --staged -- $manifest
+          }
+          $remaining = @(git status --porcelain -- $manifest)
+          if ($remaining.Count) { throw 'Could not restore tracked Monitor Manager Pro manifest before isolated Rat Ship.' }
+
       - name: Exercise canonical Rat Ship plugin kit
         shell: pwsh
         run: |
