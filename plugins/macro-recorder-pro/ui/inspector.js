@@ -95,7 +95,10 @@
         );
         main.appendChild(controls);
       }
-      const maxDelay=Math.max(1000,Number(state?.limits?.maxDurationMs||60000));
+      const durationLimit=Math.max(0,Number(state?.limits?.maxDurationMs||60000));
+      const totalDelay=macro.events.reduce((sum,item)=>sum+Math.max(0,Number(item.delayMs||0)),0);
+      const otherDelay=Math.max(0,totalDelay-Math.max(0,Number(ev.delayMs||0)));
+      const maxDelay=Math.max(0,durationLimit-otherDelay);
       const delay=document.createElement("input");delay.type="number";delay.className="delay";delay.min="0";delay.max=String(maxDelay);delay.value=String(ev.delayMs||0);delay.title="Delay before event (ms)";
       delay.addEventListener("change",()=>{ev.delayMs=Math.max(0,Math.min(maxDelay,Number(delay.value||0)));saveTimeline(macro);});
       row.append(main,delay);timeline.appendChild(row);
