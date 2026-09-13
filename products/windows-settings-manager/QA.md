@@ -41,7 +41,7 @@
 - lock workstation
 - legacy Advanced Color/HDR path only on hardware where the OS exposes it
 
-Windows 11 24H2+ should accept the HDR-specific Advanced Color Info 2 / HDR State packet. Windows 10 and pre-24H2 Windows 11 should reject it and use the guarded legacy Advanced Color path. QA must verify both runtime branches, including an SDR automatic-color-management display so WCG/ACM is never surfaced as HDR.
+Windows 11 24H2+ (build 26100+) uses the separated Advanced Color Info 2 / HDR State path; older builds use the guarded legacy Advanced Color path. The runtime build comes from RtlGetVersion, not Environment.OSVersion or packet probing. QA must verify both branches, including an SDR automatic-color-management display so WCG/ACM is never surfaced as HDR.
 
 ## Not applicable in v1
 
