@@ -324,6 +324,11 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       };
       visible.set(id, record);
       try {
+        if (pro && this.kind === "replay" && record.settings.macroId && !library.get(record.settings.macroId)) {
+          const next = { ...record.settings, macroId: "" };
+          await ev.action.setSettings(next);
+          record.settings = settingsFor(this.kind, next);
+        }
         if (pro && this.kind === "replay" && !record.settings.macroId && record.settings.seedMacro) {
           const seed = record.settings.seedMacro;
           const stored = library.get(seed.id) || await library.add(seed);
