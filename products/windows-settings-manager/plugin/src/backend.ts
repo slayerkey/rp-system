@@ -23,11 +23,21 @@ export class WindowsBackend {
     return new Promise<BackendReply<T>>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(id);
-        reject(new Error(`Windows backend timed out during ${op}`));
+        const error = new Error(`Windows backend timed out during ${op}`);
+        this.dispose(error);
+        reject(error);
       }, 9000);
       timer.unref();
       this.pending.set(id, { resolve, reject, timer });
-      this.process!.stdin.write(`${JSON.stringify({ id, op, args })}\n`);
+      try {
+        this.process!.stdin.write(`${JSON.stringify({ id, op, args })}\n`);
+      } catch (error) {
+        clearTimeout(timer);
+        this.pending.delete(id);
+        const failure = error instanceof Error ? error : new Error(String(error));
+        this.dispose(failure);
+        reject(failure);
+      }
     });
   }
 
@@ -37,23 +47,32 @@ export class WindowsBackend {
     return reply.result;
   }
 
-  dispose(): void {
+  dispose(reason: Error = new Error("Windows backend stopped")): void {
     const child = this.process;
     this.process = null;
     try {
       child?.stdin.end();
     } catch {
-      // Closing stdin lets the PowerShell loop exit and clear Keep Awake cleanly.
+      // Ignore shutdown pipe errors.
     }
-    this.failPending(new Error("Windows backend stopped"));
+    try {
+      if (child && child.exitCode === null) child.kill();
+    } catch {
+      // Process termination is best effort; losing the pipe still prevents reuse.
+    }
+    this.failPending(reason);
   }
 
   private async ensureStarted(): Promise<void> {
-    if (this.process && !this.process.killed) return;
+    if (this.process && !this.process.killed && this.process.exitCode === null) return;
     if (this.starting) return this.starting;
     this.starting = this.startProcess();
     try {
       await this.starting;
+    } catch (error) {
+      const failure = error instanceof Error ? error : new Error(String(error));
+      this.dispose(failure);
+      throw failure;
     } finally {
       this.starting = null;
     }
@@ -132,7 +151,13 @@ export class WindowsBackend {
       }, 4500);
       timer.unref();
       this.pending.set(id, { resolve, reject, timer });
-      this.process.stdin.write(`${JSON.stringify({ id, op, args })}\n`);
+      try {
+        this.process.stdin.write(`${JSON.stringify({ id, op, args })}\n`);
+      } catch (error) {
+        clearTimeout(timer);
+        this.pending.delete(id);
+        reject(error instanceof Error ? error : new Error(String(error)));
+      }
     });
   }
 
