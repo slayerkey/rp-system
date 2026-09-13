@@ -41,6 +41,6 @@ await savePair(resolve(plugin,"imgs","category"),"category",28,"list");
 for(const kind of ["record","stop","replay"]){
  const dir=resolve(plugin,"imgs","actions",kind);await mkdir(dir,{recursive:true});
  await writeFile(resolve(dir,"icon.png"),draw(20,kind,"list"));await writeFile(resolve(dir,"icon@2x.png"),draw(40,kind,"list"));
- await writeFile(resolve(dir,"key.png"),draw(144,kind,"key"));await writeFile(resolve(dir,"key@2x.png"),draw(288,kind,"key"));
+ await writeFile(resolve(dir,"key.png"),draw(72,kind,"key"));await writeFile(resolve(dir,"key@2x.png"),draw(144,kind,"key"));
 }
 console.log("Built Marketplace-compliant list icons, key art, UI and local input host.");
