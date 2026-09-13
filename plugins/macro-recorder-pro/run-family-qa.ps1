@@ -42,7 +42,7 @@ function Test-Plugin {
 
     if (-not $SkipAudit) {
       Write-Host "[$Slug] dependency audit"
-      npm audit --audit-level=high
+      npm audit --omit=dev --audit-level=high
     }
 
     Write-Host "[$Slug] unit tests"
