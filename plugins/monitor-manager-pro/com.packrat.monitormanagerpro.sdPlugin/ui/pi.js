@@ -55,7 +55,10 @@ function render(){
       const suffix=m.currentMode?(" · "+m.currentMode.width+"×"+m.currentMode.height+" @ "+m.currentMode.frequency+" Hz"):"";
       opt(mon,m.monitorKey,(m.description||m.deviceName)+(m.primary?" · PRIMARY":"")+suffix);
     }
-    if(!settings.monitorKey&&monitorRows[0]) settings={...settings,monitorKey:monitorRows[0].monitorKey};
+    if(!settings.monitorKey&&monitorRows[0]) {
+      settings={...settings,monitorKey:monitorRows[0].monitorKey};
+      save();
+    }
     mon.value=settings.monitorKey??"";
   }
 
@@ -115,7 +118,6 @@ function render(){
     list.textContent="";
     opt(list,"","Saved profiles…");
     for(const name of profiles)opt(list,name,name);
-    list.value=profiles.includes(settings.profileName)?settings.profileName:"";
   }
   const profile=document.getElementById("profileName");
   if(profile&&document.activeElement!==profile)profile.value=settings.profileName??"";
@@ -139,13 +141,5 @@ function build(){
   document.getElementById("hdr")?.addEventListener("change",e=>{settings={...settings,hdr:e.target.value};save();});
   document.getElementById("topology")?.addEventListener("change",e=>{settings={...settings,topology:e.target.value};save();});
   document.getElementById("orientation")?.addEventListener("change",e=>{settings={...settings,orientation:Number(e.target.value)};save();});
-  document.getElementById("profiles")?.addEventListener("change",e=>{
-    const name=e.target.value;
-    if(!name)return;
-    settings={...settings,profileName:name};
-    const profile=document.getElementById("profileName");
-    if(profile)profile.value=name;
-    save();
-  });
   document.getElementById("profileName")?.addEventListener("change",e=>{settings={...settings,profileName:e.target.value.trim()};save();render();});
 }
