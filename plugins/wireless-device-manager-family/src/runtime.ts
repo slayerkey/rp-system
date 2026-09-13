@@ -101,7 +101,7 @@ export class WirelessRuntime {
         devices: this.devices(),
         favorites: globals.favorites ?? [],
         groups: globals.groups ?? {}
-      });
+      } as any);
     } catch {
       // No Property Inspector is currently open.
     }
