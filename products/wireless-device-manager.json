@@ -1,0 +1,17 @@
+{
+  "id": "wireless-device-manager",
+  "name": "Wireless Device Manager",
+  "type": "plugin",
+  "status": "build_candidate",
+  "workflow_state": "TESTING",
+  "price_usd": 0,
+  "version": "0.1.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/wireless-device-manager-family",
+  "plugin_uuid": "com.packrat.wireless-device-manager",
+  "automated_feasibility": "GO",
+  "hardware_smoke": "REQUIRED_BEFORE_READY_TO_SHIP",
+  "notes": "Free Lite edition. One selected device. Battery/charging/control are capability-gated and never claimed universally.",
+  "ship_plugin_dir": "com.packrat.wireless-device-manager.sdPlugin",
+  "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json"
+}
