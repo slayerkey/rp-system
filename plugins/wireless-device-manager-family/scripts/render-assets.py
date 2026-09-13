@@ -5,16 +5,18 @@ import shutil
 ROOT=Path(__file__).resolve().parents[1]
 PLUGINS=[ROOT/"com.packrat.wireless-device-manager.sdPlugin",ROOT/"com.packrat.wireless-device-manager-pro.sdPlugin"]
 
-def bluetooth_mark(size, transparent=False):
+def wireless_device_mark(size, transparent=False):
     bg=(0,0,0,0) if transparent else (22,24,29,255)
     im=Image.new("RGBA",(size,size),bg)
     d=ImageDraw.Draw(im)
     fg=(255,255,255,255) if transparent else (235,235,235,255)
     w=max(1,size//14)
-    cx=size/2
-    d.line([(cx,size*.16),(cx,size*.84)],fill=fg,width=w)
-    d.line([(cx,size*.16),(size*.74,size*.36),(cx,size*.50),(size*.74,size*.66),(cx,size*.84)],fill=fg,width=w,joint="curve")
-    d.line([(size*.26,size*.31),(cx,size*.50),(size*.26,size*.70)],fill=fg,width=w,joint="curve")
+
+    # Generic wireless-device glyph: a small device node with outward radio waves.
+    # Intentionally does not reproduce the Bluetooth SIG rune/logo.
+    d.ellipse((size*.18,size*.38,size*.42,size*.62),outline=fg,width=w)
+    d.arc((size*.28,size*.24,size*.74,size*.76),-55,55,fill=fg,width=w)
+    d.arc((size*.30,size*.12,size*.90,size*.88),-55,55,fill=fg,width=w)
     return im
 
 def device_key(size):
@@ -30,19 +32,19 @@ for plugin in PLUGINS:
     p.mkdir(parents=True,exist_ok=True)
 
     # Preferences / Marketplace plugin icon: 256 + 512 @2x.
-    bluetooth_mark(256).save(p/"marketplace.png")
-    bluetooth_mark(512).save(p/"marketplace@2x.png")
+    wireless_device_mark(256).save(p/"marketplace.png")
+    wireless_device_mark(512).save(p/"marketplace@2x.png")
 
     # Action-list category icon: 28 + 56 @2x, monochrome white on transparent.
-    bluetooth_mark(28, transparent=True).save(p/"category.png")
-    bluetooth_mark(56, transparent=True).save(p/"category@2x.png")
+    wireless_device_mark(28, transparent=True).save(p/"category.png")
+    wireless_device_mark(56, transparent=True).save(p/"category@2x.png")
 
     p=plugin/"imgs/actions/device"
     p.mkdir(parents=True,exist_ok=True)
 
     # Action-list icon: 20 + 40 @2x, monochrome white on transparent.
-    bluetooth_mark(20, transparent=True).save(p/"icon.png")
-    bluetooth_mark(40, transparent=True).save(p/"icon@2x.png")
+    wireless_device_mark(20, transparent=True).save(p/"icon.png")
+    wireless_device_mark(40, transparent=True).save(p/"icon@2x.png")
 
     # Key state image: 72 + 144 @2x.
     device_key(72).save(p/"key.png")
@@ -53,4 +55,4 @@ for plugin in PLUGINS:
     for filename in ["inspector.html","inspector.css","inspector.js"]:
         shutil.copy2(ROOT/"ui"/filename,ui/filename)
 
-print("Rendered Elgato-compliant plugin, category, action-list and key assets; staged Property Inspector.")
+print("Rendered Elgato-compliant original wireless-device plugin, category, action-list and key assets; staged Property Inspector.")
