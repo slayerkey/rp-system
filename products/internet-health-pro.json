@@ -2,8 +2,8 @@
   "id": "internet-health-pro",
   "name": "Internet Health Pro",
   "type": "plugin",
-  "status": "qa_passed",
-  "workflow_state": "READY_TO_SHIP",
+  "status": "testing",
+  "workflow_state": "TESTING",
   "blocker": null,
   "price_usd": 7.99,
   "version": "1.0.0.0",
@@ -26,16 +26,19 @@
     "deterministic Rat Art and marketplace kit preflight"
   ],
   "final_boundary": "Install the exact packaged .streamDeckPlugin in Stream Deck and physically observe live key rendering through a disconnect/reconnect and one manual speed test before Marketplace submission.",
-  "qa_note": "Automated release gate passed on GitHub Actions run 34770102676 for source candidate dc9a53e7a9dd01ea569facbdc072158414f58c64. Windows and macOS deterministic tests, build, and live network smoke passed. The release job passed npm audit/check, official Elgato CLI validation, official .streamDeckPlugin packaging, deterministic Rat Art generation, package/media count checks, and artifact upload. The packaged plugin SHA256 is B7E9DEDA74D1316583A05B634E3B778B8B88AE0DCCD0E3F3B51986C219C47039. Final physical Stream Deck observation remains the human confidence boundary before Marketplace submission.",
+  "qa_note": "Final ship audit found a platform-specific explicit ICMP family command issue after the prior green gate: macOS IPv4 must use plain ping without Linux -4, while Linux IPv6 must explicitly use -6. Source is patched with deterministic Windows/macOS/Linux command tests and is awaiting a fresh full release gate before READY_TO_SHIP is restored.",
   "automated_release_evidence": {
-    "candidate_commit": "dc9a53e7a9dd01ea569facbdc072158414f58c64",
-    "github_actions_run": 34770102676,
-    "status": "PASSED",
-    "windows_job": 103758022787,
-    "macos_job": 103758023052,
-    "package_job": 103758125462,
-    "artifact_id": 10321692257,
-    "artifact_digest": "sha256:265f7b80015b060eb14c44a6a4f401f8cf2e6c601077ec4e1da81fdf7d20c1d0",
-    "package_sha256": "B7E9DEDA74D1316583A05B634E3B778B8B88AE0DCCD0E3F3B51986C219C47039"
+    "status": "PENDING_FINAL_PLATFORM_FAMILY_FIX_QA",
+    "previous_passed_candidate": {
+      "candidate_commit": "dc9a53e7a9dd01ea569facbdc072158414f58c64",
+      "github_actions_run": 34770102676,
+      "status": "PASSED",
+      "windows_job": 103758022787,
+      "macos_job": 103758023052,
+      "package_job": 103758125462,
+      "artifact_id": 10321692257,
+      "artifact_digest": "sha256:265f7b80015b060eb14c44a6a4f401f8cf2e6c601077ec4e1da81fdf7d20c1d0",
+      "package_sha256": "B7E9DEDA74D1316583A05B634E3B778B8B88AE0DCCD0E3F3B51986C219C47039"
+    }
   }
 }

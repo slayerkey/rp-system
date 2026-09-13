@@ -21,19 +21,32 @@ export function parsePingOutput(output) {
   return Number.isFinite(ms) ? ms : null;
 }
 
-export async function pingHost(host, { timeoutMs = 1600, family = "auto" } = {}) {
-  const platform = process.platform;
+export function pingInvocation(platform, host, family = "auto") {
   let command = "ping";
   const args = [];
+  const target = String(host);
+
   if (platform === "win32") {
     if (family === "ipv4") args.push("-4");
     if (family === "ipv6") args.push("-6");
-    args.push("-n", "1", String(host));
-  } else {
-    if (family === "ipv6" && platform === "darwin") command = "ping6";
-    else if (family === "ipv4") args.push("-4");
-    args.push("-c", "1", String(host));
+    args.push("-n", "1", target);
+    return { command, args };
   }
+
+  if (platform === "darwin") {
+    if (family === "ipv6") command = "ping6";
+    args.push("-c", "1", target);
+    return { command, args };
+  }
+
+  if (family === "ipv4") args.push("-4");
+  if (family === "ipv6") args.push("-6");
+  args.push("-c", "1", target);
+  return { command, args };
+}
+
+export async function pingHost(host, { timeoutMs = 1600, family = "auto" } = {}) {
+  const { command, args } = pingInvocation(process.platform, host, family);
 
   const started = performance.now();
   try {
