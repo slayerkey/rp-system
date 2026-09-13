@@ -1,0 +1,84 @@
+name: Internet Health Pro CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - product/internet-health-pro
+    paths:
+      - "plugins/internet-health-pro/**"
+      - ".github/workflows/internet-health-pro-ci.yml"
+  pull_request:
+    paths:
+      - "plugins/internet-health-pro/**"
+      - ".github/workflows/internet-health-pro-ci.yml"
+
+concurrency:
+  group: internet-health-pro-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: plugins/internet-health-pro
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: plugins/internet-health-pro/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: node scripts/live-smoke.mjs
+
+  package:
+    name: Elgato validate and package
+    needs: test
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: plugins/internet-health-pro
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: plugins/internet-health-pro/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install pillow==11.3.0
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run check
+      - run: npm run validate
+      - run: npm run pack
+      - shell: pwsh
+        run: .\\rat-art.ps1 -Destination dist\\marketplace
+      - shell: pwsh
+        run: |
+          $pkg = @(Get-ChildItem dist -Filter *.streamDeckPlugin -File)
+          if ($pkg.Count -ne 1) { throw "Expected one .streamDeckPlugin; found $($pkg.Count)" }
+          $media = @(Get-ChildItem dist\\marketplace -Filter *.png -File)
+          if ($media.Count -ne 6) { throw "Expected six Marketplace images; found $($media.Count)" }
+          Get-FileHash $pkg[0].FullName -Algorithm SHA256 | Format-List
+      - uses: actions/upload-artifact@v4
+        with:
+          name: internet-health-pro-release-qa
+          path: |
+            plugins/internet-health-pro/dist/*.streamDeckPlugin
+            plugins/internet-health-pro/dist/marketplace/*.png
+            plugins/internet-health-pro/QA.md
+            plugins/internet-health-pro/ARCHITECTURE.md
+          if-no-files-found: error
+          retention-days: 30
