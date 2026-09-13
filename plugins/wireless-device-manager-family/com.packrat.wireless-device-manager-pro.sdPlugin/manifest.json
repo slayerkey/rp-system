@@ -60,7 +60,7 @@
         {
           "Image": "imgs/actions/device/key",
           "TitleAlignment": "middle",
-          "FontSize": "10"
+          "FontSize": 10
         }
       ]
     },
@@ -77,7 +77,7 @@
         {
           "Image": "imgs/actions/device/key",
           "TitleAlignment": "middle",
-          "FontSize": "10"
+          "FontSize": 10
         }
       ]
     },
@@ -94,7 +94,7 @@
         {
           "Image": "imgs/actions/device/key",
           "TitleAlignment": "middle",
-          "FontSize": "10"
+          "FontSize": 10
         }
       ]
     }
