@@ -13,21 +13,25 @@ export function clamp(value, min, max) {
 }
 
 export function normalizeEvent(raw = {}, { pro = true } = {}) {
-  const type = TYPES.has(raw.type) ? raw.type : "keyDown";
+  if (!TYPES.has(raw.type)) return null;
+  const type = raw.type;
   if (!pro && !type.startsWith("key")) return null;
   const out = {
     type,
     delayMs: Math.round(clamp(raw.delayMs ?? 0, 0, 60_000)),
   };
   if (type.startsWith("key")) {
-    out.vk = Math.round(clamp(raw.vk ?? 0, 0, 255));
+    const vk = Number(raw.vk);
+    if (!Number.isFinite(vk) || vk < 1 || vk > 255) return null;
+    out.vk = Math.round(vk);
     out.scan = Math.round(clamp(raw.scan ?? 0, 0, 65535));
     out.extended = raw.extended === true;
     out.name = String(raw.name || keyLabel(out.vk)).slice(0, 40);
   } else if (type === "mouseMove") {
     addPosition(out, raw);
   } else if (type === "mouseDown" || type === "mouseUp") {
-    out.button = ["left","right","middle","x1","x2"].includes(raw.button) ? raw.button : "left";
+    if (!["left","right","middle","x1","x2"].includes(raw.button)) return null;
+    out.button = raw.button;
     addPosition(out, raw);
   } else if (type === "wheel") {
     out.delta = Math.round(clamp(raw.delta ?? 0, -12000, 12000));
