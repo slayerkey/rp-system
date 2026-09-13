@@ -149,6 +149,14 @@ test("individual set actions fall back to the live value shown by the inspector"
   assert.match(inspector, /context\.snapshot\?\.topology/);
 });
 
+test("state-derived actions refresh Windows before calculating their target", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(actions, /async function freshSnapshot\(\): Promise<SystemSnapshot \| null>[\s\S]*await runtime\.state\.refresh\(\)/);
+  for (const className of ["HdrBase", "PowerBase", "TopologyBase", "TimeoutBase", "AwakeBase", "CycleModeBase", "SaveModeBase"]) {
+    assert.match(actions, new RegExp(`class ${className}[\\s\\S]*?await freshSnapshot\\(\\)`), `missing fresh snapshot in ${className}`);
+  }
+});
+
 test("HDR Toggle refuses an uncertain display read instead of guessing", async () => {
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
   assert.match(actions, /operation === "toggle" && snapshot\.hdr\.errors\.length > 0/);
