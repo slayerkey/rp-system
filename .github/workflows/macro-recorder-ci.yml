@@ -110,6 +110,9 @@ jobs:
             plugins/macro-recorder-pro/submission.json
             docs/MACRO_RECORDER_QA.md
             docs/MACRO_RECORDER_MARKET_RESEARCH_2026-09-12.md
+            docs/MACRO_RECORDER_NATIVE_GATE.json
+            docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md
+            docs/MACRO_RECORDER_NATIVE_FIX_HANDOFF.md
             artifacts/marketplace/macro-recorder-lite/*
             artifacts/marketplace/macro-recorder-pro/*
           if-no-files-found: error
