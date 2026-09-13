@@ -154,6 +154,23 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
     this.invalidate();
   }
 
+  async setOrientation(settings: ProSettings): Promise<number> {
+    const { monitor }=await this.selected(settings);
+    const current=monitor.currentMode;
+    if(!current) throw new Error("Current display mode is unavailable.");
+    const wanted=Number(settings.orientation??0);
+    if(![0,1,2,3].includes(wanted)) throw new Error("Invalid orientation.");
+    const currentPortrait=[1,3].includes(Number(current.orientation??0));
+    const wantedPortrait=[1,3].includes(wanted);
+    const width=currentPortrait===wantedPortrait?Number(current.width):Number(current.height);
+    const height=currentPortrait===wantedPortrait?Number(current.height):Number(current.width);
+    await this.bridge.request("set-mode",{
+      deviceName:monitor.deviceName,width,height,frequency:Number(current.frequency),orientation:wanted,primary:false
+    },12000);
+    this.invalidate();
+    return wanted;
+  }
+
   async setExactMode(settings: ProSettings): Promise<string> {
     const { monitor }=await this.selected(settings);
     const current=monitor.currentMode;
