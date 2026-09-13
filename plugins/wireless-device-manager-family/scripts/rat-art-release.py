@@ -97,16 +97,22 @@ def dashboard(out,edition):
             key(d,300+i*430,330,*s,size=250)
     signature(im); im.convert("RGB").save(out/"04_gallery_02.png",quality=95)
 
-def groups(out):
-    im=bg(); title(im,"Profiles organize. They do not wake everything.","GAMING, WORK and TRAVEL are status groups, not risky bulk-connect macros.")
-    d=ImageDraw.Draw(im)
-    for i,(name,body) in enumerate([
-      ("GAMING","Controller\nHeadset\nGaming mouse"),
-      ("WORK","Keyboard\nEarbuds"),
-      ("TRAVEL","Portable mouse\nHeadphones")
-    ]):
-        card(d,150+i*570,285,480,365,name,body,GOOD if i==0 else ACCENT)
-    d.text((960,735),"CYCLE DEVICE MOVES THROUGH FAVORITES WITHOUT AUTO-CONNECTING",font=font(20,True),fill=MUTED,anchor="mm")
+def groups(out,edition):
+    im=bg(); d=ImageDraw.Draw(im)
+    if edition=="pro":
+        title(im,"Profiles organize. They do not wake everything.","GAMING, WORK and TRAVEL are status groups, not risky bulk-connect macros.")
+        for i,(name,body) in enumerate([
+          ("GAMING","Controller\nHeadset\nGaming mouse"),
+          ("WORK","Keyboard\nEarbuds"),
+          ("TRAVEL","Portable mouse\nHeadphones")
+        ]):
+            card(d,150+i*570,285,480,365,name,body,GOOD if i==0 else ACCENT)
+        d.text((960,735),"CYCLE DEVICE MOVES THROUGH FAVORITES WITHOUT AUTO-CONNECTING",font=font(20,True),fill=MUTED,anchor="mm")
+    else:
+        title(im,"Useful free. Clear path to Pro.","Lite solves one wireless device cleanly. Pro unlocks the multi-device command center.")
+        card(d,170,285,700,365,"WIRELESS DEVICE MANAGER","ONE SELECTED DEVICE\nSTATUS\nBATTERY + CHARGING WHEN AVAILABLE\nSUPPORTED AUDIO CONTROL",ACCENT)
+        card(d,1050,285,700,365,"WIRELESS DEVICE MANAGER PRO","MULTIPLE DEVICE KEYS\nFAVORITES + CYCLE DEVICE\nLOW-BATTERY THRESHOLDS\nGROUPS + ALL DEVICES DASHBOARD",GOOD)
+        d.text((960,735),"LITE NEVER HIDES ITS CORE UTILITY BEHIND THE UPGRADE",font=font(20,True),fill=MUTED,anchor="mm")
     signature(im); im.convert("RGB").save(out/"05_gallery_03.png",quality=95)
 
 def compatibility(out):
@@ -138,7 +144,7 @@ def search(out,edition):
 def main():
     p=argparse.ArgumentParser(); p.add_argument("--destination",required=True); p.add_argument("--edition",choices=["lite","pro"],required=True); a=p.parse_args()
     out=Path(a.destination); out.mkdir(parents=True,exist_ok=True)
-    search(out,a.edition); hero(out,a.edition); capability(out); dashboard(out,a.edition); groups(out); compatibility(out)
+    search(out,a.edition); hero(out,a.edition); capability(out); dashboard(out,a.edition); groups(out,a.edition); compatibility(out)
     req=["01_search_icon.png","02_cover.png","03_gallery_01.png","04_gallery_02.png","05_gallery_03.png","06_gallery_04.png"]
     for name in req:
         q=out/name
