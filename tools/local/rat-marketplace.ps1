@@ -70,26 +70,38 @@ function Assert-ProductReleaseState {
         [string]$RequestedAction
     )
 
-    # Non-public preparation remains available before public release. Rat Ship and
-    # Rat Submit advance into authenticated Marketplace submission, so modern products
-    # must be explicitly READY_TO_SHIP. Products that predate workflow_state retain
-    # legacy compatibility until their metadata is migrated.
+    # Non-public preparation remains available in every workflow state. Rat Ship and
+    # Rat Submit cross the public Marketplace boundary, so an explicitly stateful
+    # product must be READY_TO_SHIP. Legacy products with no workflow_state keep the
+    # pre-state-machine behavior until they are migrated.
     if ($RequestedAction -notin @("ship", "submit")) { return }
 
     $state = if ($null -ne $Product.workflow_state) { ([string]$Product.workflow_state).Trim() } else { "" }
     if ([string]::IsNullOrWhiteSpace($state)) { return }
     if ($state.Equals("READY_TO_SHIP", [System.StringComparison]::OrdinalIgnoreCase)) { return }
 
+    $isBlocked = $state.Equals("BLOCKED", [System.StringComparison]::OrdinalIgnoreCase) -or
+        $state.StartsWith("BLOCKED_", [System.StringComparison]::OrdinalIgnoreCase)
     $blocker = if ($null -ne $Product.blocker) { ([string]$Product.blocker).Trim() } else { "" }
     $boundary = if ($null -ne $Product.final_boundary) { ([string]$Product.final_boundary).Trim() } else { "" }
-    $message = "Product '$ProductSlug' is marked '$state' on canonical main. Rat $RequestedAction requires workflow_state READY_TO_SHIP before Marketplace submission."
-    if ($blocker) {
-        $message += " Blocker: $blocker."
+
+    if ($isBlocked) {
+        $message = "Product '$ProductSlug' is marked '$state' on canonical main. Rat $RequestedAction will not submit a blocked release to Marketplace."
+        if ($blocker) {
+            $message += " Blocker: $blocker."
+        }
+        elseif ($boundary) {
+            $message += " Required boundary: $boundary."
+        }
+        $message += " Resolve the blocker and move products/$ProductSlug.json to READY_TO_SHIP before shipping. You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
+        throw $message
     }
-    elseif ($boundary) {
-        $message += " Required boundary: $boundary."
+
+    $message = "Product '$ProductSlug' is marked '$state' on canonical main. Rat $RequestedAction only submits products explicitly marked READY_TO_SHIP."
+    if ($boundary) {
+        $message += " Remaining boundary: $boundary."
     }
-    $message += " Finish the release gate and move products/$ProductSlug.json to READY_TO_SHIP before shipping. You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
+    $message += " Finish the release gate and move products/$ProductSlug.json to READY_TO_SHIP before public submission. You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
     throw $message
 }
 
