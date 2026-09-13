@@ -33,7 +33,7 @@
       "classification": "lite_to_pro",
       "lite_marketplace_url": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/window-manager-pro-f3ed6217-0282-419d-a71d-4b1548147b11",
-      "source_status": "catalog_only_in_ratpack",
+      "source_status": "private_source_verified_vcs",
       "lite_marketplace_product_id": "a7693b4c-4afd-4dce-925a-262fd23b1f23",
       "pro_marketplace_product_id": "f3ed6217-0282-419d-a71d-4b1548147b11"
     },

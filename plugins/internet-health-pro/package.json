@@ -1,0 +1,23 @@
+{
+  "name": "@packrat/internet-health-pro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs && rollup -c",
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm run test && npm run build",
+    "validate": "streamdeck validate com.packrat.internet-health-pro.sdPlugin --no-update-check",
+    "pack": "streamdeck pack com.packrat.internet-health-pro.sdPlugin --no-update-check --force --output dist"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "2.1.2"
+  },
+  "devDependencies": {
+    "@elgato/cli": "1.9.0",
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^15.2.2",
+    "@rollup/plugin-terser": "^1.0.0",
+    "rollup": "^4.0.2"
+  }
+}
