@@ -180,10 +180,11 @@ export class TelemetryService extends EventEmitter {
       return points.filter(([at]) => at >= sessionStart && at <= end);
     };
 
-    if (key === "game.fps" || key === "game.frametime") {
-      const points = scopeSession(session.recent.series(requestedWindow, now));
-      if (key === "game.fps") return points;
-      return points.map(([t, fps]) => [t, fps > 0 ? 1000 / fps : 0]);
+    if (key === "game.fps") {
+      return scopeSession(session.recent.series(requestedWindow, now));
+    }
+    if (key === "game.frametime") {
+      return scopeSession(session.frametimeRecent.series(requestedWindow, now));
     }
 
     return scopeSession(this._history(key).series(requestedWindow, now));
@@ -323,7 +324,8 @@ export class TelemetryService extends EventEmitter {
     if (descriptor) this._registerDescriptor(descriptor);
     this.values.set(id, number);
     this.timestamps.set(id, Number(at) || Date.now());
-    const keepHistory = CANONICAL.has(id) || this.watched.has(id);
+    const sessionOwnsHistory = id === "game.fps" || id === "game.frametime";
+    const keepHistory = !sessionOwnsHistory && (CANONICAL.has(id) || this.watched.has(id));
     if (keepHistory) {
       this._history(id).push(at, number);
       this._schedulePersist();
