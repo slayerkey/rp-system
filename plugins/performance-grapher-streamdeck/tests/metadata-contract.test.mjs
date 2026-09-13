@@ -44,6 +44,8 @@ test("Marketplace submission keeps required product disclosures", async () => {
   assert.ok(submission.description.includes("Performance Log Users"));
   assert.ok(submission.description.includes("Sensor availability varies by hardware"));
   assert.ok(submission.description.includes("Part of the PackRat Ecosystem."));
+  assert.ok(submission.description.includes("Ready-made dashboards are included for MK.2/15-key, XL, Stream Deck +, and Neo."));
+  assert.ok(submission.release_notes.includes("ready-made performance dashboards for MK.2/15-key, XL, Stream Deck +, and Neo"));
   assert.deepEqual(submission.marketplace_operating_systems, ["Windows"]);
   assert.ok(submission.marketplace_category.includes("Gaming"));
   assert.ok(submission.marketplace_category.includes("Monitoring"));
