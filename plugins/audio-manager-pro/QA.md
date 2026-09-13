@@ -151,3 +151,24 @@ Use `REAL_WINDOWS_SMOKE.md` as the canonical checklist. After it passes, record 
 As of September 2026, Elgato's public SDK repository has an open report where action- and Property Inspector-scoped events can intermittently stop being delivered after Windows sleep/wake even though the plugin process and registration socket still appear healthy. Audio Manager Pro refreshes its Windows audio snapshot on wake, but there is no documented SDK liveness signal that can prove action-event routing survived.
 
 Do not add the issue reporter's exit-on-wake workaround unless physical QA reproduces the problem and PackRat explicitly accepts the undocumented Stream Deck respawn dependency. Treat sleep/wake event delivery as a physical release check.
+
+
+## Catalog profile and upsell decision
+
+PASS: Audio Manager Pro intentionally ships **without bundled Stream Deck profiles**. Its meaningful Audio Profiles contain user-specific Windows endpoint identities, so a prebuilt HEADSET / SPEAKERS / MEETING Stream Deck profile would contain unconfigured or invalid profile references and would not be a truthful ready-to-use preset.
+
+PASS: Audio Manager Pro is a standalone paid product, not a verified Lite→Pro edition pair. It is intentionally absent from `products/lite-pro-map.json`.
+
+PASS: no unrelated PackRat product is upsold inside the plugin or Marketplace description. Existing PackRat catalog behavior reserves explicit upgrade links for proven Lite→Pro pairs such as Better Hotkeys, Window Manager, Weather Timeline, Work Session Tracker, and PC Power Meter.
+
+The automated catalog regression test enforces no bundled Stream Deck profile directory/manifest entry, no Audio Manager Lite→Pro mapping, no unrelated Marketplace URL upsell, exact $9.99/version consistency, canonical source/submission paths, and the PackRat ecosystem footer.
+
+## Final promotion sequence
+
+After `REAL_WINDOWS_SMOKE.md` and any required real-hardware demo evidence pass:
+
+1. change the product workflow state to `READY_TO_SHIP`
+2. merge `product/audio-manager-pro` into committed `main`
+3. run `rat ship audio-manager-pro`
+
+Do not run the final ship flow from an unmerged product branch. The canonical Marketplace router deliberately syncs and ships committed `main`.
