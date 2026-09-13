@@ -90,6 +90,12 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   assert.doesNotMatch(backend, /Build >= 26100/);
   assert.match(backend, /enabled = info\.activeColorMode == 2;/);
   assert.doesNotMatch(backend, /activeColorMode == 2 \|\|/);
+  assert.match(backend, /sourceKeys\.Count == 1/);
+  assert.match(backend, /sourceKeys\.Count == paths\.Length/);
+  assert.match(backend, /mixed clone \+ extend graph/i);
+  assert.match(backend, /WaitForNewHdrState/);
+  assert.match(backend, /WaitForLegacyHdrState/);
+  assert.match(backend, /attempt < 12/);
 });
 
 test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async () => {
@@ -102,8 +108,13 @@ test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async ()
   assert.match(source, /topology[\s\S]*setTopology[\s\S]*hdr[\s\S]*setHdr[\s\S]*powerPlanGuid[\s\S]*setPowerPlan/);
 });
 
-test("state refresh polls Windows instead of trusting last-written state", async () => {
+test("state refresh polls Windows and the inspector refresh button forces a real read", async () => {
   const state = await readFile(path.resolve("src", "state.ts"), "utf8");
+  const plugin = await readFile(path.resolve("src", "plugin.ts"), "utf8");
+  const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
   assert.match(state, /setInterval\(\(\) => void this\.refresh\(\), 2500\)/);
   assert.match(state, /this\.backend\.snapshot\(\)/);
+  assert.match(plugin, /payload\?\.type === "refresh"/);
+  assert.match(plugin, /runtime\.state\.refresh\(\)\.then\(sendInspectorContext\)/);
+  assert.match(inspector, /sendPlugin\(\{ type: "refresh" \}\)/);
 });

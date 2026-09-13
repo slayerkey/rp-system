@@ -56,6 +56,7 @@ export async function startPlugin(flavor: Flavor): Promise<void> {
   streamDeck.ui.onSendToPlugin((ev) => {
     const payload = ev.payload as any;
     if (payload?.type === "get-context") void sendInspectorContext();
+    if (payload?.type === "refresh") void runtime.state.refresh().then(sendInspectorContext);
     if (payload?.type === "save-mode" && flavor === "pro") {
       void runtime.store.updateMode(String(payload.id || "gaming"), {
         name: payload.name,

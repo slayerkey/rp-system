@@ -61,7 +61,7 @@ function sendPlugin(payload) {
 function requestContext() { sendPlugin({ type: "get-context" }); }
 
 function build() {
-  document.getElementById("refresh").addEventListener("click", requestContext);
+  document.getElementById("refresh").addEventListener("click", () => sendPlugin({ type: "refresh" }));
 
   bindSelect("hdrOperation", "operation");
   bindSelect("powerOperation", "operation");

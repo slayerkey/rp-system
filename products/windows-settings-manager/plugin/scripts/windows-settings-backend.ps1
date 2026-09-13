@@ -199,9 +199,11 @@ public static class PackRatWindowsNative
         throw new InvalidOperationException("Display configuration changed too quickly to read.");
     }
 
-    private static bool SameAdapter(Luid a, Luid b)
+    private static string SourceKey(PathInfo path)
     {
-        return a.LowPart == b.LowPart && a.HighPart == b.HighPart;
+        return path.sourceInfo.adapterId.HighPart + ":" +
+            path.sourceInfo.adapterId.LowPart + ":" +
+            path.sourceInfo.id;
     }
 
     private static bool IsInternal(uint technology)
@@ -215,16 +217,14 @@ public static class PackRatWindowsNative
         if (paths.Length == 0) return "unknown";
         if (paths.Length == 1) return IsInternal(paths[0].targetInfo.outputTechnology) ? "internal" : "external";
 
-        for (int i = 0; i < paths.Length; i++)
-        {
-            for (int j = i + 1; j < paths.Length; j++)
-            {
-                if (SameAdapter(paths[i].sourceInfo.adapterId, paths[j].sourceInfo.adapterId)
-                    && paths[i].sourceInfo.id == paths[j].sourceInfo.id)
-                    return "clone";
-            }
-        }
-        return "extend";
+        var sourceKeys = new HashSet<string>(paths.Select(SourceKey));
+        if (sourceKeys.Count == 1) return "clone";
+        if (sourceKeys.Count == paths.Length) return "extend";
+
+        // A mixed clone + extend graph is a valid Windows display arrangement,
+        // but it is not one of the four simple projection topologies this
+        // plugin can truthfully represent.
+        return "unknown";
     }
 
     public static bool SetTopology(string topology)
@@ -241,8 +241,22 @@ public static class PackRatWindowsNative
 
         int rc = SetDisplayConfig(0, IntPtr.Zero, 0, IntPtr.Zero, SDC_APPLY | flag);
         if (rc != 0) return false;
-        Thread.Sleep(350);
-        return string.Equals(GetTopology(), topology, StringComparison.OrdinalIgnoreCase);
+
+        for (int attempt = 0; attempt < 12; attempt++)
+        {
+            Thread.Sleep(attempt == 0 ? 250 : 150);
+            try
+            {
+                if (string.Equals(GetTopology(), topology, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            catch
+            {
+                // Display paths can be temporarily unavailable while Windows
+                // rebuilds the active topology. Keep polling within this bound.
+            }
+        }
+        return false;
     }
 
     private static bool TryReadNewHdr(PathTargetInfo target, out bool supported, out bool enabled, out string error)
@@ -336,6 +350,36 @@ public static class PackRatWindowsNative
         };
     }
 
+    private static bool WaitForNewHdrState(PathTargetInfo target, bool enabled)
+    {
+        for (int attempt = 0; attempt < 12; attempt++)
+        {
+            Thread.Sleep(attempt == 0 ? 180 : 120);
+            bool supported;
+            bool current;
+            string error;
+            if (TryReadNewHdr(target, out supported, out current, out error)
+                && supported && current == enabled)
+                return true;
+        }
+        return false;
+    }
+
+    private static bool WaitForLegacyHdrState(PathTargetInfo target, bool enabled)
+    {
+        for (int attempt = 0; attempt < 12; attempt++)
+        {
+            Thread.Sleep(attempt == 0 ? 180 : 120);
+            bool supported;
+            bool current;
+            string error;
+            if (TryReadLegacyHdr(target, out supported, out current, out error)
+                && supported && current == enabled)
+                return true;
+        }
+        return false;
+    }
+
     private static bool SetHdrForTarget(PathTargetInfo target, bool enabled)
     {
         if (Environment.OSVersion.Version.Build >= 22000)
@@ -354,12 +398,7 @@ public static class PackRatWindowsNative
             packet.enableHdr = enabled ? 1u : 0u;
             int rc = SetHdrState(ref packet);
             if (rc != 0) return false;
-            Thread.Sleep(120);
-            bool afterSupported;
-            bool after;
-            string afterError;
-            return TryReadNewHdr(target, out afterSupported, out after, out afterError)
-                && (!afterSupported || after == enabled);
+            return WaitForNewHdrState(target, enabled);
         }
 
         bool legacySupported;
@@ -376,12 +415,7 @@ public static class PackRatWindowsNative
         legacy.enable = enabled ? 1u : 0u;
         int legacyRc = SetAdvancedColorState(ref legacy);
         if (legacyRc != 0) return false;
-        Thread.Sleep(120);
-        bool afterLegacySupported;
-        bool afterLegacy;
-        string afterLegacyError;
-        return TryReadLegacyHdr(target, out afterLegacySupported, out afterLegacy, out afterLegacyError)
-            && (!afterLegacySupported || afterLegacy == enabled);
+        return WaitForLegacyHdrState(target, enabled);
     }
 
     public static SetResult SetHdr(bool enabled)

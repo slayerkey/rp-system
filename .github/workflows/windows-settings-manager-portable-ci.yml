@@ -21,8 +21,16 @@ on:
       - ".github/workflows/windows-settings-manager-portable-ci.yml"
   workflow_dispatch:
 
+concurrency:
+  group: windows-settings-manager-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
+
+concurrency:
+  group: windows-settings-manager-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   portable:
