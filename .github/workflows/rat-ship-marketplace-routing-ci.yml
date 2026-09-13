@@ -131,6 +131,20 @@ jobs:
             blocker = $null
             final_boundary = $null
           }
+          $testing = [PSCustomObject]@{
+            workflow_state = 'TESTING'
+            blocker = $null
+            final_boundary = 'finish automated QA'
+          }
+          $published = [PSCustomObject]@{
+            workflow_state = 'PUBLISHED'
+            blocker = $null
+            final_boundary = $null
+          }
+          $legacyNoState = [PSCustomObject]@{
+            blocker = $null
+            final_boundary = $null
+          }
           $legacyBlocked = [PSCustomObject]@{
             workflow_state = 'BLOCKED_EXTERNAL_APPROVAL'
             blocker = $null
@@ -138,11 +152,14 @@ jobs:
           }
 
           foreach ($action in @('kit', 'stage')) {
-            Assert-ProductReleaseState -Product $blocked -ProductSlug 'fixture' -RequestedAction $action
+            foreach ($fixture in @($blocked, $testing, $published)) {
+              Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction $action
+            }
           }
           Assert-ProductReleaseState -Product $ready -ProductSlug 'fixture' -RequestedAction 'ship'
+          Assert-ProductReleaseState -Product $legacyNoState -ProductSlug 'fixture' -RequestedAction 'ship'
 
-          foreach ($fixture in @($blocked, $legacyBlocked)) {
+          foreach ($fixture in @($blocked, $legacyBlocked, $testing, $published)) {
             $threw = $false
             try {
               Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction 'ship'
@@ -150,10 +167,10 @@ jobs:
             catch {
               $threw = $true
               if ($_.Exception.Message -notmatch 'READY_TO_SHIP') {
-                throw "Blocked release error did not name READY_TO_SHIP: $($_.Exception.Message)"
+                throw "Non-ready release error did not name READY_TO_SHIP: $($_.Exception.Message)"
               }
             }
-            if (-not $threw) { throw "Blocked fixture '$($fixture.workflow_state)' did not fail closed." }
+            if (-not $threw) { throw "Non-ready fixture '$($fixture.workflow_state)' did not fail closed." }
           }
 
           $schema = Get-Content 'schemas/product-workflow-state.schema.json' -Raw | ConvertFrom-Json
