@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "Monitor Manager Lite",
+  "Version": "1.0.0.0",
+  "Author": "Packrat",
+  "Description": "Free Windows monitor control for Stream Deck: brightness, safe monitor power, refresh rate and live display status for one configured monitor.",
+  "Category": "Monitor Manager Lite",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "Icon": "imgs/plugin/marketplace",
+  "CodePath": "bin/plugin.js",
+  "SDKVersion": 3,
+  "Software": {"MinimumVersion": "7.0"},
+  "OS": [{"Platform": "windows", "MinimumVersion": "10"}],
+  "Nodejs": {"Version": "20"},
+  "UUID": "com.packrat.monitormanagerlite",
+  "Profiles": [
+    {"Name":"profiles/monitor-manager-lite-standard","DeviceType":0,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
+    {"Name":"profiles/monitor-manager-lite-xl","DeviceType":2,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
+    {"Name":"profiles/monitor-manager-lite-plus","DeviceType":7,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
+    {"Name":"profiles/monitor-manager-lite-virtual","DeviceType":11,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true}
+  ],
+  "Actions": [
+    {
+      "Name": "Monitor Brightness",
+      "UUID": "com.packrat.monitormanagerlite.brightness",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Set, raise or lower brightness on the selected monitor. Stream Deck+ can use the dial.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": ["Keypad","Encoder"],
+      "Encoder": {"layout":"$B1","TriggerDescription":{"Rotate":"Adjust brightness"}},
+      "States": [{"Image":"imgs/actions/common/key","TitleAlignment":"middle"}]
+    },
+    {
+      "Name": "Monitor Power",
+      "UUID": "com.packrat.monitormanagerlite.power",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Power the selected monitor on/off only when its DDC/CI capabilities advertise the power VCP feature.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": ["Keypad"],
+      "States": [{"Image":"imgs/actions/common/key","TitleAlignment":"middle"}]
+    },
+    {
+      "Name": "Refresh Rate Switch",
+      "UUID": "com.packrat.monitormanagerlite.refresh-rate",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Switch the selected monitor to a refresh rate Windows reports as available at the current resolution.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": ["Keypad"],
+      "States": [{"Image":"imgs/actions/common/key","TitleAlignment":"middle"}]
+    },
+    {
+      "Name": "Current Display Status",
+      "UUID": "com.packrat.monitormanagerlite.status",
+      "Icon": "imgs/actions/common/icon",
+      "Tooltip": "Show the selected display's current refresh rate and resolution.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": ["Keypad"],
+      "States": [{"Image":"imgs/actions/common/key","TitleAlignment":"middle"}]
+    }
+  ]
+}
