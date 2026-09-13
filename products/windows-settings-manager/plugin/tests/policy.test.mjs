@@ -163,6 +163,15 @@ test("Windows smoke enforces the safe HDR API boundary", async () => {
   assert.match(smoke, /osBuild -ge 26100[\s\S]*hdr\.api -ne "hdr-state"/);
 });
 
+test("HDR transactions cannot report COMPLETE when an active display is unreadable", async () => {
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  assert.match(backend, /int unreadable = 0/);
+  assert.match(backend, /if \(!readable\)[\s\S]*unreadable\+\+/);
+  assert.match(backend, /bool uncertain = unreadable > 0 \|\| \(state\.errors != null && state\.errors\.Length > 0\)/);
+  assert.match(backend, /verified && succeeded == supported && !uncertain \? "COMPLETE"/);
+  assert.match(backend, /\$errors\.Add\("HDR: \$hdrError"\)/);
+});
+
 test("timeout writes preserve PARTIAL instead of collapsing it into FAILED", async () => {
   const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
