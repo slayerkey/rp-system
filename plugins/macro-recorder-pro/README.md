@@ -19,7 +19,10 @@ Do not deliberately record passwords. Windows secure-desktop input is outside th
 
 ## Limits
 
-- 10 minutes per recording\n- 25,000 events\n- 0.25x to 4x playback\n- repeat count / while-held / toggle repeat
+- 10 minutes per recording
+- 25,000 events
+- 0.25x to 4x playback
+- repeat count / while-held / toggle repeat
 
 ## Build
 
