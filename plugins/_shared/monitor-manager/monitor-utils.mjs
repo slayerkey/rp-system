@@ -92,7 +92,8 @@ export function classifyProfileResult(results) {
   const failed = results.filter((x) => x.status === "FAILED").length;
   const skipped = results.filter((x) => x.status === "SKIPPED").length;
   const complete = results.filter((x) => x.status === "COMPLETE").length;
-  if (failed === 0 && skipped === 0 && complete > 0) return "COMPLETE";
+  if (failed > 0) return "FAILED";
+  if (skipped === 0 && complete > 0) return "COMPLETE";
   if (complete > 0 || skipped > 0) return "PARTIAL";
   return "FAILED";
 }
