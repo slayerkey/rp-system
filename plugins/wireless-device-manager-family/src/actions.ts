@@ -59,6 +59,7 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
       } else {
         await this.runtime.setFavorite(settings.deviceId, settings.favorite === true);
         await this.runtime.assignGroup(settings.groupName ?? "", settings.deviceId);
+        await this.runtime.setThreshold(settings.deviceId, Number(settings.lowBatteryThreshold ?? 20));
       }
     }
     await this.paint(ev.action, settings);
@@ -133,7 +134,7 @@ export class DashboardAction extends SingletonAction<DashboardSettings> {
     }
     const devices = this.runtime.devices();
     const members = settings.groupName ? await this.runtime.groupMembers(settings.groupName) : devices.map(d => d.stableId);
-    const summary = groupSummary(devices, members);
+    const summary = groupSummary(devices, members, await this.runtime.thresholds());
     const prefix = settings.groupName?.trim().toUpperCase() || "ALL DEVICES";
     await key.setTitle(`${prefix}\n${summary.connected}/${summary.total} ON${summary.low ? ` • ${summary.low} LOW` : ""}`);
   }
