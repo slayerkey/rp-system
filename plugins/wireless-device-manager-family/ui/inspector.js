@@ -36,11 +36,12 @@ function render(){
       const suffix=d.address?d.address.slice(-4):d.stableId.slice(-4);
       return `<option value="${esc(d.stableId)}">${esc(d.name)} · ${esc(suffix)}</option>`;
     }).join("");
-    select.value=settings.deviceId||"";
+    const selectedId=snapshot?.edition==="lite" ? (snapshot?.liteDeviceId||settings.deviceId||"") : (settings.deviceId||"");
+    select.value=selectedId;
     $("view").value=settings.view||"status"; $("label").value=settings.label||"";
     $("threshold").value=settings.lowBatteryThreshold??20; $("favorite").checked=settings.favorite===true; $("groupName").value=settings.groupName||"";
     $("pro-fields").hidden=snapshot?.edition!=="pro";
-    const d=devices.find(x=>x.stableId===settings.deviceId);
+    const d=devices.find(x=>x.stableId===selectedId);
     $("caps").innerHTML=d?["STATUS","CONNECT","DISCONNECT","BATTERY","CHARGING"].map(c=>`<span class="cap ${d.capabilities?.[c]?"":"off"}">${c}</span>`).join(""):"";
   }
   if(isDashboard) $("dashboardGroup").value=settings.groupName||"";
