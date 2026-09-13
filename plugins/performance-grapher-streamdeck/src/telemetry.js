@@ -311,8 +311,11 @@ export class TelemetryService extends EventEmitter {
     if (descriptor) this._registerDescriptor(descriptor);
     this.values.set(id, number);
     this.timestamps.set(id, Number(at) || Date.now());
-    this._history(id).push(at, number);
-    if (CANONICAL.has(id) || this.watched.has(id)) this._schedulePersist();
+    const keepHistory = CANONICAL.has(id) || this.watched.has(id);
+    if (keepHistory) {
+      this._history(id).push(at, number);
+      this._schedulePersist();
+    }
   }
 
   _startHardware() {
