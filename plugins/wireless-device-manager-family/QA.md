@@ -8,7 +8,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 
 ## Hardware-free evidence completed
 
-- [x] 39 model/package/profile regression cases are currently defined in the hardware-free suite
+- [x] 40 model/package/profile regression cases are currently defined in the hardware-free suite
 - [x] capability flags are per device rather than global
 - [x] A2DP/HFP control eligibility is derived from Windows AssociationEndpointService contracts rather than broad Audio/Video device-class inference
 - [x] group names are canonicalized case-insensitively so `gaming` and `GAMING` feed the same dashboard
