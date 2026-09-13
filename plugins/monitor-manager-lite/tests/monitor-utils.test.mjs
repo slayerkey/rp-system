@@ -158,7 +158,8 @@ test("monitor discovery prefers the stable Windows target device path", async ()
   assert.match(helper,/DISPLAYCONFIG_TARGET_DEVICE_NAME/);
   assert.match(helper,/monitorDevicePath/);
   assert.match(helper,/StableMonitorPath/);
-  assert.match(helper,/StableMonitorPath\(mi\.szDevice\).*\+ "#0"/);
+  assert.match(helper,/string stablePath = StableMonitorPath\(mi\.szDevice\) \?\? mi\.szDevice/);
+  assert.match(helper,/monitorDevicePath=stablePath \+ "#0"/);
 });
 
 test("native helper prefers dedicated HDR packet types and has no DISPLAY-number heuristic", async () => {
