@@ -188,7 +188,7 @@ Acceptance:
 
 ## Final native smoke matrix
 
-After all eight fixes:
+After all native blockers above are resolved:
 - Ctrl / Shift / Alt down-up
 - Windows key
 - rapid key repeat
