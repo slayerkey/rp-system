@@ -13,6 +13,10 @@ on:
       - "plugins/internet-health-pro/**"
       - ".github/workflows/internet-health-pro-ci.yml"
 
+concurrency:
+  group: internet-health-pro-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test (${{ matrix.os }})
