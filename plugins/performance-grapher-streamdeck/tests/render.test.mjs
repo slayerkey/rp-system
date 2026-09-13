@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { renderKey } from "../src/render.js";
+import { makeView, renderKey } from "../src/render.js";
 
 function decode(data) {
   return decodeURIComponent(data.slice(data.indexOf(",") + 1));
