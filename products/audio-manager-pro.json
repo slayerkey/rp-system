@@ -2,8 +2,8 @@
   "id": "audio-manager-pro",
   "name": "Audio Manager Pro",
   "type": "plugin",
-  "status": "testing",
-  "workflow_state": "TESTING",
+  "status": "qa_passed",
+  "workflow_state": "READY_FOR_HARDWARE_QA",
   "blocker": "Automated Windows release CI is green. Remaining gate is physical target-machine validation: rat dev + read-only rat audit, USB/Bluetooth/multi-mic profile switching, Stream Deck+ controls, restart/reboot/sleep-wake recovery, and real-hardware Marketplace demo evidence when required.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
@@ -26,7 +26,7 @@
   ],
   "final_boundary": "Automated build/test/helper/Elgato validate/package/Rat Art gates PASS. Physical target-machine Audio Manager behavior and Stream Deck hardware validation remain before READY_TO_SHIP.",
   "automated_release_evidence": {
-    "latest_successful_windows_run": 34770048489,
+    "latest_successful_windows_run": 34770168738,
     "automated_gate": "PASS",
     "passed": [
       "shared PackRat AudioCore Windows .NET build",
@@ -46,6 +46,7 @@
       "release QA artifact upload"
     ],
     "pure_suite": "Exact current GitHub source/test files execute 42/42 passing in the available JavaScript harness.",
-    "historical_runner_note": "Earlier runs failed before runner allocation with steps=null. Run 34770048489 later completed normally and passed every automated gate."
-  }
+    "historical_runner_note": "Earlier runs failed before runner allocation with steps=null. Current-head Windows run 34770168738 later completed normally and passed every automated gate."
+  },
+  "legacy_status": "qa_passed"
 }
