@@ -4,88 +4,105 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Performance Grapher</title>
-  <link rel="stylesheet" href="inspector.css" />
+  <script src="sdpi-components.js?v=1.0.0.0-2"></script>
+  <link rel="stylesheet" href="inspector.css?v=1.0.0.0-2" />
 </head>
 <body>
   <main>
-    <section class="status-card">
-      <div class="status-row"><span id="fpsDot" class="dot"></span><strong id="fpsTitle">Checking game telemetry…</strong></div>
-      <div id="fpsDetail" class="muted">PresentMon runs locally and keeps frame history off the network.</div>
-      <div class="status-row second"><span id="sensorDot" class="dot"></span><strong id="sensorTitle">Checking hardware sensors…</strong></div>
-      <div id="sensorDetail" class="muted">CPU and RAM remain available from Windows even if an advanced sensor is unsupported.</div>
+    <section id="providerWarning" class="notice warning" hidden>
+      <strong id="warningTitle"></strong>
+      <p id="warningDetail"></p>
+      <button id="warningAction" type="button" hidden></button>
     </section>
 
-    <section class="group" data-kinds="graph metric alert">
-      <label for="metricId">Metric</label>
-      <select id="metricId"></select>
-      <p id="metricHint" class="hint">One key, one readable metric.</p>
-    </section>
+    <div data-kinds="graph metric alert">
+      <sdpi-item label="Metric">
+        <select id="metricId" class="native-select">
+          <option value="">Loading metrics…</option>
+        </select>
+      </sdpi-item>
+      <div id="metricHint" class="help">One key, one readable metric.</div>
+    </div>
 
-    <section class="group" data-kinds="graph fps">
-      <label for="windowMs">History window</label>
-      <select id="windowMs">
-        <option value="60000">60 seconds</option>
-        <option value="300000">5 minutes</option>
-        <option value="900000">15 minutes</option>
-        <option value="0">Game session</option>
-      </select>
-      <p class="hint" data-kinds="graph">Press the key to cycle these windows.</p>
-    </section>
+    <div data-kinds="graph fps">
+      <sdpi-item label="History">
+        <sdpi-select setting="windowMs" default="60000">
+          <option value="60000">60 seconds</option>
+          <option value="300000">5 minutes</option>
+          <option value="900000">15 minutes</option>
+          <option value="0">Game session</option>
+        </sdpi-select>
+      </sdpi-item>
+      <div class="help" data-kinds="graph">Press the key to cycle these windows.</div>
+    </div>
 
-    <section class="group" data-kinds="fps">
-      <label for="fpsMode">Primary readout</label>
-      <select id="fpsMode">
-        <option value="fps">FPS</option>
-        <option value="frametime">Frametime (ms)</option>
-      </select>
-      <label for="lowMode">Low statistic</label>
-      <select id="lowMode">
-        <option value="one">1% low</option>
-        <option value="pointOne">0.1% low</option>
-      </select>
-      <p class="hint">Press the key to toggle FPS and frametime.</p>
-    </section>
+    <div data-kinds="fps">
+      <sdpi-item label="Readout">
+        <sdpi-select setting="fpsMode" default="fps">
+          <option value="fps">FPS</option>
+          <option value="frametime">Frametime (ms)</option>
+        </sdpi-select>
+      </sdpi-item>
+      <sdpi-item label="Low stat">
+        <sdpi-select setting="lowMode" default="one">
+          <option value="one">1% low</option>
+          <option value="pointOne">0.1% low</option>
+        </sdpi-select>
+      </sdpi-item>
+      <div class="help">Press the key to toggle FPS and frametime.</div>
+    </div>
 
-    <section class="group" data-kinds="graph alert">
-      <label for="threshold">Threshold</label>
-      <div class="two">
-        <select id="thresholdDirection">
+    <div data-kinds="graph alert">
+      <sdpi-item label="Direction">
+        <sdpi-select setting="thresholdDirection" default="above">
           <option value="above">Warn above</option>
           <option value="below">Warn below</option>
-        </select>
-        <input id="threshold" type="number" step="0.1" />
+        </sdpi-select>
+      </sdpi-item>
+      <sdpi-item label="Threshold">
+        <sdpi-textfield setting="threshold" default="85" placeholder="85"></sdpi-textfield>
+      </sdpi-item>
+      <div class="help">The key changes state when this metric crosses the threshold.</div>
+    </div>
+
+    <div data-kinds="graph">
+      <sdpi-item label="Scale min">
+        <sdpi-textfield setting="scaleMin" placeholder="Auto"></sdpi-textfield>
+      </sdpi-item>
+      <sdpi-item label="Scale max">
+        <sdpi-textfield setting="scaleMax" placeholder="Auto"></sdpi-textfield>
+      </sdpi-item>
+      <div class="help">Leave both blank for automatic scale. Custom max must be greater than min.</div>
+    </div>
+
+    <div data-kinds="session">
+      <section class="simple-block">
+        <strong>Session Summary</strong>
+        <p>Press the key to cycle average FPS, 1% low, 0.1% low, worst frametime, temperature/load peaks, duration, and pressure.</p>
+        <button id="resetSession" type="button">End / reset current session</button>
+      </section>
+    </div>
+
+    <sdpi-item label="Accent">
+      <sdpi-color setting="accent" default="#2BE86A"></sdpi-color>
+    </sdpi-item>
+
+    <div id="sessionLine" class="session-line" data-kinds="fps session">No active game session.</div>
+
+    <details class="diagnostics">
+      <summary>Telemetry diagnostics</summary>
+      <div class="diag-row">
+        <span id="fpsDot" class="dot"></span>
+        <div><strong id="fpsTitle">Game telemetry</strong><p id="fpsDetail">Waiting for plugin state…</p></div>
       </div>
-      <p class="hint">The key changes state when this metric crosses the threshold.</p>
-    </section>
-
-    <section class="group" data-kinds="graph">
-      <label>Graph scale</label>
-      <div class="two">
-        <input id="scaleMin" type="number" step="0.1" placeholder="Auto min" />
-        <input id="scaleMax" type="number" step="0.1" placeholder="Auto max" />
+      <div class="diag-row">
+        <span id="sensorDot" class="dot"></span>
+        <div><strong id="sensorTitle">Hardware sensors</strong><p id="sensorDetail">Waiting for plugin state…</p></div>
       </div>
-      <p class="hint">Leave both blank for automatic scale. Custom max must be greater than min.</p>
-    </section>
-
-    <section class="group" data-kinds="session">
-      <strong>Session Summary</strong>
-      <p class="hint">Press the key to cycle average FPS, 1% low, 0.1% low, worst frametime, temperature/load peaks, duration, and the pressure signal.</p>
-      <button id="resetSession" type="button" class="secondary full">End / reset current session</button>
-    </section>
-
-    <section class="group">
-      <label for="accent">Accent</label>
-      <div class="color-row"><input id="accent" type="color" /><code id="accentValue">#2BE86A</code></div>
-    </section>
-
-    <section class="group diagnostics">
-      <strong>Telemetry diagnostics</strong>
-      <p class="hint">Game FPS uses PresentMon. If Windows blocks ETW capture, add your user to Performance Log Users or run Stream Deck with sufficient rights. Performance Grapher does not install PawnIO or another driver for you.</p>
-      <button id="restartFps" type="button" class="secondary full">Restart game telemetry</button>
-      <button id="presentMonHelp" type="button" class="secondary full">Open PresentMon permission guide</button>
-      <div id="sessionLine" class="session-line">No active game session.</div>
-    </section>
+      <button id="restartFps" type="button">Restart game telemetry</button>
+      <button id="presentMonHelp" type="button">Open FPS permission guide</button>
+    </details>
   </main>
-  <script src="inspector.js"></script>
+  <script src="inspector.js?v=1.0.0.0-2"></script>
 </body>
 </html>
