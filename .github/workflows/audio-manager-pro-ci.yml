@@ -28,11 +28,9 @@ jobs:
         working-directory: plugins/audio-manager-pro
       - run: npm test
         working-directory: plugins/audio-manager-pro
-      - run: npm run native
+      - run: npm run build
         working-directory: plugins/audio-manager-pro
       - run: npm run native:selftest
-        working-directory: plugins/audio-manager-pro
-      - run: npm run build
         working-directory: plugins/audio-manager-pro
       - run: npm run validate
         working-directory: plugins/audio-manager-pro
