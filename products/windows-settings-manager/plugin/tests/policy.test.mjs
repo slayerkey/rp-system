@@ -130,6 +130,15 @@ test("HDR mode matching requires a genuinely controllable HDR display", async ()
   assert.match(inspector, /option\.disabled = !hdrUsable/);
 });
 
+test("timeout writes preserve PARTIAL instead of collapsing it into FAILED", async () => {
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(backend, /\$matched -eq \$checks\.Count -and \$activationOk/);
+  assert.match(backend, /elseif \(\$matched -gt 0\)[\s\S]*"PARTIAL"/);
+  assert.match(backend, /Write-Reply \$id \(\$result\.status -ne "FAILED"\) \$result \$result\.error/);
+  assert.match(actions, /setTimeout[\s\S]*reply\.result\?\.status !== "COMPLETE"/);
+});
+
 test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async () => {
   const source = await readFile(path.resolve("src", "modes.ts"), "utf8");
   assert.match(source, /"COMPLETE"/);
