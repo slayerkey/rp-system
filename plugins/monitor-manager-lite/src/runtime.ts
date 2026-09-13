@@ -114,6 +114,7 @@ export class MonitorLiteRuntime {
     });
     const isOn = Number(current.current) === 1;
     const wanted = settings.power ?? "toggle";
+    if (!["toggle","on","off"].includes(wanted)) throw new Error("Invalid monitor power behavior.");
     const turnOn = wanted === "on" || (wanted === "toggle" && !isOn);
     const value = turnOn ? 1 : (support.values.includes(4) ? 4 : support.values.includes(5) ? 5 : -1);
     if (!support.values.includes(value)) throw new Error("The monitor does not advertise a safe requested power value.");
