@@ -233,3 +233,14 @@ test("more than eight distinct targets are rotated rather than spawning more pol
   await ctx.monitor.pollTargets();
   assert.ok(ctx.targetCalls() >= 10, "second batch reaches the targets not included in the first capped batch");
 });
+
+test("Auto Target Health preserves auto mode so ICMP can fall back to TCP", async () => {
+  const nowRef = { value: 100_000 };
+  const ctx = makeMonitor({ nowRef });
+  ctx.monitor.registerTarget("auto", { target: "example.com", targetMethod: "auto", targetPort: 443, family: "auto" });
+  await ctx.monitor.pollTargets();
+  assert.equal(ctx.targetArgs()[1].method, "auto");
+  const snapshot = ctx.monitor.targetSnapshot("auto");
+  assert.equal(snapshot.configuredMethod, "auto");
+  assert.equal(snapshot.expectedMethod, "icmp");
+});
