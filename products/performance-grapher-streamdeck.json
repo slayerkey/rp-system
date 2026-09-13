@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "building",
   "workflow_state": "BUILDING",
-  "blocker": "GitHub Actions hosted Windows runner is currently failing before any job steps execute; Windows .NET build, official Elgato validation/package, and real hardware QA remain unverified.",
+  "blocker": "GitHub Actions hosted Windows jobs are failing before any runner steps execute across multiple unrelated workflows; Windows .NET publish, dependency-license inventory, official Elgato validation/package, and real hardware QA remain unverified.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -23,7 +23,8 @@
     "real Windows game capture with PresentMon permissions documented",
     "NVIDIA, AMD, and Intel GPU coverage where available",
     "physical Stream Deck Mini/MK.2/XL/+ smoke",
-    "real-game frametime overhead comparison"
+    "real-game frametime overhead comparison",
+    "resolved Windows publish dependency/license inventory included in release kit"
   ],
   "automated_release_evidence": {
     "core_smoke": {
@@ -41,11 +42,20 @@
     "github_actions": {
       "status": "RUNNER_DID_NOT_EXECUTE_STEPS",
       "workflow": "Performance Grapher Stream Deck",
-      "run_id": 34741285448,
-      "job_id": 103681296291,
+      "run_id": 34741687462,
+      "job_id": 103682340114,
       "windows_build_verified": false,
+      "dependency_license_inventory_verified": false,
       "elgato_validation_verified": false,
       "elgato_package_verified": false
+    },
+    "hardening": {
+      "presentmon_presented_cadence": "MsBetweenPresents",
+      "session_window_zero_regression": "FIXED",
+      "session_scoped_hardware_history": "FIXED",
+      "atomic_persistence": "FIXED",
+      "marketplace_description_characters": 1352,
+      "top_level_licenses_bundled": true
     }
   },
   "physical_release_evidence": null,
