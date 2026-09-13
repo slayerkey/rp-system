@@ -267,3 +267,11 @@ test("Pro inherits single-flight monitor scanning and timeout recovery", async (
   assert.match(base,/request\("scan",\{\},30000\)/);
   assert.match(client,/failPending\(error, true\)/);
 });
+
+test("native scan caches only successful capability strings and reuses logical display queries", async () => {
+  const helper=await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin","helper","monitor-helper.ps1"),"utf8");
+  assert.match(helper,/CapsCache/);
+  assert.match(helper,/if \(!String\.IsNullOrWhiteSpace\(value\)\) CapsCache\[key\] = value/);
+  assert.match(helper,/var currentMode = GetCurrentMode\(mi\.szDevice\)/);
+  assert.match(helper,/var availableModes = GetModes\(mi\.szDevice\)/);
+});
