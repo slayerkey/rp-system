@@ -25,7 +25,7 @@ export function modeMatchesSnapshot(mode: ModeDefinition, snapshot: SystemSnapsh
   if (!hasConfiguredSettings(mode) || !snapshot.backendOnline) return false;
 
   if (typeof settings.hdr === "boolean") {
-    if (!snapshot.hdr.available || snapshot.hdr.supportedCount === 0 || snapshot.hdr.mixed) return false;
+    if (!snapshot.hdr.available || snapshot.hdr.supportedCount === 0 || snapshot.hdr.mixed || snapshot.hdr.errors.length > 0) return false;
     const enabled = snapshot.hdr.enabledCount === snapshot.hdr.supportedCount;
     if (enabled !== settings.hdr) return false;
   }
@@ -42,7 +42,7 @@ export function matchingModes(modes: ModeDefinition[], snapshot: SystemSnapshot)
 
 export function captureModeSettings(snapshot: SystemSnapshot): ModeSettings {
   const captured: ModeSettings = {};
-  if (snapshot.hdr.available && !snapshot.hdr.mixed && snapshot.hdr.supportedCount > 0) {
+  if (snapshot.hdr.available && !snapshot.hdr.mixed && snapshot.hdr.supportedCount > 0 && snapshot.hdr.errors.length === 0) {
     captured.hdr = snapshot.hdr.enabledCount === snapshot.hdr.supportedCount;
   }
   if (snapshot.topology !== "unknown") captured.topology = snapshot.topology;
