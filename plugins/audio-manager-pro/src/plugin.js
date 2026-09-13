@@ -67,6 +67,10 @@ function actionSettings(raw = {}) {
 async function saveGlobal(next) {
   globalSettings = normalizeGlobalSettings(next);
   await streamDeck.settings.setGlobalSettings(globalSettings);
+  for (const record of visible.values()) {
+    record.feedbackNote = "";
+    record.lastFeedback = "";
+  }
   scheduleRender(0);
 }
 
@@ -88,6 +92,14 @@ async function refreshSnapshot({ quiet = true } = {}) {
     const response = await helper.snapshot();
     acceptSnapshot(response?.snapshot || null);
     latestError = String(response?.error || latestError || "");
+    if (!latestError) {
+      for (const record of visible.values()) {
+        if (["Helper offline", "Audio unavailable", "Rebind output"].includes(record.feedbackNote)) {
+          record.feedbackNote = "";
+          record.lastFeedback = "";
+        }
+      }
+    }
     scheduleRender();
     return latestSnapshot;
   } catch (error) {
@@ -665,6 +677,7 @@ class AudioManagerAction extends SingletonAction {
     record.lastFeedback = "";
     record.lastStatus = "";
     record.lastStatusAt = 0;
+    record.feedbackNote = "";
     await renderRecord(record);
   }
 
