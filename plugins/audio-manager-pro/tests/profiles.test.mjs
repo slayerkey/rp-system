@@ -79,11 +79,21 @@ test("exact endpoint identity wins",()=>{
   assert.equal(m.status,"matched"); assert.equal(m.strategy,"endpoint-id");
 });
 
-test("rebinds safely after endpoint ID recreation by hardware instance",()=>{
+test("endpoint recreation does not auto-bind from instance ID alone",()=>{
+  const s=snap(), wanted=endpointIdentity(s.outputs[0]);
+  s.outputs[0]={...s.outputs[0],id:"render-new-id",containerId:""};
+  const m=matchEndpoint(wanted,s.outputs);
+  assert.equal(m.status,"rebind-required");
+  assert.equal(m.strategy,"friendly-name-only");
+});
+
+test("endpoint recreation can rebind by physical container plus exact friendly name",()=>{
   const s=snap(), wanted=endpointIdentity(s.outputs[0]);
   s.outputs[0]={...s.outputs[0],id:"render-new-id"};
   const m=matchEndpoint(wanted,s.outputs);
-  assert.equal(m.status,"matched"); assert.equal(m.endpoint.id,"render-new-id"); assert.equal(m.strategy,"device-instance");
+  assert.equal(m.status,"matched");
+  assert.equal(m.endpoint.id,"render-new-id");
+  assert.equal(m.strategy,"container+name");
 });
 
 test("Bluetooth-like endpoint recreation can rebind by container plus friendly name",()=>{
