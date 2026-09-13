@@ -31,7 +31,7 @@ Important boundary: some low-level sensors may require administrator access or a
 
 ### PresentMon — selected for game FPS / frametime
 
-PresentMon v2.5.1 is pinned under the MIT license. The build retrieves the official binary release, extracts the console executable, and records its SHA-256 beside the bundled binary. Runtime starts one private named PresentMon capture session and parses process + frame timing only.
+PresentMon v2.5.1 is pinned under the MIT license. The build retrieves the exact official v2.5.1 x64 executable, verifies its pinned SHA-256, and records that identity beside the bundled binary. Runtime starts one private named PresentMon capture session and parses process + frame timing only.
 
 Real-time ETW access can require membership in Windows **Performance Log Users** or administrator rights. A permission error is a first-class provider state shown by the Property Inspector and key fallback.
 
@@ -43,7 +43,7 @@ RTSS was evaluated as an optional installed integration. It is not required for 
 | --- | --- |
 | Windows CPU/RAM | 1 Hz |
 | Libre Hardware Monitor update | 1 Hz |
-| PresentMon raw frame input | event stream, immediately aggregated |
+| PresentMon raw frame input | event stream, immediately aggregated; presented cadence uses MsBetweenPresents |
 | FPS statistic bucket | 100 ms |
 | FPS key render | <= 4 Hz, visible keys only |
 | Hardware key render | <= 1 Hz, visible keys only |
