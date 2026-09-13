@@ -1,0 +1,631 @@
+$ErrorActionPreference = "Stop"
+
+Add-Type -TypeDefinition @'
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+
+public static class PackRatWindowsNative
+{
+    private const uint QDC_ONLY_ACTIVE_PATHS = 0x00000002;
+    private const uint SDC_APPLY = 0x00000080;
+    private const uint SDC_TOPOLOGY_INTERNAL = 0x00000001;
+    private const uint SDC_TOPOLOGY_CLONE = 0x00000002;
+    private const uint SDC_TOPOLOGY_EXTEND = 0x00000004;
+    private const uint SDC_TOPOLOGY_EXTERNAL = 0x00000008;
+    private const uint DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO = 9;
+    private const uint DISPLAYCONFIG_DEVICE_INFO_SET_ADVANCED_COLOR_STATE = 10;
+    private const uint DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO_2 = 15;
+    private const uint DISPLAYCONFIG_DEVICE_INFO_SET_HDR_STATE = 16;
+    private const uint ES_SYSTEM_REQUIRED = 0x00000001;
+    private const uint ES_DISPLAY_REQUIRED = 0x00000002;
+    private const uint ES_CONTINUOUS = 0x80000000;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Luid
+    {
+        public uint LowPart;
+        public int HighPart;
+        public override string ToString() { return HighPart.ToString("X8") + ":" + LowPart.ToString("X8"); }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Rational
+    {
+        public uint Numerator;
+        public uint Denominator;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PathSourceInfo
+    {
+        public Luid adapterId;
+        public uint id;
+        public uint modeInfoIdx;
+        public uint statusFlags;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PathTargetInfo
+    {
+        public Luid adapterId;
+        public uint id;
+        public uint modeInfoIdx;
+        public uint outputTechnology;
+        public uint rotation;
+        public uint scaling;
+        public Rational refreshRate;
+        public uint scanLineOrdering;
+        [MarshalAs(UnmanagedType.Bool)]
+        public bool targetAvailable;
+        public uint statusFlags;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PathInfo
+    {
+        public PathSourceInfo sourceInfo;
+        public PathTargetInfo targetInfo;
+        public uint flags;
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 64)]
+    private struct ModeInfo
+    {
+        [FieldOffset(0)] public uint infoType;
+        [FieldOffset(4)] public uint id;
+        [FieldOffset(8)] public Luid adapterId;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct DeviceInfoHeader
+    {
+        public uint type;
+        public uint size;
+        public Luid adapterId;
+        public uint id;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    private struct AdvancedColorInfo
+    {
+        public DeviceInfoHeader header;
+        public uint flags;
+        public uint colorEncoding;
+        public uint bitsPerColorChannel;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    private struct AdvancedColorInfo2
+    {
+        public DeviceInfoHeader header;
+        public uint flags;
+        public uint colorEncoding;
+        public uint bitsPerColorChannel;
+        public uint activeColorMode;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    private struct AdvancedColorSet
+    {
+        public DeviceInfoHeader header;
+        public uint enable;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    private struct HdrSet
+    {
+        public DeviceInfoHeader header;
+        public uint enableHdr;
+    }
+
+    public sealed class HdrSummary
+    {
+        public bool available { get; set; }
+        public string api { get; set; } = "unavailable";
+        public int supportedCount { get; set; }
+        public int enabledCount { get; set; }
+        public bool mixed { get; set; }
+        public string[] errors { get; set; } = Array.Empty<string>();
+    }
+
+    public sealed class SetResult
+    {
+        public string status { get; set; } = "FAILED";
+        public string error { get; set; }
+        public HdrSummary state { get; set; }
+    }
+
+    [DllImport("user32.dll")]
+    private static extern int GetDisplayConfigBufferSizes(uint flags, out uint numPathArrayElements, out uint numModeInfoArrayElements);
+
+    [DllImport("user32.dll")]
+    private static extern int QueryDisplayConfig(
+        uint flags,
+        ref uint numPathArrayElements,
+        [Out] PathInfo[] pathArray,
+        ref uint numModeInfoArrayElements,
+        [Out] ModeInfo[] modeInfoArray,
+        IntPtr currentTopologyId);
+
+    [DllImport("user32.dll")]
+    private static extern int SetDisplayConfig(
+        uint numPathArrayElements,
+        IntPtr pathArray,
+        uint numModeInfoArrayElements,
+        IntPtr modeInfoArray,
+        uint flags);
+
+    [DllImport("user32.dll", EntryPoint = "DisplayConfigGetDeviceInfo")]
+    private static extern int GetAdvancedColorInfo(ref AdvancedColorInfo requestPacket);
+
+    [DllImport("user32.dll", EntryPoint = "DisplayConfigGetDeviceInfo")]
+    private static extern int GetAdvancedColorInfo2(ref AdvancedColorInfo2 requestPacket);
+
+    [DllImport("user32.dll", EntryPoint = "DisplayConfigSetDeviceInfo")]
+    private static extern int SetAdvancedColorState(ref AdvancedColorSet setPacket);
+
+    [DllImport("user32.dll", EntryPoint = "DisplayConfigSetDeviceInfo")]
+    private static extern int SetHdrState(ref HdrSet setPacket);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern uint SetThreadExecutionState(uint esFlags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool LockWorkStation();
+
+    private static PathInfo[] ActivePaths()
+    {
+        uint pathCount;
+        uint modeCount;
+        int rc = GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, out pathCount, out modeCount);
+        if (rc != 0) throw new InvalidOperationException("GetDisplayConfigBufferSizes failed: " + rc);
+
+        for (int attempt = 0; attempt < 3; attempt++)
+        {
+            var paths = new PathInfo[Math.Max(1, (int)pathCount)];
+            var modes = new ModeInfo[Math.Max(1, (int)modeCount)];
+            uint pc = pathCount;
+            uint mc = modeCount;
+            rc = QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, ref pc, paths, ref mc, modes, IntPtr.Zero);
+            if (rc == 0) return paths.Take((int)pc).ToArray();
+            if (rc != 122) throw new InvalidOperationException("QueryDisplayConfig failed: " + rc);
+            rc = GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, out pathCount, out modeCount);
+            if (rc != 0) throw new InvalidOperationException("GetDisplayConfigBufferSizes retry failed: " + rc);
+        }
+        throw new InvalidOperationException("Display configuration changed too quickly to read.");
+    }
+
+    private static bool SameAdapter(Luid a, Luid b)
+    {
+        return a.LowPart == b.LowPart && a.HighPart == b.HighPart;
+    }
+
+    private static bool IsInternal(uint technology)
+    {
+        return technology == 6 || technology == 11 || technology == 13 || technology == 0x80000000;
+    }
+
+    public static string GetTopology()
+    {
+        var paths = ActivePaths();
+        if (paths.Length == 0) return "unknown";
+        if (paths.Length == 1) return IsInternal(paths[0].targetInfo.outputTechnology) ? "internal" : "external";
+
+        for (int i = 0; i < paths.Length; i++)
+        {
+            for (int j = i + 1; j < paths.Length; j++)
+            {
+                if (SameAdapter(paths[i].sourceInfo.adapterId, paths[j].sourceInfo.adapterId)
+                    && paths[i].sourceInfo.id == paths[j].sourceInfo.id)
+                    return "clone";
+            }
+        }
+        return "extend";
+    }
+
+    public static bool SetTopology(string topology)
+    {
+        uint flag;
+        switch ((topology ?? "").ToLowerInvariant())
+        {
+            case "internal": flag = SDC_TOPOLOGY_INTERNAL; break;
+            case "clone": flag = SDC_TOPOLOGY_CLONE; break;
+            case "extend": flag = SDC_TOPOLOGY_EXTEND; break;
+            case "external": flag = SDC_TOPOLOGY_EXTERNAL; break;
+            default: throw new ArgumentException("Unsupported display topology.");
+        }
+
+        int rc = SetDisplayConfig(0, IntPtr.Zero, 0, IntPtr.Zero, SDC_APPLY | flag);
+        if (rc != 0) return false;
+        Thread.Sleep(350);
+        return string.Equals(GetTopology(), topology, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryReadNewHdr(PathTargetInfo target, out bool supported, out bool enabled, out string error)
+    {
+        var info = new AdvancedColorInfo2();
+        info.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO_2;
+        info.header.size = (uint)Marshal.SizeOf(typeof(AdvancedColorInfo2));
+        info.header.adapterId = target.adapterId;
+        info.header.id = target.id;
+        int rc = GetAdvancedColorInfo2(ref info);
+        if (rc != 0)
+        {
+            supported = false;
+            enabled = false;
+            error = "GET_ADVANCED_COLOR_INFO_2 failed: " + rc;
+            return false;
+        }
+        supported = (info.flags & (1u << 4)) != 0;
+        enabled = info.activeColorMode == 2 || (info.flags & (1u << 5)) != 0;
+        error = null;
+        return true;
+    }
+
+    private static bool TryReadLegacyHdr(PathTargetInfo target, out bool supported, out bool enabled, out string error)
+    {
+        var info = new AdvancedColorInfo();
+        info.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO;
+        info.header.size = (uint)Marshal.SizeOf(typeof(AdvancedColorInfo));
+        info.header.adapterId = target.adapterId;
+        info.header.id = target.id;
+        int rc = GetAdvancedColorInfo(ref info);
+        if (rc != 0)
+        {
+            supported = false;
+            enabled = false;
+            error = "GET_ADVANCED_COLOR_INFO failed: " + rc;
+            return false;
+        }
+        supported = (info.flags & 1u) != 0;
+        enabled = (info.flags & 2u) != 0;
+        error = null;
+        return true;
+    }
+
+    public static HdrSummary GetHdr()
+    {
+        var errors = new List<string>();
+        int supportedCount = 0;
+        int enabledCount = 0;
+        bool usedNew = false;
+        bool usedLegacy = false;
+
+        foreach (var path in ActivePaths())
+        {
+            bool supported;
+            bool enabled;
+            string error;
+
+            bool got = false;
+            if (Environment.OSVersion.Version.Build >= 26100)
+            {
+                got = TryReadNewHdr(path.targetInfo, out supported, out enabled, out error);
+                if (got) usedNew = true;
+            }
+            else
+            {
+                supported = false;
+                enabled = false;
+                error = null;
+            }
+
+            if (!got)
+            {
+                string legacyError;
+                got = TryReadLegacyHdr(path.targetInfo, out supported, out enabled, out legacyError);
+                if (got) usedLegacy = true;
+                else if (!String.IsNullOrWhiteSpace(error ?? legacyError)) errors.Add(error ?? legacyError);
+            }
+
+            if (!got || !supported) continue;
+            supportedCount++;
+            if (enabled) enabledCount++;
+        }
+
+        return new HdrSummary {
+            available = usedNew || usedLegacy,
+            api = usedNew ? "hdr-state" : usedLegacy ? "advanced-color-legacy" : "unavailable",
+            supportedCount = supportedCount,
+            enabledCount = enabledCount,
+            mixed = supportedCount > 1 && enabledCount > 0 && enabledCount < supportedCount,
+            errors = errors.ToArray()
+        };
+    }
+
+    private static bool SetHdrForTarget(PathTargetInfo target, bool enabled)
+    {
+        if (Environment.OSVersion.Version.Build >= 26100)
+        {
+            bool supported;
+            bool current;
+            string error;
+            if (TryReadNewHdr(target, out supported, out current, out error))
+            {
+                if (!supported) return true;
+                var packet = new HdrSet();
+                packet.header.type = DISPLAYCONFIG_DEVICE_INFO_SET_HDR_STATE;
+                packet.header.size = (uint)Marshal.SizeOf(typeof(HdrSet));
+                packet.header.adapterId = target.adapterId;
+                packet.header.id = target.id;
+                packet.enableHdr = enabled ? 1u : 0u;
+                int rc = SetHdrState(ref packet);
+                if (rc != 0) return false;
+                Thread.Sleep(120);
+                bool afterSupported;
+                bool after;
+                string afterError;
+                return TryReadNewHdr(target, out afterSupported, out after, out afterError) && (!afterSupported || after == enabled);
+            }
+        }
+
+        bool legacySupported;
+        bool legacyCurrent;
+        string legacyError;
+        if (!TryReadLegacyHdr(target, out legacySupported, out legacyCurrent, out legacyError)) return false;
+        if (!legacySupported) return true;
+
+        var legacy = new AdvancedColorSet();
+        legacy.header.type = DISPLAYCONFIG_DEVICE_INFO_SET_ADVANCED_COLOR_STATE;
+        legacy.header.size = (uint)Marshal.SizeOf(typeof(AdvancedColorSet));
+        legacy.header.adapterId = target.adapterId;
+        legacy.header.id = target.id;
+        legacy.enable = enabled ? 1u : 0u;
+        int legacyRc = SetAdvancedColorState(ref legacy);
+        if (legacyRc != 0) return false;
+        Thread.Sleep(120);
+        bool afterLegacySupported;
+        bool afterLegacy;
+        string afterLegacyError;
+        return TryReadLegacyHdr(target, out afterLegacySupported, out afterLegacy, out afterLegacyError)
+            && (!afterLegacySupported || afterLegacy == enabled);
+    }
+
+    public static SetResult SetHdr(bool enabled)
+    {
+        int supported = 0;
+        int succeeded = 0;
+        foreach (var path in ActivePaths())
+        {
+            bool isSupported;
+            bool current;
+            string error;
+            bool readable = Environment.OSVersion.Version.Build >= 26100
+                ? TryReadNewHdr(path.targetInfo, out isSupported, out current, out error)
+                : TryReadLegacyHdr(path.targetInfo, out isSupported, out current, out error);
+            if (!readable || !isSupported) continue;
+            supported++;
+            if (SetHdrForTarget(path.targetInfo, enabled)) succeeded++;
+        }
+
+        var state = GetHdr();
+        if (supported == 0)
+            return new SetResult { status = "FAILED", error = "No active HDR-capable display was found.", state = state };
+
+        bool verified = enabled
+            ? state.supportedCount > 0 && state.enabledCount == state.supportedCount
+            : state.enabledCount == 0;
+
+        string status = verified && succeeded == supported ? "COMPLETE"
+            : succeeded > 0 ? "PARTIAL"
+            : "FAILED";
+        return new SetResult {
+            status = status,
+            error = status == "COMPLETE" ? null : "One or more displays did not confirm the requested HDR state.",
+            state = state
+        };
+    }
+
+    public static bool SetKeepAwake(bool enabled)
+    {
+        uint flags = enabled
+            ? ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
+            : ES_CONTINUOUS;
+        return SetThreadExecutionState(flags) != 0;
+    }
+
+    public static bool Lock()
+    {
+        return LockWorkStation();
+    }
+}
+'@
+
+$script:keepAwake = $false
+
+function Invoke-PowerCfg {
+    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+    $output = (& powercfg.exe @Arguments 2>&1 | Out-String)
+    if ($LASTEXITCODE -ne 0) {
+        throw "powercfg $($Arguments -join ' ') failed: $($output.Trim())"
+    }
+    return $output
+}
+
+function Get-ActivePowerPlan {
+    $text = Invoke-PowerCfg /getactivescheme
+    $match = [regex]::Match($text, '(?i)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:\s+\(([^\r\n\)]*)\))?')
+    if (-not $match.Success) { throw "Could not parse active power plan." }
+    [pscustomobject]@{ guid = $match.Groups[1].Value.ToLowerInvariant(); name = $match.Groups[2].Value.Trim() }
+}
+
+function Get-PowerPlans {
+    $active = Get-ActivePowerPlan
+    $text = Invoke-PowerCfg /list
+    $regex = [regex]'(?im)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:\s+\(([^\r\n\)]*)\))?'
+    $plans = @()
+    foreach ($match in $regex.Matches($text)) {
+        $guid = $match.Groups[1].Value.ToLowerInvariant()
+        $plans += [pscustomobject]@{
+            guid = $guid
+            name = $match.Groups[2].Value.Trim()
+            active = ($guid -eq $active.guid)
+        }
+    }
+    @($plans | Group-Object guid | ForEach-Object { $_.Group[0] })
+}
+
+function Get-SettingSeconds {
+    param([string]$Subgroup, [string]$Setting)
+    $text = Invoke-PowerCfg /query SCHEME_CURRENT $Subgroup $Setting
+    $matches = [regex]::Matches($text, '(?i)0x[0-9a-f]{8}')
+    if ($matches.Count -lt 2) { throw "Could not parse power setting $Setting." }
+    $ac = [Convert]::ToUInt32($matches[$matches.Count - 2].Value.Substring(2), 16)
+    $dc = [Convert]::ToUInt32($matches[$matches.Count - 1].Value.Substring(2), 16)
+    [pscustomobject]@{ ac = [int64]$ac; dc = [int64]$dc }
+}
+
+function Get-Timeout {
+    $monitor = Get-SettingSeconds SUB_VIDEO VIDEOIDLE
+    $sleep = Get-SettingSeconds SUB_SLEEP STANDBYIDLE
+    [pscustomobject]@{
+        monitorAcSeconds = $monitor.ac
+        monitorDcSeconds = $monitor.dc
+        sleepAcSeconds = $sleep.ac
+        sleepDcSeconds = $sleep.dc
+    }
+}
+
+function Set-Timeout {
+    param($Args)
+    $values = @{
+        monitorAcSeconds = [int64]$Args.monitorAcSeconds
+        monitorDcSeconds = [int64]$Args.monitorDcSeconds
+        sleepAcSeconds = [int64]$Args.sleepAcSeconds
+        sleepDcSeconds = [int64]$Args.sleepDcSeconds
+    }
+    foreach ($value in $values.Values) {
+        if ($value -lt 0 -or $value -gt [uint32]::MaxValue) { throw "Timeout values must be between 0 and 4294967295 seconds." }
+    }
+
+    $current = Get-ActivePowerPlan
+    Invoke-PowerCfg /setacvalueindex SCHEME_CURRENT SUB_VIDEO VIDEOIDLE $values.monitorAcSeconds | Out-Null
+    Invoke-PowerCfg /setdcvalueindex SCHEME_CURRENT SUB_VIDEO VIDEOIDLE $values.monitorDcSeconds | Out-Null
+    Invoke-PowerCfg /setacvalueindex SCHEME_CURRENT SUB_SLEEP STANDBYIDLE $values.sleepAcSeconds | Out-Null
+    Invoke-PowerCfg /setdcvalueindex SCHEME_CURRENT SUB_SLEEP STANDBYIDLE $values.sleepDcSeconds | Out-Null
+    Invoke-PowerCfg /setactive $current.guid | Out-Null
+    $after = Get-Timeout
+    $ok = $after.monitorAcSeconds -eq $values.monitorAcSeconds -and
+        $after.monitorDcSeconds -eq $values.monitorDcSeconds -and
+        $after.sleepAcSeconds -eq $values.sleepAcSeconds -and
+        $after.sleepDcSeconds -eq $values.sleepDcSeconds
+    [pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }); state = $after }
+}
+
+function Get-Snapshot {
+    $errors = [System.Collections.Generic.List[string]]::new()
+
+    try { $hdr = [PackRatWindowsNative]::GetHdr() }
+    catch {
+        $errors.Add("HDR: $($_.Exception.Message)")
+        $hdr = [pscustomobject]@{ available = $false; api = "unavailable"; supportedCount = 0; enabledCount = 0; mixed = $false }
+    }
+
+    try { $topology = [PackRatWindowsNative]::GetTopology() }
+    catch { $errors.Add("Display: $($_.Exception.Message)"); $topology = "unknown" }
+
+    try {
+        $power = Get-ActivePowerPlan
+        $plans = @(Get-PowerPlans)
+    }
+    catch {
+        $errors.Add("Power: $($_.Exception.Message)")
+        $power = $null
+        $plans = @()
+    }
+
+    try { $timeout = Get-Timeout }
+    catch { $errors.Add("Timeout: $($_.Exception.Message)"); $timeout = $null }
+
+    [pscustomobject]@{
+        backendOnline = $true
+        capturedAt = [DateTimeOffset]::UtcNow.ToString("o")
+        osBuild = [Environment]::OSVersion.Version.Build
+        hdr = $hdr
+        topology = $topology
+        powerPlanGuid = $(if ($power) { $power.guid } else { $null })
+        powerPlanName = $(if ($power) { $power.name } else { $null })
+        powerPlans = $plans
+        timeout = $timeout
+        keepAwake = [bool]$script:keepAwake
+        errors = @($errors)
+    }
+}
+
+function Write-Reply {
+    param([int]$Id, [bool]$Ok, $Result = $null, [string]$ErrorText = $null)
+    [pscustomobject]@{ id = $Id; ok = $Ok; result = $Result; error = $ErrorText } |
+        ConvertTo-Json -Depth 12 -Compress |
+        Write-Output
+}
+
+while (($line = [Console]::In.ReadLine()) -ne $null) {
+    if ([string]::IsNullOrWhiteSpace($line)) { continue }
+    $id = 0
+    try {
+        $request = $line | ConvertFrom-Json
+        $id = [int]$request.id
+        $args = $request.args
+        switch ([string]$request.op) {
+            "ping" {
+                Write-Reply $id $true ([pscustomobject]@{ version = 1 })
+            }
+            "snapshot" {
+                Write-Reply $id $true (Get-Snapshot)
+            }
+            "setHdr" {
+                $result = [PackRatWindowsNative]::SetHdr([bool]$args.enabled)
+                Write-Reply $id ($result.status -ne "FAILED") $result $result.error
+            }
+            "setTopology" {
+                $target = [string]$args.topology
+                $ok = [PackRatWindowsNative]::SetTopology($target)
+                $actual = [PackRatWindowsNative]::GetTopology()
+                $result = [pscustomobject]@{
+                    status = $(if ($ok -and $actual -eq $target) { "COMPLETE" } else { "FAILED" })
+                    state = $actual
+                }
+                Write-Reply $id ($result.status -eq "COMPLETE") $result $(if ($result.status -eq "FAILED") { "Windows did not confirm the requested display topology." } else { $null })
+            }
+            "setPowerPlan" {
+                $guid = [string]$args.guid
+                if ($guid -notmatch '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') {
+                    throw "Invalid power plan GUID."
+                }
+                Invoke-PowerCfg /setactive $guid | Out-Null
+                $after = Get-ActivePowerPlan
+                $ok = $after.guid -eq $guid.ToLowerInvariant()
+                Write-Reply $id $ok ([pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }); state = $after }) $(if ($ok) { $null } else { "Power plan did not change." })
+            }
+            "setTimeout" {
+                $result = Set-Timeout $args
+                Write-Reply $id ($result.status -eq "COMPLETE") $result $(if ($result.status -eq "FAILED") { "Power timeout readback did not match." } else { $null })
+            }
+            "setKeepAwake" {
+                $enabled = [bool]$args.enabled
+                $ok = [PackRatWindowsNative]::SetKeepAwake($enabled)
+                if ($ok) { $script:keepAwake = $enabled }
+                $result = [pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }); state = [bool]$script:keepAwake }
+                Write-Reply $id $ok $result $(if ($ok) { $null } else { "SetThreadExecutionState failed." })
+            }
+            "lock" {
+                $ok = [PackRatWindowsNative]::Lock()
+                Write-Reply $id $ok ([pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }) }) $(if ($ok) { $null } else { "LockWorkStation failed." })
+            }
+            default {
+                Write-Reply $id $false $null "Unknown backend operation."
+            }
+        }
+    }
+    catch {
+        Write-Reply $id $false $null $_.Exception.Message
+    }
+}
+
+if ($script:keepAwake) {
+    [void][PackRatWindowsNative]::SetKeepAwake($false)
+}

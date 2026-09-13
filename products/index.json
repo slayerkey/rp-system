@@ -800,6 +800,22 @@
       "version": "1.0.0"
     },
     {
+      "id": "windows-settings-manager-lite",
+      "name": "Windows Settings Manager Lite",
+      "type": "plugin",
+      "status": "release-candidate",
+      "price_usd": 0,
+      "version": "0.1.0.0"
+    },
+    {
+      "id": "windows-settings-manager-pro",
+      "name": "Windows Settings Manager Pro",
+      "type": "plugin",
+      "status": "release-candidate",
+      "price_usd": 7.99,
+      "version": "0.1.0.0"
+    },
+    {
       "id": "work-session-tracker",
       "name": "Work Session Tracker Lite",
       "type": "widget",

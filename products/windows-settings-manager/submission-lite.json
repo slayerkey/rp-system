@@ -1,0 +1,14 @@
+{
+  "slug": "windows-settings-manager-lite",
+  "name": "Windows Settings Manager Lite",
+  "type": "plugin",
+  "price_usd": 0,
+  "version": "0.1.0.0",
+  "marketplace_category": ["Productivity"],
+  "marketplace_language": ["English"],
+  "marketplace_operating_systems": ["Windows"],
+  "marketplace_tags": ["Windows", "Settings", "PC", "System", "HDR", "Power", "Display", "Monitor", "Shortcut"],
+  "marketplace_auto_publish": false,
+  "description": "Put the Windows controls you actually change on Stream Deck.\n\nWindows Settings Manager Lite gives you a focused set of live system controls instead of a page of random commands. See and control HDR where supported, the active Windows power plan, display topology, screen and sleep timeouts, and Keep Awake, plus lock your PC from Stream Deck.\n\nKeys re-read Windows state, so changes made in Windows itself are reflected instead of assuming PackRat was the last thing to touch the setting. There is no coordinate clicking, Quick Settings automation, or hidden mouse movement.\n\nIncludes an editable starter profile for Stream Deck, Stream Deck Mini, Stream Deck XL, Stream Deck +, and Stream Deck Neo. Upgrade to Pro when you want multiple settings combined into saved PC Modes.\n\nRequires Windows and Stream Deck 6.9 or later. HDR availability depends on Windows version, display hardware, drivers, and the active display configuration.\n\nPart of the PackRat ecosystem.",
+  "release_notes": "Initial release. Live Windows state for HDR, power plan, display topology, screen and sleep timeouts, and Keep Awake; direct controls for those settings plus Lock PC; external state refresh; and ready-made profiles for five Stream Deck device families."
+}
