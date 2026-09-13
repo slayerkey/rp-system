@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.presentmon-build/
+native/PackRat.PerformanceTelemetry/bin/
+native/PackRat.PerformanceTelemetry/obj/
+com.packrat.performance-grapher.sdPlugin/bin/
+com.packrat.performance-grapher.sdPlugin/imgs/
+com.packrat.performance-grapher.sdPlugin/ui/
+com.packrat.performance-grapher.sdPlugin/native/
+com.packrat.performance-grapher.sdPlugin/third_party/
+com.packrat.performance-grapher.sdPlugin/licenses/
+!com.packrat.performance-grapher.sdPlugin/manifest.json
