@@ -16,6 +16,8 @@ The release workflow must pass all of the following before the product can move 
 - checksum verification of official PresentMon 2.5.1 x64 binary
 - official Elgato manifest validation
 - official Elgato .streamDeckPlugin packaging
+- deterministic MK.2, XL, Stream Deck +, and Neo profile generation
+- profile archive structure, grid bounds, action UUID/settings, and byte-determinism validation
 - deterministic Marketplace media generation
 - package/art SHA-256 evidence
 
@@ -312,3 +314,23 @@ The npm inventory script itself passes exact-source JavaScript syntax validation
 - **VERIFIED:** all PresentMon launch flags exist in v2.5.1 and the chosen `--no_track_display --no_track_gpu --no_track_input` combination preserves `MsBetweenPresents`.
 - **CORRECTED:** PresentMon's pinned v2.5.1 copyright notice is 2017–2024 Intel Corporation.
 - **ADDED:** exact standalone PresentMon v2.5.1 MIT license is copied into the built plugin and required by the release workflow.
+
+
+## Bundled profile contract
+
+Performance Grapher includes four deterministic ready-made dashboards:
+
+- **MK.2 / 15-key:** 15 keys
+- **XL:** 32 keys
+- **Stream Deck +:** 8 keypad keys; no encoder action is invented for this product
+- **Neo:** 8 keypad keys
+
+Every profile is generated from `scripts/build-profiles.mjs` with deterministic action IDs and ZIP timestamps. The profile contract suite validates the archive structure, page manifest, device grid bounds, action UUIDs, supported settings, key counts, use of all five plugin actions, and byte-for-byte deterministic rebuilds.
+
+The profiles are bundled convenience layouts, not separate Marketplace products and not paid upsells.
+
+### Upsell / catalog relationship
+
+Performance Grapher for Stream Deck is a standalone paid plugin. It has **no Lite edition**, so it must not be added to `products/lite-pro-map.json` and no fake Lite → Pro upgrade link should be invented.
+
+The published XENEON `Performance Grapher` is an adjacent product for a different platform. It may be described as part of the PackRat ecosystem, but it is **not** treated as the Stream Deck plugin's edition upsell without a verified Marketplace cross-sell mechanism and direct product relationship.
