@@ -45,7 +45,7 @@ function profileBody(profile, status = "", active = false) {
   return `${text(72, 58, name, 16)}${text(72, 87, badge, 11, color, 800, 1.1)}<path d="M47 109h50" stroke="${color}" stroke-width="6" stroke-linecap="round"/><circle cx="72" cy="109" r="8" fill="${color}"/>`;
 }
 
-export function renderKey(kind, { profile = null, endpoint = null, active = false, status = "", muted = false, missing = false, role = "default" } = {}) {
+export function renderKey(kind, { profile = null, endpoint = null, active = false, status = "", muted = false, missing = false, offline = false, role = "default" } = {}) {
   if (["apply", "cycle", "status"].includes(kind)) {
     const frameColor = status ? resultColor(status) : (profile?.accent || (active ? ACCENT : MUTED));
     return svgDataUri(frame(profileBody(profile, status, active), frameColor));
@@ -56,8 +56,8 @@ export function renderKey(kind, { profile = null, endpoint = null, active = fals
     const label = kind === "set-output"
       ? (isCommunications ? "COMM OUT" : "DEFAULT OUT")
       : (isCommunications ? "COMM IN" : "DEFAULT IN");
-    const name = missing ? "REBIND" : truncate(endpoint?.name || "SELECT DEVICE", 15);
-    const color = missing ? WARN : ACCENT;
+    const name = offline ? "AUDIO OFFLINE" : missing ? "REBIND" : truncate(endpoint?.name || "SELECT DEVICE", 15);
+    const color = offline ? DANGER : missing ? WARN : ACCENT;
     const glyph = kind === "set-output"
       ? '<path d="M37 60h20l23-18v60L57 84H37z" fill="none" stroke="#F5F7FA" stroke-width="6" stroke-linejoin="round"/><path d="M91 57c8 8 8 22 0 30M100 49c14 14 14 32 0 46" fill="none" stroke="#56F2A5" stroke-width="5" stroke-linecap="round"/>'
       : '<rect x="60" y="35" width="24" height="48" rx="12" fill="none" stroke="#F5F7FA" stroke-width="6"/><path d="M49 72c0 16 9 25 23 25s23-9 23-25M72 97v17M58 115h28" fill="none" stroke="#56F2A5" stroke-width="6" stroke-linecap="round"/>';
@@ -65,8 +65,9 @@ export function renderKey(kind, { profile = null, endpoint = null, active = fals
   }
 
   if (kind === "mute-mic") {
-    const color = muted ? DANGER : ACCENT;
-    return svgDataUri(frame(`<rect x="60" y="31" width="24" height="48" rx="12" fill="none" stroke="${FG}" stroke-width="6"/><path d="M49 69c0 17 9 26 23 26s23-9 23-26M72 95v18M58 114h28" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/>${text(72, 134, muted ? "MIC MUTED" : "MIC LIVE", 10, color, 800, 1)}`, color));
+    const color = offline ? DANGER : missing ? WARN : muted ? DANGER : ACCENT;
+    const label = offline ? "AUDIO OFFLINE" : missing ? "NO DEFAULT MIC" : muted ? "MIC MUTED" : "MIC LIVE";
+    return svgDataUri(frame(`<rect x="60" y="31" width="24" height="48" rx="12" fill="none" stroke="${FG}" stroke-width="6"/><path d="M49 69c0 17 9 26 23 26s23-9 23-26M72 95v18M58 114h28" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/>${text(72, 134, label, 9, color, 800, .7)}`, color));
   }
 
   return svgDataUri(frame(`${text(72, 67, "AUDIO", 19, ACCENT)}${text(72, 93, "MANAGER", 17)}`));
