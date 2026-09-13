@@ -268,7 +268,9 @@ export function groupSummary(
 }
 
 export function nextFavorite(devices: Device[], favorites: string[], current?: string | null): Device | null {
-  const ordered = favorites.map(id => devices.find(d => d.stableId === id)).filter(Boolean) as Device[];
+  const ordered = favorites
+    .map(id => devices.find(d => d.stableId === id))
+    .filter((device): device is Device => Boolean(device) && device!.paired !== false);
   if (!ordered.length) return null;
   const index = current ? ordered.findIndex(d => d.stableId === current) : -1;
   return ordered[(index + 1) % ordered.length] ?? ordered[0];
