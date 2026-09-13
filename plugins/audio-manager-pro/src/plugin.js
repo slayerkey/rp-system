@@ -314,7 +314,7 @@ async function adjustProfileVolume(record, ticks) {
     return;
   }
 
-  const next = Math.max(0, Math.min(100, Math.round(Number(endpoint.volume || 0) + Number(ticks || 0) * record.settings.step));
+  const next = Math.max(0, Math.min(100, Math.round(Number(endpoint.volume || 0) + Number(ticks || 0) * record.settings.step)));
   if (next === Number(endpoint.volume)) return;
 
   try {
