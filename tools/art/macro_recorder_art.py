@@ -146,8 +146,8 @@ def render(slug: str, out: Path) -> None:
     if not product:
         fail(f"unknown Macro Recorder edition: {slug}")
     plugin = product["plugin"]
-    record = plugin / "imgs" / "actions" / "record" / "key.png"
-    replay = plugin / "imgs" / "actions" / "replay" / "key.png"
+    record = plugin / "imgs" / "actions" / "record" / "key@2x.png"
+    replay = plugin / "imgs" / "actions" / "replay" / "key@2x.png"
 
     app_icon = render_app_icon(slug, product, out.parent)
 
