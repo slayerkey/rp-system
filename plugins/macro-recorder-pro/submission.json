@@ -37,6 +37,11 @@
   "media": {
     "marketplace_app_icon": "artifacts/marketplace/macro-recorder-pro/00-app-icon.png",
     "thumbnail": "artifacts/marketplace/macro-recorder-pro/01-hero.png",
-    "thumbnail_review": "artifacts/marketplace/macro-recorder-pro/hero-thumbnail-review.png"
+    "thumbnail_review": "artifacts/marketplace/macro-recorder-pro/hero-thumbnail-review.png",
+    "gallery": [
+      "artifacts/marketplace/macro-recorder-pro/02-capture.png",
+      "artifacts/marketplace/macro-recorder-pro/03-library.png",
+      "artifacts/marketplace/macro-recorder-pro/04-playback.png"
+    ]
   }
 }
