@@ -12,9 +12,10 @@ test("Lite starter profile source includes REC STOP PLAY and safe examples",asyn
   assert.ok(source.includes('act("lite-play","replay","PLAY")'));
   assert.ok(source.includes('const settings={macro:m,...extra}'));
   assert.equal(source.includes('const settings={seedMacro:m,...extra}'),false);
-  for(const deviceType of ["deviceType:0","deviceType:2","deviceType:7","deviceType:9"]) {
+  for(const deviceType of ["deviceType:0","deviceType:1","deviceType:2","deviceType:7","deviceType:9"]) {
     assert.ok(source.includes(deviceType),`missing ${deviceType}`);
   }
+  assert.ok(source.includes("compactPages(basePages,3,2)"));
   assert.ok(source.includes("compactPages(basePages,4)"));
   assert.equal(/anti[- ]?afk|cheat|farm/i.test(source),false);
 });
