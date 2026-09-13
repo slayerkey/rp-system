@@ -54,7 +54,7 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
     const settings = ev.payload.settings ?? {};
     if (this.runtime.edition === "pro" && settings.deviceId) {
       await this.runtime.setFavorite(settings.deviceId, settings.favorite === true);
-      if (settings.groupName?.trim()) await this.runtime.setGroup(settings.groupName, settings.deviceId, true);
+      await this.runtime.assignGroup(settings.groupName ?? "", settings.deviceId);
     }
     await this.paint(ev.action, settings);
   }
