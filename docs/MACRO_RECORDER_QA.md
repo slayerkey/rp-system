@@ -1,6 +1,6 @@
 # Macro Recorder Family QA
 
-Date: 2026-09-12
+Date: 2026-09-13
 
 ## Automated gates
 
@@ -36,7 +36,7 @@ The release workflow must pass on Windows:
 | Stream Deck restart | yes | yes | persisted action settings / local library | restart smoke |
 | User changes app mid-macro | yes | yes | coordinate modes deterministic | app-switch smoke |
 | Stuck-key prevention | yes | yes | tracked down-state + finally + local held-input crash-recovery journal | modifier interruption smoke |
-| Crash during playback | yes | yes | plugin recovery release command | forced helper-kill smoke |
+| Crash during playback | yes | yes | exact held-input journal + bounded one-restart recovery path | forced helper-kill smoke |
 | Loop cancellation | no | yes | mode normalization + host cancellation | count/held/toggle smoke |
 | Very long recording | no | yes | 10 min / 25k caps | shortened stress + max-boundary smoke |
 | Corrupt saved macro | action settings normalize | yes | Pro library recovery preserves .corrupt backup | corrupt-file smoke |
@@ -50,9 +50,9 @@ Do not call the family READY_TO_SHIP until the final Windows host + physical Str
 
 ## Current hosted-runner infrastructure blocker
 
-As of 2026-09-12, the Macro Recorder workflow is being created by GitHub Actions but is not receiving a hosted runner. The observed job has `runner_id: 0`, a blank runner name, zero steps, and zero billable Windows runner milliseconds. Other unrelated repository workflows show the same no-runner symptom.
+As of 2026-09-13, the current-head Macro Recorder workflow rerun is still being created by GitHub Actions without receiving a hosted runner. Run `34741738309`, attempt 2, produced a `windows-release` job with no assigned runner and zero steps. Other unrelated repository workflows have shown the same no-runner symptom.
 
-This is not evidence that Macro Recorder tests failed. No test process started.
+This is not evidence that Macro Recorder tests failed. On that attempt, no test or build process started.
 
 Until hosted runners are available again, run the equivalent local automated gate on Windows:
 
