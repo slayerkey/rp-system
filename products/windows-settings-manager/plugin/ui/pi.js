@@ -317,8 +317,9 @@ function duration(seconds) {
   return `${seconds}s`;
 }
 function hdrLabel(hdr) {
-  if (!hdr?.available || hdr.supportedCount === 0) return "N/A";
+  if (!hdr?.available) return "N/A";
   if ((hdr.errors?.length ?? 0) > 0) return "Check";
+  if (hdr.supportedCount === 0) return "N/A";
   if (hdr.mixed) return "Mixed";
   return hdr.enabledCount === hdr.supportedCount ? "On" : "Off";
 }
