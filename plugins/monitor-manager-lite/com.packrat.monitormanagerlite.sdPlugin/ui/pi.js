@@ -41,7 +41,7 @@ function openUrl(url){
   websocket.send(JSON.stringify({event:"openUrl",payload:{url}}));
 }
 function opt(select,value,label){const o=document.createElement("option");o.value=value;o.textContent=label;select.appendChild(o);}
-function selectedMonitor(){return monitorRows.find(m=>m.monitorKey===globalSettings.monitorKey)??monitorRows[0]??null;}
+function selectedMonitor(){return globalSettings.monitorKey?monitorRows.find(m=>m.monitorKey===globalSettings.monitorKey)??null:monitorRows[0]??null;}
 function render(){
   document.getElementById("brightnessCard")?.classList.toggle("hidden",actionUuid!==BRIGHTNESS);
   document.getElementById("powerCard")?.classList.toggle("hidden",actionUuid!==POWER);
@@ -51,17 +51,23 @@ function render(){
   const monitor=document.getElementById("monitor");
   if(monitor){
     monitor.textContent="";
+    const configured=globalSettings.monitorKey;
+    if(configured&&!monitorRows.some(m=>m.monitorKey===configured)) opt(monitor,configured,"Configured monitor not connected");
     for(const m of monitorRows)opt(monitor,m.monitorKey,(m.description||m.deviceName)+(m.currentMode?(" · "+m.currentMode.width+"×"+m.currentMode.height+" @ "+m.currentMode.frequency+" Hz"):""));
-    monitor.value=globalSettings.monitorKey??monitorRows[0]?.monitorKey??"";
+    monitor.value=configured??monitorRows[0]?.monitorKey??"";
   }
   const row=selectedMonitor();
   const caps=document.getElementById("capabilities");
-  if(caps&&row){
-    const c=row.capabilities??{};
-    const state=(x)=>typeof x==="string"?x:(x?.state??"UNKNOWN");
-    caps.textContent="BRIGHTNESS "+state(c.brightness)+" · POWER "+state(c.power)+" · HDR "+state(c.hdr);
+  if(caps){
+    if(!row) caps.textContent=globalSettings.monitorKey?"CONFIGURED MONITOR NOT CONNECTED":"NO MONITOR DETECTED";
+    else {
+      const c=row.capabilities??{};
+      const state=(x)=>typeof x==="string"?x:(x?.state??"UNKNOWN");
+      caps.textContent="BRIGHTNESS "+state(c.brightness)+" · POWER "+state(c.power)+" · HDR "+state(c.hdr);
+    }
   }
   const refresh=document.getElementById("refreshRate");
+  if(refresh&&!row) refresh.textContent="";
   if(refresh&&row){
     const rates=[...new Set((row.modes??[]).filter(m=>!row.currentMode||m.width===row.currentMode.width&&m.height===row.currentMode.height).map(m=>m.frequency))].sort((a,b)=>a-b);
     refresh.textContent="";
