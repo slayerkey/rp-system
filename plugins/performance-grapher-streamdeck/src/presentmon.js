@@ -195,7 +195,8 @@ export class PresentMonProvider extends EventEmitter {
       this.child = null;
       stdout.close();
       if (this.intentionalStop || !this.running) return;
-      if (!["permission_required", "unavailable"].includes(this.status.state)) {
+      if (this.status.state === "permission_required") return;
+      if (this.status.state !== "unavailable") {
         this._setStatus("offline", ("PresentMon exited " + code + ". " + stderr).trim().slice(0, 700));
       }
       this._scheduleRestart();
