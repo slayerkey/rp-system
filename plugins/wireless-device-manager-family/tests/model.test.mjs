@@ -210,6 +210,7 @@ test("dual-mode endpoints sharing one Windows container union telemetry and cont
       address:"AA:BB:CC:DD:EE:02",
       containerId:"physical-headset",
       kind:"classic",
+      controlId:"AABBCCDDEE02",
       batteryPercent:null,
       charging:null,
       connected:true,
@@ -227,6 +228,7 @@ test("dual-mode endpoints sharing one Windows container union telemetry and cont
   assert.equal(device.capabilities.CHARGING,true);
   assert.equal(device.capabilities.CONNECT,true);
   assert.equal(device.capabilities.DISCONNECT,true);
+  assert.equal(device.controlId,"AABBCCDDEE02");
   assert.equal(c.get("classic-endpoint")?.stableId,device.stableId);
   assert.equal(c.get("ble-endpoint")?.stableId,device.stableId);
 });
@@ -258,4 +260,16 @@ test("labeled bundled keys preserve live values",()=>{
 test("group names are case-insensitive, trimmed and deduplicated",()=>{
   assert.deepEqual(parseGroupNames(" gaming, TRAVEL, gaming , work "),["GAMING","TRAVEL","WORK"]);
   assert.deepEqual(parseGroupNames(" , , "),[]);
+});
+
+
+test("classic control target survives reverse dual-mode endpoint order",()=>{
+  const c=new DeviceCatalog();
+  c.ingest([
+    {...headphone,id:"classic",containerId:"physical",address:"AA:BB:CC:DD:EE:02",controlId:"AABBCCDDEE02",kind:"classic",control:{connect:true,disconnect:true}},
+    {...headphone,id:"ble",containerId:"physical",address:"AA:BB:CC:DD:EE:01",kind:"ble",control:{connect:false,disconnect:false}}
+  ],1000);
+  const device=c.list()[0];
+  assert.equal(device.controlId,"AABBCCDDEE02");
+  assert.equal(device.capabilities.CONNECT,true);
 });
