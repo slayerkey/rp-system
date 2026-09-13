@@ -4,11 +4,11 @@
 
 **TESTING — not READY_TO_SHIP.**
 
-The hardware-free source/model/profile/media gates below have been exercised during the build session. The native Windows bridge compile/runtime, official Elgato CLI validation/package run, and real Bluetooth hardware matrix remain release blockers until they run on the PackRat Windows host.
+The hardware-free source/model/profile/media gates and GitHub-hosted Windows release gate have now passed. Real Bluetooth hardware behavior remains the release blocker before READY_TO_SHIP.
 
 ## Hardware-free evidence completed
 
-- [x] 50 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
+- [x] 51 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
 - [x] capability flags are per device rather than global
 - [x] A2DP/HFP control eligibility is derived from Windows AssociationEndpointService contracts rather than broad Audio/Video device-class inference
 - [x] group names are canonicalized case-insensitively so `gaming` and `GAMING` feed the same dashboard
@@ -54,27 +54,46 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 - [x] Lite gallery does not advertise Pro-only groups/Cycle Device
 - [x] plugin/category/action/key assets render at the intended 256/512, 28/56, 20/40, and 72/144 dimensions
 
-## Automated Windows release gate still required
+## Automated Windows release gate — PASS
 
 The canonical self-hosted PackRat Windows workflow remains the executable release gate:
 
-- [ ] `npm ci` from lockfile
-- [ ] dependency audit
-- [ ] TypeScript no-emit check
-- [ ] deterministic profile generation in the canonical checkout
-- [ ] x64 self-contained Windows bridge publish
-- [ ] ARM64 self-contained Windows bridge publish
-- [ ] bundled bridge snapshot smoke on Windows
-- [ ] persistent stdio bridge request/recovery smoke on Windows
-- [ ] compressed bundled helper package-size check
-- [ ] fixture/package suite in the canonical checkout
-- [ ] official Elgato validation: Lite
-- [ ] official Elgato validation: Pro
-- [ ] official Elgato packaging: Lite
-- [ ] official Elgato packaging: Pro
-- [ ] packaged structure contains the bundled bridge and no separate installer/cloud credential
-- [ ] deterministic Marketplace media generation in the canonical checkout
-- [ ] release artifact hashes captured
+- [x] `npm ci` from lockfile
+- [x] dependency audit — 0 vulnerabilities
+- [x] TypeScript no-emit check
+- [x] deterministic profile generation in the canonical checkout — 10 profiles
+- [x] x64 self-contained Windows bridge publish — 41,420,926 bytes
+- [x] ARM64 self-contained Windows bridge publish — 40,727,210 bytes
+- [x] bundled bridge snapshot smoke on Windows — hosted runner correctly reported no Bluetooth adapter
+- [x] persistent stdio bridge request/recovery smoke on Windows
+- [x] compressed bundled helper/package-size check
+- [x] fixture/package suite in the canonical checkout — 51/51 pass
+- [x] official Elgato validation: Lite
+- [x] official Elgato validation: Pro
+- [x] official Elgato packaging: Lite
+- [x] official Elgato packaging: Pro
+- [x] packaged structure contains x64 + ARM64 bundled bridges and no separate installer/cloud credential
+- [x] deterministic Marketplace media generation in the canonical checkout
+- [x] release artifact hashes captured
+
+### Hosted Windows release evidence
+
+GitHub Actions run `34785291188` on commit `95ce3902bd6a49f4b5d2b196fd5fd7d26334a30a` completed successfully on GitHub-hosted Windows.
+
+- Test suite: **51 passed / 0 failed**
+- Persistent bridge smoke: PASS with `adapterAvailable=false` on the runner, as expected
+- Lite package: `com.packrat.wireless-device-manager.streamDeckPlugin`
+  - size: **70,949,723 bytes (67.66 MiB)**
+  - SHA-256: `AE8BB54B95E2FBF31DE45A61E7E44C51DF27E5DC5D9584CA4A152C67FE8F1053`
+- Pro package: `com.packrat.wireless-device-manager-pro.streamDeckPlugin`
+  - size: **70,951,706 bytes (67.66 MiB)**
+  - SHA-256: `ED3231F67576FA1FC6AEE47795FFEC94D195D9B936CB211FE6CEDB4DEA818815`
+- Uploaded workflow artifact: `wireless-device-manager-family`
+  - artifact ID: `10326163681`
+  - artifact ZIP SHA-256: `202939D672004DD10934634E9C7CB07C014524D5314C84C01F059D2BD308ECFD`
+  - uploaded size: **142,905,650 bytes**
+
+The hosted runner has no paired Bluetooth hardware, so this proves compile/package/runtime-startup behavior but does not replace the physical device matrix.
 
 Hosted/self-hosted attempts that receive no runner, execute zero steps, and produce no logs are infrastructure failures and do not count as product QA evidence.
 
