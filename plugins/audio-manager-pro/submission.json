@@ -1,0 +1,15 @@
+{
+  "slug": "audio-manager-pro",
+  "name": "Audio Manager Pro",
+  "type": "plugin",
+  "price_usd": 9.99,
+  "version": "1.0.0.0",
+  "marketplace_category": ["Audio"],
+  "marketplace_language": ["English"],
+  "marketplace_operating_systems": ["Windows"],
+  "marketplace_tags": ["Audio", "Windows", "Profiles", "Headset", "Microphone", "Streaming", "Utilities"],
+  "marketplace_auto_publish": true,
+  "headline": "Switch your entire audio setup with one key.",
+  "description": "Switch your entire Windows audio setup with one key.\n\nAudio Manager Pro turns Stream Deck into an audio-profile switcher for complete setups instead of one device or one app at a time. Create profiles such as Headset, Speakers, Meeting, Streaming, or VR and apply the whole state from one key.\n\nAn Audio Profile can independently set Windows Default Output, Communications Output, Default Input, and Communications Input. It can also restore saved endpoint volume and mute state where supported. This matters because games, browsers, calling apps, and voice software do not always follow the same Windows audio role.\n\nIncluded actions: Apply Audio Profile, Set Output Device, Set Input Device, Cycle Audio Profile, Audio Profile Status, Mute Default Mic, and Profile Output Volume for Stream Deck +. The Stream Deck + dial adjusts the selected profile output live; press reapplies the profile and touch toggles output mute.\n\nAudio devices can be recreated by USB, Bluetooth, driver, or Windows changes. Audio Manager Pro stores endpoint identity plus available Windows hardware metadata. It safely rebinds when identity is strong enough, shows missing devices when it is not, and never silently switches to a friendly-name-only guess. Profile application returns SUCCESS, PARTIAL, or FAILED so partial audio changes are visible.\n\nAudio Manager Pro uses a local Windows Core Audio helper shared with PackRat Audio Control Center. No cloud account is required and no private Wave Link internals are used. Wave Link users can still configure Monitor Mix to follow Windows Default Output or use Elgato's official Wave Link plugin for Wave-specific routing.\n\nRequires Windows 10 or newer and Stream Deck 7.3 or newer.\n\nPart of the Packrat Ecosystem.",
+  "release_notes": "- Add complete user-created Audio Profiles for four Windows audio roles\n- Restore saved endpoint volume and mute state per profile\n- Add resilient endpoint rebinding with explicit missing-device states\n- Add SUCCESS, PARTIAL, and FAILED profile results\n- Add Stream Deck + profile-output volume control\n- Reuse the shared PackRat Windows Core Audio implementation"
+}
