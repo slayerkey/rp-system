@@ -157,81 +157,27 @@ async function walk(directory) {
 }
 
 async function fetchPresentMon() {
-  const releaseUrl = "https://api.github.com/repos/GameTechDev/PresentMon/releases/tags/v2.5.1";
-  const response = await fetch(releaseUrl, { headers: { "User-Agent": "PackRat-Performance-Grapher-Build", "Accept": "application/vnd.github+json" } });
-  if (!response.ok) throw new Error("PresentMon release metadata failed: HTTP " + response.status);
-  const release = await response.json();
-  const assets = Array.isArray(release.assets) ? release.assets : [];
-  const scored = assets.map((asset) => {
-    const name = String(asset.name || "");
-    let score = 0;
-    if (/console/i.test(name)) score += 100;
-    if (/presentmon/i.test(name)) score += 50;
-    if (/x64|win64|windows/i.test(name)) score += 20;
-    if (/\.zip$/i.test(name)) score += 15;
-    if (/\.exe$/i.test(name)) score += 5;
-    if (/setup|installer|msi/i.test(name)) score -= 80;
-    return { asset, score };
-  }).filter((x) => x.score > 0).sort((a, b) => b.score - a.score);
-  if (!scored.length) throw new Error("No PresentMon v2.5.1 binary release asset found.");
-
-  const work = resolve(root, ".presentmon-build");
-  await rm(work, { recursive: true, force: true });
-  await mkdir(work, { recursive: true });
-
-  let chosen = null;
-  let sourceAsset = null;
-  for (const item of scored) {
-    const asset = item.asset;
-    const url = asset.browser_download_url;
-    if (!url) continue;
-    const download = await fetch(url, { headers: { "User-Agent": "PackRat-Performance-Grapher-Build" } });
-    if (!download.ok) continue;
-    const bytes = Buffer.from(await download.arrayBuffer());
-    const assetPath = resolve(work, String(asset.name || "presentmon.bin"));
-    await writeFile(assetPath, bytes);
-
-    let searchRoot = work;
-    if (/\.zip$/i.test(assetPath)) {
-      const expanded = resolve(work, "expanded-" + scored.indexOf(item));
-      await mkdir(expanded, { recursive: true });
-      const ps = spawnSync("powershell.exe", ["-NoLogo", "-NoProfile", "-Command", "Expand-Archive -LiteralPath '" + assetPath.replaceAll("'", "''") + "' -DestinationPath '" + expanded.replaceAll("'", "''") + "' -Force"], { windowsHide: true, encoding: "utf8" });
-      if (ps.status !== 0) continue;
-      searchRoot = expanded;
-    }
-
-    const candidates = (await walk(searchRoot)).filter((path) => extname(path).toLowerCase() === ".exe" && /presentmon/i.test(path));
-    for (const exe of candidates) {
-      const help = spawnSync(exe, ["--help"], { windowsHide: true, encoding: "utf8", timeout: 15_000 });
-      const text = String(help.stdout || "") + "\n" + String(help.stderr || "");
-      if (/output_stdout/i.test(text) && /session_name/i.test(text)) {
-        chosen = exe;
-        sourceAsset = String(asset.name || "");
-        break;
-      }
-    }
-    if (chosen) break;
+  const url = "https://github.com/GameTechDev/PresentMon/releases/download/v2.5.1/PresentMon-2.5.1-x64.exe";
+  const expectedSha256 = "9bec3083069f58f911e6a512f4806db51a27bd096103087bc1d05ef54c80a191";
+  const response = await fetch(url, { redirect: "follow", headers: { "User-Agent": "PackRat-Performance-Grapher-Build" } });
+  if (!response.ok) throw new Error("PresentMon v2.5.1 download failed: HTTP " + response.status);
+  const bytes = Buffer.from(await response.arrayBuffer());
+  const actualSha256 = createHash("sha256").update(bytes).digest("hex");
+  if (actualSha256 !== expectedSha256) {
+    throw new Error("PresentMon v2.5.1 SHA-256 mismatch: expected " + expectedSha256 + ", got " + actualSha256);
   }
-
-  if (!chosen) throw new Error("PresentMon v2.5.1 assets did not contain a console executable with --output_stdout and --session_name.");
-
-  const sourceDir = dirname(chosen);
-  await cp(sourceDir, pmOut, { recursive: true, force: true });
-  const executable = chosen.slice(sourceDir.length + 1);
-  const copiedExe = resolve(pmOut, executable);
-  const hash = createHash("sha256").update(await readFile(copiedExe)).digest("hex");
+  const executable = "PresentMon.exe";
+  await writeFile(resolve(pmOut, executable), bytes);
   await writeFile(resolve(pmOut, "provider.json"), JSON.stringify({
     version: "2.5.1",
-    sourceAsset,
+    sourceAsset: "PresentMon-2.5.1-x64.exe",
     executable,
-    sha256: hash,
+    sha256: actualSha256,
     release: "https://github.com/GameTechDev/PresentMon/releases/tag/v2.5.1"
   }, null, 2));
-  await writeFile(resolve(pmOut, "SHA256.txt"), hash + "  " + executable + "\n");
-  await rm(work, { recursive: true, force: true });
-  console.log("Bundled PresentMon " + executable + " from " + sourceAsset + " (" + hash.slice(0, 12) + "...)");
+  await writeFile(resolve(pmOut, "SHA256.txt"), actualSha256 + "  " + executable + "\n");
+  console.log("Bundled checksum-pinned PresentMon 2.5.1 (" + actualSha256.slice(0, 12) + "...)");
 }
-
 await fetchPresentMon();
 
 const nativeFiles = await walk(nativeOut);
