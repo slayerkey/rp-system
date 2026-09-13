@@ -231,6 +231,7 @@ class SaveModeBase extends LiveTitleAction<ModeActionSettings> {
 
   override async onKeyDown(ev: KeyDownEvent<ModeActionSettings>): Promise<void> {
     const id = ev.payload.settings?.modeId || "gaming";
+    await runtime.state.refresh();
     const snapshot = runtime.state.getSnapshot();
     if (!snapshot.backendOnline) return ev.action.showAlert();
     const mode = await runtime.store.getMode(id);
