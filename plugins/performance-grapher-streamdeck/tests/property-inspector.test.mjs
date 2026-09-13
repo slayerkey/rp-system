@@ -51,6 +51,6 @@ test("property inspector sources contain no escaped-newline patch artifacts", as
     readFile(resolve(root, "ui", "inspector.html"), "utf8"),
     readFile(resolve(root, "ui", "inspector.js"), "utf8"),
   ]);
-  assert.equal(html.includes("\\\\n"), false);
-  assert.equal(js.includes("\\\\n"), false);
+  assert.equal(html.includes("\\n"), false);
+  assert.equal(js.includes("\\n"), false);
 });
