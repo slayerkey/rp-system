@@ -89,21 +89,30 @@ export function computeMetrics(samples = [], minutes = 30, now = Date.now()) {
   let adjacentTotal = 0;
   let adjacentPairs = 0;
   let previousSuccess = null;
+  let previousMethod = null;
 
   for (const sample of list) {
-    if (sample.counted === false) continue;
-    attempts += 1;
+    if (sample.lossCounted === true) {
+      attempts += 1;
+      if (sample.lossOk !== true) failures += 1;
+    } else if (sample.lossCounted !== false && sample.counted !== false) {
+      attempts += 1;
+      if (sample.ok !== true) failures += 1;
+    }
+
     if (sample.ok !== true) {
-      failures += 1;
       previousSuccess = null;
+      previousMethod = null;
       continue;
     }
     const ms = Number(sample.ms);
-    if (Number.isFinite(ms) && previousSuccess !== null) {
+    const method = String(sample.method || "");
+    if (Number.isFinite(ms) && previousSuccess !== null && method === previousMethod) {
       adjacentTotal += Math.abs(ms - previousSuccess);
       adjacentPairs += 1;
     }
     previousSuccess = Number.isFinite(ms) ? ms : null;
+    previousMethod = method;
   }
 
   const latest = list.length ? list[list.length - 1] : null;
