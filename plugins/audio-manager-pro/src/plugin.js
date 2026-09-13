@@ -177,7 +177,11 @@ async function renderRecord(record) {
 
   let image;
   if (["apply", "cycle", "status"].includes(record.kind)) {
-    const profile = profileForRecord(record);
+    let profile = profileForRecord(record);
+    if (record.kind === "cycle" && globalSettings.profiles.length) {
+      const index = cycleCurrentIndex(globalSettings, latestSnapshot, record.settings.profileId);
+      if (index >= 0) profile = globalSettings.profiles[index] || profile;
+    }
     const active = profile ? profileMatchesSnapshot(profile, latestSnapshot) : false;
     const transientStatus = record.lastStatusAt && (Date.now() - record.lastStatusAt) < 2200
       ? record.lastStatus
