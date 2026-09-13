@@ -13,10 +13,57 @@ permissions:
   contents: read
 
 concurrency:
-  group: macro-recorder-\${{ github.ref }}
+  group: macro-recorder-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Compile Windows native helper source
+        run: dotnet build shared/windows-input/PackRat.InputHost/PackRat.InputHost.csproj -c Release -p:EnableWindowsTargeting=true
+
+      - name: Test Lite source contracts
+        working-directory: plugins/macro-recorder-lite
+        run: |
+          npm ci --no-fund --no-audit
+          npm test
+          node scripts/build-profiles.mjs
+
+      - name: Test Pro source contracts
+        working-directory: plugins/macro-recorder-pro
+        run: |
+          npm ci --no-fund --no-audit
+          npm test
+          node scripts/build-profiles.mjs
+
+      - name: Verify five generated profile variants
+        shell: bash
+        run: |
+          set -euo pipefail
+          for slug in macro-recorder-lite macro-recorder-pro; do
+            root="plugins/$slug/com.packrat.$slug.sdPlugin/profiles"
+            count=$(find "$root" -maxdepth 1 -type f -name '*.streamDeckProfile' | wc -l)
+            test "$count" -eq 5
+            for suffix in mk2 mini xl plus neo; do
+              test -f "$root/$slug-starter-$suffix.streamDeckProfile"
+              test -f "artifacts/profile-maps/$slug-starter-$suffix.profile-map.json"
+            done
+          done
+
   windows-release:
     runs-on: windows-latest
     steps:
