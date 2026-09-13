@@ -708,6 +708,7 @@ function Write-Reply {
 
 while (($line = [Console]::In.ReadLine()) -ne $null) {
     if ([string]::IsNullOrWhiteSpace($line)) { continue }
+    $line = $line.TrimStart([char]0xFEFF)
     $id = 0
     try {
         $request = $line | ConvertFrom-Json
