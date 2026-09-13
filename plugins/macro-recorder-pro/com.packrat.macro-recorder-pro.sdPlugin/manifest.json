@@ -80,8 +80,29 @@
   ],
   "Profiles": [
     {
-      "Name": "profiles/macro-recorder-pro-starter",
+      "Name": "profiles/macro-recorder-pro-starter-mk2",
       "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/macro-recorder-pro-starter-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/macro-recorder-pro-starter-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/macro-recorder-pro-starter-neo",
+      "DeviceType": 9,
       "Readonly": false,
       "DontAutoSwitchWhenInstalled": true,
       "AutoInstall": true
