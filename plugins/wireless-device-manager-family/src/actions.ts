@@ -3,6 +3,7 @@ import {
   type DidReceiveSettingsEvent,
   type KeyAction,
   type KeyDownEvent,
+  type SendToPluginEvent,
   SingletonAction,
   type WillAppearEvent
 } from "@elgato/streamdeck";
@@ -49,18 +50,32 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
   }
 
   override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<DeviceSettings>): Promise<void> {
-    if (!ev.action.isKey()) return;
-    const settings = ev.payload.settings ?? {};
-    if (settings.deviceId) {
+    if (ev.action.isKey()) await this.paint(ev.action, ev.payload.settings ?? {});
+  }
+
+  override async onSendToPlugin(ev: SendToPluginEvent<any, DeviceSettings>): Promise<void> {
+    const payload = ev.payload ?? {};
+    const deviceId = typeof payload.deviceId === "string" ? payload.deviceId : "";
+
+    if (payload.type === "select-device" && deviceId) {
       if (this.runtime.edition === "lite") {
-        await this.runtime.setLiteDeviceId(settings.deviceId);
+        await this.runtime.setLiteDeviceId(deviceId);
       } else {
-        await this.runtime.setFavorite(settings.deviceId, settings.favorite === true);
-        await this.runtime.assignGroups(settings.groupName ?? "", settings.deviceId);
-        await this.runtime.setThreshold(settings.deviceId, Number(settings.lowBatteryThreshold ?? 20));
+        await this.runtime.setFavorite(deviceId, payload.favorite === true);
+        await this.runtime.assignGroups(typeof payload.groupName === "string" ? payload.groupName : "", deviceId);
+        await this.runtime.setThreshold(deviceId, Number(payload.lowBatteryThreshold ?? 20));
+      }
+    } else if (this.runtime.edition === "pro" && deviceId) {
+      if (payload.type === "set-favorite") {
+        await this.runtime.setFavorite(deviceId, payload.value === true);
+      } else if (payload.type === "set-groups") {
+        await this.runtime.assignGroups(typeof payload.value === "string" ? payload.value : "", deviceId);
+      } else if (payload.type === "set-threshold") {
+        await this.runtime.setThreshold(deviceId, Number(payload.value ?? 20));
       }
     }
-    await this.paint(ev.action, settings);
+
+    await this.runtime.sendInspector();
   }
 
   override async onKeyDown(ev: KeyDownEvent<DeviceSettings>): Promise<void> {
