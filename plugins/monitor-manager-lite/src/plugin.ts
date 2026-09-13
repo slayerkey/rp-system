@@ -3,6 +3,8 @@ import { BrightnessAction, DisplayStatusAction, PowerAction, RefreshRateAction }
 import { runtime } from "./runtime.js";
 import { verifiedProMarketplaceUrl } from "./product.js";
 
+type LiteGlobalSettings = { monitorKey?: string };
+
 streamDeck.logger.setLevel("info");
 streamDeck.actions.registerAction(new BrightnessAction());
 streamDeck.actions.registerAction(new PowerAction());
@@ -22,6 +24,7 @@ async function sendInspectorData(): Promise<void> {
         modes: m.modes,
         capabilities: runtime.capabilitySummary(m)
       })),
+      configuredMonitorKey: runtime.getConfiguredMonitorKey(),
       proMarketplaceUrl: verifiedProMarketplaceUrl()
     });
   } catch (error) {
@@ -31,10 +34,20 @@ async function sendInspectorData(): Promise<void> {
   }
 }
 
+streamDeck.settings.onDidReceiveGlobalSettings((ev: any) => {
+  const settings = (ev?.settings ?? ev?.payload?.settings ?? {}) as LiteGlobalSettings;
+  runtime.setConfiguredMonitorKey(settings.monitorKey);
+  void sendInspectorData();
+});
+
 streamDeck.ui.onDidAppear(() => void sendInspectorData());
 streamDeck.ui.onSendToPlugin((ev) => {
   const payload = ev.payload as { type?: string } | undefined;
   if (payload?.type === "refresh-monitors") void sendInspectorData();
 });
 
-streamDeck.connect().then(() => void sendInspectorData());
+streamDeck.connect().then(async () => {
+  const settings = await streamDeck.settings.getGlobalSettings<LiteGlobalSettings>();
+  runtime.setConfiguredMonitorKey(settings.monitorKey);
+  await sendInspectorData();
+});
