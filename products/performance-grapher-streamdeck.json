@@ -145,7 +145,13 @@
       "upsell_relationship": "NONE_STANDALONE_PAID_PLUGIN_NO_LITE_PRO_PAIR",
       "xeneon_performance_grapher_relationship": "ADJACENT_PLATFORM_PRODUCT_NOT_EDITION_UPSELL",
       "profile_manifest_schema": "VERIFIED_CURRENT_ELGATO_SCHEMA_DEVICE_TYPES_0_2_7_9",
-      "profile_contract_suite": "ADDED_PENDING_REAL_NODE_EXECUTION"
+      "profile_contract_suite": "ADDED_PENDING_REAL_NODE_EXECUTION",
+      "history_buffer_count_bound": "FIXED_AND_LATEST_HEAD_TESTED",
+      "legacy_restore_history_bound": "FIXED_AND_LATEST_HEAD_TESTED",
+      "history_snapshot_bucket_extremes": "FIXED_AND_LATEST_HEAD_TESTED",
+      "history_window_uses_actual_raw_coverage": "FIXED_AND_LATEST_HEAD_TESTED",
+      "wake_cpu_delta_baseline": "FIXED_AND_LATEST_HEAD_TESTED",
+      "hardware_alias_hot_remove": "FIXED_AND_LATEST_HEAD_TESTED"
     },
     "contracts": {
       "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
@@ -154,6 +160,31 @@
       "node24_streamdeck73_compatibility": "VERIFIED_CURRENT_DOCS",
       "marketplace_submission_json": "PASS_PARSE_AND_CROSS_FILE_MATCH",
       "required_submission_disclosures": "PASS_EXACT_SOURCE"
+    },
+    "final_hardening_smoke": {
+      "status": "PASS_LATEST_HEAD_EXACT_SOURCE",
+      "checks_passed": 15,
+      "checks_failed": 0,
+      "syntax_files_passed": 29,
+      "syntax_files_failed": 0,
+      "coverage": [
+        "15-minute FPS archive coverage beyond retained raw history",
+        "15-minute frametime spike preservation",
+        "FPS drop survival across persistence/restart/raw eviction",
+        "frametime spike survival across persistence/restart/raw eviction",
+        "side-effect-free history serialization",
+        "semantic duplicate archive bucket merge",
+        "histogram restore derives totals from sparse bins",
+        "metric-aware FPS/frametime graph downsampling",
+        "alert downsampling follows threshold direction",
+        "canonical GPU alias invalidation on hardware removal",
+        "dual-GPU active-adapter selection with hysteresis",
+        "watch LRU prunes old non-canonical history buffers",
+        "legacy persistence restore cannot bypass history count bounds",
+        "system wake resets CPU delta baseline and restarts providers",
+        "long key/process labels remain bounded"
+      ],
+      "note": "Latest committed JavaScript source executed through the isolated exact-source harness after the final main sync. Profile ZIP generation still requires real Node because the harness lacks Buffer/crypto/zlib/fs."
     }
   },
   "physical_release_evidence": null,
