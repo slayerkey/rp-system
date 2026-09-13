@@ -15,8 +15,17 @@ type Snapshot = { monitors: any[]; internalBrightness?: any };
 export class MonitorLiteRuntime {
   readonly bridge = new MonitorBridge();
   private cache: { at: number; value: Snapshot } | null = null;
+  private configuredMonitorKey: string | null = null;
 
   invalidate(): void { this.cache = null; }
+
+  setConfiguredMonitorKey(monitorKey: string | null | undefined): void {
+    this.configuredMonitorKey = monitorKey?.trim() || null;
+  }
+
+  getConfiguredMonitorKey(): string | null {
+    return this.configuredMonitorKey;
+  }
 
   async scan(force = false): Promise<Snapshot> {
     if (!force && this.cache && Date.now() - this.cache.at < 1500) return this.cache.value;
@@ -29,7 +38,8 @@ export class MonitorLiteRuntime {
   async selected(settings: MonitorSettings): Promise<{ monitor: any; snapshot: Snapshot }> {
     const snapshot = await this.scan();
     const monitors = snapshot.monitors ?? [];
-    const monitor = settings.monitorKey ? monitors.find((m) => m.monitorKey === settings.monitorKey) : monitors[0];
+    const requestedKey = this.configuredMonitorKey ?? settings.monitorKey;
+    const monitor = requestedKey ? monitors.find((m) => m.monitorKey === requestedKey) : monitors[0];
     if (!monitor) throw new Error("No active monitor was found.");
     return { monitor, snapshot };
   }
