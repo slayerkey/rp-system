@@ -50,7 +50,31 @@ try {
     $liteFamily = Resolve-RatDevInternalProductSource -RepoRoot $TempRoot -Slug "macro-recorder-lite"
     Assert-Equal $liteFamily.Ref "origin/product/macro-recorder" "Lite should resolve from family branch."
 
-    # Exact product/<slug> takes precedence over the broader family branch.
+    # A derived family branch is not privileged over another discovered owner.
+    # Without an exact product/<slug> branch, duplicate ownership must fail closed.
+    Invoke-Git -Root $TempRoot -Args @("reset","--hard",$base)
+    New-Item -ItemType Directory -Force -Path (Join-Path $TempRoot "plugins\\macro-recorder-pro") | Out-Null
+    Set-Content (Join-Path $TempRoot "plugins\\macro-recorder-pro\\marker.txt") "duplicate"
+    Invoke-Git -Root $TempRoot -Args @("add","plugins")
+    Invoke-Git -Root $TempRoot -Args @("commit","-m","duplicate-family-owner")
+    $duplicate = (& git -C $TempRoot rev-parse HEAD).Trim()
+    Invoke-Git -Root $TempRoot -Args @("update-ref","refs/remotes/origin/product/other-family",$duplicate)
+
+    $familyAmbiguous = $false
+    try {
+        Resolve-RatDevInternalProductSource -RepoRoot $TempRoot -Slug "macro-recorder-pro" | Out-Null
+    }
+    catch {
+        $familyAmbiguous = $true
+        if ($_.Exception.Message -notmatch "multiple product branches") {
+            throw
+        }
+    }
+    if (-not $familyAmbiguous) {
+        throw "Family branch resolution should fail closed when another branch owns the same slug."
+    }
+
+    # Exact product/<slug> takes precedence over every discovered family branch.
     Invoke-Git -Root $TempRoot -Args @("reset","--hard",$base)
     New-Item -ItemType Directory -Force -Path (Join-Path $TempRoot "plugins\macro-recorder-pro") | Out-Null
     Set-Content (Join-Path $TempRoot "plugins\macro-recorder-pro\marker.txt") "exact"
