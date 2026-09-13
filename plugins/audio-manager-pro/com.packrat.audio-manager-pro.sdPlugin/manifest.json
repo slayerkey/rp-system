@@ -1,0 +1,95 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Actions": [
+    {
+      "UUID": "com.packrat.audio-manager-pro.apply-profile",
+      "Name": "Apply Audio Profile",
+      "Tooltip": "Switch your complete saved audio setup with one press.",
+      "Icon": "imgs/actions/apply/icon",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "States": [{ "Image": "imgs/actions/apply/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.packrat.audio-manager-pro.set-output",
+      "Name": "Set Output Device",
+      "Tooltip": "Set the Windows Default or Communications output device.",
+      "Icon": "imgs/actions/set-output/icon",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "States": [{ "Image": "imgs/actions/set-output/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.packrat.audio-manager-pro.set-input",
+      "Name": "Set Input Device",
+      "Tooltip": "Set the Windows Default or Communications input device.",
+      "Icon": "imgs/actions/set-input/icon",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "States": [{ "Image": "imgs/actions/set-input/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.packrat.audio-manager-pro.cycle-profile",
+      "Name": "Cycle Audio Profile",
+      "Tooltip": "Cycle through your saved Audio Profiles in order.",
+      "Icon": "imgs/actions/cycle/icon",
+      "Controllers": ["Keypad"],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "States": [{ "Image": "imgs/actions/cycle/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.packrat.audio-manager-pro.profile-status",
+      "Name": "Audio Profile Status",
+      "Tooltip": "Show whether the selected Audio Profile currently matches Windows.",
+      "Icon": "imgs/actions/status/icon",
+      "Controllers": ["Keypad"],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "States": [{ "Image": "imgs/actions/status/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.packrat.audio-manager-pro.mute-default-mic",
+      "Name": "Mute Default Mic",
+      "Tooltip": "Toggle mute for the current Windows Default microphone.",
+      "Icon": "imgs/actions/mute-mic/icon",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "States": [{ "Image": "imgs/actions/mute-mic/key", "ShowTitle": false }]
+    },
+    {
+      "UUID": "com.packrat.audio-manager-pro.profile-output-volume",
+      "Name": "Profile Output Volume",
+      "Tooltip": "Stream Deck+ dial for the selected Audio Profile output volume.",
+      "Icon": "imgs/actions/volume/icon",
+      "Controllers": ["Encoder"],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "Encoder": {
+        "Icon": "imgs/actions/volume/encoder",
+        "layout": "$A1",
+        "StackColor": "#56F2A5",
+        "TriggerDescription": {
+          "Push": "Apply audio profile",
+          "Rotate": "Adjust profile output volume",
+          "Touch": "Toggle profile output mute"
+        }
+      },
+      "States": [{ "Image": "imgs/actions/volume/key", "ShowTitle": false }]
+    }
+  ],
+  "Author": "PackRat",
+  "Category": "Audio Manager Pro",
+  "CategoryIcon": "imgs/category/icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "Switch your entire Windows audio setup with one key. Audio Profiles can set Default and Communications input/output devices together and restore saved endpoint volume and mute states.",
+  "Icon": "imgs/plugin/icon",
+  "Name": "Audio Manager Pro",
+  "Nodejs": { "Version": "24" },
+  "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
+  "PropertyInspectorPath": "ui/inspector.html",
+  "SDKVersion": 3,
+  "Software": { "MinimumVersion": "7.3" },
+  "UUID": "com.packrat.audio-manager-pro",
+  "Version": "1.0.0.0"
+}
