@@ -155,7 +155,7 @@ def render(out: Path) -> None:
         "hardware_sha256": sha256(DEFAULT_DEVICE),
         "scene": "warm-studio-v1",
         "composition_model": "key-underlay+untouched-hardware-overlay",
-        "hardware_plate_modified": false,
+        "hardware_plate_modified": False,
         "output": {"name": out.name, "size": [W, H], "sha256": sha256(out)},
     }
     (out.parent / "streamdeck-photo-hero-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
