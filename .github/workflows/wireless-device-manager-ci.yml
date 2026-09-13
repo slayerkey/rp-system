@@ -75,6 +75,11 @@ jobs:
       - name: Package both editions with official Elgato CLI
         shell: pwsh
         run: npm run pack
+      - name: Render deterministic Marketplace media
+        shell: pwsh
+        run: |
+          python scripts/rat-art-release.py --destination dist/marketplace-lite --edition lite
+          python scripts/rat-art-release.py --destination dist/marketplace-pro --edition pro
       - name: Verify packages
         shell: pwsh
         run: |
@@ -89,6 +94,8 @@ jobs:
           path: |
             plugins/wireless-device-manager-family/dist/**/*.streamDeckPlugin
             plugins/wireless-device-manager-family/QA.md
+            plugins/wireless-device-manager-family/dist/marketplace-lite/*.png
+            plugins/wireless-device-manager-family/dist/marketplace-pro/*.png
             plugins/wireless-device-manager-family/FEASIBILITY.md
             plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json
             plugins/wireless-device-manager-family/com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json
