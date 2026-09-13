@@ -150,7 +150,7 @@ class TimeoutBase extends LiveTitleAction<TimeoutSettings> {
     }
 
     const reply = await runtime.state.execute<any>("setTimeout", target as any);
-    if (!reply.ok || reply.result?.status === "FAILED") await ev.action.showAlert();
+    if (!reply.ok || reply.result?.status !== "COMPLETE") await ev.action.showAlert();
     else await ev.action.showOk();
   }
 }
