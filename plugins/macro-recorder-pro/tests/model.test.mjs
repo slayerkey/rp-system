@@ -148,3 +148,18 @@ test("malformed Pro playback settings fall back to UI defaults",()=>{
  assert.equal(settings.repeatCount,2);
  assert.equal(settings.mode,"count");
 });
+
+test("maximum Pro macro export remains below the PI import ceiling",()=>{
+ const events=Array.from({length:PRO_LIMITS.maxEvents},(_,index)=>({
+  type:index%2===0?"keyDown":"keyUp",
+  vk:65,
+  scan:30,
+  extended:false,
+  name:"X".repeat(40),
+  delayMs:1
+ }));
+ const macro=normalizeMacro({name:"Max Export",events},{pro:true,limits:PRO_LIMITS});
+ assert.equal(macro.events.length,PRO_LIMITS.maxEvents);
+ const bytes=Buffer.byteLength(JSON.stringify(exportEnvelope(macro),null,2),"utf8");
+ assert.ok(bytes<16*1024*1024,`export was ${bytes} bytes`);
+});
