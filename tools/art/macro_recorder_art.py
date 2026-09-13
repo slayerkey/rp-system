@@ -108,6 +108,29 @@ def packrat_mark(canvas: Image.Image) -> None:
     canvas.alpha_composite(rat, (W - 126, 44))
 
 
+
+def verify_dimensions(path: Path, expected: tuple[int, int]) -> None:
+    if not path.is_file():
+        fail(f"missing required image: {path}")
+    with Image.open(path) as image:
+        if image.size != expected:
+            fail(f"{path} is {image.size[0]}x{image.size[1]}; expected {expected[0]}x{expected[1]}")
+
+def verify_product_assets(product: dict, app_icon: Path, hero: Path) -> None:
+    plugin = product["plugin"]
+    verify_dimensions(plugin / "imgs" / "plugin" / "icon.png", (256, 256))
+    verify_dimensions(plugin / "imgs" / "plugin" / "icon@2x.png", (512, 512))
+    verify_dimensions(plugin / "imgs" / "category" / "icon.png", (28, 28))
+    verify_dimensions(plugin / "imgs" / "category" / "icon@2x.png", (56, 56))
+    for kind in ("record", "stop", "replay"):
+        base = plugin / "imgs" / "actions" / kind
+        verify_dimensions(base / "icon.png", (20, 20))
+        verify_dimensions(base / "icon@2x.png", (40, 40))
+        verify_dimensions(base / "key.png", (72, 72))
+        verify_dimensions(base / "key@2x.png", (144, 144))
+    verify_dimensions(app_icon, (288, 288))
+    verify_dimensions(hero, (1920, 960))
+
 def render_app_icon(slug: str, product: dict, out_dir: Path) -> Path:
     """Render the separate 288x288 Marketplace app icon required by Maker Console."""
     size = 288
@@ -216,7 +239,8 @@ def render(slug: str, out: Path) -> None:
         rd.text((20, y + sh + 7), f"{sw} × {sh}", font=font(18, False), fill=MUTED)
         y += sh + 55
     review.save(out.with_name("hero-thumbnail-review.png"), "PNG", optimize=True)
-    print(f"PASS {slug}: app icon {app_icon} | hero {out}")
+    verify_product_assets(product, app_icon, out)
+    print(f"PASS {slug}: validated plugin art | app icon {app_icon} | hero {out}")
 
 def main() -> None:
     parser = argparse.ArgumentParser()
