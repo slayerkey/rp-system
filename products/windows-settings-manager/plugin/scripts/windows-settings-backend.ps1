@@ -610,12 +610,12 @@ function Get-Timeout {
 }
 
 function Set-Timeout {
-    param($Args)
+    param($InputArgs)
     $values = @{
-        monitorAcSeconds = [int64]$Args.monitorAcSeconds
-        monitorDcSeconds = [int64]$Args.monitorDcSeconds
-        sleepAcSeconds = [int64]$Args.sleepAcSeconds
-        sleepDcSeconds = [int64]$Args.sleepDcSeconds
+        monitorAcSeconds = [int64]$InputArgs.monitorAcSeconds
+        monitorDcSeconds = [int64]$InputArgs.monitorDcSeconds
+        sleepAcSeconds = [int64]$InputArgs.sleepAcSeconds
+        sleepDcSeconds = [int64]$InputArgs.sleepDcSeconds
     }
     foreach ($value in $values.Values) {
         if ($value -lt 0 -or $value -gt [uint32]::MaxValue) {
@@ -750,7 +750,7 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
     try {
         $request = $line | ConvertFrom-Json
         $id = [int]$request.id
-        $args = $request.args
+        $requestArgs = $request.args
         switch ([string]$request.op) {
             "ping" {
                 Write-Reply $id $true ([pscustomobject]@{ version = 1 })
@@ -759,11 +759,11 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
                 Write-Reply $id $true (Get-Snapshot)
             }
             "setHdr" {
-                $result = [PackRatWindowsNative]::SetHdr([bool]$args.enabled)
+                $result = [PackRatWindowsNative]::SetHdr([bool]$requestArgs.enabled)
                 Write-Reply $id ($result.status -ne "FAILED") $result $result.error
             }
             "setTopology" {
-                $target = [string]$args.topology
+                $target = [string]$requestArgs.topology
                 [void][PackRatWindowsNative]::SetTopology($target)
                 $actual = [PackRatWindowsNative]::GetTopology()
                 $result = [pscustomobject]@{
@@ -773,7 +773,7 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
                 Write-Reply $id ($result.status -eq "COMPLETE") $result $(if ($result.status -eq "FAILED") { "Windows did not confirm the requested display topology." } else { $null })
             }
             "setPowerPlan" {
-                $guid = [string]$args.guid
+                $guid = [string]$requestArgs.guid
                 if ($guid -notmatch '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') {
                     throw "Invalid power plan GUID."
                 }
@@ -783,11 +783,11 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
                 Write-Reply $id $ok ([pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }); state = $after }) $(if ($ok) { $null } else { "Power plan did not change." })
             }
             "setTimeout" {
-                $result = Set-Timeout $args
+                $result = Set-Timeout $requestArgs
                 Write-Reply $id ($result.status -ne "FAILED") $result $result.error
             }
             "setKeepAwake" {
-                $enabled = [bool]$args.enabled
+                $enabled = [bool]$requestArgs.enabled
                 $ok = [PackRatWindowsNative]::SetKeepAwake($enabled)
                 if ($ok) { $script:keepAwake = $enabled }
                 $result = [pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }); state = [bool]$script:keepAwake }
