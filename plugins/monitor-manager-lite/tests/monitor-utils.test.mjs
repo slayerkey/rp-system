@@ -155,3 +155,10 @@ test("malformed power behavior is rejected before a write", async () => {
   const source=await readFile("src/runtime.ts","utf8");
   assert.match(source,/if \(!\["toggle","on","off"\]\.includes\(wanted\)\) throw new Error\("Invalid monitor power behavior\."/);
 });
+
+test("Lite inspector does not visually substitute an unplugged configured monitor", async () => {
+  const pi=await readFile("com.packrat.monitormanagerlite.sdPlugin/ui/pi.js","utf8");
+  assert.match(pi,/Configured monitor not connected/);
+  assert.match(pi,/globalSettings\.monitorKey\?monitorRows\.find/);
+  assert.match(pi,/CONFIGURED MONITOR NOT CONNECTED/);
+});
