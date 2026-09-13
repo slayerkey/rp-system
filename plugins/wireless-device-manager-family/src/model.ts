@@ -8,6 +8,7 @@ export type Capabilities = {
 
 export type RawDevice = {
   id: string;
+  controlId?: string | null;
   name?: string;
   address?: string | null;
   containerId?: string | null;
@@ -92,6 +93,12 @@ function mergeCurrentEndpoints(previous: Device | undefined, next: Device, now: 
 
   const mergedRaw: RawDevice = {
     id: next.id || previous.id,
+    controlId:
+      next.control?.connect === true || next.control?.disconnect === true
+        ? (next.controlId ?? next.id)
+        : previous.control?.connect === true || previous.control?.disconnect === true
+          ? (previous.controlId ?? previous.id)
+          : (next.controlId ?? previous.controlId ?? null),
     name: next.name !== "Bluetooth device" ? next.name : previous.name,
     address: next.address ?? previous.address ?? null,
     containerId: next.containerId ?? previous.containerId ?? null,
@@ -156,6 +163,7 @@ export class DeviceCatalog {
         paired: false,
         present: false,
         connected: false,
+        controlId: null,
         batteryPercent: null,
         charging: null,
         control: { connect: false, disconnect: false },
