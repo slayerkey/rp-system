@@ -36,6 +36,9 @@ jobs:
       - name: Plugin release metadata preflight
         run: python tests/check_plugin_release_metadata.py
 
+      - name: Check native integration harness syntax
+        run: node --check shared/windows-input/integration-test.mjs
+
       - name: Compile Windows native helper source
         run: dotnet build shared/windows-input/PackRat.InputHost/PackRat.InputHost.csproj -c Release -p:EnableWindowsTargeting=true
 
@@ -120,6 +123,9 @@ jobs:
           if (($self -join "") -notmatch '"ok":true') { throw "Input host self-test failed: $self" }
           $ping = '{"id":"ci","command":"ping"}' | & .\artifacts\input-host\PackRat.InputHost.exe --daemon
           if (($ping -join "") -notmatch '"ok":true') { throw "Input host daemon ping failed: $ping" }
+
+      - name: Windows native integration acceptance
+        run: node shared/windows-input/integration-test.mjs
 
       - name: Install Lite dependencies
         working-directory: plugins/macro-recorder-lite
