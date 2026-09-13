@@ -92,8 +92,8 @@ export class FrameTimeHistogram {
       hist.counts[i] = count;
       hist.sums[i] = sum;
     }
-    hist.count = Number(value?.count) || hist.counts.reduce((a, b) => a + b, 0);
-    hist.totalFrameMs = Number(value?.totalFrameMs) || hist.sums.reduce((a, b) => a + b, 0);
+    hist.count = hist.counts.reduce((a, b) => a + b, 0);
+    hist.totalFrameMs = hist.sums.reduce((a, b) => a + b, 0);
     return hist;
   }
 
