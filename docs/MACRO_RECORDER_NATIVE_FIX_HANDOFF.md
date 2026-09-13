@@ -84,7 +84,24 @@ For matching key-up / mouse-up:
 
 Have `Native.SendKey`, `Native.SendMouseButton`, mouse movement, and wheel helpers return whether `SendInput` accepted the event where useful for safe cleanup/error reporting.
 
-### 4. Preserve Pro recorded idle gaps beyond 60 seconds
+### 4. Preserve exact keyboard descriptors for interrupted cleanup
+
+The current held-key set and recovery journal store only the virtual-key integer.
+
+Change held-key tracking so each injected keyboard down remembers the descriptor needed to release that exact key later, including:
+- virtual key
+- scan code
+- extended-key flag
+
+Use that descriptor for:
+- cancellation cleanup
+- error cleanup
+- normal final cleanup
+- next-launch crash recovery
+
+Do not assume `SendKey(vk, 0, true, false)` is an exact release for every injected extended/right-side key.
+
+### 5. Preserve Pro recorded idle gaps beyond 60 seconds
 
 Native capture currently clamps one recorded delay to 60,000 ms.
 
@@ -126,6 +143,7 @@ Test against the exact helper/plugin artifacts produced by the passing build:
 - Ctrl+Shift+F12 during playback
 - forced helper kill while an injected modifier is held
 - forced helper kill while an injected mouse button is held
+- cancellation while Right Ctrl / Right Alt or an extended navigation key is held
 - restart and verify exact recovery
 - make the recovery journal path unwritable and verify down-event injection fails closed
 - left/right/middle/X1/X2 mouse buttons
