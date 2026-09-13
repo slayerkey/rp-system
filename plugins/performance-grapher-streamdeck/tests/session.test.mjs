@@ -128,3 +128,21 @@ test("foreground identity still wins immediately over fallback activity", () => 
   }
   assert.equal(tracker.snapshot(now).process, "foreground.exe");
 });
+
+
+test("session summary uses slowest-frame-time low averages", () => {
+  const tracker = new SessionTracker({ switchMs: 0, idleMs: 3000 });
+  tracker._start("game.exe", 0);
+  let now = 0;
+
+  for (let i = 0; i < 1000; i += 1) {
+    const frameTimeMs = i < 990 ? 10 : i < 995 ? 50 : 100;
+    now += frameTimeMs;
+    tracker.observeFrame({ application: "game.exe", frameTimeMs }, {}, now);
+  }
+
+  const summary = tracker.snapshot(now).current;
+  assert.ok(Math.abs(summary.averageFps - (1_000_000 / 10_650)) < 0.01);
+  assert.ok(Math.abs(summary.onePercentLow - (10_000 / 750)) < 0.01);
+  assert.ok(Math.abs(summary.pointOnePercentLow - 10) < 0.01);
+});
