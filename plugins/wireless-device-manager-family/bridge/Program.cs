@@ -267,7 +267,11 @@ internal static class Program
         kind = a.kind == b.kind ? a.kind : "dual",
         paired = a.paired || b.paired,
         connected = a.connected || b.connected,
-        present = (a.present ?? false) || (b.present ?? false),
+        present = a.present == true || b.present == true
+            ? true
+            : a.present == false || b.present == false
+                ? false
+                : null,
         batteryPercent = b.batteryPercent ?? a.batteryPercent,
         charging = b.charging ?? a.charging,
         control = new ControlDto
