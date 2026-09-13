@@ -14,13 +14,24 @@ Performance Grapher for Stream Deck is a Windows-only PackRat Stream Deck plugin
 
 No Stream Deck + dial action ships in 1.0 because changing a graph window is not enough value to justify a separate encoder action.
 
+## Included profiles
+
+Four editable dashboards are generated deterministically and bundled with the plugin:
+
+- MK.2 / other 15-key Stream Deck models: 15-key performance dashboard.
+- Stream Deck XL: 32-key expanded history and alert dashboard.
+- Stream Deck +: 8-key dashboard using the keypad only; no phantom encoder action.
+- Stream Deck Neo: 8-key compact dashboard.
+
+Profiles auto-install with the plugin but do not auto-switch. They use the same five plugin actions and supported settings that users can configure manually.
+
 ## Telemetry architecture
 
 One TelemetryService instance is shared by every visible key.
 
 - **Windows-native baseline:** Node's OS counters provide CPU utilization and RAM utilization without a helper, API key, account, or driver.
 - **Hardware sensors:** a small PackRat .NET helper hosts LibreHardwareMonitorLib 0.9.6 at a 1 Hz update rate and streams a sensor catalog plus samples as JSON Lines.
-- **FPS / frametime:** PresentMon 2.5.1 is downloaded from its official GitHub release during the deterministic build, bundled in the plugin, and run as one private named capture session. PackRat consumes only presentation timing/process identity and disables unrelated console stats.
+- **FPS / frametime:** PresentMon 2.5.1 is downloaded from its official GitHub release during the deterministic build, bundled in the plugin, and run as one private named capture session. FPS uses `MsBetweenPresents`, the cadence between application `Present()` calls; it is not claimed as display-confirmed scan-out FPS. PackRat disables unrelated display/GPU/input tracking and console stats.
 - **Session engine:** frame events are aggregated into 100 ms FPS buckets. Percent-low calculations, worst raw frametime, hardware peaks, process changes, and completed-session summaries are maintained centrally.
 - **Persistence:** versioned, bounded JSON under %LOCALAPPDATA%\PackRat\PerformanceGrapher. Writes are committed through a temporary file, and corrupt state is quarantined instead of crashing startup.
 
