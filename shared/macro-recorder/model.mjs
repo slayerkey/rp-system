@@ -163,5 +163,7 @@ export function importEnvelope(raw) {
   if (!source || source.format !== "packrat-macro" || Number(source.schema) !== MACRO_SCHEMA) {
     throw new Error("Unsupported PackRat macro file.");
   }
-  return normalizeMacro(source.macro, { pro: true });
+  const macro = normalizeMacro(source.macro, { pro: true });
+  if (!macro.events.length) throw new Error("PackRat macro file contains no playable events.");
+  return macro;
 }
