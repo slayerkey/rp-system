@@ -144,7 +144,7 @@ async function renderRecord(record) {
       ? record.lastStatus
       : "";
     const status = record.kind === "status"
-      ? (active ? "ACTIVE" : "INACTIVE")
+      ? (latestError ? "FAILED" : active ? "ACTIVE" : "INACTIVE")
       : transientStatus;
     image = renderKey(record.kind, { profile, active, status });
   } else if (record.kind === "set-output" || record.kind === "set-input") {
@@ -159,11 +159,17 @@ async function renderRecord(record) {
     image = renderKey(record.kind, {
       endpoint: endpoint || record.settings.device,
       missing: configured && match.status !== "matched",
+      offline: Boolean(latestError),
       role: record.settings.role,
     });
   } else if (record.kind === "mute-mic") {
     const endpoint = (latestSnapshot?.inputs || []).find((item) => item.id === latestSnapshot?.defaultInputId);
-    image = renderKey(record.kind, { endpoint, muted: Boolean(endpoint?.muted), missing: !endpoint });
+    image = renderKey(record.kind, {
+      endpoint,
+      muted: Boolean(endpoint?.muted),
+      missing: !endpoint,
+      offline: Boolean(latestError),
+    });
   } else {
     image = renderKey(record.kind);
   }
