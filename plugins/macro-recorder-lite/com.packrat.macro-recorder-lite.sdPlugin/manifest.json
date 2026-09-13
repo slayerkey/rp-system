@@ -86,6 +86,13 @@
       "AutoInstall": true
     },
     {
+      "Name": "profiles/macro-recorder-lite-starter-mini",
+      "DeviceType": 1,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
       "Name": "profiles/macro-recorder-lite-starter-xl",
       "DeviceType": 2,
       "Readonly": false,
