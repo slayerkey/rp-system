@@ -5,7 +5,7 @@
   "status": "release-candidate",
   "workflow_state": "BLOCKED",
   "blocker_kind": "physical_validation",
-  "blocker": "Current-head automated build/test/native Windows smoke/Elgato validation/package, repository metadata/routing audits, deterministic media generation, and human Marketplace media review all pass. Remaining blockers are physical HDR/multi-monitor/laptop/sleep-resume/reboot/partial-mode-failure/external-state and physical Stream Deck profile QA.",
+  "blocker": "Automated build/test/native Windows smoke/Elgato validation/package, repository metadata/routing audits, deterministic media generation, and human Marketplace media review pass for implementation/artifact commit 8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939; subsequent commits are evidence/catalog metadata only. Remaining blockers are physical HDR/multi-monitor/laptop/sleep-resume/reboot/partial-mode-failure/external-state and physical Stream Deck profile QA.",
   "final_boundary": "Complete products/windows-settings-manager/QA.md on real Windows hardware and physical Stream Deck devices, then move Pro to READY_TO_SHIP and publish Pro before Lite.",
   "price_usd": 7.99,
   "version": "0.1.0.0",
@@ -95,6 +95,8 @@
     "deterministic_pro_rat_art": "pass",
     "marketplace_media_dimensions": "pass",
     "human_marketplace_media_review": "pass",
-    "pro_cover_safe_bounds_regression": "pass_and_visually_confirmed"
+    "pro_cover_safe_bounds_regression": "pass_and_visually_confirmed",
+    "official_lite_package_sha256": "893d49e913b3801ca529e6d8b88be9ed3ea32c0284564176d1883643c6d1677a",
+    "official_pro_package_sha256": "148063a3bbe8cd41a3a97351695fb879078649d838c1c3093bccd67b27a3372f"
   }
 }
