@@ -69,6 +69,7 @@ export class TelemetryService extends EventEmitter {
     this.log = log;
     this.persistPath = persistPath || resolve(process.env.LOCALAPPDATA || homedir(), "PackRat", "PerformanceGrapher", "state.json");
     this.values = new Map();
+    this.timestamps = new Map();
     this.catalog = new Map();
     this.histories = new Map();
     this.watched = new Set();
@@ -137,7 +138,10 @@ export class TelemetryService extends EventEmitter {
     const key = String(id || "");
     if (key === "game.fps") return this.session.snapshot().currentFps;
     if (key === "game.frametime") return this.session.snapshot().currentFrametimeMs;
-    return this.values.has(key) ? this.values.get(key) : null;
+    if (!this.values.has(key)) return null;
+    const at = this.timestamps.get(key);
+    if (!Number.isFinite(at) || Date.now() - at > 5000) return null;
+    return this.values.get(key);
   }
 
   metricSeries(id, windowMs) {
@@ -273,6 +277,7 @@ export class TelemetryService extends EventEmitter {
     if (number === null) return;
     if (descriptor) this._registerDescriptor(descriptor);
     this.values.set(id, number);
+    this.timestamps.set(id, Number(at) || Date.now());
     this._history(id).push(at, number);
     if (CANONICAL.has(id) || this.watched.has(id)) this._schedulePersist();
   }
