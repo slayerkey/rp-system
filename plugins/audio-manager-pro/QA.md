@@ -68,7 +68,7 @@ The corrected source received an additional implementation-session preflight:
 - current Property Inspector source parses successfully
 - current profile logic source parses successfully
 - current tests parse successfully
-- the exact current pure source/test files were materialized from GitHub and executed with Node's built-in test runner after the final logic hardening: **42 tests passed, 0 failed**
+- the exact current pure source/test files were materialized from GitHub and executed with Node's built-in test runner after the final logic hardening: **48 tests passed, 0 failed**
 - current branch pure logic executes successfully for settings normalization, role capture, endpoint recreation, conservative Container ID + endpoint-name rebinding, proof that instance ID alone cannot authorize an automatic rebind, missing-device handling, Console/Multimedia drift detection, contradictory-state suppression, cycle recovery, exact-capture preflight, post-operation verification, backend-offline truthfulness, fail-closed status, Unicode rendering, and role-aware key labels
 - Rat Art V2 Python source compiles
 - Rat Art V2 renderer was exercised off-runner through all six required Marketplace outputs at the expected dimensions; exact canonical-logo release rendering still belongs to the official release gate
@@ -172,3 +172,28 @@ After `REAL_WINDOWS_SMOKE.md` and any required real-hardware demo evidence pass:
 3. run `rat ship audio-manager-pro`
 
 Do not run the final ship flow from an unmerged product branch. The canonical Marketplace router deliberately syncs and ships committed `main`.
+
+
+## Final merged-catalog Windows release run
+
+Current merged release candidate Windows run **34777162074**: **PASS**
+
+Exact evidence from the completed job:
+
+- npm suite: **48 tests, 48 pass, 0 fail**
+- canonical plugin release metadata preflight: **PASS**
+- complete PackRat Lite → Pro catalog audit: **PASS**
+- Audio Manager pre-hardware Rat Ship guard: **PASS**
+- static Audio Manager host audit: **PASS**
+- Windows helper snapshot protocol: **SUCCESS**
+- rejected-command request correlation: **PASS**
+- official Elgato validation/package: **PASS**
+- packaged release payload hygiene: **PASS**
+- packaged files: **41**
+- unpacked plugin size: **33.6 MiB**
+- packaged native debug symbols: **none**
+- deterministic Rat Art V2: **PASS**
+- release artifact ID: **10324202033**
+- release artifact ZIP SHA256: `a34a1e3b4427f336cbd992111dac2637536551d2cc2fe3b40fffa3d168b3722e`
+
+This run was executed after merging the current canonical `main` ship/catalog stack into the Audio Manager release branch.
