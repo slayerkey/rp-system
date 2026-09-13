@@ -1,0 +1,101 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { mkdtemp, readdir, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
+import { performance } from "node:perf_hooks";
+import { TelemetryService } from "../src/telemetry.js";
+import { renderKey } from "../src/render.js";
+import { SessionTracker } from "../src/session.js";
+
+test("no NVIDIA/AMD/Intel GPU leaves advanced aliases unavailable without breaking CPU/RAM", () => {
+  const telemetry = new TelemetryService({ pluginRoot: resolve(tmpdir(), "missing-performance-provider"), persistPath: resolve(tmpdir(), "packrat-test-state-none.json") });
+  telemetry._consumeHardwareLine(JSON.stringify({ type: "catalog", sensors: [] }));
+  telemetry._setMetric("cpu.load", 42, Date.now());
+  telemetry._setMetric("ram.load", 51, Date.now());
+  assert.equal(telemetry.metricValue("cpu.load"), 42);
+  assert.equal(telemetry.metricValue("ram.load"), 51);
+  assert.equal(telemetry.metricValue("gpu.temperature"), null);
+  assert.equal(telemetry.metricValue("gpu.load"), null);
+});
+
+test("AMD, NVIDIA, and Intel-style hardware catalogs map to the same canonical GPU jobs", () => {
+  const telemetry = new TelemetryService({ pluginRoot: resolve(tmpdir(), "missing-performance-provider"), persistPath: resolve(tmpdir(), "packrat-test-state-alias.json") });
+  for (const hardwareType of ["GpuNvidia", "GpuAmd", "GpuIntel"]) {
+    telemetry._consumeHardwareLine(JSON.stringify({
+      type: "catalog",
+      sensors: [
+        { id: hardwareType + ".temp", name: "GPU Core", sensorType: "Temperature", hardwareType, hardwareName: hardwareType, unit: "°C" },
+        { id: hardwareType + ".load", name: "GPU Core", sensorType: "Load", hardwareType, hardwareName: hardwareType, unit: "%" }
+      ]
+    }));
+    telemetry._consumeHardwareLine(JSON.stringify({
+      type: "sample",
+      at: Date.now(),
+      foregroundProcess: "game.exe",
+      values: { [hardwareType + ".temp"]: 72, [hardwareType + ".load"]: 98 }
+    }));
+    assert.equal(telemetry.metricValue("gpu.temperature"), 72);
+    assert.equal(telemetry.metricValue("gpu.load"), 98);
+  }
+});
+
+test("sensor disappearance expires stale readings instead of showing a frozen number", () => {
+  const telemetry = new TelemetryService({ pluginRoot: resolve(tmpdir(), "missing-performance-provider"), persistPath: resolve(tmpdir(), "packrat-test-state-expire.json") });
+  const oldNow = Date.now;
+  let clock = 10_000;
+  Date.now = () => clock;
+  try {
+    telemetry._setMetric("gpu.temperature", 80, clock);
+    assert.equal(telemetry.metricValue("gpu.temperature"), 80);
+    clock += 6000;
+    assert.equal(telemetry.metricValue("gpu.temperature"), null);
+  } finally {
+    Date.now = oldNow;
+  }
+});
+
+test("corrupt persistence is quarantined and startup continues", async () => {
+  const dir = await mkdtemp(resolve(tmpdir(), "packrat-perf-"));
+  const path = resolve(dir, "state.json");
+  await writeFile(path, "{not-json", "utf8");
+  const telemetry = new TelemetryService({ pluginRoot: resolve(dir, "missing"), persistPath: path });
+  await telemetry._restore();
+  const names = await readdir(dir);
+  assert.ok(names.some((name) => name.startsWith("state.json.corrupt.")));
+});
+
+test("synthetic aggregation + key rendering stays cheap and bounded", () => {
+  const tracker = new SessionTracker({ switchMs: 100, idleMs: 5000 });
+  tracker.setForeground("benchmark.exe");
+  const before = process.memoryUsage().heapUsed;
+  const started = performance.now();
+  let now = 1000;
+  for (let i = 0; i < 60_000; i += 1) {
+    tracker.observeFrame({ application: "benchmark.exe", frameTimeMs: 7 + (i % 4000 === 0 ? 30 : 0) }, { "gpu.load": 96, "cpu.load": 55 }, now);
+    now += 10;
+  }
+  tracker.tick({ "gpu.load": 96 }, now + 150);
+  const sessionElapsed = performance.now() - started;
+
+  const renderStarted = performance.now();
+  for (let i = 0; i < 1200; i += 1) {
+    renderKey({
+      label: "FPS",
+      value: 144,
+      unit: "FPS",
+      secondary: "1% 118",
+      points: Array.from({ length: 120 }, (_, j) => [j, 100 + ((i + j) % 50)]),
+      state: "ready",
+      mode: "min",
+    }, {}, 144);
+  }
+  const renderElapsed = performance.now() - renderStarted;
+  const heapDeltaMb = Math.max(0, process.memoryUsage().heapUsed - before) / 1024 / 1024;
+  console.log("PERF_BENCH session60k_ms=" + sessionElapsed.toFixed(1) + " render1200_ms=" + renderElapsed.toFixed(1) + " heap_delta_mb=" + heapDeltaMb.toFixed(1));
+
+  assert.ok(sessionElapsed < 5000, "60k frame aggregation exceeded 5s synthetic budget");
+  assert.ok(renderElapsed < 5000, "1200 key renders exceeded 5s synthetic budget");
+  assert.ok(heapDeltaMb < 96, "synthetic heap growth exceeded 96 MB");
+  assert.ok(tracker.snapshot(now).recent.raw.length <= 3600);
+});
