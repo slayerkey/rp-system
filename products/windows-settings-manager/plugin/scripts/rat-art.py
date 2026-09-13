@@ -187,8 +187,8 @@ def main():
         "READY-MADE",
         "PROFILES",
         [
-            ("STANDARD + XL + + XL", "Large layouts keep the full control set readable."),
-            ("PLUS + NEO + GALLEON", "Compact current-device layouts keep the important keys close."),
+            ("STANDARD / XL / + XL", "Large layouts keep the full control set readable."),
+            ("PLUS / NEO / GALLEON", "Compact current-device layouts keep the important keys close."),
             ("MINI", "A focused six-key layout without tiny labels.")
         ],
         args.output,
