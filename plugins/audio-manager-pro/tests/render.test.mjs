@@ -40,3 +40,23 @@ test("inactive profile status uses warning state", () => {
   }));
   assert.ok(svg.includes("#FFCC66"));
 });
+
+
+test("unconfigured direct device key says SELECT DEVICE, not REBIND", () => {
+  const svg = decodeSvg(renderKey("set-output", {
+    endpoint: null,
+    missing: false,
+    role: "default",
+  }));
+  assert.match(svg, /SELECT DEVICE/);
+  assert.doesNotMatch(svg, /REBIND/);
+});
+
+test("previously configured missing device key says REBIND", () => {
+  const svg = decodeSvg(renderKey("set-output", {
+    endpoint: { name: "Old Headset" },
+    missing: true,
+    role: "default",
+  }));
+  assert.match(svg, /REBIND/);
+});
