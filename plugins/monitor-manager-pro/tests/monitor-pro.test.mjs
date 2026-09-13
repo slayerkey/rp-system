@@ -26,6 +26,7 @@ test("profile result status supports COMPLETE PARTIAL FAILED", () => {
   assert.equal(classifyProfileResult([{status:"COMPLETE"}]),"COMPLETE");
   assert.equal(classifyProfileResult([{status:"COMPLETE"},{status:"SKIPPED"}]),"PARTIAL");
   assert.equal(classifyProfileResult([{status:"FAILED"}]),"FAILED");
+  assert.equal(classifyProfileResult([{status:"COMPLETE"},{status:"FAILED"}]),"FAILED");
 });
 
 test("Pro bundled profiles are V2 archives with four real control surfaces", async () => {
