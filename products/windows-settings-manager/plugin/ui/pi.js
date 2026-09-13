@@ -140,7 +140,7 @@ function renderActionSettings() {
     const liveTopology = context.snapshot?.topology;
     setValue(
       "displayTopology",
-      settings.topology ?? (["internal", "clone", "extend", "external"].includes(liveTopology) ? liveTopology : "extend")
+      settings.topology ?? (["internal", "clone", "extend", "external"].includes(liveTopology) ? liveTopology : "")
     );
   } else if (suffix === "timeout") {
     show("timeoutFields");
