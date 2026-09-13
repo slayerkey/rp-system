@@ -47,7 +47,7 @@
       "Controllers": [
         "Keypad"
       ],
-      "SupportedInMultiActions": true,
+      "SupportedInMultiActions": false,
       "DisableAutomaticStates": true,
       "UserTitleEnabled": true,
       "States": [
