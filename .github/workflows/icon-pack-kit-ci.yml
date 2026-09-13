@@ -1,0 +1,121 @@
+name: Stream Deck Icon Pack Kit CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/icon-pack-kit-ci.yml'
+      - 'products/ultimate-rgb.json'
+      - 'tools/art/rat_art_icon_pack.py'
+      - 'tools/art/finalize_icon_pack_release.py'
+      - 'tools/local/rat-marketplace.ps1'
+      - 'tools/local/rat-ship-icon-pack.ps1'
+      - 'tests/check_icon_pack_contract.py'
+      - 'tests/check_icon_pack_rat_art.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: icon-pack-kit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ultimate-rgb-kit:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout RatPack candidate
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build exact Ultimate RGB review kit
+        shell: pwsh
+        run: |
+          ./tools/local/rat-ship-icon-pack.ps1 -IconPackSlug ultimate-rgb -Destination (Join-Path $PWD 'out/ship/ultimate-rgb')
+
+      - name: Verify kit identity and outputs
+        shell: pwsh
+        run: |
+          $kit = Join-Path $PWD 'out/ship/ultimate-rgb'
+          $product = Get-Content (Join-Path $PWD 'products/ultimate-rgb.json') -Raw | ConvertFrom-Json
+          $identity = Get-Content (Join-Path $kit 'SOURCE-IDENTITY.json') -Raw | ConvertFrom-Json
+          $audit = Get-Content (Join-Path $kit 'FACTORY-RELEASE-AUDIT.json') -Raw | ConvertFrom-Json
+
+          if ($identity.factory_commit -ne $product.icon_factory.commit) { throw "Unexpected factory commit: $($identity.factory_commit); expected $($product.icon_factory.commit)" }
+          if ($identity.verified_factory_head -ne $identity.factory_commit) { throw 'Factory source identity was not exact.' }
+          if ($identity.marketplace_id -ne $product.marketplace_id) { throw "Unexpected marketplace id: $($identity.marketplace_id)" }
+          if ($identity.static_icons -ne $product.expected_static_icons -or $identity.animated_icons -ne $product.expected_animated_icons -or $identity.picker_entries -ne $product.expected_picker_entries) { throw 'Validated icon counts drifted.' }
+          if ($identity.qa_failures -ne 0 -or $identity.qa_warnings -ne 0) { throw 'Kit QA is not clean.' }
+          if ($identity.unique_glyphs -ne $product.expected_unique_glyphs -or $identity.reuse_groups -ne $product.expected_reuse_groups -or $identity.unexpected_reuse_groups -ne 0) { throw 'Structural reuse metrics drifted.' }
+          if ($identity.exact_visual_duplicate_groups -ne $product.expected_exact_visual_duplicate_groups) { throw 'Exact rendered visual duplicate count drifted.' }
+          if ($identity.search_icon_source -ne 'package-staging/icon.svg') { throw "Search icon provenance drifted: $($identity.search_icon_source)" }
+
+          if (-not $audit.pass) { throw 'FACTORY-RELEASE-AUDIT did not pass.' }
+          if ($audit.product_name -ne $product.name -or $audit.marketplace_metadata.name -ne $product.name) { throw "Persisted Marketplace name drifted: $($audit.marketplace_metadata.name)" }
+          if (-not $audit.marketplace_metadata.maker_prefix_absent) { throw 'Persisted Marketplace name contains the Maker prefix.' }
+          if ($audit.marketplace_metadata.description_characters -lt 250) { throw 'Persisted Marketplace description is below 250 characters.' }
+          if ($audit.structural_reuse.unique_glyphs -ne $product.expected_unique_glyphs -or $audit.structural_reuse.reuse_groups -ne $product.expected_reuse_groups -or $audit.structural_reuse.unexpected_groups -ne 0) { throw 'Persisted structural audit drifted.' }
+          if ($audit.exact_visual_duplicates.groups -ne $product.expected_exact_visual_duplicate_groups) { throw 'Persisted exact-duplicate audit drifted.' }
+          if (-not $audit.license.provenance_match -or $audit.license.canonical_sha256 -ne $product.expected_license_sha256 -or $audit.license.expected_canonical_sha256 -ne $product.expected_license_sha256) { throw 'Persisted canonical license payload drifted.' }
+          if (-not $audit.package_icon.provenance_match) { throw 'Package icon provenance check failed.' }
+          if ($audit.search_icon.source -ne 'package-staging/icon.svg' -or $audit.search_icon.width -ne 288 -or $audit.search_icon.height -ne 288) { throw 'Marketplace review product mark was not produced from staged product icon.svg at 288x288.' }
+
+          Add-Type -AssemblyName System.Drawing
+          $searchIconPath = Join-Path $kit '01_search_icon.png'
+          $searchBitmap = [System.Drawing.Image]::FromFile($searchIconPath)
+          try {
+            if ($searchBitmap.Width -ne 288 -or $searchBitmap.Height -ne 288) { throw "Marketplace review product mark dimensions are $($searchBitmap.Width)x$($searchBitmap.Height), expected 288x288." }
+          }
+          finally {
+            $searchBitmap.Dispose()
+          }
+
+          $required = @(
+            '01_search_icon.png',
+            '02_cover.png',
+            '03_gallery_01.png',
+            '04_gallery_02.png',
+            '05_gallery_03.png',
+            '06_gallery_04.png',
+            'submission.json',
+            'SOURCE-IDENTITY.json',
+            'FACTORY-RELEASE-AUDIT.json',
+            'ICON_PACK_MAN_NEXT.txt',
+            'PHYSICAL-TEST.txt',
+            'package-staging/icons.json',
+            'package-staging/icon.svg'
+          )
+          foreach ($relative in $required) {
+            if (-not (Test-Path (Join-Path $kit $relative))) { throw "Missing kit output: $relative" }
+          }
+          $dev = @(Get-ChildItem $kit -File -Filter '*-DEV.streamDeckIconPack')
+          $factoryAudit = @(Get-ChildItem $kit -File -Filter '*-iconpack-audit.zip')
+          if ($dev.Count -ne 1) { throw "Expected one development installer, found $($dev.Count)." }
+          if ($factoryAudit.Count -ne 1) { throw "Expected one audit ZIP, found $($factoryAudit.Count)." }
+          Write-Host "Icon pack Rat kit PASS: $($product.name); $($product.expected_static_icons) static + $($product.expected_animated_icons) animated = $($product.expected_picker_entries) picker entries; $($product.expected_unique_glyphs) distinct glyphs; $($product.expected_reuse_groups) reviewed reuse groups; $($product.expected_exact_visual_duplicate_groups) exact visual duplicate groups; canonical license pinned"
+
+      - name: Upload compact review evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ultimate-rgb-rat-kit-evidence
+          path: |
+            out/ship/ultimate-rgb/01_search_icon.png
+            out/ship/ultimate-rgb/02_cover.png
+            out/ship/ultimate-rgb/03_gallery_01.png
+            out/ship/ultimate-rgb/04_gallery_02.png
+            out/ship/ultimate-rgb/05_gallery_03.png
+            out/ship/ultimate-rgb/06_gallery_04.png
+            out/ship/ultimate-rgb/SOURCE-IDENTITY.json
+            out/ship/ultimate-rgb/FACTORY-RELEASE-AUDIT.json
+            out/ship/ultimate-rgb/submission.json
+            out/ship/ultimate-rgb/ICON_PACK_MAN_NEXT.txt
+            out/ship/ultimate-rgb/PHYSICAL-TEST.txt
+            out/ship/ultimate-rgb/*-DEV.streamDeckIconPack
+          if-no-files-found: error
+          retention-days: 14
