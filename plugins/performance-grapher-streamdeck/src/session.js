@@ -236,6 +236,7 @@ export class SessionTracker {
       current,
       lastCompleted: this.lastCompleted,
       recent: this.recent,
+      frametimeRecent: this.frametimeRecent,
     };
   }
 
@@ -253,6 +254,7 @@ export class SessionTracker {
       active,
       lastCompleted: this.lastCompleted ? { ...this.lastCompleted } : null,
       recent: this.recent.toJSON(),
+      frametimeRecent: this.frametimeRecent.toJSON(),
       savedAt: now,
     };
   }
@@ -274,6 +276,14 @@ export class SessionTracker {
         archiveMax: FPS_ARCHIVE_MAX,
         archiveMs: 1000,
         archiveMode: "min",
+      });
+    }
+    if (value.frametimeRecent) {
+      this.frametimeRecent = BoundedHistory.fromJSON(value.frametimeRecent, {
+        rawMax: FPS_RECENT_MAX,
+        archiveMax: FPS_ARCHIVE_MAX,
+        archiveMs: 1000,
+        archiveMode: "max",
       });
     }
 
