@@ -28,10 +28,10 @@ export type Device = RawDevice & {
 };
 
 export function stableId(raw: RawDevice): string {
-  const address = raw.address?.replace(/[^a-fA-F0-9]/g, "").toLowerCase();
-  if (address) return `bt:${address}`;
   const container = raw.containerId?.trim().toLowerCase();
   if (container) return `container:${container}`;
+  const address = raw.address?.replace(/[^a-fA-F0-9]/g, "").toLowerCase();
+  if (address) return `bt:${address}`;
   return `id:${raw.id.toLowerCase()}`;
 }
 
@@ -78,46 +78,89 @@ export function normalizeDevice(raw: RawDevice, now = Date.now()): Device {
   };
 }
 
+function mergeCurrentEndpoints(previous: Device | undefined, next: Device, now: number): Device {
+  if (!previous) return { ...next, lastObservedAt: now };
+
+  const mergedRaw: RawDevice = {
+    id: next.id || previous.id,
+    name: next.name !== "Bluetooth device" ? next.name : previous.name,
+    address: next.address ?? previous.address ?? null,
+    containerId: next.containerId ?? previous.containerId ?? null,
+    kind: previous.kind && next.kind && previous.kind !== next.kind ? "dual" : (next.kind ?? previous.kind ?? null),
+    paired: previous.paired !== false || next.paired !== false,
+    connected: previous.connected === true || next.connected === true,
+    present:
+      previous.present === true || next.present === true
+        ? true
+        : previous.present === false || next.present === false
+          ? false
+          : null,
+    batteryPercent: Number.isFinite(next.batteryPercent)
+      ? Number(next.batteryPercent)
+      : Number.isFinite(previous.batteryPercent)
+        ? Number(previous.batteryPercent)
+        : null,
+    charging: typeof next.charging === "boolean"
+      ? next.charging
+      : typeof previous.charging === "boolean"
+        ? previous.charging
+        : null,
+    control: {
+      connect: previous.control?.connect === true || next.control?.connect === true,
+      disconnect: previous.control?.disconnect === true || next.control?.disconnect === true
+    }
+  };
+
+  return {
+    ...normalizeDevice(mergedRaw, now),
+    stableId: previous.stableId,
+    lastObservedAt: now
+  };
+}
+
 export class DeviceCatalog {
   private devices = new Map<string, Device>();
   private aliases = new Map<string, string>();
 
   ingest(rawDevices: RawDevice[], now = Date.now()): Device[] {
-    const seen = new Set<string>();
+    const current = new Map<string, Device>();
+
     for (const raw of rawDevices) {
       if (!raw?.id) continue;
       const normalized = normalizeDevice(raw, now);
-      const container = raw.containerId?.trim().toLowerCase();
-      const sameContainer = container
-        ? [...this.devices.values()].find(d => d.containerId?.trim().toLowerCase() === container)
-        : undefined;
-      const resolvedId = this.devices.has(normalized.stableId)
-        ? normalized.stableId
-        : (sameContainer?.stableId ?? normalized.stableId);
+      const resolvedId = normalized.stableId;
       const next = { ...normalized, stableId: resolvedId };
-      seen.add(resolvedId);
-      const previous = this.devices.get(resolvedId);
-      this.devices.set(resolvedId, { ...previous, ...next, lastObservedAt: now });
+      current.set(resolvedId, mergeCurrentEndpoints(current.get(resolvedId), next, now));
       this.aliases.set(raw.id, resolvedId);
       this.aliases.set(normalized.stableId, resolvedId);
     }
-    for (const [id, device] of this.devices) {
-      if (!seen.has(id)) {
-        this.devices.set(id, {
-          ...device,
-          paired: false,
-          present: false,
-          connected: false,
-          capabilities: {
-            STATUS: true,
-            CONNECT: false,
-            DISCONNECT: false,
-            BATTERY: false,
-            CHARGING: false
-          }
-        });
-      }
+
+    const nextCatalog = new Map<string, Device>();
+    for (const [id, device] of current) {
+      nextCatalog.set(id, device);
     }
+
+    for (const [id, device] of this.devices) {
+      if (current.has(id)) continue;
+      nextCatalog.set(id, {
+        ...device,
+        paired: false,
+        present: false,
+        connected: false,
+        batteryPercent: null,
+        charging: null,
+        control: { connect: false, disconnect: false },
+        capabilities: {
+          STATUS: true,
+          CONNECT: false,
+          DISCONNECT: false,
+          BATTERY: false,
+          CHARGING: false
+        }
+      });
+    }
+
+    this.devices = nextCatalog;
     return this.list();
   }
 
