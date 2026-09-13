@@ -113,6 +113,17 @@ Native recording must preserve a Pro idle gap longer than 60 seconds accurately 
 
 Do not reduce the advertised 10-minute Pro limit.
 
+### 6. Only reserve Ctrl+Shift+F12 during active playback
+
+The current hook consumes the Ctrl+Shift+F12 key-down whenever the helper is running.
+
+Change the hook so:
+- active playback: Ctrl+Shift+F12 stops playback and consumes the emergency combination
+- no active playback: do not intercept the combination
+- recording without playback: do not create a partial Ctrl/Shift-only capture because F12 was suppressed
+
+Keep Ctrl+Shift+F12 as the documented emergency playback fallback, but do not reserve it globally while idle.
+
 ## Native safety constraints
 
 - Ignore injected hook events so playback is not re-recorded.
