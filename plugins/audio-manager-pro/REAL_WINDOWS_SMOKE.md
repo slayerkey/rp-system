@@ -7,6 +7,7 @@ Run this on the exact release candidate after `rat dev audio-manager-pro`.
 - [ ] applying Default output aligns both Windows Console and Multimedia output roles
 - [ ] manually drift Windows Multimedia output away from Console and confirm Audio Profile Status becomes INACTIVE
 - [ ] microphone A can be Default input while microphone B is Communications input
+- [ ] manually split Console vs Multimedia Default input and confirm Mute Default Mic refuses to toggle an ambiguous microphone
 - [ ] saved output volume restores correctly
 - [ ] saved mic volume restores correctly
 - [ ] saved mute states restore correctly
