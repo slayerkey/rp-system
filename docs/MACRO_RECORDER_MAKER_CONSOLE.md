@@ -20,7 +20,7 @@ Do not submit either edition until:
 - Submission metadata: `plugins/macro-recorder-lite/submission.json`
 - Marketplace app icon: `artifacts/marketplace/macro-recorder-lite/00-app-icon.png`
 - Thumbnail: `artifacts/marketplace/macro-recorder-lite/01-hero.png`
-- Gallery: `02-capture.png`, `03-edit.png`, `04-safety.png`
+- Gallery: `02-capture.png`, `03-edit.png`, `04-safety.png`, `05-profiles.png`
 - Thumbnail review sheet: `artifacts/marketplace/macro-recorder-lite/hero-thumbnail-review.png`
 
 Primary positioning:
@@ -49,7 +49,7 @@ Privacy:
 - Submission metadata: `plugins/macro-recorder-pro/submission.json`
 - Marketplace app icon: `artifacts/marketplace/macro-recorder-pro/00-app-icon.png`
 - Thumbnail: `artifacts/marketplace/macro-recorder-pro/01-hero.png`
-- Gallery: `02-capture.png`, `03-library.png`, `04-playback.png`
+- Gallery: `02-capture.png`, `03-library.png`, `04-playback.png`, `05-profiles.png`
 - Thumbnail review sheet: `artifacts/marketplace/macro-recorder-pro/hero-thumbnail-review.png`
 
 Primary positioning:
@@ -73,7 +73,7 @@ Privacy:
 The deterministic Rat Art pipeline must produce:
 - app icon: 288×288 PNG
 - thumbnail: 1920×960 PNG
-- three gallery images: 1920×960 PNG each
+- four gallery images: 1920×960 PNG each
 - plugin manifest icon: 256×256 + 512×512
 - category icon: 28×28 + 56×56
 - action-list icon: 20×20 + 40×40
