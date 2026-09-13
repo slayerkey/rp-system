@@ -89,11 +89,13 @@ test("whole internet outage needs two independent failed diagnostic cycles then 
       fallbackLatency: null
     })
   });
+  const firstFailureAt = nowRef.value;
   await monitor.runCycle();
   assert.equal(monitor.snapshot().connectivity.status, "suspected-offline");
   nowRef.value += 10_000;
   await monitor.runCycle();
   assert.equal(monitor.snapshot().connectivity.status, "offline");
+  assert.equal(monitor.snapshot().outages.at(-1).start, firstFailureAt);
   assert.equal(monitor.snapshot().outages.at(-1).end, null);
 
   online = true;
@@ -180,4 +182,54 @@ test("manual speed test is the only path that runs throughput and respects decla
   await monitor.runSpeedTest();
   assert.equal(speedCalls, 1);
   assert.equal(monitor.snapshot().latestSpeed.totalBytes, 10_000_000);
+});
+
+
+test("VPN-style route change can alter latency without creating an outage", async () => {
+  const nowRef = { value: 100_000 };
+  let latency = 24;
+  const { monitor } = makeMonitor({
+    nowRef,
+    ping: async () => ({ ok: true, ms: latency, method: "icmp" })
+  });
+  await monitor.runCycle();
+  latency = 72;
+  nowRef.value += 10_000;
+  await monitor.runCycle();
+  assert.equal(monitor.snapshot().connectivity.status, "online");
+  assert.equal(monitor.snapshot().outages.length, 0);
+  assert.equal(monitor.snapshot().metrics30.current, 72);
+});
+
+test("failed Target Health endpoints back off instead of being hammered", async () => {
+  const nowRef = { value: 100_000 };
+  const ctx = makeMonitor({
+    nowRef,
+    target: async () => ({ ok: false, ms: null, method: "tcp", error: "timeout" })
+  });
+  ctx.monitor.registerTarget("dead", { target: "dead.example", targetMethod: "tcp", targetPort: 443 });
+  await ctx.monitor.pollTargets();
+  assert.equal(ctx.targetCalls(), 1);
+  nowRef.value += 10_000;
+  await ctx.monitor.pollTargets();
+  assert.equal(ctx.targetCalls(), 1, "target remains in backoff before next due time");
+  nowRef.value += 20_000;
+  await ctx.monitor.pollTargets();
+  assert.equal(ctx.targetCalls(), 2);
+  const record = [...ctx.monitor.targets.values()][0];
+  assert.equal(record.failureStreak, 2);
+  assert.ok(record.nextPollAt >= nowRef.value + 60_000);
+});
+
+test("more than eight distinct targets are rotated rather than spawning more pollers", async () => {
+  const nowRef = { value: 100_000 };
+  const ctx = makeMonitor({ nowRef });
+  for (let i = 0; i < 10; i += 1) {
+    ctx.monitor.registerTarget("key-" + i, { target: "host-" + i + ".example", targetMethod: "tcp", targetPort: 443 });
+  }
+  await ctx.monitor.pollTargets();
+  assert.equal(ctx.targetCalls(), 8);
+  nowRef.value += 30_000;
+  await ctx.monitor.pollTargets();
+  assert.ok(ctx.targetCalls() >= 10, "second batch reaches the targets not included in the first capped batch");
 });
