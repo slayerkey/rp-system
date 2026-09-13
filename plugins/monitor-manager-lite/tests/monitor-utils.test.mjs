@@ -154,7 +154,7 @@ test("Lite binds monitor choice globally and never falls through from an externa
 });
 
 test("monitor discovery prefers the stable Windows target device path", async () => {
-  const helper=await readFile("../../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
+  const helper=await readFile("../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
   assert.match(helper,/DISPLAYCONFIG_TARGET_DEVICE_NAME/);
   assert.match(helper,/monitorDevicePath/);
   assert.match(helper,/StableMonitorPath/);
@@ -162,7 +162,7 @@ test("monitor discovery prefers the stable Windows target device path", async ()
 });
 
 test("native helper prefers dedicated HDR packet types and has no DISPLAY-number heuristic", async () => {
-  const helper=await readFile("../../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
+  const helper=await readFile("../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
   assert.match(helper,/DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2/);
   assert.match(helper,/header\.type = 15/);
   assert.match(helper,/DISPLAYCONFIG_SET_HDR_STATE/);
@@ -210,7 +210,7 @@ test("Lite manifest action UUIDs exactly match backend handlers", async () => {
 
 test("monitor scans are coalesced and slow DDC discovery gets a dedicated timeout", async () => {
   const runtimeSource=await readFile("src/runtime.ts","utf8");
-  const clientSource=await readFile("../../_shared/monitor-manager/monitor-client.ts","utf8");
+  const clientSource=await readFile("../_shared/monitor-manager/monitor-client.ts","utf8");
   assert.match(runtimeSource,/scanInFlight/);
   assert.match(runtimeSource,/request\("scan",\{\},30000\)/);
   assert.match(clientSource,/failPending\(error, true\)/);
@@ -218,7 +218,7 @@ test("monitor scans are coalesced and slow DDC discovery gets a dedicated timeou
 });
 
 test("successful DDC capability strings are cached while failed reads remain retryable", async () => {
-  const helper=await readFile("../../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
+  const helper=await readFile("../_shared/monitor-manager/windows/monitor-helper.ps1","utf8");
   assert.match(helper,/CapsCache/);
   assert.match(helper,/if \(!String\.IsNullOrWhiteSpace\(value\)\) CapsCache\[key\] = value/);
   assert.match(helper,/string stablePath = StableMonitorPath\(mi\.szDevice\) \?\? mi\.szDevice/);
