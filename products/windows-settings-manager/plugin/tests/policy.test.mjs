@@ -446,6 +446,16 @@ test("PowerShell backend does not shadow the automatic args variable", async () 
   assert.match(backend, /param\(\$InputArgs\)/);
 });
 
+test("Windows backend pins console JSON transport to UTF8 before reading requests", async () => {
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  const addType = backend.indexOf("Add-Type -TypeDefinition");
+  const inputEncoding = backend.indexOf("[Console]::InputEncoding = $script:utf8NoBom");
+  const outputEncoding = backend.indexOf("[Console]::OutputEncoding = $script:utf8NoBom");
+  assert.ok(inputEncoding >= 0 && inputEncoding < addType, "stdin encoding must be set before backend initialization");
+  assert.ok(outputEncoding >= 0 && outputEncoding < addType, "stdout encoding must be set before backend initialization");
+  assert.match(backend, /New-Object System\.Text\.UTF8Encoding\(\$false\)/);
+});
+
 test("Windows JSON-line smoke transport avoids PowerShell args/BOM corruption", async () => {
   const smoke = await readFile(path.resolve("scripts", "backend-smoke.ps1"), "utf8");
   const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
