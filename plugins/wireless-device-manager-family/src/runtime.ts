@@ -34,6 +34,10 @@ export class WirelessRuntime {
     return () => this.listeners.delete(listener);
   }
 
+  notify(): void {
+    this.notify();
+  }
+
   devices(): Device[] {
     return this.catalog.list();
   }
@@ -59,7 +63,7 @@ export class WirelessRuntime {
     if (shouldApplySnapshot(result.ok, result.adapterAvailable)) {
       this.catalog.ingest(result.devices);
     }
-    for (const listener of this.listeners) listener();
+    this.notify();
     await this.sendInspector();
   }
 
