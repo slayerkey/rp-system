@@ -13,7 +13,12 @@ for(const [edition,root,prefix] of roots){
     const manifest=JSON.parse(await readFile(path.join(root,"manifest.json"),"utf8"));
     assert.equal(manifest.OS[0].Platform,"windows");
     assert.equal(manifest.Profiles.length,3);
-    for(const action of manifest.Actions) assert.deepEqual(action.Controllers,["Keypad"]);
+    for(const action of manifest.Actions) {
+      assert.deepEqual(action.Controllers,["Keypad"]);
+      for (const state of action.States ?? []) {
+        if ("FontSize" in state) assert.equal(typeof state.FontSize, "number");
+      }
+    }
   });
   for(const suffix of ["standard","xl","plus"]){
     test(`${edition} ${suffix} profile archive is deterministic Stream Deck shape`,async()=>{
