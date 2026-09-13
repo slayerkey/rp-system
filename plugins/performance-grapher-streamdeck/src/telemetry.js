@@ -404,6 +404,7 @@ export class TelemetryService extends EventEmitter {
           sensorType: String(sensor.sensorType || ""),
           hardwareType: String(sensor.hardwareType || ""),
           hardwareName: String(sensor.hardwareName || ""),
+          hardwareId: String(sensor.hardwareId || ""),
         });
       }
       this._selectAliases();
@@ -417,6 +418,7 @@ export class TelemetryService extends EventEmitter {
 
     const at = finite(message.at) ?? Date.now();
     this.session.setForeground(message.foregroundProcess);
+    this._selectAliases(message.values);
     for (const [id, value] of Object.entries(message.values)) {
       const descriptor = this.catalog.get(id);
       this._setMetric(id, value, at, descriptor);
@@ -442,19 +444,67 @@ export class TelemetryService extends EventEmitter {
     this.emit("update", { kind: "sensor" });
   }
 
-  _selectAliases() {
-    this.aliases.clear();
-    for (const target of ["gpu.temperature", "cpu.temperature", "gpu.load", "gpu.power", "cpu.power"]) {
-      let best = null;
-      let bestScore = -1;
-      for (const sensor of this.hardwareCatalog) {
-        const score = descriptorScore(sensor, target);
-        if (score > bestScore) {
-          best = sensor.id;
-          bestScore = score;
-        }
+  _hardwareKey(sensor) {
+    const id = String(sensor?.hardwareId || "").trim();
+    if (id) return id;
+    return norm(sensor?.hardwareType) + "|" + norm(sensor?.hardwareName);
+  }
+
+  _bestAliasSensor(target, sensors) {
+    let best = null;
+    let bestScore = -1;
+    for (const sensor of sensors) {
+      const score = descriptorScore(sensor, target);
+      if (score > bestScore) {
+        best = sensor;
+        bestScore = score;
       }
-      if (best && bestScore >= 0) this.aliases.set(target, best);
+    }
+    return bestScore >= 0 ? best : null;
+  }
+
+  _selectAliases(values = null) {
+    this.aliases.clear();
+
+    for (const target of ["cpu.temperature", "cpu.power"]) {
+      const best = this._bestAliasSensor(target, this.hardwareCatalog);
+      if (best?.id) this.aliases.set(target, best.id);
+    }
+
+    const gpuGroups = new Map();
+    for (const sensor of this.hardwareCatalog) {
+      if (!norm(sensor.hardwareType).includes("gpu")) continue;
+      const key = this._hardwareKey(sensor);
+      if (!gpuGroups.has(key)) gpuGroups.set(key, []);
+      gpuGroups.get(key).push(sensor);
+    }
+
+    let selectedKey = null;
+    let selectedLoad = -Infinity;
+    let selectedScore = -1;
+
+    for (const [key, sensors] of gpuGroups) {
+      const loadSensor = this._bestAliasSensor("gpu.load", sensors);
+      if (!loadSensor) continue;
+      const load = finite(values?.[loadSensor.id]);
+      const score = descriptorScore(loadSensor, "gpu.load");
+      if (load !== null) {
+        if (selectedKey === null || load > selectedLoad || (load === selectedLoad && score > selectedScore)) {
+          selectedKey = key;
+          selectedLoad = load;
+          selectedScore = score;
+        }
+      } else if (selectedKey === null && score > selectedScore) {
+        selectedKey = key;
+        selectedScore = score;
+      }
+    }
+
+    if (selectedKey === null && gpuGroups.size) selectedKey = gpuGroups.keys().next().value;
+    const selectedGpu = selectedKey === null ? [] : gpuGroups.get(selectedKey) || [];
+    for (const target of ["gpu.temperature", "gpu.load", "gpu.power"]) {
+      const best = this._bestAliasSensor(target, selectedGpu);
+      if (best?.id) this.aliases.set(target, best.id);
     }
   }
 
