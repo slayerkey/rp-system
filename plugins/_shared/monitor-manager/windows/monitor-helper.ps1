@@ -373,7 +373,7 @@ public static class MonitorNative {
             hdr.header.adapterId = paths[i].targetInfo.adapterId;
             hdr.header.id = paths[i].targetInfo.id;
             IntPtr hp = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2)));
-            int hdrRc;
+            int hdrRc = -1;
             try {
                 Marshal.StructureToPtr(hdr, hp, false);
                 hdrRc = DisplayConfigGetDeviceInfo(hp);
