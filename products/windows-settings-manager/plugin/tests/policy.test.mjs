@@ -131,6 +131,15 @@ test("timeout settings reject blank, negative and out-of-range values instead of
   assert.match(html, /max="4294967295"/);
 });
 
+test("display cycling never guesses from an unknown mixed topology", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
+  const html = await readFile(path.resolve("ui", "config.html"), "utf8");
+  assert.match(actions, /if \(index < 0\) return ev\.action\.showAlert\(\)/);
+  assert.match(inspector, /liveTopology\) \? liveTopology : ""/);
+  assert.match(html, /<option value="">Choose topology<\/option>/);
+});
+
 test("individual set actions fall back to the live value shown by the inspector", async () => {
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
