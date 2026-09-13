@@ -8,7 +8,9 @@ streamDeck.actions.registerAction(new ProDeviceAction(runtime));
 streamDeck.actions.registerAction(new DashboardAction(runtime));
 streamDeck.actions.registerAction(new CycleDeviceAction(runtime));
 streamDeck.ui.onDidAppear(() => void runtime.sendInspector());
-streamDeck.ui.onSendToPlugin(() => void runtime.sendInspector());
+streamDeck.ui.onSendToPlugin((ev) => {
+  if ((ev.payload as any)?.type === "get-wireless-snapshot") void runtime.sendInspector();
+});
 
 streamDeck.connect().then(async () => {
   try {
