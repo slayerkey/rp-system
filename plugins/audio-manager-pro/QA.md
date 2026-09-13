@@ -12,21 +12,35 @@ Status: **TESTING**
 
 The product implementation is complete enough for release-candidate testing, but it is **not READY_TO_SHIP** yet.
 
-Current external blocker:
+Automated release gate: **PASS**
 
-- GitHub Actions jobs are presently failing before runner allocation. The failed jobs report no executed steps (`steps = null`), so the corrected branch head has not yet completed the official Elgato validate/package gate.
+GitHub Actions run **34770048489** completed successfully on the current implementation head and passed:
+
+- Windows runner setup
+- shared `PackRat.AudioCore` .NET build
+- existing XENEON `PackRat.AudioBridge` regression build
+- locked npm install
+- high-severity npm audit
+- full npm test suite
+- complete Audio Manager build including self-contained win-x64 helper publish
+- Audio Manager static host audit on Windows PowerShell
+- native helper self-test
+- real Windows helper `snapshot` protocol smoke
+- rejected-command request-correlation smoke
+- official Elgato CLI validation
+- official `.streamDeckPlugin` packaging
+- packaged native-helper verification
+- deterministic Rat Art / Marketplace rendering
+- release-QA artifact upload
 
 Still required before READY_TO_SHIP:
 
-- current-head locked dependency install/audit
-- current-head automated fixture suite
-- current-head shared AudioCore + XENEON regression build
-- current-head bundled Windows helper build/self-test
-- current-head Audio Manager static host audit on Windows PowerShell
-- official Elgato CLI validation
-- official `.streamDeckPlugin` packaging
-- final physical Windows audio-device smoke
-- physical Stream Deck + dial smoke
+- `rat dev audio-manager-pro` on the real target Windows machine
+- read-only `rat audit audio-manager-pro` against that exact active candidate
+- final physical USB / Bluetooth / multi-microphone audio-device smoke
+- physical Stream Deck + dial / press / touch smoke
+- Windows sleep/wake action + Property Inspector event smoke
+- reboot / Stream Deck restart persistence smoke
 - real-hardware Marketplace demonstration video, if required by the live Maker Console/review flow
 
 ## Automated evidence already obtained
@@ -44,7 +58,7 @@ A prior Windows product run, GitHub Actions run **34739703004**, executed succes
 
 That run then caught a syntax error in the new Stream Deck + dial path during bundle build. The defect was fixed in commit `cd084c68e1bc8527322a27cc256ac3672144bd5f`.
 
-After that fix, subsequent Windows and temporary Ubuntu workflow attempts began failing before any runner step started. This is treated as infrastructure evidence, not as a product pass.
+After that fix, a series of workflow attempts failed before runner allocation. Runner capacity later recovered, and current Windows run **34770048489** completed every automated release step successfully. The earlier no-runner failures are retained only as historical infrastructure evidence.
 
 ## Off-runner implementation checks
 
@@ -67,7 +81,7 @@ The Windows CI definition now performs both the helper executable self-test and 
 
 The product also exposes a read-only local host audit through `rat audit audio-manager-pro`. It snapshots the exact validated candidate and host environment without issuing any audio mutation commands. CI runs the same audit in `-StaticOnly` mode so PowerShell syntax and packaged-file assumptions are checked on the Windows runner.
 
-These checks do not replace the official Elgato CLI or physical Windows hardware gate.
+The official Elgato CLI validation/package gate is now green in Windows CI. These automated checks still do not replace the physical Windows / Stream Deck hardware gate.
 
 ## Device resilience contract
 
