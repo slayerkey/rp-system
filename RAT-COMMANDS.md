@@ -177,6 +177,10 @@ See `docs/RAT-DEV-RELIABILITY.md` for the full external lifecycle contract and f
 
 Products sourced from RatPack itself keep the established internal worktree path in `tools/local/rat-dev.ps1`.
 
+For pre-merge product work, Rat Dev prefers an exact `origin/product/<slug>` branch when one exists. Lite/Pro families may also share a family branch such as `origin/product/macro-recorder`; Rat Dev discovers that branch by verifying which product branch actually contains `plugins/<slug>` or `widgets/_src/<slug>`. If multiple unrelated product branches contain the same slug, resolution fails closed instead of guessing.
+
+Missing `rat-dev.json` files are treated as normal probes for internal products, so a pre-merge product can still be built by source inference when the plugin directory and manifest are unambiguous.
+
 For XENEON widgets Rat Dev automatically detects `widgets/_src/<slug>` and:
 
 1. Reuses the ignored detached development worktree.
