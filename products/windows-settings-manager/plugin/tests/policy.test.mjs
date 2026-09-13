@@ -139,6 +139,17 @@ test("timeout writes preserve PARTIAL instead of collapsing it into FAILED", asy
   assert.match(actions, /setTimeout[\s\S]*reply\.result\?\.status !== "COMPLETE"/);
 });
 
+test("dependent mode settings are skipped when their prerequisite was not confirmed", async () => {
+  const source = await readFile(path.resolve("src", "modes.ts"), "utf8");
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  assert.match(source, /Skipped HDR because the requested display topology was not confirmed/);
+  assert.match(source, /Skipped timeouts because the requested power plan was not confirmed/);
+  assert.match(source, /key === "hdr" && settings\.topology/);
+  assert.match(source, /key === "timeout" && settings\.powerPlanGuid/);
+  assert.match(backend, /string\.Equals\(GetTopology\(\), topology/);
+  assert.match(backend, /if \(current == enabled\) return true;/);
+});
+
 test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async () => {
   const source = await readFile(path.resolve("src", "modes.ts"), "utf8");
   assert.match(source, /"COMPLETE"/);
