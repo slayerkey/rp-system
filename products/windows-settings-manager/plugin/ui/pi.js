@@ -167,14 +167,15 @@ function renderContext() {
 
   const live = document.getElementById("live");
   live.textContent = "";
+  const offline = Boolean(snapshot && !snapshot.backendOnline);
   const rows = snapshot ? [
-    ["Backend", snapshot.backendOnline ? "Connected" : "Offline"],
-    ["HDR", hdrLabel(snapshot.hdr)],
-    ["Display", String(snapshot.topology || "unknown").toUpperCase()],
-    ["Power", snapshot.powerPlanName || "Unknown"],
-    ["Screen AC", duration(snapshot.timeout?.monitorAcSeconds)],
-    ["Sleep AC", duration(snapshot.timeout?.sleepAcSeconds)],
-    ["Keep Awake", snapshot.keepAwake ? "On" : "Off"],
+    ["Backend", offline ? "Offline" : "Connected"],
+    ["HDR", offline ? "Offline" : hdrLabel(snapshot.hdr)],
+    ["Display", offline ? "Offline" : String(snapshot.topology || "unknown").toUpperCase()],
+    ["Power", offline ? "Offline" : (snapshot.powerPlanName || "Unknown")],
+    ["Screen AC", offline ? "Offline" : duration(snapshot.timeout?.monitorAcSeconds)],
+    ["Sleep AC", offline ? "Offline" : duration(snapshot.timeout?.sleepAcSeconds)],
+    ["Keep Awake", offline ? "Offline" : (snapshot.keepAwake ? "On" : "Off")],
     ["Windows build", snapshot.osBuild || "Unknown"]
   ] : [["Backend", "Waiting"]];
   for (const [label, value] of rows) {
