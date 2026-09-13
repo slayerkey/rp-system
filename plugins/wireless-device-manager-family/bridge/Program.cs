@@ -148,10 +148,10 @@ internal static class Program
                 control = new ControlDto
                 {
                     // A disconnected audio endpoint may no longer enumerate an enabled service,
-                    // so CONNECT retains the standard audio-class fallback while requiring the
-                    // device to be presently discoverable. DISCONNECT requires an enabled
-                    // service plus a live connected state.
-                    connect = audioClass && present != false,
+                    // so CONNECT uses the classic Audio/Video class but only while Windows
+                    // positively reports the paired device as present. DISCONNECT requires an
+                    // enabled service plus a live connected state.
+                    connect = audioClass && present == true,
                     disconnect = audioClass && connected && installedAudioService
                 }
             };
