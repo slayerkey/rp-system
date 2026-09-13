@@ -359,3 +359,31 @@ test("frametime series preserves the worst raw frame instead of FPS bucket avera
   assert.equal(telemetry.metricSeries("game.frametime", 60_000).at(-1)[1], 45);
   assert.ok(telemetry.metricSeries("game.fps", 60_000).at(-1)[1] < 100);
 });
+
+
+test("hardware retry delay backs off and resets after provider recovery", () => {
+  const child = fakeHardwareChild();
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "provider-backoff"),
+    persistPath: resolve(tmpdir(), "packrat-provider-backoff.json"),
+    spawnProcess: () => child,
+    createLineInterface: fakeHardwareLines,
+    presentMonProvider: fakeProvider(),
+  });
+
+  assert.equal(telemetry.hardwareBackoffMs, 5000);
+  telemetry._startHardware();
+  child.emit("error", new Error("spawn blocked"));
+  child.emit("close", -1);
+  assert.equal(telemetry.hardwareBackoffMs, 9000);
+  clearTimeout(telemetry.hardwareBackoff);
+  telemetry.hardwareBackoff = null;
+
+  telemetry._scheduleHardwareRestart();
+  assert.equal(telemetry.hardwareBackoffMs, 16200);
+  clearTimeout(telemetry.hardwareBackoff);
+  telemetry.hardwareBackoff = null;
+
+  telemetry._consumeHardwareLine(JSON.stringify({ type: "catalog", sensors: [] }));
+  assert.equal(telemetry.hardwareBackoffMs, 5000);
+});
