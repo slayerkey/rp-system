@@ -50,10 +50,11 @@ export function normalizeProfile(raw) {
       slots[def.key] = null;
       continue;
     }
+    const restoreVolume = source.restoreVolume === true;
     slots[def.key] = {
       device: endpointIdentity(source.device),
-      restoreVolume: source.restoreVolume === true,
-      volume: clampVolume(source.volume),
+      restoreVolume,
+      volume: restoreVolume ? clampVolume(source.volume) : null,
       restoreMute: source.restoreMute === true,
       muted: source.muted === true,
     };
