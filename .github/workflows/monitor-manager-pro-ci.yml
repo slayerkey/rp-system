@@ -1,6 +1,9 @@
 name: Monitor Manager Pro CI
 
 on:
+  push:
+    branches:
+      - product/monitor-manager-pro
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
@@ -25,7 +28,7 @@ concurrency:
 
 jobs:
   windows-streamdeck:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     runs-on: windows-latest
     steps:
       - name: Checkout
