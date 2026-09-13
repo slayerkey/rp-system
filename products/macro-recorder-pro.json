@@ -4,8 +4,8 @@
   "type": "plugin",
   "status": "built",
   "workflow_state": "TESTING",
-  "blocker_kind": "ci_runner_unavailable_and_final_host_validation",
-  "blocker": "GitHub-hosted Actions is currently creating the Windows job without assigning a runner. Run plugins/macro-recorder-pro/run-family-qa.ps1 locally or restore hosted-runner availability, then complete the documented Windows + physical Stream Deck smoke matrix.",
+  "blocker_kind": "native_long_idle_timing_ci_runner_unavailable_and_final_host_validation",
+  "blocker": "Before shipping, preserve Pro single-event delays beyond 60 seconds up to the recording-duration limit. GitHub-hosted Actions is also not assigning the Windows runner, so run the local family QA or restore hosted-runner availability, then complete the Windows + physical Stream Deck smoke matrix.",
   "final_boundary": "Do not move to READY_TO_SHIP until docs/MACRO_RECORDER_QA.md final host/device checks pass.",
   "price_usd": 7.99,
   "version": "1.0.0.0",
@@ -64,7 +64,8 @@
     "mouse drag/wheel smoke",
     "loop cancellation smoke",
     "library corruption/import-export smoke",
-    "physical Stream Deck emergency stop smoke"
+    "physical Stream Deck emergency stop smoke",
+    "single idle gap over 60 seconds preserves recorded timing"
   ],
   "ci_runner_state": {
     "observed_at": "2026-09-13",
