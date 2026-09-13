@@ -113,6 +113,18 @@ test("matching profile status checks roles and restored state",()=>{
   assert.equal(profileMatchesSnapshot(p,s),false);
 });
 
+test("profile status fails closed when requested volume cannot be read",()=>{
+  const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
+  s.outputs[0]={...s.outputs[0],volumeAvailable:false,volume:null};
+  assert.equal(profileMatchesSnapshot(p,s),false);
+});
+
+test("profile status fails closed when requested mute cannot be read",()=>{
+  const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
+  s.inputs[0]={...s.inputs[0],muteAvailable:false};
+  assert.equal(profileMatchesSnapshot(p,s),false);
+});
+
 test("rapid profile planning is deterministic and does not mutate profiles",()=>{
   const s=snap();
   const a=captureProfileFromSnapshot("HEADSET",s,"a");
