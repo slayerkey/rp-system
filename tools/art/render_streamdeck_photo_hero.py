@@ -128,12 +128,10 @@ def monitor_title(canvas: Image.Image) -> None:
     gd.ellipse((-100, 210, panel.width+100, 600), fill=(*ORANGE, 32))
     panel.alpha_composite(glow.filter(ImageFilter.GaussianBlur(48)))
 
-    f1 = fit(d, "AUTO QUEUE", int(panel.width*0.78), 112, 58)
-    f2 = fit(d, "CLAUDE CODE", int(panel.width*0.82), 120, 58)
-    fs = fit(d, "for Stream Deck", int(panel.width*0.55), 44, 28, False)
-    d.text((panel.width//2, 105), "AUTO QUEUE", font=f1, fill=(*WHITE,255), anchor="mm")
-    d.text((panel.width//2, 235), "CLAUDE CODE", font=f2, fill=(*ORANGE,255), anchor="mm")
-    d.text((panel.width//2, 350), "for Stream Deck", font=fs, fill=(*WHITE,255), anchor="mm")
+    f1 = fit(d, "AUTO QUEUE", int(panel.width*0.78), 96, 54)
+    f2 = fit(d, "FOR CLAUDE CODE", int(panel.width*0.74), 60, 36)
+    d.text((panel.width//2, 86), "AUTO QUEUE", font=f1, fill=(*WHITE,255), anchor="mm")
+    d.text((panel.width//2, 178), "FOR CLAUDE CODE", font=f2, fill=(*ORANGE,255), anchor="mm")
     canvas.alpha_composite(panel, (x1, y1))
 
 
