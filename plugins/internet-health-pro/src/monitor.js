@@ -338,20 +338,27 @@ export class NetworkMonitor extends EventEmitter {
 
   async runSpeedTest() {
     if (this.speedPromise) return this.speedPromise;
-    this.speedRunning = true;
-    this.emitUpdate();
-    this.speedPromise = this.probe.runCloudflareSpeedTest({
-      downloadBytes: 8_000_000,
-      uploadBytes: 2_000_000,
-      timeoutMs: 25_000
-    }).then((result) => {
-      this.history.addSpeedTest(result);
-      this.history.flush(true);
-      return result;
-    }).finally(() => {
-      this.speedRunning = false;
-      this.speedPromise = null;
+    this.speedPromise = (async () => {
+      if (this.cyclePromise) {
+        try { await this.cyclePromise; } catch {}
+      }
+      this.speedRunning = true;
       this.emitUpdate();
+      try {
+        const result = await this.probe.runCloudflareSpeedTest({
+          downloadBytes: 8_000_000,
+          uploadBytes: 2_000_000,
+          timeoutMs: 25_000
+        });
+        this.history.addSpeedTest(result);
+        this.history.flush(true);
+        return result;
+      } finally {
+        this.speedRunning = false;
+        this.emitUpdate();
+      }
+    })().finally(() => {
+      this.speedPromise = null;
       if (this.running) this.schedule(50);
     });
     return this.speedPromise;
