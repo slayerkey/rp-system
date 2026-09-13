@@ -36,7 +36,7 @@ Libre Hardware Monitor can expose many GPU sensors without extra setup, but some
 
 - Hardware sensors: 1 Hz.
 - Windows CPU/RAM fallback: 1 Hz.
-- Frame aggregation: 100 ms buckets; raw events are not persisted.
+- Frame aggregation: 100 ms graph buckets; raw events are not persisted. Average FPS and 1% / 0.1% lows are calculated from accepted raw frame times before graph aggregation.
 - FPS key rendering: maximum 4 image updates/second and only when visible.
 - Hardware key rendering: maximum 1 image update/second.
 - Sensor raw history: 15 minutes at 1 Hz.
