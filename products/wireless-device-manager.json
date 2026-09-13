@@ -13,5 +13,57 @@
   "hardware_smoke": "REQUIRED_BEFORE_READY_TO_SHIP",
   "notes": "Free Lite edition. One selected device. Battery/charging/control are capability-gated and never claimed universally.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager.sdPlugin",
-  "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json"
+  "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json",
+  "blocker": "Physical Bluetooth hardware QA is still required. The hosted Windows runner proves compile, tests, startup, validation and packaging but has no paired Bluetooth hardware.",
+  "release_gate": [
+    "locked dependency install and npm audit with 0 vulnerabilities",
+    "51 deterministic model/package/profile/catalog/source regressions",
+    "ten generated profiles across Lite/Pro: Standard, Mini, XL, Plus and Neo",
+    "x64 and ARM64 self-contained native Windows Bluetooth bridge publish",
+    "one-shot bridge snapshot and persistent stdio protocol smoke",
+    "official Elgato Stream Deck CLI validation",
+    "official .streamDeckPlugin packaging",
+    "deterministic Marketplace media generation",
+    "PackRat Lite Pro Portfolio Audit and Rat Ship Marketplace Routing CI",
+    "real Windows Bluetooth hardware matrix before release"
+  ],
+  "automated_release_evidence": {
+    "candidate_commit": "95ce3902bd6a49f4b5d2b196fd5fd7d26334a30a",
+    "github_actions_run": 34785291188,
+    "windows_job": 103799541037,
+    "status": "PASSED",
+    "artifact_id": 10326163681,
+    "artifact_digest": "sha256:202939d672004dd10934634e9c7cb07c014524d5314c84c01f059d2bd308ecfd",
+    "package_sha256": "AE8BB54B95E2FBF31DE45A61E7E44C51DF27E5DC5D9584CA4A152C67FE8F1053",
+    "package_size_bytes": 70949723
+  },
+  "catalog_audit": {
+    "profiles": {
+      "included": true,
+      "device_types": [
+        0,
+        1,
+        2,
+        7,
+        9
+      ],
+      "devices": [
+        "Stream Deck",
+        "Stream Deck Mini",
+        "Stream Deck XL",
+        "Stream Deck +",
+        "Stream Deck Neo"
+      ],
+      "decision": "intentional",
+      "note": "Lite bundles MY DEVICE, BATTERY and CONNECT keys around one shared selected Bluetooth device. Plus/Neo remain key-only with no fake Encoder action."
+    },
+    "upsell": {
+      "classification": "lite_to_pro",
+      "pro_id": "wireless-device-manager-pro",
+      "verified_against": "products/lite-pro-map.json",
+      "current_public_pro_url": null,
+      "behavior": "Text upsell is visible now; clickable Marketplace link is generated only after a verified direct Pro URL exists in the canonical Lite/Pro map."
+    }
+  },
+  "final_boundary": "Run the QA.md physical matrix on real headphones/headset, keyboard, mouse and controller; verify real A2DP/HFP connect/disconnect reliability; publish Pro first; record its verified direct Marketplace URL; rebuild Lite with the catalog-injected exact Pro link; then submit Lite."
 }
