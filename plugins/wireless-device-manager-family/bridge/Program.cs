@@ -205,6 +205,9 @@ internal static class Program
             var address = StringProp(info, AddressKey);
             var containerId = StringProp(info, ContainerKey);
             var hasAudioService = classic && audioServices.Contains(info.Id, containerId);
+            var controlId = hasAudioService && !string.IsNullOrWhiteSpace(address)
+                ? NormalizeAddress(address)
+                : null;
 
             var battery = ByteProp(info, BatteryKey);
             var plusCharging = ByteProp(info, BatteryChargingKey);
@@ -226,6 +229,7 @@ internal static class Program
             var next = new DeviceDto
             {
                 id = address is not null ? NormalizeAddress(address) : info.Id,
+                controlId = controlId,
                 nativeId = info.Id,
                 name = string.IsNullOrWhiteSpace(info.Name) ? "Bluetooth device" : info.Name,
                 address = address is null ? null : NormalizeAddress(address),
@@ -240,8 +244,8 @@ internal static class Program
                 {
                     // AEP Service objects are Windows' service-contract view of what the paired
                     // Bluetooth endpoint supports. Do not infer control from device class alone.
-                    connect = hasAudioService && present == true,
-                    disconnect = hasAudioService && connected
+                    connect = controlId is not null && present == true,
+                    disconnect = controlId is not null && connected
                 }
             };
 
@@ -255,6 +259,7 @@ internal static class Program
     private static DeviceDto Merge(DeviceDto a, DeviceDto b) => new()
     {
         id = !string.IsNullOrWhiteSpace(b.id) ? b.id : a.id,
+        controlId = b.control.connect || b.control.disconnect ? b.controlId : a.controlId,
         nativeId = b.nativeId ?? a.nativeId,
         name = b.name != "Bluetooth device" ? b.name : a.name,
         address = b.address ?? a.address,
@@ -371,6 +376,7 @@ internal static class Program
     private sealed class DeviceDto
     {
         public string id { get; set; } = "";
+        public string? controlId { get; set; }
         public string? nativeId { get; set; }
         public string name { get; set; } = "";
         public string? address { get; set; }
