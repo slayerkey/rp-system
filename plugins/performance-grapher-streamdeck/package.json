@@ -9,7 +9,7 @@
     "check": "npm run test && npm run build",
     "validate": "streamdeck validate com.packrat.performance-grapher.sdPlugin --no-update-check",
     "pack": "streamdeck pack com.packrat.performance-grapher.sdPlugin --no-update-check --force --no-file-list --output dist",
-    "check:syntax": "node --check ui/inspector.js && node --check src/history.js && node --check src/stats.js && node --check src/session.js && node --check src/presentmon.js && node --check src/telemetry.js && node --check src/render.js && node --check src/plugin.js && node --check scripts/build.mjs && node --check scripts/cleanup-build.mjs && node --check scripts/dotnet-license-inventory.mjs && node --check scripts/npm-license-inventory.mjs"
+    "check:syntax": "node scripts/check-js-syntax.mjs"
   },
   "dependencies": {
     "@elgato/streamdeck": "2.1.2"
