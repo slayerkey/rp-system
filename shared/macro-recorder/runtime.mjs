@@ -392,6 +392,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
           record.settings = settingsFor("replay", next);
         } else if (command === "saveMacro" && pro) {
           await library.update(String(payload.macroId || record.settings.macroId), payload.macro || {});
+          await renderAll();
         } else if (command === "deleteMacro" && pro) {
           const id = String(payload.macroId || record.settings.macroId);
           await library.remove(id);
@@ -400,6 +401,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
             await record.action.setSettings(next);
             record.settings = settingsFor("replay", next);
           }
+          await renderAll();
         } else if (command === "duplicateMacro" && pro) {
           const macro = library.get(String(payload.macroId || record.settings.macroId));
           if (macro) {
