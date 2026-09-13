@@ -63,10 +63,12 @@ Acceptance:
 
 Current native recording clamps a single delay between events to 60 seconds even though Pro supports recordings up to 10 minutes.
 
-Required behavior:
-- Lite may remain bounded by its 30-second total recording limit
-- Pro must preserve a single idle gap accurately up to the 10-minute total recording limit
-- editor/model validation should permit the same truthful delay range for Pro
+Current non-native status:
+- Lite editor/model remains bounded by its truthful 30-second edition limit
+- Pro editor/import/playback now accepts a single delay up to the full 10-minute edition limit
+
+Required native behavior:
+- Pro recording capture must preserve a single idle gap accurately up to the 10-minute total recording limit
 
 Acceptance:
 - Pro: record event A, wait more than 60 seconds, record event B, stop
