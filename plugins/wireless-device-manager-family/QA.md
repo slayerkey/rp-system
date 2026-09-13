@@ -8,7 +8,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 
 ## Hardware-free evidence completed
 
-- [x] 49 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
+- [x] 50 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
 - [x] capability flags are per device rather than global
 - [x] A2DP/HFP control eligibility is derived from Windows AssociationEndpointService contracts rather than broad Audio/Video device-class inference
 - [x] group names are canonicalized case-insensitively so `gaming` and `GAMING` feed the same dashboard
@@ -28,6 +28,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 - [x] sleep/resume-style device transitions restore live telemetry
 - [x] multiple-device summary is covered
 - [x] favorites / Cycle Device ordering is deterministic
+- [x] Cycle Device skips cached unpaired favorites while dashboards may still report missing grouped devices
 - [x] low-battery transition alerts are covered
 - [x] Dashboard LOW count respects per-device thresholds
 - [x] Lite uses one shared selected device while Pro supports independent keys plus linked logical profile slots
