@@ -446,6 +446,16 @@ test("PowerShell backend does not shadow the automatic args variable", async () 
   assert.match(backend, /param\(\$InputArgs\)/);
 });
 
+test("Windows JSON-line smoke transport avoids PowerShell args/BOM corruption", async () => {
+  const smoke = await readFile(path.resolve("scripts", "backend-smoke.ps1"), "utf8");
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  assert.match(smoke, /StandardInputEncoding = New-Object System\.Text\.UTF8Encoding\(\$false\)/);
+  assert.match(smoke, /function Request\(\[int\]\$Id, \[string\]\$Op, \$RequestArgs = @\{\}\)/);
+  assert.doesNotMatch(smoke, /function Request\([^\n]*\$Args/);
+  assert.match(smoke, /ConvertTo-Json -Depth 6 -Compress/);
+  assert.match(backend, /\$line = \$line\.TrimStart\(\[char\]0xFEFF\)/);
+});
+
 test("Windows smoke enforces the safe HDR API boundary", async () => {
   const smoke = await readFile(path.resolve("scripts", "backend-smoke.ps1"), "utf8");
   assert.match(smoke, /osBuild -lt 26100[\s\S]*hdr\.api -ne "unavailable"/);
