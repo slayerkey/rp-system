@@ -12,13 +12,13 @@ export function clamp(value, min, max) {
   return Math.max(min, Math.min(max, number));
 }
 
-export function normalizeEvent(raw = {}, { pro = true } = {}) {
+export function normalizeEvent(raw = {}, { pro = true, maxDelayMs = pro ? PRO_LIMITS.maxDurationMs : LITE_LIMITS.maxDurationMs } = {}) {
   if (!TYPES.has(raw.type)) return null;
   const type = raw.type;
   if (!pro && !type.startsWith("key")) return null;
   const out = {
     type,
-    delayMs: Math.round(clamp(raw.delayMs ?? 0, 0, 60_000)),
+    delayMs: Math.round(clamp(raw.delayMs ?? 0, 0, maxDelayMs)),
   };
   if (type.startsWith("key")) {
     const vk = Number(raw.vk);
@@ -54,7 +54,7 @@ export function normalizeMacro(raw = {}, { pro = true, limits = pro ? PRO_LIMITS
   const sourceEvents = Array.isArray(raw.events) ? raw.events : [];
   const events = sourceEvents
     .slice(0, limits.maxEvents)
-    .map((event) => normalizeEvent(event, { pro }))
+    .map((event) => normalizeEvent(event, { pro, maxDelayMs: limits.maxDurationMs }))
     .filter(Boolean);
   let elapsed = 0;
   const bounded = [];
@@ -81,13 +81,17 @@ export function validateMacro(raw, { pro = true } = {}) {
   if (!events.length) errors.push("Macro has no events.");
   if (!pro && events.some((event) => !String(event?.type || "").startsWith("key"))) errors.push("Lite macros can contain keyboard events only.");
   const down = new Set();
+  const buttons = new Set();
   for (const event of events) {
     const vk = Number(event?.vk);
     if (event?.type === "keyDown") down.add(vk);
     if (event?.type === "keyUp") down.delete(vk);
+    if (event?.type === "mouseDown") buttons.add(String(event.button || ""));
+    if (event?.type === "mouseUp") buttons.delete(String(event.button || ""));
   }
   const unmatched = [...down].filter((vk) => Number.isFinite(vk));
-  return { ok: errors.length === 0, errors, unmatchedKeys: unmatched };
+  const unmatchedButtons = [...buttons].filter(Boolean);
+  return { ok: errors.length === 0, errors, unmatchedKeys: unmatched, unmatchedButtons };
 }
 
 export function playbackSettings(raw = {}, { pro = true } = {}) {
