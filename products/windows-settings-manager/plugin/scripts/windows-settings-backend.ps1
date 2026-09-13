@@ -407,7 +407,7 @@ public static class PackRatWindowsNative
                 supportedCount = 0,
                 enabledCount = 0,
                 mixed = false,
-                errors = new[] { "Reliable HDR control requires Windows 11 24H2 (build 26100) or later." }
+                errors = new string[0]
             };
         }
 
