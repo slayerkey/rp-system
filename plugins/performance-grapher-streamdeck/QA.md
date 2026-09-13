@@ -151,3 +151,33 @@ On the same commit, XENEON Lite Pro Link Rebuild, Voice Deck Release QA, RatPack
 ### Additional distribution gate
 
 LibreHardwareMonitorLib 0.9.6 has transitive managed dependencies. Before the package may move to `READY_FOR_HARDWARE_QA`, the successful Windows publish must generate and archive a dependency/license inventory from the resolved publish graph. The final release kit must preserve all required notices for every redistributed dependency, not only the top-level MPL and PresentMon MIT notices.
+
+
+## Current-head release boundary
+
+Latest attempted dedicated Windows validation after the hardening above:
+
+- workflow run: `34742207090`
+- job: `103683691891`
+- conclusion: `failure`
+- job steps: **null / never started**
+- exact current-head automated suite: **RERUN REQUIRED**
+
+The same commit again showed unrelated repository workflows failing at the hosted-runner boundary. Do not interpret this as a test, build, native-helper, Elgato CLI, package, or Rat Art failure because none of those steps executed.
+
+Additional current-head release changes that require the fresh run:
+
+- whole-session history now merges retained archive + raw points
+- Session hardware graphs are bounded to active/last game timestamps
+- PresentMon FPS uses `MsBetweenPresents`
+- persistence uses temp-write + rename
+- Property Inspector is hidden until filtered and links to official PresentMon setup help
+- manifest sidebar category is `Performance Grapher`
+- action name is `Performance Alert`
+- Marketplace discovery categories are Gaming / Monitoring / Utilities
+- listing description is 1,369 characters
+- Rat Art no longer draws an approximate Stream Deck chassis
+- Rat Art fails closed if the PackRat logo or deterministic font cannot be resolved
+- Windows build now gates on a resolved NuGet dependency/license inventory
+
+Promotion remains blocked at `BUILDING`.
