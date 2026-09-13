@@ -11,7 +11,7 @@
       ],
       "SupportedInMultiActions": false,
       "DisableAutomaticStates": true,
-      "UserTitleEnabled": true,
+      "UserTitleEnabled": false,
       "States": [
         {
           "Image": "imgs/actions/record/key",
@@ -31,7 +31,7 @@
       ],
       "SupportedInMultiActions": false,
       "DisableAutomaticStates": true,
-      "UserTitleEnabled": true,
+      "UserTitleEnabled": false,
       "States": [
         {
           "Image": "imgs/actions/stop/key",
@@ -51,7 +51,7 @@
       ],
       "SupportedInMultiActions": true,
       "DisableAutomaticStates": true,
-      "UserTitleEnabled": true,
+      "UserTitleEnabled": false,
       "States": [
         {
           "Image": "imgs/actions/replay/key",
