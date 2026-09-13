@@ -26,7 +26,7 @@ The bundled bridge requests Windows Association Endpoint properties for paired B
 - connected: `System.Devices.Aep.IsConnected`
 - present/available: `System.Devices.Aep.IsPresent`
 - friendly display name: `DeviceInformation.Name`
-- identity: Bluetooth address first, then container ID, then endpoint ID fallback
+- identity: Association Endpoint container first, then Bluetooth address, then endpoint ID fallback
 - battery percentage: `System.Devices.BatteryLife` when exposed
 - battery + charging: `System.Devices.BatteryPlusCharging` when exposed
 
