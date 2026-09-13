@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "building",
   "workflow_state": "BUILDING",
-  "blocker": null,
+  "blocker": "GitHub Actions hosted Windows runner is currently failing before any job steps execute; Windows .NET build, official Elgato validation/package, and real hardware QA remain unverified.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -25,7 +25,29 @@
     "physical Stream Deck Mini/MK.2/XL/+ smoke",
     "real-game frametime overhead comparison"
   ],
-  "automated_release_evidence": null,
+  "automated_release_evidence": {
+    "core_smoke": {
+      "status": "PASS",
+      "environment": "local Linux container / Node 22",
+      "tests_passed": 10,
+      "tests_failed": 0,
+      "synthetic_frame_events": 250000,
+      "aggregation_ms_approx": 240,
+      "svg_renders": 5000,
+      "render_ms_approx": 179,
+      "heap_delta_mb_approx": 2,
+      "note": "Core history/session/PresentMon parser/renderer only; not a real Windows or gameplay overhead claim."
+    },
+    "github_actions": {
+      "status": "RUNNER_DID_NOT_EXECUTE_STEPS",
+      "workflow": "Performance Grapher Stream Deck",
+      "run_id": 34741285448,
+      "job_id": 103681296291,
+      "windows_build_verified": false,
+      "elgato_validation_verified": false,
+      "elgato_package_verified": false
+    }
+  },
   "physical_release_evidence": null,
   "final_boundary": "Real Windows game/GPU matrix plus physical Stream Deck smoke and frametime-overhead comparison before READY_TO_SHIP."
 }
