@@ -65,6 +65,13 @@ function acceptSnapshot(snapshot) {
   return latestSnapshot;
 }
 
+function markHelperError(error) {
+  latestSnapshot = null;
+  latestError = String(error?.message || error || "Audio helper unavailable.");
+  scheduleRender(0);
+  return latestError;
+}
+
 async function refreshSnapshot({ quiet = true } = {}) {
   try {
     const response = await helper.snapshot();
@@ -73,8 +80,7 @@ async function refreshSnapshot({ quiet = true } = {}) {
     scheduleRender();
     return latestSnapshot;
   } catch (error) {
-    latestSnapshot = null;
-    latestError = String(error?.message || error || "Audio helper unavailable.");
+    markHelperError(error);
     if (!quiet) logger(latestError);
     scheduleRender();
     return null;
@@ -254,7 +260,8 @@ async function applyProfile(profile, record = null) {
     try {
       response = await helper.apply(plan.operations);
     } catch (error) {
-      response = { results: [], snapshot: before, error: String(error?.message || error) };
+      markHelperError(error);
+      response = { results: [], snapshot: null, error: latestError };
     }
   }
 
@@ -363,7 +370,8 @@ async function setSelectedDevice(record) {
       endpointId: match.endpoint.id,
     }]);
   } catch (error) {
-    response = { results: [], error: String(error?.message || error), snapshot };
+    markHelperError(error);
+    response = { results: [], error: latestError, snapshot: null };
   }
   const ok = response?.results?.[0]?.ok === true;
   const verified = ok && roleMatchesSnapshot(
@@ -427,7 +435,8 @@ async function toggleDefaultMic(record) {
   try {
     response = await helper.apply([{ kind: "set-mute", endpointId: endpoint.id, value: !endpoint.muted }]);
   } catch (error) {
-    response = { results: [], error: String(error?.message || error), snapshot };
+    markHelperError(error);
+    response = { results: [], error: latestError, snapshot: null };
   }
   const ok = response?.results?.[0]?.ok === true;
   const expectedMute = !endpoint.muted;
@@ -483,6 +492,7 @@ async function adjustProfileVolume(record, ticks) {
     record.feedbackNote = verified ? "" : ok ? "Verify failed" : "Volume failed";
     if (!verified) await record.action.showAlert().catch(() => {});
   } catch (error) {
+    markHelperError(error);
     record.feedbackNote = "Helper offline";
     await record.action.showAlert().catch(() => {});
     logger(error?.message || error);
@@ -524,6 +534,7 @@ async function toggleProfileOutputMute(record) {
     if (!verified) await record.action.showAlert().catch(() => {});
     scheduleRender(0);
   } catch (error) {
+    markHelperError(error);
     record.feedbackNote = "Helper offline";
     await record.action.showAlert().catch(() => {});
     logger(error?.message || error);
