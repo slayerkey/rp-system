@@ -84,12 +84,25 @@ function Test-Plugin {
 
     $ProfileRoot = Join-Path $PluginRoot "com.packrat.$Slug.sdPlugin\profiles"
     $Profiles = @(Get-ChildItem $ProfileRoot -Filter *.streamDeckProfile -File)
-    if ($Profiles.Count -ne 1) { throw "$Slug expected exactly one bundled .streamDeckProfile; found $($Profiles.Count)." }
+    if ($Profiles.Count -ne 4) { throw "$Slug expected four bundled .streamDeckProfile files (MK.2, XL, Plus, Neo); found $($Profiles.Count)." }
+
+    $ExpectedProfileNames = @(
+      "$Slug-starter-mk2.streamDeckProfile",
+      "$Slug-starter-xl.streamDeckProfile",
+      "$Slug-starter-plus.streamDeckProfile",
+      "$Slug-starter-neo.streamDeckProfile"
+    )
+    foreach ($Name in $ExpectedProfileNames) {
+      if (-not (Test-Path (Join-Path $ProfileRoot $Name))) { throw "$Slug missing starter profile $Name." }
+    }
+
     $BundledMaps = @(Get-ChildItem $ProfileRoot -Filter *.profile-map.json -File -ErrorAction SilentlyContinue)
     if ($BundledMaps.Count -ne 0) { throw "$Slug must not ship internal profile-map JSON files." }
 
-    $ProfileMap = Join-Path $Root "artifacts\profile-maps\$Slug-starter.profile-map.json"
-    if (-not (Test-Path $ProfileMap)) { throw "$Slug did not generate its external profile QA map." }
+    foreach ($Suffix in @("mk2","xl","plus","neo")) {
+      $ProfileMap = Join-Path $Root "artifacts\profile-maps\$Slug-starter-$Suffix.profile-map.json"
+      if (-not (Test-Path $ProfileMap)) { throw "$Slug did not generate external profile QA map for $Suffix." }
+    }
 
     Write-Host "[$Slug] package SHA256"
     Get-FileHash $Packages[0].FullName -Algorithm SHA256 | Format-Table -AutoSize
@@ -133,38 +146,7 @@ if (-not $SkipArt) {
     $Hero = Join-Path $MediaRoot "01-hero.png"
     if (-not (Test-Path $AppIcon)) { throw "Missing 288x288 Marketplace app icon: $AppIcon" }
     if (-not (Test-Path $Hero)) { throw "Missing Marketplace thumbnail: $Hero" }
-    $Gallery = @(Get-ChildItem $MediaRoot -File | Where-Object { $_.Name -match '^0[2-4]-.*\.png
-  }
-}
-
-$HelperMb = [math]::Round((Get-Item $HelperExe).Length / 1MB, 2)
-Write-Host "Native helper size: $HelperMb MB"
-foreach ($Slug in @("macro-recorder-lite","macro-recorder-pro")) {
-  $Package = @(Get-ChildItem (Join-Path $Root "plugins\$Slug\dist") -Filter *.streamDeckPlugin -File)
-  if ($Package.Count -eq 1) {
-    $PackageMb = [math]::Round($Package[0].Length / 1MB, 2)
-    Write-Host "$Slug package size: $PackageMb MB"
-  }
-}
-
-Write-Host "[7/7] Automated local QA complete" -ForegroundColor Green
-if ($ReleaseCandidate) { Write-Host "Native release gate is marked ready." -ForegroundColor Green }
-Write-Host ""
-Write-Host "Still required before READY_TO_SHIP:" -ForegroundColor Yellow
-Write-Host "  - real recording/playback smoke on Windows"
-Write-Host "  - modifiers and Windows key"
-Write-Host "  - Pro click/drag/wheel"
-Write-Host "  - multi-monitor + 100/125/150% DPI"
-Write-Host "  - interrupt playback with Stop and Ctrl+Shift+F12"
-Write-Host "  - kill helper during held modifier, restart, confirm recovery"
-Write-Host "  - Stream Deck restart persistence"
-Write-Host "  - Pro loop cancellation + corrupt library recovery"
-Write-Host ""
-Write-Host "Do not ship until those host/device checks pass."
-Write-Host ""
-Write-Host "For the final release-candidate gate after native fixes:" -ForegroundColor Cyan
-Write-Host "  powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1 -ReleaseCandidate"
- })
+    $Gallery = @(Get-ChildItem $MediaRoot -File | Where-Object { $_.Name -match '^0[2-4]-.*\.png$' })
     if ($Gallery.Count -ne 3) { throw "$Slug expected exactly three Marketplace gallery images; found $($Gallery.Count)." }
   }
 }
@@ -183,13 +165,14 @@ Write-Host "[7/7] Automated local QA complete" -ForegroundColor Green
 if ($ReleaseCandidate) { Write-Host "Native release gate is marked ready." -ForegroundColor Green }
 Write-Host ""
 Write-Host "Still required before READY_TO_SHIP:" -ForegroundColor Yellow
+Write-Host "  - every false condition in docs\MACRO_RECORDER_NATIVE_GATE.json resolved"
 Write-Host "  - real recording/playback smoke on Windows"
-Write-Host "  - modifiers and Windows key"
+Write-Host "  - modifiers, extended/right-side keys, and Windows key"
 Write-Host "  - Pro click/drag/wheel"
 Write-Host "  - multi-monitor + 100/125/150% DPI"
-Write-Host "  - interrupt playback with Stop and Ctrl+Shift+F12"
-Write-Host "  - kill helper during held modifier, restart, confirm recovery"
-Write-Host "  - Stream Deck restart persistence"
+Write-Host "  - Stop and Ctrl+Shift+F12 interruption"
+Write-Host "  - Lite/Pro coexistence and shared journal ownership"
+Write-Host "  - helper/process restart + held-input recovery"
 Write-Host "  - Pro loop cancellation + corrupt library recovery"
 Write-Host ""
 Write-Host "Do not ship until those host/device checks pass."
