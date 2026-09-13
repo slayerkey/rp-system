@@ -7,6 +7,7 @@ type GlobalSettings = {
   favorites?: string[];
   groups?: Record<string, string[]>;
   thresholds?: Record<string, number>;
+  slots?: Record<string, string>;
 };
 
 export class WirelessRuntime {
@@ -102,9 +103,18 @@ export class WirelessRuntime {
     return await this.loadGlobals();
   }
 
-  async selectedDeviceId(localDeviceId?: string | null): Promise<string | null> {
-    const global = this.edition === "lite" ? await this.globals() : {};
-    return resolveSelectedDeviceId(this.edition, global.liteDeviceId, localDeviceId);
+  async selectedDeviceId(localDeviceId?: string | null, slot?: string | null): Promise<string | null> {
+    const globals = (this.edition === "lite" || slot) ? await this.globals() : {};
+    const slotDeviceId = slot ? globals.slots?.[slot] ?? null : null;
+    return resolveSelectedDeviceId(this.edition, globals.liteDeviceId, localDeviceId, slotDeviceId);
+  }
+
+  async setSlotDevice(slot: string, id: string): Promise<void> {
+    if (this.edition !== "pro" || !slot || !id) return;
+    await this.mutateGlobals(current => ({
+      ...current,
+      slots: { ...(current.slots ?? {}), [slot]: id }
+    }));
   }
 
   async setLiteDeviceId(id: string): Promise<void> {
@@ -180,7 +190,8 @@ export class WirelessRuntime {
         liteDeviceId: globals.liteDeviceId ?? null,
         favorites: globals.favorites ?? [],
         groups: globals.groups ?? {},
-        thresholds: globals.thresholds ?? {}
+        thresholds: globals.thresholds ?? {},
+        slots: globals.slots ?? {}
       } as any);
     } catch {
       // No Property Inspector is currently open.
