@@ -54,7 +54,11 @@ abstract class LiveTitleAction<S extends Record<string, any>> extends SingletonA
   protected async paintAll(): Promise<void> {
     for (const instance of this.actions) {
       if (!instance.isKey()) continue;
-      await this.paint(instance, await instance.getSettings<S>());
+      try {
+        await this.paint(instance, await instance.getSettings<S>());
+      } catch {
+        // The key/profile may disappear while an async repaint is in flight.
+      }
     }
   }
 
@@ -190,7 +194,11 @@ class ApplyModeBase extends LiveTitleAction<ModeActionSettings> {
     await ev.action.setTitle(resultTitle(result));
     if (result.status === "COMPLETE") await ev.action.showOk();
     else await ev.action.showAlert();
-    setTimeout(() => void this.paint(ev.action, ev.payload.settings ?? {}), 1400).unref();
+    setTimeout(() => {
+      void this.paint(ev.action, ev.payload.settings ?? {}).catch(() => {
+        // The key/profile may have disappeared before the delayed repaint.
+      });
+    }, 1400).unref();
   }
 }
 
