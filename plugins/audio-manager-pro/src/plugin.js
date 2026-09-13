@@ -204,9 +204,12 @@ async function applyProfile(profile, record = null) {
 }
 
 async function feedbackForResult(record, result) {
-  if (!record?.action?.isKey?.()) return;
-  if (result.status === "SUCCESS") await record.action.showOk().catch(() => {});
-  else await record.action.showAlert().catch(() => {});
+  if (!record?.action) return;
+  if (result.status === "SUCCESS") {
+    if (record.action.isKey?.()) await record.action.showOk().catch(() => {});
+    return;
+  }
+  await record.action.showAlert().catch(() => {});
 }
 
 async function applySelected(record) {
@@ -331,7 +334,12 @@ async function toggleDefaultMic(record) {
 
 async function adjustProfileVolume(record, ticks) {
   const profile = profileForRecord(record);
-  if (!profile) return;
+  if (!profile) {
+    record.feedbackNote = "Select profile";
+    await record.action.showAlert().catch(() => {});
+    scheduleRender(0);
+    return;
+  }
   await refreshSnapshot({ quiet: true });
   const { match, endpoint } = profileOutput(profile);
   if (match.status !== "matched" || !endpoint?.volumeAvailable) {
@@ -346,10 +354,13 @@ async function adjustProfileVolume(record, ticks) {
 
   try {
     const response = await helper.apply([{ kind: "set-volume", endpointId: endpoint.id, value: next }]);
+    const ok = response?.results?.[0]?.ok === true;
     if (response?.snapshot) latestSnapshot = response.snapshot;
-    record.feedbackNote = response?.results?.[0]?.ok ? "" : "Volume failed";
+    record.feedbackNote = ok ? "" : "Volume failed";
+    if (!ok) await record.action.showAlert().catch(() => {});
   } catch (error) {
     record.feedbackNote = "Helper offline";
+    await record.action.showAlert().catch(() => {});
     logger(error?.message || error);
   }
   record.lastFeedback = "";
@@ -358,20 +369,33 @@ async function adjustProfileVolume(record, ticks) {
 
 async function toggleProfileOutputMute(record) {
   const profile = profileForRecord(record);
-  if (!profile) return;
+  if (!profile) {
+    record.feedbackNote = "Select profile";
+    await record.action.showAlert().catch(() => {});
+    scheduleRender(0);
+    return;
+  }
   await refreshSnapshot({ quiet: true });
   const { match, endpoint } = profileOutput(profile);
   if (match.status !== "matched" || !endpoint?.muteAvailable) {
+    record.feedbackNote = match.status === "matched" ? "Mute unavailable" : "Rebind output";
     await record.action.showAlert().catch(() => {});
+    scheduleRender(0);
     return;
   }
   try {
     const response = await helper.apply([{ kind: "set-mute", endpointId: endpoint.id, value: !endpoint.muted }]);
+    const ok = response?.results?.[0]?.ok === true;
     if (response?.snapshot) latestSnapshot = response.snapshot;
+    record.feedbackNote = ok ? "" : "Mute failed";
     record.lastFeedback = "";
+    if (!ok) await record.action.showAlert().catch(() => {});
     scheduleRender(0);
-  } catch {
+  } catch (error) {
+    record.feedbackNote = "Helper offline";
     await record.action.showAlert().catch(() => {});
+    logger(error?.message || error);
+    scheduleRender(0);
   }
 }
 
