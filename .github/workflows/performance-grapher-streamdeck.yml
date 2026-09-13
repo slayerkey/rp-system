@@ -150,7 +150,7 @@ jobs:
           if (-not $package) { throw "No .streamDeckPlugin produced." }
           $sizeMb = $package.Length / 1MB
           Write-Host ("PACKAGE size_mb={0:N1} path={1}" -f $sizeMb, $package.FullName)
-          if ($sizeMb -ge 500) { throw "Marketplace package exceeds 500 MB." }
+          if ($sizeMb -ge 500) { throw "PackRat CI package ceiling exceeded: 500 MB." }
 
       - name: Stage validated release candidate
         id: stage
