@@ -22,6 +22,9 @@ export const DEFAULT_ACTION_SETTINGS = Object.freeze({
   targetMethod: "auto",
   targetPort: 443,
   family: "auto",
+  expectedDownloadMbps: 0,
+  expectedUploadMbps: 0,
+  lowSpeedPercent: 70,
   accent: "#2BE86A"
 });
 
@@ -71,6 +74,9 @@ export function normalizeActionSettings(raw = {}) {
     targetMethod: ["auto", "icmp", "tcp", "dns", "https"].includes(source.targetMethod) ? source.targetMethod : "auto",
     targetPort: Math.round(clamp(source.targetPort, 1, 65535, DEFAULT_ACTION_SETTINGS.targetPort)),
     family: ["auto", "ipv4", "ipv6"].includes(source.family) ? source.family : "auto",
+    expectedDownloadMbps: clamp(source.expectedDownloadMbps, 0, 100000, 0),
+    expectedUploadMbps: clamp(source.expectedUploadMbps, 0, 100000, 0),
+    lowSpeedPercent: clamp(source.lowSpeedPercent, 10, 100, 70),
     accent: normalizeAccent(source.accent)
   };
 }
