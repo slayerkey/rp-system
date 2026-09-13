@@ -49,7 +49,7 @@ Capability UI reports SUPPORTED, NOT SUPPORTED or UNKNOWN.
 
 - DDC/CI may be disabled in the monitor OSD, blocked by docks/KVMs/adapters, unavailable over some USB-C paths, or implemented incorrectly by monitor firmware.
 - Two identical physical displays can still be ambiguous if Windows cannot expose a stable unique identity through the active display path.
-- HDR depends on Windows advanced-color support on the active path.
+- Exact HDR capability detection and control uses the dedicated Windows 11 24H2+ HDR DisplayConfig API. Older Windows exposes only ambiguous Advanced Color state, so Monitor Manager reports HDR as UNKNOWN rather than guessing.
 - Windows may reject a mode/topology change because of GPU, driver, cable, scaling or bandwidth limits even when a nearby configuration works.
 - Primary-display and topology changes require physical multi-monitor QA before Marketplace release.
 - Night Light is not included in v1 because the build does not use undocumented toggles.
