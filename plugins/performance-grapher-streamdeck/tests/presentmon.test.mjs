@@ -128,3 +128,30 @@ test("live PresentMon cached columns survive quoted process names", () => {
   provider._consumeLine('"game,name.exe",4242,6.50,16.67');
   assert.deepEqual(frames, [{ application: "game,name.exe", pid: 4242, frameTimeMs: 16.67 }]);
 });
+
+
+test("PresentMon permission denial waits for explicit restart", () => {
+  const child = fakePresentMonChild();
+  const children = [child];
+  const provider = new PresentMonProvider({
+    executable: "PresentMon.exe",
+    spawnProcess: () => {
+      const next = children.shift() || fakePresentMonChild();
+      return next;
+    },
+    createLineInterface: fakeLineInterface,
+  });
+
+  provider.start();
+  child.stderr.emit("data", "Access is denied. Add the user to Performance Log Users.");
+  assert.equal(provider.status.state, "permission_required");
+  child.emit("close", 5);
+  assert.equal(provider.status.state, "permission_required");
+  assert.equal(provider.restartTimer, null);
+  assert.equal(provider.child, null);
+  assert.equal(provider.running, true);
+
+  provider.restart();
+  assert.equal(provider.status.state, "starting");
+  provider.stop();
+});
