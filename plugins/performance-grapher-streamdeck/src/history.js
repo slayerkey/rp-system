@@ -61,7 +61,9 @@ export class BoundedHistory {
   series(windowMs, now = Date.now()) {
     const span = Number(windowMs);
     const start = Number.isFinite(span) && span > 0 ? now - span : -Infinity;
-    const source = Number.isFinite(span) && span > 0 && span <= this.rawMax * 1100 ? this.raw : [...this.archive, ...this.raw];
+    const rawStart = this.raw.length ? finite(this.raw[0]?.[0]) : null;
+    const rawCoversWindow = Number.isFinite(span) && span > 0 && rawStart !== null && rawStart <= start;
+    const source = rawCoversWindow ? this.raw : [...this.archive, ...this.raw];
     const seen = new Set();
     const output = [];
     for (const point of source) {
@@ -101,8 +103,8 @@ export class BoundedHistory {
       .filter((p) => Array.isArray(p) && finite(p[0]) !== null && finite(p[1]) !== null)
       .map((p) => [Number(p[0]), Number(p[1])])
       .slice(-max);
-    history.raw = clean(value.raw, history.rawMax);
-    history.archive = clean(value.archive, history.archiveMax);
+    history.raw = clean(value.raw, history.rawMax).sort((a, b) => a[0] - b[0]);
+    history.archive = clean(value.archive, history.archiveMax).sort((a, b) => a[0] - b[0]);
     return history;
   }
 }
