@@ -83,6 +83,10 @@ The Audio Profile Status action is read-only. It refreshes current Windows audio
 
 If a profile requests saved volume or mute state and Windows cannot read that state, the profile does not count as active.
 
+The user-facing Default role represents both Windows Console and Multimedia. A profile does not count as ACTIVE if either underlying role has drifted to a different endpoint.
+
+If two roles target the same endpoint with contradictory saved volume or mute values, the conflicting state operation is omitted and surfaced as a profile failure rather than choosing one value.
+
 ## Rat Art V2 contract
 
 The current deterministic renderer:
@@ -107,6 +111,7 @@ Final physical QA must cover:
 - Windows reboot
 - real endpoint identity changes
 - Default vs Communications role separation
+- Console/Multimedia drift: move Multimedia away from the saved Default endpoint and confirm Status becomes INACTIVE
 - profile containing a missing device
 - rapid profile switching
 - partially failed profile
