@@ -31,6 +31,9 @@ jobs:
           $r = Get-Content artifacts/streamdeck-photo/streamdeck-photo-hero-report.json -Raw | ConvertFrom-Json
           if ($r.image_generation -ne 'disabled') { throw 'Image generation must remain disabled' }
           if ($r.hardware_source -ne 'tools/art/assets/streamdeck-mk2-straight.png') { throw 'Wrong hardware source' }
+          if ($r.compositor -ne 'tools/art/streamdeck_photo.py') { throw 'Wrong compositor' }
+          if ($r.composition_model -ne 'key-underlay+untouched-hardware-overlay') { throw 'Wrong composition model' }
+          if ($r.hardware_plate_modified -ne $false) { throw 'Hardware plate must remain untouched' }
           if (-not (Test-Path artifacts/streamdeck-photo/02_cover.png)) { throw 'Hero missing' }
       - uses: actions/upload-artifact@v4
         with:
