@@ -137,9 +137,16 @@ async function renderRecord(record) {
     image = renderKey(record.kind, { profile, active, status });
   } else if (record.kind === "set-output" || record.kind === "set-input") {
     const { match, endpoint } = endpointForDeviceRecord(record);
+    const configured = Boolean(
+      record.settings.device &&
+      (record.settings.device.endpointId ||
+        record.settings.device.name ||
+        record.settings.device.instanceId ||
+        record.settings.device.containerId)
+    );
     image = renderKey(record.kind, {
       endpoint: endpoint || record.settings.device,
-      missing: match.status !== "matched",
+      missing: configured && match.status !== "matched",
       role: record.settings.role,
     });
   } else if (record.kind === "mute-mic") {
