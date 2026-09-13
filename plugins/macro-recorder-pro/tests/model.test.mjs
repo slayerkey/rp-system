@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PRO_LIMITS, exportEnvelope, importEnvelope, normalizeMacro, playbackSettings, validateMacro } from "../../../shared/macro-recorder/model.mjs";
+import { PRO_LIMITS, exportEnvelope, importEnvelope, normalizeMacro, playbackSafetyError, playbackSettings, validateMacro } from "../../../shared/macro-recorder/model.mjs";
 
 const pro=true;
 const limits=PRO_LIMITS;
@@ -114,4 +114,18 @@ test("Pro validation reports unmatched held mouse buttons",()=>{
  ]},{pro:true,limits});
  const validation=validateMacro(macro,{pro:true});
  assert.deepEqual(validation.unmatchedButtons,["left"]);
+});
+
+test("infinite repeat modes reject effectively zero-duration macros",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"keyDown",vk:65,delayMs:0},
+  {type:"keyUp",vk:65,delayMs:0}
+ ]},{pro:true,limits});
+ const settings=playbackSettings({playbackMode:"toggle"},{pro:true});
+ assert.match(playbackSafetyError(macro,settings),/25 ms/);
+ const safe=normalizeMacro({events:[
+  {type:"keyDown",vk:65,delayMs:25},
+  {type:"keyUp",vk:65,delayMs:1}
+ ]},{pro:true,limits});
+ assert.equal(playbackSafetyError(safe,settings),"");
 });
