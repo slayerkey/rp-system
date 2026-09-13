@@ -32,7 +32,7 @@ function connectElgatoStreamDeckSocket(inPort,inUUID,inRegisterEvent,inInfo,inAc
 function save(){if(websocket?.readyState===WebSocket.OPEN)websocket.send(JSON.stringify({event:"setSettings",action:actionUuid,context:uuid,payload:settings}));}
 function requestData(){if(websocket?.readyState===WebSocket.OPEN)websocket.send(JSON.stringify({event:"sendToPlugin",action:actionUuid,context:uuid,payload:{type:"refresh-monitors"}}));}
 function opt(select,value,label){const o=document.createElement("option");o.value=value;o.textContent=label;select.appendChild(o);}
-function currentMonitor(){return monitorRows.find(m=>m.monitorKey===settings.monitorKey)??monitorRows[0]??null;}
+function currentMonitor(){return settings.monitorKey?monitorRows.find(m=>m.monitorKey===settings.monitorKey)??null:monitorRows[0]??null;}
 function state(v){return typeof v==="string"?v:(v?.state??"UNKNOWN");}
 function inputLabel(v){const labels={15:"DisplayPort 1",16:"DisplayPort 2",17:"HDMI 1",18:"HDMI 2",27:"USB-C"};return labels[v]??("Input 0x"+Number(v).toString(16).toUpperCase().padStart(2,"0"));}
 
@@ -51,6 +51,7 @@ function render(){
   const mon=document.getElementById("monitor");
   if(mon){
     mon.textContent="";
+    if(settings.monitorKey&&!monitorRows.some(m=>m.monitorKey===settings.monitorKey)) opt(mon,settings.monitorKey,"Configured monitor not connected");
     for(const m of monitorRows){
       const suffix=m.currentMode?(" · "+m.currentMode.width+"×"+m.currentMode.height+" @ "+m.currentMode.frequency+" Hz"):"";
       opt(mon,m.monitorKey,(m.description||m.deviceName)+(m.primary?" · PRIMARY":"")+suffix);
@@ -64,12 +65,15 @@ function render(){
 
   const row=currentMonitor();
   const caps=document.getElementById("capabilities");
-  if(caps&&row){
-    const c=row.capabilities??{};
-    caps.textContent=[
-      "BRIGHTNESS "+state(c.brightness),"CONTRAST "+state(c.contrast),"INPUT "+state(c.input),
-      "VOLUME "+state(c.volume),"POWER "+state(c.power),"HDR "+state(c.hdr)
-    ].join(" · ");
+  if(caps){
+    if(!row) caps.textContent=settings.monitorKey?"CONFIGURED MONITOR NOT CONNECTED":"NO MONITOR DETECTED";
+    else {
+      const c=row.capabilities??{};
+      caps.textContent=[
+        "BRIGHTNESS "+state(c.brightness),"CONTRAST "+state(c.contrast),"INPUT "+state(c.input),
+        "VOLUME "+state(c.volume),"POWER "+state(c.power),"HDR "+state(c.hdr)
+      ].join(" · ");
+    }
   }
 
   if(continuous){
@@ -88,6 +92,7 @@ function render(){
   const orientation=document.getElementById("orientation");if(orientation)orientation.value=String(settings.orientation??0);
 
   const input=document.getElementById("inputValue");
+  if(input&&!row) input.textContent="";
   if(input&&row){
     input.textContent="";
     const values=row.capabilities?.input?.values??[];
@@ -97,6 +102,7 @@ function render(){
   }
 
   const refresh=document.getElementById("refreshRate");
+  if(refresh&&!row) refresh.textContent="";
   if(refresh&&row){
     const cur=row.currentMode;
     const rates=[...new Set((row.modes??[]).filter(m=>!cur||(m.width===cur.width&&m.height===cur.height)).map(m=>m.frequency))].sort((a,b)=>a-b);
@@ -105,6 +111,7 @@ function render(){
   }
 
   const mode=document.getElementById("resolutionMode");
+  if(mode&&!row) mode.textContent="";
   if(mode&&row){
     mode.textContent="";
     const modes=row.modes??[];
