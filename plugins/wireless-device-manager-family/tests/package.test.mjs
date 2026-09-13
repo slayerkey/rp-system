@@ -138,3 +138,26 @@ test("settings reads are side-effect free and global writes are explicit",async(
   assert.match(runtime,/globalWrite/);
   assert.match(runtime,/mutateGlobals/);
 });
+
+
+test("bundled Pro headset status and control keys share one logical slot",async()=>{
+  for(const suffix of ["standard","xl"]){
+    const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
+    const manifest=readStoredProfileManifest(data);
+    const devices=Object.values(manifest.Actions).filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.device");
+    const headset=devices.find(action=>action.Settings?.label==="HEADPHONES");
+    const control=devices.find(action=>action.Settings?.view==="control");
+    assert.equal(headset?.Settings?.slot,"HEADPHONES");
+    assert.equal(control?.Settings?.slot,"HEADPHONES");
+  }
+});
+
+test("Lite includes a truthful Pro upsell without inventing an unpublished Marketplace URL",async()=>{
+  const html=await readFile("ui/inspector.html","utf8");
+  const submission=JSON.parse(await readFile("submission-lite.json","utf8"));
+  assert.match(html,/Wireless Device Manager Pro/);
+  assert.match(html,/favorites/i);
+  assert.match(html,/low-battery alerts/i);
+  assert.match(submission.description,/Upgrade to Wireless Device Manager Pro/);
+  assert.doesNotMatch(html,/marketplace\.elgato\.com\/product\/wireless-device-manager-pro/i);
+});
