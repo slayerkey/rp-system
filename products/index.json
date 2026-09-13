@@ -432,6 +432,14 @@
       "version": "1.0.0.0"
     },
     {
+      "id": "monitor-manager-pro",
+      "name": "Monitor Manager Pro",
+      "type": "plugin",
+      "status": "testing",
+      "price_usd": 9.99,
+      "version": "1.0.0.0"
+    },
+    {
       "id": "nascar-tracker",
       "name": "NASCAR Tracker",
       "type": "plugin",
