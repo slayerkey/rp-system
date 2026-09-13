@@ -168,7 +168,7 @@ public static class PackRatWindowsNative
     [DllImport("ntdll.dll", CharSet = CharSet.Unicode)]
     private static extern int RtlGetVersion(ref RtlOsVersionInfoEx versionInfo);
 
-    private static readonly int RuntimeWindowsBuild = ReadWindowsBuild();
+    private static readonly int RuntimeWindowsBuild;
 
     static PackRatWindowsNative()
     {
@@ -182,6 +182,7 @@ public static class PackRatWindowsNative
         AssertSize(typeof(AdvancedColorInfo2), 36, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2");
         AssertSize(typeof(HdrSet), 24, "DISPLAYCONFIG_SET_HDR_STATE");
         AssertSize(typeof(RtlOsVersionInfoEx), 284, "RTL_OSVERSIONINFOEXW");
+        RuntimeWindowsBuild = ReadWindowsBuild();
     }
 
     private static void AssertSize(Type type, int expected, string name)
