@@ -146,8 +146,8 @@ async function buildProfiles(flavor, plugin) {
     const stem = `windows-settings-${flavor}-${device.id}`;
     const profileName = `profiles/${stem}`;
     const displayName = flavor === "pro"
-      ? `Windows PC Modes Pro — ${device.label}`
-      : `Windows Settings Lite — ${device.label}`;
+      ? `Windows PC Modes Pro - ${device.label}`
+      : `Windows Settings Lite - ${device.label}`;
 
     const pages = flavor === "pro"
       ? [
