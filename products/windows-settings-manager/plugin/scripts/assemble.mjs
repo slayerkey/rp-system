@@ -66,8 +66,11 @@ async function assemble(flavor) {
   }
 
   await writeFile(path.join(plugin, "imgs", "actions", "common", "icon.svg"), iconSvg());
+  await writeFile(path.join(plugin, "imgs", "actions", "common", "icon@2x.svg"), iconSvg());
   await writeFile(path.join(plugin, "imgs", "actions", "common", "key.svg"), keySvg());
+  await writeFile(path.join(plugin, "imgs", "actions", "common", "key@2x.svg"), keySvg());
   await writeFile(path.join(plugin, "imgs", "plugin", "category-icon.svg"), iconSvg());
+  await writeFile(path.join(plugin, "imgs", "plugin", "category-icon@2x.svg"), iconSvg());
 
   const profiles = await buildProfiles(flavor, plugin);
   await writeFile(path.join(plugin, "manifest.json"), JSON.stringify(manifest(flavor, profiles), null, 2) + "\n");
