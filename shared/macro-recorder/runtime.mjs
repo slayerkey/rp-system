@@ -420,11 +420,13 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
         } else if (command === "deleteMacro" && pro) {
           const id = String(payload.macroId || record.settings.macroId);
           await library.remove(id);
-          if (record.settings.macroId === id) {
-            const next = { ...record.settings, macroId: "" };
-            await record.action.setSettings(next);
-            record.settings = settingsFor("replay", next);
-          }
+          await Promise.all([...visible.values()]
+            .filter((item) => item.kind === "replay" && item.settings.macroId === id)
+            .map(async (item) => {
+              const next = { ...item.settings, macroId: "" };
+              await item.action.setSettings(next);
+              item.settings = settingsFor("replay", next);
+            }));
           await renderAll();
         } else if (command === "duplicateMacro" && pro) {
           const macro = library.get(String(payload.macroId || record.settings.macroId));
