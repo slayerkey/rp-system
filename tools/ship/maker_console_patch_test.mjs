@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { patchMakerConsoleSource } from './maker_console_runtime_patch_v5.mjs';
+import { patchMakerConsoleSource } from './maker_console_runtime_patch_v6.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..');
@@ -24,6 +24,15 @@ assert.match(patched, /Create \$\{productKindLabel\} draft/);
 assert.match(patched, /new RegExp\(`\^\$\{productKindLabel\}\$`,'i'\)/);
 assert.match(patched, /deleteConfirmedExistingDraft/);
 assert.doesNotMatch(patched, /prod\.type !== 'widget'/);
+assert.match(patched, /prod\.marketplace_existing_product_update === true/);
+assert.match(patched, /runExistingProductVersionUpdate/);
+assert.match(patched, /getByRole\('tab',\{name:\/\^versions\$\/i\}\)/);
+assert.match(patched, /getByRole\('button',\{name:\/\^create version\$\/i\}\)/);
+assert.match(patched, /marketplace_existing_version/);
+assert.match(patched, /marketplace_product_id/);
+assert.match(patched, /prod\.marketplace_auto_publish !== false/);
+assert.match(patched, /auto publish preference mismatch, refusing submit/);
+assert.doesNotMatch(patched, /auto publish did not enable/);
 
 const temp = join(tmpdir(), `ratpack-maker-console-${process.pid}.mjs`);
 try {
@@ -34,4 +43,4 @@ try {
   rmSync(temp, { force: true });
 }
 
-console.log('RAT SHIP MAKER CONSOLE PATCH PASS: widget + Stream Deck plugin runtime');
+console.log('RAT SHIP MAKER CONSOLE PATCH PASS: widget + plugin + existing-version update runtime');
