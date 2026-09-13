@@ -88,6 +88,8 @@ test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async ()
   assert.match(source, /"COMPLETE"/);
   assert.match(source, /"PARTIAL"/);
   assert.match(source, /"FAILED"/);
+  assert.match(source, /reported === "PARTIAL"/);
+  assert.match(source, /hasPartial = steps\.some/);
   assert.match(source, /topology[\s\S]*setTopology[\s\S]*hdr[\s\S]*setHdr[\s\S]*powerPlanGuid[\s\S]*setPowerPlan/);
 });
 
