@@ -6,6 +6,7 @@ import type { RawDevice } from "./model.js";
 export type BridgeSnapshot = {
   ok: boolean;
   adapterAvailable: boolean;
+  hidAvailable: boolean;
   devices: RawDevice[];
   error?: string | null;
 };
@@ -137,6 +138,7 @@ export async function snapshot(): Promise<BridgeSnapshot> {
   return {
     ok: result.ok === true,
     adapterAvailable: result.adapterAvailable === true,
+    hidAvailable: result.hidAvailable === true,
     devices: Array.isArray(result.devices) ? result.devices : [],
     error: result.error ?? null
   };
