@@ -161,6 +161,18 @@ Requirements:
 
 This also makes the playback-only Ctrl+Shift+F12 emergency hook deterministic across the product family and prevents cross-edition crash-recovery corruption.
 
+### 9. Check every SendInput result
+
+Make the native keyboard/mouse injection helpers return whether `SendInput` accepted the event.
+
+On failure:
+- stop playback
+- surface a useful local error
+- keep/repair held-input recovery state correctly
+- never silently continue as if the event was injected
+
+Test the expected UIPI boundary with a higher-integrity target. Macro Recorder should fail cleanly, not claim it can automate Administrator/UAC secure UI from normal Stream Deck integrity.
+
 ## Native safety constraints
 
 - Ignore injected hook events so playback is not re-recorded.
