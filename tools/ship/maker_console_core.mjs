@@ -949,6 +949,9 @@ async function versionPackageInput(target) {
 }
 
 async function runExistingProductVersionUpdate(target) {
+  if (RESUME && state.versionUpdateStarted) {
+    stopRetrying('A prior Rat Ship attempt already opened the Create version flow for ' + prod.name + '. Rat Ship will not automatically open a second version draft. Inspect the existing version draft in Maker Console, delete it if incomplete, then run Rat Ship again with a fresh kit.');
+  }
   if (!prod.marketplace_product_id) {
     throw new Error('Existing-product update requires submission.marketplace_product_id.');
   }
@@ -965,6 +968,9 @@ async function runExistingProductVersionUpdate(target) {
   await createVersion.click();
   await target.waitForTimeout(1200);
   target = await livePage();
+  state.versionUpdateStarted = true;
+  state.versionUpdateStartedAt = new Date().toISOString();
+  save();
 
   await step('update-file','Upload new product version',async() => {
     const input = await versionPackageInput(target);
