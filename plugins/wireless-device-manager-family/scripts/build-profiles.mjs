@@ -66,15 +66,23 @@ const layouts = {
       "3,1": (c)=>dashboard("pro:work",c,"WORK"),
       "4,1": (c)=>dashboard("pro:travel",c,"TRAVEL")
     },
-    plus: {
-      "0,0": (c)=>device("pro:plus:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL",slot:"HEADPHONES"}),
-      "1,0": (c)=>device("pro:plus:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20,favorite:true,groupName:"WORK",slot:"KEYBOARD"}),
-      "2,0": (c)=>device("pro:plus:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL",slot:"MOUSE"}),
-      "3,0": (c)=>device("pro:plus:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING",slot:"CONTROLLER"}),
-      "0,1": (c)=>dashboard("pro:plus:all",c),
-      "1,1": (c)=>cycle("pro:plus:cycle",c),
-      "2,1": (c)=>dashboard("pro:plus:gaming",c,"GAMING"),
-      "3,1": (c)=>dashboard("pro:plus:work",c,"WORK")
+    compact: {
+      "0,0": (c)=>device("pro:compact:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL",slot:"HEADPHONES"}),
+      "1,0": (c)=>device("pro:compact:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20,favorite:true,groupName:"WORK",slot:"KEYBOARD"}),
+      "2,0": (c)=>device("pro:compact:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL",slot:"MOUSE"}),
+      "3,0": (c)=>device("pro:compact:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING",slot:"CONTROLLER"}),
+      "0,1": (c)=>dashboard("pro:compact:all",c),
+      "1,1": (c)=>cycle("pro:compact:cycle",c),
+      "2,1": (c)=>dashboard("pro:compact:gaming",c,"GAMING"),
+      "3,1": (c)=>dashboard("pro:compact:work",c,"WORK")
+    },
+    mini: {
+      "0,0": (c)=>device("pro:mini:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL",slot:"HEADPHONES"}),
+      "1,0": (c)=>device("pro:mini:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20,favorite:true,groupName:"WORK",slot:"KEYBOARD"}),
+      "2,0": (c)=>device("pro:mini:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING",slot:"CONTROLLER"}),
+      "0,1": (c)=>device("pro:mini:headphones-control",c,"CONNECT","control",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL",slot:"HEADPHONES"}),
+      "1,1": (c)=>cycle("pro:mini:cycle",c),
+      "2,1": (c)=>dashboard("pro:mini:all",c)
     }
   }
 };
@@ -111,12 +119,14 @@ for (const [edition,cfg] of Object.entries(plugins)) {
   const out=path.resolve(cfg.root,"profiles"); await mkdir(out,{recursive:true});
   for (const variant of [
     {suffix:"standard",name:"Stream Deck",deviceType:0},
+    {suffix:"mini",name:"Stream Deck Mini",deviceType:1},
     {suffix:"xl",name:"Stream Deck XL",deviceType:2},
-    {suffix:"plus",name:"Stream Deck +",deviceType:7}
+    {suffix:"plus",name:"Stream Deck +",deviceType:7},
+    {suffix:"neo",name:"Stream Deck Neo",deviceType:9}
   ]) {
     const actions={};
     const layout = edition === "pro"
-      ? (variant.suffix === "plus" ? layouts.pro.plus : layouts.pro.default)
+      ? (variant.suffix === "mini" ? layouts.pro.mini : ["plus","neo"].includes(variant.suffix) ? layouts.pro.compact : layouts.pro.default)
       : layouts.lite;
     for (const [pos,builder] of Object.entries(layout)) actions[pos]=builder(cfg);
     const root=deterministicUuid(`${edition}:${variant.suffix}:profile`);
@@ -125,4 +135,4 @@ for (const [edition,cfg] of Object.entries(plugins)) {
     await writeFile(path.join(out,`${cfg.prefix}-${variant.suffix}.streamDeckProfile`),archive);
   }
 }
-console.log("Built six Wireless Device Manager profiles (Lite/Pro × Standard/XL/Plus).");
+console.log("Built ten Wireless Device Manager profiles (Lite/Pro × Standard/Mini/XL/Plus/Neo).");
