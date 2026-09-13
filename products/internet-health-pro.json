@@ -26,5 +26,13 @@
     "deterministic Rat Art and marketplace kit preflight"
   ],
   "final_boundary": "Install the exact packaged .streamDeckPlugin in Stream Deck and physically observe live key rendering through a disconnect/reconnect and one manual speed test before Marketplace submission.",
-  "qa_note": "GitHub Actions runs 34761485032 and 34761591445 failed before runner assignment on both windows-latest and macos-latest (runner_id 0, zero steps). Unrelated repository workflows failed the same way, so automated product QA remains pending rather than failed by a test assertion."
+  "qa_note": "Automated release gate is pending because GitHub Actions run 34761798011 on candidate 925899d40ed6f894896ad6932205a6dd3829130a failed before runner assignment on both windows-latest and macos-latest (runner_id 0, empty runner_name, zero steps). The package job was skipped. Unrelated repository workflows on the same commit failed at the same runner-allocation boundary. No product test assertion, build, Elgato validation, or package command executed, so the product remains TESTING rather than qa_passed.",
+  "automated_release_evidence": {
+    "candidate_commit": "925899d40ed6f894896ad6932205a6dd3829130a",
+    "github_actions_run": 34761798011,
+    "status": "BLOCKED_BEFORE_RUNNER_ASSIGNMENT",
+    "windows_runner_id": 0,
+    "macos_runner_id": 0,
+    "executed_steps": 0
+  }
 }
