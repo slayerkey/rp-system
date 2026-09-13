@@ -29,10 +29,11 @@ test("Lite manifest keeps the intended platform and action contract",async()=>{
   assert.equal(manifest.Nodejs?.Version,"24");
   assert.equal(manifest.Software?.MinimumVersion,"7.1");
   assert.deepEqual(manifest.OS,[{Platform:"windows",MinimumVersion:"10"}]);
-  assert.equal(manifest.Profiles?.length,4);
-  assert.deepEqual(manifest.Profiles.map(profile=>profile.DeviceType),[0,2,7,9]);
+  assert.equal(manifest.Profiles?.length,5);
+  assert.deepEqual(manifest.Profiles.map(profile=>profile.DeviceType),[0,1,2,7,9]);
   assert.deepEqual(manifest.Profiles.map(profile=>profile.Name),[
     "profiles/macro-recorder-lite-starter-mk2",
+    "profiles/macro-recorder-lite-starter-mini",
     "profiles/macro-recorder-lite-starter-xl",
     "profiles/macro-recorder-lite-starter-plus",
     "profiles/macro-recorder-lite-starter-neo"
