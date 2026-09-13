@@ -43,5 +43,9 @@
       "artifacts/marketplace/macro-recorder-pro/03-library.png",
       "artifacts/marketplace/macro-recorder-pro/04-playback.png"
     ]
-  }
+  },
+  "limitations": [
+    "Playback uses the Windows SendInput API and may be blocked when the target app runs at a higher Administrator integrity level than Stream Deck.",
+    "Windows secure desktop, including UAC secure prompts, is outside normal recording and playback."
+  ]
 }
