@@ -2,12 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   DeviceCatalog,
+  batteryLabel,
   capabilities,
   groupSummary,
   nextFavorite,
   normalizeDevice,
+  resolveSelectedDeviceId,
   shouldLowBatteryAlert,
-  stableId
+  stableId,
+  statusLabel
 } from "../src/model.ts";
 
 const headphone={
@@ -67,14 +70,26 @@ test("device endpoint id changes survive when Bluetooth address is stable",()=>{
   assert.equal(c.list()[0].lastObservedAt,2000);
 });
 
-test("removed/sleeping devices become unavailable rather than disappearing silently",()=>{
+test("sleeping paired devices remain paired and render as sleep/off",()=>{
+  const c=new DeviceCatalog();
+  c.ingest([mouse],1000);
+  const sleeping=c.get(stableId(mouse));
+  assert.equal(sleeping?.paired,true);
+  assert.equal(sleeping?.present,false);
+  assert.match(statusLabel(sleeping),/SLEEP\/OFF/);
+});
+
+test("removed devices become unpaired and stale telemetry/control is hidden",()=>{
   const c=new DeviceCatalog();
   c.ingest([headphone,keyboard,mouse],1000);
   c.ingest([headphone],2000);
-  const sleeping=c.get(stableId(mouse));
-  assert.equal(sleeping?.present,false);
-  assert.equal(sleeping?.connected,false);
-  assert.equal(sleeping?.capabilities.CONNECT,false);
+  const removed=c.get(stableId(mouse));
+  assert.equal(removed?.paired,false);
+  assert.equal(removed?.present,false);
+  assert.equal(removed?.connected,false);
+  assert.equal(removed?.capabilities.CONNECT,false);
+  assert.equal(removed?.capabilities.BATTERY,false);
+  assert.match(statusLabel(removed),/UNPAIRED/);
 });
 
 test("several devices at once summarize correctly",()=>{
@@ -115,4 +130,18 @@ test("charging-supported fixture is distinct from plain battery",()=>{
   const b=normalizeDevice(keyboard);
   assert.equal(a.capabilities.CHARGING,true);
   assert.equal(b.capabilities.CHARGING,false);
+});
+
+
+test("Lite shares one selected device while Pro keeps per-key targets",()=>{
+  assert.equal(resolveSelectedDeviceId("lite","bt:global","bt:local"),"bt:global");
+  assert.equal(resolveSelectedDeviceId("lite",null,"bt:local"),"bt:local");
+  assert.equal(resolveSelectedDeviceId("pro","bt:global","bt:local"),"bt:local");
+  assert.equal(resolveSelectedDeviceId("pro","bt:global",null),null);
+});
+
+test("battery label exposes charging only when Windows reports it",()=>{
+  assert.match(batteryLabel(normalizeDevice(headphone)),/CHARGING/);
+  assert.match(batteryLabel(normalizeDevice(keyboard)),/BATTERY/);
+  assert.equal(batteryLabel(normalizeDevice(mouse)),"BATTERY\nN/A");
 });
