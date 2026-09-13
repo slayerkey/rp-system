@@ -146,3 +146,21 @@ test("session summary uses slowest-frame-time low averages", () => {
   assert.ok(Math.abs(summary.onePercentLow - (10_000 / 750)) < 0.01);
   assert.ok(Math.abs(summary.pointOnePercentLow - 10) < 0.01);
 });
+
+
+test("frametime graph history preserves the worst raw frame in each bucket", () => {
+  const tracker = new SessionTracker({ switchMs: 0, idleMs: 3000 });
+  tracker._start("game.exe", 0);
+
+  tracker.observeFrame({ application: "game.exe", frameTimeMs: 10 }, {}, 10);
+  tracker.observeFrame({ application: "game.exe", frameTimeMs: 10 }, {}, 20);
+  tracker.observeFrame({ application: "game.exe", frameTimeMs: 50 }, {}, 30);
+  tracker.observeFrame({ application: "game.exe", frameTimeMs: 10 }, {}, 120);
+
+  const snap = tracker.snapshot(120);
+  const fpsPoint = snap.recent.raw.at(-1);
+  const framePoint = snap.frametimeRecent.raw.at(-1);
+
+  assert.ok(fpsPoint[1] < 100, "FPS bucket should reflect average frame time");
+  assert.equal(framePoint[1], 50, "Frametime graph must preserve the worst raw frame");
+});
