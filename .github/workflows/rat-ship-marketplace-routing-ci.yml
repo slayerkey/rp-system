@@ -126,23 +126,53 @@ jobs:
             blocker = 'Discord approval pending'
             final_boundary = 'approval then submission'
           }
+          $testing = [PSCustomObject]@{
+            workflow_state = 'TESTING'
+            blocker = $null
+            final_boundary = 'automated verification pending'
+          }
+          $hardware = [PSCustomObject]@{
+            workflow_state = 'READY_FOR_HARDWARE_QA'
+            blocker = $null
+            final_boundary = 'physical hardware smoke pending'
+          }
+          $rejected = [PSCustomObject]@{
+            workflow_state = 'REJECTED'
+            blocker = 'Marketplace rejection must be resolved'
+            final_boundary = $null
+          }
           $ready = [PSCustomObject]@{
             workflow_state = 'READY_TO_SHIP'
             blocker = $null
             final_boundary = $null
           }
-          $legacyBlocked = [PSCustomObject]@{
-            workflow_state = 'BLOCKED_EXTERNAL_APPROVAL'
+          $submitted = [PSCustomObject]@{
+            workflow_state = 'SUBMITTED'
             blocker = $null
-            final_boundary = 'legacy approval pending'
+            final_boundary = $null
+          }
+          $published = [PSCustomObject]@{
+            workflow_state = 'PUBLISHED'
+            blocker = $null
+            final_boundary = $null
+          }
+          $legacy = [PSCustomObject]@{
+            workflow_state = $null
+            blocker = $null
+            final_boundary = $null
           }
 
           foreach ($action in @('kit', 'stage')) {
-            Assert-ProductReleaseState -Product $blocked -ProductSlug 'fixture' -RequestedAction $action
+            foreach ($fixture in @($blocked, $testing, $hardware, $rejected)) {
+              Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction $action
+            }
           }
-          Assert-ProductReleaseState -Product $ready -ProductSlug 'fixture' -RequestedAction 'ship'
 
-          foreach ($fixture in @($blocked, $legacyBlocked)) {
+          foreach ($fixture in @($ready, $submitted, $published, $legacy)) {
+            Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction 'ship'
+          }
+
+          foreach ($fixture in @($blocked, $testing, $hardware, $rejected)) {
             $threw = $false
             try {
               Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction 'ship'
@@ -150,10 +180,10 @@ jobs:
             catch {
               $threw = $true
               if ($_.Exception.Message -notmatch 'READY_TO_SHIP') {
-                throw "Blocked release error did not name READY_TO_SHIP: $($_.Exception.Message)"
+                throw "Pre-release guard error did not name READY_TO_SHIP: $($_.Exception.Message)"
               }
             }
-            if (-not $threw) { throw "Blocked fixture '$($fixture.workflow_state)' did not fail closed." }
+            if (-not $threw) { throw "Pre-release fixture '$($fixture.workflow_state)' did not fail closed." }
           }
 
           $schema = Get-Content 'schemas/product-workflow-state.schema.json' -Raw | ConvertFrom-Json
@@ -174,8 +204,45 @@ jobs:
           if ($routerRaw -match 'throw\s+"Rat \$Action finished with') {
             throw 'Rat Marketplace still converts an expected queue stop into an unhandled exception stack trace.'
           }
-          if ($routerRaw -notmatch 'Rat \$Action stopped for blocked product' -or $routerRaw -notmatch '(?m)^\s*exit 1\s*$') {
-            throw 'Rat Marketplace blocked-release UX must report a blocked stop and return nonzero without an exception stack trace.'
+          if ($routerRaw -notmatch '(?m)^\s*exit 1\s*
+
+      - name: Exercise pinned external Stream Deck release artifact
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $dest = Join-Path (Resolve-Path '.').Path 'out\ci-valorant-tracker'
+          ./tools/local/rat-ship-plugin.ps1 -PluginSlug 'valorant-tracker' -Destination $dest -IsolatedBuild
+
+          $expected = @(
+            'valorant-tracker.streamDeckPlugin',
+            'submission.json',
+            'PASTE_description.txt',
+            'PASTE_release_notes.txt',
+            '01_search_icon.png',
+            '02_cover.png',
+            '03_gallery_01.png',
+            '04_gallery_02.png',
+            '05_gallery_03.png',
+            '06_gallery_04.png'
+          )
+          foreach ($name in $expected) {
+            if (-not (Test-Path (Join-Path $dest $name) -PathType Leaf)) {
+              throw "External release artifact kit is missing $name"
+            }
+          }
+
+          $submission = Get-Content (Join-Path $dest 'submission.json') -Raw | ConvertFrom-Json
+          if ($submission.slug -ne 'valorant-tracker' -or [decimal]$submission.price_usd -ne [decimal]7.99) {
+            throw 'Valorant submission metadata did not survive the external artifact shipping path.'
+          }
+          Write-Host 'EXTERNAL STREAM DECK RELEASE ARTIFACT PASS'
+
+      - name: Exercise rat.cmd help path
+        shell: cmd
+        run: call rat.cmd help
+) {
+            throw 'Rat Marketplace pre-release guard must return nonzero.'
           }
 
           Write-Host 'RELEASE STATE GUARD PASS'
