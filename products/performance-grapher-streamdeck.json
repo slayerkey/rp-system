@@ -34,7 +34,7 @@
       "environment": "ChatGPT V8 tool runtime using exact committed source modules",
       "checks_passed": 38,
       "checks_failed": 0,
-      "syntax_files_passed": 24,
+      "syntax_files_passed": 25,
       "syntax_files_failed": 0,
       "coverage": [
         "frame-time based average FPS plus 1% / 0.1% low-average math",
@@ -122,13 +122,17 @@
       "product_registry_duplicate": "FIXED_AND_CONTRACT_TESTED",
       "runtime_npm_license_inventory_gate": "ADDED_PENDING_WINDOWS_BUILD_EXECUTION",
       "runtime_npm_license_evidence_staged": "ADDED_PENDING_WINDOWS_BUILD_EXECUTION",
-      "rat_art_python_compile_gate": "ADDED_PENDING_WINDOWS_WORKFLOW_EXECUTION"
+      "rat_art_python_compile_gate": "ADDED_PENDING_WINDOWS_WORKFLOW_EXECUTION",
+      "submission_json_literal_newline_terminator": "FIXED_AND_CONTRACT_TESTED",
+      "cross_file_metadata_drift": "CONTRACT_TEST_ADDED"
     },
     "contracts": {
       "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
       "product_registry_unique_and_metadata_matched": "PASS_EXACT_SOURCE",
       "current_elgato_manifest_fields": "VERIFIED_AGAINST_CURRENT_SCHEMA",
-      "node24_streamdeck73_compatibility": "VERIFIED_CURRENT_DOCS"
+      "node24_streamdeck73_compatibility": "VERIFIED_CURRENT_DOCS",
+      "marketplace_submission_json": "PASS_PARSE_AND_CROSS_FILE_MATCH",
+      "required_submission_disclosures": "PASS_EXACT_SOURCE"
     }
   },
   "physical_release_evidence": null,
