@@ -105,11 +105,19 @@ public sealed class WindowsAudioSystem
             {
                 PolicyConfig.SetDefaultEndpoint(endpointId, roles);
             }
-            catch
+            catch (COMException error)
             {
-                _defaultSwitchingAvailable = false;
-                throw new NotSupportedException(
-                    "Windows rejected default-device switching. Endpoint volume and mute remain available.");
+                throw new InvalidOperationException(
+                    $"Windows rejected default-device switching (0x{error.HResult:X8}). " +
+                    "The device may have disconnected; refresh or rebind and try again.",
+                    error);
+            }
+            catch (Exception error)
+            {
+                throw new InvalidOperationException(
+                    "Windows rejected default-device switching. " +
+                    "The device may have disconnected; refresh or rebind and try again.",
+                    error);
             }
         }
     }
