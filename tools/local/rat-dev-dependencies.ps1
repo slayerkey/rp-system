@@ -86,6 +86,27 @@ function Get-RatDevDotNetSdkVersions {
     )
 }
 
+function Test-RatDevSelfManagedDotNetSdk {
+    param([string]$PluginRoot)
+
+    $configPath = Join-Path $PluginRoot "rat-dev.json"
+    if (-not (Test-Path $configPath -PathType Leaf)) {
+        return $false
+    }
+
+    try {
+        $config = Get-Content $configPath -Raw | ConvertFrom-Json
+    }
+    catch {
+        throw "Invalid Rat Dev configuration at $configPath"
+    }
+
+    return (
+        $config.build_prerequisites -and
+        [string]$config.build_prerequisites.dotnet_sdk -eq "self-managed"
+    )
+}
+
 function Assert-RatDevBuildPrerequisites {
     param(
         [string]$PluginRoot,
@@ -99,6 +120,10 @@ function Assert-RatDevBuildPrerequisites {
             }
     )
     if (-not $projects.Count) { return }
+
+    if (Test-RatDevSelfManagedDotNetSdk -PluginRoot $PluginRoot) {
+        return
+    }
 
     $sdkVersions = @(Get-RatDevDotNetSdkVersions)
     $hasModernSdk = $false
@@ -125,4 +150,3 @@ Then rerun:
   rat dev $Slug
 "@.Trim()
 }
-
