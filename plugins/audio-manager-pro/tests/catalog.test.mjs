@@ -58,3 +58,16 @@ test("Audio Manager listing follows current PackRat standalone paid conventions"
   assert.match(submission.headline, /Switch your entire audio setup with one key\./);
   assert.equal(submission.marketplace_operating_systems?.includes("Windows"), true);
 });
+
+
+test("Audio Manager stays on the current PackRat Stream Deck runtime baseline", () => {
+  assert.equal(manifest.Author, "PackRat");
+  assert.equal(manifest.SDKVersion, 3);
+  assert.equal(manifest.Nodejs?.Version, "24");
+  assert.equal(Object.hasOwn(manifest.Nodejs || {}, "Debug"), false);
+  assert.equal(manifest.Software?.MinimumVersion, "7.3");
+  assert.equal(manifest.OS?.[0]?.Platform, "windows");
+  assert.equal(manifest.OS?.[0]?.MinimumVersion, "10");
+  assert.equal(manifest.Actions?.length, 7);
+  assert.equal(new Set(manifest.Actions.map((action) => action.UUID)).size, 7);
+});
