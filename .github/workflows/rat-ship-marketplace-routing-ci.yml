@@ -173,6 +173,16 @@ jobs:
             blocker = 'Discord approval pending'
             final_boundary = 'approval then submission'
           }
+          $building = [PSCustomObject]@{
+            workflow_state = 'BUILDING'
+            blocker = 'Windows release QA pending'
+            final_boundary = 'automated and physical QA'
+          }
+          $hardwareQa = [PSCustomObject]@{
+            workflow_state = 'READY_FOR_HARDWARE_QA'
+            blocker = $null
+            final_boundary = 'real Windows hardware smoke'
+          }
           $ready = [PSCustomObject]@{
             workflow_state = 'READY_TO_SHIP'
             blocker = $null
@@ -183,13 +193,20 @@ jobs:
             blocker = $null
             final_boundary = 'legacy approval pending'
           }
+          $legacyNoState = [PSCustomObject]@{
+            blocker = $null
+            final_boundary = $null
+          }
 
-          foreach ($action in @('kit', 'stage')) {
-            Assert-ProductReleaseState -Product $blocked -ProductSlug 'fixture' -RequestedAction $action
+          foreach ($fixture in @($blocked, $building, $hardwareQa)) {
+            foreach ($action in @('kit', 'stage')) {
+              Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction $action
+            }
           }
           Assert-ProductReleaseState -Product $ready -ProductSlug 'fixture' -RequestedAction 'ship'
+          Assert-ProductReleaseState -Product $legacyNoState -ProductSlug 'fixture' -RequestedAction 'ship'
 
-          foreach ($fixture in @($blocked, $legacyBlocked)) {
+          foreach ($fixture in @($blocked, $building, $hardwareQa, $legacyBlocked)) {
             $threw = $false
             try {
               Assert-ProductReleaseState -Product $fixture -ProductSlug 'fixture' -RequestedAction 'ship'
@@ -197,10 +214,10 @@ jobs:
             catch {
               $threw = $true
               if ($_.Exception.Message -notmatch 'READY_TO_SHIP') {
-                throw "Blocked release error did not name READY_TO_SHIP: $($_.Exception.Message)"
+                throw "Non-ready release error did not name READY_TO_SHIP: $($_.Exception.Message)"
               }
             }
-            if (-not $threw) { throw "Blocked fixture '$($fixture.workflow_state)' did not fail closed." }
+            if (-not $threw) { throw "Non-ready fixture '$($fixture.workflow_state)' did not fail closed." }
           }
 
           $schema = Get-Content 'schemas/product-workflow-state.schema.json' -Raw | ConvertFrom-Json
