@@ -498,6 +498,42 @@ function Invoke-SlugBatch {
     }
 }
 
+function Run-Dev {
+    param([string]$ProductSlug)
+
+    $helper = Join-Path $PSScriptRoot "rat-dev-dispatch.ps1"
+    if (-not (Test-Path $helper -PathType Leaf)) {
+        throw "Rat Dev dispatcher not found: $helper"
+    }
+
+    & $helper $ProductSlug
+    if ($LASTEXITCODE -ne 0) {
+        throw "Rat Dev failed for '$ProductSlug' (exit code $LASTEXITCODE)."
+    }
+}
+
+function Run-Audit {
+    param(
+        [string]$ProductSlug,
+        [string[]]$Arguments
+    )
+
+    if ($Arguments.Count -gt 1) {
+        throw "Rat Audit accepts at most one option: --probe"
+    }
+
+    $mode = if ($Arguments.Count -eq 1) { [string]$Arguments[0] } else { "" }
+    $helper = Join-Path $PSScriptRoot "rat-audit.ps1"
+    if (-not (Test-Path $helper -PathType Leaf)) {
+        throw "Rat Audit helper not found: $helper"
+    }
+
+    & $helper $ProductSlug $mode
+    if ($LASTEXITCODE -ne 0) {
+        throw "Rat Audit failed for '$ProductSlug' (exit code $LASTEXITCODE)."
+    }
+}
+
 function Run-Doctor {
     Write-Host "RatPack local doctor" -ForegroundColor Cyan
     Write-Host "Repo: $RepoRoot"
@@ -542,6 +578,8 @@ switch ($Action.ToLowerInvariant()) {
     "kit" { Invoke-SlugBatch -Mode "kit" -Slugs $RequestedSlugs }
     "kit-cloud" { Invoke-SlugBatch -Mode "kit" -Slugs $RequestedSlugs }
     "stage" { Invoke-SlugBatch -Mode "stage" -Slugs $RequestedSlugs }
+    "dev" { Run-Dev -ProductSlug $Slug }
+    "audit" { Run-Audit -ProductSlug $Slug -Arguments $AdditionalSlugs }
     "open" { Start-Process explorer.exe $RepoRoot }
     "doctor" { Run-Doctor }
     default {
