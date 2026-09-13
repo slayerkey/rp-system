@@ -46,6 +46,7 @@ jobs:
           path: |
             plugins/audio-manager-pro/dist/*.streamDeckPlugin
             plugins/audio-manager-pro/dist/marketplace/*.png
+            plugins/audio-manager-pro/dist/marketplace/review/*.png
             plugins/audio-manager-pro/QA.md
             plugins/audio-manager-pro/REAL_WINDOWS_SMOKE.md
           if-no-files-found: error
