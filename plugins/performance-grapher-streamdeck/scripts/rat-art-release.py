@@ -53,12 +53,12 @@ def signature(img):
         box = rat.getbbox()
         if box:
             rat = rat.crop(box)
-        scale = min(44 / rat.width, 44 / rat.height)
+        scale = min(64 / rat.width, 64 / rat.height)
         rat = rat.resize((max(1, int(rat.width * scale)), max(1, int(rat.height * scale))), Image.Resampling.LANCZOS)
-        img.alpha_composite(rat, ((W - rat.width) // 2, 903 - rat.height // 2))
+        img.alpha_composite(rat, (W - 82 - rat.width, 48))
     else:
         d = ImageDraw.Draw(img)
-        d.ellipse((W // 2 - 13, 887, W // 2 + 13, 913), fill=ACCENT)
+        d.ellipse((W - 120, 62, W - 94, 88), fill=ACCENT)
 
 
 def spark(draw, box, values, color=ACCENT, spike=False):
@@ -128,13 +128,10 @@ def search_icon(out):
 def hero(out):
     img = background()
     d = ImageDraw.Draw(img)
-    d.text((96, 78), "Performance Grapher", font=font(65, True), fill=WHITE)
-    d.text((98, 156), "for Stream Deck", font=font(38, True), fill=ACCENT)
-    d.text((100, 235), "See what your PC did,", font=font(31, True), fill=WHITE)
-    d.text((100, 278), "not just what it's doing right now.", font=font(31, True), fill=WHITE)
-    d.multiline_text((102, 350), "Rolling FPS and hardware history.\n1% / 0.1% lows. Frametime spikes.\nSession peaks after the moment is gone.", font=font(22), fill=MUTED, spacing=10)
-    d.rounded_rectangle((98, 535, 386, 590), 27, fill=(15, 27, 21), outline=ACCENT, width=2)
-    d.text((242, 563), "$9.99  ONE TIME", font=font(22, True), fill=ACCENT, anchor="mm")
+    d.text((96, 92), "PC PERFORMANCE HISTORY", font=font(24, True), fill=ACCENT)
+    d.text((96, 165), "See what", font=font(66, True), fill=WHITE)
+    d.text((96, 238), "just happened.", font=font(66, True), fill=WHITE)
+    d.text((100, 340), "FPS lows  •  frametime spikes  •  session peaks", font=font(21, True), fill=MUTED)
 
     keys = [
         dict(label="FPS", value="144", unit="", secondary="1% 118", values=[122, 138, 145, 142, 139, 147, 144, 143, 146, 144]),
@@ -143,7 +140,7 @@ def hero(out):
         dict(label="FRAMETIME", value="31.4", unit="ms", secondary="SPIKE", values=[7, 7, 8, 8, 31, 9, 8, 7, 8, 7], color=DANGER, alert=True),
         dict(label="SESSION", value="42m", unit="", secondary="AVG 141", values=[]),
     ]
-    deck(img, 730, 315, keys, key_size=205, gap=18, cols=5)
+    deck(img, 700, 300, keys, key_size=210, gap=18, cols=5)
     d.text((1320, 635), "ONE SHARED TELEMETRY ENGINE  •  FIVE READABLE KEYS", font=font(17, True), fill=MUTED, anchor="mm")
     d.text((1320, 685), "PresentMon + Libre Hardware Monitor + Windows native fallback", font=font(17), fill=MUTED, anchor="mm")
     signature(img)
