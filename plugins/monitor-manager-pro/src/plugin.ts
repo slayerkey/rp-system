@@ -47,6 +47,10 @@ async function sendInspectorData():Promise<void>{
   }
 }
 
+process.once("exit",()=>runtime.dispose());
+process.once("SIGTERM",()=>{runtime.dispose();process.exit(0);});
+process.once("SIGINT",()=>{runtime.dispose();process.exit(0);});
+
 streamDeck.ui.onDidAppear(()=>void sendInspectorData());
 streamDeck.ui.onSendToPlugin((ev)=>{
   const payload=ev.payload as {type?:string}|undefined;
