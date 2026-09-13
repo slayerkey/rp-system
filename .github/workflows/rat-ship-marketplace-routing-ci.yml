@@ -204,7 +204,11 @@ jobs:
           if ($routerRaw -match 'throw\s+"Rat \$Action finished with') {
             throw 'Rat Marketplace still converts an expected queue stop into an unhandled exception stack trace.'
           }
-          if ($routerRaw -notmatch '(?m)^\s*exit 1\s*
+          if ($routerRaw -notmatch 'stopped at the release gate' -or $routerRaw -notmatch '(?m)^\s*exit 1\s*$') {
+            throw 'Rat Marketplace pre-release guard must report a controlled release-gate stop and return nonzero.'
+          }
+
+          Write-Host 'RELEASE STATE GUARD PASS'
 
       - name: Exercise pinned external Stream Deck release artifact
         shell: pwsh
