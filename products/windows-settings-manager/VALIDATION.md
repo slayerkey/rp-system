@@ -31,77 +31,73 @@ These checks were executed in an isolated local harness and are useful regressio
 
 ## Automated execution status
 
-Canonical automated gates pass on the exact current candidate commit `af2e7d4e8f0ff68a1c0dbe196cf92321dace0725`.
+Canonical automated gates pass on the exact current candidate commit `8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939`.
 
 ### Hosted Windows evidence
 
 - Workflow: Windows Settings Manager CI
-- Run: `34778323686`
-- Job: `103780511518`
+- Run: `34785418162`
+- Job: `103799897210`
 - Result: PASS
-- Runner: Windows Server 2025, build 26100
-- Node runtime under test: 20.20.2
 - Locked dependency install: PASS
-- Strict TypeScript `tsc --noEmit`: PASS
-- Lite + Pro assembly / Rollup build: PASS
-- Policy suite: PASS, 40/40 tests
-- Native Windows backend smoke under Windows PowerShell 5.1: PASS
-  - embedded C# Add-Type compile
-  - JSON-line transport
-  - ping
-  - live snapshot
-  - real Windows build read
-  - HDR separated-state API selected on build 26100
-  - power-plan read
-  - Keep Awake on/off
+- Strict TypeScript build / Lite + Pro assembly: PASS
+- Policy suite: PASS
+- Native Windows backend smoke: PASS
 - Official Elgato CLI validation: PASS for Lite and Pro
 - Production dependency audit: PASS, 0 vulnerabilities
 - Official Lite package: PASS
 - Official Pro package: PASS
-- Uploaded package artifact: `10323244689`
-- Artifact digest: `sha256:badb69cfd206697b3fb618886be581b0b87b3a82acb6f0bfca1ab6dcf730cc4f`
+- Uploaded package artifact: `10325769771`
+- Artifact digest: `sha256:4db9c02a66c1c3dd40f8c3bf5c8b98e2e2b2322c45ae5781365936890e86480a`
+
+The backend smoke executes under Windows and covers embedded C# compilation, JSON transport, ping, snapshot, Windows build/HDR API selection, power-plan read, and Keep Awake on/off.
 
 ### Portable release evidence
 
 - Workflow: Windows Settings Manager Portable CI
-- Run: `34778323587`
-- Job: `103780511173`
+- Run: `34785418201`
+- Job: `103799896918`
 - Result: PASS
 - Locked dependency install: PASS
 - Strict TypeScript build / Lite + Pro assembly: PASS
-- Policy suite: PASS, 40/40 tests
+- Policy suite: PASS
 - Official Elgato CLI validation: PASS for Lite and Pro
 - Production dependency audit: PASS, 0 vulnerabilities
 - Official Lite + Pro packaging: PASS
 - Lite + Pro deterministic Rat Art: PASS
 - Marketplace media dimension verification: PASS
-- Uploaded release-evidence artifact: `10323859244`
-- Artifact digest: `sha256:20f4109405217d34476ae67408f5653bbfa7b2a354e194273e03041b3bf277d1`
+- Uploaded release-evidence artifact: `10326347964`
+- Artifact digest: `sha256:b39fa27e0d92877d1a63a7181c6c1a7f4352ea6b2ed0cf1c46d05f74c600d7f8`
+
+### Human Marketplace media review
+
+PASS on the current portable artifact.
+
+- Lite icon, cover, and four gallery images reviewed.
+- Pro icon, cover, and four gallery images reviewed.
+- An earlier Pro cover exposed a real clipped third key row.
+- The cover renderer was changed to fit the key grid inside explicit safe bounds and fail closed if geometry exceeds them.
+- The regenerated current-head Pro cover was reopened at full 1920x960 resolution and visually confirmed with all three rows fully inside frame.
+- Current Lite/Pro galleries are readable, internally consistent, and free of visible clipping.
 
 ### Repository / commercial release gates
 
-All relevant repository-level gates also pass on `af2e7d4e8f0ff68a1c0dbe196cf92321dace0725`:
+All relevant repository-level gates also pass on `8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939`:
 
 - Lite Pro Portfolio Audit: PASS
-  - Run: `34778323618`
-  - Job: `103780511203`
+  - Run: `34785417411`
+  - Job: `103799893940`
 - Rat Ship Marketplace Routing CI: PASS
-  - Run: `34778323793`
-  - Job: `103780511827`
+  - Run: `34785417400`
+  - Job: `103799893701`
 - RatPack Lightweight CI: PASS
-  - Run: `34778323662`
-  - Job: `103780511205`
-  - canonical context: PASS
-  - JSON validation: PASS
-  - plugin release metadata: PASS
-  - Maker Console runtime patch: PASS
-  - local PowerShell syntax: PASS
-  - Rat Dev / Rat Audit lifecycle checks: PASS
+  - Run: `34785417398`
+  - Job: `103799893665`
 
-The separate PackRat self-hosted Windows gate remains optional additional confidence. It is not required to establish an executable Windows backend signal because the hosted Windows gate above successfully compiled and exercised the backend on Windows build 26100.
+The separate PackRat self-hosted Windows gate remains optional additional confidence. It is not required to establish an executable Windows backend signal because the hosted Windows gate successfully compiles and exercises the backend.
 
 ## Remaining validation boundary
 
 Automated build, test, native Windows smoke, official Elgato validation/package, dependency audit, bundled-profile structural checks, and deterministic Marketplace media generation are complete.
 
-The release remains blocked only on the physical QA boundary: real HDR-capable/unsupported/multi-monitor hardware, laptop AC/battery behavior, sleep/resume/reboot, outside-Windows changes, physical Stream Deck profile install/page navigation, and final human Marketplace media review. Lite also remains commercially blocked until Pro is published and the verified direct Lite/Pro Marketplace URLs/IDs pass the strict routing audit.
+The release remains blocked only on the physical QA boundary: real HDR-capable/unsupported/multi-monitor hardware, laptop AC/battery behavior, sleep/resume/reboot, outside-Windows changes, and physical Stream Deck profile install/page navigation. Lite also remains commercially blocked until Pro is published and the verified direct Lite/Pro Marketplace URLs/IDs pass the strict routing audit.
