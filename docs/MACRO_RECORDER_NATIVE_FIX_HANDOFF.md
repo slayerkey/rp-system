@@ -124,6 +124,34 @@ Change the hook so:
 
 Keep Ctrl+Shift+F12 as the documented emergency playback fallback, but do not reserve it globally while idle.
 
+### 7. Tie helper lifetime to the Stream Deck plugin process
+
+A graceful Node shutdown calls `host.close()`, but the helper must also handle abrupt parent death.
+
+Implement either:
+- a Windows Job Object / kill-on-parent-close pattern, or
+- pass the Node parent PID to `PackRat.InputHost.exe` and have the helper watch it
+
+Requirements:
+- parent death causes prompt helper shutdown
+- no orphaned global hooks
+- do not destroy crash-recovery journal evidence before held inputs are safely released/recoverable
+
+### 8. Coordinate Lite and Pro with one cross-process active-session lock
+
+Both editions may be installed simultaneously and each bundles its own helper.
+
+Use a Windows named mutex or equivalent user-session-wide primitive around active recording/playback.
+
+Requirements:
+- at most one active PackRat Macro Recorder record/play session across Lite + Pro
+- clean error when lock is busy
+- release on stop/cancel/completion/error/shutdown
+- safe abandoned mutex recovery after a crash
+- do not prevent both plugin helpers from existing idle; only active input work must be exclusive
+
+This also makes the playback-only Ctrl+Shift+F12 emergency hook deterministic across the product family.
+
 ## Native safety constraints
 
 - Ignore injected hook events so playback is not re-recorded.
