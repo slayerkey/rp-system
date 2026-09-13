@@ -57,11 +57,15 @@ PackRat should not claim generic audio control is underserved. The narrower oppo
 
 ## Wave Link boundary
 
-Wave Link-specific control remains with Elgato's supported Wave Link surfaces.
+Current Wave Link 3 and Elgato's official Stream Deck plugin already cover Wave-specific input/output control, Monitor/Stream Mix controls, output-device switching, hardware controls, effects, and foreground-app channel routing.
 
-Audio Manager Pro does not use private Wave Link internals and does not fake unsupported routing.
+Audio Manager Pro should not duplicate those surfaces.
 
-Where a Wave Link setup follows Windows Default Output, a Windows Audio Profile can naturally change the Windows side of that setup. Wave-specific submix/channel routing is outside v1 unless Elgato exposes a supported public API for it.
+Audio Manager Pro does not use private Wave Link internals and does not fake unsupported routing. Its profile owns Windows audio roles and endpoint state.
+
+Wave Link can be configured to use the Windows Default Output for Monitor Mix. In that supported configuration, changing the Windows Default Output through an Audio Profile naturally moves Wave Link monitoring too.
+
+Wave-specific submix/channel routing remains owned by Elgato's supported Wave Link integration.
 
 ## Architecture decision
 
