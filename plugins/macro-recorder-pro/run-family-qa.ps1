@@ -105,6 +105,23 @@ foreach ($Path in $Expected) {
   if (-not (Test-Path (Join-Path $Root $Path))) { throw "Missing expected output: $Path" }
 }
 
+if (-not $SkipArt) {
+  foreach ($Slug in @("macro-recorder-lite","macro-recorder-pro")) {
+    $AppIcon = Join-Path $Root "artifacts\marketplace\$Slug\00-app-icon.png"
+    if (-not (Test-Path $AppIcon)) { throw "Missing 288x288 Marketplace app icon: $AppIcon" }
+  }
+}
+
+$HelperMb = [math]::Round((Get-Item $HelperExe).Length / 1MB, 2)
+Write-Host "Native helper size: $HelperMb MB"
+foreach ($Slug in @("macro-recorder-lite","macro-recorder-pro")) {
+  $Package = @(Get-ChildItem (Join-Path $Root "plugins\$Slug\dist") -Filter *.streamDeckPlugin -File)
+  if ($Package.Count -eq 1) {
+    $PackageMb = [math]::Round($Package[0].Length / 1MB, 2)
+    Write-Host "$Slug package size: $PackageMb MB"
+  }
+}
+
 if ($ReleaseCandidate) {
   $GatePath = Join-Path $Root "docs\MACRO_RECORDER_NATIVE_GATE.json"
   if (-not (Test-Path $GatePath)) { throw "Missing native release gate: $GatePath" }
