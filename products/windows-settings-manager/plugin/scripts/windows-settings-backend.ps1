@@ -586,21 +586,75 @@ function Set-Timeout {
         sleepDcSeconds = [int64]$Args.sleepDcSeconds
     }
     foreach ($value in $values.Values) {
-        if ($value -lt 0 -or $value -gt [uint32]::MaxValue) { throw "Timeout values must be between 0 and 4294967295 seconds." }
+        if ($value -lt 0 -or $value -gt [uint32]::MaxValue) {
+            throw "Timeout values must be between 0 and 4294967295 seconds."
+        }
     }
 
     $current = Get-ActivePowerPlan
-    Invoke-PowerCfg /setacvalueindex SCHEME_CURRENT SUB_VIDEO VIDEOIDLE $values.monitorAcSeconds | Out-Null
-    Invoke-PowerCfg /setdcvalueindex SCHEME_CURRENT SUB_VIDEO VIDEOIDLE $values.monitorDcSeconds | Out-Null
-    Invoke-PowerCfg /setacvalueindex SCHEME_CURRENT SUB_SLEEP STANDBYIDLE $values.sleepAcSeconds | Out-Null
-    Invoke-PowerCfg /setdcvalueindex SCHEME_CURRENT SUB_SLEEP STANDBYIDLE $values.sleepDcSeconds | Out-Null
-    Invoke-PowerCfg /setactive $current.guid | Out-Null
-    $after = Get-Timeout
-    $ok = $after.monitorAcSeconds -eq $values.monitorAcSeconds -and
-        $after.monitorDcSeconds -eq $values.monitorDcSeconds -and
-        $after.sleepAcSeconds -eq $values.sleepAcSeconds -and
-        $after.sleepDcSeconds -eq $values.sleepDcSeconds
-    [pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }); state = $after }
+    $errors = [System.Collections.Generic.List[string]]::new()
+    $writes = @(
+        @{ label = "Screen AC"; args = @("/setacvalueindex", "SCHEME_CURRENT", "SUB_VIDEO", "VIDEOIDLE", [string]$values.monitorAcSeconds) },
+        @{ label = "Screen battery"; args = @("/setdcvalueindex", "SCHEME_CURRENT", "SUB_VIDEO", "VIDEOIDLE", [string]$values.monitorDcSeconds) },
+        @{ label = "Sleep AC"; args = @("/setacvalueindex", "SCHEME_CURRENT", "SUB_SLEEP", "STANDBYIDLE", [string]$values.sleepAcSeconds) },
+        @{ label = "Sleep battery"; args = @("/setdcvalueindex", "SCHEME_CURRENT", "SUB_SLEEP", "STANDBYIDLE", [string]$values.sleepDcSeconds) }
+    )
+
+    foreach ($write in $writes) {
+        try {
+            Invoke-PowerCfg @($write.args) | Out-Null
+        }
+        catch {
+            $errors.Add("$($write.label): $($_.Exception.Message)")
+        }
+    }
+
+    $activationOk = $true
+    try {
+        Invoke-PowerCfg /setactive $current.guid | Out-Null
+    }
+    catch {
+        $activationOk = $false
+        $errors.Add("Activate plan: $($_.Exception.Message)")
+    }
+
+    try {
+        $after = Get-Timeout
+    }
+    catch {
+        return [pscustomobject]@{
+            status = "FAILED"
+            state = $null
+            error = "Timeout writes were attempted but final Windows readback failed: $($_.Exception.Message)"
+        }
+    }
+
+    $checks = @(
+        @{ label = "Screen AC"; ok = ($after.monitorAcSeconds -eq $values.monitorAcSeconds) },
+        @{ label = "Screen battery"; ok = ($after.monitorDcSeconds -eq $values.monitorDcSeconds) },
+        @{ label = "Sleep AC"; ok = ($after.sleepAcSeconds -eq $values.sleepAcSeconds) },
+        @{ label = "Sleep battery"; ok = ($after.sleepDcSeconds -eq $values.sleepDcSeconds) }
+    )
+    $matched = @($checks | Where-Object { $_.ok }).Count
+    foreach ($check in $checks | Where-Object { -not $_.ok }) {
+        $errors.Add("$($check.label) did not match the requested value after readback.")
+    }
+
+    $status = if ($matched -eq $checks.Count -and $activationOk) {
+        "COMPLETE"
+    }
+    elseif ($matched -gt 0) {
+        "PARTIAL"
+    }
+    else {
+        "FAILED"
+    }
+
+    [pscustomobject]@{
+        status = $status
+        state = $after
+        error = $(if ($status -eq "COMPLETE") { $null } else { ($errors -join " | ") })
+    }
 }
 
 function Get-Snapshot {
@@ -690,7 +744,7 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
             }
             "setTimeout" {
                 $result = Set-Timeout $args
-                Write-Reply $id ($result.status -eq "COMPLETE") $result $(if ($result.status -eq "FAILED") { "Power timeout readback did not match." } else { $null })
+                Write-Reply $id ($result.status -ne "FAILED") $result $result.error
             }
             "setKeepAwake" {
                 $enabled = [bool]$args.enabled
