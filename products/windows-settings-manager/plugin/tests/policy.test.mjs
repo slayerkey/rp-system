@@ -175,6 +175,12 @@ test("dependent mode settings are skipped when their prerequisite was not confir
   assert.match(backend, /if \(current == enabled\) return true;/);
 });
 
+test("Cycle PC Mode advances its cursor only after a COMPLETE apply", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(actions, /const result = await applyMode[\s\S]*if \(result\.status === "COMPLETE"\)[\s\S]*this\.lastId = mode\.id/);
+  assert.doesNotMatch(actions, /this\.lastId = mode\.id;\s*const result = await applyMode/);
+});
+
 test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async () => {
   const source = await readFile(path.resolve("src", "modes.ts"), "utf8");
   assert.match(source, /"COMPLETE"/);
