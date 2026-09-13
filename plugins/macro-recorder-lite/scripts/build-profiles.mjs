@@ -37,7 +37,7 @@ const examples={
 function litePages(){return [{label:"BASIC",actions:{
  "0,0":act("lite-rec","record","REC"),"1,0":act("lite-stop","stop","STOP"),
  "2,0":replay("lite-find","FIND",examples.find),"3,0":replay("lite-save","SAVE",examples.save),"4,0":replay("lite-next","NEXT x3",examples.next3),
- "0,1":replay("lite-home","HOME",examples.home),"1,1":replay("lite-page","PAGE DOWN",examples.pageDown)
+ "0,1":act("lite-play","replay","PLAY"),"1,1":replay("lite-home","HOME",examples.home),"2,1":replay("lite-page","PAGE DOWN",examples.pageDown)
 }}];}
 function proPages(){return [
  {label:"MACROS",actions:{"0,0":act("p-rec","record","REC"),"1,0":act("p-stop","stop","STOP"),"2,0":replay("p-find","FIND",examples.find),"3,0":replay("p-save","SAVE",examples.save),"4,0":replay("p-next","NEXT x3",examples.next3)}},
