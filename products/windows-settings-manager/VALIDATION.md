@@ -24,10 +24,10 @@
 
 These checks were executed in an isolated local harness and are useful regression evidence, but they do **not** replace the canonical locked dependency build, Elgato validator, Windows backend smoke, or physical QA:
 
-- current JavaScript-side Property Inspector, profile assembler, validator, and policy-test syntax: PASS
-- current TypeScript source under strict mode with minimal Node / Stream Deck API declarations: PASS
-- pure PC Mode logic: PASS for HDR matching, prerequisite skips, and COMPLETE / PARTIAL / FAILED aggregation
-- ModeStore sanitization: PASS for defaults, valid timeouts, name cleanup, and rejection of blank/null/boolean/fractional/out-of-range timeout values
+- JavaScript-side Property Inspector, profile assembler, validator, and policy-test syntax checks were run during branch hardening and passed at the snapshots tested.
+- A strict TypeScript source-shape harness with minimal Node / Stream Deck declarations passed on an earlier hardened branch snapshot. Later edits remain subject to the canonical locked-dependency typecheck.
+- Pure PC Mode logic checks passed for HDR matching, prerequisite skips, and COMPLETE / PARTIAL / FAILED aggregation at the snapshots tested.
+- ModeStore sanitization checks passed for defaults, valid timeouts, name cleanup, and rejection of blank/null/boolean/fractional/out-of-range timeout values at the snapshots tested.
 
 ## Automated execution status
 
