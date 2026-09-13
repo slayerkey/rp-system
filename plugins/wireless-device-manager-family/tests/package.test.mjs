@@ -109,3 +109,15 @@ test("Marketplace release notes use concise bullets",async()=>{
     assert.ok(lines.every(line=>line.startsWith("- ")),`${file} release notes must be bullet lines`);
   }
 });
+
+
+test("native Bluetooth boundary uses AEP services and fail-closed service errors",async()=>{
+  const source=await readFile("bridge/Program.cs","utf8");
+  assert.match(source,/DeviceInformationKind\.AssociationEndpointService/);
+  assert.match(source,/System\.Devices\.AepService\.ServiceClassId/);
+  assert.match(source,/0000110B-0000-1000-8000-00805F9B34FB/i);
+  assert.match(source,/0000111E-0000-1000-8000-00805F9B34FB/i);
+  assert.match(source,/controlId/);
+  assert.doesNotMatch(source,/AudioVideo-class|MajorClass\.AudioVideo|ERROR_INVALID_PARAMETER\s*\|\|/);
+  assert.match(source,/code\s*==\s*E_INVALIDARG/);
+});
