@@ -43,6 +43,13 @@ jobs:
           if ($json.id -ne "snapshot-smoke") { throw "Audio helper snapshot response id mismatch." }
           if ($null -eq $json.snapshot) { throw "Audio helper snapshot payload is missing." }
           Write-Host "Helper snapshot protocol smoke: $($json.status)"
+
+          $badResponse = '{"id":"invalid-command-smoke","command":"definitely-invalid"}' | & $helper | Select-Object -First 1
+          if (-not $badResponse) { throw "Audio helper returned no invalid-command response." }
+          $badJson = $badResponse | ConvertFrom-Json
+          if ($badJson.id -ne "invalid-command-smoke") { throw "Audio helper lost request correlation on rejected command." }
+          if ($badJson.status -ne "FAILED") { throw "Audio helper invalid-command smoke did not fail closed." }
+          Write-Host "Helper rejected-command correlation smoke: PASS"
       - run: npm run validate
         working-directory: plugins/audio-manager-pro
       - run: npm run pack
