@@ -10,6 +10,38 @@ async function manifest(flavor) {
   return JSON.parse(await readFile(file, "utf8"));
 }
 
+const DEVICE_GRIDS = new Map([
+  [0, [5, 3]],
+  [1, [3, 2]],
+  [2, [8, 4]],
+  [7, [4, 2]],
+  [9, [4, 2]],
+  [12, [4, 3]],
+  [13, [9, 4]]
+]);
+
+function storedZipEntries(buffer) {
+  const entries = [];
+  let offset = 0;
+  while (offset + 30 <= buffer.length && buffer.readUInt32LE(offset) === 0x04034b50) {
+    const compression = buffer.readUInt16LE(offset + 8);
+    const compressedSize = buffer.readUInt32LE(offset + 18);
+    const uncompressedSize = buffer.readUInt32LE(offset + 22);
+    const nameLength = buffer.readUInt16LE(offset + 26);
+    const extraLength = buffer.readUInt16LE(offset + 28);
+    assert.equal(compression, 0, "profile archive entries must be stored without compression");
+    assert.equal(compressedSize, uncompressedSize, "stored profile entry size mismatch");
+
+    const nameStart = offset + 30;
+    const dataStart = nameStart + nameLength + extraLength;
+    const name = buffer.subarray(nameStart, nameStart + nameLength).toString("utf8");
+    const data = buffer.subarray(dataStart, dataStart + uncompressedSize);
+    entries.push({ name, data });
+    offset = dataStart + compressedSize;
+  }
+  return entries;
+}
+
 test("Lite exposes curated live Windows controls only", async () => {
   const value = await manifest("lite");
   assert.equal(value.Name, "Windows Settings Manager Lite");
@@ -65,6 +97,101 @@ test("all seven current bundled profile device families are generated", async ()
       assert.match(text, /"Version": "2\.0"/);
     }
   }
+});
+
+test("every bundled profile page references only registered actions and valid navigation", async () => {
+  const validModeIds = new Set(["gaming", "work", "night", "present", "movie"]);
+
+  for (const flavor of ["lite", "pro"]) {
+    const value = await manifest(flavor);
+    const registeredActions = new Set(value.Actions.map((item) => item.UUID));
+
+    for (const registration of value.Profiles) {
+      const grid = DEVICE_GRIDS.get(registration.DeviceType);
+      assert.ok(grid, `missing grid definition for DeviceType ${registration.DeviceType}`);
+      const [columns, rows] = grid;
+      const stem = registration.Name.replace(/^profiles\//, "");
+      const data = await readFile(
+        path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`, "profiles", `${stem}.streamDeckProfile`)
+      );
+      const entries = storedZipEntries(data);
+      const rootEntry = entries.find((entry) =>
+        entry.name.endsWith(".sdProfile/manifest.json") && !entry.name.includes("/Profiles/")
+      );
+      assert.ok(rootEntry, `${stem} is missing its root profile manifest`);
+
+      const rootManifest = JSON.parse(rootEntry.data.toString("utf8"));
+      const pageEntries = entries.filter((entry) => /\/Profiles\/[^/]+\/manifest\.json$/.test(entry.name));
+      const expectedPages = flavor === "pro" ? 2 : 1;
+      assert.equal(pageEntries.length, expectedPages, `${stem} page count mismatch`);
+      assert.equal(rootManifest.Pages.Pages.length, expectedPages, `${stem} root page list mismatch`);
+      assert.equal(rootManifest.Pages.Current, rootManifest.Pages.Pages[0], `${stem} current page must be first page`);
+
+      const actionIds = new Set();
+      let navigationCount = 0;
+      for (const pageEntry of pageEntries) {
+        const page = JSON.parse(pageEntry.data.toString("utf8"));
+        assert.equal(page.Controllers?.length, 1, `${stem} should have one keypad controller`);
+        const actions = page.Controllers[0].Actions ?? {};
+
+        for (const [coordinate, item] of Object.entries(actions)) {
+          const [x, y] = coordinate.split(",").map(Number);
+          assert.ok(Number.isInteger(x) && x >= 0 && x < columns, `${stem} invalid x coordinate ${coordinate}`);
+          assert.ok(Number.isInteger(y) && y >= 0 && y < rows, `${stem} invalid y coordinate ${coordinate}`);
+          assert.ok(registeredActions.has(item.UUID), `${stem} references unregistered action ${item.UUID}`);
+          assert.ok(
+            item.UUID.startsWith(`com.packrat.windows-settings-manager-${flavor}.`),
+            `${stem} leaks an action from another edition`
+          );
+          assert.ok(item.ActionID && !actionIds.has(item.ActionID), `${stem} duplicate or missing ActionID`);
+          actionIds.add(item.ActionID);
+
+          if (item.Settings?.modeId !== undefined) {
+            assert.ok(validModeIds.has(item.Settings.modeId), `${stem} invalid modeId ${item.Settings.modeId}`);
+          }
+
+          if (item.UUID.endsWith(".profile-page")) {
+            navigationCount++;
+            assert.equal(item.Settings?.profileName, registration.Name, `${stem} navigation profile mismatch`);
+            assert.ok(Number.isInteger(item.Settings?.page), `${stem} navigation page must be an integer`);
+            assert.ok(item.Settings.page >= 0 && item.Settings.page < expectedPages, `${stem} navigation page is out of range`);
+          }
+        }
+      }
+
+      assert.equal(navigationCount, flavor === "pro" ? 2 : 0, `${stem} navigation-key count mismatch`);
+    }
+  }
+});
+
+test("Lite upsell is injected only from a verified direct Pro Marketplace URL", async () => {
+  const sourcePi = await readFile(path.resolve("ui", "pi.js"), "utf8");
+  const html = await readFile(path.resolve("ui", "config.html"), "utf8");
+  const assembler = await readFile(path.resolve("scripts", "assemble.mjs"), "utf8");
+  const builtPi = await readFile(
+    path.join(root, "com.packrat.windows-settings-manager-lite.sdPlugin", "ui", "pi.js"),
+    "utf8"
+  );
+  const relationship = JSON.parse(
+    await readFile(path.resolve("..", "..", "lite-pro-map.json"), "utf8")
+  ).pairs.find((item) => item.lite_id === "windows-settings-manager-lite");
+
+  assert.match(sourcePi, /const PRO_MARKETPLACE_URL = "";/);
+  assert.match(html, /id="liteUpsell"/);
+  assert.match(html, /id="proUpgrade"/);
+  assert.match(sourcePi, /event: "openUrl"/);
+  assert.match(assembler, /resolveProMarketplaceUrl/);
+  assert.match(assembler, /Property Inspector Pro URL injection marker is missing/);
+
+  const url = relationship?.pro_marketplace_url ?? "";
+  if (url) {
+    assert.match(url, /^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9][a-z0-9-]*-[0-9a-f-]{36}\/?$/i);
+    assert.ok(builtPi.includes(url), "built Lite Property Inspector is missing the verified Pro URL");
+  } else {
+    assert.match(builtPi, /const PRO_MARKETPLACE_URL = "";/);
+  }
+
+  assert.doesNotMatch(builtPi, /marketplace\.elgato\.com\/(?:search|\?search|@packrat|icue)/i);
 });
 
 test("every Pro profile keeps two-way Modes / Settings navigation", async () => {
