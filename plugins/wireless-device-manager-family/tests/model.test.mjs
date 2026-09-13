@@ -274,3 +274,12 @@ test("classic control target survives reverse dual-mode endpoint order",()=>{
   assert.equal(device.controlId,"AABBCCDDEE02");
   assert.equal(device.capabilities.CONNECT,true);
 });
+
+
+test("Cycle Device skips cached unpaired favorites",()=>{
+  const connected=normalizeDevice({...headphone,containerId:"headset-a"});
+  const stale={...normalizeDevice({...keyboard,containerId:"keyboard-b"}),paired:false,present:false,connected:false};
+  const devices=[connected,stale];
+  assert.equal(nextFavorite(devices,[stale.stableId,connected.stableId],null)?.stableId,connected.stableId);
+  assert.equal(nextFavorite([stale],[stale.stableId],null),null);
+});
