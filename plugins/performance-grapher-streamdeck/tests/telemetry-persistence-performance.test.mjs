@@ -309,3 +309,36 @@ test("unwatched hardware sensors do not allocate rolling history", () => {
   assert.equal(telemetry.histories.size, 1);
   assert.equal(telemetry.metricSeries("lhm.sensor.42", 60_000).at(-1)[1], 43);
 });
+
+
+test("session frame metrics ignore unrelated hardware sensors", () => {
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "session-metric-snapshot"),
+    persistPath: resolve(tmpdir(), "packrat-session-metric-snapshot.json"),
+    presentMonProvider: fakeProvider(),
+  });
+
+  const now = Date.now();
+  for (let i = 0; i < 500; i += 1) {
+    telemetry.values.set("lhm.noise." + i, i);
+    telemetry.timestamps.set("lhm.noise." + i, now);
+  }
+  telemetry.values.set("cpu.load", 51);
+  telemetry.timestamps.set("cpu.load", now);
+  telemetry.values.set("gpu.load", 97);
+  telemetry.timestamps.set("gpu.load", now);
+  telemetry.values.set("gpu.temperature", 73);
+  telemetry.timestamps.set("gpu.temperature", now);
+
+  assert.deepEqual(telemetry._sessionMetrics(now), {
+    "cpu.load": 51,
+    "gpu.load": 97,
+    "gpu.temperature": 73,
+  });
+
+  telemetry.timestamps.set("gpu.load", now - 6000);
+  assert.deepEqual(telemetry._sessionMetrics(now), {
+    "cpu.load": 51,
+    "gpu.temperature": 73,
+  });
+});
