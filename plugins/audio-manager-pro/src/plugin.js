@@ -463,6 +463,8 @@ class AudioManagerAction extends SingletonAction {
     };
     visible.set(id, record);
 
+    if (!latestSnapshot) await refreshSnapshot({ quiet: true });
+
     if (ev.action?.isDial?.()) {
       await ev.action.setTriggerDescription({
         push: "Apply audio profile",
@@ -578,9 +580,13 @@ async function main() {
     globalSettings = normalizeGlobalSettings(ev.settings || ev.payload?.settings || ev);
     scheduleRender(0);
   });
-  streamDeck.system.onSystemDidWakeUp(() => void refreshSnapshot({ quiet: true }));
-  await refreshSnapshot({ quiet: false });
-  pollTimer = setInterval(() => void refreshSnapshot({ quiet: true }), 1500);
+  streamDeck.system.onSystemDidWakeUp(() => {
+    latestSnapshot = null;
+    if (visible.size) void refreshSnapshot({ quiet: true });
+  });
+  pollTimer = setInterval(() => {
+    if (visible.size) void refreshSnapshot({ quiet: true });
+  }, 1500);
   pollTimer.unref?.();
 }
 
