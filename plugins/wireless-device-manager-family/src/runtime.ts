@@ -1,5 +1,5 @@
 import streamDeck from "@elgato/streamdeck";
-import { DeviceCatalog, resolveSelectedDeviceId, shouldApplySnapshot, type Device } from "./model.js";
+import { DeviceCatalog, parseGroupNames, resolveSelectedDeviceId, shouldApplySnapshot, type Device } from "./model.js";
 import { control, snapshot } from "./bridge.js";
 
 type GlobalSettings = {
@@ -121,12 +121,7 @@ export class WirelessRuntime {
 
   async assignGroups(names: string, id: string): Promise<void> {
     if (this.edition !== "pro") return;
-    const desired = [...new Set(
-      names
-        .split(",")
-        .map(name => name.trim())
-        .filter(Boolean)
-    )];
+    const desired = parseGroupNames(names);
     const current = await this.globals();
     const groups: Record<string, string[]> = {};
     for (const [groupName, members] of Object.entries(current.groups ?? {})) {
@@ -141,7 +136,9 @@ export class WirelessRuntime {
 
   async groupMembers(name?: string | null): Promise<string[]> {
     if (!name) return [];
-    return (await this.globals()).groups?.[name] ?? [];
+    const normalized = parseGroupNames(name)[0];
+    if (!normalized) return [];
+    return (await this.globals()).groups?.[normalized] ?? [];
   }
 
   async sendInspector(): Promise<void> {
