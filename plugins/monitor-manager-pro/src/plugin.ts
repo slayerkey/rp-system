@@ -39,7 +39,7 @@ async function sendInspectorData():Promise<void>{
         modes:m.modes,
         hdrState:m.hdrState,
         hdrEnabled:Boolean(m.hdrEnabled),
-        capabilities:runtime.capabilitySummary(m)
+        capabilities:runtime.capabilitySummary(m,snapshot)
       }))
     });
   }catch(error){
