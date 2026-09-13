@@ -51,6 +51,7 @@
     "laptop and AC/battery timeout validation",
     "sleep/resume/reboot and Stream Deck restart validation",
     "external Windows state change and Current Mode refresh validation",
-    "deterministic Rat Art review"
+    "deterministic Rat Art review",
+    "bundled profile archive/action/navigation integrity across seven device families"
   ]
 }
