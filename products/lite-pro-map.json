@@ -188,7 +188,7 @@
         "plugins/wireless-device-manager-family"
       ],
       "source_status": "build_candidate_hardware_smoke_required",
-      "notes": "Lite supports one selected Bluetooth device. Pro adds multiple devices, favorites, groups, low-battery alerts, dashboard and Cycle Device. Battery, charging, connect and disconnect remain capability-gated per device. No public Marketplace URLs are recorded until real listings exist."
+      "notes": "Lite supports one shared selected Bluetooth device and includes a truthful in-plugin/text upsell with no fabricated Marketplace link. Pro adds multiple linked device slots, favorites, groups, low-battery alerts, dashboard and Cycle Device. Both editions include Standard, Mini, XL, Plus and Neo profiles. Battery, charging, connect and disconnect remain capability-gated per device. Add verified public Marketplace URLs only after real listings exist."
     }
   ],
   "standalone_free": [
