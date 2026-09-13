@@ -1,6 +1,6 @@
 # Macro Recorder Lite + Pro — Market / Redundancy Gate
 
-Date: 2026-09-12
+Date: 2026-09-13
 
 ## Verdict
 
@@ -87,15 +87,16 @@ Everything in Lite plus:
 - No scripting language or shell execution is included.
 - The product warns users not to deliberately record passwords.
 - Windows secure-desktop input is outside the normal recording desktop. Ordinary application password fields cannot be detected reliably, so the product does not claim otherwise.
-- Playback cleanup releases tracked keys and mouse buttons in a finally path.
-- A helper crash triggers a recovery release pass from the plugin.
+- Playback tracks held keyboard and mouse-button state and has a local crash-recovery journal.
+- Helper crash recovery is bounded to one automatic restart attempt rather than an unbounded restart loop.
 - The Stop action and Ctrl+Shift+F12 both cancel playback globally.
+- Native release-safety acceptance work is still explicitly gated in `docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md`; the product is not represented as READY_TO_SHIP until those items pass.
 - Bundled examples exclude anti-AFK, cheats, gameplay farming or abusive automation.
 
 
 ## Current competitor verification update
 
-Verified against current Marketplace pages and vendor documentation on 2026-09-12:
+Verified again against current Marketplace pages and vendor documentation on 2026-09-13:
 
 - **SuperMacro 2.5.1**, updated 2026-08-07, Windows, Stream Deck 7.1+. BarRaider's current getting-started flow begins by having the user type commands such as `{{F5}}`, `{{WIN}}`, and `{{CTRL}{C}}`. Current docs expose explicit keyboard commands, mouse coordinates, mouse button down/up, wheel actions, pauses, variables, functions, toggles, sticky/repeating macros, and a Mouse Location helper. This is powerful but materially different from Macro Recorder's capture-first workflow.
 - **Humble Macro 1.0.0.5**, updated 2026-06-10, Windows, Stream Deck 6.9+. Current Marketplace metadata shows no bundled profiles.
@@ -115,3 +116,13 @@ The family remains a GO because the first-order UX is still distinct:
 The product does not attempt to match SuperMacro's scripting language, variables, file functions, or arbitrary command DSL. Those are deliberately outside scope.
 
 PackRat's differentiation is capture-first authoring, visible recording state, timeline correction after capture, local reusable macros in Pro, bundled starter profiles, and a safety-first global stop / stuck-input recovery path.
+
+
+## Current public Marketplace references
+
+- SuperMacro: https://marketplace.elgato.com/product/supermacro-62195fec-7bcb-403d-b650-c342e9dfec67
+- Humble Macro: https://marketplace.elgato.com/product/humble-macro-a7c12677-8339-4196-b887-93dbcf1cafd3
+- Simple Macro: https://marketplace.elgato.com/product/simple-macro-0808cf5b-b65d-472e-adbe-b2837416be76
+- Mouse Magic: https://marketplace.elgato.com/product/mouse-magic-1a73af9f-662c-4090-bb91-30b9560c548c
+
+As of the verification date, all four public Marketplace pages report no bundled profiles. This does not make Macro Recorder unique by itself, but it supports bundled starter profiles as a legitimate secondary differentiator.
