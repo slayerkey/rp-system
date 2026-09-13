@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { MonitorLiteRuntime, type MonitorSettings } from "../../monitor-manager-lite/src/runtime.js";
-import { classifyProfileResult, modeSupported, SAFE_VCP, SUPPORT, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
+import { classifyProfileResult, matchSavedMonitor, modeSupported, SAFE_VCP, SUPPORT, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
 
 export type ProSettings = MonitorSettings & {
   contrast?: number;
@@ -29,7 +29,6 @@ type ProfileMonitor = {
   contrast?: number;
   input?: number;
   volume?: number;
-  power?: number;
 };
 
 type MonitorProfile = {
@@ -227,7 +226,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
       if(monitor.hdrState===SUPPORT.SUPPORTED) item.hdr=Boolean(monitor.hdrEnabled);
       if(monitor.ddcBrightness) item.brightness=percent(Number(monitor.brightnessMin??0),Number(monitor.brightness??0),Number(monitor.brightnessMax??100));
       if(monitor.ddcContrast) item.contrast=percent(Number(monitor.contrastMin??0),Number(monitor.contrast??0),Number(monitor.contrastMax??100));
-      for(const [field,code] of [["input",SAFE_VCP.INPUT_SOURCE],["volume",SAFE_VCP.AUDIO_VOLUME],["power",SAFE_VCP.POWER_MODE]] as const) {
+      for(const [field,code] of [["volume",SAFE_VCP.AUDIO_VOLUME],["input",SAFE_VCP.INPUT_SOURCE]] as const) {
         if(vcpSupport(monitor.capabilities,code).state!==SUPPORT.SUPPORTED) continue;
         try {
           const v=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code});
@@ -257,13 +256,6 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
     return profile;
   }
 
-  private matchMonitor(saved:ProfileMonitor,current:any[]): any|null {
-    const exact=current.find(m=>m.monitorKey===saved.monitorKey);
-    if(exact) return exact;
-    const byDescription=current.filter(m=>String(m.description).toLowerCase()===saved.description.toLowerCase());
-    return byDescription.length===1?byDescription[0]:null;
-  }
-
   private async restoreSnapshot(profile:MonitorProfile): Promise<string[]> {
     const errors:string[]=[];
     try {
@@ -272,7 +264,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
     this.invalidate();
     const current:any=await this.scan(true);
     for(const saved of profile.monitors) {
-      const monitor=this.matchMonitor(saved,current.monitors??[]);
+      const monitor=matchSavedMonitor(saved,current.monitors??[]);
       if(!monitor) continue;
       try {
         if(saved.mode&&modeSupported(monitor.modes,saved.mode)) await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...saved.mode,primary:Boolean(saved.primary)},12000);
@@ -292,7 +284,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
           await this.bridge.request("set-contrast",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
         }
       } catch(e:any) { errors.push(saved.description+" contrast: "+e.message); }
-      for(const [field,code] of [["input",SAFE_VCP.INPUT_SOURCE],["volume",SAFE_VCP.AUDIO_VOLUME],["power",SAFE_VCP.POWER_MODE]] as const) {
+      for(const [field,code] of [["volume",SAFE_VCP.AUDIO_VOLUME],["input",SAFE_VCP.INPUT_SOURCE]] as const) {
         const value=(saved as any)[field]; if(value===undefined) continue;
         try {
           const support=vcpSupport(monitor.capabilities,code);
@@ -300,10 +292,10 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
           let native=Number(value);
           if(field==="volume") {
             const currentV=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code});
+            if(Number(currentV.maximum)<=0) continue;
             native=Math.round((Number(value)/100)*Number(currentV.maximum));
           }
           if(field==="input"&&support.values.length&&!support.values.includes(native)) continue;
-          if(field==="power"&&support.values.length&&!support.values.includes(native)) continue;
           await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code,value:native});
         } catch(e:any) { errors.push(saved.description+" "+field+": "+e.message); }
       }
@@ -330,7 +322,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
       }
       const snapshot:any=await this.scan(true);
       for(const saved of profile.monitors) {
-        const monitor=this.matchMonitor(saved,snapshot.monitors??[]);
+        const monitor=matchSavedMonitor(saved,snapshot.monitors??[]);
         if(!monitor) {
           steps.push({item:saved.description,status:"SKIPPED",message:"Monitor is not present or matching is ambiguous."});
           continue;
@@ -363,7 +355,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
             steps.push({item:saved.description+" contrast",status:"COMPLETE"});
           } else steps.push({item:saved.description+" contrast",status:"SKIPPED",message:"DDC contrast unavailable."});
         }
-        for(const [field,code] of [["input",SAFE_VCP.INPUT_SOURCE],["volume",SAFE_VCP.AUDIO_VOLUME],["power",SAFE_VCP.POWER_MODE]] as const) {
+        for(const [field,code] of [["volume",SAFE_VCP.AUDIO_VOLUME],["input",SAFE_VCP.INPUT_SOURCE]] as const) {
           const stored=(saved as any)[field]; if(stored===undefined) continue;
           const support=vcpSupport(monitor.capabilities,code);
           if(support.state!==SUPPORT.SUPPORTED) {
@@ -375,8 +367,8 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
             if(Number(v.maximum)<=0) { steps.push({item:saved.description+" volume",status:"SKIPPED",message:"Volume range unknown."}); continue; }
             native=Math.round((Number(stored)/100)*Number(v.maximum));
           }
-          if((field==="input"||field==="power")&&support.values.length&&!support.values.includes(native)) {
-            steps.push({item:saved.description+" "+field,status:"SKIPPED",message:"Saved value is not advertised by the current monitor."}); continue;
+          if(field==="input"&&support.values.length&&!support.values.includes(native)) {
+            steps.push({item:saved.description+" input",status:"SKIPPED",message:"Saved input is not advertised by the current monitor."}); continue;
           }
           await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code,value:native});
           steps.push({item:saved.description+" "+field,status:"COMPLETE"});
