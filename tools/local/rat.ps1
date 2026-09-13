@@ -259,16 +259,42 @@ function Wait-RatShipRun {
 }
 
 function Build-ShipKitLocally {
-    param([string]$WidgetSlug)
+    param([string]$ProductSlug)
 
-    $dest = Join-Path $RepoRoot "out\ship\$WidgetSlug"
-    $helper = Join-Path $PSScriptRoot "rat-ship-local.ps1"
-    if (-not (Test-Path $helper)) {
-        throw "Local Rat Ship helper not found: $helper"
+    $dest = Join-Path $RepoRoot "out\ship\$ProductSlug"
+    $productPath = Join-Path $RepoRoot "products\$ProductSlug.json"
+    if (-not (Test-Path $productPath -PathType Leaf)) {
+        throw "Canonical product metadata not found for local Rat Ship: $productPath"
     }
 
-    Write-Host "Using local Rat Ship pipeline for '$WidgetSlug'." -ForegroundColor Yellow
-    & $helper -WidgetSlug $WidgetSlug -Destination $dest
+    $product = Get-Content $productPath -Raw | ConvertFrom-Json
+    $productType = ([string]$product.type).Trim().ToLowerInvariant()
+
+    switch ($productType) {
+        "plugin" {
+            $helper = Join-Path $PSScriptRoot "rat-ship-plugin.ps1"
+            if (-not (Test-Path $helper)) {
+                throw "Local Stream Deck plugin ship helper not found: $helper"
+            }
+            Write-Host "Using local Stream Deck plugin Rat Ship pipeline for '$ProductSlug'." -ForegroundColor Yellow
+            & $helper -PluginSlug $ProductSlug -Destination $dest
+        }
+        "widget" {
+            $helper = Join-Path $PSScriptRoot "rat-ship-local.ps1"
+            if (-not (Test-Path $helper)) {
+                throw "Local XENEON widget ship helper not found: $helper"
+            }
+            Write-Host "Using local XENEON widget Rat Ship pipeline for '$ProductSlug'." -ForegroundColor Yellow
+            & $helper -WidgetSlug $ProductSlug -Destination $dest
+        }
+        default {
+            throw "Local Rat Ship has no explicit pipeline for product type '$productType' (slug '$ProductSlug'). Refusing to fall through to another product type."
+        }
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Local Rat Ship pipeline failed for '$ProductSlug' with exit code $LASTEXITCODE."
+    }
     return $dest
 }
 
