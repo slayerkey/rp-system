@@ -224,15 +224,15 @@ for ($i = 0; $i -lt $queue.Count; $i++) {
     }
     catch {
         $message = $_.Exception.Message
-        $isBlockedStop = $message -match "^Product '.+' is marked 'BLOCKED(?:_[^']*)?' on canonical main\."
+        $isReleaseGateStop = $message -match "^Product '.+' is marked '.+' on canonical main\. Rat (ship|submit) will not submit a release that has not completed the READY_TO_SHIP gate\."
         $failures += [PSCustomObject]@{
             Slug = $item
             Message = $message
-            Kind = if ($isBlockedStop) { "BLOCKED" } else { "FAILED" }
+            Kind = if ($isReleaseGateStop) { "BLOCKED" } else { "FAILED" }
         }
 
-        if ($isBlockedStop) {
-            Write-Host "Rat $Action stopped for blocked product '$item'. Continuing the remaining queue." -ForegroundColor Yellow
+        if ($isReleaseGateStop) {
+            Write-Host "Rat $Action stopped at the release gate for '$item'. Continuing the remaining queue." -ForegroundColor Yellow
             Write-Host $message -ForegroundColor Yellow
         }
         else {
