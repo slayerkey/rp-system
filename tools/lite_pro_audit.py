@@ -45,6 +45,17 @@ def is_direct_product_url(value):
     return isinstance(value, str) and bool(DIRECT_PRODUCT_RE.fullmatch(value.strip()))
 
 
+def marketplace_uuid_from_url(value):
+    if not is_direct_product_url(value):
+        return None
+    match = re.search(
+        r"-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/?$",
+        value.strip(),
+        re.I,
+    )
+    return match.group(1).lower() if match else None
+
+
 def scan_path(relative: str):
     root = ROOT / relative
     if not root.exists():
@@ -93,6 +104,12 @@ def main():
                 errors.append(f"{lite_id}: Lite product is not free in canonical index")
             if pro and not (float(pro.get("price_usd") or 0) > 0):
                 errors.append(f"{lite_id}: Pro counterpart is not paid in canonical index")
+            if lite and pro and lite.get("type") != pro.get("type"):
+                errors.append(
+                    f"{lite_id}: Lite/Pro product type mismatch "
+                    f"({lite.get('type')!r} -> {pro.get('type')!r}); "
+                    "do not attach or substitute a profile/plugin edition accidentally"
+                )
 
         elif classification == "lite_with_unregistered_pro":
             if strict:
@@ -112,6 +129,21 @@ def main():
             errors.append(f"{lite_id}: Lite Marketplace URL is not a direct product URL: {lite_url}")
         if pro_url and not is_direct_product_url(pro_url):
             errors.append(f"{lite_id}: Pro Marketplace URL is not a direct product URL: {pro_url}")
+
+        lite_marketplace_id = str(pair.get("lite_marketplace_product_id") or "").strip().lower()
+        pro_marketplace_id = str(pair.get("pro_marketplace_product_id") or "").strip().lower()
+        lite_url_id = marketplace_uuid_from_url(lite_url)
+        pro_url_id = marketplace_uuid_from_url(pro_url)
+        if lite_marketplace_id and lite_url_id and lite_marketplace_id != lite_url_id:
+            errors.append(
+                f"{lite_id}: Lite Marketplace URL UUID {lite_url_id} does not match "
+                f"catalog UUID {lite_marketplace_id}"
+            )
+        if pro_marketplace_id and pro_url_id and pro_marketplace_id != pro_url_id:
+            errors.append(
+                f"{lite_id}: Pro Marketplace URL UUID {pro_url_id} does not match "
+                f"catalog UUID {pro_marketplace_id}"
+            )
 
         if strict:
             if classification != "lite_to_pro":

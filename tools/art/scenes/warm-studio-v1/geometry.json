@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "canvas": [1920, 960],
+  "base": "base.png",
+  "monitor_outer": [412, 57, 1515, 606],
+  "monitor_screen": [429, 73, 1496, 572],
+  "product_box": [20, 365, 1900, 955],
+  "brand_anchor": [1818, 62],
+  "brand_max_size": 64,
+  "desk_horizon_y": 570,
+  "notes": "Coordinates calibrated from the approved warm-studio environment plate. The XENEON product box is intentionally 1880x590 so render_device can preserve the calibrated hardware aspect ratio while producing an approximately 1838x590 device, about 96% of the full marketplace canvas width. The product overlaps the lower monitor naturally while leaving the title stack visible above it."
+}
