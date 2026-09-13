@@ -436,3 +436,30 @@ test("canonical GPU aliases follow the active adapter with hysteresis", () => {
   assert.equal(telemetry.metricValue("gpu.temperature"), 63);
   assert.equal(telemetry.metricDescriptor("gpu.load").hardwareName, "Intel Graphics");
 });
+
+
+test("removed hardware sensors leave the selectable metric catalog immediately", () => {
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "sensor-removal"),
+    persistPath: resolve(tmpdir(), "packrat-sensor-removal.json"),
+    presentMonProvider: fakeProvider(),
+  });
+
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "catalog",
+    sensors: [
+      { id: "lhm.temp", name: "Board Temp", sensorType: "Temperature", hardwareType: "Motherboard", hardwareName: "Board", hardwareId: "/board/0", unit: "°C" },
+    ],
+  }));
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "sample",
+    at: Date.now(),
+    values: { "lhm.temp": 55 },
+  }));
+  assert.equal(telemetry.metricValue("lhm.temp"), 55);
+  assert.ok(telemetry.metricCatalog().some((item) => item.id === "lhm.temp"));
+
+  telemetry._consumeHardwareLine(JSON.stringify({ type: "catalog", sensors: [] }));
+  assert.equal(telemetry.metricValue("lhm.temp"), null);
+  assert.equal(telemetry.metricCatalog().some((item) => item.id === "lhm.temp"), false);
+});
