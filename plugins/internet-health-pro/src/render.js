@@ -17,6 +17,14 @@ function stateColor(state, accent) {
   return "#8B93A1";
 }
 
+function metricState(value, warn, bad, connectivityStatus) {
+  if (connectivityStatus === "offline") return "OFFLINE";
+  if (!Number.isFinite(Number(value))) return connectivityStatus === "online" ? "CHECK" : "DEGRADED";
+  if (Number(value) >= Number(bad)) return "BAD";
+  if (Number(value) >= Number(warn)) return "DEGRADED";
+  return "GOOD";
+}
+
 function graphPath(samples, minutes = 30, width = 116, height = 29, x = 14, y = 92) {
   const now = Date.now();
   const cutoff = now - minutes * 60_000;
@@ -89,11 +97,13 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
   }
 
   if (kind === "latency") {
+    const latencyValue = metrics.current ?? metrics.lastGood;
+    const latencyState = metricState(latencyValue, settings.latencyWarn, settings.latencyBad, snapshot.connectivity?.status);
     return baseSvg({
       label: "LATENCY",
       primary: Number.isFinite(metrics.current) ? Math.round(metrics.current) + " ms" : "-- ms",
       secondary: methodLabel(metrics.method),
-      status: health.state,
+      status: latencyState,
       accent: settings.accent,
       samples: snapshot.samples,
       minutes,
@@ -106,11 +116,15 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
     const primary = useLoss
       ? (Number.isFinite(metrics.loss) ? metrics.loss.toFixed(1) + "%" : "--%")
       : (Number.isFinite(metrics.jitter) ? metrics.jitter.toFixed(1) + " ms" : "-- ms");
+    const metricValue = useLoss ? metrics.loss : metrics.jitter;
+    const selectedState = useLoss
+      ? metricState(metricValue, settings.lossWarn, settings.lossBad, snapshot.connectivity?.status)
+      : metricState(metricValue, settings.jitterWarn, settings.jitterBad, snapshot.connectivity?.status);
     return baseSvg({
       label: useLoss ? "PROBE LOSS" : "JITTER",
       primary,
       secondary: useLoss ? metrics.attempts + " OBSERVED PROBES" : metrics.adjacentPairs + " VALID PAIRS",
-      status: health.state,
+      status: selectedState,
       accent: settings.accent,
       samples: snapshot.samples,
       minutes,
@@ -158,7 +172,7 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
     return baseSvg({
       label: "TARGET HEALTH",
       primary: state,
-      secondary: timing + " • " + methodLabel(reading?.method || targetMetrics.method || target?.configuredMethod),
+      secondary: timing + " • " + methodLabel(reading?.method || targetMetrics.method || target?.expectedMethod || target?.configuredMethod),
       status: state,
       accent: settings.accent,
       samples: target?.history || [],
