@@ -5,7 +5,7 @@
   "Author": "Packrat",
   "Description": "See one selected Bluetooth device's Windows connection state and battery when available, with control only when the device exposes a supported Windows Bluetooth service.",
   "Category": "Wireless Device Manager",
-  "CategoryIcon": "imgs/plugin/marketplace",
+  "CategoryIcon": "imgs/plugin/category",
   "Icon": "imgs/plugin/marketplace",
   "CodePath": "bin/plugin.js",
   "SDKVersion": 3,
