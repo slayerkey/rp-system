@@ -8,7 +8,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 
 ## Hardware-free evidence completed
 
-- [x] 40 model/package/profile regression cases are currently defined in the hardware-free suite
+- [x] 47 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
 - [x] capability flags are per device rather than global
 - [x] A2DP/HFP control eligibility is derived from Windows AssociationEndpointService contracts rather than broad Audio/Video device-class inference
 - [x] group names are canonicalized case-insensitively so `gaming` and `GAMING` feed the same dashboard
@@ -29,17 +29,21 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 - [x] favorites / Cycle Device ordering is deterministic
 - [x] low-battery transition alerts are covered
 - [x] Dashboard LOW count respects per-device thresholds
-- [x] Lite uses one shared selected device while Pro keeps per-key targets
-- [x] Lite and Pro each generate Standard / XL / Stream Deck+ profiles
-- [x] all six generated profile archives use valid device-grid coordinates
-- [x] Stream Deck+ Pro is an explicit 4 x 2 key-only layout
-- [x] generated profiles are parsed in tests and all key coordinates are enforced within 5 x 3 / 8 x 4 / 4 x 2 device bounds
+- [x] Lite uses one shared selected device while Pro supports independent keys plus linked logical profile slots
+- [x] Lite and Pro each generate Standard / Mini / XL / Stream Deck+ / Neo profiles
+- [x] all ten generated profile archives use valid device-grid coordinates
+- [x] Mini Pro is an explicit 3 x 2 compact layout
+- [x] Stream Deck+ and Neo Pro are explicit 4 x 2 key-only layouts
+- [x] generated profiles are parsed in tests and all key coordinates are enforced within 5 x 3 / 3 x 2 / 8 x 4 / 4 x 2 device bounds
 - [x] Pro bundled device slots seed favorites and example multi-group memberships
+- [x] bundled HEADPHONES status/control keys share one logical slot and identical seed metadata regardless of configuration order
 - [x] Lite bundled profiles contain no Pro-only favorite/group settings
 - [x] profile labels preserve live battery/status/control values rather than hiding them
 - [x] no bundled profile or manifest exposes an Encoder action
 - [x] Marketplace SEO regression includes Bluetooth, wireless, battery, headphones, keyboard, mouse, controller, connect, disconnect, Windows, and Stream Deck
 - [x] Marketplace release notes follow Rat Ship's 3–6 bullet-line contract
+- [x] PackRat catalog registers exactly one Lite/Pro pair at Free / $7.99 with no fabricated Marketplace URLs
+- [x] Lite Property Inspector contains a truthful Pro feature upsell while the unpublished Pro URL remains intentionally absent
 - [x] manifest FontSize values use the current numeric schema type
 - [x] deterministic Lite and Pro Rat Art each render exactly 6 Marketplace assets
 - [x] search icons render at 288 x 288
@@ -132,11 +136,15 @@ This cannot be honestly replaced by fixtures because generic CI runners do not p
    - GAMING / WORK / TRAVEL groups
    - per-device threshold changes reflected in Dashboard LOW count
 
-10. **Profiles / Stream Deck+**
+10. **Profiles / device families**
     - import Standard profile
+    - import Mini profile
     - import XL profile
     - import Plus profile
-    - confirm Plus uses keys only
+    - import Neo profile
+    - confirm Mini stays within 3 x 2
+    - confirm Plus and Neo use keys only
+    - confirm HEADPHONES and CONNECT share the same selected headset on Standard / Mini / XL
     - confirm no fake dial/Encoder action appears
 
 Record the exact hardware models and the capability matrix Windows exposes for each one. Any capability that fails the reliability rule must be narrowed or removed before Marketplace submission.
