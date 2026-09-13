@@ -216,3 +216,11 @@ test("profile persistence validates entries serializes mutations and replaces at
   assert.match(source,/await rename\(temp,file\)/);
   assert.match(source,/await rm\(temp,\{force:true\}\)/);
 });
+
+test("malformed destructive enum settings fail closed", async () => {
+  const source=await readFile("src/runtime.ts","utf8");
+  assert.match(source,/Invalid HDR behavior/);
+  assert.match(source,/Invalid display topology/);
+  assert.match(source,/validStoredPercent/);
+  assert.match(source,/validStoredMode/);
+});
