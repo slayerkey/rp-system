@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parsePingOutput, pingInvocation, probeTarget } from "../src/probes.js";
+import { chooseMeasuredDownloadBytes, parsePingOutput, pingInvocation, probeTarget } from "../src/probes.js";
 
 test("parses Windows and Unix ICMP timing without relabeling it", () => {
   assert.equal(parsePingOutput("Reply from 1.1.1.1: bytes=32 time=24ms TTL=57"), 24);
@@ -33,4 +33,14 @@ test("auto target method treats HTTPS URLs as HTTPS response timing", async () =
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+
+test("adaptive speed test chooses a longer measurement for fast links without exceeding the cap", () => {
+  assert.equal(chooseMeasuredDownloadBytes(20), 8_000_000);
+  assert.equal(chooseMeasuredDownloadBytes(80), 16_000_000);
+  assert.equal(chooseMeasuredDownloadBytes(150), 24_000_000);
+  assert.equal(chooseMeasuredDownloadBytes(300), 40_000_000);
+  assert.equal(chooseMeasuredDownloadBytes(900), 64_000_000);
+  assert.equal(chooseMeasuredDownloadBytes(900, 24_000_000), 24_000_000);
 });
