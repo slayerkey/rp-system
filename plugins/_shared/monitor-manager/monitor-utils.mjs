@@ -96,3 +96,20 @@ export function classifyProfileResult(results) {
   if (complete > 0 || skipped > 0) return "PARTIAL";
   return "FAILED";
 }
+
+export function matchSavedMonitor(saved, current) {
+  const rows = Array.isArray(current) ? current : [];
+  const key = String(saved?.monitorKey ?? "").trim();
+  if (key) {
+    const exact = rows.filter((monitor) => String(monitor?.monitorKey ?? "") === key);
+    if (exact.length === 1) return exact[0];
+    if (exact.length > 1) return null;
+  }
+
+  const description = String(saved?.description ?? "").trim().toLowerCase();
+  if (!description) return null;
+  const byDescription = rows.filter(
+    (monitor) => String(monitor?.description ?? "").trim().toLowerCase() === description
+  );
+  return byDescription.length === 1 ? byDescription[0] : null;
+}
