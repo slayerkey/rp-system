@@ -513,7 +513,7 @@ public static class MonitorNative {
         uint flags=CDS_TEST;
         int test=ChangeDisplaySettingsEx(deviceName,ref dm,IntPtr.Zero,flags,IntPtr.Zero);
         if(test!=DISP_CHANGE_SUCCESSFUL) return false;
-        flags=CDS_UPDATEREGISTRY | (primary ? CDS_SET_PRIMARY : 0);
+        flags=(uint)(CDS_UPDATEREGISTRY | (primary ? CDS_SET_PRIMARY : 0));
         return ChangeDisplaySettingsEx(deviceName,ref dm,IntPtr.Zero,flags,IntPtr.Zero)==DISP_CHANGE_SUCCESSFUL;
     }
 
