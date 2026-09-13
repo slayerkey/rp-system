@@ -46,6 +46,11 @@ function render(){
   const isDevice=action.endsWith(".device"), isDashboard=action.endsWith(".dashboard"), isCycle=action.endsWith(".cycle");
   $("device-fields").hidden=!isDevice; $("dashboard-fields").hidden=!isDashboard; $("cycle-fields").hidden=!isCycle;
   $("lite-upsell").hidden=snapshot?.edition!=="lite";
+  const proLink=$("pro-link");
+  const proUrl=String(window.WIRELESS_PRO_MARKETPLACE_URL||"");
+  const directProUrl=/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9][a-z0-9-]*-[0-9a-f-]{36}\/?$/i.test(proUrl);
+  proLink.hidden=!(snapshot?.edition==="lite" && directProUrl);
+  if(!proLink.hidden) proLink.href=proUrl;
   if(snapshot){
     $("status").textContent=snapshot.adapterAvailable ? (snapshot.error||`${snapshot.devices.length} paired Bluetooth device(s) visible`) : "Bluetooth adapter unavailable or disabled";
     $("status").className="status"+(snapshot.adapterAvailable?"":" bad");
