@@ -302,7 +302,7 @@ test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async ()
 test("Save Current Mode forces a fresh Windows read and refuses offline capture", async () => {
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
   const plugin = await readFile(path.resolve("src", "plugin.ts"), "utf8");
-  assert.match(actions, /SaveModeBase[\s\S]*await runtime\.state\.refresh\(\)[\s\S]*if \(!snapshot\.backendOnline\)/);
+  assert.match(actions, /SaveModeBase[\s\S]*const snapshot = await freshSnapshot\(\)[\s\S]*if \(!snapshot\)/);
   assert.match(plugin, /payload\?\.type === "capture-mode"[\s\S]*await runtime\.state\.refresh\(\)[\s\S]*if \(!snapshot\.backendOnline\)/);
   assert.match(plugin, /settings: captureModeSettings\(snapshot\)/);
 });
