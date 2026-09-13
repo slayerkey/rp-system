@@ -21,7 +21,8 @@
     "external DDC/CI supported and unsupported monitor matrix: REQUIRED",
     "monitor input supported and unsupported matrix: REQUIRED",
     "sleep / wake, unplug / replug, restart, scaling and primary-display physical QA: REQUIRED",
-    "Monitor Profile COMPLETE / PARTIAL / FAILED and rollback physical QA: REQUIRED"
+    "Monitor Profile COMPLETE / PARTIAL / FAILED and rollback physical QA: REQUIRED",
+    "Windows 11 24H2 HDR supported / unsupported physical QA: REQUIRED"
   ],
-  "notes": "Price target $9.99. Commercial differentiation is the unified Windows + DDC/CI layer and saved whole-setup Monitor Profiles, not isolated brightness or projection-mode buttons. Night Light is excluded from v1 rather than using undocumented toggles."
+  "notes": "Price target $9.99. Commercial differentiation is the unified Windows + DDC/CI layer and saved whole-setup Monitor Profiles, not isolated brightness or projection-mode buttons. Exact HDR uses the dedicated Windows 11 24H2+ DisplayConfig HDR packets and fails closed on older ambiguous Advanced Color APIs. Night Light is excluded from v1 rather than using undocumented toggles."
 }
