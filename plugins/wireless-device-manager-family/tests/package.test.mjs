@@ -158,14 +158,22 @@ test("bundled Pro headset status and control keys share one logical slot",async(
   }
 });
 
-test("Lite includes a truthful Pro upsell without inventing an unpublished Marketplace URL",async()=>{
+test("Lite upsell is catalog-driven and never hardcodes a placeholder Marketplace destination",async()=>{
   const html=await readFile("ui/inspector.html","utf8");
   const submission=JSON.parse(await readFile("submission-lite.json","utf8"));
+  const map=JSON.parse(await readFile("../../products/lite-pro-map.json","utf8"));
+  const pair=map.pairs.find(item=>item.lite_id==="wireless-device-manager");
+  const config=(await readFile("com.packrat.wireless-device-manager.sdPlugin/ui/upsell-config.js","utf8")).trim();
+  const proConfig=(await readFile("com.packrat.wireless-device-manager-pro.sdPlugin/ui/upsell-config.js","utf8")).trim();
+
   assert.match(html,/Wireless Device Manager Pro/);
   assert.match(html,/favorites/i);
   assert.match(html,/low-battery alerts/i);
+  assert.match(html,/id="pro-link" hidden/);
   assert.match(submission.description,/Upgrade to Wireless Device Manager Pro/);
   assert.doesNotMatch(html,/marketplace\.elgato\.com\/product\/wireless-device-manager-pro/i);
+  assert.equal(config,`window.WIRELESS_PRO_MARKETPLACE_URL = ${JSON.stringify(pair?.pro_marketplace_url??"")};`);
+  assert.equal(proConfig,'window.WIRELESS_PRO_MARKETPLACE_URL = "";');
 });
 
 
@@ -187,8 +195,12 @@ test("PackRat catalog registers the Wireless Device Manager Lite/Pro family cons
   assert.equal(pairs[0].pro_id,"wireless-device-manager-pro");
   assert.equal(pairs[0].classification,"lite_to_pro");
   assert.equal(pairs[0].platform,"streamdeck");
-  assert.equal("lite_marketplace_url" in pairs[0],false);
-  assert.equal("pro_marketplace_url" in pairs[0],false);
+  const direct=/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9][a-z0-9-]*-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/?$/i;
+  if(pairs[0].lite_marketplace_url) assert.match(pairs[0].lite_marketplace_url,direct);
+  if(pairs[0].pro_marketplace_url) assert.match(pairs[0].pro_marketplace_url,direct);
+  if(String(pro[0].status).toLowerCase()!=="published") {
+    assert.equal(pairs[0].pro_marketplace_url??null,null);
+  }
 });
 
 
@@ -196,4 +208,13 @@ test("wireless repaint notifier is non-recursive",async()=>{
   const runtime=await readFile("src/runtime.ts","utf8");
   assert.match(runtime,/notify\(\): void \{[\s\S]*for \(const listener of this\.listeners\) listener\(\);[\s\S]*\}/);
   assert.doesNotMatch(runtime,/notify\(\): void \{\s*this\.notify\(\);\s*\}/);
+});
+
+
+test("wireless upsell renderer validates direct Marketplace URLs",async()=>{
+  const source=await readFile("scripts/render-assets.py","utf8");
+  assert.match(source,/DIRECT_MARKETPLACE/);
+  assert.match(source,/pro_marketplace_url/);
+  assert.match(source,/raise SystemExit/);
+  assert.match(source,/upsell-config\.js/);
 });
