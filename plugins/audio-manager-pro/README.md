@@ -49,9 +49,13 @@ Wave Link users can configure Monitor Mix to follow Windows Default Output, or u
 
 ## Development
 
+Building from source requires Node.js 24+ and the .NET 8 SDK. The .NET SDK is a build-time PackRat requirement only; the shipped Windows helper is self-contained.
+
 ```text
 rat dev audio-manager-pro
 ```
+
+The Audio Profile Status action is read-only: it refreshes current Windows audio state and reports ACTIVE / INACTIVE without applying the profile.
 
 Release packaging:
 
