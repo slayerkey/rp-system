@@ -94,3 +94,10 @@ test("malformed executable events are dropped rather than coerced",()=>{
  assert.equal(macro.events.length,1);
  assert.equal(macro.events[0].vk,65);
 });
+
+test("Lite clamps an edited delay to its 30-second edition boundary",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"keyDown",vk:65,delayMs:120_000}
+ ]},{pro:false,limits});
+ assert.equal(macro.events[0].delayMs,30_000);
+});
