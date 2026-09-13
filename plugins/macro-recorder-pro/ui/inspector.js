@@ -31,7 +31,12 @@
     select.replaceChildren(new Option("Choose a macro",""));
     for(const item of state?.library||[])select.appendChild(new Option(`${item.name} · ${item.eventCount} events`,item.id));
     select.value=(state?.library||[]).some(x=>x.id===chosen)?chosen:"";
+    const hasMacro=Boolean(state?.macro);
     $("macroName").value=state?.macro?.name||"";
+    $("macroName").disabled=!hasMacro;
+    $("duplicateMacro").disabled=!hasMacro;
+    $("deleteMacro").disabled=!hasMacro;
+    $("exportMacro").disabled=!hasMacro;
     if(state?.libraryWarning){$("errorText").hidden=false;$("errorText").textContent=state.libraryWarning;}
   }
 
