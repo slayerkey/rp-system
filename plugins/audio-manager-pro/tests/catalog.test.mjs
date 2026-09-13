@@ -1,0 +1,60 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const productRoot = resolve(here, "..");
+const repoRoot = resolve(productRoot, "..", "..");
+
+function json(path) {
+  return JSON.parse(readFileSync(path, "utf8"));
+}
+
+const manifest = json(resolve(productRoot, "com.packrat.audio-manager-pro.sdPlugin", "manifest.json"));
+const submission = json(resolve(productRoot, "submission.json"));
+const product = json(resolve(repoRoot, "products", "audio-manager-pro.json"));
+const index = json(resolve(repoRoot, "products", "index.json"));
+const editionMap = json(resolve(repoRoot, "products", "lite-pro-map.json"));
+const roster = index.products.find((entry) => entry.id === "audio-manager-pro");
+
+test("Audio Manager intentionally ships without bundled Stream Deck profiles", () => {
+  assert.equal(Object.hasOwn(manifest, "Profiles"), false);
+  assert.equal(existsSync(resolve(productRoot, "com.packrat.audio-manager-pro.sdPlugin", "profiles")), false);
+});
+
+test("Audio Manager is not inventing a Lite-to-Pro relationship or unrelated Marketplace upsell", () => {
+  const pairs = Array.isArray(editionMap.pairs) ? editionMap.pairs : [];
+  assert.equal(pairs.some((pair) => pair.lite_id === "audio-manager-pro" || pair.pro_id === "audio-manager-pro"), false);
+  assert.equal(/marketplace\.elgato\.com\/product\//i.test(submission.description), false);
+  assert.equal(/upgrade\s+to\s+audio\s+manager|audio\s+manager\s+lite/i.test(submission.description), false);
+});
+
+test("Audio Manager catalog price and version stay consistent", () => {
+  assert.ok(roster);
+  assert.equal(product.price_usd, 9.99);
+  assert.equal(submission.price_usd, 9.99);
+  assert.equal(roster.price_usd, 9.99);
+  assert.equal(product.version, "1.0.0.0");
+  assert.equal(submission.version, "1.0.0.0");
+  assert.equal(manifest.Version, "1.0.0.0");
+  assert.equal(roster.version, "1.0.0.0");
+});
+
+test("Audio Manager canonical catalog paths and product identity stay aligned", () => {
+  assert.equal(product.type, "plugin");
+  assert.equal(product.source, "plugins/audio-manager-pro");
+  assert.equal(product.submission_metadata, "plugins/audio-manager-pro/submission.json");
+  assert.equal(manifest.UUID, "com.packrat.audio-manager-pro");
+  assert.equal(submission.slug, "audio-manager-pro");
+  assert.equal(manifest.Name, "Audio Manager Pro");
+  assert.equal(submission.name, "Audio Manager Pro");
+});
+
+test("Audio Manager listing follows current PackRat standalone paid conventions", () => {
+  assert.equal(submission.marketplace_auto_publish, true);
+  assert.match(submission.description, /Part of the Packrat Ecosystem\.$/);
+  assert.match(submission.headline, /Switch your entire audio setup with one key\./);
+  assert.equal(submission.marketplace_operating_systems?.includes("Windows"), true);
+});
