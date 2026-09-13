@@ -69,10 +69,12 @@
   ],
   "ci_runner_state": {
     "observed_at": "2026-09-13",
-    "symptom": "GitHub Actions attempt received runner_id 0, a blank runner name, zero executed steps, and no hosted-runner execution.",
-    "macro_recorder_run_id": 34741738309,
-    "run_attempt": 2,
+    "symptom": "GitHub Actions created the windows-release job without assigning a runner; the job completed with zero steps.",
+    "macro_recorder_run_id": 34762643355,
+    "run_attempt": 1,
+    "head_sha": "6a3601941b5e3e026de7173f4897298f69308850",
     "local_fallback": "plugins/macro-recorder-pro/run-family-qa.ps1"
   },
-  "native_release_blockers": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md"
+  "native_release_blockers": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md",
+  "native_release_gate": "docs/MACRO_RECORDER_NATIVE_GATE.json"
 }
