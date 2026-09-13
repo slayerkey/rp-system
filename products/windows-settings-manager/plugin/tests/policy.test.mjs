@@ -283,6 +283,14 @@ test("Pro profiles ship named mode slots but no preconfigured system changes", a
   }
 });
 
+test("Elgato validation invokes the installed CLI through Node on every OS", async () => {
+  const validator = await readFile(path.resolve("scripts", "validate.mjs"), "utf8");
+  assert.match(validator, /@elgato", "cli", "bin", "streamdeck\.mjs"/);
+  assert.match(validator, /spawnSync\(process\.execPath/);
+  assert.match(validator, /if \(result\.error\)/);
+  assert.doesNotMatch(validator, /npx\.cmd|process\.platform === "win32"/);
+});
+
 test("backend forbids brittle UI automation and uses supported Windows control surfaces", async () => {
   const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
   assert.doesNotMatch(backend, /SendKeys|CloudStore|Quick Settings|mouse_event|SetCursorPos/i);
