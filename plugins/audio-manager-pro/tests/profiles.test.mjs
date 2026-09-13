@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { endpointIdentity, matchEndpoint } from "../src/device-matching.js";
-import { buildApplyPlan, captureProfileFromSnapshot, cycleCurrentIndex, mergeApplyResult, profileMatchesSnapshot, snapshotDefaultRoleConflicts } from "../src/profiles.js";
+import { buildApplyPlan, captureProfileFromSnapshot, cycleCurrentIndex, mergeApplyResult, normalizeGlobalSettings, normalizeProfile, profileMatchesSnapshot, snapshotDefaultRoleConflicts } from "../src/profiles.js";
 
 function ep(id,name,{instanceId="",containerId="",volume=50,muted=false}={}) {
   return { id,name,instanceId,containerId,volume,muted,volumeAvailable:true,muteAvailable:true };
@@ -24,6 +24,54 @@ function snap() {
     error:null,
   };
 }
+
+test("global settings normalization drops invalid and duplicate profile IDs",()=>{
+  const valid={
+    schemaVersion:1,
+    id:"same-id",
+    name:"Headset",
+    accent:"#56f2a5",
+    slots:{},
+  };
+  const duplicate={...valid,name:"Duplicate"};
+  const normalized=normalizeGlobalSettings({
+    profiles:[null,{id:"",name:"Invalid"},valid,duplicate],
+    lastAppliedProfileId:"same-id",
+  });
+  assert.equal(normalized.profiles.length,1);
+  assert.equal(normalized.profiles[0].name,"Headset");
+  assert.equal(normalized.lastAppliedProfileId,"same-id");
+});
+
+test("profile normalization clamps state and canonicalizes accent",()=>{
+  const p=normalizeProfile({
+    id:"  profile  ",
+    name:"  Test Profile  ",
+    accent:"#aabbcc",
+    slots:{
+      outputDefault:{
+        device:{endpointId:"out",name:"Speakers"},
+        restoreVolume:true,
+        volume:999,
+        restoreMute:true,
+        muted:true,
+      },
+    },
+  });
+  assert.equal(p.id,"profile");
+  assert.equal(p.name,"Test Profile");
+  assert.equal(p.accent,"#AABBCC");
+  assert.equal(p.slots.outputDefault.volume,100);
+  assert.equal(p.slots.outputDefault.muted,true);
+});
+
+test("last applied profile is cleared when its profile no longer exists",()=>{
+  const normalized=normalizeGlobalSettings({
+    profiles:[{id:"a",name:"A",slots:{}}],
+    lastAppliedProfileId:"deleted",
+  });
+  assert.equal(normalized.lastAppliedProfileId,"");
+});
 
 test("exact endpoint identity wins",()=>{
   const s=snap(), wanted=endpointIdentity(s.outputs[0]);
