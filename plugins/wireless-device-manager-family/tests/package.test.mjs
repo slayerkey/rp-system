@@ -198,8 +198,13 @@ test("PackRat catalog registers the Wireless Device Manager Lite/Pro family cons
   const direct=/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9][a-z0-9-]*-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/?$/i;
   if(pairs[0].lite_marketplace_url) assert.match(pairs[0].lite_marketplace_url,direct);
   if(pairs[0].pro_marketplace_url) assert.match(pairs[0].pro_marketplace_url,direct);
-  if(String(pro[0].status).toLowerCase()!=="published") {
+  if(String(pro[0].status).toLowerCase()==="published") {
+    assert.match(String(pairs[0].pro_marketplace_url||""),direct);
+  } else {
     assert.equal(pairs[0].pro_marketplace_url??null,null);
+  }
+  if(String(lite[0].status).toLowerCase()==="published") {
+    assert.match(String(pairs[0].lite_marketplace_url||""),direct);
   }
 });
 
