@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "building",
   "workflow_state": "BUILDING",
-  "blocker": "GitHub Actions hosted Windows jobs are failing before any runner steps execute across multiple unrelated workflows; Windows .NET publish, dependency-license inventory, official Elgato validation/package, and real hardware QA remain unverified.",
+  "blocker": "GitHub Actions hosted Windows jobs are still failing before any runner steps execute across multiple unrelated workflows. Exact-head npm tests, Windows .NET publish, NuGet license inventory, official Elgato validation/package, deterministic art render, and real hardware QA remain unverified.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -42,8 +42,8 @@
     "github_actions": {
       "status": "RUNNER_DID_NOT_EXECUTE_STEPS",
       "workflow": "Performance Grapher Stream Deck",
-      "run_id": 34741687462,
-      "job_id": 103682340114,
+      "run_id": 34742207090,
+      "job_id": 103683691891,
       "windows_build_verified": false,
       "dependency_license_inventory_verified": false,
       "elgato_validation_verified": false,
@@ -54,8 +54,19 @@
       "session_window_zero_regression": "FIXED",
       "session_scoped_hardware_history": "FIXED",
       "atomic_persistence": "FIXED",
-      "marketplace_description_characters": 1352,
-      "top_level_licenses_bundled": true
+      "marketplace_description_characters": 1369,
+      "top_level_licenses_bundled": true,
+      "whole_session_archive_merge": "FIXED",
+      "property_inspector_setup_help": "FIXED",
+      "manifest_action_category": "Performance Grapher",
+      "marketplace_categories": [
+        "Gaming",
+        "Monitoring",
+        "Utilities"
+      ],
+      "rat_art_faux_hardware_removed": true,
+      "rat_art_missing_brand_asset_fails_closed": true,
+      "nuget_license_inventory_gate_added": true
     }
   },
   "physical_release_evidence": null,
