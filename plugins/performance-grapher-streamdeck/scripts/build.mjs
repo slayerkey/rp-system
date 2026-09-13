@@ -135,6 +135,9 @@ for (const [kind, glyph] of Object.entries(actionKinds)) {
   await writeFile(resolve(dir, "key@2x.svg"), key(144));
 }
 
+console.log("Generating runtime npm license inventory...");
+run(process.execPath, [resolve(root, "scripts", "npm-license-inventory.mjs")]);
+
 console.log("Publishing Libre Hardware Monitor telemetry helper...");
 run("dotnet", [
   "publish",
