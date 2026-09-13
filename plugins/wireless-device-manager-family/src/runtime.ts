@@ -3,6 +3,7 @@ import { DeviceCatalog, type Device } from "./model.js";
 import { control, snapshot } from "./bridge.js";
 
 type GlobalSettings = {
+  liteDeviceId?: string;
   favorites?: string[];
   groups?: Record<string, string[]>;
   thresholds?: Record<string, number>;
@@ -40,7 +41,9 @@ export class WirelessRuntime {
     const result = await snapshot();
     this.adapterAvailable = result.adapterAvailable;
     this.lastError = result.ok ? null : (result.error ?? "Bluetooth unavailable");
-    this.catalog.ingest(result.devices);
+    if (result.ok && result.adapterAvailable) {
+      this.catalog.ingest(result.devices);
+    }
     for (const listener of this.listeners) listener();
     await this.sendInspector();
   }
@@ -57,6 +60,21 @@ export class WirelessRuntime {
 
   async globals(): Promise<GlobalSettings> {
     return await streamDeck.settings.getGlobalSettings<GlobalSettings>();
+  }
+
+  async selectedDeviceId(localDeviceId?: string | null): Promise<string | null> {
+    if (this.edition === "pro") return localDeviceId ?? null;
+    const global = await this.globals();
+    return global.liteDeviceId ?? localDeviceId ?? null;
+  }
+
+  async setLiteDeviceId(id: string): Promise<void> {
+    if (this.edition !== "lite" || !id) return;
+    const current = await this.globals();
+    if (current.liteDeviceId === id) return;
+    await streamDeck.settings.setGlobalSettings({ ...current, liteDeviceId: id });
+    for (const listener of this.listeners) listener();
+    await this.sendInspector();
   }
 
   async favorites(): Promise<string[]> {
@@ -92,13 +110,14 @@ export class WirelessRuntime {
 
   async sendInspector(): Promise<void> {
     try {
-      const globals = this.edition === "pro" ? await this.globals() : {};
+      const globals = await this.globals();
       await streamDeck.ui.sendToPropertyInspector({
         type: "wireless-snapshot",
         edition: this.edition,
         adapterAvailable: this.adapterAvailable,
         error: this.lastError,
         devices: this.devices(),
+        liteDeviceId: globals.liteDeviceId ?? null,
         favorites: globals.favorites ?? [],
         groups: globals.groups ?? {}
       } as any);
