@@ -87,7 +87,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       limits,
       recording,
       playback: playback ? { actionId: playback.actionId, macroName: playback.macro?.name || "" } : null,
-      latestMacro,
+      hasLatestMacro: Boolean(latestMacro?.events?.length),
       macro,
       library: pro ? library.list() : [],
       libraryWarning: pro ? library.warning : "",
