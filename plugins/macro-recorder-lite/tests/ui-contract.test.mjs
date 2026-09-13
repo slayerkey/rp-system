@@ -15,6 +15,9 @@ test("Lite property inspector source parses and required controls exist",async()
     assert.match(html,new RegExp(`id=["']${id}["']`),`missing inspector control ${id}`);
   }
   assert.match(js,/PAGE_SIZE=200/);
+  assert.match(js,/MAX_IMPORT_BYTES=16\*1024\*1024/);
+  assert.match(js,/durationLimit/);
+  assert.match(js,/otherDelay/);
 });
 
 test("Lite manifest keeps the intended platform and action contract",async()=>{
