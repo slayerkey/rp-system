@@ -20,6 +20,7 @@
     $("recordLimit").textContent=state?.limits?`Limit: ${Math.round(state.limits.maxDurationMs/1000)} seconds · ${state.limits.maxEvents.toLocaleString()} events`:"";
     $("cancelRecording").disabled=!state?.recording;
     $("stopPlayback").disabled=!state?.playback;
+    $("assignLatest").disabled=!state?.hasLatestMacro;
     $("errorText").hidden=!state?.lastError;
     $("errorText").textContent=state?.lastError||"";
   }
@@ -54,7 +55,7 @@
     timeline.replaceChildren();
     const macro=state?.macro;
     if(!macro?.events?.length){
-      timeline.textContent="No macro assigned yet.";
+      timeline.textContent=macro?"This macro has no events.":"No macro assigned yet.";
       $("macroMeta").textContent="";
       pager.hidden=true;
       warning.hidden=true;
