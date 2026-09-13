@@ -16,7 +16,7 @@ Lite proves the underlying individual controls. Pro adds the orchestration layer
 
 ## Supported v1 controls
 
-- HDR: live state plus On / Off / Toggle. Windows 11 24H2+ (build 26100+) uses the HDR-specific Advanced Color Info 2 / HDR State device-info path and reads the actual active color mode. Windows 10 and pre-24H2 Windows 11 use the legacy Advanced Color path with readback; on those builds PackRat rejects the SDR WCG/automatic-color-management state via the legacy wideColorEnforced flag instead of treating it as HDR.
+- HDR: live state plus On / Off / Toggle. PackRat feature-detects the HDR-specific Advanced Color Info 2 / HDR State device-info path introduced with Windows 11 24H2 and reads the actual active color mode when available. If Windows rejects that packet, the plugin falls back to the legacy Advanced Color path with readback and explicitly rejects the SDR WCG/automatic-color-management state via wideColorEnforced instead of treating it as HDR.
 - Power Plan: live active plan, cycle, or select an exact installed plan.
 - Display Topology: live Internal / Clone / Extend / External state plus control through SetDisplayConfig.
 - Screen & Sleep: live timeouts plus configurable exact values; the default key cycles only the screen timeout.
