@@ -34,6 +34,16 @@ function failAll(message: string): void {
   }
 }
 
+function resetBridge(message: string): void {
+  const processHandle = child;
+  child = null;
+  stdoutBuffer = "";
+  failAll(message);
+  if (processHandle && processHandle.exitCode === null && !processHandle.killed) {
+    processHandle.kill();
+  }
+}
+
 function consumeLine(line: string): void {
   if (!line.trim()) return;
   try {
@@ -73,13 +83,21 @@ function ensureBridge(): ChildProcessWithoutNullStreams {
   processHandle.stderr.on("data", () => {
     // Native diagnostics stay off the JSON stdout protocol.
   });
+  processHandle.stdin.on("error", (error) => {
+    if (child === processHandle) {
+      resetBridge(error.message || "Wireless Device Bridge input pipe failed.");
+    }
+  });
   processHandle.on("error", (error) => {
-    if (child === processHandle) child = null;
-    failAll(error.message || "Wireless Device Bridge failed to start.");
+    if (child === processHandle) {
+      resetBridge(error.message || "Wireless Device Bridge failed to start.");
+    }
   });
   processHandle.on("exit", (code, signal) => {
-    if (child === processHandle) child = null;
-    failAll(`Wireless Device Bridge exited (${code ?? signal ?? "unknown"}).`);
+    if (child === processHandle) {
+      child = null;
+      failAll(`Wireless Device Bridge exited (${code ?? signal ?? "unknown"}).`);
+    }
   });
   return processHandle;
 }
@@ -94,6 +112,7 @@ async function request(command: Record<string, unknown>, timeoutMs = 10000): Pro
     const timer = setTimeout(() => {
       pending.delete(id);
       resolve({ ok: false, adapterAvailable: false, devices: [], error: "Wireless Device Bridge timed out." });
+      resetBridge("Wireless Device Bridge was restarted after a timeout.");
     }, timeoutMs);
     timer.unref();
 
