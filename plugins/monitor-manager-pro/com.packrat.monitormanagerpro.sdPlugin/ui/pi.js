@@ -111,7 +111,12 @@ function render(){
   }
 
   const list=document.getElementById("profiles");
-  if(list){list.textContent="";for(const name of profiles)opt(list,name,name);}
+  if(list){
+    list.textContent="";
+    opt(list,"","Saved profiles…");
+    for(const name of profiles)opt(list,name,name);
+    list.value=profiles.includes(settings.profileName)?settings.profileName:"";
+  }
   const profile=document.getElementById("profileName");
   if(profile&&document.activeElement!==profile)profile.value=settings.profileName??"";
 }
@@ -134,5 +139,13 @@ function build(){
   document.getElementById("hdr")?.addEventListener("change",e=>{settings={...settings,hdr:e.target.value};save();});
   document.getElementById("topology")?.addEventListener("change",e=>{settings={...settings,topology:e.target.value};save();});
   document.getElementById("orientation")?.addEventListener("change",e=>{settings={...settings,orientation:Number(e.target.value)};save();});
-  document.getElementById("profileName")?.addEventListener("change",e=>{settings={...settings,profileName:e.target.value.trim()};save();});
+  document.getElementById("profiles")?.addEventListener("change",e=>{
+    const name=e.target.value;
+    if(!name)return;
+    settings={...settings,profileName:name};
+    const profile=document.getElementById("profileName");
+    if(profile)profile.value=name;
+    save();
+  });
+  document.getElementById("profileName")?.addEventListener("change",e=>{settings={...settings,profileName:e.target.value.trim()};save();render();});
 }
