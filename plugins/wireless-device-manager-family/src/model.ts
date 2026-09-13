@@ -45,6 +45,10 @@ export function resolveSelectedDeviceId(
     : (localDeviceId ?? null);
 }
 
+export function shouldApplySnapshot(ok: boolean, adapterAvailable: boolean): boolean {
+  return ok && adapterAvailable;
+}
+
 export function capabilities(raw: RawDevice): Capabilities {
   return {
     STATUS: true,
@@ -148,12 +152,20 @@ export function shortName(name: string, max = 12): string {
   return clean.length <= max ? clean.toUpperCase() : `${clean.slice(0, max - 1).toUpperCase()}…`;
 }
 
-export function groupSummary(devices: Device[], ids: string[]): { connected: number; total: number; low: number } {
+export function groupSummary(
+  devices: Device[],
+  ids: string[],
+  thresholds: Record<string, number> = {}
+): { connected: number; total: number; low: number } {
   const selected = ids.map(id => devices.find(d => d.stableId === id)).filter(Boolean) as Device[];
   return {
     connected: selected.filter(d => d.connected).length,
     total: selected.length,
-    low: selected.filter(d => d.capabilities.BATTERY && Number(d.batteryPercent) <= 20).length
+    low: selected.filter(d => {
+      if (!d.capabilities.BATTERY) return false;
+      const threshold = Math.max(1, Math.min(99, Number(thresholds[d.stableId] ?? 20)));
+      return Number(d.batteryPercent) <= threshold;
+    }).length
   };
 }
 
