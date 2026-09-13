@@ -11,7 +11,8 @@
     "emergency_hotkey_only_intercepts_during_playback": false,
     "helper_exits_when_plugin_parent_dies": false,
     "single_active_input_session_across_lite_and_pro": false,
-    "shared_recovery_journal_requires_family_mutex_ownership": false
+    "shared_recovery_journal_requires_family_mutex_ownership": false,
+    "sendinput_failures_abort_and_preserve_recovery_state": false
   },
   "required_smoke": [
     "modifier and Windows-key down/up",
@@ -36,7 +37,9 @@
     "with Lite and Pro installed, verify Ctrl+Shift+F12 stops the one active PackRat playback",
     "while Pro owns a live held-input journal, start Lite helper and verify it does not recover/delete Pro live state",
     "while Lite owns a live held-input journal, start Pro helper and verify it does not recover/delete Lite live state",
-    "after abandoned family mutex ownership, verify stale journal recovery happens before the next input session"
+    "after abandoned family mutex ownership, verify stale journal recovery happens before the next input session",
+    "force a SendInput failure and verify playback stops with an error rather than reporting success",
+    "attempt replay into a higher-integrity target and verify failure leaves no stuck injected input"
   ],
   "source_of_truth": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md"
 }
