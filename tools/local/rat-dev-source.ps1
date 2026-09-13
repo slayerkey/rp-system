@@ -64,6 +64,39 @@ function Read-RatDevJsonFromGitObject {
     }
 }
 
+
+function Resolve-RatDevProductMetadataSource {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$Ref,
+        [Parameter(Mandatory = $true)][string]$Slug
+    )
+
+    $metadata = Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object "${Ref}:products/$Slug.json"
+    if (-not $metadata) { return $null }
+    if ([string]$metadata.type -ne "plugin") { return $null }
+    if (-not $metadata.source) { return $null }
+
+    $sourcePath = [string]$metadata.source
+    if (-not (Test-RatDevGitObject -RepoRoot $RepoRoot -Object "${Ref}:$sourcePath")) {
+        return $null
+    }
+
+    $config = [PSCustomObject]@{
+        type = "streamdeck-plugin"
+        plugin_dir = if ($metadata.ship_plugin_dir) { [string]$metadata.ship_plugin_dir } else { $null }
+        plugin_uuid = if ($metadata.plugin_uuid) { [string]$metadata.plugin_uuid } else { $null }
+    }
+
+    return [PSCustomObject]@{
+        Kind = "ratpack"
+        Ref = $Ref
+        Config = $config
+        SourceRoot = $sourcePath.Replace("/", "\")
+        Display = "$Ref via products/$Slug.json"
+    }
+}
+
 function Get-RatDevProductRefs {
     param([Parameter(Mandatory = $true)][string]$RepoRoot)
 
@@ -90,18 +123,50 @@ function Resolve-RatDevInternalProductSource {
     )
 
     $exact = "origin/product/$Slug"
-    $familySlug = $Slug -replace '-(lite|pro)$', ''
-    $preferred = @($exact)
-    if ($familySlug -ne $Slug) {
-        $preferred += "origin/product/$familySlug"
+
+    # An exact product/<slug> branch is authoritative when it actually owns the
+    # requested product. If it is absent or does not contain the product, fall
+    # back to discovery across every other product branch.
+    if (Test-RatDevGitRef -RepoRoot $RepoRoot -Ref $exact) {
+        $metadataMatch = Resolve-RatDevProductMetadataSource -RepoRoot $RepoRoot -Ref $exact -Slug $Slug
+        if ($metadataMatch) {
+            return $metadataMatch
+        }
+
+        $pluginObject = "${exact}:plugins/$Slug"
+        $widgetObject = "${exact}:widgets/_src/$Slug"
+        $hasPlugin = Test-RatDevGitObject -RepoRoot $RepoRoot -Object $pluginObject
+        $hasWidget = Test-RatDevGitObject -RepoRoot $RepoRoot -Object $widgetObject
+
+        if ($hasPlugin -and $hasWidget) {
+            throw "Rat Dev found both plugin and XENEON sources for '$Slug' on $exact."
+        }
+
+        if ($hasPlugin -or $hasWidget) {
+            return [PSCustomObject]@{
+                Kind = if ($hasPlugin) { "ratpack" } else { "xeneon" }
+                Ref = $exact
+                Config = $null
+                SourceRoot = if ($hasPlugin) { "plugins\\$Slug" } else { "widgets\\_src\\$Slug" }
+                Display = $exact
+            }
+        }
     }
 
-    $allRefs = Get-RatDevProductRefs -RepoRoot $RepoRoot
-    $orderedRefs = @($preferred + $allRefs | Select-Object -Unique)
     $matches = @()
+    $allRefs = Get-RatDevProductRefs -RepoRoot $RepoRoot
 
-    foreach ($ref in $orderedRefs) {
+    foreach ($ref in $allRefs) {
+        if ($ref -eq $exact) { continue }
         if (-not (Test-RatDevGitRef -RepoRoot $RepoRoot -Ref $ref)) { continue }
+
+        # Canonical product metadata can point multiple SKUs at one shared source
+        # directory, e.g. Lite + Pro editions under plugins/<family>.
+        $metadataMatch = Resolve-RatDevProductMetadataSource -RepoRoot $RepoRoot -Ref $ref -Slug $Slug
+        if ($metadataMatch) {
+            $matches += $metadataMatch
+            continue
+        }
 
         $pluginObject = "${ref}:plugins/$Slug"
         $widgetObject = "${ref}:widgets/_src/$Slug"
@@ -113,19 +178,13 @@ function Resolve-RatDevInternalProductSource {
         }
 
         if ($hasPlugin -or $hasWidget) {
-            $match = [PSCustomObject]@{
+            $matches += [PSCustomObject]@{
                 Kind = if ($hasPlugin) { "ratpack" } else { "xeneon" }
                 Ref = $ref
                 Config = $null
-                SourceRoot = if ($hasPlugin) { "plugins\$Slug" } else { "widgets\_src\$Slug" }
+                SourceRoot = if ($hasPlugin) { "plugins\\$Slug" } else { "widgets\\_src\\$Slug" }
                 Display = $ref
             }
-
-            if ($ref -eq $exact -or ($familySlug -ne $Slug -and $ref -eq "origin/product/$familySlug")) {
-                return $match
-            }
-
-            $matches += $match
         }
     }
 
@@ -135,7 +194,7 @@ function Resolve-RatDevInternalProductSource {
 
     if ($matches.Count -gt 1) {
         $refs = ($matches | ForEach-Object { $_.Ref }) -join ", "
-        throw "Rat Dev found '$Slug' on multiple product branches: $refs. Use an exact product/<slug> or family branch name."
+        throw "Rat Dev found '$Slug' on multiple product branches: $refs. Keep one owning family branch, or add an exact product/$Slug branch."
     }
 
     return $null
