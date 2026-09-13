@@ -125,6 +125,32 @@ test("native Bluetooth boundary uses AEP services and fail-closed service errors
   assert.match(source,/code\s*==\s*E_INVALIDARG/);
 });
 
+test("native bridge supports LAMZU Maya X battery telemetry over USB HID",async()=>{
+  const source=await readFile("bridge/Program.cs","utf8");
+  assert.match(source,/LamzuVendorId\s*=\s*0x373E/i);
+  assert.match(source,/MayaXWirelessPid\s*=\s*0x001E/i);
+  assert.match(source,/MayaXWiredPid\s*=\s*0x001C/i);
+  assert.match(source,/MayaBatteryCommand\s*=\s*0x83/i);
+  assert.match(source,/MayaReplyTag\s*=\s*0xA1/i);
+  assert.match(source,/HidD_SetFeature/);
+  assert.match(source,/HidD_GetFeature/);
+  assert.match(source,/response\[7\]\s*==\s*1/);
+  assert.match(source,/response\[8\]/);
+  assert.match(source,/transport\s*=\s*"usb-hid"/);
+});
+
+test("wireless inspector does not block USB devices when Bluetooth is unavailable",async()=>{
+  const html=await readFile("ui/inspector.html","utf8");
+  const inspector=await readFile("ui/inspector.js","utf8");
+  const runtime=await readFile("src/runtime.ts","utf8");
+  assert.match(html,/Scanning wireless devices/);
+  assert.match(html,/Supported USB receivers can work without Bluetooth/);
+  assert.match(inspector,/No supported USB wireless devices found/);
+  assert.match(runtime,/hidAvailable/);
+  assert.match(runtime,/bluetooth:\s*result\.adapterAvailable/);
+  assert.match(runtime,/hid:\s*result\.hidAvailable/);
+});
+
 
 test("settings reads are side-effect free and global writes are explicit",async()=>{
   const actions=await readFile("src/actions.ts","utf8");
