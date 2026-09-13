@@ -10,7 +10,8 @@
     "exact_keyboard_release_descriptor_for_cleanup": false,
     "emergency_hotkey_only_intercepts_during_playback": false,
     "helper_exits_when_plugin_parent_dies": false,
-    "single_active_input_session_across_lite_and_pro": false
+    "single_active_input_session_across_lite_and_pro": false,
+    "shared_recovery_journal_requires_family_mutex_ownership": false
   },
   "required_smoke": [
     "modifier and Windows-key down/up",
@@ -32,7 +33,10 @@
     "Ctrl+Shift+F12 does not pollute an active recording when no playback is running",
     "force-kill the Stream Deck plugin process and verify its helper exits instead of remaining orphaned",
     "with Lite and Pro installed, verify only one PackRat Macro Recorder recording/playback session can be active at once",
-    "with Lite and Pro installed, verify Ctrl+Shift+F12 stops the one active PackRat playback"
+    "with Lite and Pro installed, verify Ctrl+Shift+F12 stops the one active PackRat playback",
+    "while Pro owns a live held-input journal, start Lite helper and verify it does not recover/delete Pro live state",
+    "while Lite owns a live held-input journal, start Pro helper and verify it does not recover/delete Lite live state",
+    "after abandoned family mutex ownership, verify stale journal recovery happens before the next input session"
   ],
   "source_of_truth": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md"
 }
