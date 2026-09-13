@@ -182,52 +182,76 @@ Additional current-head release changes that require the fresh run:
 
 Promotion remains blocked at `BUILDING`.
 
+## Exact merged-head JavaScript core harness — 2026-09-13
 
-## Exact current-head JavaScript core harness — 2026-09-13
+The product branch was resynced with current `main` through PR #168 before this evidence was recorded. The incoming main commits changed canonical Rat Art / Marketplace standards and assets, not Performance Grapher runtime files.
 
-GitHub-hosted jobs are still failing before checkout, so the exact committed JavaScript modules were fetched directly from the product branch and executed in isolated module factories inside the ChatGPT V8 tool runtime.
+Result: **38 / 38 behavior checks PASS**
 
-Result: **30 / 30 PASS**
+Separate syntax gate: **21 / 21 JavaScript runtime, build, Property Inspector, and test files PASS**
 
-Covered:
+Current merged-head coverage includes:
 
 - frame-time based average FPS and 1% / 0.1% low-average statistics
 - migration of the pre-release FPS-histogram persistence shape
-- bounded raw/archive history and whole-session archive merge
-- game session start, idle finalization, process switching, and ignored compositor
-- dominant 8 FPS fallback detection when foreground telemetry is unavailable
-- refusal to select ambiguous fallback producers
-- foreground-process priority over fallback activity
-- recent active-session restore without restoring stale current FPS
-- stale persisted-session finalization at the saved boundary
-- PresentMon CSV parsing and live provider preference for `MsBetweenPresents`
-- quoted CSV process names
-- PresentMon replacement-child ownership during manual restart
-- PresentMon launch-error state and recovery scheduling
-- permission-required key rendering
-- 72, 96, and 144 px SVG generation
-- `windowMs = 0` Session propagation
-- NVIDIA / AMD / Intel sensor alias mapping
-- missing-GPU CPU/RAM fallback
-- stale sensor expiry
-- atomic state persistence + active-session history round trip
-- corrupt state quarantine
-- session-scoped hardware history
-- hardware-helper replacement-child ownership
-- hardware-helper launch-error state and recovery scheduling
-- awaitable graceful-shutdown persistence
+- bounded history and archive merging
+- process-aware session start, switch, idle finalization, and ignored compositor
+- low-FPS fallback selection without foreground telemetry plus ambiguous-producer refusal
+- final-bucket temperature/load/pressure context during reset and process switch
+- separate 100 ms FPS average history and worst-raw-frametime history
+- max-preserving frametime archive so one-frame stutters are not averaged out
+- FPS + frametime history persistence across short plugin restarts
+- stale interrupted-session finalization
+- PresentMon quoted/unquoted CSV parsing, cached column indexes, and `MsBetweenPresents` priority
+- PresentMon and hardware-helper stale-child ownership / launch-error recovery
+- permission-required and idle-game key states
+- 72 / 96 / 144 px SVG key generation
+- session-window zero propagation
+- NVIDIA / AMD / Intel canonical GPU sensor mapping
+- no-GPU fallback and stale sensor expiry
+- lazy history allocation so unselected LHM sensors do not allocate rolling arrays
+- compact per-frame session metric snapshots instead of copying the full sensor map
+- atomic persistence, corruption quarantine, and session-scoped hardware history
+- awaitable graceful shutdown persistence
+- Property Inspector DOM/control contract, command wiring, syntax, and delayed reveal
 
-Current-head synthetic V8 benchmark:
+Merged-head synthetic V8 benchmark:
 
-- **250,000 frame events:** approximately **516 ms**
-- **5,000 144 px SVG renders:** approximately **266 ms**
-- FPS recent raw history remained capped at **3,600** points
-- FPS 1-second archive contained **2,499** points for the synthetic run
+- **250,000 frame events:** approximately **648 ms**
+- **5,000 144 px SVG renders:** approximately **236 ms**
+- **250,000 PresentMon CSV rows:** approximately **193 ms**
+- FPS recent raw history capped at **3,600**
+- frametime recent raw history capped at **3,600**
+- FPS and frametime 1-second archives each contained **2,499** points in the synthetic run
 
-The 1% / 0.1% low-average implementation now averages the slowest accepted frame times for the selected fraction and converts that mean frame time back to FPS. Average FPS is total accepted frames divided by total accepted frame time.
+These are implementation-cost measurements, not real Windows/game overhead measurements.
 
-These timings are implementation-cost evidence only. They do not prove real Windows/game frametime overhead.
+### Marketplace Listing V2 art gate
 
-The exact-head JavaScript core is no longer stale. The remaining automated release blocker is the environment-dependent Windows/npm/.NET/Elgato/Rat Art pipeline, which GitHub Actions still has not started.
+The merged canonical Marketplace V2 standard is now applied to Performance Grapher Rat Art:
 
-The dedicated run `34742207090` created job `103683691891` with no steps. A manual Actions API retry succeeded in creating replacement job `103734846092`, but that job also failed with zero steps and no log blob. This confirms the failure is upstream of workflow checkout/execution.
+- deterministic key cluster remains the product proof
+- no fabricated Stream Deck hardware chassis
+- PackRat mark moved to the V2 top-center position
+- hero key cluster enlarged for browsing-scale readability
+- hero review sheet is generated separately at **480 × 240**, **320 × 160**, and **240 × 120**
+- the QA review sheet is staged separately from customer-facing Marketplace art
+
+The Python art render and visual review are still **pending** because the hosted Windows workflow has not executed.
+
+### Remaining automation blocker
+
+GitHub Actions continues to create jobs that fail before checkout with zero steps and no job-log blob, including unrelated workflows. A previous manual API retry reproduced the same pre-step failure. Until hosted jobs execute, the following remain unverified on the merged head:
+
+- `npm ci` / actual Node test runner
+- .NET 8 Windows publish
+- resolved NuGet dependency/license inventory
+- native Libre Hardware Monitor helper probe
+- pinned PresentMon binary/hash bundle
+- official Elgato validation
+- official `.streamDeckPlugin` packaging
+- deterministic Python Marketplace V2 media render
+- generated thumbnail review sheet
+- staged release-candidate artifact
+
+Physical Windows/GPU/Stream Deck testing and enabled-vs-disabled real-game frametime comparison remain the final release boundary.
