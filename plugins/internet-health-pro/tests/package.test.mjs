@@ -5,6 +5,8 @@ import fs from "node:fs";
 const manifest = JSON.parse(fs.readFileSync("com.packrat.internet-health-pro.sdPlugin/manifest.json", "utf8"));
 const pluginSource = fs.readFileSync("src/plugin.js", "utf8");
 const probesSource = fs.readFileSync("src/probes.js", "utf8");
+const renderSource = fs.readFileSync("src/render.js", "utf8");
+const inspectorSource = fs.readFileSync("ui/inspector.js", "utf8");
 const submission = JSON.parse(fs.readFileSync("submission.json", "utf8"));
 const product = JSON.parse(fs.readFileSync("../../products/internet-health-pro.json", "utf8"));
 
@@ -22,11 +24,12 @@ test("plugin process instantiates one shared NetworkMonitor", () => {
   assert.equal((pluginSource.match(/setInterval\s*\(/g) || []).length, 0);
 });
 
-test("speed test stays manual and transfer-capped in source and marketplace copy", () => {
-  assert.match(probesSource, /8_000_000/);
-  assert.match(probesSource, /2_000_000/);
+test("speed test stays manual, warmed and transfer-capped in source and marketplace copy", () => {
+  assert.match(probesSource, /64_000_000/);
+  assert.match(probesSource, /4_000_000/);
+  assert.match(probesSource, /warmed-adaptive/);
   assert.match(submission.description, /manual only/i);
-  assert.match(submission.description, /10 MB/i);
+  assert.match(submission.description, /80 MB/i);
 });
 
 test("marketplace positioning is Internet Health, not a generic speed-test launcher", () => {
@@ -57,4 +60,25 @@ test("manifest asset references use extensionless Elgato paths", () => {
     for (const state of action.States || []) paths.push(state.Image);
   }
   assert.ok(paths.every((value) => typeof value === "string" && !/\.(?:png|svg)$/i.test(value)));
+});
+
+
+test("hardware-key typography uses the larger physical-device hierarchy", () => {
+  assert.match(renderSource, /font-size="12\.5"/);
+  assert.match(renderSource, /fitFont\(primary, 30, 25, 19\)/);
+  assert.match(renderSource, /font-size="13\.5"/);
+  assert.match(renderSource, /UP TO ~80 MB/);
+});
+
+test("property inspector re-requests live state instead of staying on startup text", () => {
+  assert.match(inspectorSource, /setInterval\(requestState, 1500\)/);
+  assert.match(inspectorSource, /setTimeout\(requestState, 250\)/);
+});
+
+
+test("physical key graphs use a dedicated 30 second visual window", () => {
+  assert.match(renderSource, /const KEY_GRAPH_SECONDS = 30/);
+  assert.match(renderSource, /const windowMs = seconds \* 1000/);
+  assert.match(renderSource, /graphPath\(samples, KEY_GRAPH_SECONDS, 116, 32, 14, 94\)/);
+  assert.doesNotMatch(renderSource, /graphPath\(samples, minutes/);
 });

@@ -13,7 +13,7 @@
   "submission_metadata": "plugins/window-manager-pro/submission.json",
   "source_repository": "https://github.com/slayerkey/vcs.git",
   "source_ref": "refs/heads/product/window-manager-pro",
-  "source_commit": "de88d19506a41b7d1246b7b52446f0728f375dd5",
+  "source_commit": "f3c8487326efe293b8803a4dfadfb29aa1bdd1f5",
   "plugin_uuid": "com.packrat.windowmanagerpro",
   "marketplace_product_id": "f3ed6217-0282-419d-a71d-4b1548147b11",
   "marketplace_url": "https://marketplace.elgato.com/product/window-manager-pro-f3ed6217-0282-419d-a71d-4b1548147b11",

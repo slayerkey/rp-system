@@ -5,7 +5,7 @@ description: Build an approved Packrat product using the platform specific canon
 
 # Rat Build
 
-Read `RATPACK.md`, the product validation, registry entry, and matching platform reference.
+Read `RATPACK.md`, the product validation, registry entry, matching platform reference, and `standards/streamdeck-key-visuals-v1.md` for Stream Deck products.
 
 Dispatch by product type.
 
@@ -13,9 +13,21 @@ Dispatch by product type.
 
 Use the existing deterministic profile builder and required variants. Preserve one press, one action, required plugin declarations, platform key encoding, and device specific layout rules. Run structural validation after generation.
 
+Generated profile key faces are product UI, not filler. Keep labels short, keep text out of the primary glyph area, and inherit the plugin's semantic action art instead of placing long titles over generic backgrounds.
+
 ## Plugin
 
 Use the Stream Deck SDK project structure, lockfile, unit or fixture tests, manifest validation, Elgato CLI validation, and packaged CI artifact.
+
+Choose a key-face pattern before implementing actions:
+
+- Icon-led: one large semantic glyph, high contrast, usually `ShowTitle: false`.
+- Rendered key: compose all value/state text and graphics into one 144 x 144 or equivalent key image, with Stream Deck title overlay disabled.
+- Text-assisted icon: only when a short value or state is genuinely necessary; reserve a dedicated text band and never use middle-aligned title text over the glyph.
+
+Do not use one generic device silhouette as the background for unrelated actions when a specific symbol can communicate the action. Brightness should look like brightness, contrast like contrast, volume like volume, power like power, and so on.
+
+For Keypad plugins, run `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>` as part of QA when the product layout permits. Review representative keys at 72 x 72 and 36 x 36 before asking the user to find visual clipping on hardware.
 
 ## Widget
 

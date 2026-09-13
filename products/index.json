@@ -392,14 +392,6 @@
       "version": null
     },
     {
-      "id": "internet-health-pro",
-      "name": "Internet Health Pro",
-      "type": "plugin",
-      "status": "qa_passed",
-      "price_usd": 7.99,
-      "version": "1.0.0.0"
-    },
-    {
       "id": "league-of-legends",
       "name": "League of Legends",
       "type": "profile",
@@ -878,6 +870,14 @@
       "status": "qa_passed",
       "price_usd": 34.99,
       "version": "1.0.0"
+    },
+    {
+      "id": "internet-health-pro",
+      "name": "Internet Health Pro",
+      "type": "plugin",
+      "status": "testing",
+      "price_usd": 7.99,
+      "version": "1.0.0.0"
     }
   ]
 }

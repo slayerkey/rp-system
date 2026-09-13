@@ -97,6 +97,56 @@ function Resolve-RatDevProductMetadataSource {
     }
 }
 
+
+function Resolve-RatDevPluginDirectory {
+    param(
+        [Parameter(Mandatory = $true)][string]$PluginRoot,
+        [object]$Config,
+        [switch]$AllowMissing
+    )
+
+    if (-not (Test-Path $PluginRoot -PathType Container)) {
+        if ($AllowMissing) { return $null }
+        throw "Plugin source root does not exist: $PluginRoot"
+    }
+
+    $configured = if ($Config -and $Config.plugin_dir) { ([string]$Config.plugin_dir).Trim() } else { "" }
+    if (-not [string]::IsNullOrWhiteSpace($configured)) {
+        if ([System.IO.Path]::IsPathRooted($configured)) {
+            throw "Configured Rat Dev plugin_dir '$configured' must be relative to plugin source root '$PluginRoot'."
+        }
+
+        $trimChars = [char[]]@([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+        $rootFull = [System.IO.Path]::GetFullPath((Resolve-Path $PluginRoot).Path).TrimEnd($trimChars)
+        $candidate = [System.IO.Path]::GetFullPath((Join-Path $rootFull $configured))
+        $rootPrefix = $rootFull + [System.IO.Path]::DirectorySeparatorChar
+
+        if ($candidate -ne $rootFull -and -not $candidate.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Configured Rat Dev plugin_dir '$configured' escapes plugin source root '$PluginRoot'."
+        }
+
+        if (Test-Path $candidate -PathType Container) {
+            return $candidate
+        }
+
+        if ($AllowMissing) { return $null }
+        throw "Configured Rat Dev plugin_dir '$configured' was not created under '$PluginRoot'. Check products/<slug>.json ship_plugin_dir or rat-dev.json plugin_dir."
+    }
+
+    $candidates = @(Get-ChildItem -Path $PluginRoot -Directory -Filter "*.sdPlugin" -ErrorAction SilentlyContinue)
+    if ($candidates.Count -eq 1) {
+        return $candidates[0].FullName
+    }
+
+    if ($candidates.Count -eq 0) {
+        if ($AllowMissing) { return $null }
+        throw "Could not locate a built .sdPlugin directory under $PluginRoot. Shared-source products must declare ship_plugin_dir in products/<slug>.json."
+    }
+
+    $names = ($candidates | ForEach-Object { $_.Name } | Sort-Object) -join ", "
+    throw "Rat Dev found multiple .sdPlugin directories under '$PluginRoot' ($names). Refusing to guess. Configure products/<slug>.json ship_plugin_dir or rat-dev.json plugin_dir."
+}
+
 function Get-RatDevProductRefs {
     param([Parameter(Mandatory = $true)][string]$RepoRoot)
 
@@ -147,7 +197,7 @@ function Resolve-RatDevInternalProductSource {
                 Kind = if ($hasPlugin) { "ratpack" } else { "xeneon" }
                 Ref = $exact
                 Config = $null
-                SourceRoot = if ($hasPlugin) { "plugins\\$Slug" } else { "widgets\\_src\\$Slug" }
+                SourceRoot = if ($hasPlugin) { "plugins\$Slug" } else { "widgets\_src\$Slug" }
                 Display = $exact
             }
         }
@@ -182,7 +232,7 @@ function Resolve-RatDevInternalProductSource {
                 Kind = if ($hasPlugin) { "ratpack" } else { "xeneon" }
                 Ref = $ref
                 Config = $null
-                SourceRoot = if ($hasPlugin) { "plugins\\$Slug" } else { "widgets\\_src\\$Slug" }
+                SourceRoot = if ($hasPlugin) { "plugins\$Slug" } else { "widgets\_src\$Slug" }
                 Display = $ref
             }
         }

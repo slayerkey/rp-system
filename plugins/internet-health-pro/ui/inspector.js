@@ -25,6 +25,7 @@
   let globals = { ...DEFAULT_GLOBAL };
   let snapshot = null;
   let saveTimer = null;
+  let inspectTimer = null;
 
   const $ = (id) => document.getElementById(id);
   function send(message) {
@@ -118,6 +119,9 @@
     $("speedTest").disabled = Boolean(snapshot?.speedRunning);
     $("speedTest").textContent = snapshot?.speedRunning ? "Testing…" : "Run speed test";
   }
+  function requestState() {
+    return send({ event: "sendToPlugin", action: actionUuid, context, payload: { type: "internetHealth.inspect" } });
+  }
   function command(command) {
     return send({ event: "sendToPlugin", action: actionUuid, context, payload: { type: "internetHealth.command", command } });
   }
@@ -136,7 +140,14 @@
       send({ event: registerEvent, uuid: uiUuid });
       send({ event: "getSettings", action: actionUuid, context });
       send({ event: "getGlobalSettings", context: uiUuid });
-      send({ event: "sendToPlugin", action: actionUuid, context, payload: { type: "internetHealth.inspect" } });
+      requestState();
+      setTimeout(requestState, 250);
+      clearInterval(inspectTimer);
+      inspectTimer = setInterval(requestState, 1500);
+    };
+    socket.onclose = () => {
+      clearInterval(inspectTimer);
+      inspectTimer = null;
     };
     socket.onmessage = (event) => {
       let message = null;

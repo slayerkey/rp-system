@@ -258,14 +258,7 @@ function Get-ExistingPluginUuid {
         }
     }
 
-    $pluginDir = $null
-    if ($config -and $config.plugin_dir) {
-        $pluginDir = Join-Path $root ([string]$config.plugin_dir)
-    }
-    if (-not $pluginDir) {
-        $candidate = Get-ChildItem $root -Directory -Filter "*.sdPlugin" -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($candidate) { $pluginDir = $candidate.FullName }
-    }
+    $pluginDir = Resolve-RatDevPluginDirectory -PluginRoot $root -Config $config -AllowMissing
     if (-not $pluginDir) { return $null }
 
     $manifestPath = Join-Path $pluginDir "manifest.json"
@@ -303,6 +296,7 @@ function Build-And-TestPlugin {
     $packagePath = Join-Path $PluginRoot "package.json"
     if (Test-Path $packagePath) {
         $package = Get-Content $packagePath -Raw | ConvertFrom-Json
+        Assert-RatDevBuildPrerequisites -PluginRoot $PluginRoot -Slug $Slug
         $nodeModules = Join-Path $PluginRoot "node_modules"
         $lockPath = Join-Path $PluginRoot "package-lock.json"
         Push-Location $PluginRoot
@@ -339,18 +333,7 @@ function Build-And-TestPlugin {
         }
     }
 
-    $pluginDir = $null
-    if ($config -and $config.plugin_dir) {
-        $pluginDir = Join-Path $PluginRoot ([string]$config.plugin_dir)
-    }
-    else {
-        $candidate = Get-ChildItem $PluginRoot -Directory -Filter "*.sdPlugin" | Select-Object -First 1
-        if ($candidate) { $pluginDir = $candidate.FullName }
-    }
-
-    if (-not $pluginDir -or -not (Test-Path $pluginDir)) {
-        throw "Could not locate the built .sdPlugin directory under $PluginRoot"
-    }
+    $pluginDir = Resolve-RatDevPluginDirectory -PluginRoot $PluginRoot -Config $config
 
     $manifestPath = Join-Path $pluginDir "manifest.json"
     if (-not (Test-Path $manifestPath)) {
@@ -370,6 +353,7 @@ function Build-And-TestPlugin {
         Uuid = [string]$manifest.UUID
         Version = [string]$manifest.Version
         OpenUrl = if ($config -and $config.open_url) { [string]$config.open_url } else { $null }
+        OpenDevFolder = [bool]($config -and $config.open_dev_folder)
     }
 }
 
@@ -400,6 +384,29 @@ function Install-DevPlugin {
     Write-Host "Version: $($Plugin.Version)"
     Write-Host "Source:  $($Plugin.Root)"
     Write-Host "Plugin:  $($Plugin.PluginDir)"
+
+    $profiles = @(Get-ChildItem -Path $Plugin.PluginDir -Recurse -Filter "*.streamDeckProfile" -File -ErrorAction SilentlyContinue)
+    if ($profiles.Count) {
+        Write-Host "Profiles:" -ForegroundColor DarkGray
+        foreach ($profile in $profiles) {
+            Write-Host "  $($profile.FullName)"
+        }
+    }
+    else {
+        Write-Host "Profiles: none bundled" -ForegroundColor DarkGray
+    }
+
+    if ($Plugin.OpenDevFolder) {
+        Start-Sleep -Milliseconds 600
+        $openPath = if ($profiles.Count) { $profiles[0].Directory.FullName } else { $Plugin.PluginDir }
+        Write-Host "Opening development bundle: $openPath" -ForegroundColor DarkGray
+        if ($env:OS -eq "Windows_NT") {
+            Start-Process explorer.exe $openPath
+        }
+        else {
+            Start-Process $openPath
+        }
+    }
 
     if ($Plugin.OpenUrl) {
         Start-Sleep -Seconds 2

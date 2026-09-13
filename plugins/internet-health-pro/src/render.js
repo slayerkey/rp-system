@@ -25,9 +25,12 @@ function metricState(value, warn, bad, connectivityStatus) {
   return "GOOD";
 }
 
-function graphPath(samples, minutes = 30, width = 116, height = 29, x = 14, y = 92) {
+const KEY_GRAPH_SECONDS = 30;
+
+function graphPath(samples, seconds = KEY_GRAPH_SECONDS, width = 116, height = 32, x = 14, y = 94) {
   const now = Date.now();
-  const cutoff = now - minutes * 60_000;
+  const windowMs = seconds * 1000;
+  const cutoff = now - windowMs;
   const list = (samples || []).filter((sample) =>
     sample && sample.ok === true && Number(sample.t) >= cutoff && Number.isFinite(Number(sample.ms))
   );
@@ -40,24 +43,34 @@ function graphPath(samples, minutes = 30, width = 116, height = 29, x = 14, y = 
     max += 2.5;
   }
   return list.map((sample, index) => {
-    const px = x + ((Number(sample.t) - cutoff) / (minutes * 60_000)) * width;
+    const px = x + ((Number(sample.t) - cutoff) / windowMs) * width;
     const py = y + height - ((Number(sample.ms) - min) / (max - min)) * height;
     return (index ? "L" : "M") + px.toFixed(1) + " " + py.toFixed(1);
   }).join(" ");
 }
 
+function fitFont(value, large, medium, small) {
+  const length = String(value || "").length;
+  if (length <= 8) return large;
+  if (length <= 13) return medium;
+  return small;
+}
+
 function baseSvg({ label, primary, secondary = "", status = "CHECK", accent = "#2BE86A", samples = [], minutes = 30, footer = "" }) {
   const color = stateColor(status, accent);
-  const path = graphPath(samples, minutes);
+  const path = graphPath(samples, KEY_GRAPH_SECONDS, 116, 32, 14, 94);
+  const primarySize = fitFont(primary, 30, 25, 19);
+  const secondarySize = fitFont(secondary, 12.5, 11.5, 10.5);
+  const footerSize = fitFont(footer, 11, 10.5, 9.5);
   return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
     <rect width="144" height="144" rx="18" fill="#07090D"/>
-    <rect x="0" y="0" width="4" height="144" rx="2" fill="${color}"/>
-    <text x="14" y="23" fill="#AEB4BF" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing=".7">${escapeXml(label)}</text>
-    <text x="14" y="58" fill="#F4F6F8" font-family="Arial,sans-serif" font-size="26" font-weight="800">${escapeXml(primary)}</text>
-    <text x="14" y="78" fill="${color}" font-family="Arial,sans-serif" font-size="10.5" font-weight="700">${escapeXml(secondary)}</text>
-    <line x1="14" y1="92" x2="130" y2="92" stroke="#20242B" stroke-width="1"/>
-    ${path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
-    <text x="14" y="134" fill="#747B87" font-family="Arial,sans-serif" font-size="9">${escapeXml(footer)}</text>
+    <rect x="0" y="0" width="5" height="144" rx="2.5" fill="${color}"/>
+    <text x="14" y="24" fill="#B9C0CB" font-family="Arial,sans-serif" font-size="12.5" font-weight="800" letter-spacing=".45">${escapeXml(label)}</text>
+    <text x="14" y="61" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="${primarySize}" font-weight="800">${escapeXml(primary)}</text>
+    <text x="14" y="82" fill="${color}" font-family="Arial,sans-serif" font-size="${secondarySize}" font-weight="800">${escapeXml(secondary)}</text>
+    <line x1="14" y1="91" x2="130" y2="91" stroke="#252A32" stroke-width="1"/>
+    ${path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
+    <text x="14" y="137" fill="#929AA7" font-family="Arial,sans-serif" font-size="${footerSize}" font-weight="700">${escapeXml(footer)}</text>
   </svg>`);
 }
 
@@ -80,7 +93,7 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
   const metrics = metricForWindow(snapshot, settings.historyWindow);
   const health = classifyHealth(snapshot.connectivity || {}, metrics, settings);
   const minutes = settings.historyWindow;
-  const footer = minutes + " MIN HISTORY";
+  const footer = minutes + " MIN";
 
   if (kind === "health") {
     const latency = Number.isFinite(metrics.current) ? Math.round(metrics.current) + " ms" : health.state === "OFFLINE" ? "NO CONNECTION" : "-- ms";
@@ -123,7 +136,7 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
     return baseSvg({
       label: useLoss ? "PROBE LOSS" : "JITTER",
       primary,
-      secondary: useLoss ? metrics.attempts + " OBSERVED PROBES" : metrics.adjacentPairs + " VALID PAIRS",
+      secondary: useLoss ? metrics.attempts + " PROBES" : metrics.adjacentPairs + " PAIRS",
       status: selectedState,
       accent: settings.accent,
       samples: snapshot.samples,
@@ -190,7 +203,7 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
         secondary: "MANUAL TEST RUNNING",
         status: "CHECK",
         accent: settings.accent,
-        footer: "MAX ~10 MB"
+        footer: "UP TO ~80 MB"
       });
     }
     if (speed?.ok) {
@@ -215,7 +228,7 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
       secondary: "RUN MANUAL TEST",
       status: "CHECK",
       accent: settings.accent,
-      footer: "MAX ~10 MB"
+      footer: "UP TO ~80 MB"
     });
   }
 
@@ -224,11 +237,11 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
   return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
     <rect width="144" height="144" rx="18" fill="#07090D"/>
     <rect x="0" y="0" width="4" height="144" rx="2" fill="${color}"/>
-    <text x="14" y="22" fill="#AEB4BF" font-family="Arial,sans-serif" font-size="10.5" font-weight="700">HEALTH SUMMARY</text>
-    <text x="14" y="47" fill="${color}" font-family="Arial,sans-serif" font-size="17" font-weight="800">${escapeXml(health.state)}</text>
-    <text x="14" y="69" fill="#F4F6F8" font-family="Arial,sans-serif" font-size="12">LAT ${Number.isFinite(metrics.current) ? Math.round(metrics.current) + " ms" : "--"}</text>
-    <text x="14" y="88" fill="#F4F6F8" font-family="Arial,sans-serif" font-size="12">JIT ${Number.isFinite(metrics.jitter) ? metrics.jitter.toFixed(1) + " ms" : "--"}</text>
-    <text x="14" y="107" fill="#F4F6F8" font-family="Arial,sans-serif" font-size="12">LOSS ${Number.isFinite(metrics.loss) ? metrics.loss.toFixed(1) + "%" : "--"}</text>
-    <text x="14" y="126" fill="#F4F6F8" font-family="Arial,sans-serif" font-size="12">${summary.current ? "DOWN " + formatDuration(summary.currentDurationMs) : "UP " + formatDuration(summary.uptimeMs)}</text>
+    <text x="14" y="23" fill="#B9C0CB" font-family="Arial,sans-serif" font-size="11.5" font-weight="800">HEALTH SUMMARY</text>
+    <text x="14" y="50" fill="${color}" font-family="Arial,sans-serif" font-size="21" font-weight="800">${escapeXml(health.state)}</text>
+    <text x="14" y="73" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="13.5" font-weight="700">LAT ${Number.isFinite(metrics.current) ? Math.round(metrics.current) + " ms" : "--"}</text>
+    <text x="14" y="94" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="13.5" font-weight="700">JIT ${Number.isFinite(metrics.jitter) ? metrics.jitter.toFixed(1) + " ms" : "--"}</text>
+    <text x="14" y="115" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="13.5" font-weight="700">LOSS ${Number.isFinite(metrics.loss) ? metrics.loss.toFixed(1) + "%" : "--"}</text>
+    <text x="14" y="136" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="13.5" font-weight="700">${summary.current ? "DOWN " + formatDuration(summary.currentDurationMs) : "UP " + formatDuration(summary.uptimeMs)}</text>
   </svg>`);
 }

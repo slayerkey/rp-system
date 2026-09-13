@@ -94,7 +94,7 @@
     {
       "UUID": "com.packrat.internet-health-pro.speed-test",
       "Name": "Speed Test",
-      "Tooltip": "Run a manual capped throughput test. Never runs automatically.",
+      "Tooltip": "Run a manual warmed adaptive throughput test. Never runs automatically.",
       "Icon": "imgs/actions/speed-test/icon",
       "Controllers": [
         "Keypad"
