@@ -122,6 +122,26 @@ export class MacroLibrary {
     return await run;
   }
 
+  async ensure(raw) {
+    const run = this.operationTail.then(async () => {
+      const macro = normalizeMacro({ ...raw, updatedAt: raw?.updatedAt || new Date().toISOString() }, { pro: true });
+      if (!macro.events.length) throw new Error("Macro must contain at least one playable event.");
+      const existing = this.get(macro.id);
+      if (existing) return existing;
+      const before = [...this.macros];
+      try {
+        this.macros.push(macro);
+        await this.save();
+        return macro;
+      } catch (error) {
+        this.macros = before;
+        throw error;
+      }
+    });
+    this.operationTail = run.catch(() => {});
+    return await run;
+  }
+
   async add(raw) {
     return await this.transact(() => {
       let macro = normalizeMacro({ ...raw, updatedAt: new Date().toISOString() }, { pro: true });
