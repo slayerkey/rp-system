@@ -113,6 +113,18 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   assert.match(backend, /attempt < 12/);
 });
 
+test("timeout settings reject blank, negative and out-of-range values instead of turning them into Never", async () => {
+  const store = await readFile(path.resolve("src", "store.ts"), "utf8");
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
+  const html = await readFile(path.resolve("ui", "config.html"), "utf8");
+  assert.match(store, /value <= 0xffffffff/);
+  assert.match(actions, /number <= 0xffffffff/);
+  assert.match(inspector, /if \(raw === ""\) return null/);
+  assert.match(inspector, /value <= 0xffffffff \? value : null/);
+  assert.match(html, /max="4294967295"/);
+});
+
 test("individual set actions fall back to the live value shown by the inspector", async () => {
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
