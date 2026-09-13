@@ -162,3 +162,13 @@ test("Lite inspector does not visually substitute an unplugged configured monito
   assert.match(pi,/globalSettings\.monitorKey\?monitorRows\.find/);
   assert.match(pi,/CONFIGURED MONITOR NOT CONNECTED/);
 });
+
+test("Lite manifest action UUIDs exactly match backend handlers", async () => {
+  const manifest=JSON.parse(await readFile("com.packrat.monitormanagerlite.sdPlugin/manifest.json","utf8"));
+  const source=await readFile("src/actions.ts","utf8");
+  const handlers=[...source.matchAll(/@action\(\{\s*UUID:\s*"([^"]+)"/g)].map((match)=>match[1]).sort();
+  const exposed=manifest.Actions.map((action)=>action.UUID).sort();
+  assert.deepEqual(handlers,exposed);
+  const encoders=manifest.Actions.filter((action)=>action.Controllers?.includes("Encoder")).map((action)=>action.UUID);
+  assert.deepEqual(encoders,["com.packrat.monitormanagerlite.brightness"]);
+});
