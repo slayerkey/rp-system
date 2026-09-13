@@ -105,3 +105,15 @@ test("stable target paths and internal-panel detection are present in the bundle
   assert.match(helper,/monitorDevicePath/);
   assert.match(helper,/IsInternalDisplay/);
 });
+
+test("orientation swaps dimensions and is preflighted against enumerated Windows modes", async () => {
+  const source=await readFile("src/runtime.ts","utf8");
+  assert.match(source,/currentPortrait===wantedPortrait\?Number\(current\.width\):Number\(current\.height\)/);
+  assert.match(source,/if\(!modeSupported\(monitor\.modes,request\)\) throw new Error\("Requested orientation is not available/);
+});
+
+test("saved-profile picker writes profileName into action settings", async () => {
+  const pi=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.js","utf8");
+  assert.match(pi,/getElementById\("profiles"\).*addEventListener\("change"/s);
+  assert.match(pi,/settings=\{\.\.\.settings,profileName:name\}/);
+});
