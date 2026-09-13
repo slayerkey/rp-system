@@ -81,3 +81,18 @@ test("Macro Library serializes rapid saves without losing the final edit", async
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("Macro Library quarantines structurally invalid schema files", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    await writeFile(file,JSON.stringify({schema:99,macros:[]}),"utf8");
+    const library=await new MacroLibrary(file).load();
+    assert.equal(library.list().length,0);
+    assert.match(library.warning,/corrupt/i);
+    const names=await readdir(dir);
+    assert.ok(names.some(name=>name.startsWith("library.json.corrupt-")));
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
