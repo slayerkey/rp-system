@@ -800,6 +800,22 @@
       "version": "1.0.0"
     },
     {
+      "id": "wireless-device-manager",
+      "name": "Wireless Device Manager Lite",
+      "type": "plugin",
+      "status": "build_candidate",
+      "price_usd": 0,
+      "version": "0.1.0.0"
+    },
+    {
+      "id": "wireless-device-manager-pro",
+      "name": "Wireless Device Manager Pro",
+      "type": "plugin",
+      "status": "build_candidate",
+      "price_usd": 7.99,
+      "version": "0.1.0.0"
+    },
+    {
       "id": "work-session-tracker",
       "name": "Work Session Tracker Lite",
       "type": "widget",
