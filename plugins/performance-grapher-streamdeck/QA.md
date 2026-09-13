@@ -188,7 +188,7 @@ The product branch was resynced with current `main` through PR #168 before this 
 
 Result: **38 / 38 behavior checks PASS**
 
-Separate syntax gate: **21 / 21 JavaScript runtime, build, Property Inspector, and test files PASS**
+Separate syntax gate: **24 / 24 JavaScript runtime, build, Property Inspector, license-inventory, and test files PASS**
 
 Current merged-head coverage includes:
 
@@ -255,3 +255,34 @@ GitHub Actions continues to create jobs that fail before checkout with zero step
 - staged release-candidate artifact
 
 Physical Windows/GPU/Stream Deck testing and enabled-vs-disabled real-game frametime comparison remain the final release boundary.
+
+
+### Registry and plugin contracts
+
+- **PASS:** all five `ACTIONS` UUIDs in `src/plugin.js` exactly match the five manifest action UUIDs.
+- **PASS:** `PerformanceAction` assigns `manifestId` before each `registerAction()` call, matching the official SDK routing model.
+- **PASS:** `products/index.json` now contains exactly one `performance-grapher-streamdeck` entry.
+- **PASS:** that registry entry exactly matches the canonical product ID, name, type, status, price, and version.
+- **FIXED:** a duplicate adjacent product-index entry discovered during merged-head audit was removed.
+- **VERIFIED:** current Elgato manifest schema accepts `Nodejs.Version = 24`, `SDKVersion = 3`, `Software.MinimumVersion = 7.3`, and `SupportedInMultiActions`.
+
+### Runtime dependency license gate
+
+The build now generates two dependency inventories:
+
+1. **npm runtime dependency graph**
+   - starts from production dependencies only
+   - recursively resolves the exact installed runtime tree
+   - requires a declared license plus package-supplied LICENSE / NOTICE / COPYING evidence
+   - copies package license evidence to `sdPlugin/licenses/npm/`
+   - writes `NPM_LICENSE_INVENTORY.json` and `NPM_LICENSE_INVENTORY.md`
+   - does not record absolute CI paths
+
+2. **NuGet/.NET publish dependency graph**
+   - generated from the exact restored `project.assets.json`
+   - copies package-supplied license files when declared
+   - writes `NUGET_LICENSE_INVENTORY.json` and `NUGET_LICENSE_INVENTORY.md`
+
+Both inventories are release gates and are copied into the staged release candidate under `license-evidence/`.
+
+The npm inventory script itself passes exact-source JavaScript syntax validation. Actual dependency resolution/copying remains **pending** until a hosted runner can execute `npm ci` and `npm run build`.
