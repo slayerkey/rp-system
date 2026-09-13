@@ -1,5 +1,5 @@
 import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
-import { basename, dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -37,7 +37,7 @@ function xmlAttr(xml, tag, attr) {
 }
 
 async function findPackageRoot(pkg) {
-  const rel = resolve(pkg.id.toLowerCase(), pkg.version.toLowerCase());
+  const rel = join(pkg.id.toLowerCase(), pkg.version.toLowerCase());
   for (const folder of packageFolders) {
     const candidate = resolve(folder, rel);
     try {
@@ -77,8 +77,10 @@ for (const pkg of libraries) {
 
   let copiedLicense = null;
   if (licenseType?.toLowerCase() === "file" && licenseValue && packageRoot) {
-    const source = resolve(packageRoot, licenseValue.replaceAll("/", "\\"));
-    const destination = resolve(outputDir, safeName(pkg.id + "-" + pkg.version + "-" + basename(licenseValue)));
+    const licenseParts = licenseValue.split(/[\\\\/]+/).filter(Boolean);
+    const source = resolve(packageRoot, ...licenseParts);
+    const declaredName = licenseParts.at(-1) || "LICENSE";
+    const destination = resolve(outputDir, safeName(pkg.id + "-" + pkg.version + "-" + declaredName));
     try {
       await cp(source, destination);
       copiedLicense = basename(destination);
