@@ -95,6 +95,11 @@ export class WirelessRuntime {
     return (await this.globals()).thresholds ?? {};
   }
 
+  async thresholdFor(id: string, fallback = 20): Promise<number> {
+    const value = (await this.globals()).thresholds?.[id] ?? fallback;
+    return Math.max(1, Math.min(99, Number(value || 20)));
+  }
+
   async setThreshold(id: string, value: number): Promise<void> {
     if (this.edition !== "pro") return;
     const threshold = Math.max(1, Math.min(99, Number(value || 20)));
@@ -114,15 +119,22 @@ export class WirelessRuntime {
     await this.sendInspector();
   }
 
-  async assignGroup(name: string, id: string): Promise<void> {
+  async assignGroups(names: string, id: string): Promise<void> {
     if (this.edition !== "pro") return;
-    const clean = name.trim();
+    const desired = [...new Set(
+      names
+        .split(",")
+        .map(name => name.trim())
+        .filter(Boolean)
+    )];
     const current = await this.globals();
     const groups: Record<string, string[]> = {};
     for (const [groupName, members] of Object.entries(current.groups ?? {})) {
       groups[groupName] = members.filter(member => member !== id);
     }
-    if (clean) groups[clean] = [...new Set([...(groups[clean] ?? []), id])];
+    for (const groupName of desired) {
+      groups[groupName] = [...new Set([...(groups[groupName] ?? []), id])];
+    }
     await streamDeck.settings.setGlobalSettings({ ...current, groups });
     await this.sendInspector();
   }
