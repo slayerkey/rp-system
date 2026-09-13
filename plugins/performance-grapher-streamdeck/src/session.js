@@ -122,8 +122,8 @@ export class SessionTracker {
     return null;
   }
 
-  _start(process, now) {
-    if (this.active) this._finish(now);
+  _start(process, now, metrics = {}) {
+    if (this.active) this._finish(now, metrics);
     this.active = {
       process,
       startedAt: now,
@@ -140,9 +140,9 @@ export class SessionTracker {
     this.candidate = null;
   }
 
-  _finish(now) {
+  _finish(now, metrics = {}) {
     if (!this.active) return null;
-    this._flushBucket(now, {});
+    this._flushBucket(now, metrics);
     this.lastCompleted = cloneSummary(this.active, now);
     this.active = null;
     this.bucket = null;
@@ -194,7 +194,7 @@ export class SessionTracker {
 
     if (!this.active || this.active.process !== app) {
       const selected = this._candidateProcess(app, now);
-      if (selected) this._start(selected, now);
+      if (selected) this._start(selected, now, metrics);
     }
 
     if (!this.active || this.active.process !== app) return false;
@@ -218,12 +218,12 @@ export class SessionTracker {
 
   tick(metrics = {}, now = Date.now()) {
     if (this.bucket && now - this.bucket.startedAt >= 120) this._flushBucket(now, metrics);
-    if (this.active && now - this.active.lastFrameAt >= this.idleMs) return this._finish(now);
+    if (this.active && now - this.active.lastFrameAt >= this.idleMs) return this._finish(now, metrics);
     return null;
   }
 
-  reset(now = Date.now()) {
-    const completed = this._finish(now);
+  reset(now = Date.now(), metrics = {}) {
+    const completed = this._finish(now, metrics);
     this.lastCompleted = completed;
     return completed;
   }
