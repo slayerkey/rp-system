@@ -8,6 +8,9 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
+    paths:
+      - 'plugins/voice-deck/**'
+      - '.github/workflows/voice-deck-ci.yml'
   workflow_dispatch:
 
 permissions:
