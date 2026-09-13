@@ -178,6 +178,9 @@ class PerformanceAction extends SingletonAction {
     if (payload.type !== "performanceGrapher.command") return;
     if (payload.command === "restart-fps") telemetry.restartFps();
     else if (payload.command === "reset-session") telemetry.resetSession();
+    else if (payload.command === "open-presentmon-help") {
+      await streamDeck.system.openUrl("https://github.com/GameTechDev/PresentMon/blob/v2.5.1/README-ConsoleApplication.md");
+    }
     await renderRecord(record, true);
     await sendInspector(record);
   }
