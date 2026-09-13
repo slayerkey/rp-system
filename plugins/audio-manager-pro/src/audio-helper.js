@@ -86,8 +86,10 @@ export class AudioHelper {
 
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        this.pending.delete(id);
-        reject(new Error("Audio helper timed out."));
+        if (!this.pending.has(id)) return;
+        const child = this.child;
+        this.onExit(new Error("Audio helper timed out. Restarting the local audio helper."));
+        try { child?.kill(); } catch {}
       }, timeoutMs);
       timer.unref?.();
 
