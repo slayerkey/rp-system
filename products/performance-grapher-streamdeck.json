@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "building",
   "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Real Windows game/GPU matrix, physical Stream Deck smoke, and real-game A/B frametime-overhead comparison remain required before READY_TO_SHIP.",
+  "blocker": "Physical Property Inspector persistence retest, real Windows game/GPU matrix, physical Stream Deck smoke, and real-game A/B frametime-overhead comparison remain required before READY_TO_SHIP.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -23,6 +23,7 @@
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media",
     "Marketplace Listing V2 hero thumbnail review at 480x240, 320x160, and 240x120",
+    "physical Property Inspector metric/window/accent persistence and live-state retest",
     "real Windows game capture with PresentMon permissions documented",
     "NVIDIA, AMD, and Intel GPU coverage where available",
     "physical Stream Deck Mini/MK.2/XL/+ smoke",
@@ -117,7 +118,7 @@
       "marketplace_description_characters": 1434,
       "top_level_licenses_bundled": true,
       "whole_session_archive_merge": "FIXED",
-      "property_inspector_setup_help": "FIXED",
+      "property_inspector_setup_help": "REWORKED_WITH_SITUATIONAL_PROVIDER_WARNINGS_PENDING_PHYSICAL_RETEST",
       "manifest_action_category": "Performance Grapher",
       "marketplace_categories": [
         "Gaming",
@@ -179,7 +180,9 @@
       "native_helper_windows_probe": "PASS_SAMPLE_AMD_EPYC_HOST",
       "native_helper_ci_benchmark": "0.326_PERCENT_NORMALIZED_CPU_49.1_MB_WORKING_SET",
       "release_candidate_package_sha256": "1aa0f28dd64c08e41ceaf4eb8e4682c02c2e2154091f700a61903ca4fbfbb8bc",
-      "release_candidate_package_bytes": 33097796
+      "release_candidate_package_bytes": 33097796,
+      "property_inspector_settings_transport": "REPLACED_CUSTOM_WEBSOCKET_WITH_VENDORED_SDPI_COMPONENTS_4_0_1_PENDING_WINDOWS_CI_AND_PHYSICAL_RETEST",
+      "property_inspector_metric_catalog": "LIVE_PLUGIN_SNAPSHOT_REQUIRED_FALSE_UNAVAILABLE_FALLBACK_REMOVED_PENDING_PHYSICAL_RETEST"
     },
     "contracts": {
       "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
@@ -239,5 +242,5 @@
     }
   },
   "physical_release_evidence": null,
-  "final_boundary": "Run rat dev performance-grapher-streamdeck on the real Windows gaming host, complete REAL_WINDOWS_SMOKE.md including physical profile/device checks and game A/B performance, then promote to READY_TO_SHIP only if those pass."
+  "final_boundary": "Run rat dev performance-grapher-streamdeck on the real Windows gaming host, verify Property Inspector persistence/live-state behavior, complete REAL_WINDOWS_SMOKE.md including physical profile/device checks and game A/B performance, then promote to READY_TO_SHIP only if those pass."
 }
