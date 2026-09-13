@@ -3,6 +3,7 @@
   const pro=edition==="pro";
   let socket=null,uiUuid="",context="",actionUuid="",kind="",settings={},state=null;
   const PAGE_SIZE=200;
+  const MAX_IMPORT_BYTES=16*1024*1024;
   let timelinePage=0,timelineMacroId="";
   const $=id=>document.getElementById(id);
   const send=msg=>{if(socket?.readyState===WebSocket.OPEN){socket.send(JSON.stringify(msg));return true;}return false;};
@@ -144,11 +145,11 @@
       const input=$("importFile"),file=input.files?.[0];
       if(!file)return;
       try{
-        if(file.size>5*1024*1024)throw new Error("too-large");
+        if(file.size>MAX_IMPORT_BYTES)throw new Error("too-large");
         command("importMacro",{data:JSON.parse(await file.text())});
       }catch(error){
         $("errorText").hidden=false;
-        $("errorText").textContent=error?.message==="too-large"?"That macro file is larger than 5 MB.":"That file is not valid PackRat macro JSON.";
+        $("errorText").textContent=error?.message==="too-large"?"That macro file is larger than 16 MB.":"That file is not valid PackRat macro JSON.";
       }finally{
         input.value="";
       }
