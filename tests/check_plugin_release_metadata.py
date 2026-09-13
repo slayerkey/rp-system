@@ -86,6 +86,23 @@ def main() -> int:
         external = bool(product.get("source_repository"))
         artifact = product.get("release_artifact")
 
+        if submission.get("marketplace_existing_product_update") is True:
+            marketplace_id = str(submission.get("marketplace_product_id") or "").strip()
+            existing_version = str(submission.get("marketplace_existing_version") or "").strip()
+            if not marketplace_id:
+                fail(errors, f"{product_id}: existing-product update requires marketplace_product_id")
+            if not existing_version:
+                fail(errors, f"{product_id}: existing-product update requires marketplace_existing_version")
+            if not isinstance(submission.get("marketplace_auto_publish"), bool):
+                fail(errors, f"{product_id}: existing-product update requires explicit boolean marketplace_auto_publish")
+            product_marketplace_id = str(product.get("marketplace_product_id") or "").strip()
+            if product_marketplace_id and marketplace_id and product_marketplace_id != marketplace_id:
+                fail(
+                    errors,
+                    f"{product_id}: product Marketplace ID {product_marketplace_id} != "
+                    f"submission Marketplace ID {marketplace_id}",
+                )
+
         if external and state == "READY_TO_SHIP":
             if not isinstance(artifact, dict):
                 fail(errors, f"{product_id}: READY_TO_SHIP external plugin must pin release_artifact")
