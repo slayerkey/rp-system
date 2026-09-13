@@ -149,6 +149,11 @@ test("individual set actions fall back to the live value shown by the inspector"
   assert.match(inspector, /context\.snapshot\?\.topology/);
 });
 
+test("HDR Toggle refuses an uncertain display read instead of guessing", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(actions, /operation === "toggle" && snapshot\.hdr\.errors\.length > 0/);
+});
+
 test("HDR read uncertainty blocks mode matching and Save Current HDR capture", async () => {
   const source = await readFile(path.resolve("src", "modes.ts"), "utf8");
   const render = await readFile(path.resolve("src", "render.ts"), "utf8");
