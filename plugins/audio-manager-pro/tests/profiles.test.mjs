@@ -14,8 +14,10 @@ function snap() {
   return {
     defaultDeviceSwitching:true,
     defaultOutputId:headset.id,
+    multimediaOutputId:headset.id,
     communicationsOutputId:headset.id,
     defaultInputId:shure.id,
+    multimediaInputId:shure.id,
     communicationsInputId:headsetMic.id,
     outputs:[headset,speakers],
     inputs:[shure,headsetMic],
@@ -125,6 +127,12 @@ test("matching profile status checks roles and restored state",()=>{
   const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
   assert.equal(profileMatchesSnapshot(p,s),true);
   s.communicationsInputId=s.defaultInputId;
+  assert.equal(profileMatchesSnapshot(p,s),false);
+});
+
+test("default profile status also requires Windows Multimedia role to match",()=>{
+  const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
+  s.multimediaOutputId="render-speakers";
   assert.equal(profileMatchesSnapshot(p,s),false);
 });
 
