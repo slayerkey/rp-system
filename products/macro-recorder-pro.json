@@ -47,17 +47,26 @@
       "LOOPS"
     ],
     "device_types": [
-      "Stream Deck"
+      "Stream Deck / MK.2",
+      "Stream Deck XL",
+      "Stream Deck +",
+      "Stream Deck Neo"
     ],
     "auto_install": true,
     "auto_switch_on_install": false,
-    "editable": true
+    "editable": true,
+    "files": [
+      "macro-recorder-pro-starter-mk2.streamDeckProfile",
+      "macro-recorder-pro-starter-xl.streamDeckProfile",
+      "macro-recorder-pro-starter-plus.streamDeckProfile",
+      "macro-recorder-pro-starter-neo.streamDeckProfile"
+    ]
   },
   "release_gate": [
     "Windows CI build",
     "input-host selftest and daemon ping",
     "unit tests",
-    "profile generation",
+    "four-device profile generation + ZIP/action/manifest validation",
     "official Elgato CLI validation",
     "official plugin packaging",
     "multi-monitor and DPI smoke",
@@ -69,10 +78,9 @@
   ],
   "ci_runner_state": {
     "observed_at": "2026-09-13",
-    "symptom": "GitHub Actions created the windows-release job without assigning a runner; the job completed with zero steps.",
-    "macro_recorder_run_id": 34762643355,
-    "run_attempt": 1,
-    "head_sha": "6a3601941b5e3e026de7173f4897298f69308850",
+    "symptom": "After the repository became public, Macro Recorder Windows jobs stopped immediately failing with zero steps and are now remaining queued awaiting a hosted runner. No canonical Windows build/test result is available yet.",
+    "latest_known_run_id": 34771227404,
+    "latest_known_head_sha": "2117e7aa70e264443974175915fdb5a9fe57cb7a",
     "local_fallback": "plugins/macro-recorder-pro/run-family-qa.ps1"
   },
   "native_release_blockers": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md",
