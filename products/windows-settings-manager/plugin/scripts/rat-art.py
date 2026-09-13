@@ -119,14 +119,32 @@ def main():
     key_grid(hero, labels[:15] if args.flavor == "pro" else labels)
     save(hero, args.output, "02_cover.png")
 
-    feature = canvas()
-    fd = ImageDraw.Draw(feature)
     if args.flavor == "pro":
-        title(fd, "CHANGE YOUR PC", "WITH ONE KEY", "Only the settings you choose")
+        text_frame(
+            "CHANGE YOUR PC",
+            "WITH ONE KEY",
+            [
+                ("ONE KEY MODES", "Apply several Windows settings together from one Stream Deck key."),
+                ("YOU CHOOSE WHAT CHANGES", "Every unselected setting is left alone."),
+                ("LIVE CURRENT MODE", "Saved modes are matched against the Windows state that is actually active."),
+                ("HONEST RESULTS", "COMPLETE, PARTIAL, or FAILED after per-setting verification.")
+            ],
+            args.output,
+            "03_gallery_01.png",
+        )
     else:
-        title(fd, "LIVE WINDOWS", "CONTROLS", "Focused controls instead of random commands")
-    key_grid(feature, labels[:15] if args.flavor == "pro" else labels)
-    save(feature, args.output, "03_gallery_01.png")
+        text_frame(
+            "LIVE WINDOWS",
+            "CONTROLS",
+            [
+                ("SEE THE REAL STATE", "HDR, power, display, and timeout keys follow Windows itself."),
+                ("CHANGE COMMON SETTINGS FAST", "A focused control set instead of a page of random commands."),
+                ("NO QUICK SETTINGS CLICKING", "Direct system control without screen coordinates or hidden mouse movement."),
+                ("READY TO USE", "Editable starter profiles for five Stream Deck families.")
+            ],
+            args.output,
+            "03_gallery_01.png",
+        )
 
     text_frame(
         "REAL WINDOWS STATE",
