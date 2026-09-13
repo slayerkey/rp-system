@@ -1,9 +1,25 @@
 from pathlib import Path
 from PIL import Image, ImageDraw
+import json
+import re
 import shutil
 
 ROOT=Path(__file__).resolve().parents[1]
+REPO=ROOT.parents[1]
 PLUGINS=[ROOT/"com.packrat.wireless-device-manager.sdPlugin",ROOT/"com.packrat.wireless-device-manager-pro.sdPlugin"]
+DIRECT_MARKETPLACE=re.compile(r"^https://marketplace\.elgato\.com/product/[a-z0-9][a-z0-9-]*-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/?$",re.I)
+
+def verified_pro_url():
+    catalog=json.loads((REPO/"products/lite-pro-map.json").read_text(encoding="utf-8"))
+    pair=next((p for p in catalog.get("pairs",[]) if p.get("lite_id")=="wireless-device-manager"),None)
+    if not pair:
+        raise SystemExit("Wireless Device Manager Lite/Pro catalog relationship is missing")
+    url=str(pair.get("pro_marketplace_url") or "").strip()
+    if url and not DIRECT_MARKETPLACE.fullmatch(url):
+        raise SystemExit(f"Wireless Device Manager Pro Marketplace URL is not a verified direct product URL: {url}")
+    return url
+
+PRO_MARKETPLACE_URL=verified_pro_url()
 
 def wireless_device_mark(size, transparent=False):
     bg=(0,0,0,0) if transparent else (22,24,29,255)
@@ -54,5 +70,10 @@ for plugin in PLUGINS:
     ui.mkdir(parents=True,exist_ok=True)
     for filename in ["inspector.html","inspector.css","inspector.js"]:
         shutil.copy2(ROOT/"ui"/filename,ui/filename)
+    pro_url=PRO_MARKETPLACE_URL if plugin.name=="com.packrat.wireless-device-manager.sdPlugin" else ""
+    (ui/"upsell-config.js").write_text(
+        "window.WIRELESS_PRO_MARKETPLACE_URL = "+json.dumps(pro_url)+";\n",
+        encoding="utf-8"
+    )
 
-print("Rendered Elgato-compliant original wireless-device plugin, category, action-list and key assets; staged Property Inspector.")
+print("Rendered Elgato-compliant original wireless-device plugin, category, action-list and key assets; staged Property Inspector and catalog-driven Pro upsell config.")
