@@ -121,13 +121,16 @@ Required behavior:
 - helper exit must still run/retain the exact held-input recovery guarantees
 - an orphaned helper must not keep low-level keyboard/mouse hooks installed after the plugin process is gone
 
-Preferred implementation:
-- a Windows Job Object with kill-on-job-close, or
-- an explicit parent-PID watchdog in the helper with a safe shutdown path
+Current behavior may already satisfy this because the helper blocks on the Node-owned stdin pipe; parent termination should close the pipe, make `Console.ReadLine()` return EOF, and enter `Engine.Dispose()`.
+
+Implementation rule:
+- test the existing pipe-lifetime behavior first
+- if forced parent death reliably closes stdin and the helper exits through safe disposal, no extra watchdog is required
+- otherwise add a Windows Job Object with kill-on-job-close or an explicit parent-PID watchdog with a safe shutdown path
 
 Acceptance:
-- start the helper through the plugin, then force-kill the plugin process without graceful cleanup
-- verify the helper exits
+- start the helper through the plugin, then force-kill the plugin process without graceful JavaScript cleanup
+- verify stdin EOF causes the helper to exit promptly, or verify the added lifetime mechanism does so
 - verify no PackRat low-level hook remains active
 - if playback held an injected input at death, verify the next launch can still recover it safely
 
