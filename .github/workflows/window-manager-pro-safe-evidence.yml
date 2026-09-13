@@ -1,0 +1,137 @@
+name: Window Manager Pro Safe Release Evidence
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/window-manager-pro-safe-evidence.yml'
+
+permissions:
+  contents: read
+
+env:
+  VCS_REPOSITORY: slayerkey/vcs
+  VCS_REF: c1041c259345c0d4bc27b88848dd5667d50bc246
+  SOURCE_ROOT: vcs/streamdeck/window-manager-pro/1.2.0.0/source
+  VALIDATED_RUN_ID: '34789505688'
+  VALIDATED_WINDOWS_PACKAGE_BYTES: '886630'
+  VALIDATED_WINDOWS_PACKAGE_SHA256: 'f01bacf8a3e7731bad129eed3db0e7c43bc15392442311687b3e5594ae227797'
+
+jobs:
+  evidence:
+    name: Safe lockfile, audit, and Rat Art evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: rp-system
+
+      - name: Verify private-source deploy key exists
+        shell: bash
+        env:
+          VCS_DEPLOY_KEY: ${{ secrets.VCS_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$VCS_DEPLOY_KEY"
+
+      - name: Checkout exact validated private candidate
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.VCS_REPOSITORY }}
+          ref: ${{ env.VCS_REF }}
+          ssh-key: ${{ secrets.VCS_DEPLOY_KEY }}
+          path: vcs
+          persist-credentials: false
+
+      - name: Verify frozen private commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git -C vcs rev-parse HEAD)"
+          test "$actual" = "$VCS_REF"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Generate exact dependency lock
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f package-lock.json
+          npm install --package-lock-only --ignore-scripts
+          test -f package-lock.json
+
+      - name: Capture runtime-only npm audit
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: bash
+        run: |
+          set +e
+          npm audit --omit=dev --json > qa-runtime-audit.json
+          audit_code=$?
+          set -e
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync('qa-runtime-audit.json','utf8'));
+          const v=p.metadata?.vulnerabilities||{};
+          console.log('RUNTIME AUDIT:',JSON.stringify(v));
+          const high=Number(v.high||0),critical=Number(v.critical||0);
+          if(high||critical) process.exit(1);
+          NODE
+          echo "npm audit raw exit: $audit_code"
+
+      - name: Render deterministic Rat Art
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check Pillow==12.3.0
+          python -m py_compile scripts/rat-art.py
+          python scripts/rat-art.py --out dist/marketplace-art
+
+      - name: Write safe release evidence descriptor
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const evidence={
+            schema_version:1,
+            private_source_commit:process.env.VCS_REF,
+            validated_public_bridge_run_id:Number(process.env.VALIDATED_RUN_ID),
+            deterministic_tests:54,
+            windows_package:{
+              path:'dist/window-manager-pro.streamDeckPlugin',
+              bytes:Number(process.env.VALIDATED_WINDOWS_PACKAGE_BYTES),
+              sha256:process.env.VALIDATED_WINDOWS_PACKAGE_SHA256
+            },
+            privacy:'No paid package or private source is included in this evidence artifact.'
+          };
+          fs.writeFileSync('qa-safe-evidence.json',JSON.stringify(evidence,null,2)+'\n');
+          NODE
+
+      - name: Upload safe release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-pro-1.2-safe-evidence
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            ${{ env.SOURCE_ROOT }}/package-lock.json
+            ${{ env.SOURCE_ROOT }}/qa-runtime-audit.json
+            ${{ env.SOURCE_ROOT }}/qa-safe-evidence.json
+            ${{ env.SOURCE_ROOT }}/dist/marketplace-art/01_search_icon.png
+            ${{ env.SOURCE_ROOT }}/dist/marketplace-art/02_cover.png
+            ${{ env.SOURCE_ROOT }}/dist/marketplace-art/03_gallery_01.png
+            ${{ env.SOURCE_ROOT }}/dist/marketplace-art/04_gallery_02.png
+            ${{ env.SOURCE_ROOT }}/dist/marketplace-art/05_gallery_03.png
+            ${{ env.SOURCE_ROOT }}/dist/marketplace-art/06_gallery_04.png
+            ${{ env.SOURCE_ROOT }}/dist/marketplace-art/rat-art-report.json
+            ${{ env.SOURCE_ROOT }}/dist/marketplace-art/contact-sheet.jpg
