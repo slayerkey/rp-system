@@ -25,8 +25,8 @@ export function modeMatchesSnapshot(mode: ModeDefinition, snapshot: SystemSnapsh
   if (!hasConfiguredSettings(mode) || !snapshot.backendOnline) return false;
 
   if (typeof settings.hdr === "boolean") {
-    if (!snapshot.hdr.available || snapshot.hdr.mixed) return false;
-    const enabled = snapshot.hdr.supportedCount > 0 && snapshot.hdr.enabledCount === snapshot.hdr.supportedCount;
+    if (!snapshot.hdr.available || snapshot.hdr.supportedCount === 0 || snapshot.hdr.mixed) return false;
+    const enabled = snapshot.hdr.enabledCount === snapshot.hdr.supportedCount;
     if (enabled !== settings.hdr) return false;
   }
   if (settings.topology && snapshot.topology !== settings.topology) return false;
