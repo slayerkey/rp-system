@@ -43,12 +43,15 @@ Generated bundles:
 6. Publish Pro first:
    `rat ship windows-settings-manager-pro`
 7. After Pro is publicly listed, record its exact direct Marketplace URL and product ID in `products/lite-pro-map.json`, mark the canonical Pro catalog status published, and keep the URL direct to the product page.
-8. Create/save the Lite Marketplace draft and capture its exact direct product URL and product ID. Record both Lite and Pro URLs/IDs in `products/lite-pro-map.json`.
-9. Rebuild Lite. Its Property Inspector injects the Pro URL only from the verified Lite/Pro map; with no verified URL the upsell is hidden.
-10. Run the strict commercial preflight and require PASS:
+8. Stage Lite while it is still BLOCKED:
+   `rat stage windows-settings-manager-lite`
+   Stage is intentionally allowed for blocked products and does not publicly submit the release.
+9. Save the Lite Marketplace draft, capture its exact direct product URL and product ID, and record both Lite and Pro URLs/IDs in `products/lite-pro-map.json`.
+10. Rebuild/stage Lite again. Its Property Inspector must now contain the exact verified Pro URL from the relationship map.
+11. Run the strict commercial preflight and require PASS:
     `python tools/lite_pro_audit.py --shipping windows-settings-manager-lite`
-11. Confirm the rebuilt Lite package contains the exact Pro product URL and no search, creator, generic, or placeholder destination.
-12. Only now move Lite from BLOCKED to READY_TO_SHIP and publish it:
+12. Confirm the rebuilt Lite package contains the exact Pro product URL and no search, creator, generic, or placeholder destination.
+13. Only now move Lite from BLOCKED to READY_TO_SHIP and publish it:
     `rat ship windows-settings-manager-lite`
 
 Do not publish Lite before Pro. PackRat's strict Lite shipping audit requires the paid counterpart to already be published and both direct Marketplace URLs to be recorded.
