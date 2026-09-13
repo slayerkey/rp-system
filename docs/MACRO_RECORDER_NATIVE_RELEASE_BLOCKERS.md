@@ -32,6 +32,7 @@ Required behavior:
 - keep the journal intact
 - send all cleanup release events
 - only after successful release attempts, clear the held state and journal
+- when the held set becomes empty, ensure an old non-empty journal cannot survive a failed delete; atomically persist an empty held-state/tombstone before or alongside best-effort deletion
 - if cleanup cannot be confirmed, leave enough journal state for the next helper launch to retry
 
 Reason:
@@ -41,6 +42,7 @@ Acceptance:
 - interrupt the helper during cleanup between journal handling and release
 - restart it
 - verify the recorded held inputs are released
+- simulate failure to delete the already-cleared journal and verify the next launch does not replay stale releases from an old non-empty file
 
 ## 3. Do not fail open if the held-input journal cannot be written
 
