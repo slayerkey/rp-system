@@ -34,3 +34,8 @@ test("marketplace positioning is Internet Health, not a generic speed-test launc
   assert.match(submission.description, /GOOD, DEGRADED, BAD, or OFFLINE/);
   assert.match(submission.description, /no PackRat telemetry/i);
 });
+
+test("global settings changes read the SDK event payload shape", () => {
+  assert.match(pluginSource, /ev\?\.payload\?\.settings/);
+  assert.doesNotMatch(pluginSource, /normalizeGlobalSettings\(ev\?\.settings/);
+});
