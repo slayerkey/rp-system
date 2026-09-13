@@ -188,7 +188,7 @@ The product branch was resynced with current `main` through PR #168 before this 
 
 Result: **38 / 38 behavior checks PASS**
 
-Separate syntax gate: **24 / 24 JavaScript runtime, build, Property Inspector, license-inventory, and test files PASS**
+Separate syntax gate: **25 / 25 JavaScript runtime, build, Property Inspector, license-inventory, and test files PASS**
 
 Current merged-head coverage includes:
 
@@ -286,3 +286,14 @@ The build now generates two dependency inventories:
 Both inventories are release gates and are copied into the staged release candidate under `license-evidence/`.
 
 The npm inventory script itself passes exact-source JavaScript syntax validation. Actual dependency resolution/copying remains **pending** until a hosted runner can execute `npm ci` and `npm run build`.
+
+
+### Submission metadata contract
+
+- **FIXED:** `submission.json` ended with literal characters `\\n` after the closing brace and was invalid JSON. The terminator was removed.
+- **PASS:** the exact committed `submission.json` now parses successfully.
+- **PASS:** submission slug, name, type, price, and version match the canonical product metadata.
+- **PASS:** manifest name/version and the unique product-index entry match the same canonical product metadata.
+- **PASS:** manifest UUID remains `com.packrat.performance-grapher` with exactly five actions.
+- **PASS:** required customer disclosures remain present for PresentMon, Libre Hardware Monitor, Performance Log Users permission, hardware-dependent sensor availability, and the PackRat ecosystem close.
+- A dedicated `metadata-contract.test.mjs` now guards these relationships.
