@@ -5,6 +5,7 @@ on:
     branches:
       - product/voice-deck
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
   workflow_dispatch:
@@ -12,8 +13,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: voice-deck-release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   windows-release:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     name: Windows build, test, validate, pack, art
     runs-on: windows-latest
     defaults:
