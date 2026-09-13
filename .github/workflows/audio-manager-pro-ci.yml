@@ -28,6 +28,49 @@ jobs:
         working-directory: plugins/audio-manager-pro
       - run: npm test
         working-directory: plugins/audio-manager-pro
+      - name: Verify Rat Ship blocks pre-hardware product state
+        shell: pwsh
+        run: |
+          $scriptPath = Resolve-Path 'tools/local/rat-marketplace.ps1'
+          $tokens = $null
+          $errors = $null
+          $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$tokens, [ref]$errors)
+          if ($errors.Count) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            throw 'rat-marketplace.ps1 PowerShell parse failed.'
+          }
+
+          $fn = $ast.Find({
+            param($node)
+            $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+              $node.Name -eq 'Assert-ProductReleaseState'
+          }, $true)
+          if ($null -eq $fn) { throw 'Assert-ProductReleaseState was not found.' }
+          Invoke-Expression $fn.Extent.Text
+
+          $product = Get-Content 'products/audio-manager-pro.json' -Raw | ConvertFrom-Json
+          if ($product.workflow_state -ne 'READY_FOR_HARDWARE_QA') {
+            throw "Expected Audio Manager to be READY_FOR_HARDWARE_QA before physical QA; got $($product.workflow_state)."
+          }
+
+          Assert-ProductReleaseState -Product $product -ProductSlug 'audio-manager-pro' -RequestedAction 'kit'
+
+          $blocked = $false
+          try {
+            Assert-ProductReleaseState -Product $product -ProductSlug 'audio-manager-pro' -RequestedAction 'ship'
+          }
+          catch {
+            $blocked = $_.Exception.Message -match 'READY_TO_SHIP'
+          }
+          if (-not $blocked) { throw 'Rat Ship did not block Audio Manager before READY_TO_SHIP.' }
+
+          $ready = [PSCustomObject]@{
+            workflow_state = 'READY_TO_SHIP'
+            blocker = $null
+            final_boundary = $null
+          }
+          Assert-ProductReleaseState -Product $ready -ProductSlug 'audio-manager-pro' -RequestedAction 'ship'
+          Write-Host 'AUDIO MANAGER RELEASE-STATE GUARD PASS'
       - run: npm run build
         working-directory: plugins/audio-manager-pro
       - name: Run Audio Manager static host audit
