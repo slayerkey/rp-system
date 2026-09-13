@@ -82,3 +82,15 @@ test("auto-repeat key-downs clear with one logical key-up",()=>{
  ]},{pro,limits});
  assert.equal(validateMacro(macro,{pro}).unmatchedKeys.length,0);
 });
+
+test("malformed executable events are dropped rather than coerced",()=>{
+ const events=[
+  {type:"not-real",vk:65,delayMs:1},
+  {type:"keyDown",vk:0,delayMs:1},
+  {type:"keyDown",vk:65,delayMs:1}
+ ];
+ 
+ const macro=normalizeMacro({events},{pro,limits});
+ assert.equal(macro.events.length,1);
+ assert.equal(macro.events[0].vk,65);
+});
