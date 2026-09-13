@@ -94,9 +94,26 @@ Acceptance:
 - verify the timeline contains the real gap rather than 60 seconds
 - replay and verify timing within normal scheduling tolerance
 
+## 6. Only intercept Ctrl+Shift+F12 while playback is active
+
+The low-level keyboard hook currently intercepts Ctrl+Shift+F12 whenever the helper is running, even when no playback exists.
+
+Required behavior:
+- if playback is active, Ctrl+Shift+F12 cancels playback and may consume the hotkey
+- if playback is idle, the helper must not reserve or swallow Ctrl+Shift+F12
+- while recording with no playback active, the emergency playback hotkey must not create a partial Ctrl/Shift-only recording artifact
+
+Reason:
+The helper remains alive after first use. A playback emergency shortcut should not become a permanent global keyboard reservation while Macro Recorder is idle.
+
+Acceptance:
+- start the helper, leave playback idle, press Ctrl+Shift+F12, and verify the combination is not swallowed by Macro Recorder
+- record a macro and press Ctrl+Shift+F12 without active playback; verify the capture is not corrupted by a suppressed F12 down-event
+- during playback, verify Ctrl+Shift+F12 still cancels immediately
+
 ## Final native smoke matrix
 
-After all five fixes:
+After all six fixes:
 - Ctrl / Shift / Alt down-up
 - Windows key
 - rapid key repeat
