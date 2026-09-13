@@ -228,6 +228,27 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
   }
 
+  async function stopAll(action = null) {
+    const hadKnownState = Boolean(recording || playback);
+    const options = hadKnownState
+      ? { timeoutMs: 3000 }
+      : { skipEnsure: true, timeoutMs: 1500 };
+    const errors = [];
+
+    try { await host.command("stopRecording", {}, options); }
+    catch (error) { if (hadKnownState) errors.push(error); }
+
+    try { await host.command("stopPlayback", {}, { skipEnsure: true, timeoutMs: 1500 }); }
+    catch (error) { if (hadKnownState) errors.push(error); }
+
+    if (errors.length) {
+      lastError = errors.map((error) => String(error?.message || error)).join(" · ");
+      await action?.showAlert?.().catch(() => {});
+    }
+    await renderAll();
+    await broadcastInspectors();
+  }
+
   async function startPlayback(record) {
     const macro = macroFor(record);
     if (!macro?.events?.length) {
@@ -410,10 +431,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       const record = visible.get(String(ev.action?.id || ""));
       if (!record) return;
       if (record.kind === "record") return startRecording(record);
-      if (record.kind === "stop") {
-        if (recording) return stopRecording(record.action);
-        return stopPlayback(record.action);
-      }
+      if (record.kind === "stop") return stopAll(record.action);
       if (record.kind === "replay") return startPlayback(record);
     }
 
