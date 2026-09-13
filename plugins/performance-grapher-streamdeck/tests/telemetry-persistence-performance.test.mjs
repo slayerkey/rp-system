@@ -1,4 +1,5 @@
 import test from "node:test";
+import { EventEmitter } from "node:events";
 import assert from "node:assert/strict";
 import { mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -186,4 +187,75 @@ test("persistence round trip retains recent FPS session history", async () => {
   assert.equal(restored.currentFps, null);
   assert.equal(restored.current.samples, before.current.samples);
   assert.ok(restored.recent.series(0, now + 1000).length > 0);
+});
+
+
+function fakeProvider() {
+  const provider = new EventEmitter();
+  provider.start = () => {};
+  provider.stop = () => {};
+  provider.restart = () => {};
+  return provider;
+}
+
+function fakeHardwareChild() {
+  const child = new EventEmitter();
+  child.stdout = new EventEmitter();
+  child.stderr = new EventEmitter();
+  child.killed = false;
+  child.kill = () => { child.killed = true; };
+  return child;
+}
+
+function fakeHardwareLines() {
+  return { on() {}, close() {} };
+}
+
+test("stale hardware helper cannot overwrite replacement state", () => {
+  const children = [];
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "provider-lifecycle"),
+    persistPath: resolve(tmpdir(), "packrat-provider-lifecycle.json"),
+    spawnProcess: () => {
+      const child = fakeHardwareChild();
+      children.push(child);
+      return child;
+    },
+    createLineInterface: fakeHardwareLines,
+    presentMonProvider: fakeProvider(),
+  });
+
+  telemetry._startHardware();
+  const first = children[0];
+  first.kill();
+  telemetry.hardware = null;
+  telemetry._startHardware();
+  const second = children[1];
+
+  assert.equal(telemetry.hardware, second);
+  assert.equal(telemetry.status.hardware.state, "starting");
+  first.emit("close", 1);
+  assert.equal(telemetry.hardware, second);
+  assert.equal(telemetry.status.hardware.state, "starting");
+  assert.equal(telemetry.hardwareBackoff, null);
+});
+
+test("hardware launch error remains unavailable and schedules recovery after close", () => {
+  const child = fakeHardwareChild();
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "provider-error"),
+    persistPath: resolve(tmpdir(), "packrat-provider-error.json"),
+    spawnProcess: () => child,
+    createLineInterface: fakeHardwareLines,
+    presentMonProvider: fakeProvider(),
+  });
+
+  telemetry._startHardware();
+  child.emit("error", new Error("spawn blocked"));
+  assert.equal(telemetry.status.hardware.state, "unavailable");
+  child.emit("close", -1);
+  assert.equal(telemetry.status.hardware.state, "unavailable");
+  assert.ok(telemetry.hardwareBackoff);
+  clearTimeout(telemetry.hardwareBackoff);
+  telemetry.hardwareBackoff = null;
 });
