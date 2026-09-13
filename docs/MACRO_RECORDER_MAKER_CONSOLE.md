@@ -138,19 +138,30 @@ Examples must remain generic and harmless:
 - no gameplay farming
 - no cheats
 
-## Lite -> Pro URL sequence
+## Lite -> Pro launch sequence
 
-Before Pro is public:
-- keep Lite direct Pro Marketplace URL null
-- do not use a search URL, creator URL, placeholder, or guessed slug
+PackRat's published Lite/Pro families use exact direct Pro Marketplace destinations. Macro Recorder must follow the same rule.
 
-After Pro is published:
-1. capture the verified direct Pro Marketplace product URL
-2. update `products/lite-pro-map.json`
-3. update `products/macro-recorder-lite.json`
-4. update `plugins/macro-recorder-lite/submission.json`
-5. add the verified direct link to the Lite property-inspector upsell
-6. bump Lite version before publishing that upsell update
+1. finish and approve the Pro release candidate first
+2. create/publish the real Macro Recorder Pro Marketplace listing
+3. capture its exact direct `https://marketplace.elgato.com/product/...` URL
+4. update `products/lite-pro-map.json`
+5. update `products/macro-recorder-lite.json` `upgrade_url`
+6. update `plugins/macro-recorder-lite/submission.json` `pro_marketplace_url`
+7. rebuild Lite; `scripts/build-assets.mjs` injects the canonical catalog URL into the PI automatically
+8. rerun Lite tests/build/validate/pack and verify the button opens that exact Pro listing
+9. only then submit/publish Lite
+
+Before the exact Pro URL exists:
+- keep all three canonical URL fields null
+- keep the source PI URL slot empty
+- do not use a search URL, creator URL, generic Marketplace URL, placeholder, or guessed slug
+- do not publicly launch Lite with a dead upsell
+
+Versioning:
+- if Lite has never been accepted/published, adding the verified Pro URL before its first public submission remains part of the initial `1.0.0.0` candidate
+- if Lite is already accepted/published, treat the upsell change as a real Lite update and bump the version according to the normal PackRat release policy
+- a rejected first submission correction keeps the rejected version unless Marketplace explicitly requires otherwise
 
 ## Final checks before Maker Console
 
