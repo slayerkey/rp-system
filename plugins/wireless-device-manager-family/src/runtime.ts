@@ -1,5 +1,5 @@
 import streamDeck from "@elgato/streamdeck";
-import { DeviceCatalog, resolveSelectedDeviceId, type Device } from "./model.js";
+import { DeviceCatalog, resolveSelectedDeviceId, shouldApplySnapshot, type Device } from "./model.js";
 import { control, snapshot } from "./bridge.js";
 
 type GlobalSettings = {
@@ -41,7 +41,7 @@ export class WirelessRuntime {
     const result = await snapshot();
     this.adapterAvailable = result.adapterAvailable;
     this.lastError = result.ok ? null : (result.error ?? "Bluetooth unavailable");
-    if (result.ok && result.adapterAvailable) {
+    if (shouldApplySnapshot(result.ok, result.adapterAvailable)) {
       this.catalog.ingest(result.devices);
     }
     for (const listener of this.listeners) listener();
@@ -78,6 +78,20 @@ export class WirelessRuntime {
 
   async favorites(): Promise<string[]> {
     return (await this.globals()).favorites ?? [];
+  }
+
+  async thresholds(): Promise<Record<string, number>> {
+    return (await this.globals()).thresholds ?? {};
+  }
+
+  async setThreshold(id: string, value: number): Promise<void> {
+    if (this.edition !== "pro") return;
+    const threshold = Math.max(1, Math.min(99, Number(value || 20)));
+    const current = await this.globals();
+    await streamDeck.settings.setGlobalSettings({
+      ...current,
+      thresholds: { ...(current.thresholds ?? {}), [id]: threshold }
+    });
   }
 
   async setFavorite(id: string, value: boolean): Promise<void> {
