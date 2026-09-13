@@ -155,7 +155,7 @@ test("HDR read uncertainty blocks mode matching and Save Current HDR capture", a
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
   assert.match(source, /snapshot\.hdr\.errors\.length > 0/);
   assert.match(source, /snapshot\.hdr\.errors\.length === 0/);
-  assert.match(render, /snapshot\.hdr\.errors\.length > 0\) return "HDR\\nCHECK"/);
+  assert.match(render, /!snapshot\.hdr\.available\) return "HDR\\nN\/A"[\s\S]*snapshot\.hdr\.errors\.length > 0\) return "HDR\\nCHECK"[\s\S]*snapshot\.hdr\.supportedCount === 0/);
   assert.match(inspector, /snapshot\.hdr\.errors\?\.length/);
   assert.match(inspector, /return "Check"/);
 });
