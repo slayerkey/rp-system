@@ -17,10 +17,12 @@ Run this on the exact release candidate after `rat dev audio-manager-pro`.
 - [ ] profile with one missing device reports PARTIAL when other operations succeed
 - [ ] profile with no executable operations reports FAILED
 - [ ] rapid switching across at least three profiles remains responsive and lands on the final requested state
+- [ ] three rapid Cycle presses advance three profile positions in order instead of retrying the same next profile
 - [ ] Windows reboot preserves profiles and they re-resolve correctly
 - [ ] Stream Deck restart preserves action settings and global Audio Profiles
 - [ ] long and Unicode device names render safely in Property Inspector and keys
 - [ ] Stream Deck + dial rotates profile output volume, press reapplies profile, touch toggles output mute
+- [ ] fast dial rotation accumulates the expected tick delta without stale-snapshot jumps or dropped detents
 
 Record Windows version, Stream Deck version, devices tested, candidate package SHA256, and PASS/FAIL notes here before Marketplace submission.
 
