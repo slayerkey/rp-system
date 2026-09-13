@@ -28,7 +28,7 @@
   ],
   "automated_release_evidence": {
     "core_smoke": {
-      "status": "PASS",
+      "status": "PASS_ON_EARLIER_HEAD_RERUN_REQUIRED",
       "environment": "local Linux container / Node 22",
       "tests_passed": 10,
       "tests_failed": 0,
@@ -37,7 +37,7 @@
       "svg_renders": 5000,
       "render_ms_approx": 179,
       "heap_delta_mb_approx": 2,
-      "note": "Core history/session/PresentMon parser/renderer only; not a real Windows or gameplay overhead claim."
+      "note": "Core smoke passed before later PresentMon cadence, whole-session archive, atomic persistence, Property Inspector, and license-inventory hardening. The exact current head must rerun npm test on a functioning runner before promotion."
     },
     "github_actions": {
       "status": "RUNNER_DID_NOT_EXECUTE_STEPS",
