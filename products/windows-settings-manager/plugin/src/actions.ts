@@ -106,8 +106,12 @@ class PowerBase extends LiveTitleAction<PowerSettings> {
     if ((settings.operation ?? "cycle") === "cycle") {
       const plans = snapshot.powerPlans;
       if (!plans.length) return ev.action.showAlert();
-      const index = plans.findIndex((plan) => plan.active);
-      guid = plans[(index + 1 + plans.length) % plans.length]?.guid;
+      const activeGuid = snapshot.powerPlanGuid?.toLowerCase();
+      const index = plans.findIndex((plan) =>
+        plan.active || (activeGuid && plan.guid.toLowerCase() === activeGuid)
+      );
+      if (index < 0) return ev.action.showAlert();
+      guid = plans[(index + 1) % plans.length]?.guid;
     } else if (!guid) {
       guid = snapshot.powerPlanGuid;
     }
