@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-12",
+  "updated_at": "2026-09-13",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -189,8 +189,8 @@
         "products/windows-settings-manager-lite.json",
         "products/windows-settings-manager-pro.json"
       ],
-      "source_status": "shared_core_release_candidate_physical_qa_blocked",
-      "notes": "Lite provides focused live Windows controls. Pro adds user-created multi-setting PC Modes with verified COMPLETE/PARTIAL/FAILED outcomes. Both remain blocked until the physical Windows/HDR/multi-monitor matrix is complete."
+      "source_status": "shared_core_release_candidate_validation_blocked",
+      "notes": "Lite provides focused live Windows controls. Pro adds user-created multi-setting PC Modes with verified COMPLETE/PARTIAL/FAILED outcomes. Both target Stream Deck 7.3+ with seven bundled device profiles. HDR control is intentionally limited to Windows 11 24H2+ to avoid ambiguous legacy Advanced Color writes. Both remain blocked until automated build/Elgato/package gates execute and the physical Windows/HDR/multi-monitor matrix is complete."
     }
   ],
   "standalone_free": [
