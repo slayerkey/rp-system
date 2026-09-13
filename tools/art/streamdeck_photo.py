@@ -143,10 +143,6 @@ def validate_calibration(cal: Calibration) -> None:
             raise StreamDeckPhotoError(f"button {key.index} is outside source image")
         if not _contains(key.button, key.expected_hole_bounds):
             raise StreamDeckPhotoError(f"expected LCD bounds {key.index} escape the physical button")
-    for i, left in enumerate(cal.keys):
-        for right in cal.keys[i + 1:]:
-            if _overlap(left.button, right.button):
-                raise StreamDeckPhotoError(f"physical button bounds overlap: {left.index} and {right.index}")
 
 
 def _bounds_close(actual: tuple[int, int, int, int], expected: tuple[int, int, int, int], tolerance: int) -> bool:
