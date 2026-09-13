@@ -62,11 +62,20 @@ function descriptorScore(sensor, target) {
 }
 
 export class TelemetryService extends EventEmitter {
-  constructor({ pluginRoot = null, persistPath = null, log = () => {} } = {}) {
+  constructor({
+    pluginRoot = null,
+    persistPath = null,
+    log = () => {},
+    spawnProcess = spawn,
+    createLineInterface = createInterface,
+    presentMonProvider = null,
+  } = {}) {
     super();
     const here = dirname(fileURLToPath(import.meta.url));
     this.pluginRoot = pluginRoot || resolve(here, "..");
     this.log = log;
+    this.spawnProcess = spawnProcess;
+    this.createLineInterface = createLineInterface;
     this.persistPath = persistPath || resolve(process.env.LOCALAPPDATA || homedir(), "PackRat", "PerformanceGrapher", "state.json");
     this.values = new Map();
     this.timestamps = new Map();
@@ -95,7 +104,7 @@ export class TelemetryService extends EventEmitter {
       if (provider?.executable) presentMonExecutable = String(provider.executable);
     } catch {}
     const presentMonPath = resolve(this.pluginRoot, "third_party", "presentmon", presentMonExecutable);
-    this.presentMon = new PresentMonProvider({ executable: presentMonPath, log });
+    this.presentMon = presentMonProvider || new PresentMonProvider({ executable: presentMonPath, log });
     this.presentMon.on("frame", (frame) => {
       const metrics = Object.fromEntries(this.values);
       if (this.session.observeFrame(frame, metrics, Date.now())) this._emitFrameUpdate();
@@ -302,7 +311,7 @@ export class TelemetryService extends EventEmitter {
     const exe = resolve(this.pluginRoot, "native", "telemetry", "PackRat.PerformanceTelemetry.exe");
     let child;
     try {
-      child = spawn(exe, [], { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+      child = this.spawnProcess(exe, [], { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
     } catch (error) {
       this.status.hardware = { state: "unavailable", detail: error?.message || String(error) };
       this.emit("status", this.safeStatus());
@@ -311,19 +320,24 @@ export class TelemetryService extends EventEmitter {
 
     this.hardware = child;
     this.status.hardware = { state: "starting", detail: null };
-    const lines = createInterface({ input: child.stdout });
+    const lines = this.createLineInterface({ input: child.stdout });
     lines.on("line", (line) => this._consumeHardwareLine(line));
     let stderr = "";
     child.stderr.on("data", (chunk) => { stderr = (stderr + String(chunk || "")).slice(-8000); });
     child.once("error", (error) => {
+      if (this.hardware !== child) return;
       this.status.hardware = { state: "unavailable", detail: error?.message || String(error) };
       this.emit("status", this.safeStatus());
     });
-    child.once("exit", (code) => {
-      if (this.hardware === child) this.hardware = null;
+    child.once("close", (code) => {
+      if (this.hardware !== child) {
+        lines.close();
+        return;
+      }
+      this.hardware = null;
       lines.close();
       if (this.stopping) return;
-      if (this.status.hardware.state !== "degraded") {
+      if (!["degraded", "unavailable"].includes(this.status.hardware.state)) {
         this.status.hardware = { state: "offline", detail: ("Sensor helper exited " + code + ". " + stderr).trim().slice(0, 700) };
       }
       this.emit("status", this.safeStatus());
