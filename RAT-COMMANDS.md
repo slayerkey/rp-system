@@ -173,6 +173,16 @@ Development linking and packaged Marketplace installation are intentionally desc
 
 See `docs/RAT-DEV-RELIABILITY.md` for the full external lifecycle contract and failure behavior.
 
+### Shared-source Lite/Pro products
+
+Rat Dev supports multiple product SKUs that intentionally share one internal source directory. The product registry remains authoritative:
+
+- `products/<slug>.json.source` selects the shared source root.
+- `products/<slug>.json.ship_plugin_dir` selects the exact generated `.sdPlugin` directory for that SKU.
+- A family branch such as `product/text-expander` can therefore serve both `rat dev text-expander` and `rat dev text-expander-pro`.
+
+Rat Dev refuses to guess when an unregistered source root contains multiple top-level `.sdPlugin` directories. Add explicit product metadata instead of relying on directory enumeration order.
+
 ### Internal Stream Deck products and XENEON widgets
 
 Products sourced from RatPack itself keep the established internal worktree path in `tools/local/rat-dev.ps1`.

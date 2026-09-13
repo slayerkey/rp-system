@@ -258,14 +258,7 @@ function Get-ExistingPluginUuid {
         }
     }
 
-    $pluginDir = $null
-    if ($config -and $config.plugin_dir) {
-        $pluginDir = Join-Path $root ([string]$config.plugin_dir)
-    }
-    if (-not $pluginDir) {
-        $candidate = Get-ChildItem $root -Directory -Filter "*.sdPlugin" -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($candidate) { $pluginDir = $candidate.FullName }
-    }
+    $pluginDir = Resolve-RatDevPluginDirectory -PluginRoot $root -Config $config -AllowMissing
     if (-not $pluginDir) { return $null }
 
     $manifestPath = Join-Path $pluginDir "manifest.json"
@@ -339,18 +332,7 @@ function Build-And-TestPlugin {
         }
     }
 
-    $pluginDir = $null
-    if ($config -and $config.plugin_dir) {
-        $pluginDir = Join-Path $PluginRoot ([string]$config.plugin_dir)
-    }
-    else {
-        $candidate = Get-ChildItem $PluginRoot -Directory -Filter "*.sdPlugin" | Select-Object -First 1
-        if ($candidate) { $pluginDir = $candidate.FullName }
-    }
-
-    if (-not $pluginDir -or -not (Test-Path $pluginDir)) {
-        throw "Could not locate the built .sdPlugin directory under $PluginRoot"
-    }
+    $pluginDir = Resolve-RatDevPluginDirectory -PluginRoot $PluginRoot -Config $config
 
     $manifestPath = Join-Path $pluginDir "manifest.json"
     if (-not (Test-Path $manifestPath)) {
