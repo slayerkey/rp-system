@@ -52,9 +52,9 @@ def background():
 
 def title(img, headline, sub=""):
     d = ImageDraw.Draw(img)
-    d.text((96, 72), headline, font=font(58, True), fill=WHITE)
+    d.text((96, 118), headline, font=font(54, True), fill=WHITE)
     if sub:
-        d.text((98, 148), sub, font=font(23), fill=MUTED)
+        d.text((98, 188), sub, font=font(22), fill=MUTED)
 
 
 def signature(img):
@@ -148,7 +148,7 @@ def hero(out):
         dict(label="FRAMETIME", value="31.4", unit="ms", secondary="SPIKE", values=[7, 7, 8, 8, 31, 9, 8, 7, 8, 7], color=DANGER, alert=True),
         dict(label="SESSION", value="42m", unit="", secondary="AVG 141", values=[]),
     ]
-    key_size = 252
+    key_size = 300
     gap = 20
     cluster_width = 5 * key_size + 4 * gap
     deck(img, (W - cluster_width) // 2, 360, keys, key_size=key_size, gap=gap, cols=5)
