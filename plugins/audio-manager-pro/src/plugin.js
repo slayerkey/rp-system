@@ -59,11 +59,17 @@ async function saveGlobal(next) {
   scheduleRender(0);
 }
 
+function acceptSnapshot(snapshot) {
+  latestSnapshot = snapshot || null;
+  latestError = String(snapshot?.error || "");
+  return latestSnapshot;
+}
+
 async function refreshSnapshot({ quiet = true } = {}) {
   try {
     const response = await helper.snapshot();
-    latestSnapshot = response?.snapshot || null;
-    latestError = response?.error || latestSnapshot?.error || "";
+    acceptSnapshot(response?.snapshot || null);
+    latestError = String(response?.error || latestError || "");
     scheduleRender();
     return latestSnapshot;
   } catch (error) {
@@ -147,9 +153,11 @@ async function renderRecord(record) {
     const transientStatus = record.lastStatusAt && (Date.now() - record.lastStatusAt) < 2200
       ? record.lastStatus
       : "";
-    const status = record.kind === "status"
-      ? (latestError ? "FAILED" : active ? "ACTIVE" : "INACTIVE")
-      : transientStatus;
+    const status = latestError
+      ? "OFFLINE"
+      : record.kind === "status"
+        ? (active ? "ACTIVE" : "INACTIVE")
+        : transientStatus;
     image = renderKey(record.kind, { profile, active, status });
   } else if (record.kind === "set-output" || record.kind === "set-input") {
     const { match, endpoint } = endpointForDeviceRecord(record);
@@ -252,7 +260,7 @@ async function applyProfile(profile, record = null) {
 
   let result = mergeApplyResult(plan, response);
   result = verifyApplyResult(profile, result, response?.snapshot || null);
-  if (response?.snapshot) latestSnapshot = response.snapshot;
+  if (response?.snapshot) acceptSnapshot(response.snapshot);
   else await refreshSnapshot({ quiet: true });
 
   if (result.status === "SUCCESS" && profile?.id) {
@@ -376,7 +384,7 @@ async function setSelectedDevice(record) {
   };
   record.lastStatus = result.status;
   record.lastResult = result;
-  if (response?.snapshot) latestSnapshot = response.snapshot;
+  if (response?.snapshot) acceptSnapshot(response.snapshot);
   else await refreshSnapshot({ quiet: true });
   await feedbackForResult(record, result);
   scheduleRender(0);
@@ -436,7 +444,7 @@ async function toggleDefaultMic(record) {
   };
   record.lastResult = result;
   record.lastStatus = result.status;
-  if (response?.snapshot) latestSnapshot = response.snapshot;
+  if (response?.snapshot) acceptSnapshot(response.snapshot);
   await feedbackForResult(record, result);
   scheduleRender(0);
 }
@@ -471,7 +479,7 @@ async function adjustProfileVolume(record, ticks) {
     const response = await helper.apply([{ kind: "set-volume", endpointId: endpoint.id, value: next }]);
     const ok = response?.results?.[0]?.ok === true;
     const verified = ok && endpointVolumeMatches(response?.snapshot || null, endpoint.id, next);
-    if (response?.snapshot) latestSnapshot = response.snapshot;
+    if (response?.snapshot) acceptSnapshot(response.snapshot);
     record.feedbackNote = verified ? "" : ok ? "Verify failed" : "Volume failed";
     if (!verified) await record.action.showAlert().catch(() => {});
   } catch (error) {
@@ -510,7 +518,7 @@ async function toggleProfileOutputMute(record) {
     const ok = response?.results?.[0]?.ok === true;
     const expectedMute = !endpoint.muted;
     const verified = ok && endpointMuteMatches(response?.snapshot || null, endpoint.id, expectedMute);
-    if (response?.snapshot) latestSnapshot = response.snapshot;
+    if (response?.snapshot) acceptSnapshot(response.snapshot);
     record.feedbackNote = verified ? "" : ok ? "Verify failed" : "Mute failed";
     record.lastFeedback = "";
     if (!verified) await record.action.showAlert().catch(() => {});
