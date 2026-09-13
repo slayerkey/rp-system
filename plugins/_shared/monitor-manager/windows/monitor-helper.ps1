@@ -151,6 +151,21 @@ public static class MonitorNative {
         public uint value;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2 {
+        public DISPLAYCONFIG_DEVICE_INFO_HEADER header;
+        public uint value;
+        public int colorEncoding;
+        public uint bitsPerColorChannel;
+        public int activeColorMode;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct DISPLAYCONFIG_SET_HDR_STATE {
+        public DISPLAYCONFIG_DEVICE_INFO_HEADER header;
+        public uint value;
+    }
+
     public class ModeRecord {
         public int width { get; set; }
         public int height { get; set; }
@@ -335,50 +350,70 @@ public static class MonitorNative {
         var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
         var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
         if (QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero) != 0) return false;
+
         for (int i=0; i<pathCount; i++) {
             var source = new DISPLAYCONFIG_SOURCE_DEVICE_NAME();
             source.header.type = 1;
             source.header.size = (uint)Marshal.SizeOf(typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME));
             source.header.adapterId = paths[i].sourceInfo.adapterId;
             source.header.id = paths[i].sourceInfo.id;
-            IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME)));
+            IntPtr sp = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME)));
             try {
-                Marshal.StructureToPtr(source, ptr, false);
-                if (DisplayConfigGetDeviceInfo(ptr) != 0) continue;
-                source = (DISPLAYCONFIG_SOURCE_DEVICE_NAME)Marshal.PtrToStructure(ptr, typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME));
-            } finally { Marshal.FreeHGlobal(ptr); }
+                Marshal.StructureToPtr(source, sp, false);
+                if (DisplayConfigGetDeviceInfo(sp) != 0) continue;
+                source = (DISPLAYCONFIG_SOURCE_DEVICE_NAME)Marshal.PtrToStructure(sp, typeof(DISPLAYCONFIG_SOURCE_DEVICE_NAME));
+            } finally { Marshal.FreeHGlobal(sp); }
             if (!string.Equals(source.viewGdiDeviceName, deviceName, StringComparison.OrdinalIgnoreCase)) continue;
 
-            var info = new DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO();
-            info.header.type = 9;
-            info.header.size = (uint)Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO));
-            info.header.adapterId = paths[i].targetInfo.adapterId;
-            info.header.id = paths[i].targetInfo.id;
-            IntPtr ip = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO)));
+            // Windows 11 24H2+ exposes HDR separately from generic Advanced Color.
+            // Prefer that exact API so WCG-only displays are never mislabeled as HDR-capable.
+            var hdr = new DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2();
+            hdr.header.type = 15; // DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO_2
+            hdr.header.size = (uint)Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2));
+            hdr.header.adapterId = paths[i].targetInfo.adapterId;
+            hdr.header.id = paths[i].targetInfo.id;
+            IntPtr hp = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2)));
+            int hdrRc;
             try {
-                Marshal.StructureToPtr(info, ip, false);
-                int rc = DisplayConfigGetDeviceInfo(ip);
-                if (rc != 0) return false;
-                info = (DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO)Marshal.PtrToStructure(ip, typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO));
-            } finally { Marshal.FreeHGlobal(ip); }
-            supported = (info.value & 1u) != 0;
-            current = (info.value & 2u) != 0;
-            if (set && supported) {
-                var packet = new DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE();
-                packet.header.type = 10;
-                packet.header.size = (uint)Marshal.SizeOf(typeof(DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE));
-                packet.header.adapterId = paths[i].targetInfo.adapterId;
-                packet.header.id = paths[i].targetInfo.id;
-                packet.value = enabled ? 1u : 0u;
-                IntPtr pp = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE)));
-                try {
-                    Marshal.StructureToPtr(packet, pp, false);
-                    int rc = DisplayConfigSetDeviceInfo(pp);
-                    if (rc != 0) return false;
-                } finally { Marshal.FreeHGlobal(pp); }
-                current = enabled;
+                Marshal.StructureToPtr(hdr, hp, false);
+                hdrRc = DisplayConfigGetDeviceInfo(hp);
+                if (hdrRc == 0) hdr = (DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2)Marshal.PtrToStructure(hp, typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2));
+            } finally { Marshal.FreeHGlobal(hp); }
+
+            if (hdrRc == 0) {
+                supported = (hdr.value & (1u << 4)) != 0; // highDynamicRangeSupported
+                current = (hdr.value & (1u << 5)) != 0;   // highDynamicRangeUserEnabled
+                if (set) {
+                    if (!supported) return true;
+                    var packet = new DISPLAYCONFIG_SET_HDR_STATE();
+                    packet.header.type = 16; // DISPLAYCONFIG_DEVICE_INFO_SET_HDR_STATE
+                    packet.header.size = (uint)Marshal.SizeOf(typeof(DISPLAYCONFIG_SET_HDR_STATE));
+                    packet.header.adapterId = paths[i].targetInfo.adapterId;
+                    packet.header.id = paths[i].targetInfo.id;
+                    packet.value = enabled ? 1u : 0u;
+                    IntPtr pp = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_SET_HDR_STATE)));
+                    try {
+                        Marshal.StructureToPtr(packet, pp, false);
+                        if (DisplayConfigSetDeviceInfo(pp) != 0) return false;
+                    } finally { Marshal.FreeHGlobal(pp); }
+
+                    // Re-query instead of assuming the requested state stuck.
+                    hp = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2)));
+                    try {
+                        hdr.header.type = 15;
+                        hdr.header.size = (uint)Marshal.SizeOf(typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2));
+                        Marshal.StructureToPtr(hdr, hp, false);
+                        if (DisplayConfigGetDeviceInfo(hp) != 0) return false;
+                        hdr = (DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2)Marshal.PtrToStructure(hp, typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2));
+                        current = (hdr.value & (1u << 5)) != 0;
+                    } finally { Marshal.FreeHGlobal(hp); }
+                }
+                return true;
             }
-            return true;
+
+            // Older Windows exposes only "Advanced Color", which cannot reliably
+            // distinguish HDR from WCG. Fail closed instead of guessing.
+            return false;
         }
         return false;
     }
