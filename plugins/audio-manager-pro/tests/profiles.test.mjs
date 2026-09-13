@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { endpointIdentity, matchEndpoint } from "../src/device-matching.js";
-import { buildApplyPlan, captureProfileFromSnapshot, mergeApplyResult, profileMatchesSnapshot } from "../src/profiles.js";
+import { buildApplyPlan, captureProfileFromSnapshot, cycleCurrentIndex, mergeApplyResult, profileMatchesSnapshot } from "../src/profiles.js";
 
 function ep(id,name,{instanceId="",containerId="",volume=50,muted=false}={}) {
   return { id,name,instanceId,containerId,volume,muted,volumeAvailable:true,muteAvailable:true };
@@ -146,6 +146,31 @@ test("profile status fails closed when requested mute cannot be read",()=>{
   const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
   s.inputs[0]={...s.inputs[0],muteAvailable:false};
   assert.equal(profileMatchesSnapshot(p,s),false);
+});
+
+test("cycle cursor advances from the last attempted profile when no profile is active",()=>{
+  const s=snap();
+  const a=captureProfileFromSnapshot("A",s,"a");
+  const b=captureProfileFromSnapshot("B",s,"b");
+  const c=captureProfileFromSnapshot("C",s,"c");
+
+  const drift={...s,defaultOutputId:"none",multimediaOutputId:"none",communicationsOutputId:"none",defaultInputId:"none",multimediaInputId:"none",communicationsInputId:"none"};
+  const globals={schemaVersion:1,profiles:[a,b,c],lastAppliedProfileId:"a"};
+
+  assert.equal(cycleCurrentIndex(globals,drift,"b"),1);
+  assert.equal(cycleCurrentIndex(globals,drift,""),0);
+});
+
+test("cycle cursor prefers the profile that is actually active in Windows",()=>{
+  const s=snap();
+  const a=captureProfileFromSnapshot("A",s,"a");
+  const b=JSON.parse(JSON.stringify(a));
+  b.id="b"; b.name="B";
+  b.slots.outputDefault.device=endpointIdentity(s.outputs[1]);
+  b.slots.outputDefault.volume=s.outputs[1].volume;
+
+  const globals={schemaVersion:1,profiles:[a,b],lastAppliedProfileId:"b"};
+  assert.equal(cycleCurrentIndex(globals,s,"b"),0);
 });
 
 test("rapid profile planning is deterministic and does not mutate profiles",()=>{
