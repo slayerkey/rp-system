@@ -584,14 +584,6 @@
       "version": "1.0.0.0"
     },
     {
-      "id": "performance-grapher-streamdeck",
-      "name": "Performance Grapher for Stream Deck",
-      "type": "plugin",
-      "status": "building",
-      "price_usd": 9.99,
-      "version": "1.0.0.0"
-    },
-    {
       "id": "retro-terminal",
       "name": "Retro Terminal",
       "type": "widget",
