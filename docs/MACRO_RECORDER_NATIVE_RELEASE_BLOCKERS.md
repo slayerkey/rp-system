@@ -142,15 +142,23 @@ Required behavior:
 - recording/playback start should fail cleanly with a useful error if the other edition is already active
 - release the lock on normal completion, cancellation, error and helper shutdown
 - abandoned-owner behavior after a crash must recover safely
+- the shared held-input journal is part of this same critical section
+- no helper may read, release from, rewrite, or delete `held-input.json` unless it owns the family-wide session mutex
+- if another helper owns the mutex, treat the journal as live state and leave it untouched
+- before a helper begins a new recording/playback session after obtaining the mutex, recover any stale held-input journal first
+- an abandoned mutex from a crashed owner should transfer ownership to the recovering helper before it performs journal recovery
 
 Reason:
-Two independent input injectors/recorders can race, and two low-level emergency-hotkey hooks cannot reliably provide one global stop when simultaneous playbacks are allowed.
+Two independent input injectors/recorders can race, and two low-level emergency-hotkey hooks cannot reliably provide one global stop when simultaneous playbacks are allowed. Both editions also currently use the same `%LOCALAPPDATA%\PackRat\InputHost\held-input.json`; without mutex ownership around recovery, an idle helper starting up can release and delete another edition's live playback journal.
 
 Acceptance:
 - install/run Lite and Pro together
 - start playback in one edition and verify the other edition cannot start recording or playback until it stops
 - reverse the editions and repeat
+- while Pro is actively holding an injected key with a live journal, start Lite's helper and verify Lite does not touch or release Pro's live journal
+- reverse Lite/Pro and repeat
 - force-kill the active helper and verify the abandoned coordination lock becomes available safely
+- after abandoned-lock acquisition, verify stale journal recovery occurs before new input work begins
 - verify Ctrl+Shift+F12 stops the single active PackRat playback regardless of which edition owns it
 
 ## Final native smoke matrix
