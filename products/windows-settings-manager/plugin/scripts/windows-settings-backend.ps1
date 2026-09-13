@@ -605,7 +605,8 @@ function Set-Timeout {
 
     foreach ($write in $writes) {
         try {
-            Invoke-PowerCfg @($write.args) | Out-Null
+            [string[]]$commandArgs = $write.args
+            Invoke-PowerCfg @commandArgs | Out-Null
         }
         catch {
             $errors.Add("$($write.label): $($_.Exception.Message)")
