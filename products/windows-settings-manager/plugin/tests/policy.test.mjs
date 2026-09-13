@@ -130,9 +130,16 @@ test("HDR mode matching requires a genuinely controllable HDR display", async ()
   assert.match(inspector, /option\.disabled = !hdrUsable/);
 });
 
+test("Windows smoke enforces the safe HDR API boundary", async () => {
+  const smoke = await readFile(path.resolve("scripts", "backend-smoke.ps1"), "utf8");
+  assert.match(smoke, /osBuild -lt 26100[\s\S]*hdr\.api -ne "unavailable"/);
+  assert.match(smoke, /osBuild -ge 26100[\s\S]*hdr\.api -ne "hdr-state"/);
+});
+
 test("timeout writes preserve PARTIAL instead of collapsing it into FAILED", async () => {
   const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(backend, /Invoke-PowerCfg @commandArgs/);
   assert.match(backend, /\$matched -eq \$checks\.Count -and \$activationOk/);
   assert.match(backend, /elseif \(\$matched -gt 0\)[\s\S]*"PARTIAL"/);
   assert.match(backend, /Write-Reply \$id \(\$result\.status -ne "FAILED"\) \$result \$result\.error/);
