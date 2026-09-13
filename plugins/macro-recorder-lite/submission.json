@@ -24,7 +24,7 @@
     "Includes a ready-to-use REC / STOP starter profile with safe replay examples.",
     "Adds a global Stop action and Ctrl+Shift+F12 emergency playback stop."
   ],
-  "privacy": "Macro contents stay local on the Windows PC and are never uploaded to PackRat.",
+  "privacy": "Macro contents are never uploaded to PackRat. Lite stores assigned macros in local Stream Deck action settings; if the user exports or shares a Stream Deck profile, those action settings can be included in that exported profile.",
   "compatibility": {
     "platform": "Windows 10+",
     "stream_deck": "7.1+"
