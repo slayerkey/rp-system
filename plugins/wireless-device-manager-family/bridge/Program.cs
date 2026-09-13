@@ -13,11 +13,24 @@ internal static class Program
     private const string ContainerKey = "System.Devices.Aep.ContainerId";
     private const string BatteryKey = "System.Devices.BatteryLife";
     private const string BatteryChargingKey = "System.Devices.BatteryPlusCharging";
+    private const string ServiceAepIdKey = "System.Devices.AepService.AepId";
+    private const string ServiceContainerKey = "System.Devices.AepService.ContainerId";
+    private const string ServiceParentPairedKey = "System.Devices.AepService.ParentAepIsPaired";
+    private const string ServiceProtocolKey = "System.Devices.AepService.ProtocolId";
+    private const string ServiceClassKey = "System.Devices.AepService.ServiceClassId";
 
     private static readonly string[] RequestedProperties =
     [
         ConnectedKey, PresentKey, PairedKey, AddressKey, ContainerKey, BatteryKey, BatteryChargingKey
     ];
+
+    private static readonly string[] RequestedServiceProperties =
+    [
+        ServiceAepIdKey, ServiceContainerKey, ServiceParentPairedKey, ServiceProtocolKey, ServiceClassKey
+    ];
+
+    private const string BluetoothClassicServiceSelector =
+        "System.Devices.AepService.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\"";
 
     private static readonly Guid AudioSink = new("0000110B-0000-1000-8000-00805F9B34FB");
     private static readonly Guid HandsFree = new("0000111E-0000-1000-8000-00805F9B34FB");
@@ -134,9 +147,10 @@ internal static class Program
         if (radio is null || radio.State != RadioState.On)
             return new { ok = true, adapterAvailable = false, devices = Array.Empty<object>(), error = (string?)null };
 
+        var audioServices = await FindBluetoothAudioServicesAsync();
         var output = new Dictionary<string, DeviceDto>(StringComparer.OrdinalIgnoreCase);
-        await AddDevicesAsync(output, BluetoothLEDevice.GetDeviceSelectorFromPairingState(true), "ble", false);
-        await AddDevicesAsync(output, BluetoothDevice.GetDeviceSelectorFromPairingState(true), "classic", true);
+        await AddDevicesAsync(output, BluetoothLEDevice.GetDeviceSelectorFromPairingState(true), "ble", false, audioServices);
+        await AddDevicesAsync(output, BluetoothDevice.GetDeviceSelectorFromPairingState(true), "classic", true, audioServices);
 
         return new
         {
@@ -151,7 +165,8 @@ internal static class Program
         Dictionary<string, DeviceDto> output,
         string selector,
         string kind,
-        bool classic)
+        bool classic,
+        AudioServiceSupport audioServices)
     {
         var devices = await DeviceInformation.FindAllAsync(
             selector,
@@ -161,20 +176,8 @@ internal static class Program
         foreach (var info in devices)
         {
             var address = StringProp(info, AddressKey);
-            bool audioClass = false;
-            bool installedAudioService = false;
-            if (classic && !string.IsNullOrWhiteSpace(address))
-            {
-                var normalizedAddress = NormalizeAddress(address);
-                if (ulong.TryParse(normalizedAddress, System.Globalization.NumberStyles.HexNumber, null, out var numericAddress)
-                    && NativeBluetooth.TryGetClassOfDevice(numericAddress, out var classOfDevice))
-                {
-                    // Bluetooth Class of Device major class occupies bits 8-12; Audio/Video is value 4.
-                    audioClass = ((classOfDevice >> 8) & 0x1F) == 4;
-                    if (audioClass)
-                        installedAudioService = NativeBluetooth.SupportsAnyService(numericAddress, AudioSink, HandsFree);
-                }
-            }
+            var containerId = StringProp(info, ContainerKey);
+            var hasAudioService = classic && audioServices.Contains(info.Id, containerId);
 
             var battery = ByteProp(info, BatteryKey);
             var plusCharging = ByteProp(info, BatteryChargingKey);
@@ -199,7 +202,7 @@ internal static class Program
                 nativeId = info.Id,
                 name = string.IsNullOrWhiteSpace(info.Name) ? "Bluetooth device" : info.Name,
                 address = address is null ? null : NormalizeAddress(address),
-                containerId = StringProp(info, ContainerKey),
+                containerId = containerId,
                 kind = kind,
                 paired = BoolProp(info, PairedKey) ?? info.Pairing.IsPaired,
                 connected = connected,
@@ -208,12 +211,10 @@ internal static class Program
                 charging = charging,
                 control = new ControlDto
                 {
-                    // A disconnected audio endpoint may no longer enumerate an enabled service,
-                    // so CONNECT uses the classic Audio/Video class but only while Windows
-                    // positively reports the paired device as present. DISCONNECT requires an
-                    // enabled service plus a live connected state.
-                    connect = audioClass && present == true,
-                    disconnect = audioClass && connected && installedAudioService
+                    // AEP Service objects are Windows' service-contract view of what the paired
+                    // Bluetooth endpoint supports. Do not infer control from device class alone.
+                    connect = hasAudioService && present == true,
+                    disconnect = hasAudioService && connected
                 }
             };
 
@@ -323,6 +324,23 @@ internal static class Program
         try { return Convert.ToInt32(value); } catch { return null; }
     }
 
+    private static Guid? GuidProp(DeviceInformation info, string key)
+    {
+        if (!info.Properties.TryGetValue(key, out var value) || value is null) return null;
+        if (value is Guid guid) return guid;
+        return Guid.TryParse(value.ToString(), out var parsed) ? parsed : null;
+    }
+
+    private sealed class AudioServiceSupport
+    {
+        public HashSet<string> ContainerIds { get; } = new(StringComparer.OrdinalIgnoreCase);
+        public HashSet<string> AepIds { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        public bool Contains(string aepId, string? containerId) =>
+            (!string.IsNullOrWhiteSpace(containerId) && ContainerIds.Contains(containerId))
+            || AepIds.Contains(aepId);
+    }
+
     private sealed class DeviceDto
     {
         public string id { get; set; } = "";
@@ -407,13 +425,6 @@ internal static class NativeBluetooth
 
     [DllImport("bthprops.cpl")]
     private static extern bool BluetoothFindDeviceClose(IntPtr hFind);
-
-    [DllImport("bthprops.cpl", SetLastError = true)]
-    private static extern uint BluetoothEnumerateInstalledServices(
-        IntPtr hRadio,
-        ref BLUETOOTH_DEVICE_INFO pbtdi,
-        ref uint pcServiceInout,
-        [Out] Guid[] pGuidServices);
 
     [DllImport("bthprops.cpl", SetLastError = true)]
     public static extern uint BluetoothSetServiceState(
@@ -564,45 +575,6 @@ internal static class NativeBluetooth
     public static void CloseRadio(IntPtr radio)
     {
         if (radio != IntPtr.Zero) CloseHandle(radio);
-    }
-
-    public static bool SupportsAnyService(ulong address, params Guid[] wanted)
-    {
-        if (!FindDevice(address, out var radio, out var device)) return false;
-        try
-        {
-            uint count = 32;
-            var services = new Guid[count];
-            var result = BluetoothEnumerateInstalledServices(radio, ref device, ref count, services);
-            if (result == 234) // ERROR_MORE_DATA
-            {
-                services = new Guid[count];
-                result = BluetoothEnumerateInstalledServices(radio, ref device, ref count, services);
-            }
-            if (result != 0) return false;
-
-            var actual = services.Take((int)Math.Min(count, (uint)services.Length));
-            return wanted.Any(target => actual.Contains(target));
-        }
-        finally
-        {
-            CloseRadio(radio);
-        }
-    }
-
-    public static bool TryGetClassOfDevice(ulong address, out uint classOfDevice)
-    {
-        classOfDevice = 0;
-        if (!FindDevice(address, out var radio, out var device)) return false;
-        try
-        {
-            classOfDevice = device.ulClassofDevice;
-            return true;
-        }
-        finally
-        {
-            CloseRadio(radio);
-        }
     }
 
     private static BLUETOOTH_DEVICE_INFO NewDeviceInfo() => new()
