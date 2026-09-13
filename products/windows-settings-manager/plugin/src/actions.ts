@@ -114,7 +114,8 @@ class TopologyBase extends LiveTitleAction<TopologySettings> {
     const values: Array<Exclude<Topology, "unknown">> = ["internal", "clone", "extend", "external"];
     if ((settings.operation ?? "cycle") === "cycle") {
       const index = values.indexOf(current as Exclude<Topology, "unknown">);
-      topology = values[(index + 1 + values.length) % values.length];
+      if (index < 0) return ev.action.showAlert();
+      topology = values[(index + 1) % values.length];
     } else if (!topology && values.includes(current as Exclude<Topology, "unknown">)) {
       topology = current as Exclude<Topology, "unknown">;
     }
