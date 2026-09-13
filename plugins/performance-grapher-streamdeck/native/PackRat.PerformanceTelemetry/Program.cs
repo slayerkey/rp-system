@@ -127,7 +127,7 @@ internal static class Program
         Console.OutputEncoding = new UTF8Encoding(false);
         var probe = args.Any(x => string.Equals(x, "--probe", StringComparison.OrdinalIgnoreCase));
 
-        using var computer = new Computer
+        var computer = new Computer
         {
             IsCpuEnabled = true,
             IsGpuEnabled = true,
