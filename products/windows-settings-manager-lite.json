@@ -50,7 +50,8 @@
     "sleep/resume/reboot and Stream Deck restart validation",
     "external Windows state change refresh validation",
     "deterministic Rat Art review",
-    "strict Lite to Pro Marketplace routing audit after Pro publication"
+    "strict Lite to Pro Marketplace routing audit after Pro publication",
+    "bundled profile archive/action/navigation integrity across seven device families"
   ],
   "upsell": {
     "target_product_id": "windows-settings-manager-pro",
