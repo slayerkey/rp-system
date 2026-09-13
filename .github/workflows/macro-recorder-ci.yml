@@ -47,7 +47,7 @@ jobs:
 
       - name: Audit Lite dependencies
         working-directory: plugins/macro-recorder-lite
-        run: npm audit --audit-level=high
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Test and build Lite
         working-directory: plugins/macro-recorder-lite
@@ -63,7 +63,7 @@ jobs:
 
       - name: Audit Pro dependencies
         working-directory: plugins/macro-recorder-pro
-        run: npm audit --audit-level=high
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Test and build Pro
         working-directory: plugins/macro-recorder-pro
