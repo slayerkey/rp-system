@@ -113,6 +113,7 @@ jobs:
             docs/MACRO_RECORDER_NATIVE_GATE.json
             docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md
             docs/MACRO_RECORDER_NATIVE_FIX_HANDOFF.md
+            docs/MACRO_RECORDER_MAKER_CONSOLE.md
             artifacts/marketplace/macro-recorder-lite/*
             artifacts/marketplace/macro-recorder-pro/*
           if-no-files-found: error
