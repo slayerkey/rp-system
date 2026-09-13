@@ -198,9 +198,38 @@ async function sendInspector(record) {
   } catch {}
 }
 
+function snapshotUnavailable(snapshot) {
+  if (!snapshot) return latestError || "Windows audio state is unavailable.";
+  return snapshot.error || "";
+}
+
+function failedResult(error) {
+  return {
+    status: "FAILED",
+    successCount: 0,
+    failureCount: 1,
+    failures: [{ slot: "audio", error: String(error || "Windows audio state is unavailable.") }],
+    snapshot: null,
+  };
+}
+
 async function applyProfile(profile, record = null) {
   const before = await refreshSnapshot({ quiet: false });
-  const plan = buildApplyPlan(profile, before || {});
+  const unavailable = snapshotUnavailable(before);
+  if (unavailable) {
+    const result = failedResult(unavailable);
+    if (record) {
+      record.lastStatus = result.status;
+      record.lastStatusAt = Date.now();
+      record.lastResult = result;
+      record.lastImage = "";
+      record.lastFeedback = "";
+    }
+    scheduleRender(0);
+    return result;
+  }
+
+  const plan = buildApplyPlan(profile, before);
   let response = { results: [], snapshot: before, error: "No valid operations." };
 
   if (plan.operations.length) {
@@ -261,16 +290,19 @@ async function applySelected(record) {
 async function checkSelectedProfile(record) {
   const profile = profileForRecord(record);
   const snapshot = await refreshSnapshot({ quiet: false });
-  const active = Boolean(profile && snapshot && profileMatchesSnapshot(profile, snapshot));
-  const result = profile
-    ? {
-        status: active ? "SUCCESS" : "FAILED",
-        failures: active ? [] : [{ error: "Selected Audio Profile is not currently active." }],
-      }
-    : {
-        status: "FAILED",
-        failures: [{ error: "Create or select an Audio Profile first." }],
-      };
+  const unavailable = snapshotUnavailable(snapshot);
+  const active = Boolean(!unavailable && profile && profileMatchesSnapshot(profile, snapshot));
+  const result = unavailable
+    ? failedResult(unavailable)
+    : profile
+      ? {
+          status: active ? "SUCCESS" : "FAILED",
+          failures: active ? [] : [{ error: "Selected Audio Profile is not currently active." }],
+        }
+      : {
+          status: "FAILED",
+          failures: [{ error: "Create or select an Audio Profile first." }],
+        };
 
   record.lastResult = result;
   record.lastStatus = active ? "ACTIVE" : "INACTIVE";
@@ -282,8 +314,18 @@ async function checkSelectedProfile(record) {
 
 async function setSelectedDevice(record) {
   const snapshot = await refreshSnapshot({ quiet: false });
+  const unavailable = snapshotUnavailable(snapshot);
+  if (unavailable) {
+    const result = failedResult(unavailable);
+    record.lastStatus = "FAILED";
+    record.lastResult = result;
+    await feedbackForResult(record, result);
+    scheduleRender(0);
+    return;
+  }
+
   const isOutput = record.kind === "set-output";
-  const match = matchEndpoint(record.settings.device, isOutput ? snapshot?.outputs || [] : snapshot?.inputs || []);
+  const match = matchEndpoint(record.settings.device, isOutput ? snapshot.outputs || [] : snapshot.inputs || []);
   if (match.status !== "matched" || !match.endpoint) {
     const result = { status: "FAILED", failures: [{ error: match.reason || "Rebind the audio device." }] };
     record.lastStatus = "FAILED";
@@ -331,7 +373,17 @@ async function cycleProfile(record) {
 
 async function toggleDefaultMic(record) {
   const snapshot = await refreshSnapshot({ quiet: false });
-  const endpoint = (snapshot?.inputs || []).find((item) => item.id === snapshot?.defaultInputId);
+  const unavailable = snapshotUnavailable(snapshot);
+  if (unavailable) {
+    const result = failedResult(unavailable);
+    record.lastResult = result;
+    record.lastStatus = "FAILED";
+    await feedbackForResult(record, result);
+    scheduleRender(0);
+    return;
+  }
+
+  const endpoint = (snapshot.inputs || []).find((item) => item.id === snapshot.defaultInputId);
   if (!endpoint?.id || !endpoint.muteAvailable) {
     const result = { status: "FAILED", failures: [{ error: "Default microphone mute is unavailable." }] };
     record.lastResult = result;
@@ -436,7 +488,8 @@ async function toggleProfileOutputMute(record) {
 
 async function createProfile(name) {
   const snapshot = await refreshSnapshot({ quiet: false });
-  if (!snapshot) throw new Error(latestError || "Windows audio state is unavailable.");
+  const unavailable = snapshotUnavailable(snapshot);
+  if (unavailable) throw new Error(unavailable);
 
   const conflicts = snapshotDefaultRoleConflicts(snapshot);
   if (conflicts.length) {
