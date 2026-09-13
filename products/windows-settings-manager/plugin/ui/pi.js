@@ -145,8 +145,9 @@ function renderActionSettings() {
   } else if (suffix === "timeout") {
     show("timeoutFields");
     setValue("timeoutOperation", settings.operation ?? "cycle-screen");
+    const liveTimeout = context.snapshot?.timeout;
     for (const id of ["monitorAcSeconds", "monitorDcSeconds", "sleepAcSeconds", "sleepDcSeconds"]) {
-      if (settings[id] !== undefined) setValue(id, settings[id]);
+      setValue(id, settings[id] ?? liveTimeout?.[id] ?? "");
     }
   } else if (suffix === "apply-mode" || suffix === "save-mode") {
     show("modeActionFields");
@@ -201,7 +202,7 @@ function renderContext() {
     if (option.value === "on" || option.value === "off") option.disabled = !hdrUsable;
   }
 
-  renderDynamicSelects();
+  renderActionSettings();
   if (!modeDirty) populateModeEditor();
 }
 
