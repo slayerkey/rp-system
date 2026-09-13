@@ -90,6 +90,21 @@ test("missing profile device is visible and does not bind the wrong endpoint",()
   assert(!plan.operations.some(x=>x.slot==="inputCommunications"));
 });
 
+test("contradictory saved state on one endpoint is skipped instead of choosing a winner",()=>{
+  const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
+  p.slots.outputCommunications.restoreVolume=true;
+  p.slots.outputCommunications.volume=77;
+  p.slots.outputCommunications.restoreMute=true;
+  p.slots.outputCommunications.muted=true;
+
+  const plan=buildApplyPlan(p,s);
+  assert.equal(plan.operations.filter(x=>x.kind==="set-default"&&x.flow==="output").length,2);
+  assert(!plan.operations.some(x=>x.kind==="set-volume"&&x.endpointId===s.defaultOutputId));
+  assert(!plan.operations.some(x=>x.kind==="set-mute"&&x.endpointId===s.defaultOutputId));
+  assert(plan.failures.some(x=>String(x.error).includes("volume restore was skipped")));
+  assert(plan.failures.some(x=>String(x.error).includes("mute restore was skipped")));
+});
+
 test("partial helper failure is reported as PARTIAL",()=>{
   const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
   const plan=buildApplyPlan(p,s);
