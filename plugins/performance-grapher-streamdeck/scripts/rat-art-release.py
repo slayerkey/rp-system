@@ -150,8 +150,6 @@ def hero(out):
         dict(label="SESSION", value="42m", unit="", secondary="AVG 141", values=[]),
     ]
     deck(img, 700, 300, keys, key_size=210, gap=18, cols=5)
-    d.text((1320, 635), "ONE SHARED TELEMETRY ENGINE  •  FIVE READABLE KEYS", font=font(17, True), fill=MUTED, anchor="mm")
-    d.text((1320, 685), "PresentMon + Libre Hardware Monitor + Windows native fallback", font=font(17), fill=MUTED, anchor="mm")
     signature(img)
     img.convert("RGB").save(out / "02_cover.png", quality=95)
 
