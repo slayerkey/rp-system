@@ -110,6 +110,7 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   assert.doesNotMatch(backend, /SET_ADVANCED_COLOR_STATE/);
   assert.doesNotMatch(backend, /TryReadLegacyHdr/);
   assert.match(backend, /Reliable HDR control requires Windows 11 24H2/);
+  assert.match(backend, /errors = new string\[0\]/);
   assert.match(backend, /sourceKeys\.Count == 1/);
   assert.match(backend, /sourceKeys\.Count == paths\.Length/);
   assert.match(backend, /mixed clone \+ extend graph/i);
@@ -148,12 +149,23 @@ test("individual set actions fall back to the live value shown by the inspector"
   assert.match(inspector, /context\.snapshot\?\.topology/);
 });
 
+test("HDR read uncertainty blocks mode matching and Save Current HDR capture", async () => {
+  const source = await readFile(path.resolve("src", "modes.ts"), "utf8");
+  const render = await readFile(path.resolve("src", "render.ts"), "utf8");
+  const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
+  assert.match(source, /snapshot\.hdr\.errors\.length > 0/);
+  assert.match(source, /snapshot\.hdr\.errors\.length === 0/);
+  assert.match(render, /snapshot\.hdr\.errors\.length > 0\) return "HDR\\nCHECK"/);
+  assert.match(inspector, /snapshot\.hdr\.errors\?\.length/);
+  assert.match(inspector, /return "Check"/);
+});
+
 test("HDR mode matching requires a genuinely controllable HDR display", async () => {
   const source = await readFile(path.resolve("src", "modes.ts"), "utf8");
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
   assert.match(source, /snapshot\.hdr\.supportedCount === 0/);
   assert.match(source, /snapshot\.hdr\.enabledCount === snapshot\.hdr\.supportedCount/);
-  assert.match(inspector, /hdrUsable = Boolean\(snapshot\?\.hdr\?\.available && snapshot\.hdr\.supportedCount > 0\)/);
+  assert.match(inspector, /const hdrUsable = Boolean/);
   assert.match(inspector, /option\.disabled = !hdrUsable/);
 });
 
