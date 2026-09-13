@@ -103,4 +103,5 @@ test("monitor discovery prefers the stable Windows target device path", async ()
   assert.match(helper,/DISPLAYCONFIG_TARGET_DEVICE_NAME/);
   assert.match(helper,/monitorDevicePath/);
   assert.match(helper,/StableMonitorPath/);
+  assert.match(helper,/StableMonitorPath\(mi\.szDevice\).*\+ "#0"/);
 });
