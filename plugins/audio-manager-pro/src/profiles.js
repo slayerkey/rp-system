@@ -227,10 +227,12 @@ export function profileMatchesSnapshot(profileInput, snapshot) {
     if (match.status !== "matched" || !match.endpoint) return false;
     if (String(snapshot?.[def.snapshotId] || "") !== String(match.endpoint.id || "")) return false;
 
-    if (slot.restoreVolume && match.endpoint.volumeAvailable) {
+    if (slot.restoreVolume) {
+      if (!match.endpoint.volumeAvailable || slot.volume === null) return false;
       if (Math.abs(Number(match.endpoint.volume) - Number(slot.volume)) > 1) return false;
     }
-    if (slot.restoreMute && match.endpoint.muteAvailable) {
+    if (slot.restoreMute) {
+      if (!match.endpoint.muteAvailable) return false;
       if (Boolean(match.endpoint.muted) !== Boolean(slot.muted)) return false;
     }
   }
