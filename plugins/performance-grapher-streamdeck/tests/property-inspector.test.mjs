@@ -54,3 +54,59 @@ test("property inspector sources contain no escaped-newline patch artifacts", as
   assert.equal(html.includes("\\n"), false);
   assert.equal(js.includes("\\n"), false);
 });
+
+
+test("property inspector uses SDPI Components instead of a hand-rolled WebSocket settings channel", async () => {
+  const [html, js] = await Promise.all([
+    readFile(resolve(root, "ui", "inspector.html"), "utf8"),
+    readFile(resolve(root, "ui", "inspector.js"), "utf8"),
+  ]);
+
+  const sdpiAt = html.indexOf('src="sdpi-components.js');
+  const inspectorAt = html.indexOf('src="inspector.js');
+  assert.ok(sdpiAt >= 0, "Inspector must load the vendored SDPI Components runtime.");
+  assert.ok(inspectorAt > sdpiAt, "SDPI Components must load before inspector.js.");
+  assert.doesNotMatch(js, /new\s+WebSocket\s*\(/);
+  assert.match(js, /const\s*\{\s*streamDeckClient,\s*useSettings\s*\}\s*=\s*SDPIComponents/);
+  assert.match(js, /useSettings\("metricId"/);
+  assert.match(js, /sendToPropertyInspector\.subscribe/);
+  assert.match(js, /streamDeckClient\.send\("sendToPlugin"/);
+});
+
+test("standard inspector fields persist through SDPI setting controls", async () => {
+  const html = await readFile(resolve(root, "ui", "inspector.html"), "utf8");
+  for (const key of [
+    "windowMs",
+    "fpsMode",
+    "lowMode",
+    "thresholdDirection",
+    "threshold",
+    "scaleMin",
+    "scaleMax",
+    "accent",
+  ]) {
+    assert.match(html, new RegExp('setting=["\\\']' + key + '["\\\']'), "Missing SDPI setting binding for " + key);
+  }
+  assert.doesNotMatch(html, /Checking game telemetry/i);
+  assert.doesNotMatch(html, /Checking hardware sensors/i);
+});
+
+test("plugin sends live inspector state through the SDK UI channel", async () => {
+  const plugin = await readFile(resolve(root, "src", "plugin.js"), "utf8");
+  assert.match(plugin, /streamDeck\.ui\.sendToPropertyInspector/);
+  assert.match(plugin, /streamDeck\.ui\.action/);
+  assert.doesNotMatch(plugin, /record\.action\.sendToPropertyInspector/);
+});
+
+test("build packages vendored SDPI Components and its license", async () => {
+  const build = await readFile(resolve(root, "scripts", "build.mjs"), "utf8");
+  assert.match(build, /sdpi-components\.js/);
+  assert.match(build, /SDPI-Components-MIT\.txt/);
+  await readFile(resolve(root, "ui", "sdpi-components.js"), "utf8");
+  await readFile(resolve(root, "licenses", "SDPI-Components-MIT.txt"), "utf8");
+});
+
+test("property inspector sources contain no escaped-newline CSS patch artifacts", async () => {
+  const css = await readFile(resolve(root, "ui", "inspector.css"), "utf8");
+  assert.equal(css.includes("\\n"), false);
+});
