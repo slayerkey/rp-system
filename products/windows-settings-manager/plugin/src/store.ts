@@ -86,7 +86,10 @@ function sanitizeModeSettings(raw: any): ModeSettings {
     result.powerPlanGuid = guid;
   }
   if (raw?.timeout && ["monitorAcSeconds", "monitorDcSeconds", "sleepAcSeconds", "sleepDcSeconds"]
-    .every((key) => Number.isInteger(Number(raw.timeout[key])) && Number(raw.timeout[key]) >= 0)) {
+    .every((key) => {
+      const value = Number(raw.timeout[key]);
+      return Number.isInteger(value) && value >= 0 && value <= 0xffffffff;
+    })) {
     result.timeout = {
       monitorAcSeconds: Number(raw.timeout.monitorAcSeconds),
       monitorDcSeconds: Number(raw.timeout.monitorDcSeconds),
