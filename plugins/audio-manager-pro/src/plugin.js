@@ -121,7 +121,9 @@ async function renderRecord(record) {
   if (["apply", "cycle", "status"].includes(record.kind)) {
     const profile = profileForRecord(record);
     const active = profile ? profileMatchesSnapshot(profile, latestSnapshot) : false;
-    const status = record.lastStatus || (record.kind === "status" ? (active ? "SUCCESS" : "") : "");
+    const status = record.kind === "status"
+      ? (active ? "ACTIVE" : "INACTIVE")
+      : record.lastStatus;
     image = renderKey(record.kind, { profile, active, status });
   } else if (record.kind === "set-output" || record.kind === "set-input") {
     const { match, endpoint } = endpointForDeviceRecord(record);
@@ -216,6 +218,28 @@ async function applySelected(record) {
   }
   const result = await applyProfile(profile, record);
   await feedbackForResult(record, result);
+  return result;
+}
+
+async function checkSelectedProfile(record) {
+  const profile = profileForRecord(record);
+  const snapshot = await refreshSnapshot({ quiet: false });
+  const active = Boolean(profile && snapshot && profileMatchesSnapshot(profile, snapshot));
+  const result = profile
+    ? {
+        status: active ? "SUCCESS" : "FAILED",
+        failures: active ? [] : [{ error: "Selected Audio Profile is not currently active." }],
+      }
+    : {
+        status: "FAILED",
+        failures: [{ error: "Create or select an Audio Profile first." }],
+      };
+
+  record.lastResult = result;
+  record.lastStatus = active ? "ACTIVE" : "INACTIVE";
+  record.lastImage = "";
+  await feedbackForResult(record, result);
+  scheduleRender(0);
   return result;
 }
 
@@ -477,7 +501,7 @@ class AudioManagerAction extends SingletonAction {
     if (record.kind === "apply") return applySelected(record);
     if (record.kind === "set-output" || record.kind === "set-input") return setSelectedDevice(record);
     if (record.kind === "cycle") return cycleProfile(record);
-    if (record.kind === "status") return applySelected(record);
+    if (record.kind === "status") return checkSelectedProfile(record);
     if (record.kind === "mute-mic") return toggleDefaultMic(record);
   }
 
