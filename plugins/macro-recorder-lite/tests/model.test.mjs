@@ -72,3 +72,13 @@ test("slow sequence just inside Lite duration remains valid",()=>{
  assert.equal(macro.events.length,2);
  assert.equal(macro.durationMs,29_900);
 });
+
+test("auto-repeat key-downs clear with one logical key-up",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"keyDown",vk:65,delayMs:1},
+  {type:"keyDown",vk:65,delayMs:30},
+  {type:"keyDown",vk:65,delayMs:30},
+  {type:"keyUp",vk:65,delayMs:30}
+ ]},{pro,limits});
+ assert.equal(validateMacro(macro,{pro}).unmatchedKeys.length,0);
+});
