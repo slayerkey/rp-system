@@ -71,4 +71,6 @@ jobs:
             plugins/audio-manager-pro/dist/marketplace/review/*.png
             plugins/audio-manager-pro/QA.md
             plugins/audio-manager-pro/REAL_WINDOWS_SMOKE.md
+            plugins/audio-manager-pro/DEMO_VIDEO.md
+            plugins/audio-manager-pro/ART_REVIEW.md
           if-no-files-found: error
