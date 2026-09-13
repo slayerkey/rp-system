@@ -34,6 +34,12 @@ try {
     if (-not $snapshot.ok -or -not $snapshot.result.backendOnline) {
         throw "Backend snapshot failed: $($snapshot.error)"
     }
+    if ($snapshot.result.osBuild -lt 26100 -and $snapshot.result.hdr.api -ne "unavailable") {
+        throw "Pre-24H2 Windows must not expose a legacy HDR control path."
+    }
+    if ($snapshot.result.osBuild -ge 26100 -and $snapshot.result.hdr.api -ne "hdr-state") {
+        throw "Windows 11 24H2+ must use the separated HDR state path."
+    }
 
     $awakeOn = Request 3 "setKeepAwake" @{ enabled = $true }
     if (-not $awakeOn.ok -or -not $awakeOn.result.state) {
