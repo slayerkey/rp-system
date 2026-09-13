@@ -91,7 +91,6 @@ while (queue.length) {
     version: pkg.version || "",
     license: declared || null,
     parent: item.parent,
-    package_directory: resolved.dir,
     copied_license_files: copied,
   });
 
