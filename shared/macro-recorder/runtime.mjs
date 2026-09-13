@@ -112,9 +112,16 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     if (signature === latestSignature) return;
     latestSignature = signature;
     let macro = normalizeMacro({ ...raw, name: recordingName() }, { pro, limits });
+    recording = null;
+    if (!macro.events.length) {
+      latestMacro = null;
+      lastError = "No keyboard or mouse input was captured, so no macro was saved.";
+      await renderAll();
+      await broadcastInspectors();
+      return;
+    }
     if (pro) macro = await library.add(macro);
     latestMacro = macro;
-    recording = null;
     lastError = "";
     await renderAll();
     await broadcastInspectors();
