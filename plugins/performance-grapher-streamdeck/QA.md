@@ -126,8 +126,8 @@ The product therefore remains `BUILDING`, not `READY_FOR_HARDWARE_QA`.
 
 Additional deterministic review after the core smoke found and fixed:
 
-- PresentMon FPS cadence now prefers `MsBetweenPresents`, matching PresentMon's presented-FPS semantics, instead of preferring the v2 CPU-oriented `FrameTime` column.
-- Removed `--exclude_dropped` while using `--no_track_display`; the two options describe contradictory display-tracking assumptions.
+- PresentMon FPS cadence now prefers `MsBetweenPresents`, which measures time between application `Present()` calls, instead of preferring the v2 CPU-oriented `FrameTime` column.
+- Removed `--exclude_dropped` while using `--no_track_display`; PresentMon v2.5.1 marks completed presents as `Presented` when display tracking is disabled, making the dropped-frame filter a no-op.
 - `windowMs = 0` now survives JavaScript fallback logic, so the Session history option is no longer silently converted back to 60 seconds.
 - Hardware Session graphs now filter to the active game session or most recently completed game session rather than showing the full retained six-hour hardware archive under a misleading SESSION label.
 - Persistence now writes a temporary state file and atomically renames it into place, with corrupt-state quarantine retained as a second recovery layer.
