@@ -169,6 +169,7 @@
     kind = KINDS[actionUuid] || "graph";
     applySettings(actionInfo.payload?.settings || {});
     filterFields();
+    document.body.classList.add("ready");
 
     socket = new WebSocket("ws://127.0.0.1:" + port);
     socket.onopen = () => {
