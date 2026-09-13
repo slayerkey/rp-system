@@ -88,14 +88,16 @@
         );
         main.appendChild(controls);
       }
-      const delay=document.createElement("input");delay.type="number";delay.className="delay";delay.min="0";delay.max="60000";delay.value=String(ev.delayMs||0);delay.title="Delay before event (ms)";
-      delay.addEventListener("change",()=>{ev.delayMs=Math.max(0,Math.min(60000,Number(delay.value||0)));saveTimeline(macro);});
+      const maxDelay=Math.max(1000,Number(state?.limits?.maxDurationMs||60000));
+      const delay=document.createElement("input");delay.type="number";delay.className="delay";delay.min="0";delay.max=String(maxDelay);delay.value=String(ev.delayMs||0);delay.title="Delay before event (ms)";
+      delay.addEventListener("change",()=>{ev.delayMs=Math.max(0,Math.min(maxDelay,Number(delay.value||0)));saveTimeline(macro);});
       row.append(main,delay);timeline.appendChild(row);
     });
 
     const validation=state?.validation;
-    warning.hidden=!validation?.unmatchedKeys?.length;
-    warning.textContent=validation?.unmatchedKeys?.length?"Timeline has unmatched key-down events. Playback cleanup will still release them, but review the edits.":"";
+    const heldKeys=validation?.unmatchedKeys?.length||0,heldButtons=validation?.unmatchedButtons?.length||0;
+    warning.hidden=!(heldKeys||heldButtons);
+    warning.textContent=(heldKeys||heldButtons)?"Timeline has unmatched held inputs. Playback cleanup will still release them, but review the edits.":"";
   }
 
   function applyState(next){
