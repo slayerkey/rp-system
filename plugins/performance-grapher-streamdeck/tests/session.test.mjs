@@ -7,7 +7,7 @@ function feed(tracker, process, start, count, frameMs, metrics = {}) {
   let now = start;
   for (let i = 0; i < count; i += 1) {
     now += frameMs;
-    tracker.observeFrame({ application: process, frameTimeMs }, metrics, now);
+    tracker.observeFrame({ application: process, frameTimeMs: frameMs }, metrics, now);
   }
   tracker.tick(metrics, now + 150);
   return now;
