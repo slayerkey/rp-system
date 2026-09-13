@@ -148,46 +148,53 @@ internal static class Program
             return probe ? 0 : 2;
         }
 
-        var visitor = new UpdateVisitor();
-        string lastCatalogSignature = "";
-        var iteration = 0;
-
-        while (true)
+        try
         {
-            try
-            {
-                computer.Accept(visitor);
-                var (catalog, values) = ReadSensors(computer);
-                var signature = string.Join("|", catalog.Select(item => JsonSerializer.Serialize(item, JsonOptions)));
+            var visitor = new UpdateVisitor();
+            string lastCatalogSignature = "";
+            var iteration = 0;
 
-                if (signature != lastCatalogSignature || iteration % 30 == 0)
+            while (true)
+            {
+                try
                 {
-                    lastCatalogSignature = signature;
+                    computer.Accept(visitor);
+                    var (catalog, values) = ReadSensors(computer);
+                    var signature = string.Join("|", catalog.Select(item => JsonSerializer.Serialize(item, JsonOptions)));
+
+                    if (signature != lastCatalogSignature || iteration % 30 == 0)
+                    {
+                        lastCatalogSignature = signature;
+                        Emit(new
+                        {
+                            type = "catalog",
+                            sensors = catalog,
+                        });
+                    }
+
                     Emit(new
                     {
-                        type = "catalog",
-                        sensors = catalog,
+                        type = "sample",
+                        at = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                        foregroundProcess = ForegroundProcess(),
+                        values,
                     });
                 }
-
-                Emit(new
+                catch (Exception ex)
                 {
-                    type = "sample",
-                    at = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    foregroundProcess = ForegroundProcess(),
-                    values,
-                });
-            }
-            catch (Exception ex)
-            {
-                Emit(new { type = "status", status = "degraded", error = ex.Message });
+                    Emit(new { type = "status", status = "degraded", error = ex.Message });
+                }
+
+                iteration++;
+                if (probe) break;
+                await Task.Delay(1000);
             }
 
-            iteration++;
-            if (probe) break;
-            await Task.Delay(1000);
+            return 0;
         }
-
-        return 0;
+        finally
+        {
+            try { computer.Close(); } catch { }
+        }
     }
 }
