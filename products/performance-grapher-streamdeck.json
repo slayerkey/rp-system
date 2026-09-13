@@ -90,7 +90,7 @@
       "session_window_zero_regression": "FIXED",
       "session_scoped_hardware_history": "FIXED",
       "atomic_persistence": "FIXED",
-      "marketplace_description_characters": 1369,
+      "marketplace_description_characters": 1388,
       "top_level_licenses_bundled": true,
       "whole_session_archive_merge": "FIXED",
       "property_inspector_setup_help": "FIXED",
@@ -135,7 +135,10 @@
       "lhm_complete_sensor_units": "PINNED_0_9_6_ENUM_VERIFIED",
       "presentmon_standalone_license": "BUNDLED_BY_BUILD_PENDING_WINDOWS_EXECUTION",
       "presentmon_present_call_cadence": "MsBetweenPresents",
-      "presentmon_display_confirmed_fps_claim": false
+      "presentmon_display_confirmed_fps_claim": false,
+      "marketplace_description_limit": 1500,
+      "package_size_ceiling_mb": 500,
+      "package_size_ceiling_source": "PackRat internal CI guard"
     },
     "contracts": {
       "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
