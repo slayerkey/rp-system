@@ -109,3 +109,22 @@ test("PresentMon launch error remains unavailable and schedules recovery after c
   assert.ok(provider.restartTimer);
   provider.stop();
 });
+
+
+test("unquoted PresentMon rows use the same parser semantics", () => {
+  assert.deepEqual(splitCsv("game.exe,4242,16.67"), ["game.exe", "4242", "16.67"]);
+  const rows = parsePresentMonRows([
+    "Application,ProcessID,MsBetweenPresents",
+    "game.exe,4242,16.67",
+  ]);
+  assert.deepEqual(rows, [{ application: "game.exe", pid: 4242, frameTimeMs: 16.67 }]);
+});
+
+test("live PresentMon cached columns survive quoted process names", () => {
+  const provider = new PresentMonProvider({ executable: "unused" });
+  const frames = [];
+  provider.on("frame", (frame) => frames.push(frame));
+  provider._consumeLine("Application,ProcessID,FrameTime,MsBetweenPresents");
+  provider._consumeLine('"game,name.exe",4242,6.50,16.67');
+  assert.deepEqual(frames, [{ application: "game,name.exe", pid: 4242, frameTimeMs: 16.67 }]);
+});
