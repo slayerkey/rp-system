@@ -14,8 +14,10 @@ function readStoredProfileManifest(data){
 
 const profileBounds={
   standard:{cols:5,rows:3},
+  mini:{cols:3,rows:2},
   xl:{cols:8,rows:4},
-  plus:{cols:4,rows:2}
+  plus:{cols:4,rows:2},
+  neo:{cols:4,rows:2}
 };
 
 const roots=[
@@ -27,7 +29,7 @@ for(const [edition,root,prefix] of roots){
   test(`${edition} manifest is Windows key-only and has three bundled profiles`,async()=>{
     const manifest=JSON.parse(await readFile(path.join(root,"manifest.json"),"utf8"));
     assert.equal(manifest.OS[0].Platform,"windows");
-    assert.equal(manifest.Profiles.length,3);
+    assert.equal(manifest.Profiles.length,5);
     for(const action of manifest.Actions) {
       assert.deepEqual(action.Controllers,["Keypad"]);
       for (const state of action.States ?? []) {
@@ -35,7 +37,7 @@ for(const [edition,root,prefix] of roots){
       }
     }
   });
-  for(const suffix of ["standard","xl","plus"]){
+  for(const suffix of ["standard","mini","xl","plus","neo"]){
     test(`${edition} ${suffix} profile archive is deterministic and within device bounds`,async()=>{
       const data=await readFile(path.join(root,"profiles",`${prefix}-${suffix}.streamDeckProfile`));
       const text=data.toString("utf8");
@@ -75,7 +77,7 @@ test("SEO copy is truthful and contains requested discovery language",async()=>{
 
 
 test("Pro bundled profiles seed favorites and example multi-group memberships",async()=>{
-  for(const suffix of ["standard","xl","plus"]){
+  for(const suffix of ["standard","mini","xl","plus","neo"]){
     const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
     const manifest=readStoredProfileManifest(data);
     const deviceSettings=Object.values(manifest.Actions)
@@ -90,7 +92,7 @@ test("Pro bundled profiles seed favorites and example multi-group memberships",a
 });
 
 test("Lite bundled profiles stay free of Pro-only favorite and group settings",async()=>{
-  for(const suffix of ["standard","xl","plus"]){
+  for(const suffix of ["standard","mini","xl","plus","neo"]){
     const data=await readFile(path.join("com.packrat.wireless-device-manager.sdPlugin","profiles",`wireless-device-manager-${suffix}.streamDeckProfile`));
     const manifest=readStoredProfileManifest(data);
     for(const action of Object.values(manifest.Actions)){
