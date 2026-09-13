@@ -25,13 +25,15 @@ If one product fails, Rat Ship records the failure, continues the remaining queu
 
 ### Release-state guard
 
-Canonical product metadata can intentionally block public submission with the schema-defined `workflow_state` value `BLOCKED`.
+Canonical product metadata uses the schema-defined `workflow_state` release state machine. For any product that declares a workflow state, `rat ship` and `rat submit` fail closed unless the canonical state is exactly `READY_TO_SHIP`.
 
-Blocked products should name the unresolved dependency in their `blocker` field. `rat ship` and `rat submit` fail closed while that state is active and print the blocker when present. Legacy `BLOCKED_*` values are still recognized defensively during migration, but new product records should use canonical `BLOCKED`.
+That means intermediate states such as `BUILDING`, `TESTING`, `ART`, `READY_FOR_HARDWARE_QA`, `SUBMITTED`, `PUBLISHED`, `REJECTED`, and `BLOCKED` are not eligible for a new public submission. Legacy product records with no `workflow_state` retain the pre-state-machine behavior until migrated.
 
-This prevents a technically ready product from being publicly submitted before an external legal, platform, approval, licensing, or compliance dependency is cleared.
+Blocked products should name the unresolved dependency in their `blocker` field. Legacy `BLOCKED_*` values are still recognized defensively during migration, but new product records should use canonical `BLOCKED`.
 
-`rat kit` and `rat stage` remain available for non-public preparation and review. After the external blocker is actually resolved, move `products/<slug>.json` on canonical `main` to `READY_TO_SHIP` before running `rat ship`.
+This prevents a product from being publicly submitted before its current release candidate has actually cleared the release gate.
+
+`rat kit` and `rat stage` remain available for non-public preparation and review in every workflow state. Move `products/<slug>.json` on canonical `main` to `READY_TO_SHIP` only after the current candidate is genuinely ready for Marketplace submission.
 
 ### Stream Deck plugin release path
 
