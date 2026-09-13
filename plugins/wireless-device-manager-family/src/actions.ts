@@ -6,7 +6,7 @@ import {
   SingletonAction,
   type WillAppearEvent
 } from "@elgato/streamdeck";
-import { batteryLabel, controlLabel, groupSummary, nextFavorite, shouldLowBatteryAlert, statusLabel } from "./model.js";
+import { batteryLabel, controlLabel, groupSummary, nextFavorite, shortName, shouldLowBatteryAlert, statusLabel } from "./model.js";
 import type { WirelessRuntime } from "./runtime.js";
 
 export type DeviceSettings = {
@@ -40,7 +40,7 @@ async function paintDevice(key: KeyAction<DeviceSettings>, runtime: WirelessRunt
 }
 
 abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
-  private lowState = new WeakMap<object, boolean>();
+  private lowState = new Map<string, boolean>();
   constructor(protected readonly runtime: WirelessRuntime, private readonly alerts: boolean) {
     super();
     runtime.subscribe(() => void this.paintAll());
@@ -58,7 +58,7 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
         await this.runtime.setLiteDeviceId(settings.deviceId);
       } else {
         await this.runtime.setFavorite(settings.deviceId, settings.favorite === true);
-        await this.runtime.assignGroup(settings.groupName ?? "", settings.deviceId);
+        await this.runtime.assignGroups(settings.groupName ?? "", settings.deviceId);
         await this.runtime.setThreshold(settings.deviceId, Number(settings.lowBatteryThreshold ?? 20));
       }
     }
@@ -85,10 +85,13 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
     const deviceId = await this.runtime.selectedDeviceId(settings.deviceId);
     const device = this.runtime.device(deviceId);
     if (!device) return;
-    const threshold = Math.max(1, Math.min(99, Number(settings.lowBatteryThreshold ?? 20)));
-    const before = this.lowState.get(key as object) ?? false;
+    const threshold = this.runtime.edition === "pro"
+      ? await this.runtime.thresholdFor(device.stableId, Number(settings.lowBatteryThreshold ?? 20))
+      : Math.max(1, Math.min(99, Number(settings.lowBatteryThreshold ?? 20)));
+    const stateKey = `${device.stableId}:${threshold}`;
+    const before = this.lowState.get(stateKey) ?? false;
     const state = shouldLowBatteryAlert(device, threshold, before);
-    this.lowState.set(key as object, state.low);
+    this.lowState.set(stateKey, state.low);
     if (state.fire) await key.showAlert();
   }
 
@@ -177,7 +180,13 @@ export class CycleDeviceAction extends SingletonAction<CycleSettings> {
 
   private async paint(key: KeyAction<CycleSettings>, settings: CycleSettings): Promise<void> {
     const device = this.runtime.device(settings.currentId);
-    await key.setTitle(device ? `CYCLE\n${device.name.toUpperCase().slice(0, 12)}` : "CYCLE\nFAVORITES");
+    if (!device) {
+      await key.setTitle("CYCLE\nFAVORITES");
+      return;
+    }
+    const state = device.connected ? "ON" : device.present === false ? "SLEEP" : "OFF";
+    const battery = device.capabilities.BATTERY ? ` ${device.batteryPercent}%` : "";
+    await key.setTitle(`${shortName(device.name)}\n${state}${battery}`);
   }
 
   private async paintAll(): Promise<void> {
