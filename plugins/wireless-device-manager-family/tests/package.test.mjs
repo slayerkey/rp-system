@@ -144,7 +144,7 @@ test("settings reads are side-effect free and global writes are explicit",async(
 
 
 test("bundled Pro headset status and control keys share one logical slot",async()=>{
-  for(const suffix of ["standard","mini","xl"]){
+  for(const suffix of ["standard","mini","xl","plus","neo"]){
     const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
     const manifest=readStoredProfileManifest(data);
     const devices=Object.values(manifest.Actions).filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.device");
