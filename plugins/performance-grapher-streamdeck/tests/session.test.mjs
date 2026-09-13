@@ -164,3 +164,38 @@ test("frametime graph history preserves the worst raw frame in each bucket", () 
   assert.ok(fpsPoint[1] < 100, "FPS bucket should reflect average frame time");
   assert.equal(framePoint[1], 50, "Frametime graph must preserve the worst raw frame");
 });
+
+
+test("manual reset preserves final bucket peak and pressure context", () => {
+  const tracker = new SessionTracker({ switchMs: 0, idleMs: 3000 });
+  tracker._start("game.exe", 0);
+  tracker.observeFrame({ application: "game.exe", frameTimeMs: 40 }, {}, 10);
+  tracker.reset(20, {
+    "gpu.load": 99,
+    "gpu.temperature": 81,
+    "cpu.temperature": 68,
+  });
+
+  const done = tracker.snapshot(20).lastCompleted;
+  assert.equal(done.peakGpuLoad, 99);
+  assert.equal(done.peakGpuTemperature, 81);
+  assert.equal(done.peakCpuTemperature, 68);
+});
+
+test("process switch carries diagnostics through the outgoing final bucket", () => {
+  const tracker = new SessionTracker({ switchMs: 0, idleMs: 3000 });
+  tracker._start("first.exe", 0);
+  tracker.observeFrame({ application: "first.exe", frameTimeMs: 40 }, {}, 10);
+
+  tracker._start("second.exe", 20, {
+    "gpu.load": 99,
+    "gpu.temperature": 82,
+    "cpu.temperature": 69,
+  });
+
+  const done = tracker.lastCompleted;
+  assert.equal(done.process, "first.exe");
+  assert.equal(done.peakGpuLoad, 99);
+  assert.equal(done.peakGpuTemperature, 82);
+  assert.equal(done.peakCpuTemperature, 69);
+});
