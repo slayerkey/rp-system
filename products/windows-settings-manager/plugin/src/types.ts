@@ -4,7 +4,7 @@ export type ModeId = "gaming" | "work" | "night" | "present" | "movie" | string;
 
 export type HdrState = {
   available: boolean;
-  api: "hdr-state" | "advanced-color-legacy" | "unavailable";
+  api: "hdr-state" | "unavailable";
   supportedCount: number;
   enabledCount: number;
   mixed: boolean;
