@@ -72,9 +72,9 @@ const layouts = {
       "2,0": (c)=>device("pro:compact:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL",slot:"MOUSE"}),
       "3,0": (c)=>device("pro:compact:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING",slot:"CONTROLLER"}),
       "0,1": (c)=>dashboard("pro:compact:all",c),
-      "1,1": (c)=>cycle("pro:compact:cycle",c),
-      "2,1": (c)=>dashboard("pro:compact:gaming",c,"GAMING"),
-      "3,1": (c)=>dashboard("pro:compact:work",c,"WORK")
+      "1,1": (c)=>device("pro:compact:headphones-control",c,"CONNECT","control",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL",slot:"HEADPHONES"}),
+      "2,1": (c)=>cycle("pro:compact:cycle",c),
+      "3,1": (c)=>dashboard("pro:compact:gaming",c,"GAMING")
     },
     mini: {
       "0,0": (c)=>device("pro:mini:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL",slot:"HEADPHONES"}),
