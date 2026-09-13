@@ -446,6 +446,19 @@ async function toggleDefaultMic(record) {
     return;
   }
 
+  const defaultConflicts = snapshotDefaultRoleConflicts(snapshot);
+  if (defaultConflicts.some((message) => message.includes("input"))) {
+    const result = {
+      status: "FAILED",
+      failures: [{ error: "Windows Default input is split between Console and Multimedia. Align the Default input before toggling mute." }],
+    };
+    record.lastResult = result;
+    record.lastStatus = "FAILED";
+    await feedbackForResult(record, result);
+    scheduleRender(0);
+    return;
+  }
+
   const endpoint = (snapshot.inputs || []).find((item) => item.id === snapshot.defaultInputId);
   if (!endpoint?.id || !endpoint.muteAvailable) {
     const result = { status: "FAILED", failures: [{ error: "Default microphone mute is unavailable." }] };
