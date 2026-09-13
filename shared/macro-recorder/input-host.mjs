@@ -39,7 +39,12 @@ export class InputHost extends EventEmitter {
       else pending.resolve(message);
     });
     proc.stderr.on("data", (chunk) => this.logger(String(chunk).trim()));
-    proc.on("error", (error) => this.logger(error?.stack || error));
+    proc.on("error", (error) => {
+      this.logger(error?.stack || error);
+      if (this.proc === proc) this.proc = null;
+      for (const pending of this.pending.values()) pending.reject(error);
+      this.pending.clear();
+    });
     proc.on("exit", (code, signal) => {
       if (this.proc === proc) this.proc = null;
       for (const pending of this.pending.values()) pending.reject(new Error("Input host exited."));
@@ -70,7 +75,13 @@ export class InputHost extends EventEmitter {
         resolve: (value) => { clearTimeout(timer); resolvePromise(value); },
         reject: (error) => { clearTimeout(timer); rejectPromise(error); },
       });
-      this.proc.stdin.write(JSON.stringify(message) + "\n");
+      try {
+        this.proc.stdin.write(JSON.stringify(message) + "\n");
+      } catch (error) {
+        clearTimeout(timer);
+        this.pending.delete(id);
+        rejectPromise(error);
+      }
     });
   }
 
