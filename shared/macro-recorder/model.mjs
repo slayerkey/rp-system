@@ -115,8 +115,10 @@ export function playbackSettings(raw = {}, { pro = true } = {}) {
 export function playbackSafetyError(macro, settings) {
   const repeatCount = Number(settings?.repeatCount ?? 1);
   const durationMs = Number(macro?.durationMs ?? 0);
-  if (repeatCount === 0 && durationMs < 25) {
-    return "While-held and toggle loops need at least 25 ms of macro timing.";
+  const speed = Math.max(0.25, Math.min(4, Number(settings?.speed) || 1));
+  const effectiveDurationMs = durationMs / speed;
+  if (repeatCount === 0 && effectiveDurationMs < 25) {
+    return "While-held and toggle loops need at least 25 ms of effective playback timing.";
   }
   return "";
 }
