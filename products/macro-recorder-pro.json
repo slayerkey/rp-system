@@ -4,8 +4,8 @@
   "type": "plugin",
   "status": "built",
   "workflow_state": "TESTING",
-  "blocker_kind": "final_host_validation",
-  "blocker": "Run mouse/DPI/multi-monitor/loop/library tests and physical Stream Deck interruption tests against the exact passing CI package.",
+  "blocker_kind": "ci_runner_unavailable_and_final_host_validation",
+  "blocker": "GitHub-hosted Actions currently creates jobs with runner_id 0 and zero executed steps for this private repository. Run plugins/macro-recorder-pro/run-family-qa.ps1 locally or restore hosted-runner allowance/budget, then complete the documented Windows + physical Stream Deck smoke matrix.",
   "final_boundary": "Do not move to READY_TO_SHIP until docs/MACRO_RECORDER_QA.md final host/device checks pass.",
   "price_usd": 7.99,
   "version": "1.0.0.0",
@@ -65,5 +65,11 @@
     "loop cancellation smoke",
     "library corruption/import-export smoke",
     "physical Stream Deck emergency stop smoke"
-  ]
+  ],
+  "ci_runner_state": {
+    "observed_at": "2026-09-12",
+    "symptom": "GitHub Actions job assigned runner_id 0, blank runner name, zero executed steps, and zero billable runner milliseconds.",
+    "macro_recorder_run_id": 34740914206,
+    "local_fallback": "plugins/macro-recorder-pro/run-family-qa.ps1"
+  }
 }
