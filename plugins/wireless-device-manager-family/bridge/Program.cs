@@ -1,3 +1,4 @@
+using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using Windows.Devices.Bluetooth;
@@ -139,23 +140,31 @@ internal static class Program
 
     private static async Task<dynamic> SnapshotAsync()
     {
-        var adapter = await BluetoothAdapter.GetDefaultAsync();
-        if (adapter is null)
-            return new { ok = true, adapterAvailable = false, devices = Array.Empty<object>(), error = (string?)null };
-
-        var radio = await adapter.GetRadioAsync();
-        if (radio is null || radio.State != RadioState.On)
-            return new { ok = true, adapterAvailable = false, devices = Array.Empty<object>(), error = (string?)null };
-
-        var audioServices = await FindBluetoothAudioServicesAsync();
         var output = new Dictionary<string, DeviceDto>(StringComparer.OrdinalIgnoreCase);
-        await AddDevicesAsync(output, BluetoothLEDevice.GetDeviceSelectorFromPairingState(true), "ble", false, audioServices);
-        await AddDevicesAsync(output, BluetoothDevice.GetDeviceSelectorFromPairingState(true), "classic", true, audioServices);
+
+        var hidScan = NativeHid.ScanSupportedDevices();
+        foreach (var device in hidScan.devices)
+            output["hid:" + device.id] = device;
+
+        var bluetoothAvailable = false;
+        var adapter = await BluetoothAdapter.GetDefaultAsync();
+        if (adapter is not null)
+        {
+            var radio = await adapter.GetRadioAsync();
+            if (radio is not null && radio.State == RadioState.On)
+            {
+                bluetoothAvailable = true;
+                var audioServices = await FindBluetoothAudioServicesAsync();
+                await AddDevicesAsync(output, BluetoothLEDevice.GetDeviceSelectorFromPairingState(true), "ble", false, audioServices);
+                await AddDevicesAsync(output, BluetoothDevice.GetDeviceSelectorFromPairingState(true), "classic", true, audioServices);
+            }
+        }
 
         return new
         {
             ok = true,
-            adapterAvailable = true,
+            adapterAvailable = bluetoothAvailable,
+            hidAvailable = hidScan.available,
             devices = output.Values.OrderByDescending(x => x.connected).ThenBy(x => x.name).ToArray(),
             error = (string?)null
         };
@@ -235,6 +244,7 @@ internal static class Program
                 address = address is null ? null : NormalizeAddress(address),
                 containerId = containerId,
                 kind = kind,
+                transport = "bluetooth",
                 paired = BoolProp(info, PairedKey) ?? info.Pairing.IsPaired,
                 connected = connected,
                 present = present,
@@ -265,6 +275,7 @@ internal static class Program
         address = b.address ?? a.address,
         containerId = b.containerId ?? a.containerId,
         kind = a.kind == b.kind ? a.kind : "dual",
+        transport = b.transport ?? a.transport,
         paired = a.paired || b.paired,
         connected = a.connected || b.connected,
         present = a.present == true || b.present == true
@@ -386,6 +397,7 @@ internal static class Program
         public string? address { get; set; }
         public string? containerId { get; set; }
         public string? kind { get; set; }
+        public string? transport { get; set; }
         public bool paired { get; set; }
         public bool connected { get; set; }
         public bool? present { get; set; }
@@ -398,6 +410,268 @@ internal static class Program
     {
         public bool connect { get; set; }
         public bool disconnect { get; set; }
+    }
+
+    private static class NativeHid
+    {
+        private const ushort LamzuVendorId = 0x373E;
+        private const ushort MayaXWirelessPid = 0x001E;
+        private const ushort MayaXWiredPid = 0x001C;
+        private const byte MayaBatteryCommand = 0x83;
+        private const byte MayaReplyTag = 0xA1;
+
+        private const uint DigcfPresent = 0x00000002;
+        private const uint DigcfDeviceInterface = 0x00000010;
+        private const uint GenericRead = 0x80000000;
+        private const uint GenericWrite = 0x40000000;
+        private const uint FileShareRead = 0x00000001;
+        private const uint FileShareWrite = 0x00000002;
+        private const uint OpenExisting = 3;
+        private const int ErrorNoMoreItems = 259;
+
+        public static (bool available, DeviceDto[] devices) ScanSupportedDevices()
+        {
+            try
+            {
+                var candidates = EnumerateHidPaths()
+                    .Select(TryDescribeMayaX)
+                    .Where(x => x is not null)
+                    .Cast<HidCandidate>()
+                    .OrderByDescending(x => x.path.Contains("mi_02", StringComparison.OrdinalIgnoreCase))
+                    .ThenByDescending(x => x.wired)
+                    .ToArray();
+
+                if (candidates.Length == 0)
+                    return (true, Array.Empty<DeviceDto>());
+
+                foreach (var candidate in candidates)
+                {
+                    var status = ReadMayaXStatus(candidate.path);
+                    if (status is null) continue;
+
+                    return (true,
+                    [
+                        new DeviceDto
+                        {
+                            id = "lamzu:maya-x",
+                            nativeId = candidate.path,
+                            name = "LAMZU Maya X",
+                            kind = candidate.wired ? "usb-wired" : "2.4ghz-receiver",
+                            transport = "usb-hid",
+                            paired = true,
+                            connected = true,
+                            present = true,
+                            batteryPercent = status.Value.percent,
+                            charging = status.Value.charging,
+                            control = new ControlDto { connect = false, disconnect = false }
+                        }
+                    ]);
+                }
+
+                var detected = candidates[0];
+                return (true,
+                [
+                    new DeviceDto
+                    {
+                        id = "lamzu:maya-x",
+                        nativeId = detected.path,
+                        name = "LAMZU Maya X",
+                        kind = detected.wired ? "usb-wired" : "2.4ghz-receiver",
+                        transport = "usb-hid",
+                        paired = true,
+                        connected = false,
+                        present = false,
+                        batteryPercent = null,
+                        charging = null,
+                        control = new ControlDto { connect = false, disconnect = false }
+                    }
+                ]);
+            }
+            catch
+            {
+                return (false, Array.Empty<DeviceDto>());
+            }
+        }
+
+        private static HidCandidate? TryDescribeMayaX(string path)
+        {
+            using var handle = OpenHid(path);
+            if (handle.IsInvalid) return null;
+
+            var attributes = new HiddAttributes { Size = (uint)Marshal.SizeOf<HiddAttributes>() };
+            if (!HidD_GetAttributes(handle, ref attributes)) return null;
+            if (attributes.VendorId != LamzuVendorId) return null;
+            if (attributes.ProductId != MayaXWirelessPid && attributes.ProductId != MayaXWiredPid) return null;
+
+            return new HidCandidate(path, attributes.ProductId == MayaXWiredPid);
+        }
+
+        private static (int percent, bool charging)? ReadMayaXStatus(string path)
+        {
+            using var handle = OpenHid(path);
+            if (handle.IsInvalid) return null;
+
+            var request = new byte[65];
+            request[0] = 0x00;
+            request[3] = 0x02;
+            request[4] = 0x02;
+            request[6] = MayaBatteryCommand;
+
+            if (!HidD_SetFeature(handle, request, request.Length))
+                return null;
+
+            Thread.Sleep(100);
+
+            var response = new byte[65];
+            response[0] = 0x00;
+            if (!HidD_GetFeature(handle, response, response.Length))
+                return null;
+
+            if (response[1] != MayaReplyTag || response[6] != MayaBatteryCommand)
+                return null;
+
+            var percent = (int)response[8];
+            if (percent is < 0 or > 100)
+                return null;
+
+            return (percent, response[7] == 1);
+        }
+
+        private static SafeFileHandle OpenHid(string path) =>
+            CreateFile(
+                path,
+                GenericRead | GenericWrite,
+                FileShareRead | FileShareWrite,
+                IntPtr.Zero,
+                OpenExisting,
+                0,
+                IntPtr.Zero);
+
+        private static List<string> EnumerateHidPaths()
+        {
+            HidD_GetHidGuid(out var hidGuid);
+            var infoSet = SetupDiGetClassDevs(ref hidGuid, IntPtr.Zero, IntPtr.Zero, DigcfPresent | DigcfDeviceInterface);
+            if (infoSet == new IntPtr(-1))
+                throw new InvalidOperationException("Windows HID device enumeration is unavailable.");
+
+            var paths = new List<string>();
+            try
+            {
+                for (uint index = 0; ; index++)
+                {
+                    var interfaceData = new SpDeviceInterfaceData
+                    {
+                        cbSize = (uint)Marshal.SizeOf<SpDeviceInterfaceData>()
+                    };
+
+                    if (!SetupDiEnumDeviceInterfaces(infoSet, IntPtr.Zero, ref hidGuid, index, ref interfaceData))
+                    {
+                        if (Marshal.GetLastWin32Error() == ErrorNoMoreItems) break;
+                        continue;
+                    }
+
+                    SetupDiGetDeviceInterfaceDetail(infoSet, ref interfaceData, IntPtr.Zero, 0, out var required, IntPtr.Zero);
+                    if (required == 0) continue;
+
+                    var detail = Marshal.AllocHGlobal((int)required);
+                    try
+                    {
+                        Marshal.WriteInt32(detail, IntPtr.Size == 8 ? 8 : 6);
+                        if (!SetupDiGetDeviceInterfaceDetail(infoSet, ref interfaceData, detail, required, out _, IntPtr.Zero))
+                            continue;
+
+                        var path = Marshal.PtrToStringUni(IntPtr.Add(detail, 4));
+                        if (!string.IsNullOrWhiteSpace(path))
+                            paths.Add(path);
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(detail);
+                    }
+                }
+            }
+            finally
+            {
+                SetupDiDestroyDeviceInfoList(infoSet);
+            }
+
+            return paths;
+        }
+
+        private readonly record struct HidCandidate(string path, bool wired);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct HiddAttributes
+        {
+            public uint Size;
+            public ushort VendorId;
+            public ushort ProductId;
+            public ushort VersionNumber;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SpDeviceInterfaceData
+        {
+            public uint cbSize;
+            public Guid InterfaceClassGuid;
+            public uint Flags;
+            public UIntPtr Reserved;
+        }
+
+        [DllImport("hid.dll")]
+        private static extern void HidD_GetHidGuid(out Guid hidGuid);
+
+        [DllImport("hid.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool HidD_GetAttributes(SafeFileHandle hidDeviceObject, ref HiddAttributes attributes);
+
+        [DllImport("hid.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool HidD_SetFeature(SafeFileHandle hidDeviceObject, byte[] reportBuffer, int reportBufferLength);
+
+        [DllImport("hid.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool HidD_GetFeature(SafeFileHandle hidDeviceObject, byte[] reportBuffer, int reportBufferLength);
+
+        [DllImport("setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern IntPtr SetupDiGetClassDevs(
+            ref Guid classGuid,
+            IntPtr enumerator,
+            IntPtr hwndParent,
+            uint flags);
+
+        [DllImport("setupapi.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetupDiEnumDeviceInterfaces(
+            IntPtr deviceInfoSet,
+            IntPtr deviceInfoData,
+            ref Guid interfaceClassGuid,
+            uint memberIndex,
+            ref SpDeviceInterfaceData deviceInterfaceData);
+
+        [DllImport("setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetupDiGetDeviceInterfaceDetail(
+            IntPtr deviceInfoSet,
+            ref SpDeviceInterfaceData deviceInterfaceData,
+            IntPtr deviceInterfaceDetailData,
+            uint deviceInterfaceDetailDataSize,
+            out uint requiredSize,
+            IntPtr deviceInfoData);
+
+        [DllImport("setupapi.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetupDiDestroyDeviceInfoList(IntPtr deviceInfoSet);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern SafeFileHandle CreateFile(
+            string fileName,
+            uint desiredAccess,
+            uint shareMode,
+            IntPtr securityAttributes,
+            uint creationDisposition,
+            uint flagsAndAttributes,
+            IntPtr templateFile);
     }
 }
 
