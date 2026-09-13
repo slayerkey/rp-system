@@ -72,15 +72,15 @@ export class WirelessRuntime {
     await this.sendInspector();
   }
 
-  async setGroup(name: string, id: string, value: boolean): Promise<void> {
+  async assignGroup(name: string, id: string): Promise<void> {
     if (this.edition !== "pro") return;
     const clean = name.trim();
-    if (!clean) return;
     const current = await this.globals();
-    const groups = { ...(current.groups ?? {}) };
-    const members = new Set(groups[clean] ?? []);
-    if (value) members.add(id); else members.delete(id);
-    groups[clean] = [...members];
+    const groups: Record<string, string[]> = {};
+    for (const [groupName, members] of Object.entries(current.groups ?? {})) {
+      groups[groupName] = members.filter(member => member !== id);
+    }
+    if (clean) groups[clean] = [...new Set([...(groups[clean] ?? []), id])];
     await streamDeck.settings.setGlobalSettings({ ...current, groups });
     await this.sendInspector();
   }
