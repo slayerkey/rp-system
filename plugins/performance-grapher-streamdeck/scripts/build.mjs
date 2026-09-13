@@ -29,6 +29,7 @@ for (const name of ["inspector.html", "inspector.css", "inspector.js"]) {
 await cp(resolve(root, "THIRD_PARTY_NOTICES.md"), resolve(licensesOut, "THIRD_PARTY_NOTICES.md"));
 await cp(resolve(root, "licenses", "LibreHardwareMonitor-MPL-2.0.txt"), resolve(licensesOut, "LibreHardwareMonitor-MPL-2.0.txt"));
 await cp(resolve(root, "licenses", "LibreHardwareMonitor-THIRD-PARTY-NOTICES.txt"), resolve(licensesOut, "LibreHardwareMonitor-THIRD-PARTY-NOTICES.txt"));
+await cp(resolve(root, "licenses", "PresentMon-MIT-v2.5.1.txt"), resolve(licensesOut, "PresentMon-MIT-v2.5.1.txt"));
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, { cwd: root, stdio: "inherit", windowsHide: true, ...options });
