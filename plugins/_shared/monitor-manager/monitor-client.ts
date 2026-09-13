@@ -28,6 +28,18 @@ export class MonitorBridge {
     child.stdout.setEncoding("utf8");
     child.stdout.on("data", (chunk) => this.onData(String(chunk)));
     child.stderr.setEncoding("utf8");
+    child.stderr.on("data", () => {
+      // Drain stderr so a noisy native/PowerShell failure cannot block the helper pipe.
+    });
+    child.on("error", (cause) => {
+      const error = cause instanceof Error ? cause : new Error(String(cause));
+      for (const entry of this.pending.values()) {
+        clearTimeout(entry.timer);
+        entry.reject(error);
+      }
+      this.pending.clear();
+      this.child = null;
+    });
     child.on("exit", (code) => {
       const error = new Error("Monitor helper exited with code " + code);
       for (const entry of this.pending.values()) {
