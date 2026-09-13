@@ -30,7 +30,7 @@ Adding five keys does not create five PresentMon sessions or five Libre Hardware
 
 PresentMon's real-time ETW path may require the current Windows user to be in **Performance Log Users** or to run with administrator rights. The plugin reports permission_required explicitly.
 
-Libre Hardware Monitor can expose many GPU sensors without extra setup, but some lower-level motherboard/CPU sensors require elevated access or an already-installed compatible PawnIO path. This product never silently installs PawnIO or another kernel driver. Unsupported/missing sensors render an honest unavailable state.
+Libre Hardware Monitor can expose many GPU sensors without extra setup, but some lower-level motherboard/CPU sensors require elevated access or an already-installed compatible PawnIO path. Performance Grapher does not install PawnIO or another driver for you. Unsupported/missing sensors render an honest unavailable state.
 
 ## Performance budget
 
