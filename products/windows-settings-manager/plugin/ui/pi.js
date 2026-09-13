@@ -86,11 +86,17 @@ function build() {
 
   document.getElementById("saveMode").addEventListener("click", () => {
     const id = document.getElementById("editModeId").value || "gaming";
+    const nextSettings = editorSettings();
+    if (!nextSettings) {
+      document.getElementById("errors").textContent =
+        "Timeout values must be whole seconds from 0 to 4294967295. Blank values are not saved as Never.";
+      return;
+    }
     sendPlugin({
       type: "save-mode",
       id,
       name: document.getElementById("modeName").value.trim() || id.toUpperCase(),
-      settings: editorSettings()
+      settings: nextSettings
     });
     modeDirty = false;
   });
@@ -107,8 +113,11 @@ function bindSelect(id, key) {
 }
 function bindNumber(id) {
   document.getElementById(id).addEventListener("change", (event) => {
-    const number = Number(event.target.value);
-    if (Number.isInteger(number) && number >= 0) saveActionSettings({ [id]: number });
+    const raw = event.target.value.trim();
+    const number = Number(raw);
+    if (raw !== "" && Number.isInteger(number) && number >= 0 && number <= 0xffffffff) {
+      saveActionSettings({ [id]: number });
+    }
   });
 }
 
@@ -261,19 +270,28 @@ function editorSettings() {
   if (awake) result.keepAwake = awake === "on";
 
   if (document.getElementById("modeTimeoutEnabled").checked) {
+    const values = [
+      seconds("modeMonitorAc"),
+      seconds("modeMonitorDc"),
+      seconds("modeSleepAc"),
+      seconds("modeSleepDc")
+    ];
+    if (values.some((value) => value === null)) return null;
     result.timeout = {
-      monitorAcSeconds: seconds("modeMonitorAc"),
-      monitorDcSeconds: seconds("modeMonitorDc"),
-      sleepAcSeconds: seconds("modeSleepAc"),
-      sleepDcSeconds: seconds("modeSleepDc")
+      monitorAcSeconds: values[0],
+      monitorDcSeconds: values[1],
+      sleepAcSeconds: values[2],
+      sleepDcSeconds: values[3]
     };
   }
   return result;
 }
 
 function seconds(id) {
-  const value = Number(document.getElementById(id).value);
-  return Number.isInteger(value) && value >= 0 ? value : 0;
+  const raw = document.getElementById(id).value.trim();
+  if (raw === "") return null;
+  const value = Number(raw);
+  return Number.isInteger(value) && value >= 0 && value <= 0xffffffff ? value : null;
 }
 
 function addOption(select, value, label) {
