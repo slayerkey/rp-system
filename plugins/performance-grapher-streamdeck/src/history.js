@@ -85,10 +85,22 @@ export class BoundedHistory {
   }
 
   toJSON() {
-    if (this.pending) this._commitPending();
+    const archive = this.archive.slice();
+    if (this.pending) {
+      const p = this.pending;
+      const value = this.archiveMode === "min" ? p.min : this.archiveMode === "last" ? p.last : p.max;
+      const last = archive[archive.length - 1];
+      if (last?.[0] === p.bucket) {
+        if (this.archiveMode === "min") last[1] = Math.min(last[1], value);
+        else if (this.archiveMode === "max") last[1] = Math.max(last[1], value);
+        else last[1] = value;
+      } else {
+        archive.push([p.bucket, value]);
+      }
+    }
     return {
       raw: this.raw.slice(-this.rawMax),
-      archive: this.archive.slice(-this.archiveMax),
+      archive: archive.slice(-this.archiveMax),
       rawMax: this.rawMax,
       archiveMax: this.archiveMax,
       archiveMs: this.archiveMs,
@@ -102,9 +114,23 @@ export class BoundedHistory {
     const clean = (points, max) => (Array.isArray(points) ? points : [])
       .filter((p) => Array.isArray(p) && finite(p[0]) !== null && finite(p[1]) !== null)
       .map((p) => [Number(p[0]), Number(p[1])])
+      .sort((a, b) => a[0] - b[0])
       .slice(-max);
-    history.raw = clean(value.raw, history.rawMax).sort((a, b) => a[0] - b[0]);
-    history.archive = clean(value.archive, history.archiveMax).sort((a, b) => a[0] - b[0]);
+    history.raw = clean(value.raw, history.rawMax);
+    const archive = clean(value.archive, history.archiveMax);
+    history.archive = [];
+    for (const [at, sample] of archive) {
+      const prior = history.archive[history.archive.length - 1];
+      if (prior?.[0] !== at) {
+        history.archive.push([at, sample]);
+      } else if (history.archiveMode === "min") {
+        prior[1] = Math.min(prior[1], sample);
+      } else if (history.archiveMode === "max") {
+        prior[1] = Math.max(prior[1], sample);
+      } else {
+        prior[1] = sample;
+      }
+    }
     return history;
   }
 }
