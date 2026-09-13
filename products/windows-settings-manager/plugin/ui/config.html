@@ -67,10 +67,10 @@
           <option value="set">Set exact values below</option>
         </select>
         <div class="grid four">
-          <label>Screen AC <input id="monitorAcSeconds" type="number" min="0" step="60"></label>
-          <label>Screen battery <input id="monitorDcSeconds" type="number" min="0" step="60"></label>
-          <label>Sleep AC <input id="sleepAcSeconds" type="number" min="0" step="60"></label>
-          <label>Sleep battery <input id="sleepDcSeconds" type="number" min="0" step="60"></label>
+          <label>Screen AC <input id="monitorAcSeconds" type="number" min="0" max="4294967295" step="60"></label>
+          <label>Screen battery <input id="monitorDcSeconds" type="number" min="0" max="4294967295" step="60"></label>
+          <label>Sleep AC <input id="sleepAcSeconds" type="number" min="0" max="4294967295" step="60"></label>
+          <label>Sleep battery <input id="sleepDcSeconds" type="number" min="0" max="4294967295" step="60"></label>
         </div>
         <p class="help">Values are seconds. 0 means Never.</p>
       </div>
@@ -121,10 +121,10 @@
 
       <label class="check"><input id="modeTimeoutEnabled" type="checkbox"> Include exact screen and sleep timeouts</label>
       <div class="grid four">
-        <label>Screen AC <input id="modeMonitorAc" type="number" min="0" step="60"></label>
-        <label>Screen battery <input id="modeMonitorDc" type="number" min="0" step="60"></label>
-        <label>Sleep AC <input id="modeSleepAc" type="number" min="0" step="60"></label>
-        <label>Sleep battery <input id="modeSleepDc" type="number" min="0" step="60"></label>
+        <label>Screen AC <input id="modeMonitorAc" type="number" min="0" max="4294967295" step="60"></label>
+        <label>Screen battery <input id="modeMonitorDc" type="number" min="0" max="4294967295" step="60"></label>
+        <label>Sleep AC <input id="modeSleepAc" type="number" min="0" max="4294967295" step="60"></label>
+        <label>Sleep battery <input id="modeSleepDc" type="number" min="0" max="4294967295" step="60"></label>
       </div>
 
       <div class="row">
