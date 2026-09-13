@@ -63,6 +63,18 @@ export async function applyMode(
   }
 
   for (const operation of operations) {
+    const prerequisite = prerequisiteFailure(operation.key, mode.settings, steps);
+    if (prerequisite) {
+      steps.push({
+        key: operation.key,
+        label: operation.label,
+        status: "FAILED",
+        ok: false,
+        error: prerequisite
+      });
+      continue;
+    }
+
     try {
       const reply = await execute(operation.op, operation.args);
       const reported = typeof reply.result?.status === "string" ? reply.result.status : undefined;
@@ -100,6 +112,26 @@ export async function applyMode(
       ? "PARTIAL"
       : "FAILED";
   return { status, modeId: mode.id, modeName: mode.name, steps };
+}
+
+function prerequisiteFailure(
+  key: keyof ModeSettings,
+  settings: ModeSettings,
+  steps: ApplyStep[]
+): string | undefined {
+  if (key === "hdr" && settings.topology) {
+    const display = steps.find((step) => step.key === "topology");
+    if (display && display.status !== "COMPLETE") {
+      return "Skipped HDR because the requested display topology was not confirmed.";
+    }
+  }
+  if (key === "timeout" && settings.powerPlanGuid) {
+    const power = steps.find((step) => step.key === "powerPlanGuid");
+    if (power && power.status !== "COMPLETE") {
+      return "Skipped timeouts because the requested power plan was not confirmed.";
+    }
+  }
+  return undefined;
 }
 
 function buildOperations(settings: ModeSettings) {
