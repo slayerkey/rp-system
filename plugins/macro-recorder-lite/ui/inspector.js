@@ -134,7 +134,19 @@
     $("duplicateMacro").addEventListener("click",()=>command("duplicateMacro",{macroId:$("macroSelect").value}));
     $("deleteMacro").addEventListener("click",()=>{if(confirm("Delete this macro from the local library?"))command("deleteMacro",{macroId:$("macroSelect").value});});
     $("exportMacro").addEventListener("click",()=>command("exportMacro",{macroId:$("macroSelect").value}));
-    $("importFile").addEventListener("change",async()=>{const file=$("importFile").files?.[0];if(!file)return;try{command("importMacro",{data:JSON.parse(await file.text())});}catch{$("errorText").hidden=false;$("errorText").textContent="That file is not valid JSON.";}});
+    $("importFile").addEventListener("change",async()=>{
+      const input=$("importFile"),file=input.files?.[0];
+      if(!file)return;
+      try{
+        if(file.size>5*1024*1024)throw new Error("too-large");
+        command("importMacro",{data:JSON.parse(await file.text())});
+      }catch(error){
+        $("errorText").hidden=false;
+        $("errorText").textContent=error?.message==="too-large"?"That macro file is larger than 5 MB.":"That file is not valid PackRat macro JSON.";
+      }finally{
+        input.value="";
+      }
+    });
     $("playbackSpeed").addEventListener("change",()=>saveSettings({playbackSpeed:Number($("playbackSpeed").value)}));
     $("playbackMode").addEventListener("change",()=>{const value=$("playbackMode").value;$("repeatRow").hidden=value!=="count";saveSettings({playbackMode:value});});
     $("repeatCount").addEventListener("change",()=>saveSettings({repeatCount:Math.max(1,Math.min(100,Number($("repeatCount").value||1)))}));
