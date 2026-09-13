@@ -33,5 +33,10 @@
     "stream_deck": "7.1+"
   },
   "pro_marketplace_url": null,
-  "pro_url_policy": null
+  "pro_url_policy": null,
+  "media": {
+    "marketplace_app_icon": "artifacts/marketplace/macro-recorder-pro/00-app-icon.png",
+    "thumbnail": "artifacts/marketplace/macro-recorder-pro/01-hero.png",
+    "thumbnail_review": "artifacts/marketplace/macro-recorder-pro/hero-thumbnail-review.png"
+  }
 }
