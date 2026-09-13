@@ -193,7 +193,8 @@ export class NetworkMonitor extends EventEmitter {
       this.lastCycleAt = now;
 
       const primary = await this.probe.pingHost(this.settings.primaryIcmpTarget, { timeoutMs: 1600 });
-      const diagnosticDue = !primary.ok || now - this.lastDiagnosticAt >= this.settings.diagnosticSeconds * 1000;
+      const recovering = ["offline", "suspected-offline", "dns-failure", "degraded"].includes(this.connectivity.status);
+      const diagnosticDue = !primary.ok || recovering || now - this.lastDiagnosticAt >= this.settings.diagnosticSeconds * 1000;
       let diagnostic = null;
       if (diagnosticDue) {
         diagnostic = await this.probe.fullConnectivityDiagnostic({
