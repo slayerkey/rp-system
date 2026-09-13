@@ -163,3 +163,14 @@ test("maximum Pro macro export remains below the PI import ceiling",()=>{
  const bytes=Buffer.byteLength(JSON.stringify(exportEnvelope(macro),null,2),"utf8");
  assert.ok(bytes<16*1024*1024,`export was ${bytes} bytes`);
 });
+
+test("infinite-loop timing guard accounts for playback speed",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"keyDown",vk:65,delayMs:40},
+  {type:"keyUp",vk:65,delayMs:60}
+ ]},{pro:true,limits});
+ const fast=playbackSettings({playbackMode:"toggle",playbackSpeed:4},{pro:true});
+ assert.match(playbackSafetyError(macro,fast),/effective playback timing/i);
+ const normal=playbackSettings({playbackMode:"toggle",playbackSpeed:1},{pro:true});
+ assert.equal(playbackSafetyError(macro,normal),"");
+});
