@@ -19,6 +19,7 @@ export class WirelessRuntime {
   private globalLoad: Promise<GlobalSettings> | null = null;
   private globalWrite: Promise<void> = Promise.resolve();
   adapterAvailable = true;
+  hidAvailable = true;
   lastError: string | null = null;
 
   constructor(readonly edition: "lite" | "pro") {}
@@ -59,9 +60,13 @@ export class WirelessRuntime {
   private async refreshOnce(): Promise<void> {
     const result = await snapshot();
     this.adapterAvailable = result.adapterAvailable;
-    this.lastError = result.ok ? null : (result.error ?? "Bluetooth unavailable");
-    if (shouldApplySnapshot(result.ok, result.adapterAvailable)) {
-      this.catalog.ingest(result.devices);
+    this.hidAvailable = result.hidAvailable;
+    this.lastError = result.ok ? null : (result.error ?? "Wireless device scan unavailable");
+    if (shouldApplySnapshot(result.ok, result.adapterAvailable, result.hidAvailable)) {
+      this.catalog.ingest(result.devices, Date.now(), {
+        bluetooth: result.adapterAvailable,
+        hid: result.hidAvailable
+      });
     }
     this.notify();
     await this.sendInspector();
@@ -189,6 +194,7 @@ export class WirelessRuntime {
         type: "wireless-snapshot",
         edition: this.edition,
         adapterAvailable: this.adapterAvailable,
+        hidAvailable: this.hidAvailable,
         error: this.lastError,
         devices: this.devices(),
         liteDeviceId: globals.liteDeviceId ?? null,
