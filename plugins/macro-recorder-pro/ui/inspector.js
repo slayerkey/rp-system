@@ -38,7 +38,7 @@
     $("duplicateMacro").disabled=!hasMacro;
     $("deleteMacro").disabled=!hasMacro;
     $("exportMacro").disabled=!hasMacro;
-    if(state?.libraryWarning){$("errorText").hidden=false;$("errorText").textContent=state.libraryWarning;}
+    if(state?.libraryWarning&&!state?.lastError){$("errorText").hidden=false;$("errorText").textContent=state.libraryWarning;}
   }
 
   function eventLabel(ev){
