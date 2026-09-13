@@ -2,8 +2,28 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { inflateRawSync } from "node:zlib";
 
 import { SAFE_VCP, SUPPORT, classifyProfileResult, matchSavedMonitor, modeSupported, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
+function zipText(data) {
+  const parts=[];
+  let offset=0;
+  while(offset+30<=data.length && data.readUInt32LE(offset)===0x04034b50){
+    const method=data.readUInt16LE(offset+8);
+    const compressedSize=data.readUInt32LE(offset+18);
+    const nameLength=data.readUInt16LE(offset+26);
+    const extraLength=data.readUInt16LE(offset+28);
+    const dataStart=offset+30+nameLength+extraLength;
+    const compressed=data.subarray(dataStart,dataStart+compressedSize);
+    const raw=method===8?inflateRawSync(compressed):method===0?compressed:null;
+    assert.ok(raw, "Unsupported ZIP compression method: "+method);
+    parts.push(raw.toString("utf8"));
+    offset=dataStart+compressedSize;
+  }
+  assert.ok(parts.length>0,"Expected at least one local ZIP entry");
+  return parts.join("\n");
+}
+
 
 test("input switching is capability gated and uses advertised values", () => {
   const caps="(vcp(10 60(0F 11 1B) 62 D6(01 04)))";
@@ -34,7 +54,7 @@ test("Pro bundled profiles are V2 archives with four real control surfaces", asy
   for(const name of ["monitor-manager-pro-standard","monitor-manager-pro-xl","monitor-manager-pro-plus","monitor-manager-pro-virtual"]){
     const data=await readFile(path.join(root,name+".streamDeckProfile"));
     assert.equal(data.readUInt32LE(0),0x04034b50);
-    const text=data.toString("utf8");
+    const text=zipText(data);
     assert.match(text,/"Version": "2\.0"/);
     assert.match(text,/com\.packrat\.monitormanagerpro\.input/);
     assert.match(text,/com\.packrat\.monitormanagerpro\.apply-profile/);
