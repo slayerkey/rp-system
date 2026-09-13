@@ -220,7 +220,7 @@ Test against the exact helper/plugin artifacts produced by the passing build:
 
 ## Updating the gate
 
-Only after all four native blockers are fixed and the required native smoke cases pass:
+Only after every blocker in `docs/MACRO_RECORDER_NATIVE_GATE.json` is truthfully resolved and the required native smoke cases pass:
 
 1. update `docs/MACRO_RECORDER_NATIVE_GATE.json`
 2. set each blocker boolean to `true`
