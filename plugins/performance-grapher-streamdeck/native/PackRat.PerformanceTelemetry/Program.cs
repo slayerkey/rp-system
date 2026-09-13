@@ -80,6 +80,7 @@ internal static class Program
         sensorType = sensor.SensorType.ToString(),
         hardwareType = hardware.HardwareType.ToString(),
         hardwareName = hardware.Name,
+        hardwareId = hardware.Identifier.ToString(),
         unit = sensor.SensorType switch
         {
             SensorType.Voltage => "V",
