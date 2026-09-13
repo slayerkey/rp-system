@@ -278,8 +278,14 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       await render(record);
     }
 
-    onWillDisappear(ev) {
-      visible.delete(String(ev.action?.id || ""));
+    async onWillDisappear(ev) {
+      const id = String(ev.action?.id || "");
+      const record = visible.get(id);
+      if (record?.kind === "replay" && playback?.actionId === id &&
+          (playback.mode === "while-held" || playback.mode === "toggle")) {
+        await stopPlayback();
+      }
+      visible.delete(id);
     }
 
     async onDidReceiveSettings(ev) {
