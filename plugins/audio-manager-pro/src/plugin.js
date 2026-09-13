@@ -132,6 +132,7 @@ async function renderRecord(record) {
     image = renderKey(record.kind, {
       endpoint: endpoint || record.settings.device,
       missing: match.status !== "matched",
+      role: record.settings.role,
     });
   } else if (record.kind === "mute-mic") {
     const endpoint = (latestSnapshot?.inputs || []).find((item) => item.id === latestSnapshot?.defaultInputId);
