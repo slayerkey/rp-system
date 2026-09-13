@@ -343,7 +343,7 @@ internal static class Program
     }
 
     private static string NormalizeAddress(string value) =>
-        new(value.Where(Uri.IsHexDigit).ToArray()).ToUpperInvariant();
+        new string(value.Where(Uri.IsHexDigit).ToArray()).ToUpperInvariant();
 
     private static bool? BoolProp(DeviceInformation info, string key) =>
         info.Properties.TryGetValue(key, out var value) && value is bool b ? b : null;
