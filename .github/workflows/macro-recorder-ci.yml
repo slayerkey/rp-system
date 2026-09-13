@@ -31,8 +31,9 @@ jobs:
       - name: Build shared Windows input host
         shell: pwsh
         run: |
-          dotnet publish shared/windows-input/PackRat.InputHost/PackRat.InputHost.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o artifacts/input-host
+          node shared/windows-input/build-host.mjs --force
           if (!(Test-Path artifacts/input-host/PackRat.InputHost.exe)) { throw 'Input host publish did not produce PackRat.InputHost.exe' }
+          if (!(Test-Path artifacts/input-host/source.sha256)) { throw 'Input host source hash stamp is missing' }
 
       - name: Input host selftest
         shell: pwsh
@@ -104,6 +105,91 @@ jobs:
           }
           if (!(Test-Path plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/helpers/PackRat.InputHost.exe)) { throw "Lite package source is missing PackRat.InputHost.exe." }
           if (!(Test-Path plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/helpers/PackRat.InputHost.exe)) { throw "Pro package source is missing PackRat.InputHost.exe." }
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          foreach ($package in @($lite[0],$pro[0])) {
+            $archive = [System.IO.Compression.ZipFile]::OpenRead($package.FullName)
+            try {
+              $entryNames = @($archive.Entries | ForEach-Object { $_.FullName.Replace('\','/') })
+              foreach ($suffix in @("/manifest.json","/bin/plugin.js","/helpers/PackRat.InputHost.exe","/ui/inspector.html","/THIRD_PARTY_NOTICES.txt","/DOTNET_LICENSE.txt","/DOTNET_THIRD_PARTY_NOTICES.txt")) {
+                if (-not ($entryNames | Where-Object { $_.EndsWith($suffix) })) { throw "$($package.Name) exact package is missing $suffix" }
+              }
+              if (@($entryNames | Where-Object { $_ -match '/profiles/.*\.streamDeckProfile
+            foreach ($notice in @("THIRD_PARTY_NOTICES.txt","DOTNET_LICENSE.txt","DOTNET_THIRD_PARTY_NOTICES.txt")) {
+              $noticePath = "plugins/$slug/com.packrat.$slug.sdPlugin/$notice"
+              if (!(Test-Path $noticePath)) { throw "$slug package source is missing $notice." }
+              if ((Get-Item $noticePath).Length -le 0) { throw "$slug notice is empty: $notice." }
+            }
+          }
+          Get-FileHash $lite[0].FullName -Algorithm SHA256
+          Get-FileHash $pro[0].FullName -Algorithm SHA256
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: macro-recorder-family-release-qa
+          path: |
+            plugins/macro-recorder-lite/dist/*.streamDeckPlugin
+            plugins/macro-recorder-pro/dist/*.streamDeckPlugin
+            plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/profiles/*
+            plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/profiles/*
+            plugins/macro-recorder-lite/submission.json
+            plugins/macro-recorder-pro/submission.json
+            products/macro-recorder-lite.json
+            products/macro-recorder-pro.json
+            products/lite-pro-map.json
+            docs/MACRO_RECORDER_QA.md
+            docs/MACRO_RECORDER_MARKET_RESEARCH_2026-09-12.md
+            docs/MACRO_RECORDER_NATIVE_GATE.json
+            docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md
+            docs/MACRO_RECORDER_NATIVE_FIX_HANDOFF.md
+            docs/MACRO_RECORDER_MAKER_CONSOLE.md
+            artifacts/marketplace/macro-recorder-lite/*
+            artifacts/marketplace/macro-recorder-pro/*
+            artifacts/profile-maps/*
+          if-no-files-found: error
+          retention-days: 30
+ }).Count -ne 4) { throw "$($package.Name) exact package must contain four profiles." }
+              if ($entryNames | Where-Object { $_ -match '\.profile-map\.json
+            foreach ($notice in @("THIRD_PARTY_NOTICES.txt","DOTNET_LICENSE.txt","DOTNET_THIRD_PARTY_NOTICES.txt")) {
+              $noticePath = "plugins/$slug/com.packrat.$slug.sdPlugin/$notice"
+              if (!(Test-Path $noticePath)) { throw "$slug package source is missing $notice." }
+              if ((Get-Item $noticePath).Length -le 0) { throw "$slug notice is empty: $notice." }
+            }
+          }
+          Get-FileHash $lite[0].FullName -Algorithm SHA256
+          Get-FileHash $pro[0].FullName -Algorithm SHA256
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: macro-recorder-family-release-qa
+          path: |
+            plugins/macro-recorder-lite/dist/*.streamDeckPlugin
+            plugins/macro-recorder-pro/dist/*.streamDeckPlugin
+            plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/profiles/*
+            plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/profiles/*
+            plugins/macro-recorder-lite/submission.json
+            plugins/macro-recorder-pro/submission.json
+            products/macro-recorder-lite.json
+            products/macro-recorder-pro.json
+            products/lite-pro-map.json
+            docs/MACRO_RECORDER_QA.md
+            docs/MACRO_RECORDER_MARKET_RESEARCH_2026-09-12.md
+            docs/MACRO_RECORDER_NATIVE_GATE.json
+            docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md
+            docs/MACRO_RECORDER_NATIVE_FIX_HANDOFF.md
+            docs/MACRO_RECORDER_MAKER_CONSOLE.md
+            artifacts/marketplace/macro-recorder-lite/*
+            artifacts/marketplace/macro-recorder-pro/*
+            artifacts/profile-maps/*
+          if-no-files-found: error
+          retention-days: 30
+ }) { throw "$($package.Name) exact package contains internal profile QA maps." }
+            }
+            finally { $archive.Dispose() }
+          }
+
           foreach ($slug in @("macro-recorder-lite","macro-recorder-pro")) {
             foreach ($notice in @("THIRD_PARTY_NOTICES.txt","DOTNET_LICENSE.txt","DOTNET_THIRD_PARTY_NOTICES.txt")) {
               $noticePath = "plugins/$slug/com.packrat.$slug.sdPlugin/$notice"
