@@ -792,6 +792,249 @@ async function openExisting(target) {
   return true;
 }
 
+async function setAutoPublishPreference(target) {
+  const desired = prod.marketplace_auto_publish !== false;
+  const checkbox = target.getByRole('checkbox',{name:/automatically publish/i})
+    .or(target.getByRole('switch',{name:/automatically publish/i})).first();
+  await checkbox.waitFor({state:'visible',timeout:10000});
+
+  const isOn = async() => await checkbox.isChecked().catch(async() => await checkbox.getAttribute('aria-checked') === 'true');
+  if ((await isOn()) !== desired) await checkbox.click();
+  const actual = await isOn();
+  if (actual !== desired) {
+    throw new Error('auto publish preference did not persist as ' + (desired ? 'enabled' : 'disabled'));
+  }
+
+  state.autoPublishProof = {desired,actual};
+  save();
+  return desired;
+}
+
+async function visibleExactProductMatches(target) {
+  const matches = target.getByText(prod.name,{exact:true});
+  const visibleMatches = [];
+  for (let i=0;i<await matches.count();i++) {
+    const node = matches.nth(i);
+    if (await node.isVisible().catch(() => false)) visibleMatches.push(node);
+  }
+  return visibleMatches;
+}
+
+async function openPublishedProductForUpdate(target) {
+  await target.goto('https://maker.elgato.com/products',{waitUntil:'domcontentloaded',timeout:45000});
+  await target.waitForTimeout(2500);
+
+  const matches = await visibleExactProductMatches(target);
+  if (!matches.length) {
+    stopRetrying('Existing published product ' + prod.name + ' was not found in Maker Console. Rat Ship will not create a duplicate update SKU.');
+  }
+
+  let chosen = null;
+  let identityMethod = 'unique-name';
+  const expectedId = String(prod.marketplace_product_id || '').trim().toLowerCase();
+
+  if (expectedId) {
+    const idMatches = [];
+    for (const node of matches) {
+      const proof = await node.evaluate((el,id) => {
+        let cur = el;
+        for (let depth=0;cur && depth<8;depth++,cur=cur.parentElement) {
+          const links = [];
+          if (cur.matches && cur.matches('a[href]')) links.push(cur.getAttribute('href') || '');
+          if (cur.querySelectorAll) {
+            for (const a of cur.querySelectorAll('a[href]')) links.push(a.getAttribute('href') || '');
+          }
+          const text = String(cur.innerText || '');
+          if (links.some(href => String(href).toLowerCase().includes(id)) || text.toLowerCase().includes(id)) {
+            return {matched:true,depth,links,text:text.slice(0,1200)};
+          }
+        }
+        return {matched:false};
+      }, expectedId).catch(() => ({matched:false}));
+      if (proof.matched) idMatches.push({node,proof});
+    }
+
+    if (idMatches.length === 1) {
+      chosen = idMatches[0].node;
+      identityMethod = 'marketplace-id';
+      writeFileSync(join(LOG,'existing-product-id-proof.json'),JSON.stringify(idMatches[0].proof,null,2));
+    } else if (idMatches.length > 1) {
+      stopRetrying('More than one Maker Console row exposes Marketplace product ID ' + expectedId + '. Rat Ship will not guess which listing to update.');
+    }
+  }
+
+  if (!chosen) {
+    if (matches.length !== 1) {
+      stopRetrying('More than one visible Maker Console product matches ' + prod.name + ' and the configured Marketplace product ID was not exposed uniquely. Rat Ship will not guess which listing to update.');
+    }
+    chosen = matches[0];
+  }
+
+  state.existingProductProof = {
+    name:prod.name,
+    marketplaceProductId:expectedId || null,
+    matchCount:matches.length,
+    identityMethod
+  };
+  save();
+
+  await chosen.click();
+  await target.waitForTimeout(2500);
+  target = await livePage();
+
+  const pageText = ((await target.locator('body').innerText().catch(() => '')) || '').replace(/\s+/g,' ');
+  if (!pageText.toLowerCase().includes(String(prod.name).toLowerCase())) {
+    stopRetrying('Maker Console opened a product page that does not identify itself as ' + prod.name + '.');
+  }
+
+  await snap(target,'existing-product-update-target');
+  return target;
+}
+
+async function openVersionsTab(target) {
+  const versions = target.getByRole('tab',{name:/^versions$/i})
+    .or(target.getByRole('link',{name:/^versions$/i}))
+    .or(target.getByRole('button',{name:/^versions$/i}))
+    .or(target.getByText(/^versions$/i,{exact:true})).first();
+  await versions.waitFor({state:'visible',timeout:15000});
+  await versions.click();
+  await target.waitForTimeout(1800);
+  target = await livePage();
+
+  const expectedExisting = String(prod.marketplace_existing_version || '').trim();
+  if (expectedExisting) {
+    const body = (await target.locator('body').innerText().catch(() => '')) || '';
+    if (!body.includes(expectedExisting)) {
+      await snap(target,'existing-version-not-found');
+      stopRetrying('Versions tab does not show expected existing version ' + expectedExisting + ' for ' + prod.name + '. Refusing to create a version on an unverified listing.');
+    }
+  }
+  return target;
+}
+
+async function versionPackageInput(target) {
+  const inputs = target.locator('input[type="file"]');
+  const count = await inputs.count();
+  const candidates = [];
+
+  for (let i=0;i<count;i++) {
+    const input = inputs.nth(i);
+    const accept = String(await input.getAttribute('accept').catch(() => '') || '').toLowerCase();
+    const contextText = String(await input.evaluate(el => {
+      const parent = el.closest('form,section,div') || el.parentElement;
+      return parent ? parent.innerText || '' : '';
+    }).catch(() => '') || '').toLowerCase();
+    const haystack = accept + ' ' + contextText;
+    const packageHint = prod.type === 'plugin'
+      ? /streamdeckplugin|stream deck plugin|plugin file/
+      : /icuewidget|widget file/;
+    if (packageHint.test(haystack)) candidates.push(input);
+  }
+
+  if (candidates.length === 1) return candidates[0];
+  if (!candidates.length && count === 1) return inputs.first();
+
+  const proof = [];
+  for (let i=0;i<count;i++) {
+    const input = inputs.nth(i);
+    proof.push({
+      index:i,
+      accept:await input.getAttribute('accept').catch(() => null),
+      id:await input.getAttribute('id').catch(() => null),
+      name:await input.getAttribute('name').catch(() => null)
+    });
+  }
+  writeFileSync(join(LOG,'version-file-inputs.json'),JSON.stringify(proof,null,2));
+  throw new Error('Create version dialog did not expose exactly one recognizable product-file input.');
+}
+
+async function runExistingProductVersionUpdate(target) {
+  if (!prod.marketplace_product_id) {
+    throw new Error('Existing-product update requires submission.marketplace_product_id.');
+  }
+  if (!prod.marketplace_existing_version) {
+    throw new Error('Existing-product update requires submission.marketplace_existing_version.');
+  }
+
+  target = await openPublishedProductForUpdate(target);
+  target = await openVersionsTab(target);
+
+  const createVersion = target.getByRole('button',{name:/^create version$/i})
+    .or(target.getByRole('link',{name:/^create version$/i})).first();
+  await createVersion.waitFor({state:'visible',timeout:15000});
+  await createVersion.click();
+  await target.waitForTimeout(1200);
+  target = await livePage();
+
+  await step('update-file','Upload new product version',async() => {
+    const input = await versionPackageInput(target);
+    await input.setInputFiles(join(KIT,packages[0]),{timeout:60000});
+    await target.waitForTimeout(1800);
+
+    const body = (await target.locator('body').innerText().catch(() => '')) || '';
+    if (!body.includes(prod.version)) {
+      if (await clickIfVisible(target,/^(next|continue)$/i)) {
+        target = await livePage();
+        await target.waitForTimeout(1200);
+      }
+    }
+  });
+
+  await step('update-notes','Set release notes',async() => {
+    target = await livePage();
+    const body = (await target.locator('body').innerText().catch(() => '')) || '';
+    if (!body.includes(prod.version)) {
+      await snap(target,'update-version-missing');
+      throw new Error('Create version flow does not show candidate version ' + prod.version + ' after package upload.');
+    }
+
+    const notes = target.getByLabel(/release notes|what.s new/i)
+      .or(target.getByRole('textbox',{name:/release|notes/i}))
+      .or(target.locator('[contenteditable="true"]')).first();
+    await notes.waitFor({state:'visible',timeout:10000});
+
+    const normalizedNotes = normalizeReleaseNotes(readFileSync(join(KIT,'PASTE_release_notes.txt'),'utf8'));
+    writeFileSync(join(LOG,'release-notes-normalized.txt'),normalizedNotes + '\n','utf8');
+    await proseMirror(target,notes,normalizedNotes);
+  });
+
+  await step('update-autopublish','Set version auto publish preference',async() => {
+    target = await livePage();
+    await setAutoPublishPreference(target);
+  });
+
+  target = await livePage();
+  const finalAction = target.getByRole('button',{name:/^(submit|submit for review|create version)$/i}).last();
+  await finalAction.waitFor({state:'visible',timeout:15000});
+  await snap(target,'existing-version-final');
+
+  state.versionUpdateProof = {
+    marketplaceProductId:String(prod.marketplace_product_id),
+    priorVersion:String(prod.marketplace_existing_version),
+    candidateVersion:String(prod.version),
+    autoPublish:prod.marketplace_auto_publish !== false,
+    finalAction:((await finalAction.textContent()) || '').trim()
+  };
+  save();
+
+  if (!SUBMIT) {
+    console.log('STAGED VERSION UPDATE: ' + prod.name + ' ' + prod.version + '. Nothing submitted.');
+    return 0;
+  }
+
+  await finalAction.click();
+  await target.waitForTimeout(6000);
+  target = await livePage();
+  await snap(target,'existing-version-after-submit');
+
+  const after = (await target.locator('body').innerText().catch(() => '')) || '';
+  if (!after.includes(prod.version)) {
+    throw new Error('Maker Console did not show submitted candidate version ' + prod.version + ' after version submission.');
+  }
+  console.log('SUBMITTED VERSION UPDATE: ' + prod.name + ' ' + prod.version + ' | ' + target.url());
+  return 0;
+}
+
 async function run() {
   const profileDir = profileArg ? resolve(profileArg) : join(ROOT,'.playwright-profile');
   context = await chromium.launchPersistentContext(profileDir,{headless:false,viewport:{width:1500,height:950}});
@@ -815,6 +1058,10 @@ async function run() {
     console.log('Maker Console authentication is local. Sign in in the opened browser; this run will continue automatically when the session is ready.');
     auth = await waitSignedIn(page, 15 * 60_000);
     if (!auth) throw new Error('Maker Console login was not completed within 15 minutes');
+  }
+
+  if (prod.marketplace_existing_product_update === true) {
+    return await runExistingProductVersionUpdate(page);
   }
 
   const editing = await openExisting(page);
@@ -895,12 +1142,8 @@ async function run() {
     await proseMirror(page,notes,normalizedNotes);
   });
 
-  await step('8-autopublish','Enable auto publish',async() => {
-    const checkbox = page.getByRole('checkbox',{name:/automatically publish/i}).or(page.getByRole('switch',{name:/automatically publish/i})).first();
-    await checkbox.waitFor({state:'visible',timeout:10000});
-    const isOn = async() => await checkbox.isChecked().catch(async() => await checkbox.getAttribute('aria-checked') === 'true');
-    if (!await isOn()) await checkbox.click();
-    if (!await isOn()) throw new Error('auto publish did not enable');
+  await step('8-autopublish','Set auto publish preference',async() => {
+    await setAutoPublishPreference(page);
   });
 
   page = await livePage();
@@ -939,9 +1182,10 @@ async function run() {
     if (!state.detailsSelections.includes(key)) throw new Error(`details step does not prove recommended orientation ${prod.marketplace_recommended_orientation}`);
   }
 
+  const expectedAutoPublish = prod.marketplace_auto_publish !== false;
   const checkbox = page.getByRole('checkbox',{name:/automatically publish/i}).or(page.getByRole('switch',{name:/automatically publish/i})).first();
   const autoPublish = await checkbox.isChecked().catch(async() => await checkbox.getAttribute('aria-checked') === 'true');
-  if (!autoPublish) throw new Error('auto publish is off, refusing submit');
+  if (autoPublish !== expectedAutoPublish) throw new Error('auto publish preference mismatch, refusing submit');
 
   const submit = page.getByRole('button',{name:/^submit$/i}).first();
   await submit.waitFor({state:'visible',timeout:15000});
