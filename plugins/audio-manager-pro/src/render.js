@@ -12,8 +12,8 @@ function esc(value) {
 }
 
 function truncate(value, max = 18) {
-  const text = String(value || "");
-  return text.length <= max ? text : `${text.slice(0, Math.max(1, max - 1))}…`;
+  const chars = Array.from(String(value || ""));
+  return chars.length <= max ? chars.join("") : `${chars.slice(0, Math.max(1, max - 1)).join("")}…`;
 }
 
 function svgDataUri(body) {
@@ -45,14 +45,17 @@ function profileBody(profile, status = "", active = false) {
   return `${text(72, 58, name, 16)}${text(72, 87, badge, 11, color, 800, 1.1)}<path d="M47 109h50" stroke="${color}" stroke-width="6" stroke-linecap="round"/><circle cx="72" cy="109" r="8" fill="${color}"/>`;
 }
 
-export function renderKey(kind, { profile = null, endpoint = null, active = false, status = "", muted = false, missing = false } = {}) {
+export function renderKey(kind, { profile = null, endpoint = null, active = false, status = "", muted = false, missing = false, role = "default" } = {}) {
   if (["apply", "cycle", "status"].includes(kind)) {
     const frameColor = status ? resultColor(status) : (profile?.accent || (active ? ACCENT : MUTED));
     return svgDataUri(frame(profileBody(profile, status, active), frameColor));
   }
 
   if (kind === "set-output" || kind === "set-input") {
-    const label = kind === "set-output" ? "OUTPUT" : "INPUT";
+    const isCommunications = role === "communications";
+    const label = kind === "set-output"
+      ? (isCommunications ? "COMM OUT" : "DEFAULT OUT")
+      : (isCommunications ? "COMM IN" : "DEFAULT IN");
     const name = missing ? "REBIND" : truncate(endpoint?.name || "SELECT DEVICE", 15);
     const color = missing ? WARN : ACCENT;
     const glyph = kind === "set-output"
