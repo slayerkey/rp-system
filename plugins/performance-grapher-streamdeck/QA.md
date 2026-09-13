@@ -334,3 +334,31 @@ The profiles are bundled convenience layouts, not separate Marketplace products 
 Performance Grapher for Stream Deck is a standalone paid plugin. It has **no Lite edition**, so it must not be added to `products/lite-pro-map.json` and no fake Lite → Pro upgrade link should be invented.
 
 The published XENEON `Performance Grapher` is an adjacent product for a different platform. It may be described as part of the PackRat ecosystem, but it is **not** treated as the Stream Deck plugin's edition upsell without a verified Marketplace cross-sell mechanism and direct product relationship.
+
+
+## Final latest-head hardening smoke — 2026-09-13
+
+After the final `main` sync and the bundled-profile/catalog audit, a separate exact-source continuation harness covered the code added after the earlier 43/43 core checkpoint.
+
+Result: **15 / 15 PASS**
+
+Current recursive syntax inventory: **29 / 29 JavaScript files PASS**
+
+Latest-head checks:
+
+- 15-minute FPS history uses archive data when the raw ~100 ms history no longer covers the requested window
+- 15-minute frametime history preserves older one-frame spikes
+- FPS drops and frametime spikes survive persistence snapshots, restart, and raw-history eviction
+- history serialization does not mutate the live pending archive bucket
+- duplicate archive timestamps merge by min/max semantics instead of last-write-wins
+- restored frame histogram totals are derived from validated sparse bins
+- generic Game FPS graphs preserve lows; generic frametime graphs preserve spikes
+- Performance Alert graph downsampling continues to follow the selected above/below threshold direction
+- canonical GPU aliases clear immediately when hardware disappears
+- dual-GPU canonical metrics follow the active adapter with anti-flap hysteresis
+- watched non-canonical history buffers are pruned with the 32-entry watch LRU
+- legacy state files cannot restore arbitrary extra history buffers outside canonical + retained watched metrics
+- system wake resets the Windows CPU delta baseline before the next utilization interval and restarts providers
+- long process/secondary labels remain bounded on key images
+
+The bundled profile generator and archive contract tests parse successfully but still require a real Node runtime to execute because the isolated source harness does not expose Node `Buffer`, crypto, zlib, or filesystem APIs.
