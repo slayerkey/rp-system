@@ -30,10 +30,11 @@ test("Pro manifest keeps the intended platform, profile and loop safety contract
   assert.equal(manifest.Nodejs?.Version,"24");
   assert.equal(manifest.Software?.MinimumVersion,"7.1");
   assert.deepEqual(manifest.OS,[{Platform:"windows",MinimumVersion:"10"}]);
-  assert.equal(manifest.Profiles?.length,4);
-  assert.deepEqual(manifest.Profiles.map(profile=>profile.DeviceType),[0,2,7,9]);
+  assert.equal(manifest.Profiles?.length,5);
+  assert.deepEqual(manifest.Profiles.map(profile=>profile.DeviceType),[0,1,2,7,9]);
   assert.deepEqual(manifest.Profiles.map(profile=>profile.Name),[
     "profiles/macro-recorder-pro-starter-mk2",
+    "profiles/macro-recorder-pro-starter-mini",
     "profiles/macro-recorder-pro-starter-xl",
     "profiles/macro-recorder-pro-starter-plus",
     "profiles/macro-recorder-pro-starter-neo"
