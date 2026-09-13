@@ -26,7 +26,7 @@ async function sendInspectorData(): Promise<void> {
         description: m.description,
         currentMode: m.currentMode,
         modes: m.modes,
-        capabilities: runtime.capabilitySummary(m)
+        capabilities: runtime.capabilitySummary(m, snapshot)
       })),
       configuredMonitorKey: runtime.getConfiguredMonitorKey(),
       proMarketplaceUrl: verifiedProMarketplaceUrl()
