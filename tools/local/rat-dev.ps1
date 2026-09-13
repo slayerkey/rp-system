@@ -303,6 +303,7 @@ function Build-And-TestPlugin {
     $packagePath = Join-Path $PluginRoot "package.json"
     if (Test-Path $packagePath) {
         $package = Get-Content $packagePath -Raw | ConvertFrom-Json
+        Assert-RatDevBuildPrerequisites -PluginRoot $PluginRoot -Slug $Slug
         $nodeModules = Join-Path $PluginRoot "node_modules"
         $lockPath = Join-Path $PluginRoot "package-lock.json"
         Push-Location $PluginRoot
