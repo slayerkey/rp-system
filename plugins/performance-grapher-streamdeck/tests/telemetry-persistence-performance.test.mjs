@@ -483,3 +483,31 @@ test("system wake resets the Windows CPU delta baseline", () => {
   assert.ok(telemetry.previousCpu);
   assert.notDeepEqual(telemetry.previousCpu, { idle: 1, total: 2 });
 });
+
+
+test("canonical GPU aliases invalidate immediately when hardware disappears", () => {
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "canonical-removal"),
+    persistPath: resolve(tmpdir(), "packrat-canonical-removal.json"),
+    presentMonProvider: fakeProvider(),
+  });
+
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "catalog",
+    sensors: [
+      { id: "gpu.load.raw", name: "GPU Core", sensorType: "Load", hardwareType: "GpuNvidia", hardwareName: "RTX", hardwareId: "/gpu/0", unit: "%" },
+      { id: "gpu.temp.raw", name: "GPU Core", sensorType: "Temperature", hardwareType: "GpuNvidia", hardwareName: "RTX", hardwareId: "/gpu/0", unit: "°C" },
+    ],
+  }));
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "sample",
+    at: Date.now(),
+    values: { "gpu.load.raw": 90, "gpu.temp.raw": 72 },
+  }));
+  assert.equal(telemetry.metricValue("gpu.load"), 90);
+  assert.equal(telemetry.metricValue("gpu.temperature"), 72);
+
+  telemetry._consumeHardwareLine(JSON.stringify({ type: "catalog", sensors: [] }));
+  assert.equal(telemetry.metricValue("gpu.load"), null);
+  assert.equal(telemetry.metricValue("gpu.temperature"), null);
+});
