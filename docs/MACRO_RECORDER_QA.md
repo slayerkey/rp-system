@@ -43,7 +43,7 @@ The release workflow must pass on Windows:
 
 ## Native release blockers
 
-The complete native input safety and timing blocker list is maintained in `docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md`. These blockers must be resolved before either edition is READY_TO_SHIP.
+The complete native input safety and timing blocker list is maintained in `docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md`. Machine-readable release state lives in `docs/MACRO_RECORDER_NATIVE_GATE.json`, and the local implementation handoff is `docs/MACRO_RECORDER_NATIVE_FIX_HANDOFF.md`. These blockers must be resolved before either edition is READY_TO_SHIP.
 
 ## Native timing blocker
 
@@ -71,3 +71,14 @@ powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family
 ```
 
 The product remains TESTING until either that local automated gate or the canonical hosted workflow completes successfully, followed by the real Windows / physical Stream Deck smoke matrix.
+
+
+## Final release-candidate command
+
+After the native gate is truthfully marked ready and the native smoke matrix has passed:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1 -ReleaseCandidate
+```
+
+This mode refuses release-candidate status while any native gate remains false.
