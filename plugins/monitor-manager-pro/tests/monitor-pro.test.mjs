@@ -166,10 +166,20 @@ test("orientation swaps dimensions and is preflighted against enumerated Windows
   assert.match(source,/if\(!modeSupported\(monitor\.modes,request\)\) throw new Error\("Requested orientation is not available/);
 });
 
-test("saved-profile picker writes profileName into action settings", async () => {
+test("saved-profile datalist writes profileName through the profile input", async () => {
+  const html=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/config.html","utf8");
   const pi=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.js","utf8");
-  assert.match(pi,/getElementById\("profiles"\).*addEventListener\("change"/s);
-  assert.match(pi,/settings=\{\.\.\.settings,profileName:name\}/);
+  assert.match(html,/id="profileName" list="profiles"/);
+  assert.match(html,/<datalist id="profiles">/);
+  assert.match(pi,/getElementById\("profileName"\).*addEventListener\("change"/s);
+  assert.match(pi,/profileName:e\.target\.value\.trim\(\)/);
+});
+
+test("new Pro actions persist the first discovered stable monitor key", async () => {
+  const pi=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.js","utf8");
+  assert.match(pi,/if\(!settings\.monitorKey&&monitorRows\[0\]\)/);
+  assert.match(pi,/settings=\{\.\.\.settings,monitorKey:monitorRows\[0\]\.monitorKey\}/);
+  assert.match(pi,/save\(\)/);
 });
 
 test("true HDR uses Windows 11 24H2 dedicated packets and fails closed without them", async () => {
