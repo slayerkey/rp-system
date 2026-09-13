@@ -94,9 +94,14 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   ]) assert.match(backend, new RegExp(required));
 
   assert.doesNotMatch(backend, /Environment\.OSVersion\.Version\.Build/);
-  assert.match(backend, /bool got = TryReadNewHdr/);
-  assert.match(backend, /got = TryReadLegacyHdr/);
+  assert.match(backend, /RtlGetVersion/);
+  assert.match(backend, /RuntimeWindowsBuild >= 26100/);
+  assert.match(backend, /SupportsSeparatedHdrApi/);
+  assert.match(backend, /AssertSize\(typeof\(AdvancedColorInfo\), 32/);
+  assert.match(backend, /AssertSize\(typeof\(AdvancedColorInfo2\), 36/);
+  assert.match(backend, /AssertSize\(typeof\(HdrSet\), 24/);
   assert.match(backend, /enabled = info\.activeColorMode == 2;/);
+  assert.match(backend, /supported = enabled \|\| \(hdrSupported && !limitedByPolicy\);/);
   assert.doesNotMatch(backend, /activeColorMode == 2 \|\|/);
   assert.match(backend, /wideColorEnforced/);
   assert.match(backend, /advancedColorForceDisabled/);
