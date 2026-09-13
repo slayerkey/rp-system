@@ -30,13 +30,13 @@ jobs:
         with:
           path: rp-system
 
-      - name: Verify private-source token exists
+      - name: Verify private-source deploy key exists
         shell: powershell
         env:
-          VCS_READ_TOKEN: ${{ secrets.VCS_READ_TOKEN }}
+          VCS_DEPLOY_KEY: ${{ secrets.VCS_DEPLOY_KEY }}
         run: |
-          if ([string]::IsNullOrWhiteSpace($env:VCS_READ_TOKEN)) {
-            throw 'Missing repository secret VCS_READ_TOKEN. Add a fine-grained GitHub token with Contents: Read access to slayerkey/vcs.'
+          if ([string]::IsNullOrWhiteSpace($env:VCS_DEPLOY_KEY)) {
+            throw 'Missing repository secret VCS_DEPLOY_KEY. Add the read-only SSH deploy private key for slayerkey/vcs.'
           }
 
       - name: Checkout exact private Window Manager Pro candidate
@@ -44,7 +44,7 @@ jobs:
         with:
           repository: ${{ env.VCS_REPOSITORY }}
           ref: ${{ env.VCS_REF }}
-          token: ${{ secrets.VCS_READ_TOKEN }}
+          ssh-key: ${{ secrets.VCS_DEPLOY_KEY }}
           path: vcs
           persist-credentials: false
 
@@ -172,20 +172,20 @@ jobs:
         with:
           path: rp-system
 
-      - name: Verify private-source token exists
+      - name: Verify private-source deploy key exists
         shell: bash
         env:
-          VCS_READ_TOKEN: ${{ secrets.VCS_READ_TOKEN }}
+          VCS_DEPLOY_KEY: ${{ secrets.VCS_DEPLOY_KEY }}
         run: |
           set -euo pipefail
-          test -n "$VCS_READ_TOKEN" || { echo 'Missing repository secret VCS_READ_TOKEN.' >&2; exit 1; }
+          test -n "$VCS_DEPLOY_KEY" || { echo 'Missing repository secret VCS_DEPLOY_KEY.' >&2; exit 1; }
 
       - name: Checkout exact private Window Manager Pro candidate
         uses: actions/checkout@v4
         with:
           repository: ${{ env.VCS_REPOSITORY }}
           ref: ${{ env.VCS_REF }}
-          token: ${{ secrets.VCS_READ_TOKEN }}
+          ssh-key: ${{ secrets.VCS_DEPLOY_KEY }}
           path: vcs
           persist-credentials: false
 
