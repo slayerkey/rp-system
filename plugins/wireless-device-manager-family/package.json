@@ -15,7 +15,9 @@
     "validate": "npm run validate:lite && npm run validate:pro",
     "pack:lite": "streamdeck pack com.packrat.wireless-device-manager.sdPlugin --no-update-check --force --output dist/lite",
     "pack:pro": "streamdeck pack com.packrat.wireless-device-manager-pro.sdPlugin --no-update-check --force --output dist/pro",
-    "pack": "npm run pack:lite && npm run pack:pro"
+    "pack": "npm run pack:lite && npm run pack:pro",
+    "host:audit": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-audit.ps1",
+    "host:audit:static": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-audit.ps1 -StaticOnly"
   },
   "dependencies": {
     "@elgato/streamdeck": "^2.1.0"
