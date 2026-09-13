@@ -142,3 +142,38 @@ test("Macro Library rolls back memory when a save fails", async () => {
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("Macro Library refuses deleting the final playable event", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    const library=await new MacroLibrary(file).load();
+    const added=await library.add({name:"Keep Me",events:[
+      {type:"keyDown",vk:65,delayMs:1}
+    ]});
+    await assert.rejects(
+      ()=>library.update(added.id,{events:[]}),
+      /at least one playable event/i
+    );
+    assert.equal(library.get(added.id).events.length,1);
+    const reloaded=await new MacroLibrary(file).load();
+    assert.equal(reloaded.get(added.id).events.length,1);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
+
+test("Macro Library refuses adding an empty macro", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    const library=await new MacroLibrary(file).load();
+    await assert.rejects(
+      ()=>library.add({name:"Empty",events:[]}),
+      /at least one playable event/i
+    );
+    assert.equal(library.list().length,0);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
