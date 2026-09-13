@@ -44,6 +44,14 @@ test("Pro owns the PC Mode layer without inventing optimization actions", async 
   assert.ok(!JSON.stringify(value).match(/registry|cloudstore|sendkeys|quick settings/i));
 });
 
+test("generated profile names and Marketplace copy avoid long dashes", async () => {
+  const assemble = await readFile(path.resolve("scripts", "assemble.mjs"), "utf8");
+  const art = await readFile(path.resolve("scripts", "rat-art.py"), "utf8");
+  assert.doesNotMatch(assemble, /—|–/);
+  assert.doesNotMatch(art, /—|–/);
+  assert.doesNotMatch(art, /STANDARD \+ XL \+ \+ XL/);
+});
+
 test("all seven current bundled profile device families are generated", async () => {
   for (const flavor of ["lite", "pro"]) {
     const value = await manifest(flavor);
