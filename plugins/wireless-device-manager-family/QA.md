@@ -8,7 +8,7 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 
 ## Hardware-free evidence completed
 
-- [x] 48 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
+- [x] 49 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
 - [x] capability flags are per device rather than global
 - [x] A2DP/HFP control eligibility is derived from Windows AssociationEndpointService contracts rather than broad Audio/Video device-class inference
 - [x] group names are canonicalized case-insensitively so `gaming` and `GAMING` feed the same dashboard
@@ -150,3 +150,19 @@ This cannot be honestly replaced by fixtures because generic CI runners do not p
     - confirm no fake dial/Encoder action appears
 
 Record the exact hardware models and the capability matrix Windows exposes for each one. Any capability that fails the reliability rule must be narrowed or removed before Marketplace submission.
+
+
+## Lite / Pro publication order
+
+PackRat's canonical Lite/Pro policy requires a verified direct public Pro Marketplace URL before the Lite upsell may ship.
+
+1. Complete the Windows automated gate and physical Bluetooth matrix for both editions.
+2. Move **Wireless Device Manager Pro** to `READY_TO_SHIP` first and submit/publish Pro.
+3. Record the verified Pro Marketplace product ID and direct public URL in `products/lite-pro-map.json`.
+4. Rebuild Lite. `scripts/render-assets.py` must inject that exact canonical URL into Lite's generated `ui/upsell-config.js`; malformed or placeholder destinations fail closed.
+5. Verify the packaged Lite Property Inspector opens the exact Pro product page.
+6. Submit/publish Lite only after the verified Pro destination is present.
+7. Record Lite's final public Marketplace product ID/URL in `products/lite-pro-map.json`.
+8. Run `python tools/lite_pro_audit.py --shipping wireless-device-manager` once both public URLs exist. The strict portfolio gate also requires Pro status `published`.
+
+Do not hardcode a search URL, creator page, generic Marketplace route, guessed UUID, or placeholder destination into the Lite package.
