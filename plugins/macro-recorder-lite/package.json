@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-assets.mjs && node scripts/build-profiles.mjs && rollup -c",
+    "build": "npm run build:input-host && node scripts/build-assets.mjs && node scripts/build-profiles.mjs && rollup -c",
     "test": "node --test tests/*.test.mjs",
     "check": "npm run test && npm run build",
     "validate": "streamdeck validate com.packrat.macro-recorder-lite.sdPlugin --no-update-check",
-    "pack": "streamdeck pack com.packrat.macro-recorder-lite.sdPlugin --no-update-check --force --output dist"
+    "pack": "streamdeck pack com.packrat.macro-recorder-lite.sdPlugin --no-update-check --force --output dist",
+    "build:input-host": "node ../../shared/windows-input/build-host.mjs"
   },
   "dependencies": {
     "@elgato/streamdeck": "2.1.2"
