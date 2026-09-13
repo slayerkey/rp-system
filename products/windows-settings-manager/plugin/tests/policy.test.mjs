@@ -189,6 +189,14 @@ test("HDR mode matching requires a genuinely controllable HDR display", async ()
   assert.match(inspector, /option\.disabled = !hdrUsable/);
 });
 
+test("PowerShell backend does not shadow the automatic args variable", async () => {
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  assert.doesNotMatch(backend, /\$args\s*=\s*\$request\.args/i);
+  assert.doesNotMatch(backend, /param\(\$Args\)/i);
+  assert.match(backend, /\$requestArgs = \$request\.args/);
+  assert.match(backend, /param\(\$InputArgs\)/);
+});
+
 test("Windows smoke enforces the safe HDR API boundary", async () => {
   const smoke = await readFile(path.resolve("scripts", "backend-smoke.ps1"), "utf8");
   assert.match(smoke, /osBuild -lt 26100[\s\S]*hdr\.api -ne "unavailable"/);
