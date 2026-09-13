@@ -22,6 +22,9 @@ jobs:
       - name: Install deterministic art dependency
         shell: pwsh
         run: python -m pip install --disable-pip-version-check Pillow==12.3.0
+      - name: Run compositor smoke tests
+        shell: pwsh
+        run: python tools/art/test_streamdeck_photo.py
       - name: Render real-photo Stream Deck hero
         shell: pwsh
         run: python tools/art/render_streamdeck_photo_hero.py --out artifacts/streamdeck-photo/02_cover.png
@@ -32,9 +35,22 @@ jobs:
           if ($r.image_generation -ne 'disabled') { throw 'Image generation must remain disabled' }
           if ($r.hardware_source -ne 'tools/art/assets/streamdeck-mk2-straight.png') { throw 'Wrong hardware source' }
           if ($r.compositor -ne 'tools/art/streamdeck_photo.py') { throw 'Wrong compositor' }
-          if ($r.composition_model -ne 'key-underlay+untouched-hardware-overlay') { throw 'Wrong composition model' }
+          if ($r.composition_model -ne 'alpha-detected-lcd-underlay+untouched-hardware-overlay') { throw 'Wrong composition model' }
           if ($r.hardware_plate_modified -ne $false) { throw 'Hardware plate must remain untouched' }
-          if (-not (Test-Path artifacts/streamdeck-photo/02_cover.png)) { throw 'Hero missing' }
+          if ($r.detected_key_count -ne 15) { throw 'Expected exactly 15 detected LCDs' }
+          if ($r.uncovered_lcd_pixels -ne 0) { throw 'LCD coverage must be complete' }
+          if (($r.output.size[0] -ne 1920) -or ($r.output.size[1] -ne 960)) { throw 'Hero must be 1920x960' }
+          $required = @(
+            '02_cover.png',
+            'device-only.png',
+            'key-underlay.png',
+            'lcd-mask-debug.png',
+            'lcd-coverage-debug.png',
+            'streamdeck-photo-hero-report.json'
+          )
+          foreach ($name in $required) {
+            if (-not (Test-Path (Join-Path 'artifacts/streamdeck-photo' $name))) { throw "Missing artifact: $name" }
+          }
       - uses: actions/upload-artifact@v4
         with:
           name: streamdeck-photo-hero-preview
