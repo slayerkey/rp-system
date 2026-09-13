@@ -33,6 +33,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Plugin release metadata preflight
+        run: python tests/check_plugin_release_metadata.py
+
       - name: Compile Windows native helper source
         run: dotnet build shared/windows-input/PackRat.InputHost/PackRat.InputHost.csproj -c Release -p:EnableWindowsTargeting=true
 
@@ -79,6 +82,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+
+      - name: Plugin release metadata preflight
+        shell: pwsh
+        run: python tests/check_plugin_release_metadata.py
 
       - name: Parse Macro Recorder PowerShell release scripts
         shell: pwsh
