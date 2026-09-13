@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { endpointIdentity, matchEndpoint } from "../src/device-matching.js";
-import { buildApplyPlan, captureProfileFromSnapshot, cycleCurrentIndex, mergeApplyResult, normalizeGlobalSettings, normalizeProfile, profileMatchesSnapshot, snapshotDefaultRoleConflicts, verifyApplyResult } from "../src/profiles.js";
+import { buildApplyPlan, captureProfileFromSnapshot, cycleCurrentIndex, endpointMuteMatches, endpointVolumeMatches, mergeApplyResult, normalizeGlobalSettings, normalizeProfile, profileMatchesSnapshot, roleMatchesSnapshot, snapshotDefaultRoleConflicts, verifyApplyResult } from "../src/profiles.js";
 
 function ep(id,name,{instanceId="",containerId="",volume=50,muted=false}={}) {
   return { id,name,instanceId,containerId,volume,muted,volumeAvailable:true,muteAvailable:true };
@@ -178,6 +178,30 @@ test("all operation failures are FAILED",()=>{
   const plan=buildApplyPlan(p,s);
   const merged=mergeApplyResult(plan,{results:plan.operations.map((x,index)=>({index,ok:false,error:"nope"})),snapshot:s});
   assert.equal(merged.status,"FAILED");
+});
+
+test("direct role verification checks both Console and Multimedia for Default",()=>{
+  const s=snap();
+  assert.equal(roleMatchesSnapshot("output","default",s.defaultOutputId,s),true);
+  s.multimediaOutputId="render-speakers";
+  assert.equal(roleMatchesSnapshot("output","default",s.defaultOutputId,s),false);
+  assert.equal(roleMatchesSnapshot("output","communications",s.communicationsOutputId,s),true);
+});
+
+test("endpoint state verification checks volume tolerance and mute",()=>{
+  const s=snap();
+  assert.equal(endpointVolumeMatches(s,s.defaultOutputId,42),true);
+  assert.equal(endpointVolumeMatches(s,s.defaultOutputId,43),true);
+  assert.equal(endpointVolumeMatches(s,s.defaultOutputId,45),false);
+  assert.equal(endpointMuteMatches(s,s.defaultInputId,false),true);
+  assert.equal(endpointMuteMatches(s,s.defaultInputId,true),false);
+});
+
+test("direct verification helpers fail closed on snapshot errors",()=>{
+  const s={...snap(),error:"audio unavailable"};
+  assert.equal(roleMatchesSnapshot("output","default",s.defaultOutputId,s),false);
+  assert.equal(endpointVolumeMatches(s,s.defaultOutputId,42),false);
+  assert.equal(endpointMuteMatches(s,s.defaultInputId,false),false);
 });
 
 test("successful operations stay SUCCESS only when final Windows state matches",()=>{
