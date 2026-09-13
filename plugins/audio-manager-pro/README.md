@@ -57,6 +57,14 @@ Building from source requires Node.js 24+ and the .NET 8 SDK. The .NET SDK is a 
 rat dev audio-manager-pro
 ```
 
+After Rat Dev activates the validated candidate, run the read-only host audit:
+
+```text
+rat audit audio-manager-pro
+```
+
+The audit does not change Windows audio. It verifies the exact build, native helper, current Core Audio snapshot, Windows role alignment, active endpoint IDs, Stream Deck process/version, and recent plugin/host-log visibility. It writes `HOST_AUDIT_LATEST.txt` beside the product source for easy sharing.
+
 The Audio Profile Status action is read-only: it refreshes current Windows audio state and reports ACTIVE / INACTIVE without applying the profile.
 
 Release packaging:
