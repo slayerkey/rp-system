@@ -136,3 +136,14 @@ test("profile capture stores only advertised input values", async () => {
   const source=await readFile("src/runtime.ts","utf8");
   assert.match(source,/if\(support\.values\.length&&support\.values\.includes\(current\)\) item\.input=current/);
 });
+
+test("Pro B1 dial feedback updates both text and indicator", async () => {
+  const source=await readFile("src/actions/continuous.ts","utf8");
+  assert.match(source,/value:String\(value\)\+"%",indicator:value/);
+  assert.match(source,/value:String\(value\?\?0\)\+"%",indicator:value\?\?0/);
+});
+
+test("Pro capability reporting receives scan context for internal-panel brightness", async () => {
+  const source=await readFile("src/plugin.ts","utf8");
+  assert.match(source,/capabilitySummary\(m,snapshot\)/);
+});
