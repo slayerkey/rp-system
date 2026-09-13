@@ -47,9 +47,9 @@ The complete native input safety and timing blocker list is maintained in `docs/
 
 ## Native timing blocker
 
-The current native recorder limits any single recorded delay between two input events to 60 seconds. Pro's overall recording limit is 10 minutes, so macros with continuing input can span 10 minutes, but an idle pause longer than 60 seconds is not yet preserved exactly.
+The editor/model/import/playback path now permits Pro delays up to the full 10-minute edition boundary. The remaining issue is native capture: the current recorder still clamps any single observed delay between two input events to 60 seconds.
 
-Before shipping Pro, update the native recorder so a single recorded delay can remain accurate up to the edition's recording-duration limit, then add a host smoke case with an idle gap over 60 seconds. Do not weaken the advertised 10-minute overall recording limit to hide this issue.
+Before shipping Pro, update native recording capture so an idle gap over 60 seconds is preserved accurately up to the recording-duration limit, then run the host smoke case documented in `docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md`.
 
 ## Release boundary
 
