@@ -114,5 +114,35 @@
     "MinimumVersion": "7.3"
   },
   "UUID": "com.packrat.performance-grapher",
-  "Version": "1.0.0.0"
+  "Version": "1.0.0.0",
+  "Profiles": [
+    {
+      "Name": "profiles/performance-dashboard-mk2",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/performance-dashboard-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/performance-dashboard-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/performance-dashboard-neo",
+      "DeviceType": 9,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
+  ]
 }
