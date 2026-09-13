@@ -217,6 +217,83 @@ export class SessionTracker {
     };
   }
 
+  toJSON(now = Date.now()) {
+    const active = this.active ? {
+      process: this.active.process,
+      startedAt: this.active.startedAt,
+      histogram: this.active.histogram.toJSON(),
+      worstFrametimeMs: this.active.worstFrametimeMs,
+      peaks: { ...this.active.peaks },
+      pressure: { ...this.active.pressure },
+    } : null;
+
+    return {
+      active,
+      lastCompleted: this.lastCompleted ? { ...this.lastCompleted } : null,
+      recent: this.recent.toJSON(),
+      savedAt: now,
+    };
+  }
+
+  restore(value, { savedAt = null, now = Date.now(), resumeGraceMs = 60_000 } = {}) {
+    if (!value || typeof value !== "object") return;
+
+    this.active = null;
+    this.bucket = null;
+    this.currentFps = null;
+    this.candidate = null;
+    this.activity.clear();
+
+    this.setLastCompleted(value.lastCompleted);
+
+    if (value.recent) {
+      this.recent = BoundedHistory.fromJSON(value.recent, {
+        rawMax: FPS_RECENT_MAX,
+        archiveMax: FPS_ARCHIVE_MAX,
+        archiveMs: 1000,
+        archiveMode: "min",
+      });
+    }
+
+    const raw = value.active;
+    if (!raw || typeof raw !== "object") return;
+
+    const process = processName(raw.process);
+    const startedAt = finite(raw.startedAt);
+    if (!process || IGNORED.has(process) || startedAt === null) return;
+
+    const restored = {
+      process,
+      startedAt,
+      lastFrameAt: now,
+      histogram: LowFpsHistogram.fromJSON(raw.histogram),
+      worstFrametimeMs: Math.max(0, finite(raw.worstFrametimeMs) ?? 0),
+      peaks: {
+        gpuTemperature: finite(raw.peaks?.gpuTemperature),
+        cpuTemperature: finite(raw.peaks?.cpuTemperature),
+        gpuLoad: finite(raw.peaks?.gpuLoad),
+      },
+      pressure: {
+        gpu: Math.max(0, Math.floor(finite(raw.pressure?.gpu) ?? 0)),
+        cpu: Math.max(0, Math.floor(finite(raw.pressure?.cpu) ?? 0)),
+        mixed: Math.max(0, Math.floor(finite(raw.pressure?.mixed) ?? 0)),
+      },
+    };
+
+    const persistedAt = finite(savedAt) ?? finite(value.savedAt);
+    const gap = persistedAt === null ? Infinity : Math.max(0, now - persistedAt);
+    if (gap <= Math.max(this.idleMs, Number(resumeGraceMs) || 0)) {
+      this.active = restored;
+      this.lastFrameAt = now;
+      return;
+    }
+
+    const interrupted = cloneSummary(restored, persistedAt ?? now);
+    const priorEnded = finite(this.lastCompleted?.endedAt) ?? -Infinity;
+    const interruptedEnded = finite(interrupted?.endedAt) ?? -Infinity;
+    if (interrupted && interruptedEnded >= priorEnded) this.lastCompleted = interrupted;
+  }
+
   setLastCompleted(summary) {
     if (!summary || typeof summary !== "object") return;
     this.lastCompleted = {
