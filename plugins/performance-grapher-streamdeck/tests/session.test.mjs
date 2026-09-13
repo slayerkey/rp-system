@@ -89,3 +89,42 @@ test("old persisted active session finalizes at its save boundary instead of fal
   assert.equal(snap.lastCompleted.endedAt, savedAt);
   assert.ok(snap.recent.series(0, savedAt + 120_000).length > 0);
 });
+
+
+test("low-FPS dominant process starts without foreground telemetry", () => {
+  const tracker = new SessionTracker({ switchMs: 800, idleMs: 3000 });
+  let now = 0;
+  for (let i = 0; i < 30; i += 1) {
+    now += 125; // 8 FPS
+    tracker.observeFrame({ application: "slowgame.exe", frameTimeMs: 125 }, {}, now);
+    if (i % 4 === 0) {
+      tracker.observeFrame({ application: "background.exe", frameTimeMs: 500 }, {}, now + 1);
+    }
+  }
+  const snap = tracker.snapshot(now);
+  assert.equal(snap.active, true);
+  assert.equal(snap.process, "slowgame.exe");
+});
+
+test("ambiguous low-FPS fallback producers do not steal a session", () => {
+  const tracker = new SessionTracker({ switchMs: 600, idleMs: 3000 });
+  let now = 0;
+  for (let i = 0; i < 16; i += 1) {
+    now += 125;
+    tracker.observeFrame({ application: "one.exe", frameTimeMs: 125 }, {}, now);
+    tracker.observeFrame({ application: "two.exe", frameTimeMs: 125 }, {}, now + 1);
+  }
+  assert.equal(tracker.snapshot(now).active, false);
+});
+
+test("foreground identity still wins immediately over fallback activity", () => {
+  const tracker = new SessionTracker({ switchMs: 800, idleMs: 3000 });
+  tracker.setForeground("foreground.exe");
+  let now = 0;
+  for (let i = 0; i < 12; i += 1) {
+    now += 125;
+    tracker.observeFrame({ application: "background.exe", frameTimeMs: 8 }, {}, now);
+    tracker.observeFrame({ application: "foreground.exe", frameTimeMs: 125 }, {}, now + 1);
+  }
+  assert.equal(tracker.snapshot(now).process, "foreground.exe");
+});
