@@ -29,6 +29,11 @@ test("Pro manifest keeps the intended platform, profile and loop safety contract
   assert.equal(manifest.Profiles[0].DeviceType,0);
   assert.equal(manifest.Profiles[0].Name,"profiles/macro-recorder-pro-starter");
   assert.ok(!manifest.Profiles[0].Name.endsWith(".streamDeckProfile"));
+  const record=manifest.Actions.find(action=>action.UUID.endsWith(".record"));
+  const stop=manifest.Actions.find(action=>action.UUID.endsWith(".stop"));
   const replay=manifest.Actions.find(action=>action.UUID==="com.packrat.macro-recorder-pro.replay");
+  assert.equal(record?.SupportedInKeyLogicActions,false);
+  assert.equal(stop?.SupportedInKeyLogicActions,false);
   assert.equal(replay?.SupportedInMultiActions,false);
+  assert.equal(replay?.SupportedInKeyLogicActions,false);
 });
