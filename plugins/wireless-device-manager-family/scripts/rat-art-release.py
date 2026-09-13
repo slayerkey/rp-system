@@ -116,19 +116,27 @@ def groups(out,edition):
     signature(im); im.convert("RGB").save(out/"05_gallery_03.png",quality=95)
 
 def compatibility(out):
-    im=bg(); title(im,"Ready-made key profiles","Standard, XL and Stream Deck+ are included. Plus uses keys only because a dial adds no legitimate control.")
+    im=bg(); title(im,"Ready-made key profiles","Standard, Mini, XL, Stream Deck+ and Neo are included. Plus uses keys only because a dial adds no legitimate control.")
     d=ImageDraw.Draw(im)
-    for i,(name,cols,rows) in enumerate([("STREAM DECK",5,3),("STREAM DECK XL",8,4),("STREAM DECK +",4,2)]):
-        x=130+i*590; y=320
-        d.rounded_rectangle((x,y,x+500,y+330),30,fill=PANEL,outline=BORDER,width=2)
-        d.text((x+250,y+52),name,font=font(24,True),fill=WHITE,anchor="mm")
-        cell=42 if cols<=5 else 28; gap=10; gw=cols*cell+(cols-1)*gap
-        gx=x+(500-gw)//2; gy=y+115
+    devices=[
+        ("STREAM DECK",5,3),
+        ("MINI",3,2),
+        ("STREAM DECK XL",8,4),
+        ("STREAM DECK +",4,2),
+        ("STREAM DECK NEO",4,2),
+    ]
+    positions=[(95,275),(705,275),(1315,275),(400,600),(1010,600)]
+    for (name,cols,rows),(x,y) in zip(devices,positions):
+        w,h=510,235
+        d.rounded_rectangle((x,y,x+w,y+h),26,fill=PANEL,outline=BORDER,width=2)
+        d.text((x+w/2,y+38),name,font=font(20,True),fill=WHITE,anchor="mm")
+        cell=32 if cols<=5 else 23; gap=8; gw=cols*cell+(cols-1)*gap
+        gx=x+(w-gw)//2; gy=y+80
         for rr in range(rows):
             for cc in range(cols):
                 xx=gx+cc*(cell+gap); yy=gy+rr*(cell+gap)
-                d.rounded_rectangle((xx,yy,xx+cell,yy+cell),7,fill=KEY,outline=ACCENT if rr==0 and cc<min(cols,5) else BORDER,width=2)
-        d.text((x+250,y+285),"KEY PROFILE INCLUDED",font=font(15,True),fill=MUTED,anchor="mm")
+                d.rounded_rectangle((xx,yy,xx+cell,yy+cell),6,fill=KEY,outline=ACCENT if rr==0 else BORDER,width=2)
+        d.text((x+w/2,y+205),"PROFILE INCLUDED",font=font(13,True),fill=MUTED,anchor="mm")
     signature(im); im.convert("RGB").save(out/"06_gallery_04.png",quality=95)
 
 def search(out,edition):
