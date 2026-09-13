@@ -38,7 +38,7 @@ internal static class Program
                 var op = args[1].ToLowerInvariant();
                 var idIndex = Array.FindIndex(args, x => x == "--id");
                 if (idIndex < 0 || idIndex + 1 >= args.Length) return Fail("Missing --id.");
-                var result = Control(args[idIndex + 1], op);
+                var result = await ControlAsync(args[idIndex + 1], op);
                 Console.WriteLine(JsonSerializer.Serialize(result, JsonOptions));
                 return result.ok ? 0 : 3;
             }
@@ -183,7 +183,7 @@ internal static class Program
         }
     };
 
-    private static object Control(string addressText, string operation)
+    private static async Task<object> ControlAsync(string addressText, string operation)
     {
         var normalized = NormalizeAddress(addressText);
         if (!ulong.TryParse(normalized, System.Globalization.NumberStyles.HexNumber, null, out var address))
@@ -199,15 +199,44 @@ internal static class Program
 
         try
         {
-            var flag = enable ? NativeBluetooth.BLUETOOTH_SERVICE_ENABLE : NativeBluetooth.BLUETOOTH_SERVICE_DISABLE;
-            var sink = AudioSink;
-            var handsFree = HandsFree;
-            var sinkResult = NativeBluetooth.BluetoothSetServiceState(radio, ref device, ref sink, flag);
-            var hfpResult = NativeBluetooth.BluetoothSetServiceState(radio, ref device, ref handsFree, flag);
-            var ok = sinkResult == 0 || hfpResult == 0;
-            return ok
-                ? new { ok = true, error = (string?)null }
-                : new { ok = false, error = $"Windows rejected the Bluetooth audio service change ({sinkResult}/{hfpResult})." };
+            var hfp = NativeBluetooth.TransitionService(radio, ref device, HandsFree, enable);
+            var sink = NativeBluetooth.TransitionService(radio, ref device, AudioSink, enable);
+
+            var allExposedSucceeded = hfp.IsAcceptable && sink.IsAcceptable;
+            var atLeastOneProfileExists = hfp.Exists || sink.Exists;
+            if (!allExposedSucceeded || !atLeastOneProfileExists)
+            {
+                return new
+                {
+                    ok = false,
+                    error = $"Windows rejected the Bluetooth audio service change (A2DP: {sink.Status}, HFP: {hfp.Status})."
+                };
+            }
+
+            if (enable)
+            {
+                // Service enablement can return before the device-wide Bluetooth
+                // connection flag catches up. Give Windows a short bounded window
+                // to confirm the paired device actually became connected.
+                var deadline = DateTime.UtcNow.AddSeconds(8);
+                do
+                {
+                    if (NativeBluetooth.IsConnected(address))
+                        return new { ok = true, error = (string?)null };
+                    await Task.Delay(250);
+                } while (DateTime.UtcNow < deadline);
+
+                return new
+                {
+                    ok = false,
+                    error = "Bluetooth audio services were enabled, but Windows did not confirm a live device connection."
+                };
+            }
+
+            // Disconnect success is defined by the audio profiles reaching their
+            // disabled state. Other Bluetooth profiles (for example HID) may keep
+            // a multi-function device connected at the device-wide level.
+            return new { ok = true, error = (string?)null };
         }
         finally
         {
@@ -334,6 +363,89 @@ internal static class NativeBluetooth
 
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool CloseHandle(IntPtr hObject);
+
+    public readonly record struct ServiceTransition(string Status, bool Exists, bool IsAcceptable);
+
+    private const uint ERROR_SUCCESS = 0;
+    private const uint ERROR_INVALID_PARAMETER = 87;
+    private const uint ERROR_SERVICE_DOES_NOT_EXIST = 1060;
+    private const uint E_INVALIDARG = 0x80070057;
+
+    private static bool IsAlreadyInState(uint code) =>
+        code == ERROR_INVALID_PARAMETER || code == E_INVALIDARG;
+
+    public static ServiceTransition TransitionService(
+        IntPtr radio,
+        ref BLUETOOTH_DEVICE_INFO device,
+        Guid service,
+        bool enable)
+    {
+        var desired = enable ? BLUETOOTH_SERVICE_ENABLE : BLUETOOTH_SERVICE_DISABLE;
+        var guid = service;
+        var result = BluetoothSetServiceState(radio, ref device, ref guid, desired);
+
+        if (result == ERROR_SUCCESS)
+            return new ServiceTransition("ok", true, true);
+        if (result == ERROR_SERVICE_DOES_NOT_EXIST)
+            return new ServiceTransition("absent", false, true);
+
+        if (IsAlreadyInState(result))
+        {
+            if (!enable)
+            {
+                // Windows reports E_INVALIDARG when a service is already disabled.
+                return new ServiceTransition("ok", true, true);
+            }
+
+            // A service can be enabled in Windows while the remote audio device is
+            // no longer connected. Cycle the profile once to force a reconnect.
+            guid = service;
+            var disable = BluetoothSetServiceState(
+                radio,
+                ref device,
+                ref guid,
+                BLUETOOTH_SERVICE_DISABLE);
+
+            if (disable != ERROR_SUCCESS && !IsAlreadyInState(disable))
+            {
+                if (disable == ERROR_SERVICE_DOES_NOT_EXIST)
+                    return new ServiceTransition("absent", false, true);
+                return new ServiceTransition($"fail:{disable}", true, false);
+            }
+
+            Thread.Sleep(150);
+            guid = service;
+            for (var attempt = 0; attempt < 3; attempt++)
+            {
+                var reenable = BluetoothSetServiceState(
+                    radio,
+                    ref device,
+                    ref guid,
+                    BLUETOOTH_SERVICE_ENABLE);
+                if (reenable == ERROR_SUCCESS || IsAlreadyInState(reenable))
+                    return new ServiceTransition("ok", true, true);
+                if (reenable == ERROR_SERVICE_DOES_NOT_EXIST)
+                    return new ServiceTransition("absent", false, true);
+                Thread.Sleep(150);
+                guid = service;
+            }
+        }
+
+        return new ServiceTransition($"fail:{result}", true, false);
+    }
+
+    public static bool IsConnected(ulong address)
+    {
+        if (!FindDevice(address, out var radio, out var device)) return false;
+        try
+        {
+            return device.fConnected;
+        }
+        finally
+        {
+            CloseRadio(radio);
+        }
+    }
 
     public static bool FindDevice(ulong address, out IntPtr matchingRadio, out BLUETOOTH_DEVICE_INFO matchingDevice)
     {
