@@ -1,6 +1,8 @@
 import { WindowsBackend } from "./backend.js";
 import type { BackendReply, SystemSnapshot } from "./types.js";
 
+const POLL_INTERVAL_MS = 5000;
+
 const OFFLINE: SystemSnapshot = {
   backendOnline: false,
   capturedAt: new Date(0).toISOString(),
@@ -29,7 +31,7 @@ export class StateService {
 
   async start(): Promise<void> {
     await this.refresh();
-    this.timer = setInterval(() => void this.refresh(), 2500);
+    this.timer = setInterval(() => void this.refresh(), POLL_INTERVAL_MS);
     this.timer.unref();
   }
 
