@@ -1,4 +1,4 @@
-let websocket=null,uuid=null,actionUuid="",settings={},monitorRows=[],proUrl=null;
+let websocket=null,uuid=null,actionUuid="",settings={},globalSettings={},monitorRows=[],proUrl=null;
 const BRIGHTNESS="com.packrat.monitormanagerlite.brightness";
 const POWER="com.packrat.monitormanagerlite.power";
 const REFRESH="com.packrat.monitormanagerlite.refresh-rate";
@@ -7,12 +7,14 @@ function connectElgatoStreamDeckSocket(inPort,inUUID,inRegisterEvent,inInfo,inAc
   uuid=inUUID;
   try{const info=JSON.parse(inActionInfo);actionUuid=info.action??"";settings=info.payload?.settings??{};}catch{settings={};}
   websocket=new WebSocket("ws://127.0.0.1:"+inPort);
-  websocket.onopen=()=>{websocket.send(JSON.stringify({event:inRegisterEvent,uuid:inUUID}));build();render();requestData();};
+  websocket.onopen=()=>{websocket.send(JSON.stringify({event:inRegisterEvent,uuid:inUUID}));build();render();requestGlobalSettings();requestData();};
   websocket.onmessage=(event)=>{
     const message=JSON.parse(event.data);
     if(message.event==="didReceiveSettings"){settings=message.payload?.settings??{};render();}
+    if(message.event==="didReceiveGlobalSettings"){globalSettings=message.payload?.settings??{};render();}
     if(message.event==="sendToPropertyInspector"&&message.payload?.type==="monitor-data"){
       monitorRows=Array.isArray(message.payload.monitors)?message.payload.monitors:[];
+      if(message.payload.configuredMonitorKey) globalSettings={...globalSettings,monitorKey:message.payload.configuredMonitorKey};
       proUrl=message.payload.proMarketplaceUrl??null;
       render();
     }
@@ -26,12 +28,20 @@ function requestData(){
   if(websocket?.readyState!==WebSocket.OPEN)return;
   websocket.send(JSON.stringify({event:"sendToPlugin",action:actionUuid,context:uuid,payload:{type:"refresh-monitors"}}));
 }
+function requestGlobalSettings(){
+  if(websocket?.readyState!==WebSocket.OPEN)return;
+  websocket.send(JSON.stringify({event:"getGlobalSettings",context:uuid}));
+}
+function saveGlobalSettings(){
+  if(websocket?.readyState!==WebSocket.OPEN)return;
+  websocket.send(JSON.stringify({event:"setGlobalSettings",context:uuid,payload:globalSettings}));
+}
 function openUrl(url){
   if(!url||websocket?.readyState!==WebSocket.OPEN)return;
   websocket.send(JSON.stringify({event:"openUrl",payload:{url}}));
 }
 function opt(select,value,label){const o=document.createElement("option");o.value=value;o.textContent=label;select.appendChild(o);}
-function selectedMonitor(){return monitorRows.find(m=>m.monitorKey===settings.monitorKey)??monitorRows[0]??null;}
+function selectedMonitor(){return monitorRows.find(m=>m.monitorKey===globalSettings.monitorKey)??monitorRows[0]??null;}
 function render(){
   document.getElementById("brightnessCard")?.classList.toggle("hidden",actionUuid!==BRIGHTNESS);
   document.getElementById("powerCard")?.classList.toggle("hidden",actionUuid!==POWER);
@@ -42,8 +52,7 @@ function render(){
   if(monitor){
     monitor.textContent="";
     for(const m of monitorRows)opt(monitor,m.monitorKey,(m.description||m.deviceName)+(m.currentMode?(" · "+m.currentMode.width+"×"+m.currentMode.height+" @ "+m.currentMode.frequency+" Hz"):""));
-    if(!settings.monitorKey&&monitorRows[0])settings={...settings,monitorKey:monitorRows[0].monitorKey};
-    monitor.value=settings.monitorKey??"";
+    monitor.value=globalSettings.monitorKey??monitorRows[0]?.monitorKey??"";
   }
   const row=selectedMonitor();
   const caps=document.getElementById("capabilities");
@@ -66,7 +75,7 @@ function render(){
 }
 function build(){
   document.getElementById("refresh")?.addEventListener("click",requestData);
-  document.getElementById("monitor")?.addEventListener("change",e=>{settings={...settings,monitorKey:e.target.value};save();render();});
+  document.getElementById("monitor")?.addEventListener("change",e=>{globalSettings={...globalSettings,monitorKey:e.target.value};saveGlobalSettings();render();});
   document.getElementById("brightnessMode")?.addEventListener("change",e=>{settings={...settings,mode:e.target.value};save();});
   document.getElementById("brightnessValue")?.addEventListener("change",e=>{settings={...settings,value:Number(e.target.value)};save();});
   document.getElementById("brightnessStep")?.addEventListener("change",e=>{settings={...settings,step:Number(e.target.value)};save();});
