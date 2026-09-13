@@ -1,0 +1,152 @@
+name: Performance Grapher Stream Deck Release QA
+
+on:
+  push:
+    branches:
+      - product/performance-grapher-streamdeck
+    paths:
+      - 'plugins/performance-grapher-streamdeck/**'
+      - 'products/performance-grapher-streamdeck.json'
+      - '.github/workflows/performance-grapher-streamdeck-release.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'plugins/performance-grapher-streamdeck/**'
+      - 'products/performance-grapher-streamdeck.json'
+      - '.github/workflows/performance-grapher-streamdeck-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: plugins/performance-grapher-streamdeck
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install locked Node dependencies
+        run: npm ci --no-fund --no-audit
+
+      - name: Run unit, fixture, render and synthetic overhead tests
+        run: npm test
+
+      - name: Build plugin, native helper and checksum-pinned PresentMon
+        run: npm run build
+
+      - name: Probe sensor helper on clean Windows runner
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path 'com.packrat.performance-grapher.sdPlugin/native/telemetry/PackRat.PerformanceTelemetry.exe'
+          & $exe --probe | Tee-Object -FilePath 'native-probe.jsonl'
+          if ($LASTEXITCODE -ne 0) { throw "Native sensor helper probe failed with exit code $LASTEXITCODE" }
+
+      - name: Verify bundled PresentMon identity and command line
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path 'com.packrat.performance-grapher.sdPlugin/third_party/presentmon/PresentMon.exe'
+          $expected = '9bec3083069f58f911e6a512f4806db51a27bd096103087bc1d05ef54c80a191'
+          $actual = (Get-FileHash -Algorithm SHA256 $exe).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw "PresentMon hash mismatch: $actual" }
+          $help = (& $exe --help 2>&1 | Out-String)
+          foreach ($flag in @('--output_stdout','--no_console_stats','--no_track_gpu','--no_track_input','--no_track_display','--v2_metrics')) {
+            if ($help -notmatch [regex]::Escape($flag)) { throw "PresentMon help is missing expected flag $flag" }
+          }
+          Set-Content -Path 'presentmon-help.txt' -Value $help -Encoding UTF8
+
+      - name: Official Elgato validation
+        run: npm run validate
+
+      - name: Official Elgato package
+        run: npm run pack
+
+      - name: Install deterministic art dependency
+        run: python -m pip install --disable-pip-version-check Pillow==12.3.0
+
+      - name: Render deterministic Marketplace media
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path 'dist/marketplace-art' | Out-Null
+          ./rat-art.ps1 -Destination 'dist/marketplace-art'
+
+      - name: Verify release kit and write evidence
+        shell: pwsh
+        run: |
+          $packages = @(Get-ChildItem 'dist' -Filter '*.streamDeckPlugin' -File)
+          if ($packages.Count -ne 1) { throw "Expected exactly one .streamDeckPlugin; found $($packages.Count)" }
+          $required = @(
+            '01_search_icon.png',
+            '02_cover.png',
+            '03_gallery_01.png',
+            '04_gallery_02.png',
+            '05_gallery_03.png',
+            '06_gallery_04.png'
+          )
+          foreach ($name in $required) {
+            if (-not (Test-Path (Join-Path 'dist/marketplace-art' $name))) { throw "Missing Marketplace media: $name" }
+          }
+
+          $stage = Join-Path $env:RUNNER_TEMP 'performance-grapher-streamdeck-release'
+          if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
+          New-Item -ItemType Directory -Force -Path (Join-Path $stage 'dist/marketplace-art') | Out-Null
+          Copy-Item $packages[0].FullName (Join-Path $stage 'dist/com.packrat.performance-grapher.streamDeckPlugin')
+          Copy-Item 'dist/marketplace-art/*' (Join-Path $stage 'dist/marketplace-art') -Force
+          Copy-Item 'QA.md' (Join-Path $stage 'QA.md')
+          Copy-Item 'REAL_WINDOWS_SMOKE.md' (Join-Path $stage 'REAL_WINDOWS_SMOKE.md')
+          Copy-Item 'native-probe.jsonl' (Join-Path $stage 'native-probe.jsonl')
+          Copy-Item 'presentmon-help.txt' (Join-Path $stage 'presentmon-help.txt')
+
+          $packageHash = (Get-FileHash -Algorithm SHA256 (Join-Path $stage 'dist/com.packrat.performance-grapher.streamDeckPlugin')).Hash.ToLowerInvariant()
+          $helperHash = (Get-FileHash -Algorithm SHA256 'com.packrat.performance-grapher.sdPlugin/native/telemetry/PackRat.PerformanceTelemetry.exe').Hash.ToLowerInvariant()
+          $presentMonHash = (Get-FileHash -Algorithm SHA256 'com.packrat.performance-grapher.sdPlugin/third_party/presentmon/PresentMon.exe').Hash.ToLowerInvariant()
+          $packageSize = (Get-Item (Join-Path $stage 'dist/com.packrat.performance-grapher.streamDeckPlugin')).Length
+
+          $evidence = [ordered]@{
+            product = 'Performance Grapher for Stream Deck'
+            version = '1.0.0.0'
+            commit = '${{ github.sha }}'
+            run_id = '${{ github.run_id }}'
+            package_sha256 = $packageHash
+            package_bytes = $packageSize
+            helper_sha256 = $helperHash
+            presentmon_sha256 = $presentMonHash
+            presentmon_version = '2.5.1'
+            libre_hardware_monitor = '0.9.6'
+            tests = 'PASS'
+            official_elgato_validation = 'PASS'
+            official_elgato_packaging = 'PASS'
+            native_probe = 'PASS'
+            real_windows_game_smoke = 'PENDING'
+          }
+          $evidence | ConvertTo-Json -Depth 4 | Set-Content -Path (Join-Path $stage 'evidence.json') -Encoding UTF8
+          Write-Host "PACKAGE_SHA256=$packageHash"
+          Write-Host "PACKAGE_BYTES=$packageSize"
+          "release_stage=$stage" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        id: release
+
+      - name: Upload validated release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-grapher-streamdeck-release-candidate
+          path: ${{ steps.release.outputs.release_stage }}
+          if-no-files-found: error
+          compression-level: 6
