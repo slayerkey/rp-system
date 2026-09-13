@@ -276,7 +276,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
       const monitor=matchSavedMonitor(saved,current.monitors??[]);
       if(!monitor) continue;
       try {
-        if(saved.mode&&modeSupported(monitor.modes,saved.mode)) await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...saved.mode,primary:Boolean(saved.primary)},12000);
+        if(saved.mode&&modeSupported(monitor.modes,saved.mode)) await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...saved.mode,primary:false},12000);
       } catch(e:any) { errors.push(saved.description+" mode: "+e.message); }
       try {
         if(saved.hdr!==undefined&&monitor.hdrState===SUPPORT.SUPPORTED) await this.bridge.request("set-hdr",{deviceName:monitor.deviceName,enabled:saved.hdr});
@@ -306,6 +306,25 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
         } catch(e:any) { errors.push(saved.description+" volume: "+e.message); }
       }
       if(saved.input!==undefined) pendingInputs.push(saved);
+    }
+
+    const savedPrimary=profile.monitors.find((item)=>item.primary);
+    if(savedPrimary) {
+      try {
+        this.invalidate();
+        const live:any=await this.scan(true);
+        const monitor=matchSavedMonitor(savedPrimary,live.monitors??[]);
+        if(monitor?.currentMode) {
+          await this.bridge.request("set-mode",{
+            deviceName:monitor.deviceName,
+            width:Number(monitor.currentMode.width),
+            height:Number(monitor.currentMode.height),
+            frequency:Number(monitor.currentMode.frequency),
+            orientation:Number(monitor.currentMode.orientation??0),
+            primary:true
+          },12000);
+        }
+      } catch(e:any) { errors.push("primary display: "+e.message); }
     }
 
     if(profile.internalBrightness!==undefined) {
@@ -358,7 +377,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
 
         if(saved.mode) {
           if(modeSupported(monitor.modes,saved.mode)) {
-            await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...saved.mode,primary:Boolean(saved.primary)},12000);
+            await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...saved.mode,primary:false},12000);
             steps.push({item:saved.description+" display mode",status:"COMPLETE"});
           } else {
             steps.push({item:saved.description+" display mode",status:"SKIPPED",message:"Saved resolution / Hz / orientation is unavailable."});
@@ -411,6 +430,26 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
         }
 
         if(saved.input!==undefined) pendingInputs.push(saved);
+      }
+
+      const savedPrimary=profile.monitors.find((item)=>item.primary);
+      if(savedPrimary) {
+        this.invalidate();
+        const live:any=await this.scan(true);
+        const monitor=matchSavedMonitor(savedPrimary,live.monitors??[]);
+        if(monitor?.currentMode) {
+          await this.bridge.request("set-mode",{
+            deviceName:monitor.deviceName,
+            width:Number(monitor.currentMode.width),
+            height:Number(monitor.currentMode.height),
+            frequency:Number(monitor.currentMode.frequency),
+            orientation:Number(monitor.currentMode.orientation??0),
+            primary:true
+          },12000);
+          steps.push({item:savedPrimary.description+" primary display",status:"COMPLETE"});
+        } else {
+          steps.push({item:savedPrimary.description+" primary display",status:"SKIPPED",message:"Saved primary display is not currently available."});
+        }
       }
 
       if(profile.internalBrightness!==undefined&&snapshot.internalBrightness?.available) {
