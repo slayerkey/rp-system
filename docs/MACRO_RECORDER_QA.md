@@ -58,20 +58,29 @@ Automated QA can establish build, package, profile and deterministic engine inva
 Do not call the family READY_TO_SHIP until the final Windows host + physical Stream Deck matrix is completed against the exact packaged artifacts produced by the passing workflow.
 
 
-## Current hosted-runner state
+## Automated Windows release evidence
 
-As of 2026-09-13, after the repository became public, Macro Recorder Windows jobs no longer immediately fail with zero steps. The latest checked workflow remained queued awaiting a hosted Windows runner, so there is still no canonical Windows build/test result to cite.
+The canonical Windows release workflow passed on 2026-09-13:
 
-This is not evidence that Macro Recorder tests failed. The non-native model/storage suites and deterministic profile generators have been exercised separately, but the official Windows/.NET/Elgato package gate is still pending.
+- workflow run: `34777365333`
+- tested head: `2f6aa418ffbbbd4927034689d224c6dccd3b1b0b`
+- Lite tests: **19/19 passed**
+- Pro tests: **37/37 passed**
+- both production dependency audits: PASS
+- native `PackRat.InputHost` Release win-x64 build + self-test + daemon ping: PASS
+- both official Elgato validations: PASS
+- both official Elgato packages: PASS
+- five bundled profiles per edition (MK.2 / standard, Mini, XL, Plus, Neo): PASS
+- exact-package helper / Property Inspector / runtime notices / profile teardown: PASS
+- deterministic source media + Rat Ship six-file media adapters: PASS
+- Lite package SHA-256: `01DFA188482FEF0E8F735F7408879C5B0AE77EEDE8D8961765792AB81E9F009A`
+- Pro package SHA-256: `B5D7C15C0B94E75A0900037EA36F1593168AE092A909F2386E00275D3972DCAF`
+- uploaded release-evidence artifact: `10324027648`
+- artifact digest: `sha256:d54960f0be72105341d33810cd13e3eb8a5eadea909ca39c53eaa43ae91c62cd`
 
-Until a hosted Windows run starts and completes, use the equivalent local automated gate on Windows:
+The later workflow-only source-contract addition does not change the plugin/native build inputs represented by this evidence.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1
-```
-
-The product remains TESTING until either that local automated gate or the canonical hosted workflow completes successfully, followed by the real Windows / physical Stream Deck smoke matrix.
-
+The family remains **TESTING** because low-level input guarantees still require the real Windows / physical Stream Deck acceptance cases in `docs/MACRO_RECORDER_NATIVE_GATE.json`. Lite also remains blocked from public launch until the real Macro Recorder Pro Marketplace product URL exists and is injected through the canonical Lite-to-Pro catalog.
 
 ## Final release-candidate command
 
