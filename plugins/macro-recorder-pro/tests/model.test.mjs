@@ -97,3 +97,21 @@ test("malformed executable events are dropped rather than coerced",()=>{
  assert.equal(macro.events.length,1);
  assert.equal(macro.events[0].vk,65);
 });
+
+test("Pro preserves a single edited or imported delay beyond 60 seconds",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"keyDown",vk:65,delayMs:120_000},
+  {type:"keyUp",vk:65,delayMs:1_000}
+ ]},{pro:true,limits});
+ assert.equal(macro.events.length,2);
+ assert.equal(macro.events[0].delayMs,120_000);
+ assert.equal(macro.durationMs,121_000);
+});
+
+test("Pro validation reports unmatched held mouse buttons",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"mouseDown",button:"left",x:0,y:0,delayMs:1}
+ ]},{pro:true,limits});
+ const validation=validateMacro(macro,{pro:true});
+ assert.deepEqual(validation.unmatchedButtons,["left"]);
+});
