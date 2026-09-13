@@ -50,5 +50,13 @@
     "sleep/resume/reboot and Stream Deck restart validation",
     "external Windows state change refresh validation",
     "deterministic Rat Art review"
-  ]
+  ],
+  "upsell": {
+    "target_product_id": "windows-settings-manager-pro",
+    "surface": "Property Inspector",
+    "url_source": "products/lite-pro-map.json",
+    "requires_verified_direct_marketplace_url": true,
+    "hidden_until_verified": true,
+    "release_order": "publish Pro first, then record direct Pro and Lite Marketplace URLs before Lite publication"
+  }
 }
