@@ -1,0 +1,53 @@
+name: Audio Manager Pro CI
+on:
+  push:
+    branches:
+      - product/audio-manager-pro
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: dotnet build companions/packrat-audio-core/src/PackRat.AudioCore/PackRat.AudioCore.csproj -c Release
+      - run: dotnet build companions/audio-control-center-bridge/src/PackRat.AudioBridge/PackRat.AudioBridge.csproj -c Release
+      - run: npm ci --no-fund --no-audit
+        working-directory: plugins/audio-manager-pro
+      - run: npm audit --audit-level=high
+        working-directory: plugins/audio-manager-pro
+      - run: npm test
+        working-directory: plugins/audio-manager-pro
+      - run: npm run native
+        working-directory: plugins/audio-manager-pro
+      - run: npm run native:selftest
+        working-directory: plugins/audio-manager-pro
+      - run: npm run build
+        working-directory: plugins/audio-manager-pro
+      - run: npm run validate
+        working-directory: plugins/audio-manager-pro
+      - run: npm run pack
+        working-directory: plugins/audio-manager-pro
+      - run: python -m pip install pillow==11.3.0
+      - run: .\rat-art.ps1 -Destination dist\marketplace
+        shell: pwsh
+        working-directory: plugins/audio-manager-pro
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audio-manager-pro-release-qa
+          path: |
+            plugins/audio-manager-pro/dist/*.streamDeckPlugin
+            plugins/audio-manager-pro/dist/marketplace/*.png
+            plugins/audio-manager-pro/QA.md
+            plugins/audio-manager-pro/REAL_WINDOWS_SMOKE.md
+          if-no-files-found: error
