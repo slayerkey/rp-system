@@ -41,7 +41,7 @@ test("FPS action exposes one useful low statistic rather than cramming the key",
     metricValue(id) { return id === "game.fps" ? 144 : 6.94; },
     metricSeries() { return [[1, 130], [2, 144], [3, 120]]; },
     safeStatus() { return { fps: { state: "ready" }, hardware: { state: "ready" } }; },
-    session: { snapshot() { return { process: "valorant.exe", current: { onePercentLow: 111, pointOnePercentLow: 93 } }; } },
+    session: { snapshot() { return { active: true, process: "valorant.exe", current: { onePercentLow: 111, pointOnePercentLow: 93 } }; } },
   };
   const one = makeView(fake, "fps", { fpsMode: "fps", lowMode: "one", windowMs: 60000 });
   const pointOne = makeView(fake, "fps", { fpsMode: "fps", lowMode: "pointOne", windowMs: 60000 });
