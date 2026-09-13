@@ -15,8 +15,6 @@ public static class PackRatWindowsNative
     private const uint SDC_TOPOLOGY_CLONE = 0x00000002;
     private const uint SDC_TOPOLOGY_EXTEND = 0x00000004;
     private const uint SDC_TOPOLOGY_EXTERNAL = 0x00000008;
-    private const uint DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO = 9;
-    private const uint DISPLAYCONFIG_DEVICE_INFO_SET_ADVANCED_COLOR_STATE = 10;
     private const uint DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO_2 = 15;
     private const uint DISPLAYCONFIG_DEVICE_INFO_SET_HDR_STATE = 16;
     private const uint ES_SYSTEM_REQUIRED = 0x00000001;
@@ -123,15 +121,6 @@ public static class PackRatWindowsNative
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    private struct AdvancedColorInfo
-    {
-        public DeviceInfoHeader header;
-        public uint flags;
-        public uint colorEncoding;
-        public uint bitsPerColorChannel;
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     private struct AdvancedColorInfo2
     {
         public DeviceInfoHeader header;
@@ -139,13 +128,6 @@ public static class PackRatWindowsNative
         public uint colorEncoding;
         public uint bitsPerColorChannel;
         public uint activeColorMode;
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    private struct AdvancedColorSet
-    {
-        public DeviceInfoHeader header;
-        public uint enable;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -191,8 +173,6 @@ public static class PackRatWindowsNative
     static PackRatWindowsNative()
     {
         AssertSize(typeof(DeviceInfoHeader), 20, "DISPLAYCONFIG_DEVICE_INFO_HEADER");
-        AssertSize(typeof(AdvancedColorInfo), 32, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO");
-        AssertSize(typeof(AdvancedColorSet), 24, "DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE");
         AssertSize(typeof(AdvancedColorInfo2), 36, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2");
         AssertSize(typeof(HdrSet), 24, "DISPLAYCONFIG_SET_HDR_STATE");
     }
@@ -286,13 +266,7 @@ public static class PackRatWindowsNative
         uint flags);
 
     [DllImport("user32.dll", EntryPoint = "DisplayConfigGetDeviceInfo")]
-    private static extern int GetAdvancedColorInfo(ref AdvancedColorInfo requestPacket);
-
-    [DllImport("user32.dll", EntryPoint = "DisplayConfigGetDeviceInfo")]
     private static extern int GetAdvancedColorInfo2(ref AdvancedColorInfo2 requestPacket);
-
-    [DllImport("user32.dll", EntryPoint = "DisplayConfigSetDeviceInfo")]
-    private static extern int SetAdvancedColorState(ref AdvancedColorSet setPacket);
 
     [DllImport("user32.dll", EntryPoint = "DisplayConfigSetDeviceInfo")]
     private static extern int SetHdrState(ref HdrSet setPacket);
@@ -412,71 +386,43 @@ public static class PackRatWindowsNative
         return true;
     }
 
-    private static bool TryReadLegacyHdr(PathTargetInfo target, out bool supported, out bool enabled, out string error)
-    {
-        var info = new AdvancedColorInfo();
-        info.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO;
-        info.header.size = (uint)Marshal.SizeOf(typeof(AdvancedColorInfo));
-        info.header.adapterId = target.adapterId;
-        info.header.id = target.id;
-        int rc = GetAdvancedColorInfo(ref info);
-        if (rc != 0)
-        {
-            supported = false;
-            enabled = false;
-            error = "GET_ADVANCED_COLOR_INFO failed: " + rc;
-            return false;
-        }
-        bool advancedColorSupported = (info.flags & 1u) != 0;
-        bool advancedColorEnabled = (info.flags & 2u) != 0;
-        bool wideColorEnforced = (info.flags & (1u << 2)) != 0;
-        bool advancedColorForceDisabled = (info.flags & (1u << 3)) != 0;
-
-        // Before Windows 11 24H2, "Advanced Color" also covers SDR WCG /
-        // automatic color management. wideColorEnforced distinguishes that
-        // SDR path from HDR-capable output on these builds.
-        supported = advancedColorSupported && !wideColorEnforced && !advancedColorForceDisabled;
-        enabled = supported && advancedColorEnabled;
-        error = null;
-        return true;
-    }
-
     public static HdrSummary GetHdr()
     {
+        if (!SupportsSeparatedHdrApi())
+        {
+            return new HdrSummary {
+                available = false,
+                api = "unavailable",
+                supportedCount = 0,
+                enabledCount = 0,
+                mixed = false,
+                errors = new[] { "Reliable HDR control requires Windows 11 24H2 (build 26100) or later." }
+            };
+        }
+
         var errors = new List<string>();
         int supportedCount = 0;
         int enabledCount = 0;
-        bool usedNew = false;
-        bool usedLegacy = false;
 
         foreach (var path in ActivePaths())
         {
             bool supported;
             bool enabled;
             string error;
-
-            bool got;
-            if (SupportsSeparatedHdrApi())
+            bool got = TryReadNewHdr(path.targetInfo, out supported, out enabled, out error);
+            if (!got)
             {
-                got = TryReadNewHdr(path.targetInfo, out supported, out enabled, out error);
-                if (got) usedNew = true;
-                else if (!String.IsNullOrWhiteSpace(error)) errors.Add(error);
+                if (!String.IsNullOrWhiteSpace(error)) errors.Add(error);
+                continue;
             }
-            else
-            {
-                got = TryReadLegacyHdr(path.targetInfo, out supported, out enabled, out error);
-                if (got) usedLegacy = true;
-                else if (!String.IsNullOrWhiteSpace(error)) errors.Add(error);
-            }
-
-            if (!got || !supported) continue;
+            if (!supported) continue;
             supportedCount++;
             if (enabled) enabledCount++;
         }
 
         return new HdrSummary {
-            available = usedNew || usedLegacy,
-            api = usedNew ? "hdr-state" : usedLegacy ? "advanced-color-legacy" : "unavailable",
+            available = true,
+            api = "hdr-state",
             supportedCount = supportedCount,
             enabledCount = enabledCount,
             mixed = supportedCount > 1 && enabledCount > 0 && enabledCount < supportedCount,
@@ -499,61 +445,36 @@ public static class PackRatWindowsNative
         return false;
     }
 
-    private static bool WaitForLegacyHdrState(PathTargetInfo target, bool enabled)
-    {
-        for (int attempt = 0; attempt < 12; attempt++)
-        {
-            Thread.Sleep(attempt == 0 ? 180 : 120);
-            bool supported;
-            bool current;
-            string error;
-            if (TryReadLegacyHdr(target, out supported, out current, out error)
-                && supported && current == enabled)
-                return true;
-        }
-        return false;
-    }
-
     private static bool SetHdrForTarget(PathTargetInfo target, bool enabled)
     {
-        if (SupportsSeparatedHdrApi())
-        {
-            bool supported;
-            bool current;
-            string error;
-            if (!TryReadNewHdr(target, out supported, out current, out error)) return false;
-            if (!supported) return false;
+        if (!SupportsSeparatedHdrApi()) return false;
 
-            var packet = new HdrSet();
-            packet.header.type = DISPLAYCONFIG_DEVICE_INFO_SET_HDR_STATE;
-            packet.header.size = (uint)Marshal.SizeOf(typeof(HdrSet));
-            packet.header.adapterId = target.adapterId;
-            packet.header.id = target.id;
-            packet.enableHdr = enabled ? 1u : 0u;
-            int rc = SetHdrState(ref packet);
-            if (rc != 0) return false;
-            return WaitForNewHdrState(target, enabled);
-        }
+        bool supported;
+        bool current;
+        string error;
+        if (!TryReadNewHdr(target, out supported, out current, out error)) return false;
+        if (!supported) return false;
 
-        bool legacySupported;
-        bool legacyCurrent;
-        string legacyError;
-        if (!TryReadLegacyHdr(target, out legacySupported, out legacyCurrent, out legacyError)) return false;
-        if (!legacySupported) return true;
-
-        var legacy = new AdvancedColorSet();
-        legacy.header.type = DISPLAYCONFIG_DEVICE_INFO_SET_ADVANCED_COLOR_STATE;
-        legacy.header.size = (uint)Marshal.SizeOf(typeof(AdvancedColorSet));
-        legacy.header.adapterId = target.adapterId;
-        legacy.header.id = target.id;
-        legacy.enable = enabled ? 1u : 0u;
-        int legacyRc = SetAdvancedColorState(ref legacy);
-        if (legacyRc != 0) return false;
-        return WaitForLegacyHdrState(target, enabled);
+        var packet = new HdrSet();
+        packet.header.type = DISPLAYCONFIG_DEVICE_INFO_SET_HDR_STATE;
+        packet.header.size = (uint)Marshal.SizeOf(typeof(HdrSet));
+        packet.header.adapterId = target.adapterId;
+        packet.header.id = target.id;
+        packet.enableHdr = enabled ? 1u : 0u;
+        int rc = SetHdrState(ref packet);
+        if (rc != 0) return false;
+        return WaitForNewHdrState(target, enabled);
     }
 
     public static SetResult SetHdr(bool enabled)
     {
+        if (!SupportsSeparatedHdrApi())
+            return new SetResult {
+                status = "FAILED",
+                error = "Reliable HDR control requires Windows 11 24H2 (build 26100) or later.",
+                state = GetHdr()
+            };
+
         int supported = 0;
         int succeeded = 0;
         foreach (var path in ActivePaths())
@@ -561,9 +482,7 @@ public static class PackRatWindowsNative
             bool isSupported;
             bool current;
             string error;
-            bool readable = SupportsSeparatedHdrApi()
-                ? TryReadNewHdr(path.targetInfo, out isSupported, out current, out error)
-                : TryReadLegacyHdr(path.targetInfo, out isSupported, out current, out error);
+            bool readable = TryReadNewHdr(path.targetInfo, out isSupported, out current, out error);
 
             if (!readable || !isSupported) continue;
             supported++;
