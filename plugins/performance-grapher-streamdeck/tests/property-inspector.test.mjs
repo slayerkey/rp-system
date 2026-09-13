@@ -44,3 +44,13 @@ test("diagnostic buttons have matching plugin commands", async () => {
     assert.ok(plugin.includes('payload.command === "' + command + '"'), "Plugin missing command handler: " + command);
   }
 });
+
+
+test("property inspector sources contain no escaped-newline patch artifacts", async () => {
+  const [html, js] = await Promise.all([
+    readFile(resolve(root, "ui", "inspector.html"), "utf8"),
+    readFile(resolve(root, "ui", "inspector.js"), "utf8"),
+  ]);
+  assert.equal(html.includes("\\\\n"), false);
+  assert.equal(js.includes("\\\\n"), false);
+});
