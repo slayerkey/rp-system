@@ -1,7 +1,7 @@
 import { InputHost } from "./input-host.mjs";
 import { MacroLibrary } from "./storage.mjs";
 import {
-  LITE_LIMITS, PRO_LIMITS, describeEvent, exportEnvelope, importEnvelope,
+  LITE_LIMITS, PRO_LIMITS, exportEnvelope, importEnvelope,
   normalizeMacro, playbackSettings, validateMacro
 } from "./model.mjs";
 
@@ -93,7 +93,6 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       library: pro ? library.list() : [],
       libraryWarning: pro ? library.warning : "",
       lastError,
-      eventDescriptions: (macro?.events || []).map(describeEvent),
       validation: macro ? validateMacro(macro, { pro }) : null,
       proLockedFeatures: pro ? [] : ["Mouse recording","Long macros","Playback speed","Loops","Macro Library","Import / export"],
     };
