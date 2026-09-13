@@ -141,9 +141,9 @@ jobs:
             $pluginRoot = "plugins\$slug\com.packrat.$slug.sdPlugin"
             $profileRoot = Join-Path $pluginRoot 'profiles'
             $profiles = @(Get-ChildItem $profileRoot -Filter *.streamDeckProfile -File)
-            if ($profiles.Count -ne 4) { throw "$slug expected four bundled starter profiles; found $($profiles.Count)" }
+            if ($profiles.Count -ne 5) { throw "$slug expected five bundled starter profiles; found $($profiles.Count)" }
 
-            foreach ($suffix in @('mk2','xl','plus','neo')) {
+            foreach ($suffix in @('mk2','mini','xl','plus','neo')) {
               if (!(Test-Path (Join-Path $profileRoot "$slug-starter-$suffix.streamDeckProfile"))) {
                 throw "$slug missing starter profile $suffix"
               }
@@ -184,7 +184,7 @@ jobs:
               }
 
               $packedProfiles = @($entryNames | Where-Object { $_ -match '/profiles/.*\.streamDeckProfile$' })
-              if ($packedProfiles.Count -ne 4) { throw "$($package.Name) exact package must contain four profiles; found $($packedProfiles.Count)" }
+              if ($packedProfiles.Count -ne 5) { throw "$($package.Name) exact package must contain five profiles; found $($packedProfiles.Count)" }
               if ($entryNames | Where-Object { $_ -match '\.profile-map\.json$' }) {
                 throw "$($package.Name) exact package contains internal profile QA maps"
               }
