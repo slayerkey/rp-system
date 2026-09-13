@@ -68,34 +68,42 @@ test("restored histories are sorted chronologically before latest/series use", (
 
 
 test("persistence snapshot does not erase an FPS drop later in the same archive bucket", () => {
-  const history = new BoundedHistory({ rawMax: 100, archiveMax: 100, archiveMs: 1000, archiveMode: "min" });
+  const history = new BoundedHistory({ rawMax: 2, archiveMax: 100, archiveMs: 1000, archiveMode: "min" });
   history.push(1000, 30);
   const saved = history.toJSON();
   history.push(1500, 144);
   history.push(2100, 144);
-  const live = history.series(5000, 2500);
+  history.push(3100, 144);
+  history.push(4100, 144);
+  const live = history.series(10_000, 5000);
   assert.ok(live.some(([at, value]) => at === 1000 && value === 30));
 
-  const restored = BoundedHistory.fromJSON(saved, { rawMax: 100, archiveMax: 100, archiveMs: 1000, archiveMode: "min" });
+  const restored = BoundedHistory.fromJSON(saved, { rawMax: 2, archiveMax: 100, archiveMs: 1000, archiveMode: "min" });
   restored.push(1500, 144);
   restored.push(2100, 144);
-  const afterRestart = restored.series(5000, 2500);
+  restored.push(3100, 144);
+  restored.push(4100, 144);
+  const afterRestart = restored.series(10_000, 5000);
   assert.ok(afterRestart.some(([at, value]) => at === 1000 && value === 30));
 });
 
 test("persistence snapshot does not erase a frametime spike later in the same archive bucket", () => {
-  const history = new BoundedHistory({ rawMax: 100, archiveMax: 100, archiveMs: 1000, archiveMode: "max" });
+  const history = new BoundedHistory({ rawMax: 2, archiveMax: 100, archiveMs: 1000, archiveMode: "max" });
   history.push(1000, 55);
   const saved = history.toJSON();
   history.push(1500, 7);
   history.push(2100, 7);
-  const live = history.series(5000, 2500);
+  history.push(3100, 7);
+  history.push(4100, 7);
+  const live = history.series(10_000, 5000);
   assert.ok(live.some(([at, value]) => at === 1000 && value === 55));
 
-  const restored = BoundedHistory.fromJSON(saved, { rawMax: 100, archiveMax: 100, archiveMs: 1000, archiveMode: "max" });
+  const restored = BoundedHistory.fromJSON(saved, { rawMax: 2, archiveMax: 100, archiveMs: 1000, archiveMode: "max" });
   restored.push(1500, 7);
   restored.push(2100, 7);
-  const afterRestart = restored.series(5000, 2500);
+  restored.push(3100, 7);
+  restored.push(4100, 7);
+  const afterRestart = restored.series(10_000, 5000);
   assert.ok(afterRestart.some(([at, value]) => at === 1000 && value === 55));
 });
 
