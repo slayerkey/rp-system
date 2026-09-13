@@ -73,6 +73,12 @@ function Test-Plugin {
     if (-not (Test-Path $EmbeddedHelper)) { throw "$Slug build did not embed PackRat.InputHost.exe." }
     if ((Get-Item $EmbeddedHelper).Length -le 0) { throw "$Slug embedded input host is empty." }
 
+    foreach ($Notice in @("THIRD_PARTY_NOTICES.txt","DOTNET_LICENSE.txt","DOTNET_THIRD_PARTY_NOTICES.txt")) {
+      $NoticePath = Join-Path $PluginRoot "com.packrat.$Slug.sdPlugin\$Notice"
+      if (-not (Test-Path $NoticePath)) { throw "$Slug build is missing runtime notice $Notice." }
+      if ((Get-Item $NoticePath).Length -le 0) { throw "$Slug runtime notice is empty: $Notice." }
+    }
+
     Write-Host "[$Slug] Elgato validation"
     npm run validate
 
