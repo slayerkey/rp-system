@@ -146,12 +146,27 @@ export class TelemetryService extends EventEmitter {
 
   metricSeries(id, windowMs) {
     const key = String(id || "");
+    const requestedWindow = Number(windowMs);
+    const now = Date.now();
+    const session = this.session.snapshot(now);
+    const summary = session.current || session.lastCompleted;
+    const sessionStart = Number(summary?.startedAt);
+    const sessionEnd = Number(summary?.endedAt);
+
+    const scopeSession = (points) => {
+      if (requestedWindow !== 0) return points;
+      if (!Number.isFinite(sessionStart)) return [];
+      const end = Number.isFinite(sessionEnd) ? sessionEnd : now;
+      return points.filter(([at]) => at >= sessionStart && at <= end);
+    };
+
     if (key === "game.fps" || key === "game.frametime") {
-      const points = this.session.snapshot().recent.series(windowMs, Date.now());
+      const points = scopeSession(session.recent.series(requestedWindow, now));
       if (key === "game.fps") return points;
       return points.map(([t, fps]) => [t, fps > 0 ? 1000 / fps : 0]);
     }
-    return this._history(key).series(windowMs, Date.now());
+
+    return scopeSession(this._history(key).series(requestedWindow, now));
   }
 
   metricCatalog() {
