@@ -172,3 +172,12 @@ test("Lite manifest action UUIDs exactly match backend handlers", async () => {
   const encoders=manifest.Actions.filter((action)=>action.Controllers?.includes("Encoder")).map((action)=>action.UUID);
   assert.deepEqual(encoders,["com.packrat.monitormanagerlite.brightness"]);
 });
+
+test("monitor scans are coalesced and slow DDC discovery gets a dedicated timeout", async () => {
+  const runtimeSource=await readFile("src/runtime.ts","utf8");
+  const clientSource=await readFile("../../_shared/monitor-manager/monitor-client.ts","utf8");
+  assert.match(runtimeSource,/scanInFlight/);
+  assert.match(runtimeSource,/request\("scan",\{\},30000\)/);
+  assert.match(clientSource,/failPending\(error, true\)/);
+  assert.match(clientSource,/child\.kill\(\)/);
+});
