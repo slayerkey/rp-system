@@ -114,3 +114,9 @@ export function matchSavedMonitor(saved, current) {
   );
   return byDescription.length === 1 ? byDescription[0] : null;
 }
+
+export function boundedPercent(value, label = "Value") {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) throw new Error(label + " must be a finite number.");
+  return Math.max(0, Math.min(100, Math.round(numeric)));
+}
