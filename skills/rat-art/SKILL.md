@@ -33,6 +33,16 @@ Keep PackRat text, device plates, icons, key faces, badges, and layouts determin
 
 Do not use generated images for product keys, text, device representations, marketplace screenshots, or contextual plates.
 
+## Stream Deck products
+
+For Stream Deck marketplace heroes, use the shared deterministic photo compositor at `tools/art/streamdeck_photo.py` with the approved `streamdeck-mk2-straight.png` hardware plate and its calibrated LCD map.
+
+The MK.2 plate is an overlay, not a canvas to paint on. Product key art belongs on an underlay behind the plate's real transparent LCD windows. The untouched photographed hardware goes on top so the physical bezel, rounded glass edge, reflections, chassis, and lighting remain authentic.
+
+Transparent key art must be alpha-trimmed and contained automatically. Opaque key-face art fills the LCD window. Never paste product pixels over the physical button rim or compensate for a bad fit by covering a finished hero with a dark matte.
+
+Stream Deck hero typography must use the same deterministic font resolver and warm-studio white/orange hierarchy as the approved XENEON hero system.
+
 ## XENEON and iCUE widget products
 
 `standards/xeneon-marketplace-hero-v1.md` is the approved XENEON hero standard. For catalogued XENEON products, the hero uses the deterministic `warm-studio-v1` environment, a real `XL_H` product capture, the approved transparent XENEON Edge hardware plate, a large product name on the background monitor, and the PackRat rat/package mark in the upper-right. The approved mark is rendered at twice the original September prototype size for clearer browsing-scale brand recognition.
