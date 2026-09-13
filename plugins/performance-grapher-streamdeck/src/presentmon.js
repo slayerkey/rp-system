@@ -55,10 +55,12 @@ export function parsePresentMonRows(lines) {
 }
 
 export class PresentMonProvider extends EventEmitter {
-  constructor({ executable, log = () => {} } = {}) {
+  constructor({ executable, log = () => {}, spawnProcess = spawn, createLineInterface = createInterface } = {}) {
     super();
     this.executable = executable;
     this.log = log;
+    this.spawnProcess = spawnProcess;
+    this.createLineInterface = createLineInterface;
     this.child = null;
     this.running = false;
     this.status = { state: "stopped", detail: null };
@@ -134,7 +136,7 @@ export class PresentMonProvider extends EventEmitter {
 
     let child;
     try {
-      child = spawn(this.executable, args, { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+      child = this.spawnProcess(this.executable, args, { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
     } catch (error) {
       this._setStatus("unavailable", error?.message || String(error));
       this._scheduleRestart();
@@ -145,7 +147,7 @@ export class PresentMonProvider extends EventEmitter {
     this.header = null;
     this._setStatus("starting");
 
-    const stdout = createInterface({ input: child.stdout });
+    const stdout = this.createLineInterface({ input: child.stdout });
     stdout.on("line", (line) => this._consumeLine(line));
 
     let stderr = "";
@@ -158,15 +160,20 @@ export class PresentMonProvider extends EventEmitter {
     });
 
     child.once("error", (error) => {
+      if (this.child !== child) return;
       this.log("PresentMon error: " + (error?.message || error));
       this._setStatus("unavailable", error?.message || String(error));
     });
 
-    child.once("exit", (code) => {
-      if (this.child === child) this.child = null;
+    child.once("close", (code) => {
+      if (this.child !== child) {
+        stdout.close();
+        return;
+      }
+      this.child = null;
       stdout.close();
       if (this.intentionalStop || !this.running) return;
-      if (this.status.state !== "permission_required") {
+      if (!["permission_required", "unavailable"].includes(this.status.state)) {
         this._setStatus("offline", ("PresentMon exited " + code + ". " + stderr).trim().slice(0, 700));
       }
       this._scheduleRestart();
