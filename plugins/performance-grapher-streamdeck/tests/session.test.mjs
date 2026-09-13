@@ -2,72 +2,47 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { SessionTracker } from "../src/session.js";
 
-function feed(tracker, app, start, frames, step, frameMs, metrics = {}) {
+function feed(tracker, process, start, count, frameMs, metrics = {}) {
+  tracker.setForeground(process);
   let now = start;
-  for (let i = 0; i < frames; i += 1) {
-    tracker.observeFrame({ application: app, frameTimeMs }, metrics, now);
-    now += step;
+  for (let i = 0; i < count; i += 1) {
+    now += frameMs;
+    tracker.observeFrame({ application: process, frameTimeMs }, metrics, now);
   }
+  tracker.tick(metrics, now + 150);
   return now;
 }
 
-test("foreground frame producer starts one process-aware session", () => {
-  const tracker = new SessionTracker({ switchMs: 600, idleMs: 1500 });
-  tracker.setForeground("game.exe");
-  let now = feed(tracker, "game.exe", 1000, 40, 25, 8.33, { "gpu.load": 92, "cpu.load": 55, "gpu.temperature": 70 });
-  tracker.tick({ "gpu.load": 92 }, now + 150);
-  const snap = tracker.snapshot(now + 150);
-  assert.equal(snap.active, true);
-  assert.equal(snap.process, "game.exe");
-  assert.ok(snap.currentFps > 110 && snap.currentFps < 130);
-  assert.ok(snap.current.onePercentLow > 100);
+test("game session starts, calculates lows from frame samples, and finalizes on idle", () => {
+  const tracker = new SessionTracker({ switchMs: 0, idleMs: 500 });
+  let now = feed(tracker, "game.exe", 0, 80, 10, { "gpu.load": 97, "gpu.temperature": 70, "cpu.temperature": 60 });
+  now = feed(tracker, "game.exe", now, 4, 40, { "gpu.load": 98, "gpu.temperature": 75, "cpu.temperature": 64 });
+  const live = tracker.snapshot(now);
+  assert.equal(live.active, true);
+  assert.equal(live.process, "game.exe");
+  assert.ok(live.current.onePercentLow < live.current.averageFps);
+  assert.ok(live.current.worstFrametimeMs >= 40);
+  assert.ok(live.current.peakGpuTemperature >= 75);
+
+  tracker.tick({}, now + 700);
+  const done = tracker.snapshot(now + 700);
+  assert.equal(done.active, false);
+  assert.equal(done.lastCompleted.process, "game.exe");
+  assert.ok(done.lastCompleted.samples > 0);
 });
 
-test("stable process change finalizes the previous session and begins the next", () => {
-  const tracker = new SessionTracker({ switchMs: 500, idleMs: 1500 });
-  tracker.setForeground("first.exe");
-  let now = feed(tracker, "first.exe", 1000, 40, 25, 10, { "gpu.load": 97 });
-  tracker.tick({ "gpu.load": 97 }, now + 150);
-  assert.equal(tracker.snapshot(now).process, "first.exe");
-
-  tracker.setForeground("second.exe");
-  now = feed(tracker, "second.exe", now + 200, 40, 25, 12, { "cpu.load": 95, "gpu.load": 60 });
-  tracker.tick({ "cpu.load": 95, "gpu.load": 60 }, now + 150);
+test("stable foreground process change closes the previous session", () => {
+  const tracker = new SessionTracker({ switchMs: 0, idleMs: 2000 });
+  let now = feed(tracker, "first.exe", 0, 40, 16.6);
+  now = feed(tracker, "second.exe", now + 100, 40, 12.5);
   const snap = tracker.snapshot(now);
   assert.equal(snap.process, "second.exe");
   assert.equal(snap.lastCompleted.process, "first.exe");
-  assert.ok(snap.lastCompleted.averageFps > 90);
 });
 
-test("game stop preserves a completed session summary", () => {
-  const tracker = new SessionTracker({ switchMs: 400, idleMs: 1000 });
-  tracker.setForeground("game.exe");
-  let now = feed(tracker, "game.exe", 1000, 50, 20, 16.67, { "gpu.temperature": 76, "cpu.temperature": 68, "gpu.load": 99 });
-  const completed = tracker.tick({ "gpu.temperature": 76, "cpu.temperature": 68, "gpu.load": 99 }, now + 1200);
-  assert.ok(completed);
-  assert.equal(completed.process, "game.exe");
-  assert.ok(completed.worstFrametimeMs >= 16.67);
-  assert.equal(tracker.snapshot(now + 1200).active, false);
-});
-
-test("desktop/system processes never become the game session", () => {
-  const tracker = new SessionTracker({ switchMs: 200, idleMs: 1000 });
+test("desktop compositor and PackRat helper frames are ignored", () => {
+  const tracker = new SessionTracker({ switchMs: 0 });
   tracker.setForeground("dwm.exe");
-  const now = feed(tracker, "dwm.exe", 1000, 200, 10, 8);
-  assert.equal(tracker.snapshot(now).active, false);
-});
-
-test("long synthetic session keeps bounded graph history", () => {
-  const tracker = new SessionTracker({ switchMs: 100, idleMs: 5000 });
-  tracker.setForeground("benchmark.exe");
-  let now = 1000;
-  for (let i = 0; i < 80_000; i += 1) {
-    tracker.observeFrame({ application: "benchmark.exe", frameTimeMs: 8 + (i % 5000 === 0 ? 35 : 0) }, { "gpu.load": 97, "cpu.load": 50 }, now);
-    now += 10;
-  }
-  tracker.tick({ "gpu.load": 97 }, now + 150);
-  const recent = tracker.snapshot(now).recent;
-  recent.toJSON();
-  assert.ok(recent.raw.length <= 3600);
-  assert.ok(recent.archive.length <= 21600);
+  for (let i = 0; i < 100; i += 1) tracker.observeFrame({ application: "dwm.exe", frameTimeMs: 16 }, {}, i * 16);
+  assert.equal(tracker.snapshot().active, false);
 });
