@@ -10,7 +10,7 @@ The release workflow must pass on Windows:
 - input-host daemon startup + JSON ping
 - npm ci and production dependency audit for Lite and Pro
 - model / limits / import-export unit tests
-- deterministic starter-profile generation
+- deterministic four-device starter-profile generation (MK.2 / standard, XL, Plus, Neo)
 - Rollup bundle
 - official Elgato CLI manifest validation
 - official Elgato CLI package generation
@@ -58,13 +58,13 @@ Automated QA can establish build, package, profile and deterministic engine inva
 Do not call the family READY_TO_SHIP until the final Windows host + physical Stream Deck matrix is completed against the exact packaged artifacts produced by the passing workflow.
 
 
-## Current hosted-runner infrastructure blocker
+## Current hosted-runner state
 
-As of 2026-09-13, the current-head Macro Recorder workflow rerun is still being created by GitHub Actions without receiving a hosted runner. Run `34741738309`, attempt 2, produced a `windows-release` job with no assigned runner and zero steps. Other unrelated repository workflows have shown the same no-runner symptom.
+As of 2026-09-13, after the repository became public, Macro Recorder Windows jobs no longer immediately fail with zero steps. The latest checked workflow remained queued awaiting a hosted Windows runner, so there is still no canonical Windows build/test result to cite.
 
-This is not evidence that Macro Recorder tests failed. On that attempt, no test or build process started.
+This is not evidence that Macro Recorder tests failed. The non-native model/storage suites and deterministic profile generators have been exercised separately, but the official Windows/.NET/Elgato package gate is still pending.
 
-Until hosted runners are available again, run the equivalent local automated gate on Windows:
+Until a hosted Windows run starts and completes, use the equivalent local automated gate on Windows:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1
