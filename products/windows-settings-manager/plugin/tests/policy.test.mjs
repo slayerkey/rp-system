@@ -119,6 +119,14 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   assert.match(backend, /attempt < 12/);
 });
 
+test("ModeStore caches persisted global settings without sharing mutable caller state", async () => {
+  const store = await readFile(path.resolve("src", "store.ts"), "utf8");
+  assert.match(store, /private cache: GlobalSettings \| null = null/);
+  assert.match(store, /if \(this\.cache\) return sanitizeSettings\(this\.cache\)/);
+  assert.match(store, /this\.cache = parsed;[\s\S]*return sanitizeSettings\(parsed\)/);
+  assert.match(store, /const clean = sanitizeSettings\(settings\)[\s\S]*setGlobalSettings\(clean\)[\s\S]*this\.cache = clean/);
+});
+
 test("timeout settings reject blank, negative and out-of-range values instead of turning them into Never", async () => {
   const store = await readFile(path.resolve("src", "store.ts"), "utf8");
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
