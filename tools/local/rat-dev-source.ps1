@@ -147,7 +147,7 @@ function Resolve-RatDevInternalProductSource {
                 Kind = if ($hasPlugin) { "ratpack" } else { "xeneon" }
                 Ref = $exact
                 Config = $null
-                SourceRoot = if ($hasPlugin) { "plugins\\$Slug" } else { "widgets\\_src\\$Slug" }
+                SourceRoot = if ($hasPlugin) { "plugins\$Slug" } else { "widgets\_src\$Slug" }
                 Display = $exact
             }
         }
@@ -182,7 +182,7 @@ function Resolve-RatDevInternalProductSource {
                 Kind = if ($hasPlugin) { "ratpack" } else { "xeneon" }
                 Ref = $ref
                 Config = $null
-                SourceRoot = if ($hasPlugin) { "plugins\\$Slug" } else { "widgets\\_src\\$Slug" }
+                SourceRoot = if ($hasPlugin) { "plugins\$Slug" } else { "widgets\_src\$Slug" }
                 Display = $ref
             }
         }
