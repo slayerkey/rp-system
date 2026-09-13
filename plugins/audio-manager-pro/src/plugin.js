@@ -571,7 +571,14 @@ for (const [kind, manifestId] of Object.entries(ACTIONS)) {
 process.on("uncaughtException", (error) => logger(error?.stack || error));
 process.on("unhandledRejection", (error) => logger(error?.stack || error));
 process.on("exit", () => helper.shutdown());
-process.on("SIGTERM", () => helper.shutdown());
+process.on("SIGTERM", () => {
+  helper.shutdown();
+  setTimeout(() => process.exit(0), 300);
+});
+process.on("SIGINT", () => {
+  helper.shutdown();
+  setTimeout(() => process.exit(0), 300);
+});
 
 async function main() {
   await streamDeck.connect();
