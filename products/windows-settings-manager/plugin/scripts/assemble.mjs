@@ -8,6 +8,8 @@ const OUT = path.join(ROOT, "out");
 const ASSETS = path.join(ROOT, "assets");
 const UI = path.join(ROOT, "ui");
 const BACKEND = path.join(ROOT, "scripts", "windows-settings-backend.ps1");
+const LITE_PRO_MAP = path.resolve(ROOT, "..", "..", "lite-pro-map.json");
+const PRO_MARKETPLACE_URL = await resolveProMarketplaceUrl();
 
 const DEVICES = [
   { id: "standard", label: "Stream Deck", deviceType: 0, columns: 5, rows: 3 },
@@ -64,7 +66,20 @@ async function assemble(flavor) {
   await copyFile(path.join(ASSETS, "marketplace.png"), path.join(plugin, "imgs", "plugin", "marketplace.png"));
   await copyFile(path.join(ASSETS, "marketplace@2x.png"), path.join(plugin, "imgs", "plugin", "marketplace@2x.png"));
   for (const file of ["config.html", "pi.css", "pi.js"]) {
-    await copyFile(path.join(UI, file), path.join(plugin, "ui", file));
+    const source = path.join(UI, file);
+    const target = path.join(plugin, "ui", file);
+    if (file !== "pi.js") {
+      await copyFile(source, target);
+      continue;
+    }
+
+    const raw = await readFile(source, "utf8");
+    const marker = 'const PRO_MARKETPLACE_URL = "";';
+    if (!raw.includes(marker)) throw new Error("Property Inspector Pro URL injection marker is missing.");
+    await writeFile(
+      target,
+      raw.replace(marker, `const PRO_MARKETPLACE_URL = ${JSON.stringify(PRO_MARKETPLACE_URL)};`)
+    );
   }
 
   await writeFile(path.join(plugin, "imgs", "actions", "common", "icon.svg"), iconSvg());
@@ -76,6 +91,26 @@ async function assemble(flavor) {
 
   const profiles = await buildProfiles(flavor, plugin);
   await writeFile(path.join(plugin, "manifest.json"), JSON.stringify(manifest(flavor, profiles), null, 2) + "\n");
+}
+
+async function resolveProMarketplaceUrl() {
+  const data = JSON.parse(await readFile(LITE_PRO_MAP, "utf8"));
+  const pair = data.pairs?.find((item) =>
+    item.lite_id === "windows-settings-manager-lite"
+    && item.pro_id === "windows-settings-manager-pro"
+  );
+  if (!pair) throw new Error("Windows Settings Manager Lite/Pro relationship is missing.");
+
+  const url = typeof pair.pro_marketplace_url === "string"
+    ? pair.pro_marketplace_url.trim()
+    : "";
+  if (!url) return "";
+
+  const directProductUrl = /^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9][a-z0-9-]*-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/?$/i;
+  if (!directProductUrl.test(url)) {
+    throw new Error(`Windows Settings Manager Pro upsell URL is not a verified direct Marketplace product URL: ${url}`);
+  }
+  return url;
 }
 
 function manifest(flavor, profiles) {
