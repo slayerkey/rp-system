@@ -25,7 +25,7 @@ PASS:
 - OUT / IN mappings are outside the key face as marketing annotations.
 - The hero does not fabricate OUT / IN rows inside the actual Stream Deck key UI.
 - Stream Deck + art matches the implemented profile-output volume behavior.
-- Device-resilience claims match the endpoint/instance/container matching implementation.
+- Device-resilience claims match the endpoint plus Container ID + endpoint-name matching implementation.
 - SUCCESS / PARTIAL / FAILED claims match the apply result contract.
 
 ## Thumbnail gate
