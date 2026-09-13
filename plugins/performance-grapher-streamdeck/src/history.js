@@ -45,11 +45,22 @@ export class BoundedHistory {
     return true;
   }
 
+  _mergeArchivePoint(target, at, value) {
+    const last = target[target.length - 1];
+    if (last?.[0] !== at) {
+      target.push([at, value]);
+      return;
+    }
+    if (this.archiveMode === "min") last[1] = Math.min(last[1], value);
+    else if (this.archiveMode === "max") last[1] = Math.max(last[1], value);
+    else last[1] = value;
+  }
+
   _commitPending() {
     if (!this.pending) return;
     const p = this.pending;
     const value = this.archiveMode === "min" ? p.min : this.archiveMode === "last" ? p.last : p.max;
-    this.archive.push([p.bucket, value]);
+    this._mergeArchivePoint(this.archive, p.bucket, value);
     if (this.archive.length > this.archiveMax) this.archive.splice(0, this.archive.length - this.archiveMax);
     this.pending = null;
   }
@@ -64,20 +75,22 @@ export class BoundedHistory {
     const rawStart = this.raw.length ? finite(this.raw[0]?.[0]) : null;
     const rawCoversWindow = Number.isFinite(span) && span > 0 && rawStart !== null && rawStart <= start;
     const source = rawCoversWindow ? this.raw : [...this.archive, ...this.raw];
-    const seen = new Set();
+    const indexByTime = new Map();
     const output = [];
     for (const point of source) {
       if (!Array.isArray(point) || point.length < 2) continue;
       const t = finite(point[0]);
       const v = finite(point[1]);
       if (t === null || v === null || t < start) continue;
-      const key = String(t);
-      if (seen.has(key)) {
-        const prior = output.findIndex((item) => item[0] === t);
-        if (prior >= 0) output[prior] = [t, v];
+      const priorIndex = indexByTime.get(t);
+      if (priorIndex !== undefined) {
+        const prior = output[priorIndex];
+        if (this.archiveMode === "min") prior[1] = Math.min(prior[1], v);
+        else if (this.archiveMode === "max") prior[1] = Math.max(prior[1], v);
+        else prior[1] = v;
         continue;
       }
-      seen.add(key);
+      indexByTime.set(t, output.length);
       output.push([t, v]);
     }
     output.sort((a, b) => a[0] - b[0]);
@@ -89,14 +102,7 @@ export class BoundedHistory {
     if (this.pending) {
       const p = this.pending;
       const value = this.archiveMode === "min" ? p.min : this.archiveMode === "last" ? p.last : p.max;
-      const last = archive[archive.length - 1];
-      if (last?.[0] === p.bucket) {
-        if (this.archiveMode === "min") last[1] = Math.min(last[1], value);
-        else if (this.archiveMode === "max") last[1] = Math.max(last[1], value);
-        else last[1] = value;
-      } else {
-        archive.push([p.bucket, value]);
-      }
+      this._mergeArchivePoint(archive, p.bucket, value);
     }
     return {
       raw: this.raw.slice(-this.rawMax),
