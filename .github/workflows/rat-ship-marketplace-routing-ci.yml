@@ -8,6 +8,7 @@ on:
       - 'products/*.json'
       - 'plugins/*/submission.json'
       - 'schemas/product-workflow-state.schema.json'
+      - 'tools/local/rat.ps1'
       - 'tools/local/rat-marketplace.ps1'
       - 'tools/local/rat-maker-console.ps1'
       - 'tools/local/rat-ship-plugin.ps1'
@@ -25,6 +26,7 @@ on:
       - 'products/*.json'
       - 'plugins/*/submission.json'
       - 'schemas/product-workflow-state.schema.json'
+      - 'tools/local/rat.ps1'
       - 'tools/local/rat-marketplace.ps1'
       - 'tools/local/rat-maker-console.ps1'
       - 'tools/local/rat-ship-plugin.ps1'
@@ -59,6 +61,7 @@ jobs:
         shell: pwsh
         run: |
           $files = @(
+            'tools/local/rat.ps1',
             'tools/local/rat-marketplace.ps1',
             'tools/local/rat-maker-console.ps1',
             'tools/local/rat-ship-plugin.ps1',
@@ -75,6 +78,50 @@ jobs:
             }
             Write-Host "POWERSHELL PASS: $file"
           }
+
+      - name: Exercise canonical local ship product-type routing
+        shell: pwsh
+        run: |
+          $scriptPath = Resolve-Path 'tools/local/rat.ps1'
+          $raw = Get-Content $scriptPath -Raw
+          foreach ($required in @(
+            'products\$ProductSlug.json',
+            'ConvertFrom-Json',
+            'switch ($productType)',
+            '"plugin"',
+            'rat-ship-plugin.ps1',
+            '-PluginSlug $ProductSlug',
+            '"widget"',
+            'rat-ship-local.ps1',
+            '-WidgetSlug $ProductSlug',
+            'Refusing to fall through to another product type'
+          )) {
+            if (-not $raw.Contains($required)) {
+              throw "rat.ps1 local ship router is missing required contract: $required"
+            }
+          }
+
+          $tokens = $null
+          $errors = $null
+          $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$tokens, [ref]$errors)
+          if ($errors.Count) { throw 'Could not parse rat.ps1 for local routing test.' }
+          $fn = $ast.Find({
+            param($node)
+            $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+              $node.Name -eq 'Build-ShipKitLocally'
+          }, $true)
+          if ($null -eq $fn) { throw 'Build-ShipKitLocally was not found.' }
+          $fnText = $fn.Extent.Text
+          if ($fnText -notmatch 'rat-ship-plugin\.ps1' -or $fnText -notmatch '-PluginSlug\s+\$ProductSlug') {
+            throw 'Plugin products are not explicitly routed to rat-ship-plugin.ps1.'
+          }
+          if ($fnText -notmatch 'rat-ship-local\.ps1' -or $fnText -notmatch '-WidgetSlug\s+\$ProductSlug') {
+            throw 'Widget products are not explicitly routed to rat-ship-local.ps1.'
+          }
+          if ($fnText -notmatch 'default\s*\{' -or $fnText -notmatch 'Refusing to fall through') {
+            throw 'Unsupported product types must fail closed instead of falling through.'
+          }
+          Write-Host 'LOCAL RAT SHIP PRODUCT ROUTING PASS'
 
       - name: Exercise disposable worktree isolation
         shell: pwsh
