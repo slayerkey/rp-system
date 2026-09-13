@@ -61,7 +61,7 @@ export class BoundedHistory {
   series(windowMs, now = Date.now()) {
     const span = Number(windowMs);
     const start = Number.isFinite(span) && span > 0 ? now - span : -Infinity;
-    const source = span <= this.rawMax * 1100 ? this.raw : [...this.archive, ...this.raw];
+    const source = Number.isFinite(span) && span > 0 && span <= this.rawMax * 1100 ? this.raw : [...this.archive, ...this.raw];
     const seen = new Set();
     const output = [];
     for (const point of source) {
