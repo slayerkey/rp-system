@@ -95,11 +95,9 @@ internal static class Program
         },
     };
 
-    private static (List<object> Catalog, Dictionary<string, float> Values) ReadSensors(Computer computer)
+    private static List<object> ReadCatalog(Computer computer)
     {
         var catalog = new List<object>();
-        var values = new Dictionary<string, float>(StringComparer.Ordinal);
-
         foreach (var root in computer.Hardware)
         {
             foreach (var hardware in Walk(root))
@@ -108,12 +106,29 @@ internal static class Program
                 {
                     var id = SensorId(hardware, sensor);
                     catalog.Add(CatalogEntry(hardware, sensor, id));
-                    if (sensor.Value is float value && float.IsFinite(value)) values[id] = value;
                 }
             }
         }
 
-        return (catalog, values);
+        return catalog;
+    }
+
+    private static Dictionary<string, float> ReadValues(Computer computer)
+    {
+        var values = new Dictionary<string, float>(StringComparer.Ordinal);
+        foreach (var root in computer.Hardware)
+        {
+            foreach (var hardware in Walk(root))
+            {
+                foreach (var sensor in hardware.Sensors)
+                {
+                    if (sensor.Value is not float value || !float.IsFinite(value)) continue;
+                    values[SensorId(hardware, sensor)] = value;
+                }
+            }
+        }
+
+        return values;
     }
 
     private static void Emit(object payload)
@@ -159,19 +174,22 @@ internal static class Program
                 try
                 {
                     computer.Accept(visitor);
-                    var (catalog, values) = ReadSensors(computer);
-                    var signature = string.Join("|", catalog.Select(item => JsonSerializer.Serialize(item, JsonOptions)));
-
-                    if (signature != lastCatalogSignature || iteration % 30 == 0)
+                    if (iteration == 0 || iteration % 30 == 0)
                     {
-                        lastCatalogSignature = signature;
-                        Emit(new
+                        var catalog = ReadCatalog(computer);
+                        var signature = string.Join("|", catalog.Select(item => JsonSerializer.Serialize(item, JsonOptions)));
+                        if (signature != lastCatalogSignature || iteration % 30 == 0)
                         {
-                            type = "catalog",
-                            sensors = catalog,
-                        });
+                            lastCatalogSignature = signature;
+                            Emit(new
+                            {
+                                type = "catalog",
+                                sensors = catalog,
+                            });
+                        }
                     }
 
+                    var values = ReadValues(computer);
                     Emit(new
                     {
                         type = "sample",
