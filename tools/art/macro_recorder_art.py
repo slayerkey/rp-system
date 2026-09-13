@@ -31,6 +31,7 @@ PRODUCTS = {
             ("02-capture.png", "PERFORM IT ONCE", "Capture keyboard order and timing while you do the real workflow.", ["KEY DOWN + KEY UP", "SHORTCUT COMBINATIONS", "TIMING INCLUDED"]),
             ("03-edit.png", "FIX THE TIMELINE", "Review the captured sequence and adjust delays without writing macro syntax.", ["HUMAN-READABLE EVENTS", "EDIT DELAYS", "30 SEC · 60 EVENTS"]),
             ("04-safety.png", "STOP MEANS STOP", "Cancel recording or playback from Stream Deck, with a keyboard emergency fallback.", ["LOCAL MACRO DATA", "GLOBAL STOP ACTION", "CTRL + SHIFT + F12"]),
+            ("05-profiles.png", "STARTER PROFILES INCLUDED", "Start with ready-to-edit layouts sized for the Stream Deck hardware you already use.", ["MK.2 + STANDARD", "XL", "PLUS + NEO"]),
         ],
     },
     "macro-recorder-pro": {
@@ -43,6 +44,7 @@ PRODUCTS = {
             ("02-capture.png", "RECORD KEYBOARD + MOUSE", "Capture keystrokes, clicks, movement, drag, wheel and timing in one performed workflow.", ["KEYBOARD", "MOUSE", "10 MIN · 25,000 EVENTS"]),
             ("03-library.png", "BUILD A LOCAL MACRO LIBRARY", "Reuse captured workflows, rename them, edit timing, duplicate, import and export.", ["REUSABLE MACROS", "TIMELINE EDITING", "IMPORT + EXPORT"]),
             ("04-playback.png", "CONTROL THE REPLAY", "Choose playback speed, repeat behavior and mouse positioning for each Replay key.", ["0.25× TO 4×", "COUNT · HELD · TOGGLE", "SCREEN OR ACTIVE WINDOW"]),
+            ("05-profiles.png", "STARTER PROFILES INCLUDED", "Five practical pages are sized for the Stream Deck hardware you already use.", ["MK.2 + STANDARD", "XL", "PLUS + NEO"]),
         ],
     },
 }
