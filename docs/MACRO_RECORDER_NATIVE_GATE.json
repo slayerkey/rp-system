@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "updated_at": "2026-09-13",
+  "ready": false,
+  "blockers": {
+    "recovery_before_hook_startup": false,
+    "release_inputs_before_clearing_recovery_journal": false,
+    "held_input_journal_write_fails_closed": false,
+    "pro_records_single_idle_gap_over_60_seconds": false
+  },
+  "required_smoke": [
+    "modifier and Windows-key down/up",
+    "Stop action interruption",
+    "Ctrl+Shift+F12 interruption",
+    "forced helper crash while keyboard input is held",
+    "forced helper crash while mouse button is held",
+    "unwritable held-input journal path",
+    "mouse click/drag/wheel",
+    "two-monitor virtual-desktop coordinates",
+    "100/125/150 percent DPI",
+    "active-window-relative playback",
+    "single recorded idle gap over 60 seconds",
+    "10-minute Pro recording boundary",
+    "Stream Deck restart persistence",
+    "count/while-held/toggle loop cancellation"
+  ],
+  "source_of_truth": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md"
+}
