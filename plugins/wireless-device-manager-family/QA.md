@@ -4,7 +4,7 @@
 
 **TESTING — not READY_TO_SHIP.**
 
-The hardware-free source/model/profile/media gates and GitHub-hosted Windows release gate have now passed. Real Bluetooth hardware behavior remains the release blocker before READY_TO_SHIP.
+The hardware-free source/model/profile/media gates and GitHub-hosted Windows release gate have now passed. Real wireless hardware behavior remains the release blocker before READY_TO_SHIP. This now includes both Bluetooth hardware and supported USB/HID receiver telemetry.
 
 ## Hardware-free evidence completed
 
@@ -97,7 +97,7 @@ The hosted runner has no paired Bluetooth hardware, so this proves compile/packa
 
 Hosted/self-hosted attempts that receive no runner, execute zero steps, and produce no logs are infrastructure failures and do not count as product QA evidence.
 
-## Required real Windows / Bluetooth smoke before READY_TO_SHIP
+## Required real Windows wireless-device smoke before READY_TO_SHIP
 
 This cannot be honestly replaced by fixtures because generic CI runners do not provide the user's paired Bluetooth hardware.
 
@@ -118,8 +118,13 @@ This cannot be honestly replaced by fixtures because generic CI runners do not p
    - charging only if exposed
    - CONNECT / DISCONNECT unavailable unless a genuinely supported path exists
 
-3. **Mouse**
-   - same checks as keyboard
+3. **Mouse / USB receiver telemetry**
+   - LAMZU Maya X is the first required non-Bluetooth hardware fixture
+   - verify wired USB PID 0x001C exposes exact battery percentage and charging state
+   - verify 2.4 GHz receiver PID 0x001E exposes battery percentage without a Bluetooth adapter
+   - unplug the charging cable and confirm the same logical Maya X survives the wired -> receiver transition
+   - power/sleep the mouse and confirm stale battery data is not presented as current
+   - CONNECT / DISCONNECT must remain unavailable for Maya X because PackRat is reading telemetry, not inventing receiver control
    - include a no-battery-telemetry mouse if available
 
 4. **Xbox / other controller**
