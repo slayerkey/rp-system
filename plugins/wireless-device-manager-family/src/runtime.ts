@@ -14,6 +14,9 @@ export class WirelessRuntime {
   private listeners = new Set<() => void>();
   private timer: NodeJS.Timeout | null = null;
   private refreshTask: Promise<void> | null = null;
+  private globalCache: GlobalSettings | null = null;
+  private globalLoad: Promise<GlobalSettings> | null = null;
+  private globalWrite: Promise<void> = Promise.resolve();
   adapterAvailable = true;
   lastError: string | null = null;
 
@@ -70,8 +73,33 @@ export class WirelessRuntime {
     return result;
   }
 
+  private async loadGlobals(): Promise<GlobalSettings> {
+    if (this.globalCache) return this.globalCache;
+    if (this.globalLoad) return this.globalLoad;
+
+    this.globalLoad = streamDeck.settings.getGlobalSettings<GlobalSettings>();
+    try {
+      this.globalCache = await this.globalLoad;
+      return this.globalCache;
+    } finally {
+      this.globalLoad = null;
+    }
+  }
+
+  private async mutateGlobals(mutator: (current: GlobalSettings) => GlobalSettings): Promise<void> {
+    const operation = this.globalWrite.then(async () => {
+      const current = await this.loadGlobals();
+      const next = mutator(current);
+      await streamDeck.settings.setGlobalSettings(next);
+      this.globalCache = next;
+    });
+    this.globalWrite = operation.catch(() => {});
+    await operation;
+  }
+
   async globals(): Promise<GlobalSettings> {
-    return await streamDeck.settings.getGlobalSettings<GlobalSettings>();
+    await this.globalWrite;
+    return await this.loadGlobals();
   }
 
   async selectedDeviceId(localDeviceId?: string | null): Promise<string | null> {
@@ -83,7 +111,7 @@ export class WirelessRuntime {
     if (this.edition !== "lite" || !id) return;
     const current = await this.globals();
     if (current.liteDeviceId === id) return;
-    await streamDeck.settings.setGlobalSettings({ ...current, liteDeviceId: id });
+    await this.mutateGlobals(value => ({ ...value, liteDeviceId: id }));
     for (const listener of this.listeners) listener();
   }
 
@@ -103,33 +131,34 @@ export class WirelessRuntime {
   async setThreshold(id: string, value: number): Promise<void> {
     if (this.edition !== "pro") return;
     const threshold = Math.max(1, Math.min(99, Number(value || 20)));
-    const current = await this.globals();
-    await streamDeck.settings.setGlobalSettings({
+    await this.mutateGlobals(current => ({
       ...current,
       thresholds: { ...(current.thresholds ?? {}), [id]: threshold }
-    });
+    }));
   }
 
   async setFavorite(id: string, value: boolean): Promise<void> {
     if (this.edition !== "pro") return;
-    const current = await this.globals();
-    const favorites = new Set(current.favorites ?? []);
-    if (value) favorites.add(id); else favorites.delete(id);
-    await streamDeck.settings.setGlobalSettings({ ...current, favorites: [...favorites] });
+    await this.mutateGlobals(current => {
+      const favorites = new Set(current.favorites ?? []);
+      if (value) favorites.add(id); else favorites.delete(id);
+      return { ...current, favorites: [...favorites] };
+    });
   }
 
   async assignGroups(names: string, id: string): Promise<void> {
     if (this.edition !== "pro") return;
     const desired = parseGroupNames(names);
-    const current = await this.globals();
-    const groups: Record<string, string[]> = {};
-    for (const [groupName, members] of Object.entries(current.groups ?? {})) {
-      groups[groupName] = members.filter(member => member !== id);
-    }
-    for (const groupName of desired) {
-      groups[groupName] = [...new Set([...(groups[groupName] ?? []), id])];
-    }
-    await streamDeck.settings.setGlobalSettings({ ...current, groups });
+    await this.mutateGlobals(current => {
+      const groups: Record<string, string[]> = {};
+      for (const [groupName, members] of Object.entries(current.groups ?? {})) {
+        groups[groupName] = members.filter(member => member !== id);
+      }
+      for (const groupName of desired) {
+        groups[groupName] = [...new Set([...(groups[groupName] ?? []), id])];
+      }
+      return { ...current, groups };
+    });
   }
 
   async groupMembers(name?: string | null): Promise<string[]> {
