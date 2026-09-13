@@ -13,6 +13,7 @@ import {
   normalizeProfile,
   profileMatchesSnapshot,
   snapshotDefaultRoleConflicts,
+  verifyApplyResult,
 } from "./profiles.js";
 import { dialFeedback, renderKey } from "./render.js";
 
@@ -246,7 +247,8 @@ async function applyProfile(profile, record = null) {
     }
   }
 
-  const result = mergeApplyResult(plan, response);
+  let result = mergeApplyResult(plan, response);
+  result = verifyApplyResult(profile, result, response?.snapshot || null);
   if (response?.snapshot) latestSnapshot = response.snapshot;
   else await refreshSnapshot({ quiet: true });
 
