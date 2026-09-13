@@ -25,9 +25,11 @@ Each profile can independently configure:
 - optional endpoint volume restore
 - optional endpoint mute restore
 
+For Audio Manager Pro, the user-facing **Default** role means Windows Console + Multimedia together. Applying a Default role sets both underlying Windows roles, and Status requires both to still match before reporting the profile ACTIVE.
+
 A missing or recreated endpoint is never replaced by a friendly-name guess. Profiles store endpoint ID plus Windows device-instance and hardware-container metadata. Safe matches can rebind automatically; weak name-only matches require an explicit user rebind.
 
-Applying a profile reports one of three outcomes: SUCCESS, PARTIAL, or FAILED.
+Applying a profile reports one of three outcomes: SUCCESS, PARTIAL, or FAILED. If two configured roles target the same physical endpoint but request contradictory saved volume or mute state, routing can still apply but the contradictory state restore is skipped and reported instead of arbitrarily choosing a winner.
 
 ## Windows architecture
 
