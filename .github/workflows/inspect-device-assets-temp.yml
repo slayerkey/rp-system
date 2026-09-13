@@ -1,0 +1,29 @@
+name: Inspect Device Assets
+
+on:
+  push:
+    branches:
+      - temp/inspect-device-assets-20260913
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify assets
+        run: |
+          test -f tools/art/assets/ce753743-6875-4a3d-afb2-c6fb54a49b9a.png
+          test -f tools/art/assets/streamdeck-transparent.png
+          test -f tools/art/assets/xeneon-edge-transparent.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: device-assets-inspection
+          path: |
+            tools/art/assets/ce753743-6875-4a3d-afb2-c6fb54a49b9a.png
+            tools/art/assets/streamdeck-transparent.png
+            tools/art/assets/xeneon-edge-transparent.png
+          if-no-files-found: error
+          retention-days: 1
