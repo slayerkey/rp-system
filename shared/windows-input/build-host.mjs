@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,7 +16,12 @@ const force=process.argv.includes("--force");
 async function exists(path){try{await stat(path);return true;}catch{return false;}}
 async function sourceHash(){
   const h=createHash("sha256");
-  for(const path of [project,program]) h.update(await readFile(path));
+  const sourceDir=resolve(here,"PackRat.InputHost");
+  const names=(await readdir(sourceDir)).filter(name=>/\.(?:cs|csproj|props|targets)$/i.test(name)).sort();
+  for(const name of names){
+    h.update(name);
+    h.update(await readFile(resolve(sourceDir,name)));
+  }
   return h.digest("hex");
 }
 
