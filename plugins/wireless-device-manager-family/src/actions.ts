@@ -60,7 +60,10 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
 
   override async onSendToPlugin(ev: SendToPluginEvent<any, DeviceSettings>): Promise<void> {
     const payload = ev.payload ?? {};
-    if (payload.type === "get-wireless-snapshot") return;
+    if (payload.type === "get-wireless-snapshot") {
+      await this.runtime.sendInspector();
+      return;
+    }
     const deviceId = typeof payload.deviceId === "string" ? payload.deviceId : "";
 
     if (payload.type === "select-device" && deviceId) {
