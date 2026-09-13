@@ -100,17 +100,16 @@ Saved device identity includes, where Windows exposes it:
 
 - endpoint ID
 - friendly name
-- Device Instance ID
+- Device Instance ID (diagnostic metadata only)
 - hardware Container ID
 
 Automatic resolution order:
 
 1. exact active endpoint ID
-2. unique Device Instance ID
-3. unique Container ID + normalized friendly name
-4. stop and require explicit rebind
+2. unique Container ID + normalized friendly name
+3. stop and require explicit rebind
 
-A friendly-name-only match is not sufficient for automatic rebinding.
+A Device Instance ID or friendly-name-only match is not sufficient for automatic rebinding. The stored instance value is retained only as diagnostic metadata because Windows documents the audio endpoint instance identifier alongside the ordinary endpoint identity rather than as an independent durable hardware key.
 
 ### Windows 11 StableId follow-up
 
