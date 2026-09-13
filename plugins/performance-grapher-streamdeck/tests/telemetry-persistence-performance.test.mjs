@@ -259,3 +259,27 @@ test("hardware launch error remains unavailable and schedules recovery after clo
   clearTimeout(telemetry.hardwareBackoff);
   telemetry.hardwareBackoff = null;
 });
+
+
+test("graceful shutdown persists the latest active session before resolving", async () => {
+  const dir = await mkdtemp(resolve(tmpdir(), "packrat-perf-shutdown-"));
+  const path = resolve(dir, "state.json");
+  const provider = fakeProvider();
+  let providerStopped = false;
+  provider.stop = () => { providerStopped = true; };
+
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(dir, "missing"),
+    persistPath: path,
+    presentMonProvider: provider,
+  });
+
+  telemetry.session._start("game.exe", Date.now() - 1000);
+  telemetry.session.observeFrame({ application: "game.exe", frameTimeMs: 10 }, {}, Date.now());
+  await telemetry.shutdown();
+
+  assert.equal(providerStopped, true);
+  const saved = JSON.parse(await readFile(path, "utf8"));
+  assert.equal(saved.session.active.process, "game.exe");
+  assert.ok(saved.session.active.histogram.count >= 1);
+});
