@@ -30,9 +30,9 @@ test("Lite submission matches registry and Marketplace contract",async()=>{
   assert.equal(submission.media.gallery.length,4);
   assert.equal(submission.marketplace_auto_publish,false);
   assert.ok(submission.marketplace_operating_systems.includes("Windows"));
-  assert.equal(submission.bundled_profiles.device_types.length,4);
-  assert.deepEqual(submission.bundled_profiles.device_types.map(x=>x.device_type),[0,2,7,9]);
-  assert.equal(manifest.Profiles.length,4);
+  assert.equal(submission.bundled_profiles.device_types.length,5);
+  assert.deepEqual(submission.bundled_profiles.device_types.map(x=>x.device_type),[0,1,2,7,9]);
+  assert.equal(manifest.Profiles.length,5);
   assert.equal(product.workflow_state,"TESTING");
   assert.equal(product.native_release_gate,"docs/MACRO_RECORDER_NATIVE_GATE.json");
   assert.ok(Array.isArray(submission.limitations)&&submission.limitations.length>=2);
