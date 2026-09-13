@@ -1,11 +1,33 @@
 {
-  "product_name": "Macro Recorder Lite",
-  "marketplace_type": "Plugin",
+  "slug": "macro-recorder-lite",
+  "name": "Macro Recorder Lite",
+  "type": "plugin",
   "price_usd": 0,
   "version": "1.0.0.0",
+  "marketplace_category": [
+    "Utilities",
+    "Productivity"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows"
+  ],
+  "marketplace_tags": [
+    "Macro",
+    "Keyboard",
+    "Hotkeys",
+    "Shortcuts",
+    "Automation",
+    "Productivity"
+  ],
+  "marketplace_auto_publish": false,
+  "headline": "RECORD -> DO IT -> REPLAY",
+  "description": "Record short keyboard macros by performing them once. Macro Recorder Lite captures key down/up events, combinations and timing on Windows, then lets you assign the recording to a Stream Deck key and replay it without writing scripts. Great for keyboard shortcuts, hotkeys and simple automation. Mouse recording, long macros, loops and Macro Library are available in Pro.",
+  "release_notes": "- Record keyboard key-down/key-up events, shortcuts and timing.\n- Assign the latest recording to any Replay Macro key and edit event delays.\n- Includes ready-to-use starter profiles for standard Stream Deck, XL, Plus, and Neo with REC / STOP / PLAY and safe keyboard examples.\n- Adds a global Stop action and Ctrl+Shift+F12 emergency playback stop.",
   "hero": "RECORD -> DO IT -> REPLAY",
   "tagline": "Record keyboard workflows once. Replay them from Stream Deck.",
-  "description": "Record short keyboard macros by performing them once. Macro Recorder Lite captures key down/up events, combinations and timing on Windows, then lets you assign the recording to a Stream Deck key and replay it without writing scripts. Great for keyboard shortcuts, hotkeys and simple automation. Mouse recording, long macros, loops and Macro Library are available in Pro.",
   "keywords": [
     "keyboard",
     "macro",
@@ -17,12 +39,6 @@
     "Stream Deck",
     "record keystrokes",
     "keyboard macro"
-  ],
-  "release_notes": [
-    "Record keyboard key-down/key-up events, shortcuts and timing.",
-    "Assign the latest recording to any Replay Macro key and edit event delays.",
-    "Includes ready-to-use starter profiles for standard Stream Deck, XL, Plus, and Neo with REC / STOP / PLAY and safe keyboard examples.",
-    "Adds a global Stop action and Ctrl+Shift+F12 emergency playback stop."
   ],
   "privacy": "Macro contents are never uploaded to PackRat. Lite stores assigned macros in local Stream Deck action settings; if the user exports or shares a Stream Deck profile, those action settings can be included in that exported profile.",
   "compatibility": {
