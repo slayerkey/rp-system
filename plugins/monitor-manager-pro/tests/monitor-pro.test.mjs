@@ -207,3 +207,12 @@ test("saved primary display is restored independently from saved mode", async ()
   assert.match(source,/item:savedPrimary\.description\+" primary display"/);
   assert.match(source,/primary:true/);
 });
+
+test("profile persistence validates entries serializes mutations and replaces atomically", async () => {
+  const source=await readFile("src/runtime.ts","utf8");
+  assert.match(source,/parsed\.profiles\.every/);
+  assert.match(source,/profileMutationQueue/);
+  assert.match(source,/const temp=file\+"\.tmp-"\+process\.pid/);
+  assert.match(source,/await rename\(temp,file\)/);
+  assert.match(source,/await rm\(temp,\{force:true\}\)/);
+});
