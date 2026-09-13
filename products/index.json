@@ -856,6 +856,14 @@
       "version": "1.0.0"
     },
     {
+      "id": "internet-health-pro",
+      "name": "Internet Health Pro",
+      "type": "plugin",
+      "status": "qa_passed",
+      "price_usd": 7.99,
+      "version": "1.0.0.0"
+    },
+    {
       "id": "audio-manager-pro",
       "name": "Audio Manager Pro",
       "type": "plugin",
