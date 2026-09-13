@@ -109,12 +109,23 @@ test("Unicode names survive identity matching",()=>{
   assert.equal(m.status,"matched");
 });
 
-test("capture preflight detects split Console and Multimedia defaults",()=>{
+test("capture preflight detects split or incomplete Console and Multimedia defaults",()=>{
   const s=snap();
   assert.deepEqual(snapshotDefaultRoleConflicts(s),[]);
+
   s.multimediaOutputId="render-speakers";
   assert(snapshotDefaultRoleConflicts(s).some(x=>x.includes("output")));
+
+  s.multimediaOutputId=s.defaultOutputId;
   s.multimediaInputId="capture-headset";
+  assert(snapshotDefaultRoleConflicts(s).some(x=>x.includes("input")));
+
+  s.multimediaInputId=s.defaultInputId;
+  s.defaultOutputId="";
+  assert(snapshotDefaultRoleConflicts(s).some(x=>x.includes("output")));
+
+  s.defaultOutputId=s.multimediaOutputId;
+  s.multimediaInputId="";
   assert(snapshotDefaultRoleConflicts(s).some(x=>x.includes("input")));
 });
 
