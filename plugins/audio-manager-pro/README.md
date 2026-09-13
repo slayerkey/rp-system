@@ -51,7 +51,13 @@ Wave Link users can configure Monitor Mix to follow Windows Default Output, or u
 
 ## Development
 
-Building from source requires Node.js 24+ and the .NET 8 SDK. The .NET SDK is a build-time PackRat requirement only; the shipped Windows helper is self-contained.
+Building the plugin requires Node.js 24+. The native helper also requires a .NET 8 SDK at build time, but `rat dev audio-manager-pro` manages that dependency automatically.
+
+Rat Dev first uses an already installed .NET 8 SDK when one is available. If none is installed on Windows, Audio Manager bootstraps Microsoft's official SDK version `8.0.425` into a private PackRat cache at:
+
+`%LOCALAPPDATA%\PackRat\tools\dotnet\8.0.425`
+
+The private SDK does not modify global PATH, does not require an administrator install, and is reused by later Audio Manager builds. Customers do not need the .NET SDK or runtime because the shipped helper is self-contained.
 
 ```text
 rat dev audio-manager-pro
