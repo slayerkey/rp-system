@@ -58,10 +58,28 @@ export class MacroLibrary {
             this.macros = [];
             return this;
           }
+          if (tempError?.code) {
+            this.macros = [];
+            this.warning = `Could not read or promote the interrupted Macro Library save (${tempError.code}).`;
+            return this;
+          }
+          let tempBackupPreserved = false;
+          try {
+            await rename(temp, `${temp}.corrupt-${Date.now()}`);
+            tempBackupPreserved = true;
+          } catch {}
           this.macros = [];
-          this.warning = "An interrupted Macro Library save could not be recovered.";
+          this.warning = tempBackupPreserved
+            ? "An interrupted Macro Library save was malformed and was preserved as a corrupt backup."
+            : "An interrupted Macro Library save was malformed and could not be preserved as a backup.";
           return this;
         }
+      }
+
+      if (error?.code) {
+        this.macros = [];
+        this.warning = `Could not read the Macro Library (${error.code}). The file was left untouched.`;
+        return this;
       }
 
       let backupPreserved = false;
