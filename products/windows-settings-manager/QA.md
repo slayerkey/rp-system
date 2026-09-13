@@ -6,7 +6,7 @@
 - deterministic Lite and Pro assembly
 - official Elgato CLI validation
 - official package creation
-- five bundled profile device families per edition
+- seven bundled profile device families per edition
 - Lite cannot expose Pro actions
 - Pro ships five named but empty PC Mode slots
 - backend rejects brittle UI automation patterns
@@ -30,6 +30,7 @@
 - Keep Awake enable/disable, plugin restart, sleep/resume
 - lock workstation
 - reboot and Stream Deck restart
+- bundled profile install and page navigation on Standard, Mini, XL, Stream Deck +, Neo, Galleon 100 SD, and Stream Deck + XL
 - partial mode failure, including one unsupported/failed step with other steps succeeding
 
 ### Windows 10
