@@ -30,6 +30,10 @@ jobs:
         working-directory: plugins/audio-manager-pro
       - run: npm run build
         working-directory: plugins/audio-manager-pro
+      - name: Run Audio Manager static host audit
+        shell: pwsh
+        working-directory: plugins/audio-manager-pro
+        run: .\scripts\host-audit.ps1 -StaticOnly
       - run: npm run native:selftest
         working-directory: plugins/audio-manager-pro
       - name: Smoke real Windows helper snapshot protocol
