@@ -1,16 +1,11 @@
 (() => {
-  const DEFAULTS = {
-    metricId: "gpu.temperature",
-    windowMs: 60000,
-    threshold: 85,
-    thresholdDirection: "above",
-    scaleMin: null,
-    scaleMax: null,
-    accent: "#2BE86A",
-    fpsMode: "fps",
-    lowMode: "one",
-    summaryPage: 0,
-  };
+  "use strict";
+
+  const PI_BUILD = "1.0.0.0-2";
+  window.__performanceGrapherPiVersion = PI_BUILD;
+  console.log("Performance Grapher PI build " + PI_BUILD);
+
+  const { streamDeckClient, useSettings } = SDPIComponents;
 
   const KINDS = {
     "com.packrat.performance-grapher.graph": "graph",
@@ -20,180 +15,278 @@
     "com.packrat.performance-grapher.alert": "alert",
   };
 
-  let socket = null;
-  let uiUuid = "";
-  let context = "";
+  const FALLBACK_METRICS = [
+    { id: "cpu.load", name: "CPU Load", source: "Windows", unit: "%" },
+    { id: "ram.load", name: "RAM Used", source: "Windows", unit: "%" },
+    { id: "game.fps", name: "Game FPS", source: "Game telemetry", unit: "FPS" },
+    { id: "game.frametime", name: "Frametime", source: "Game telemetry", unit: "ms" },
+  ];
+
+  const HARDWARE_CANONICAL = new Set([
+    "cpu.temperature",
+    "gpu.temperature",
+    "gpu.load",
+    "gpu.power",
+    "cpu.power",
+  ]);
+
   let actionUuid = "";
   let kind = "graph";
-  let settings = { ...DEFAULTS };
   let snapshot = null;
-  let saveTimer = null;
+  let metricSetting = undefined;
 
   const $ = (id) => document.getElementById(id);
+  const [getMetricSetting, setMetricSetting] = useSettings("metricId", (value) => {
+    metricSetting = typeof value === "string" && value ? value : undefined;
+    updateMetricOptions();
+    updateWarning();
+  }, null);
 
-  function send(message) {
-    if (socket?.readyState !== WebSocket.OPEN) return false;
-    socket.send(JSON.stringify(message));
-    return true;
+  function defaultMetric() {
+    return kind === "metric" ? "cpu.load" : "gpu.temperature";
+  }
+
+  function selectedMetric() {
+    return metricSetting || defaultMetric();
   }
 
   function filterFields() {
     for (const node of document.querySelectorAll("[data-kinds]")) {
-      const kinds = String(node.getAttribute("data-kinds") || "").split(/\s+/);
+      const kinds = String(node.getAttribute("data-kinds") || "").split(/\s+/).filter(Boolean);
       node.hidden = !kinds.includes(kind);
     }
   }
 
-  function numberOrNull(value) {
-    if (value == null || String(value).trim() === "") return null;
-    const n = Number(value);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function collectSettings() {
-    const min = numberOrNull($("scaleMin").value);
-    const max = numberOrNull($("scaleMax").value);
-    return {
-      ...settings,
-      metricId: $("metricId").value || settings.metricId || "gpu.temperature",
-      windowMs: Number($("windowMs").value || 60000),
-      threshold: numberOrNull($("threshold").value) ?? 85,
-      thresholdDirection: $("thresholdDirection").value === "below" ? "below" : "above",
-      scaleMin: min !== null && max !== null && max > min ? min : null,
-      scaleMax: min !== null && max !== null && max > min ? max : null,
-      accent: $("accent").value.toUpperCase(),
-      fpsMode: $("fpsMode").value === "frametime" ? "frametime" : "fps",
-      lowMode: $("lowMode").value === "pointOne" ? "pointOne" : "one",
-    };
-  }
-
-  function saveSoon() {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      settings = collectSettings();
-      $("accentValue").textContent = settings.accent;
-      send({ event: "setSettings", action: actionUuid, context, payload: settings });
-    }, 80);
-  }
-
-  function applySettings(next) {
-    settings = { ...DEFAULTS, ...(next || {}) };
-    $("windowMs").value = String([0, 60000, 300000, 900000].includes(Number(settings.windowMs)) ? Number(settings.windowMs) : 60000);
-    $("threshold").value = Number.isFinite(Number(settings.threshold)) ? Number(settings.threshold) : 85;
-    $("thresholdDirection").value = settings.thresholdDirection === "below" ? "below" : "above";
-    $("scaleMin").value = settings.scaleMin == null ? "" : String(settings.scaleMin);
-    $("scaleMax").value = settings.scaleMax == null ? "" : String(settings.scaleMax);
-    $("fpsMode").value = settings.fpsMode === "frametime" ? "frametime" : "fps";
-    $("lowMode").value = settings.lowMode === "pointOne" ? "pointOne" : "one";
-    const accent = /^#[0-9A-Fa-f]{6}$/.test(String(settings.accent || "")) ? String(settings.accent) : DEFAULTS.accent;
-    $("accent").value = accent;
-    $("accentValue").textContent = accent.toUpperCase();
-    updateMetricOptions();
-  }
-
-  function statusCopy(status, provider) {
-    const state = String(status?.state || "starting");
-    if (state === "ready") return { cls: "ready", title: provider + " ready", detail: provider === "Game telemetry" ? "PresentMon is receiving frame-presentation data locally." : "Libre Hardware Monitor sensor helper is sampling at 1 Hz." };
-    if (state === "permission_required") return { cls: "warn", title: "Windows permission required", detail: "PresentMon ETW capture needs Performance Log Users membership or sufficient administrator rights on this system." };
-    if (state === "unavailable" || state === "offline") return { cls: "error", title: provider + " unavailable", detail: String(status?.detail || "Provider is offline. Use the diagnostic button or check the local installation.") };
-    if (state === "degraded") return { cls: "warn", title: provider + " limited", detail: String(status?.detail || "Some sensors are unavailable. Windows CPU/RAM metrics remain available.") };
-    return { cls: "warn", title: "Starting " + provider.toLowerCase(), detail: String(status?.detail || "Initializing local telemetry…") };
-  }
-
-  function paintStatus(dotId, titleId, detailId, info) {
-    $(dotId).className = "dot " + info.cls;
-    $(titleId).textContent = info.title;
-    $(detailId).textContent = info.detail;
-  }
-
-  function updateStatus() {
-    const statuses = snapshot?.status || {};
-    paintStatus("fpsDot", "fpsTitle", "fpsDetail", statusCopy(statuses.fps, "Game telemetry"));
-    paintStatus("sensorDot", "sensorTitle", "sensorDetail", statusCopy(statuses.hardware, "Hardware sensors"));
-    const session = snapshot?.session || {};
-    if (session.active) {
-      const avg = session.current?.averageFps;
-      $("sessionLine").textContent = (session.process || "Game") + " · " + (Number.isFinite(avg) ? Math.round(avg) + " avg FPS" : "collecting session data");
-    } else if (session.lastCompleted) {
-      const last = session.lastCompleted;
-      $("sessionLine").textContent = "Last: " + (last.process || "game") + " · " + (Number.isFinite(last.averageFps) ? Math.round(last.averageFps) + " avg FPS" : "session saved");
-    } else $("sessionLine").textContent = "No active game session.";
+  function optionLabel(metric) {
+    const name = String(metric?.name || metric?.id || "Metric");
+    const hardware = String(metric?.hardwareName || "").trim();
+    return hardware ? name + " · " + hardware : name;
   }
 
   function updateMetricOptions() {
     const select = $("metricId");
-    const wanted = String(settings.metricId || select.value || (kind === "metric" ? "cpu.load" : "gpu.temperature"));
-    const metrics = Array.isArray(snapshot?.metrics) ? snapshot.metrics : [
-      { id: "cpu.load", name: "CPU Load", source: "Windows" },
-      { id: "ram.load", name: "RAM Used", source: "Windows" },
-      { id: "game.fps", name: "Game FPS", source: "PresentMon" },
-      { id: "game.frametime", name: "Frametime", source: "PresentMon" },
-    ];
+    if (!select) return;
+
+    const wanted = selectedMetric();
+    const metrics = Array.isArray(snapshot?.metrics) && snapshot.metrics.length
+      ? snapshot.metrics
+      : FALLBACK_METRICS;
+
     const groups = new Map();
     for (const metric of metrics) {
+      if (!metric?.id) continue;
       const source = String(metric.source || "Local");
       if (!groups.has(source)) groups.set(source, []);
       groups.get(source).push(metric);
     }
+
     select.replaceChildren();
     for (const [source, items] of groups) {
       const group = document.createElement("optgroup");
       group.label = source;
       for (const metric of items) {
         const option = document.createElement("option");
-        option.value = String(metric.id || "");
-        option.textContent = String(metric.name || metric.id) + (metric.hardwareName ? " · " + metric.hardwareName : "");
+        option.value = String(metric.id);
+        option.textContent = optionLabel(metric);
         group.appendChild(option);
       }
       select.appendChild(group);
     }
-    const exists = metrics.some((m) => String(m.id) === wanted);
+
+    const exists = metrics.some((metric) => String(metric.id) === wanted);
     if (!exists && wanted) {
       const option = document.createElement("option");
       option.value = wanted;
-      option.textContent = wanted + " · unavailable";
+      option.textContent = snapshot
+        ? friendlyMetricName(wanted) + " · unavailable on this PC"
+        : friendlyMetricName(wanted);
       select.prepend(option);
     }
+
     select.value = wanted;
   }
 
-  function command(name) {
-    send({ event: "sendToPlugin", action: actionUuid, context, payload: { type: "performanceGrapher.command", command: name } });
+  function friendlyMetricName(id) {
+    const known = {
+      "cpu.load": "CPU Load",
+      "ram.load": "RAM Used",
+      "cpu.temperature": "CPU Temperature",
+      "gpu.temperature": "GPU Temperature",
+      "gpu.load": "GPU Load",
+      "gpu.power": "GPU Power",
+      "cpu.power": "CPU Power",
+      "game.fps": "Game FPS",
+      "game.frametime": "Frametime",
+    };
+    return known[id] || String(id || "Metric");
   }
 
-  window.connectElgatoStreamDeckSocket = (port, uuid, registerEvent, info, rawActionInfo) => {
-    uiUuid = uuid;
-    const actionInfo = JSON.parse(rawActionInfo || "{}");
-    context = String(actionInfo.context || uuid);
-    actionUuid = String(actionInfo.action || "");
+  function providerInfo(status, provider) {
+    const state = String(status?.state || "starting");
+    const detail = String(status?.detail || "");
+
+    if (state === "ready") {
+      return {
+        cls: "ready",
+        title: provider + " ready",
+        detail: provider === "Game telemetry"
+          ? "Frame presentation data is arriving."
+          : "Hardware sensor data is arriving.",
+      };
+    }
+
+    if (state === "permission_required") {
+      return {
+        cls: "warn",
+        title: "Game FPS needs Windows permission",
+        detail: "Add your Windows account to Performance Log Users, sign out and back in once, then restart game telemetry.",
+      };
+    }
+
+    if (state === "degraded") {
+      return {
+        cls: "warn",
+        title: provider + " limited",
+        detail: detail || "Some advanced sensors are unavailable. Windows CPU and RAM still work.",
+      };
+    }
+
+    if (state === "unavailable" || state === "offline") {
+      return {
+        cls: "error",
+        title: provider + " unavailable",
+        detail: detail || "The local telemetry provider is not available.",
+      };
+    }
+
+    return {
+      cls: "warn",
+      title: provider + " starting",
+      detail: detail || "Waiting for local telemetry.",
+    };
+  }
+
+  function paintProvider(prefix, info) {
+    $(prefix + "Dot").className = "dot " + info.cls;
+    $(prefix + "Title").textContent = info.title;
+    $(prefix + "Detail").textContent = info.detail;
+  }
+
+  function metricNeedsGame(metricId) {
+    return metricId === "game.fps" || metricId === "game.frametime";
+  }
+
+  function metricNeedsHardware(metricId) {
+    return HARDWARE_CANONICAL.has(metricId) || String(metricId || "").startsWith("lhm.");
+  }
+
+  function updateWarning() {
+    const warning = $("providerWarning");
+    const button = $("warningAction");
+    if (!warning || !button) return;
+
+    warning.hidden = true;
+    button.hidden = true;
+    button.onclick = null;
+
+    if (!snapshot) return;
+
+    const statuses = snapshot.status || {};
+    const metricId = selectedMetric();
+    const needsGame = kind === "fps" || kind === "session" || metricNeedsGame(metricId);
+    const needsHardware = !needsGame && (kind === "graph" || kind === "metric" || kind === "alert") && metricNeedsHardware(metricId);
+
+    let info = null;
+    let provider = "";
+    if (needsGame) {
+      provider = "fps";
+      info = providerInfo(statuses.fps, "Game telemetry");
+    } else if (needsHardware) {
+      provider = "hardware";
+      info = providerInfo(statuses.hardware, "Hardware sensors");
+    }
+
+    if (!info) return;
+    const state = provider === "fps" ? String(statuses.fps?.state || "") : String(statuses.hardware?.state || "");
+    if (state === "ready" || state === "starting" || state === "stopped") return;
+
+    $("warningTitle").textContent = info.title;
+    $("warningDetail").textContent = info.detail;
+    warning.hidden = false;
+
+    if (provider === "fps" && state === "permission_required") {
+      button.textContent = "Open FPS permission guide";
+      button.hidden = false;
+      button.onclick = () => command("open-presentmon-help");
+    }
+  }
+
+  function updateStatus() {
+    const statuses = snapshot?.status || {};
+    paintProvider("fps", providerInfo(statuses.fps, "Game telemetry"));
+    paintProvider("sensor", providerInfo(statuses.hardware, "Hardware sensors"));
+
+    const session = snapshot?.session || {};
+    if (session.active) {
+      const avg = session.current?.averageFps;
+      $("sessionLine").textContent =
+        (session.process || "Game") +
+        (Number.isFinite(avg) ? " · " + Math.round(avg) + " avg FPS" : " · collecting session data");
+    } else if (session.lastCompleted) {
+      const last = session.lastCompleted;
+      $("sessionLine").textContent =
+        "Last: " +
+        (last.process || "game") +
+        (Number.isFinite(last.averageFps) ? " · " + Math.round(last.averageFps) + " avg FPS" : "");
+    } else {
+      $("sessionLine").textContent = "No active game session.";
+    }
+
+    updateWarning();
+  }
+
+  async function command(name) {
+    await streamDeckClient.send("sendToPlugin", {
+      type: "performanceGrapher.command",
+      command: name,
+    });
+  }
+
+  async function requestState() {
+    await streamDeckClient.send("sendToPlugin", {
+      type: "performanceGrapher.inspect",
+    });
+  }
+
+  $("metricId").addEventListener("change", async () => {
+    metricSetting = $("metricId").value || defaultMetric();
+    updateWarning();
+    await setMetricSetting(metricSetting);
+  });
+
+  $("restartFps").addEventListener("click", () => void command("restart-fps"));
+  $("presentMonHelp").addEventListener("click", () => void command("open-presentmon-help"));
+  $("resetSession").addEventListener("click", () => void command("reset-session"));
+
+  streamDeckClient.sendToPropertyInspector.subscribe((event) => {
+    const payload = event?.payload;
+    if (payload?.type !== "performanceGrapher.state") return;
+    snapshot = payload.snapshot || null;
+    if (payload.settings?.metricId && !metricSetting) {
+      metricSetting = String(payload.settings.metricId);
+    }
+    updateMetricOptions();
+    updateStatus();
+  });
+
+  void streamDeckClient.getConnectionInfo().then(async (connection) => {
+    actionUuid = String(connection?.actionInfo?.action || "");
     kind = KINDS[actionUuid] || "graph";
-    applySettings(actionInfo.payload?.settings || {});
+    const savedMetric = await getMetricSetting();
+    metricSetting = typeof savedMetric === "string" && savedMetric ? savedMetric : undefined;
     filterFields();
+    updateMetricOptions();
     document.body.classList.add("ready");
-
-    socket = new WebSocket("ws://127.0.0.1:" + port);
-    socket.onopen = () => {
-      send({ event: registerEvent, uuid: uiUuid });
-      send({ event: "getSettings", action: actionUuid, context });
-      send({ event: "sendToPlugin", action: actionUuid, context, payload: { type: "performanceGrapher.inspect" } });
-    };
-    socket.onmessage = (event) => {
-      let message;
-      try { message = JSON.parse(event.data); } catch { return; }
-      if (message.event === "didReceiveSettings") applySettings(message.payload?.settings || {});
-      if (message.event === "sendToPropertyInspector" && message.payload?.type === "performanceGrapher.state") {
-        snapshot = message.payload.snapshot || null;
-        settings = { ...settings, ...(message.payload.settings || {}) };
-        updateMetricOptions();
-        updateStatus();
-      }
-    };
-  };
-
-  for (const id of ["metricId", "windowMs", "threshold", "thresholdDirection", "scaleMin", "scaleMax", "fpsMode", "lowMode", "accent"]) {
-    $(id).addEventListener(id === "accent" || id === "threshold" || id === "scaleMin" || id === "scaleMax" ? "input" : "change", saveSoon);
-  }
-  $("restartFps").addEventListener("click", () => command("restart-fps"));
-  $("presentMonHelp").addEventListener("click", () => command("open-presentmon-help"));
-  $("resetSession").addEventListener("click", () => command("reset-session"));
+    await requestState();
+  });
 })();
