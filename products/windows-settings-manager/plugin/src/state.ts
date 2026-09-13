@@ -4,7 +4,7 @@ import type { BackendReply, SystemSnapshot } from "./types.js";
 const OFFLINE: SystemSnapshot = {
   backendOnline: false,
   capturedAt: new Date(0).toISOString(),
-  hdr: { available: false, api: "unavailable", supportedCount: 0, enabledCount: 0, mixed: false },
+  hdr: { available: false, api: "unavailable", supportedCount: 0, enabledCount: 0, mixed: false, errors: [] },
   topology: "unknown",
   powerPlans: [],
   keepAwake: false,
