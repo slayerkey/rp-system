@@ -103,23 +103,6 @@ public static class PackRatWindowsNative
         public byte wReserved;
     }
 
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    private struct RtlOsVersionInfoEx
-    {
-        public uint dwOSVersionInfoSize;
-        public uint dwMajorVersion;
-        public uint dwMinorVersion;
-        public uint dwBuildNumber;
-        public uint dwPlatformId;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-        public string szCSDVersion;
-        public ushort wServicePackMajor;
-        public ushort wServicePackMinor;
-        public ushort wSuiteMask;
-        public byte wProductType;
-        public byte wReserved;
-    }
-
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     private struct AdvancedColorInfo2
     {
