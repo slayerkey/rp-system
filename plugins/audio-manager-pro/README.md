@@ -67,8 +67,14 @@ The audit does not change Windows audio. It verifies the exact build, native hel
 
 The Audio Profile Status action is read-only: it refreshes current Windows audio state and reports ACTIVE / INACTIVE without applying the profile.
 
-Release packaging:
+Release flow after physical QA passes:
+
+1. Move `products/audio-manager-pro.json` to `READY_TO_SHIP`.
+2. Merge `product/audio-manager-pro` into committed `main`.
+3. Run:
 
 ```text
 rat ship audio-manager-pro
 ```
+
+Rat Ship intentionally packages committed `main`, never an unmerged product branch.
