@@ -8,6 +8,7 @@ import {
   groupSummary,
   nextFavorite,
   normalizeDevice,
+  parseGroupNames,
   resolveSelectedDeviceId,
   shouldApplySnapshot,
   shouldLowBatteryAlert,
@@ -251,4 +252,10 @@ test("labeled bundled keys preserve live values",()=>{
   assert.equal(deviceViewTitle(normalizeDevice(mouse),"battery","MOUSE"),"MOUSE\nN/A");
   assert.equal(deviceViewTitle(connected,"control","CONNECT"),"DISCONNECT");
   assert.equal(deviceViewTitle(disconnected,"control","CONNECT"),"CONNECT");
+});
+
+
+test("group names are case-insensitive, trimmed and deduplicated",()=>{
+  assert.deepEqual(parseGroupNames(" gaming, TRAVEL, gaming , work "),["GAMING","TRAVEL","WORK"]);
+  assert.deepEqual(parseGroupNames(" , , "),[]);
 });
