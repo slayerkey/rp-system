@@ -4,9 +4,9 @@
   "type": "plugin",
   "status": "built",
   "workflow_state": "TESTING",
-  "blocker_kind": "native_release_gate_ci_runner_unavailable_and_final_host_validation",
-  "blocker": "Before shipping, resolve every false condition in docs/MACRO_RECORDER_NATIVE_GATE.json and complete the native acceptance work in docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md. GitHub-hosted Actions is also not assigning the Windows runner, so use the local family QA while hosted runners are unavailable, then complete the exact packaged-artifact Windows + physical Stream Deck smoke matrix.",
-  "final_boundary": "Do not move to READY_TO_SHIP until the native gate is ready, the release-candidate automated gate passes, and docs/MACRO_RECORDER_QA.md final host/device checks pass.",
+  "blocker_kind": "final_host_validation_and_verified_pro_upsell",
+  "blocker": "Automated Windows release QA passed. Remaining gates are the real Windows / physical Stream Deck native acceptance matrix and, before public Lite launch, a verified direct Macro Recorder Pro Marketplace URL in products/lite-pro-map.json.",
+  "final_boundary": "Do not move to READY_TO_SHIP until native acceptance passes and the exact public Macro Recorder Pro Marketplace URL is wired into the Lite upsell.",
   "price_usd": 0,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -62,13 +62,6 @@
     "physical Stream Deck stop/interruption smoke",
     "verified exact Macro Recorder Pro Marketplace URL injected into Lite upsell before public Lite launch"
   ],
-  "ci_runner_state": {
-    "observed_at": "2026-09-13",
-    "symptom": "After the repository became public, Macro Recorder Windows jobs stopped immediately failing with zero steps and are now remaining queued awaiting a hosted runner. No canonical Windows build/test result is available yet.",
-    "latest_known_run_id": 34771227404,
-    "latest_known_head_sha": "2117e7aa70e264443974175915fdb5a9fe57cb7a",
-    "local_fallback": "plugins/macro-recorder-pro/run-family-qa.ps1"
-  },
   "native_release_blockers": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md",
   "native_release_gate": "docs/MACRO_RECORDER_NATIVE_GATE.json",
   "upsell_release_gate": {
@@ -83,5 +76,15 @@
       "placeholder",
       "guessed slug"
     ]
+  },
+  "automated_release_evidence": {
+    "run_id": 34777365333,
+    "head_sha": "2f6aa418ffbbbd4927034689d224c6dccd3b1b0b",
+    "artifact_id": 10324027648,
+    "artifact_digest": "sha256:d54960f0be72105341d33810cd13e3eb8a5eadea909ca39c53eaa43ae91c62cd",
+    "lite_package_sha256": "01DFA188482FEF0E8F735F7408879C5B0AE77EEDE8D8961765792AB81E9F009A",
+    "pro_package_sha256": "B5D7C15C0B94E75A0900037EA36F1593168AE092A909F2386E00275D3972DCAF",
+    "lite_tests": "19/19",
+    "pro_tests": "37/37"
   }
 }
