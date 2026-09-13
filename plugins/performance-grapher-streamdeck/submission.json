@@ -1,0 +1,15 @@
+{
+  "slug": "performance-grapher-streamdeck",
+  "name": "Performance Grapher for Stream Deck",
+  "type": "plugin",
+  "price_usd": 9.99,
+  "version": "1.0.0.0",
+  "marketplace_category": ["Monitoring"],
+  "marketplace_language": ["English"],
+  "marketplace_operating_systems": ["Windows"],
+  "marketplace_tags": ["Performance", "FPS", "Hardware", "Gaming", "Monitoring"],
+  "marketplace_auto_publish": true,
+  "headline": "See What Your PC Did, Not Just What It's Doing Right Now",
+  "description": "See what your PC did, not just what it's doing right now.\n\nPerformance Grapher for Stream Deck is built for the moment after a stutter, temperature spike, or sudden performance drop. Instead of turning a key into another live number, it keeps useful rolling history and a process-aware game session so you can see current FPS, 1% and 0.1% lows, worst frametime, peak temperatures, peak GPU load, session length, and hardware trends after the moment has passed.\n\nFive Stream Deck-native actions keep the key face readable: Performance Graph, Game FPS, Session Summary, Sensor / Metric, and Alert. Each action uses a shared local telemetry service, so adding more configured keys does not start duplicate hardware or frame collectors. Keys render a large primary value with a compact history line or one useful secondary diagnostic instead of shrinking six readings onto one button.\n\nGame FPS uses the open-source PresentMon project for frame-presentation timing. Hardware sensors use Libre Hardware Monitor where the sensor is available, while Windows-native CPU and RAM metrics remain available without a hardware helper. No HWiNFO license, paid HWiNFO tier, user API key, account, cloud service, or screen scraping is required.\n\nPresentMon capture can require membership in the Windows Performance Log Users group or administrator rights on some systems. Performance Grapher reports that state explicitly instead of silently showing stale FPS. Some low-level Libre Hardware Monitor sensors may also require elevated access or an already-installed compatible hardware driver; the plugin does not silently install PawnIO or any kernel driver.\n\nHistory and session summaries are bounded and stored locally on this PC. Hardware sensors are sampled slowly, frame data is aggregated before Stream Deck rendering, and invisible keys do not render continuously.\n\nRequires Windows and Stream Deck 7.3 or newer. Hardware sensor availability varies by device and driver support.\n\nPart of the PackRat Ecosystem.",
+  "release_notes": "- Adds Performance Graph, Game FPS, Session Summary, Sensor / Metric, and Alert actions.\n- Tracks rolling hardware history plus process-aware FPS, 1% low, 0.1% low, and worst frametime.\n- Uses PresentMon and Libre Hardware Monitor locally with no HWiNFO subscription or API key.\n- Bounds sampling, rendering, in-memory history, and persistence to keep monitoring overhead low."
+}
