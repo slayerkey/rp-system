@@ -4,11 +4,28 @@
   "type": "plugin",
   "price_usd": 7.99,
   "version": "0.1.0.0",
-  "marketplace_category": ["Productivity"],
-  "marketplace_language": ["English"],
-  "marketplace_operating_systems": ["Windows"],
-  "marketplace_tags": ["Windows", "Settings", "PC", "System", "HDR", "Power", "Display", "Monitor", "Gaming", "Stream Deck"],
+  "marketplace_category": [
+    "Productivity"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows"
+  ],
+  "marketplace_tags": [
+    "Windows",
+    "Settings",
+    "PC",
+    "System",
+    "HDR",
+    "Power",
+    "Display",
+    "Monitor",
+    "Gaming",
+    "Stream Deck"
+  ],
   "marketplace_auto_publish": false,
   "description": "Change your PC into the mode you need with one key.\n\nWindows Settings Manager Pro combines live Windows system controls with user-created PC Modes. Save GAMING, WORK, NIGHT, PRESENT, and MOVIE as starting mode slots, rename them if you want, and choose exactly which settings each mode is allowed to change. PackRat does not apply mystery gaming optimizations or overwrite settings you did not select.\n\nA PC Mode can include HDR, display topology, power plan, screen and sleep timeouts, and Keep Awake. Each setting is applied independently and verified against Windows. A mode reports COMPLETE only when every configured step succeeds; mixed outcomes are PARTIAL instead of a fake success.\n\nPro also includes the individual HDR, power, display, timeout, Keep Awake, Lock PC, and system status actions from Lite. Live keys poll Windows so outside changes are reflected.\n\nIncludes editable PC Modes and Settings profile pages for Stream Deck, Stream Deck Mini, Stream Deck XL, Stream Deck +, and Stream Deck Neo.\n\nRequires Windows and Stream Deck 6.9 or later. HDR availability depends on Windows version, display hardware, drivers, and the active display configuration.\n\nPart of the PackRat ecosystem.",
-  "release_notes": "Initial Pro release. User-created PC Modes with Apply, Cycle, Current, and Save Current Mode actions; exact per-setting mode inclusion; COMPLETE / PARTIAL / FAILED transaction reporting; all Lite Windows controls; live external-state refresh; and bundled PC Modes / Settings profiles for five Stream Deck device families."
+  "release_notes": "- User-created PC Modes with Apply, Cycle, Current, and Save Current Mode actions.\n- Per-setting mode control for HDR, display topology, power plan, screen/sleep timeouts, and Keep Awake.\n- Verified COMPLETE, PARTIAL, and FAILED mode outcomes instead of all-or-nothing success claims.\n- All Lite controls with live external Windows state refresh.\n- Editable PC Modes and Settings profiles for Stream Deck, Mini, XL, Stream Deck +, and Neo."
 }
