@@ -223,6 +223,21 @@ test("HDR mode matching requires a genuinely controllable HDR display", async ()
   assert.match(inspector, /option\.disabled = !hdrUsable/);
 });
 
+test("background state polling avoids redundant active-power-plan process launches", async () => {
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  const plansStart = backend.indexOf("function Get-PowerPlans");
+  const plansEnd = backend.indexOf("function Get-SettingSeconds", plansStart);
+  const plansBody = backend.slice(plansStart, plansEnd);
+  const snapshotStart = backend.indexOf("function Get-Snapshot");
+  const snapshotEnd = backend.indexOf("function Write-Reply", snapshotStart);
+  const snapshotBody = backend.slice(snapshotStart, snapshotEnd);
+  assert.match(plansBody, /Invoke-PowerCfg \/list/);
+  assert.match(plansBody, /Groups\[3\]\.Value -match '\\\*'/);
+  assert.match(plansBody, /if \(-not \(\$plans \| Where-Object/);
+  assert.doesNotMatch(snapshotBody, /Get-ActivePowerPlan/);
+  assert.match(snapshotBody, /\$power = \$plans \| Where-Object \{ \$_\.active \}/);
+});
+
 test("PowerShell backend does not shadow the automatic args variable", async () => {
   const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
   assert.doesNotMatch(backend, /\$args\s*=\s*\$request\.args/i);
@@ -318,7 +333,8 @@ test("state refresh polls Windows and the inspector refresh button forces a real
   const state = await readFile(path.resolve("src", "state.ts"), "utf8");
   const plugin = await readFile(path.resolve("src", "plugin.ts"), "utf8");
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
-  assert.match(state, /setInterval\(\(\) => void this\.refresh\(\), 2500\)/);
+  assert.match(state, /const POLL_INTERVAL_MS = 5000/);
+  assert.match(state, /setInterval\(\(\) => void this\.refresh\(\), POLL_INTERVAL_MS\)/);
   assert.match(state, /this\.backend\.snapshot\(\)/);
   assert.match(plugin, /payload\?\.type === "refresh"/);
   assert.match(plugin, /runtime\.state\.refresh\(\)\.then\(sendInspectorContext\)/);
