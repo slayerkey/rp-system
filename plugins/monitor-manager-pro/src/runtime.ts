@@ -163,8 +163,10 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
     const wantedPortrait=[1,3].includes(wanted);
     const width=currentPortrait===wantedPortrait?Number(current.width):Number(current.height);
     const height=currentPortrait===wantedPortrait?Number(current.height):Number(current.width);
+    const request={width,height,frequency:Number(current.frequency),orientation:wanted};
+    if(!modeSupported(monitor.modes,request)) throw new Error("Requested orientation is not available at the current refresh rate.");
     await this.bridge.request("set-mode",{
-      deviceName:monitor.deviceName,width,height,frequency:Number(current.frequency),orientation:wanted,primary:false
+      deviceName:monitor.deviceName,...request,primary:false
     },12000);
     this.invalidate();
     return wanted;
