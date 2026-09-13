@@ -301,6 +301,34 @@ def thumbnail_review(out: Path) -> None:
     canvas.save(review / "thumbnail-sheet.png", quality=95)
 
 
+def contact_sheet(out: Path) -> None:
+    ordered = [
+        ("HERO", "02_cover.png"),
+        ("CORE VALUE", "03_gallery_01.png"),
+        ("SAVED STATE", "04_gallery_02.png"),
+        ("DEVICE RESILIENCE", "05_gallery_03.png"),
+        ("STREAM DECK +", "06_gallery_04.png"),
+    ]
+    thumb_w, thumb_h = 480, 240
+    gap_x, gap_y = 34, 66
+    margin = 34
+    canvas = Image.new("RGB", (margin * 2 + thumb_w * 2 + gap_x, 1060), BG)
+    d = ImageDraw.Draw(canvas)
+    d.text((margin, 24), "AUDIO MANAGER PRO · MARKETPLACE SEQUENCE", font=font(20, True), fill=WHITE)
+
+    for index, (label, filename) in enumerate(ordered):
+        row, col = divmod(index, 2)
+        x = margin + col * (thumb_w + gap_x)
+        y = 76 + row * (thumb_h + gap_y)
+        image = Image.open(out / filename).convert("RGB").resize((thumb_w, thumb_h), Image.Resampling.LANCZOS)
+        canvas.paste(image, (x, y))
+        d.text((x, y + thumb_h + 9), f"{index + 1}. {label}", font=font(14, True), fill=MUTED)
+
+    review = out / "review"
+    review.mkdir(parents=True, exist_ok=True)
+    canvas.save(review / "contact-sheet.png", quality=95)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--destination", required=True)
@@ -315,6 +343,7 @@ def main() -> None:
     gallery_resilience(out)
     gallery_dial(out)
     thumbnail_review(out)
+    contact_sheet(out)
 
     required = [
         "01_search_icon.png",
@@ -335,6 +364,8 @@ def main() -> None:
 
     if not (out / "review" / "thumbnail-sheet.png").is_file():
         fail("V2 thumbnail review sheet was not generated")
+    if not (out / "review" / "contact-sheet.png").is_file():
+        fail("Marketplace sequence contact sheet was not generated")
 
     payloads = [Path(out / name).read_bytes() for name in required[1:]]
     if len(set(payloads)) != len(payloads):
