@@ -311,6 +311,7 @@ test("backend forbids brittle UI automation and uses supported Windows control s
   assert.equal((backend.match(/private static void AssertSize/g) ?? []).length, 1);
   assert.equal((backend.match(/private static int ReadWindowsBuild/g) ?? []).length, 1);
   assert.equal((backend.match(/private static bool SupportsSeparatedHdrApi/g) ?? []).length, 1);
+  assert.equal((backend.match(/private struct RtlOsVersionInfoEx/g) ?? []).length, 1);
   assert.match(backend, /enabled = info\.activeColorMode == 2;/);
   assert.match(backend, /supported = enabled \|\| \(hdrSupported && !limitedByPolicy\);/);
   assert.doesNotMatch(backend, /activeColorMode == 2 \|\|/);
