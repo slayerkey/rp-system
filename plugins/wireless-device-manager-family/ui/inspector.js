@@ -45,7 +45,7 @@ function render(){
   const action=actionInfo.action||"";
   const isDevice=action.endsWith(".device"), isDashboard=action.endsWith(".dashboard"), isCycle=action.endsWith(".cycle");
   $("device-fields").hidden=!isDevice; $("dashboard-fields").hidden=!isDashboard; $("cycle-fields").hidden=!isCycle;
-  $("lite-upsell").hidden=snapshot?.edition==="pro";
+  $("lite-upsell").hidden=snapshot?.edition!=="lite";
   if(snapshot){
     $("status").textContent=snapshot.adapterAvailable ? (snapshot.error||`${snapshot.devices.length} paired Bluetooth device(s) visible`) : "Bluetooth adapter unavailable or disabled";
     $("status").className="status"+(snapshot.adapterAvailable?"":" bad");
