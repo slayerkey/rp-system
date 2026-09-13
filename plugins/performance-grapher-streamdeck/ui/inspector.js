@@ -78,7 +78,7 @@
 
   function applySettings(next) {
     settings = { ...DEFAULTS, ...(next || {}) };
-    $("windowMs").value = String(Number(settings.windowMs) || 60000);
+    $("windowMs").value = String([0, 60000, 300000, 900000].includes(Number(settings.windowMs)) ? Number(settings.windowMs) : 60000);
     $("threshold").value = Number.isFinite(Number(settings.threshold)) ? Number(settings.threshold) : 85;
     $("thresholdDirection").value = settings.thresholdDirection === "below" ? "below" : "above";
     $("scaleMin").value = settings.scaleMin == null ? "" : String(settings.scaleMin);
