@@ -1,5 +1,5 @@
 import { BoundedHistory, FPS_ARCHIVE_MAX, FPS_RECENT_MAX } from "./history.js";
-import { LowFpsHistogram } from "./stats.js";
+import { FrameTimeHistogram } from "./stats.js";
 
 const IGNORED = new Set([
   "dwm.exe", "explorer.exe", "streamdeck.exe", "streamdeckui.exe", "presentmon.exe",
@@ -127,7 +127,7 @@ export class SessionTracker {
       process,
       startedAt: now,
       lastFrameAt: now,
-      histogram: new LowFpsHistogram(),
+      histogram: new FrameTimeHistogram(),
       worstFrametimeMs: 0,
       peaks: { gpuTemperature: null, cpuTemperature: null, gpuLoad: null },
       pressure: { gpu: 0, cpu: 0, mixed: 0 },
@@ -198,7 +198,7 @@ export class SessionTracker {
     this.active.lastFrameAt = now;
     this.lastFrameAt = now;
     this.active.worstFrametimeMs = Math.max(this.active.worstFrametimeMs, frameMs);
-    this.active.histogram.add(1000 / frameMs);
+    this.active.histogram.add(frameMs);
 
     if (!this.bucket) {
       this.bucket = { startedAt: now, count: 0, sumFrameMs: 0, worstFrameMs: 0 };
@@ -288,7 +288,7 @@ export class SessionTracker {
       process,
       startedAt,
       lastFrameAt: now,
-      histogram: LowFpsHistogram.fromJSON(raw.histogram),
+      histogram: FrameTimeHistogram.fromJSON(raw.histogram),
       worstFrametimeMs: Math.max(0, finite(raw.worstFrametimeMs) ?? 0),
       peaks: {
         gpuTemperature: finite(raw.peaks?.gpuTemperature),
