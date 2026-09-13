@@ -478,7 +478,7 @@ test("dependent mode settings are skipped when their prerequisite was not confir
   assert.match(source, /key === "hdr" && settings\.topology/);
   assert.match(source, /key === "timeout" && settings\.powerPlanGuid/);
   assert.match(backend, /string\.Equals\(GetTopology\(\), topology/);
-  assert.match(backend, /if \(current == enabled\) return true;/);
+  assert.match(backend, /supported && current == enabled/);
 });
 
 test("Cycle PC Mode advances past a failed target without ignoring later live mode changes", async () => {
