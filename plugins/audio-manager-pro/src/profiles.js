@@ -80,10 +80,10 @@ export function snapshotDefaultRoleConflicts(snapshot) {
   const inputDefault = String(snapshot?.defaultInputId || "");
   const inputMultimedia = String(snapshot?.multimediaInputId || "");
 
-  if (outputDefault && outputMultimedia && outputDefault !== outputMultimedia)
-    conflicts.push("Windows Console and Multimedia output defaults are currently split.");
-  if (inputDefault && inputMultimedia && inputDefault !== inputMultimedia)
-    conflicts.push("Windows Console and Multimedia input defaults are currently split.");
+  if (outputDefault !== outputMultimedia)
+    conflicts.push("Windows Console and Multimedia output defaults are currently split or incomplete.");
+  if (inputDefault !== inputMultimedia)
+    conflicts.push("Windows Console and Multimedia input defaults are currently split or incomplete.");
 
   return conflicts;
 }
