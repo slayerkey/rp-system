@@ -46,9 +46,9 @@ test("battery values are clamped only when telemetry exists",()=>{
   assert.equal(normalizeDevice({...mouse,batteryPercent:null}).batteryPercent,null);
 });
 
-test("stable identity prefers Bluetooth address, then container, then endpoint id",()=>{
-  assert.equal(stableId({...headphone,containerId:"ABC-123"}),"bt:aabbccddeeff");
-  assert.equal(stableId({id:"Endpoint-C",containerId:"ABC-123"}),"container:abc-123");
+test("stable identity prefers physical container, then Bluetooth address, then endpoint id",()=>{
+  assert.equal(stableId({...headphone,containerId:"ABC-123"}),"container:abc-123");
+  assert.equal(stableId(headphone),"bt:aabbccddeeff");
   assert.equal(stableId({id:"Endpoint-X"}),"id:endpoint-x");
 });
 
@@ -188,17 +188,54 @@ test("dashboard low count respects per-device thresholds",()=>{
 });
 
 
-test("dual-mode endpoints sharing one Windows container reconcile into one device",()=>{
+test("dual-mode endpoints sharing one Windows container union telemetry and control",()=>{
   const c=new DeviceCatalog();
   c.ingest([
-    {...headphone,id:"ble-endpoint",address:"AA:BB:CC:DD:EE:01",containerId:"physical-headset",kind:"ble",control:{connect:false,disconnect:false}},
-    {...headphone,id:"classic-endpoint",address:"AA:BB:CC:DD:EE:02",containerId:"physical-headset",kind:"classic",control:{connect:true,disconnect:true}}
+    {
+      ...headphone,
+      id:"ble-endpoint",
+      address:"AA:BB:CC:DD:EE:01",
+      containerId:"physical-headset",
+      kind:"ble",
+      batteryPercent:73,
+      charging:true,
+      connected:false,
+      control:{connect:false,disconnect:false}
+    },
+    {
+      ...headphone,
+      id:"classic-endpoint",
+      address:"AA:BB:CC:DD:EE:02",
+      containerId:"physical-headset",
+      kind:"classic",
+      batteryPercent:null,
+      charging:null,
+      connected:true,
+      control:{connect:true,disconnect:true}
+    }
   ],1000);
   assert.equal(c.list().length,1);
   const device=c.list()[0];
-  assert.equal(device.containerId,"physical-headset");
-  assert.equal(device.kind,"classic");
+  assert.equal(device.stableId,"container:physical-headset");
+  assert.equal(device.kind,"dual");
+  assert.equal(device.connected,true);
+  assert.equal(device.batteryPercent,73);
+  assert.equal(device.charging,true);
+  assert.equal(device.capabilities.BATTERY,true);
+  assert.equal(device.capabilities.CHARGING,true);
   assert.equal(device.capabilities.CONNECT,true);
+  assert.equal(device.capabilities.DISCONNECT,true);
   assert.equal(c.get("classic-endpoint")?.stableId,device.stableId);
   assert.equal(c.get("ble-endpoint")?.stableId,device.stableId);
+});
+
+
+test("fresh snapshot replaces prior connected state instead of OR-ing stale history",()=>{
+  const c=new DeviceCatalog();
+  c.ingest([{...headphone,containerId:"headset",connected:true,present:true}],1000);
+  c.ingest([{...headphone,containerId:"headset",connected:false,present:true,control:{connect:true,disconnect:false}}],2000);
+  const device=c.get("container:headset");
+  assert.equal(device?.connected,false);
+  assert.equal(device?.capabilities.CONNECT,true);
+  assert.equal(device?.capabilities.DISCONNECT,false);
 });
