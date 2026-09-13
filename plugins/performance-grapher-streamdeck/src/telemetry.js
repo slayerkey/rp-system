@@ -428,6 +428,7 @@ export class TelemetryService extends EventEmitter {
         watched: [...this.watched],
         histories,
         lastCompleted: this.session.snapshot().lastCompleted,
+        session: this.session.toJSON(Date.now()),
       };
       await mkdir(dirname(this.persistPath), { recursive: true });
       const temporary = this.persistPath + ".tmp";
@@ -466,6 +467,9 @@ export class TelemetryService extends EventEmitter {
       const latest = this.histories.get(id).latest();
       if (latest !== null) this.values.set(id, latest);
     }
-    this.session.setLastCompleted(state.lastCompleted);
+    this.session.restore(
+      state.session || { lastCompleted: state.lastCompleted },
+      { savedAt: state.savedAt, now: Date.now() }
+    );
   }
 }
