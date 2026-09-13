@@ -42,6 +42,42 @@ function storedZipEntries(buffer) {
   return entries;
 }
 
+test("both editions assemble complete Stream Deck package trees", async () => {
+  const sharedRequired = [
+    "bin/plugin.js",
+    "bin/package.json",
+    "bin/windows-settings-backend.ps1",
+    "ui/config.html",
+    "ui/pi.css",
+    "ui/pi.js",
+    "imgs/plugin/marketplace.png",
+    "imgs/plugin/marketplace@2x.png",
+    "imgs/plugin/category-icon.svg",
+    "imgs/plugin/category-icon@2x.svg",
+    "imgs/actions/common/icon.svg",
+    "imgs/actions/common/icon@2x.svg",
+    "imgs/actions/common/key.svg",
+    "imgs/actions/common/key@2x.svg"
+  ];
+  const deviceStems = ["standard", "mini", "xl", "plus", "neo", "galleon", "plus-xl"];
+
+  for (const flavor of ["lite", "pro"]) {
+    const pluginRoot = path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`);
+    for (const relative of sharedRequired) {
+      await assert.doesNotReject(
+        () => readFile(path.join(pluginRoot, relative)),
+        `${flavor} package is missing ${relative}`
+      );
+    }
+    for (const device of deviceStems) {
+      await assert.doesNotReject(
+        () => readFile(path.join(pluginRoot, "profiles", `windows-settings-${flavor}-${device}.streamDeckProfile`)),
+        `${flavor} package is missing ${device} profile`
+      );
+    }
+  }
+});
+
 test("Lite exposes curated live Windows controls only", async () => {
   const value = await manifest("lite");
   assert.equal(value.Name, "Windows Settings Manager Lite");
