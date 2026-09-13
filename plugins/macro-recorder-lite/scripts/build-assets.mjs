@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
@@ -8,10 +8,22 @@ const root=resolve(here,"..");
 const plugin=resolve(root,"com.packrat.macro-recorder-lite.sdPlugin");
 for(const dir of ["bin","imgs","ui","helpers"])await rm(resolve(plugin,dir),{recursive:true,force:true});
 for(const dir of ["bin","imgs","ui","helpers"])await mkdir(resolve(plugin,dir),{recursive:true});
-for(const file of ["inspector.html","inspector.css","inspector.js"])await cp(resolve(root,"ui",file),resolve(plugin,"ui",file));
+for(const file of ["inspector.css","inspector.js"])await cp(resolve(root,"ui",file),resolve(plugin,"ui",file));
+const catalog=JSON.parse(await readFile(resolve(root,"..","..","products","lite-pro-map.json"),"utf8"));
+const pair=(catalog.pairs||[]).find(item=>item.lite_id==="macro-recorder-lite");
+if(!pair||pair.pro_id!=="macro-recorder-pro")throw new Error("Macro Recorder Lite/Pro catalog pair is missing.");
+const proUrl=String(pair.pro_marketplace_url||"").trim();
+if(proUrl&&!/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9-]+$/i.test(proUrl))throw new Error("Macro Recorder Pro Marketplace URL must be an exact direct product URL.");
+let inspectorHtml=await readFile(resolve(root,"ui","inspector.html"),"utf8");
+inspectorHtml=inspectorHtml.replace('data-pro-url=""',`data-pro-url="${proUrl}"`);
+await writeFile(resolve(plugin,"ui","inspector.html"),inspectorHtml,"utf8");
 const helper=process.env.PACKRAT_INPUT_HOST||resolve(root,"..","..","artifacts","input-host","PackRat.InputHost.exe");
 try{await stat(helper);}catch{throw new Error("PackRat.InputHost.exe is missing. Publish shared/windows-input/PackRat.InputHost first.");}
 await cp(helper,resolve(plugin,"helpers","PackRat.InputHost.exe"));
+const licenseRoot=resolve(root,"..","..","shared","licenses","macro-recorder");
+for(const file of ["THIRD_PARTY_NOTICES.txt","DOTNET_LICENSE.txt","DOTNET_THIRD_PARTY_NOTICES.txt"]){
+  await cp(resolve(licenseRoot,file),resolve(plugin,file));
+}
 
 function crc32(b){let crc=0xffffffff;for(const x of b){crc^=x;for(let i=0;i<8;i++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);}return(crc^0xffffffff)>>>0;}
 function chunk(type,data){const n=Buffer.from(type),body=Buffer.concat([n,data]),o=Buffer.alloc(12+data.length);o.writeUInt32BE(data.length,0);n.copy(o,4);data.copy(o,8);o.writeUInt32BE(crc32(body),8+data.length);return o;}
@@ -43,4 +55,4 @@ for(const kind of ["record","stop","replay"]){
  await writeFile(resolve(dir,"icon.png"),draw(20,kind,"list"));await writeFile(resolve(dir,"icon@2x.png"),draw(40,kind,"list"));
  await writeFile(resolve(dir,"key.png"),draw(72,kind,"key"));await writeFile(resolve(dir,"key@2x.png"),draw(144,kind,"key"));
 }
-console.log("Built Marketplace-compliant list icons, key art, UI and local input host.");
+console.log("Built Marketplace-compliant list icons, key art, UI, local input host, and third-party notices.");
