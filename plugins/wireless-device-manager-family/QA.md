@@ -8,12 +8,15 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 
 ## Hardware-free evidence completed
 
-- [x] 30 model/package/profile regression tests pass in the reconstructed branch test harness
+- [x] 35 model/package/profile regression tests are defined and pass in the reconstructed branch test harness
 - [x] capability flags are per device rather than global
 - [x] battery and charging are absent when telemetry is absent
 - [x] Windows charging-property label behavior is covered
 - [x] duplicate friendly names remain distinct by stable identity
 - [x] endpoint-ID changes preserve identity when Bluetooth address is stable
+- [x] dual-mode BLE/classic endpoints sharing one container reconcile into one device
+- [x] complementary BLE battery/charging and classic audio-control capabilities are unioned within one current snapshot
+- [x] fresh snapshots replace stale connected/disconnected state instead of OR-ing history
 - [x] paired sleeping devices remain paired and render SLEEP/OFF
 - [x] removed devices render UNPAIRED and lose stale battery/control capabilities
 - [x] present-but-disconnected audio fixture can expose CONNECT without DISCONNECT
@@ -27,6 +30,10 @@ The hardware-free source/model/profile/media gates below have been exercised dur
 - [x] Lite and Pro each generate Standard / XL / Stream Deck+ profiles
 - [x] all six generated profile archives use valid device-grid coordinates
 - [x] Stream Deck+ Pro is an explicit 4 x 2 key-only layout
+- [x] generated profiles are parsed in tests and all key coordinates are enforced within 5 x 3 / 8 x 4 / 4 x 2 device bounds
+- [x] Pro bundled device slots seed favorites and example multi-group memberships
+- [x] Lite bundled profiles contain no Pro-only favorite/group settings
+- [x] profile labels preserve live battery/status/control values rather than hiding them
 - [x] no bundled profile or manifest exposes an Encoder action
 - [x] Marketplace SEO regression includes Bluetooth, wireless, battery, headphones, keyboard, mouse, controller, connect, disconnect, Windows, and Stream Deck
 - [x] manifest FontSize values use the current numeric schema type
@@ -47,6 +54,8 @@ The canonical self-hosted PackRat Windows workflow remains the executable releas
 - [ ] x64 self-contained Windows bridge publish
 - [ ] ARM64 self-contained Windows bridge publish
 - [ ] bundled bridge snapshot smoke on Windows
+- [ ] persistent stdio bridge request/recovery smoke on Windows
+- [ ] compressed bundled helper package-size check
 - [ ] fixture/package suite in the canonical checkout
 - [ ] official Elgato validation: Lite
 - [ ] official Elgato validation: Pro
