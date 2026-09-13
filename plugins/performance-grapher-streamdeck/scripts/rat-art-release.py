@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -21,14 +22,23 @@ RAT = REPO / "tools" / "art" / "assets" / "ratpack-icon-transparent.png"
 
 
 def font(size: int, bold: bool = False):
-    candidates = [
-        Path("C:/Windows/Fonts/segoeuib.ttf" if bold else "C:/Windows/Fonts/segoeui.ttf"),
-        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
-    ]
+    env = os.getenv("RATPACK_ART_FONT_BOLD" if bold else "RATPACK_ART_FONT")
+    candidates = [Path(env)] if env else []
+    if os.name == "nt":
+        candidates += [
+            Path("C:/Windows/Fonts/segoeuib.ttf" if bold else "C:/Windows/Fonts/segoeui.ttf"),
+            Path("C:/Windows/Fonts/bahnschrift.ttf"),
+            Path("C:/Windows/Fonts/arialbd.ttf" if bold else "C:/Windows/Fonts/arial.ttf"),
+        ]
+    else:
+        candidates += [
+            Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+            Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
+        ]
     for candidate in candidates:
         if candidate.exists():
             return ImageFont.truetype(str(candidate), size)
-    raise SystemExit("Performance Grapher Rat Art requires a deterministic UI font")
+    raise SystemExit("required deterministic marketplace font was not found; no silent fallback is allowed")
 
 
 def background():
@@ -57,8 +67,7 @@ def signature(img):
         rat = rat.resize((max(1, int(rat.width * scale)), max(1, int(rat.height * scale))), Image.Resampling.LANCZOS)
         img.alpha_composite(rat, (W - 82 - rat.width, 48))
     else:
-        d = ImageDraw.Draw(img)
-        d.ellipse((W - 120, 62, W - 94, 88), fill=ACCENT)
+        raise SystemExit(f"required PackRat logo missing: {RAT}")
 
 
 def spark(draw, box, values, color=ACCENT, spike=False):
