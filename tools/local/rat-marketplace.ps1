@@ -70,26 +70,26 @@ function Assert-ProductReleaseState {
         [string]$RequestedAction
     )
 
-    # Non-public preparation remains available while a product is blocked. Rat Ship
-    # and Rat Submit advance into authenticated Marketplace submission, so they fail
-    # closed until the canonical product workflow state is no longer blocked.
+    # Non-public preparation remains available before public release. Rat Ship and
+    # Rat Submit advance into authenticated Marketplace submission, so modern products
+    # must be explicitly READY_TO_SHIP. Products that predate workflow_state retain
+    # legacy compatibility until their metadata is migrated.
     if ($RequestedAction -notin @("ship", "submit")) { return }
 
     $state = if ($null -ne $Product.workflow_state) { ([string]$Product.workflow_state).Trim() } else { "" }
-    $isBlocked = $state.Equals("BLOCKED", [System.StringComparison]::OrdinalIgnoreCase) -or
-        $state.StartsWith("BLOCKED_", [System.StringComparison]::OrdinalIgnoreCase)
-    if (-not $isBlocked) { return }
+    if ([string]::IsNullOrWhiteSpace($state)) { return }
+    if ($state.Equals("READY_TO_SHIP", [System.StringComparison]::OrdinalIgnoreCase)) { return }
 
     $blocker = if ($null -ne $Product.blocker) { ([string]$Product.blocker).Trim() } else { "" }
     $boundary = if ($null -ne $Product.final_boundary) { ([string]$Product.final_boundary).Trim() } else { "" }
-    $message = "Product '$ProductSlug' is marked '$state' on canonical main. Rat $RequestedAction will not submit a blocked release to Marketplace."
+    $message = "Product '$ProductSlug' is marked '$state' on canonical main. Rat $RequestedAction requires workflow_state READY_TO_SHIP before Marketplace submission."
     if ($blocker) {
         $message += " Blocker: $blocker."
     }
     elseif ($boundary) {
         $message += " Required boundary: $boundary."
     }
-    $message += " Resolve the blocker and move products/$ProductSlug.json to READY_TO_SHIP before shipping. You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
+    $message += " Finish the release gate and move products/$ProductSlug.json to READY_TO_SHIP before shipping. You can still run 'rat kit $ProductSlug' or 'rat stage $ProductSlug' for non-public preparation."
     throw $message
 }
 
