@@ -67,7 +67,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       title = recording ? "STOP\nREC" : playback ? "STOP\nPLAY" : "STOP";
     } else {
       const macro = macroFor(record);
-      title = macro ? `▶ ${shortTitle(macro.name)}` : "ASSIGN\nMACRO";
+      title = macro ? `▶ ${shortTitle(macro.name)}` : "PLAY";
       if (playback?.actionId === record.id) title = "■ PLAYING";
     }
     await record.action.setTitle(title).catch(() => {});
