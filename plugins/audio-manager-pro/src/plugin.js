@@ -79,8 +79,10 @@ function scheduleRender(delay = 25) {
 }
 
 function profileForRecord(record) {
-  return findProfile(globalSettings, record?.settings?.profileId)
-    || findProfile(globalSettings, globalSettings.lastAppliedProfileId)
+  const selectedId = String(record?.settings?.profileId || "");
+  if (selectedId) return findProfile(globalSettings, selectedId);
+
+  return findProfile(globalSettings, globalSettings.lastAppliedProfileId)
     || globalSettings.profiles[0]
     || null;
 }
