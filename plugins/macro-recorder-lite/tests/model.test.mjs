@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { LITE_LIMITS, exportEnvelope, importEnvelope, normalizeMacro, playbackSettings, validateMacro } from "../../../shared/macro-recorder/model.mjs";
+import { LITE_LIMITS, exportEnvelope, importEnvelope, normalizeMacro, playbackSafetyError, playbackSettings, validateMacro } from "../../../shared/macro-recorder/model.mjs";
 
 const pro=false;
 const limits=LITE_LIMITS;
@@ -100,4 +100,12 @@ test("Lite clamps an edited delay to its 30-second edition boundary",()=>{
   {type:"keyDown",vk:65,delayMs:120_000}
  ]},{pro:false,limits});
  assert.equal(macro.events[0].delayMs,30_000);
+});
+
+test("Lite one-shot playback is unaffected by infinite-loop guard",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"keyDown",vk:65,delayMs:0},
+  {type:"keyUp",vk:65,delayMs:0}
+ ]},{pro:false,limits});
+ assert.equal(playbackSafetyError(macro,playbackSettings({}, {pro:false})),"");
 });
