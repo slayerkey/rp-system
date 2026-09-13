@@ -112,5 +112,7 @@ test("native helper prefers dedicated HDR packet types and has no DISPLAY-number
   assert.match(helper,/header\.type = 15/);
   assert.match(helper,/DISPLAYCONFIG_SET_HDR_STATE/);
   assert.match(helper,/header\.type = 16/);
+  assert.match(helper,/current = hdr\.activeColorMode == 2/);
+  assert.match(helper,/advancedColorLimitedByPolicy/);
   assert.doesNotMatch(helper,/deviceName\.EndsWith/);
 });
