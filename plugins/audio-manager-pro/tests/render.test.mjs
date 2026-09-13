@@ -60,3 +60,31 @@ test("previously configured missing device key says REBIND", () => {
   }));
   assert.match(svg, /REBIND/);
 });
+
+
+test("missing default mic never renders MIC LIVE", () => {
+  const svg = decodeSvg(renderKey("mute-mic", {
+    endpoint: null,
+    missing: true,
+  }));
+  assert.match(svg, /NO DEFAULT MIC/);
+  assert.doesNotMatch(svg, /MIC LIVE/);
+});
+
+test("offline audio actions render an explicit offline state", () => {
+  const deviceSvg = decodeSvg(renderKey("set-output", {
+    endpoint: { name: "Headset" },
+    offline: true,
+    role: "default",
+  }));
+  assert.match(deviceSvg, /AUDIO OFFLINE/);
+  assert.ok(deviceSvg.includes("#FF6B76"));
+
+  const micSvg = decodeSvg(renderKey("mute-mic", {
+    endpoint: null,
+    missing: true,
+    offline: true,
+  }));
+  assert.match(micSvg, /AUDIO OFFLINE/);
+  assert.ok(micSvg.includes("#FF6B76"));
+});
