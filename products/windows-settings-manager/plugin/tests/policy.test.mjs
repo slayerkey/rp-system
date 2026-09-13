@@ -185,6 +185,14 @@ test("mode application explicitly models COMPLETE, PARTIAL and FAILED", async ()
   assert.match(source, /topology[\s\S]*setTopology[\s\S]*hdr[\s\S]*setHdr[\s\S]*powerPlanGuid[\s\S]*setPowerPlan/);
 });
 
+test("Save Current Mode forces a fresh Windows read and refuses offline capture", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  const plugin = await readFile(path.resolve("src", "plugin.ts"), "utf8");
+  assert.match(actions, /SaveModeBase[\s\S]*await runtime\.state\.refresh\(\)[\s\S]*if \(!snapshot\.backendOnline\)/);
+  assert.match(plugin, /payload\?\.type === "capture-mode"[\s\S]*await runtime\.state\.refresh\(\)[\s\S]*if \(!snapshot\.backendOnline\)/);
+  assert.match(plugin, /settings: captureModeSettings\(snapshot\)/);
+});
+
 test("state refresh polls Windows and the inspector refresh button forces a real read", async () => {
   const state = await readFile(path.resolve("src", "state.ts"), "utf8");
   const plugin = await readFile(path.resolve("src", "plugin.ts"), "utf8");
