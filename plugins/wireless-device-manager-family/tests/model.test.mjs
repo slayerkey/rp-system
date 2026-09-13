@@ -8,6 +8,7 @@ import {
   nextFavorite,
   normalizeDevice,
   resolveSelectedDeviceId,
+  shouldApplySnapshot,
   shouldLowBatteryAlert,
   stableId,
   statusLabel
@@ -144,4 +145,44 @@ test("battery label exposes charging only when Windows reports it",()=>{
   assert.match(batteryLabel(normalizeDevice(headphone)),/CHARGING/);
   assert.match(batteryLabel(normalizeDevice(keyboard)),/BATTERY/);
   assert.equal(batteryLabel(normalizeDevice(mouse)),"BATTERY\nN/A");
+});
+
+
+test("disconnected but present audio device can advertise CONNECT without DISCONNECT",()=>{
+  const d=normalizeDevice({...headphone,connected:false,present:true,control:{connect:true,disconnect:false}});
+  assert.equal(d.connected,false);
+  assert.equal(d.capabilities.CONNECT,true);
+  assert.equal(d.capabilities.DISCONNECT,false);
+  assert.equal(statusLabel(d).endsWith("DISCONNECTED"),true);
+});
+
+test("adapter-off and bridge-error snapshots are preserved rather than applied as removals",()=>{
+  assert.equal(shouldApplySnapshot(true,true),true);
+  assert.equal(shouldApplySnapshot(true,false),false);
+  assert.equal(shouldApplySnapshot(false,true),false);
+  assert.equal(shouldApplySnapshot(false,false),false);
+});
+
+test("sleep-resume transition restores live telemetry for the same stable device",()=>{
+  const c=new DeviceCatalog();
+  c.ingest([headphone],1000);
+  c.ingest([{...headphone,connected:false,present:false,batteryPercent:63,charging:false}],2000);
+  const asleep=c.get(stableId(headphone));
+  assert.equal(asleep?.paired,true);
+  assert.equal(asleep?.connected,false);
+  assert.equal(asleep?.lastObservedAt,2000);
+  c.ingest([{...headphone,connected:true,present:true,batteryPercent:62,charging:false}],3000);
+  const resumed=c.get(stableId(headphone));
+  assert.equal(resumed?.connected,true);
+  assert.equal(resumed?.present,true);
+  assert.equal(resumed?.batteryPercent,62);
+  assert.equal(resumed?.lastObservedAt,3000);
+});
+
+test("dashboard low count respects per-device thresholds",()=>{
+  const devices=[headphone,controller].map(d=>normalizeDevice(d));
+  const ids=devices.map(d=>d.stableId);
+  assert.deepEqual(groupSummary(devices,ids),{connected:2,total:2,low:1});
+  assert.deepEqual(groupSummary(devices,ids,{[devices[0].stableId]:80,[devices[1].stableId]:10}),{connected:2,total:2,low:1});
+  assert.deepEqual(groupSummary(devices,ids,{[devices[0].stableId]:80,[devices[1].stableId]:20}),{connected:2,total:2,low:2});
 });
