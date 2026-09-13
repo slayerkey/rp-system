@@ -104,6 +104,13 @@ jobs:
           }
           if (!(Test-Path plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/helpers/PackRat.InputHost.exe)) { throw "Lite package source is missing PackRat.InputHost.exe." }
           if (!(Test-Path plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/helpers/PackRat.InputHost.exe)) { throw "Pro package source is missing PackRat.InputHost.exe." }
+          foreach ($slug in @("macro-recorder-lite","macro-recorder-pro")) {
+            foreach ($notice in @("THIRD_PARTY_NOTICES.txt","DOTNET_LICENSE.txt","DOTNET_THIRD_PARTY_NOTICES.txt")) {
+              $noticePath = "plugins/$slug/com.packrat.$slug.sdPlugin/$notice"
+              if (!(Test-Path $noticePath)) { throw "$slug package source is missing $notice." }
+              if ((Get-Item $noticePath).Length -le 0) { throw "$slug notice is empty: $notice." }
+            }
+          }
           Get-FileHash $lite[0].FullName -Algorithm SHA256
           Get-FileHash $pro[0].FullName -Algorithm SHA256
 
