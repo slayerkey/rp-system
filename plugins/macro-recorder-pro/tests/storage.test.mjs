@@ -44,3 +44,21 @@ test("Macro Library persists add, update, duplicate source data and delete opera
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("Macro Library preserves saved modified timestamps across reload", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    const library=await new MacroLibrary(file).load();
+    const added=await library.add({name:"Timestamped",events:[
+      {type:"keyDown",vk:65,delayMs:1},
+      {type:"keyUp",vk:65,delayMs:1}
+    ]});
+    const saved=library.get(added.id).updatedAt;
+    await new Promise(resolve=>setTimeout(resolve,5));
+    const reloaded=await new MacroLibrary(file).load();
+    assert.equal(reloaded.get(added.id).updatedAt,saved);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
