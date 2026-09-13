@@ -379,8 +379,9 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       const payload = ev.payload || {};
       if (payload.type === "macroRecorder.inspect") return sendInspector(record);
       if (payload.type !== "macroRecorder.command") return;
+      const command = String(payload.command || "");
+      lastError = "";
       try {
-        const command = String(payload.command || "");
         if (command === "cancelRecording") await cancelRecording(record.action);
         else if (command === "stopPlayback") await stopPlayback(record.action);
         else if (command === "assignLatest" && !pro && latestMacro) {
