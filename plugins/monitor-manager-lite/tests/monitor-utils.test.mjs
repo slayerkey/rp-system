@@ -33,6 +33,7 @@ test("profile result classifier preserves complete partial failed semantics", ()
   assert.equal(classifyProfileResult([{status:"COMPLETE"}]),"COMPLETE");
   assert.equal(classifyProfileResult([{status:"COMPLETE"},{status:"SKIPPED"}]),"PARTIAL");
   assert.equal(classifyProfileResult([{status:"FAILED"}]),"FAILED");
+  assert.equal(classifyProfileResult([{status:"COMPLETE"},{status:"FAILED"}]),"FAILED");
 });
 
 test("bundled profiles are V2 archives with real Monitor Manager actions", async () => {
