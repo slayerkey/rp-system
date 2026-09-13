@@ -111,9 +111,51 @@ Acceptance:
 - record a macro and press Ctrl+Shift+F12 without active playback; verify the capture is not corrupted by a suppressed F12 down-event
 - during playback, verify Ctrl+Shift+F12 still cancels immediately
 
+## 7. Exit the helper when its plugin parent dies
+
+The native helper is spawned as a normal Windows child process. Graceful plugin shutdown calls `host.close()`, but an abrupt Stream Deck/plugin-process termination is not guaranteed to run that JavaScript cleanup.
+
+Required behavior:
+- pass the plugin parent PID to the helper or use an equivalent Windows lifetime primitive
+- the helper must detect parent-process death and exit promptly
+- helper exit must still run/retain the exact held-input recovery guarantees
+- an orphaned helper must not keep low-level keyboard/mouse hooks installed after the plugin process is gone
+
+Preferred implementation:
+- a Windows Job Object with kill-on-job-close, or
+- an explicit parent-PID watchdog in the helper with a safe shutdown path
+
+Acceptance:
+- start the helper through the plugin, then force-kill the plugin process without graceful cleanup
+- verify the helper exits
+- verify no PackRat low-level hook remains active
+- if playback held an injected input at death, verify the next launch can still recover it safely
+
+## 8. Allow only one active Macro Recorder input session across Lite and Pro
+
+Macro Recorder Lite and Pro are separate plugins and may be installed at the same time. Each currently has its own helper process.
+
+Required behavior:
+- only one PackRat Macro Recorder recording or playback session may be active across all helper processes on the Windows user session
+- use an OS-level cross-process coordination primitive such as a named mutex
+- acquiring the activity lock must be atomic
+- recording/playback start should fail cleanly with a useful error if the other edition is already active
+- release the lock on normal completion, cancellation, error and helper shutdown
+- abandoned-owner behavior after a crash must recover safely
+
+Reason:
+Two independent input injectors/recorders can race, and two low-level emergency-hotkey hooks cannot reliably provide one global stop when simultaneous playbacks are allowed.
+
+Acceptance:
+- install/run Lite and Pro together
+- start playback in one edition and verify the other edition cannot start recording or playback until it stops
+- reverse the editions and repeat
+- force-kill the active helper and verify the abandoned coordination lock becomes available safely
+- verify Ctrl+Shift+F12 stops the single active PackRat playback regardless of which edition owns it
+
 ## Final native smoke matrix
 
-After all six fixes:
+After all eight fixes:
 - Ctrl / Shift / Alt down-up
 - Windows key
 - rapid key repeat
