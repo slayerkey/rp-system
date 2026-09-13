@@ -282,7 +282,8 @@ export class TelemetryService extends EventEmitter {
   }
 
   resetSession() {
-    const summary = this.session.reset(Date.now());
+    const now = Date.now();
+    const summary = this.session.reset(now, this._sessionMetrics(now));
     this._schedulePersist();
     this.emit("update", { kind: "frame" });
     return summary;
