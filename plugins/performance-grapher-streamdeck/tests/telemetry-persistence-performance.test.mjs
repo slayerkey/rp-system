@@ -283,3 +283,29 @@ test("graceful shutdown persists the latest active session before resolving", as
   assert.equal(saved.session.active.process, "game.exe");
   assert.ok(saved.session.active.histogram.count >= 1);
 });
+
+
+test("unwatched hardware sensors do not allocate rolling history", () => {
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "history-allocation"),
+    persistPath: resolve(tmpdir(), "packrat-history-allocation.json"),
+    presentMonProvider: fakeProvider(),
+  });
+
+  const at = Date.now();
+  for (let i = 0; i < 500; i += 1) {
+    telemetry._setMetric("lhm.sensor." + i, i, at, {
+      id: "lhm.sensor." + i,
+      name: "Sensor " + i,
+      source: "Libre Hardware Monitor",
+    });
+  }
+
+  assert.equal(telemetry.values.size, 500);
+  assert.equal(telemetry.histories.size, 0);
+
+  telemetry.watchMetric("lhm.sensor.42");
+  telemetry._setMetric("lhm.sensor.42", 43, at + 1000);
+  assert.equal(telemetry.histories.size, 1);
+  assert.equal(telemetry.metricSeries("lhm.sensor.42", 60_000).at(-1)[1], 43);
+});
