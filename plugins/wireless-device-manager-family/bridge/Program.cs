@@ -95,35 +95,16 @@ internal static class Program
         foreach (var info in devices)
         {
             var address = StringProp(info, AddressKey);
-            ulong? numericAddress = null;
             bool audioControl = false;
-
-            if (classic)
+            if (classic && !string.IsNullOrWhiteSpace(address))
             {
-                try
+                var normalizedAddress = NormalizeAddress(address);
+                if (ulong.TryParse(normalizedAddress, System.Globalization.NumberStyles.HexNumber, null, out var numericAddress)
+                    && NativeBluetooth.TryGetClassOfDevice(numericAddress, out var classOfDevice))
                 {
-                    using var bt = await BluetoothDevice.FromIdAsync(info.Id);
-                    if (bt is not null)
-                    {
-                        numericAddress = bt.BluetoothAddress;
-                        address ??= bt.BluetoothAddress.ToString("X12");
-                        audioControl = bt.ClassOfDevice?.MajorClass == BluetoothMajorClass.AudioVideo;
-                    }
+                    // Bluetooth Class of Device major class occupies bits 8-12; Audio/Video is value 4.
+                    audioControl = ((classOfDevice >> 8) & 0x1F) == 4;
                 }
-                catch { }
-            }
-            else
-            {
-                try
-                {
-                    using var ble = await BluetoothLEDevice.FromIdAsync(info.Id);
-                    if (ble is not null)
-                    {
-                        numericAddress = ble.BluetoothAddress;
-                        address ??= ble.BluetoothAddress.ToString("X12");
-                    }
-                }
-                catch { }
             }
 
             var battery = ByteProp(info, BatteryKey);
@@ -386,6 +367,21 @@ internal static class NativeBluetooth
     public static void CloseRadio(IntPtr radio)
     {
         if (radio != IntPtr.Zero) CloseHandle(radio);
+    }
+
+    public static bool TryGetClassOfDevice(ulong address, out uint classOfDevice)
+    {
+        classOfDevice = 0;
+        if (!FindDevice(address, out var radio, out var device)) return false;
+        try
+        {
+            classOfDevice = device.ulClassofDevice;
+            return true;
+        }
+        finally
+        {
+            CloseRadio(radio);
+        }
     }
 
     private static BLUETOOTH_DEVICE_INFO NewDeviceInfo() => new()
