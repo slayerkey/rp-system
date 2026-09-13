@@ -63,24 +63,42 @@ def profile_actions(flavor: str):
 
 def key_grid(im, labels, columns=5):
     d = ImageDraw.Draw(im)
-    key = 214
     gap = 24
     rows = (len(labels) + columns - 1) // columns
+
+    available_top = 340
+    available_bottom = 920
+    available_h = available_bottom - available_top
+
+    key = 214
+    total_h = rows * key + (rows - 1) * gap
+    if total_h > available_h:
+        key = (available_h - (rows - 1) * gap) // rows
+
     total_w = columns * key + (columns - 1) * gap
     total_h = rows * key + (rows - 1) * gap
     ox = (W - total_w) // 2
-    oy = 350 + max(0, (H - 390 - total_h) // 2)
-    small = font(28, True)
+    oy = available_top + max(0, (available_h - total_h) // 2)
+
+    if oy + total_h > available_bottom:
+        raise SystemExit("Marketplace key grid exceeds safe cover bounds")
+
+    text_size = 28 if key >= 200 else 23
+    text_y = int(key * 0.35)
+    text_gap = max(30, int(key * 0.18))
+    small = font(text_size, True)
+
     for i, label in enumerate(labels):
         c, r = i % columns, i // columns
         x, y = ox + c * (key + gap), oy + r * (key + gap)
-        d.rounded_rectangle((x, y, x + key, y + key), radius=22, fill=(17, 22, 30), outline=(76, 87, 102), width=3)
+        radius = 22 if key >= 200 else 18
+        d.rounded_rectangle((x, y, x + key, y + key), radius=radius, fill=(17, 22, 30), outline=(76, 87, 102), width=3)
         words = label.upper().replace(" PC ", " ").split()
         lines = [" ".join(words[: max(1, len(words)//2)]), " ".join(words[max(1, len(words)//2):])]
         lines = [line for line in lines if line]
         for j, line in enumerate(lines[:2]):
             box = d.textbbox((0, 0), line, font=small)
-            d.text((x + (key - (box[2]-box[0]))/2, y + 74 + j*38), line, font=small, fill=(238, 242, 247))
+            d.text((x + (key - (box[2]-box[0]))/2, y + text_y + j*text_gap), line, font=small, fill=(238, 242, 247))
 
 
 def save(im, output, name):
