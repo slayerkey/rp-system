@@ -94,12 +94,14 @@ jobs:
           $proProfileRoot = "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/profiles"
           $liteProfiles = @(Get-ChildItem $liteProfileRoot -Filter *.streamDeckProfile -File)
           $proProfiles = @(Get-ChildItem $proProfileRoot -Filter *.streamDeckProfile -File)
-          if ($liteProfiles.Count -ne 1) { throw "Expected one Lite starter profile; found $($liteProfiles.Count)" }
-          if ($proProfiles.Count -ne 1) { throw "Expected one Pro starter profile; found $($proProfiles.Count)" }
+          if ($liteProfiles.Count -ne 4) { throw "Expected four Lite starter profiles; found $($liteProfiles.Count)" }
+          if ($proProfiles.Count -ne 4) { throw "Expected four Pro starter profiles; found $($proProfiles.Count)" }
           if (@(Get-ChildItem $liteProfileRoot -Filter *.profile-map.json -File -ErrorAction SilentlyContinue).Count -ne 0) { throw "Lite must not ship profile QA maps." }
           if (@(Get-ChildItem $proProfileRoot -Filter *.profile-map.json -File -ErrorAction SilentlyContinue).Count -ne 0) { throw "Pro must not ship profile QA maps." }
-          if (!(Test-Path artifacts/profile-maps/macro-recorder-lite-starter.profile-map.json)) { throw "Missing Lite external profile QA map." }
-          if (!(Test-Path artifacts/profile-maps/macro-recorder-pro-starter.profile-map.json)) { throw "Missing Pro external profile QA map." }
+          foreach ($suffix in @("mk2","xl","plus","neo")) {
+            if (!(Test-Path "artifacts/profile-maps/macro-recorder-lite-starter-$suffix.profile-map.json")) { throw "Missing Lite $suffix external profile QA map." }
+            if (!(Test-Path "artifacts/profile-maps/macro-recorder-pro-starter-$suffix.profile-map.json")) { throw "Missing Pro $suffix external profile QA map." }
+          }
           if (!(Test-Path plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/helpers/PackRat.InputHost.exe)) { throw "Lite package source is missing PackRat.InputHost.exe." }
           if (!(Test-Path plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/helpers/PackRat.InputHost.exe)) { throw "Pro package source is missing PackRat.InputHost.exe." }
           Get-FileHash $lite[0].FullName -Algorithm SHA256
