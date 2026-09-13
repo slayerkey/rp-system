@@ -148,6 +148,17 @@ test("display cycling never guesses from an unknown mixed topology", async () =>
   assert.match(html, /<option value="">Choose topology<\/option>/);
 });
 
+test("Property Inspector does not present cached Windows values as live while backend is offline", async () => {
+  const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
+  assert.match(inspector, /const offline = Boolean\(snapshot && !snapshot\.backendOnline\)/);
+  assert.match(inspector, /\["HDR", offline \? "Offline"/);
+  assert.match(inspector, /\["Display", offline \? "Offline"/);
+  assert.match(inspector, /\["Power", offline \? "Offline"/);
+  assert.match(inspector, /\["Screen AC", offline \? "Offline"/);
+  assert.match(inspector, /\["Sleep AC", offline \? "Offline"/);
+  assert.match(inspector, /\["Keep Awake", offline \? "Offline"/);
+});
+
 test("Property Inspector re-renders action defaults when live Windows context arrives", async () => {
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
   assert.match(inspector, /const liveTimeout = context\.snapshot\?\.timeout/);
