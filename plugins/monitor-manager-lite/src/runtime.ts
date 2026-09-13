@@ -1,5 +1,5 @@
 import { MonitorBridge } from "../../_shared/monitor-manager/monitor-client.js";
-import { normalizeMonitorKey, modeSupported, SAFE_VCP, SUPPORT, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
+import { boundedPercent, normalizeMonitorKey, modeSupported, SAFE_VCP, SUPPORT, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
 
 export type MonitorSettings = {
   monitorKey?: string;
@@ -68,7 +68,7 @@ export class MonitorLiteRuntime {
 
   async setBrightness(settings: MonitorSettings, requested: number): Promise<number> {
     const { monitor, snapshot } = await this.selected(settings);
-    const percent = Math.max(0, Math.min(100, Math.round(requested)));
+    const percent = boundedPercent(requested, "Brightness");
     if (monitor.ddcBrightness) {
       const min = Number(monitor.brightnessMin ?? 0);
       const max = Number(monitor.brightnessMax ?? 100);
