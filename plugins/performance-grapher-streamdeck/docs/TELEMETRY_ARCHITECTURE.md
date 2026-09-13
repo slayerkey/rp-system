@@ -53,7 +53,7 @@ RTSS was evaluated as an optional installed integration. It is not required for 
 | FPS session archive | 21,600 points (6 h at 1 Hz) |
 | Persistence | <= once per 30 s steady state |
 
-Raw per-frame PresentMon events are never written to disk. Percent-low statistics are accumulated incrementally, and graph downsampling keeps the worst point in each bucket so a spike is not averaged away.
+Raw per-frame PresentMon events are never written to disk. Average FPS is calculated as total accepted frames divided by total accepted frame time. The 1% and 0.1% low-average metrics use the slowest 1% / 0.1% of accepted frame times, average those frame times, then convert the result back to FPS. The bounded frame-time histogram preserves those statistics incrementally without retaining every raw frame. Graph downsampling keeps the worst point in each bucket so a spike is not averaged away.
 
 Automated benchmarks guard the bounded data structures and render/aggregation path. A **real game A/B frametime run** remains mandatory before public release because synthetic CI cannot prove that ETW + GPU drivers + a real game have zero practical impact.
 
