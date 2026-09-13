@@ -36,7 +36,10 @@
     "artifact_id": 10326163681,
     "artifact_digest": "sha256:202939d672004dd10934634e9c7cb07c014524d5314c84c01f059d2bd308ecfd",
     "package_sha256": "ED3231F67576FA1FC6AEE47795FFEC94D195D9B936CB211FE6CEDB4DEA818815",
-    "package_size_bytes": 70951706
+    "package_size_bytes": 70951706,
+    "lite_pro_audit_run": 34785293330,
+    "rat_ship_routing_run": 34785293337,
+    "lightweight_ci_run": 34785293383
   },
   "catalog_audit": {
     "profiles": {
