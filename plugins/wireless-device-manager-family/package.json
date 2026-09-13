@@ -9,7 +9,7 @@
     "build:assets": "python scripts/render-assets.py",
     "build:bridge": "dotnet publish bridge/WirelessDeviceBridge.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o bridge/dist/x64 && dotnet publish bridge/WirelessDeviceBridge.csproj -c Release -r win-arm64 --self-contained true -p:PublishSingleFile=true -o bridge/dist/arm64 && node scripts/stage-bridge.mjs",
     "build": "npm run typecheck && npm run build:profiles && npm run build:assets && rollup -c && npm run build:bridge",
-    "test": "node scripts/build-profiles.mjs && node --experimental-strip-types --test tests/*.test.mjs",
+    "test": "npm run build:profiles && npm run build:assets && node --experimental-strip-types --test tests/*.test.mjs",
     "validate:lite": "streamdeck validate com.packrat.wireless-device-manager.sdPlugin --no-update-check",
     "validate:pro": "streamdeck validate com.packrat.wireless-device-manager-pro.sdPlugin --no-update-check",
     "validate": "npm run validate:lite && npm run validate:pro",
