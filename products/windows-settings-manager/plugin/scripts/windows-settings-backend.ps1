@@ -212,47 +212,6 @@ public static class PackRatWindowsNative
         return RuntimeWindowsBuild >= 26100;
     }
 
-    [DllImport("ntdll.dll", CharSet = CharSet.Unicode)]
-    private static extern int RtlGetVersion(ref RtlOsVersionInfoEx versionInfo);
-
-    private static readonly int RuntimeWindowsBuild = ReadWindowsBuild();
-
-    static PackRatWindowsNative()
-    {
-        AssertSize(typeof(DeviceInfoHeader), 20, "DISPLAYCONFIG_DEVICE_INFO_HEADER");
-        AssertSize(typeof(AdvancedColorInfo), 32, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO");
-        AssertSize(typeof(AdvancedColorSet), 24, "DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE");
-        AssertSize(typeof(AdvancedColorInfo2), 36, "DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2");
-        AssertSize(typeof(HdrSet), 24, "DISPLAYCONFIG_SET_HDR_STATE");
-    }
-
-    private static void AssertSize(Type type, int expected, string name)
-    {
-        int actual = Marshal.SizeOf(type);
-        if (actual != expected)
-            throw new TypeLoadException(name + " layout mismatch: " + actual + " bytes; expected " + expected + ".");
-    }
-
-    private static int ReadWindowsBuild()
-    {
-        var info = new RtlOsVersionInfoEx();
-        info.dwOSVersionInfoSize = (uint)Marshal.SizeOf(typeof(RtlOsVersionInfoEx));
-        int status = RtlGetVersion(ref info);
-        if (status != 0)
-            throw new InvalidOperationException("RtlGetVersion failed: " + status);
-        return checked((int)info.dwBuildNumber);
-    }
-
-    public static int GetWindowsBuild()
-    {
-        return RuntimeWindowsBuild;
-    }
-
-    private static bool SupportsSeparatedHdrApi()
-    {
-        return RuntimeWindowsBuild >= 26100;
-    }
-
     [DllImport("user32.dll")]
     private static extern int GetDisplayConfigBufferSizes(uint flags, out uint numPathArrayElements, out uint numModeInfoArrayElements);
 
