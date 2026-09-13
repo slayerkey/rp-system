@@ -1,0 +1,25 @@
+{
+  "id": "audio-manager-pro",
+  "name": "Audio Manager Pro",
+  "type": "plugin",
+  "status": "testing",
+  "workflow_state": "QA_IN_PROGRESS",
+  "blocker": "Automated CI and final physical Windows audio-device smoke are not yet complete.",
+  "price_usd": 9.99,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/audio-manager-pro",
+  "submission_metadata": "plugins/audio-manager-pro/submission.json",
+  "shared_audio_core": "companions/packrat-audio-core/src/PackRat.AudioCore",
+  "release_gate": [
+    "shared PackRat AudioCore build",
+    "XENEON Audio Control Center regression build",
+    "locked dependency audit and fixture tests",
+    "real Windows helper process smoke",
+    "official Stream Deck CLI validation",
+    "official .streamDeckPlugin packaging",
+    "deterministic Marketplace media",
+    "physical Windows audio-device and Stream Deck Plus smoke"
+  ],
+  "final_boundary": "Physical USB, Bluetooth, reboot, endpoint-recreation, and Stream Deck Plus validation required before public submission."
+}
