@@ -43,6 +43,32 @@ test("global settings normalization drops invalid and duplicate profile IDs",()=
   assert.equal(normalized.lastAppliedProfileId,"same-id");
 });
 
+test("profile normalization preserves unset volume as null",()=>{
+  const p=normalizeProfile({
+    id:"p",
+    name:"Profile",
+    slots:{
+      outputCommunications:{
+        device:{endpointId:"out",name:"Headset"},
+        restoreVolume:false,
+        volume:null,
+        restoreMute:false,
+        muted:false,
+      },
+    },
+  });
+  assert.equal(p.slots.outputCommunications.volume,null);
+});
+
+test("captured communications roles do not silently become zero-volume restores",()=>{
+  const s=snap();
+  const p=captureProfileFromSnapshot("MEETING",s,"meeting-null-volume");
+  assert.equal(p.slots.outputCommunications.restoreVolume,false);
+  assert.equal(p.slots.outputCommunications.volume,null);
+  assert.equal(p.slots.inputCommunications.restoreVolume,false);
+  assert.equal(p.slots.inputCommunications.volume,null);
+});
+
 test("profile normalization clamps state and canonicalizes accent",()=>{
   const p=normalizeProfile({
     id:"  profile  ",
