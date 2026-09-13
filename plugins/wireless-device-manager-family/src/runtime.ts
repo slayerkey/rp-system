@@ -85,7 +85,6 @@ export class WirelessRuntime {
     if (current.liteDeviceId === id) return;
     await streamDeck.settings.setGlobalSettings({ ...current, liteDeviceId: id });
     for (const listener of this.listeners) listener();
-    await this.sendInspector();
   }
 
   async favorites(): Promise<string[]> {
@@ -117,7 +116,6 @@ export class WirelessRuntime {
     const favorites = new Set(current.favorites ?? []);
     if (value) favorites.add(id); else favorites.delete(id);
     await streamDeck.settings.setGlobalSettings({ ...current, favorites: [...favorites] });
-    await this.sendInspector();
   }
 
   async assignGroups(names: string, id: string): Promise<void> {
@@ -132,7 +130,6 @@ export class WirelessRuntime {
       groups[groupName] = [...new Set([...(groups[groupName] ?? []), id])];
     }
     await streamDeck.settings.setGlobalSettings({ ...current, groups });
-    await this.sendInspector();
   }
 
   async groupMembers(name?: string | null): Promise<string[]> {
@@ -153,7 +150,8 @@ export class WirelessRuntime {
         devices: this.devices(),
         liteDeviceId: globals.liteDeviceId ?? null,
         favorites: globals.favorites ?? [],
-        groups: globals.groups ?? {}
+        groups: globals.groups ?? {},
+        thresholds: globals.thresholds ?? {}
       } as any);
     } catch {
       // No Property Inspector is currently open.
