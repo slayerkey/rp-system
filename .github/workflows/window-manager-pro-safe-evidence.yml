@@ -12,7 +12,7 @@ permissions:
 
 env:
   VCS_REPOSITORY: slayerkey/vcs
-  VCS_REF: c1041c259345c0d4bc27b88848dd5667d50bc246
+  VCS_REF: 18dac48bf666039891747962a1b1e9af0a230f30
   SOURCE_ROOT: vcs/streamdeck/window-manager-pro/1.2.0.0/source
   VALIDATED_RUN_ID: '34789505688'
   VALIDATED_WINDOWS_PACKAGE_BYTES: '886630'
