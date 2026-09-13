@@ -29,6 +29,17 @@ The product branch was synchronized with current `main` before this run, so this
 
 The family remains **TESTING** only because low-level input behavior still needs the real Windows / physical Stream Deck acceptance matrix in `docs/MACRO_RECORDER_NATIVE_GATE.json`. Lite also cannot launch publicly until the real Macro Recorder Pro Marketplace URL exists and is injected through the canonical Lite-to-Pro catalog.
 
+## Final acceptance candidate provenance
+
+The product branch was resynchronized with current `main` after the native integration acceptance work:
+
+- Macro Recorder merge/sync commit: `cddfe0fe1bf0bd81b9825099efb9a31c71d40384`
+- synchronized `main` commit: `c50b4a3d28c94a67de801e0a1e6a122d01c59fcd`
+- branch state at sync: **0 commits behind main**
+- automated native blockers closed before this sync: **8 / 10**
+
+The workflow triggered by this provenance commit is the final automated no-regression gate for the synchronized candidate. Physical Windows / Stream Deck checks remain separate and must not be inferred from CI.
+
 ## Final release-candidate command
 
 After the native gate is truthfully marked ready and the native smoke matrix has passed:
