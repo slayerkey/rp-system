@@ -28,16 +28,34 @@
   ],
   "automated_release_evidence": {
     "core_smoke": {
-      "status": "PASS_ON_EARLIER_HEAD_RERUN_REQUIRED",
-      "environment": "local Linux container / Node 22",
-      "tests_passed": 10,
-      "tests_failed": 0,
-      "synthetic_frame_events": 250000,
-      "aggregation_ms_approx": 240,
-      "svg_renders": 5000,
-      "render_ms_approx": 179,
-      "heap_delta_mb_approx": 2,
-      "note": "Core smoke passed before later PresentMon cadence, whole-session archive, atomic persistence, Property Inspector, and license-inventory hardening. The exact current head must rerun npm test on a functioning runner before promotion."
+      "status": "PASS_CURRENT_HEAD_EXACT_SOURCE_HARNESS",
+      "environment": "ChatGPT V8 tool runtime using exact committed source modules",
+      "checks_passed": 23,
+      "checks_failed": 0,
+      "coverage": [
+        "bounded raw/archive history and whole-session archive merge",
+        "session start/finalize/process change/ignored compositor",
+        "1% and 0.1% low session accounting",
+        "short restart histogram/history resume and stale restart finalization",
+        "PresentMon CSV parsing and live MsBetweenPresents cadence",
+        "PresentMon stale-child restart ownership and launch-error recovery",
+        "permission-required and 72/96/144 SVG rendering",
+        "session-window zero propagation",
+        "NVIDIA/AMD/Intel canonical GPU alias mapping",
+        "missing GPU fallback and stale sensor expiry",
+        "atomic session persistence round trip and corrupt-state quarantine",
+        "session-scoped hardware history",
+        "hardware-helper stale-child ownership and launch-error recovery"
+      ],
+      "synthetic_performance": {
+        "frame_events": 250000,
+        "aggregation_ms_approx": 493,
+        "svg_renders": 5000,
+        "render_ms_approx": 250,
+        "fps_recent_raw_points": 3600,
+        "fps_archive_points": 2499
+      },
+      "note": "Exact current committed JavaScript logic executed in an isolated V8 harness. This does not replace npm/node, Windows native helper, PresentMon executable, Elgato CLI/package, Rat Art, or physical-device validation."
     },
     "github_actions": {
       "status": "RUNNER_DID_NOT_EXECUTE_STEPS",
@@ -66,7 +84,11 @@
       ],
       "rat_art_faux_hardware_removed": true,
       "rat_art_missing_brand_asset_fails_closed": true,
-      "nuget_license_inventory_gate_added": true
+      "nuget_license_inventory_gate_added": true,
+      "presentmon_live_cadence": "FIXED_AND_EXACT_SOURCE_TESTED",
+      "active_session_restart_persistence": "FIXED_AND_EXACT_SOURCE_TESTED",
+      "presentmon_child_restart_race": "FIXED_AND_EXACT_SOURCE_TESTED",
+      "hardware_helper_child_restart_race": "FIXED_AND_EXACT_SOURCE_TESTED"
     }
   },
   "physical_release_evidence": null,
