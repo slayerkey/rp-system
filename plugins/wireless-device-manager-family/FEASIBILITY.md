@@ -60,10 +60,11 @@ Windows does not expose one universal supported API that safely force-connects e
 
 v0.1 therefore does **not** claim generic Bluetooth connection control.
 
-Control is restricted to classic Bluetooth Audio/Video-class devices:
+Control is restricted to paired classic Bluetooth endpoints for which Windows exposes an actual AssociationEndpointService contract matching A2DP Audio Sink or Hands-Free:
 
-- `CONNECT` is advertised only when Windows positively reports the paired audio-class device as present.
-- `DISCONNECT` is advertised only when the audio-class device is connected and Windows reports an installed A2DP or HFP service.
+- `CONNECT` is advertised only when an A2DP/HFP AEP service is associated with the paired endpoint/container **and** Windows positively reports the endpoint as present.
+- `DISCONNECT` is advertised only when an A2DP/HFP AEP service is associated with the endpoint/container and the device is currently connected.
+- PackRat does not infer control merely from the broad Bluetooth Audio/Video device class.
 - mouse, keyboard, controller, and arbitrary BLE connect/disconnect are not claimed.
 
 The bridge uses the Windows Bluetooth service-state API for A2DP/HFP only. Because Windows can report an audio service as already enabled while the remote device is no longer actively connected, CONNECT handles the already-enabled state by cycling the relevant audio service and retrying. A CONNECT operation is not reported as successful until Windows confirms the device-wide Bluetooth connection within a bounded verification window.
@@ -87,7 +88,7 @@ A self-contained native Windows bridge is bundled inside each plugin package for
 
 There is no separately installed helper application, cloud account, external API, or persistent PackRat service.
 
-The Stream Deck Node process polls the bundled bridge, maintains the device catalog, applies capability gating, drives alerts/groups/favorites, and renders the keys.
+The Stream Deck Node process starts one compressed bundled bridge process and keeps it alive over a private stdio JSON protocol. Polls are serialized, the helper is restarted after pipe failures/timeouts, and it exits with the plugin when its stdin closes. The Node process maintains the catalog, applies capability gating, drives alerts/groups/favorites, and renders the keys.
 
 ## Product split
 
