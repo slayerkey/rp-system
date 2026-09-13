@@ -5,46 +5,98 @@
   "Author": "Packrat",
   "Description": "Monitor multiple Bluetooth devices from Stream Deck with per-device status and battery, favorites, groups, low-battery alerts, dashboards, and supported Windows connect/disconnect controls.",
   "Category": "Wireless Device Manager Pro",
-  "CategoryIcon": "imgs/plugin/marketplace",
+  "CategoryIcon": "imgs/plugin/category",
   "Icon": "imgs/plugin/marketplace",
   "CodePath": "bin/plugin.js",
   "SDKVersion": 3,
-  "Software": { "MinimumVersion": "6.9" },
-  "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
-  "Nodejs": { "Version": "20", "Debug": "disabled" },
+  "Software": {
+    "MinimumVersion": "6.9"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "disabled"
+  },
   "UUID": "com.packrat.wireless-device-manager-pro",
   "Profiles": [
-    {"Name":"profiles/wireless-device-manager-pro-standard","DeviceType":0,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
-    {"Name":"profiles/wireless-device-manager-pro-xl","DeviceType":2,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true},
-    {"Name":"profiles/wireless-device-manager-pro-plus","DeviceType":7,"Readonly":false,"DontAutoSwitchWhenInstalled":true,"AutoInstall":true}
+    {
+      "Name": "profiles/wireless-device-manager-pro-standard",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/wireless-device-manager-pro-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/wireless-device-manager-pro-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
   ],
   "Actions": [
     {
-      "Name":"Wireless Device",
-      "UUID":"com.packrat.wireless-device-manager-pro.device",
-      "Icon":"imgs/actions/device/icon",
-      "Tooltip":"Show live Windows status, battery/charging when available, and capability-gated control for a selected Bluetooth device.",
-      "PropertyInspectorPath":"ui/inspector.html",
-      "Controllers":["Keypad"],
-      "States":[{"Image":"imgs/actions/device/key","TitleAlignment":"middle","FontSize":"10"}]
+      "Name": "Wireless Device",
+      "UUID": "com.packrat.wireless-device-manager-pro.device",
+      "Icon": "imgs/actions/device/icon",
+      "Tooltip": "Show live Windows status, battery/charging when available, and capability-gated control for a selected Bluetooth device.",
+      "PropertyInspectorPath": "ui/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/device/key",
+          "TitleAlignment": "middle",
+          "FontSize": "10"
+        }
+      ]
     },
     {
-      "Name":"Device Dashboard",
-      "UUID":"com.packrat.wireless-device-manager-pro.dashboard",
-      "Icon":"imgs/actions/device/icon",
-      "Tooltip":"Summarize all devices or a device group without automatically connecting them.",
-      "PropertyInspectorPath":"ui/inspector.html",
-      "Controllers":["Keypad"],
-      "States":[{"Image":"imgs/actions/device/key","TitleAlignment":"middle","FontSize":"10"}]
+      "Name": "Device Dashboard",
+      "UUID": "com.packrat.wireless-device-manager-pro.dashboard",
+      "Icon": "imgs/actions/device/icon",
+      "Tooltip": "Summarize all devices or a device group without automatically connecting them.",
+      "PropertyInspectorPath": "ui/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/device/key",
+          "TitleAlignment": "middle",
+          "FontSize": "10"
+        }
+      ]
     },
     {
-      "Name":"Cycle Device",
-      "UUID":"com.packrat.wireless-device-manager-pro.cycle",
-      "Icon":"imgs/actions/device/icon",
-      "Tooltip":"Cycle through favorite wireless devices without forcing a connection.",
-      "PropertyInspectorPath":"ui/inspector.html",
-      "Controllers":["Keypad"],
-      "States":[{"Image":"imgs/actions/device/key","TitleAlignment":"middle","FontSize":"10"}]
+      "Name": "Cycle Device",
+      "UUID": "com.packrat.wireless-device-manager-pro.cycle",
+      "Icon": "imgs/actions/device/icon",
+      "Tooltip": "Cycle through favorite wireless devices without forcing a connection.",
+      "PropertyInspectorPath": "ui/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/device/key",
+          "TitleAlignment": "middle",
+          "FontSize": "10"
+        }
+      ]
     }
   ]
 }
