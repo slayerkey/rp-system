@@ -79,8 +79,29 @@
   ],
   "Profiles": [
     {
-      "Name": "profiles/macro-recorder-lite-starter",
+      "Name": "profiles/macro-recorder-lite-starter-mk2",
       "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/macro-recorder-lite-starter-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/macro-recorder-lite-starter-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/macro-recorder-lite-starter-neo",
+      "DeviceType": 9,
       "Readonly": false,
       "DontAutoSwitchWhenInstalled": true,
       "AutoInstall": true
