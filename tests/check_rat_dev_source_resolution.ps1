@@ -53,8 +53,8 @@ try {
     # A derived family branch is not privileged over another discovered owner.
     # Without an exact product/<slug> branch, duplicate ownership must fail closed.
     Invoke-Git -Root $TempRoot -Args @("reset","--hard",$base)
-    New-Item -ItemType Directory -Force -Path (Join-Path $TempRoot "plugins\\macro-recorder-pro") | Out-Null
-    Set-Content (Join-Path $TempRoot "plugins\\macro-recorder-pro\\marker.txt") "duplicate"
+    New-Item -ItemType Directory -Force -Path (Join-Path $TempRoot "plugins\macro-recorder-pro") | Out-Null
+    Set-Content (Join-Path $TempRoot "plugins\macro-recorder-pro\\marker.txt") "duplicate"
     Invoke-Git -Root $TempRoot -Args @("add","plugins")
     Invoke-Git -Root $TempRoot -Args @("commit","-m","duplicate-family-owner")
     $duplicate = (& git -C $TempRoot rev-parse HEAD).Trim()
