@@ -68,7 +68,10 @@ jobs:
           if (-not ($entries | Select-String -SimpleMatch "native/win-x64/PackRat.AudioManager.Helper.exe")) {
             throw "Packaged plugin is missing the Windows audio helper."
           }
-          Write-Host "Packaged helper verified in $($package.Name)"
+          if ($entries | Select-String -Pattern "\.pdb$") {
+            throw "Packaged plugin contains debug symbols."
+          }
+          Write-Host "Packaged helper verified and debug symbols absent in $($package.Name)"
       - run: python -m pip install pillow==11.3.0
       - run: .\rat-art.ps1 -Destination dist\marketplace
         shell: pwsh
