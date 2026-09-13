@@ -358,16 +358,22 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
 
   for (const [kind, uuid] of Object.entries(ids)) streamDeck.actions.registerAction(new MacroAction(uuid, kind));
 
-  process.on("uncaughtException", (error) => {
-    lastError = String(error?.stack || error);
-    streamDeck.logger?.error?.(lastError);
-  });
-  process.on("unhandledRejection", (error) => {
-    lastError = String(error?.stack || error);
-    streamDeck.logger?.error?.(lastError);
-  });
-  process.once("SIGTERM", () => { void host.close(); });
-  process.once("SIGINT", () => { void host.close(); });
+  let terminating = false;
+  async function terminate(error, exitCode) {
+    if (terminating) return;
+    terminating = true;
+    if (error) {
+      lastError = String(error?.stack || error);
+      streamDeck.logger?.error?.(lastError);
+    }
+    try { await host.close(); } catch {}
+    process.exit(exitCode);
+  }
+
+  process.on("uncaughtException", (error) => { void terminate(error, 1); });
+  process.on("unhandledRejection", (error) => { void terminate(error, 1); });
+  process.once("SIGTERM", () => { void terminate(null, 0); });
+  process.once("SIGINT", () => { void terminate(null, 0); });
 
   await streamDeck.connect();
 }
