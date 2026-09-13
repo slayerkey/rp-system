@@ -24,3 +24,13 @@ test("long windows merge archive and recent data in timestamp order", () => {
   for (let i = 1; i < series.length; i += 1) assert.ok(series[i][0] >= series[i - 1][0]);
   assert.equal(series.at(-1)[1], 39);
 });
+
+
+test("whole-session reads include retained archive plus recent points", () => {
+  const h = new BoundedHistory({ rawMax: 4, archiveMax: 20, archiveMs: 1000, archiveMode: "max" });
+  for (let i = 0; i < 40; i += 1) h.push(i * 250, i);
+  h.toJSON();
+  const series = h.series(0, 10_000);
+  assert.ok(series.some(([at]) => at < h.raw[0][0]));
+  assert.equal(series.at(-1)[1], 39);
+});
