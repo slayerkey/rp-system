@@ -88,3 +88,13 @@ test("offline audio actions render an explicit offline state", () => {
   assert.match(micSvg, /AUDIO OFFLINE/);
   assert.ok(micSvg.includes("#FF6B76"));
 });
+
+
+test("profile keys render OFFLINE as a danger state", () => {
+  const svg = decodeSvg(renderKey("apply", {
+    profile: { name: "Meeting", accent: "#56F2A5" },
+    status: "OFFLINE",
+  }));
+  assert.match(svg, /OFFLINE/);
+  assert.ok(svg.includes("#FF6B76"));
+});
