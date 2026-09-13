@@ -123,9 +123,12 @@ async function renderRecord(record) {
   if (["apply", "cycle", "status"].includes(record.kind)) {
     const profile = profileForRecord(record);
     const active = profile ? profileMatchesSnapshot(profile, latestSnapshot) : false;
+    const transientStatus = record.lastStatusAt && (Date.now() - record.lastStatusAt) < 2200
+      ? record.lastStatus
+      : "";
     const status = record.kind === "status"
       ? (active ? "ACTIVE" : "INACTIVE")
-      : record.lastStatus;
+      : transientStatus;
     image = renderKey(record.kind, { profile, active, status });
   } else if (record.kind === "set-output" || record.kind === "set-input") {
     const { match, endpoint } = endpointForDeviceRecord(record);
@@ -195,6 +198,7 @@ async function applyProfile(profile, record = null) {
 
   if (record) {
     record.lastStatus = result.status;
+    record.lastStatusAt = Date.now();
     record.lastResult = result;
     record.lastImage = "";
     record.lastFeedback = "";
@@ -217,6 +221,7 @@ async function applySelected(record) {
   if (!profile) {
     const result = { status: "FAILED", failures: [{ error: "Create an Audio Profile first." }] };
     record.lastStatus = "FAILED";
+    record.lastStatusAt = Date.now();
     record.lastResult = result;
     await feedbackForResult(record, result);
     scheduleRender(0);
@@ -447,6 +452,7 @@ class AudioManagerAction extends SingletonAction {
       lastImage: "",
       lastFeedback: "",
       lastStatus: "",
+      lastStatusAt: 0,
       lastResult: null,
       feedbackNote: "",
       inspectorOpen: false,
@@ -474,6 +480,7 @@ class AudioManagerAction extends SingletonAction {
     record.lastImage = "";
     record.lastFeedback = "";
     record.lastStatus = "";
+    record.lastStatusAt = 0;
     await renderRecord(record);
   }
 
@@ -525,6 +532,7 @@ class AudioManagerAction extends SingletonAction {
     const record = visible.get(String(ev.action?.id || ""));
     if (!record) return;
     record.lastStatus = "";
+    record.lastStatusAt = 0;
     if (record.kind === "apply") return applySelected(record);
     if (record.kind === "set-output" || record.kind === "set-input") return setSelectedDevice(record);
     if (record.kind === "cycle") return cycleProfile(record);
