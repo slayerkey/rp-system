@@ -26,6 +26,12 @@ internal static class Program
     {
         try
         {
+            if (args.Length > 0 && args[0].Equals("server", StringComparison.OrdinalIgnoreCase))
+            {
+                await RunServerAsync();
+                return 0;
+            }
+
             if (args.Length == 0 || args[0].Equals("snapshot", StringComparison.OrdinalIgnoreCase))
             {
                 var result = await SnapshotAsync();
@@ -50,6 +56,61 @@ internal static class Program
             Console.WriteLine(JsonSerializer.Serialize(new { ok = false, error = ex.Message }, JsonOptions));
             return 1;
         }
+    }
+
+    private static async Task RunServerAsync()
+    {
+        while (await Console.In.ReadLineAsync() is { } line)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            string? id = null;
+            try
+            {
+                using var request = JsonDocument.Parse(line);
+                var root = request.RootElement;
+                id = root.TryGetProperty("id", out var idElement) ? idElement.GetString() : null;
+                var command = root.TryGetProperty("command", out var commandElement)
+                    ? commandElement.GetString()
+                    : null;
+
+                object result;
+                if (command == "snapshot")
+                {
+                    result = await SnapshotAsync();
+                }
+                else if (command == "control")
+                {
+                    var operation = root.TryGetProperty("operation", out var operationElement)
+                        ? operationElement.GetString()
+                        : null;
+                    var deviceId = root.TryGetProperty("deviceId", out var deviceElement)
+                        ? deviceElement.GetString()
+                        : null;
+
+                    result = operation is "connect" or "disconnect" && !string.IsNullOrWhiteSpace(deviceId)
+                        ? await ControlAsync(deviceId, operation)
+                        : new { ok = false, error = "Invalid control request." };
+                }
+                else
+                {
+                    result = new { ok = false, error = "Unknown bridge command." };
+                }
+
+                WriteServerResponse(id, result);
+            }
+            catch (Exception ex)
+            {
+                WriteServerResponse(id, new { ok = false, error = ex.Message });
+            }
+        }
+    }
+
+    private static void WriteServerResponse(string? id, object result)
+    {
+        var resultElement = JsonSerializer.SerializeToElement(result, JsonOptions);
+        Console.Out.WriteLine(JsonSerializer.Serialize(new { id, result = resultElement }, JsonOptions));
+        Console.Out.Flush();
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
