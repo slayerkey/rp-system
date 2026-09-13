@@ -85,11 +85,13 @@ test("saved profile matching survives 1-4 monitor sets by stable key and fails c
   ]),null);
 });
 
-test("Monitor Profiles exclude monitor power and apply volume before input switching", async () => {
+test("Monitor Profiles exclude monitor power and keep all input switching in the final phase", async () => {
   const source=await readFile("src/runtime.ts","utf8");
   assert.doesNotMatch(source,/power\?: number/);
   assert.doesNotMatch(source,/\["power",SAFE_VCP\.POWER_MODE\]/);
-  assert.match(source,/\[\["volume",SAFE_VCP\.AUDIO_VOLUME\],\["input",SAFE_VCP\.INPUT_SOURCE\]\]/);
+  assert.match(source,/const pendingInputs:ProfileMonitor\[\]=\[\]/);
+  assert.match(source,/Input changes are intentionally the final transaction phase/);
+  assert.match(source,/if\(!support\.values\.length\|\|!support\.values\.includes\(native\)\)/);
 });
 
 test("primary-display helper places the requested primary at the Windows origin", async () => {
@@ -126,4 +128,9 @@ test("true HDR uses Windows 11 24H2 dedicated packets and fails closed without t
   assert.match(helper,/DISPLAYCONFIG_SET_HDR_STATE/);
   assert.match(helper,/header\.type = 16/);
   assert.match(helper,/Older Windows exposes only "Advanced Color"/);
+});
+
+test("profile capture stores only advertised input values", async () => {
+  const source=await readFile("src/runtime.ts","utf8");
+  assert.match(source,/if\(support\.values\.length&&support\.values\.includes\(current\)\) item\.input=current/);
 });
