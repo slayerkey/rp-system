@@ -66,6 +66,10 @@ jobs:
         shell: pwsh
         run: ./tests/check_rat_dev_dependency_sync.ps1
 
+      - name: Validate Rat Dev failure UX
+        shell: pwsh
+        run: ./tests/check_rat_dev_failure_ux.ps1
+
       - name: Validate external Rat Dev lifecycle
         shell: pwsh
         run: ./tests/check_rat_dev_external.ps1
