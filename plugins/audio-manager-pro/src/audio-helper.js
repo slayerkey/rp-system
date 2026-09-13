@@ -96,11 +96,10 @@ export class AudioHelper {
       this.pending.set(id, { resolve, reject, timer });
       child.stdin.write(`${JSON.stringify({ id, command, ...payload })}\n`, "utf8", (error) => {
         if (!error) return;
-        const pending = this.pending.get(id);
-        if (!pending) return;
-        this.pending.delete(id);
-        clearTimeout(pending.timer);
-        reject(error);
+        if (!this.pending.has(id)) return;
+        const failedChild = this.child;
+        this.onExit(error);
+        try { failedChild?.kill(); } catch {}
       });
     });
   }
