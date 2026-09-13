@@ -260,3 +260,16 @@ export function profileMatchesSnapshot(profileInput, snapshot) {
 export function findProfile(globalSettings, profileId) {
   return normalizeGlobalSettings(globalSettings).profiles.find((profile) => profile.id === String(profileId || "")) || null;
 }
+
+export function cycleCurrentIndex(globalSettings, snapshot, cursorProfileId = "") {
+  const normalized = normalizeGlobalSettings(globalSettings);
+  if (!normalized.profiles.length) return -1;
+
+  const live = normalized.profiles.findIndex((profile) => profileMatchesSnapshot(profile, snapshot));
+  if (live >= 0) return live;
+
+  const cursor = normalized.profiles.findIndex((profile) => profile.id === String(cursorProfileId || ""));
+  if (cursor >= 0) return cursor;
+
+  return normalized.profiles.findIndex((profile) => profile.id === normalized.lastAppliedProfileId);
+}
