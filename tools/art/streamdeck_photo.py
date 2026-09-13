@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """Shared deterministic Stream Deck MK.2 photo compositor.
 
-Only the calibrated inner LCD apertures may be modified. The photographed
-button bezels, glass rims, chassis, lighting, and transparency remain sourced
-from the approved hardware plate.
+The approved hardware source contains transparent LCD windows. Product key art
+is rendered *behind* those windows and the untouched photographed hardware
+plate is composited on top. This preserves the exact physical bezel, roundness,
+lighting, glass edge, and chassis without painting over any button hardware.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Sequence
 
-from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageOps
+from PIL import Image, ImageOps
 
 ROOT = Path(__file__).resolve().parents[2]
 ART = ROOT / "tools" / "art"
@@ -34,9 +36,8 @@ class KeyAperture:
 @dataclass(frozen=True)
 class Calibration:
     source_size: tuple[int, int]
-    screen_radius: int
     transparent_content_padding: float
-    minimum_screen_inset: int
+    alpha_hole_threshold: int
     keys: tuple[KeyAperture, ...]
 
 
@@ -49,9 +50,17 @@ def _rect(raw: object, label: str) -> tuple[int, int, int, int]:
     return x1, y1, x2, y2
 
 
+def _contains(outer: tuple[int, int, int, int], inner: tuple[int, int, int, int]) -> bool:
+    return outer[0] <= inner[0] and outer[1] <= inner[1] and outer[2] >= inner[2] and outer[3] >= inner[3]
+
+
+def _overlap(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) -> bool:
+    return max(a[0], b[0]) < min(a[2], b[2]) and max(a[1], b[1]) < min(a[3], b[3])
+
+
 def load_calibration(path: Path = DEFAULT_CALIBRATION) -> Calibration:
     data = json.loads(path.read_text(encoding="utf-8"))
-    if data.get("schema_version") != 1:
+    if data.get("schema_version") != 2:
         raise StreamDeckPhotoError("unsupported Stream Deck photo calibration schema")
     size = data.get("source_size")
     if not isinstance(size, list) or len(size) != 2 or not all(isinstance(v, int) and v > 0 for v in size):
@@ -66,41 +75,26 @@ def load_calibration(path: Path = DEFAULT_CALIBRATION) -> Calibration:
         keys.append(KeyAperture(position, _rect(item.get("button"), f"key {position} button"), _rect(item.get("screen"), f"key {position} screen")))
     cal = Calibration(
         source_size=(size[0], size[1]),
-        screen_radius=int(data.get("screen_radius", 18)),
         transparent_content_padding=float(data.get("transparent_content_padding", 0.07)),
-        minimum_screen_inset=int(data.get("minimum_screen_inset", 20)),
+        alpha_hole_threshold=int(data.get("alpha_hole_threshold", 8)),
         keys=tuple(keys),
     )
     validate_calibration(cal)
     return cal
 
 
-def _contains(outer: tuple[int, int, int, int], inner: tuple[int, int, int, int], inset: int) -> bool:
-    ox1, oy1, ox2, oy2 = outer
-    ix1, iy1, ix2, iy2 = inner
-    return ix1 - ox1 >= inset and iy1 - oy1 >= inset and ox2 - ix2 >= inset and oy2 - iy2 >= inset
-
-
-def _overlap(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) -> bool:
-    return max(a[0], b[0]) < min(a[2], b[2]) and max(a[1], b[1]) < min(a[3], b[3])
-
-
 def validate_calibration(cal: Calibration) -> None:
     width, height = cal.source_size
-    if cal.screen_radius < 0:
-        raise StreamDeckPhotoError("screen_radius must be non-negative")
     if not 0 <= cal.transparent_content_padding < 0.4:
         raise StreamDeckPhotoError("transparent_content_padding is out of range")
+    if not 0 <= cal.alpha_hole_threshold <= 64:
+        raise StreamDeckPhotoError("alpha_hole_threshold is out of range")
     for key in cal.keys:
         bx1, by1, bx2, by2 = key.button
-        sx1, sy1, sx2, sy2 = key.screen
         if bx1 < 0 or by1 < 0 or bx2 > width or by2 > height:
             raise StreamDeckPhotoError(f"button {key.index} is outside source image")
-        if not _contains(key.button, key.screen, cal.minimum_screen_inset):
-            raise StreamDeckPhotoError(
-                f"screen {key.index} is not safely inset inside its physical button; "
-                f"minimum inset={cal.minimum_screen_inset}"
-            )
+        if not _contains(key.button, key.screen):
+            raise StreamDeckPhotoError(f"screen {key.index} is not contained inside its physical button")
     for i, left in enumerate(cal.keys):
         for right in cal.keys[i + 1:]:
             if _overlap(left.screen, right.screen):
@@ -115,8 +109,7 @@ def _visible_bbox(image: Image.Image, threshold: int = 2):
 
 def _has_meaningful_transparency(image: Image.Image) -> bool:
     alpha = image.getchannel("A")
-    extrema = alpha.getextrema()
-    if extrema[0] == 255:
+    if alpha.getextrema()[0] == 255:
         return False
     bbox = _visible_bbox(image)
     if bbox is None:
@@ -132,11 +125,11 @@ def fit_key_art(
     transparent_padding: float,
     background: tuple[int, int, int, int] = (10, 12, 16, 255),
 ) -> Image.Image:
-    """Fit key art into one LCD aperture.
+    """Fit one product key into the LCD underlay.
 
-    Transparent art is alpha-trimmed and contained with padding so invisible
-    margins never make the visible icon/text undersized. Opaque art fills the
-    LCD aperture edge-to-edge without ever touching the photographed bezel.
+    Transparent images are alpha-trimmed before fitting so invisible margins
+    never shrink the visible icon. Opaque key-face screenshots fill the LCD
+    window. The hardware plate itself is never modified.
     """
     src = image.convert("RGBA")
     target_w, target_h = size
@@ -161,31 +154,19 @@ def fit_key_art(
     return ImageOps.fit(src, size, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
 
 
-def _rounded_mask(size: tuple[int, int], radius: int) -> Image.Image:
-    mask = Image.new("L", size, 0)
-    draw = ImageDraw.Draw(mask)
-    draw.rounded_rectangle((0, 0, size[0] - 1, size[1] - 1), radius=min(radius, min(size) // 2), fill=255)
-    return mask
-
-
-def _allowed_change_mask(cal: Calibration) -> Image.Image:
-    mask = Image.new("L", cal.source_size, 0)
-    draw = ImageDraw.Draw(mask)
-    for key in cal.keys:
-        draw.rounded_rectangle(key.screen, radius=cal.screen_radius, fill=255)
-    return mask
-
-
-def assert_only_apertures_changed(before: Image.Image, after: Image.Image, cal: Calibration) -> None:
-    if before.size != cal.source_size or after.size != cal.source_size:
-        raise StreamDeckPhotoError("changed-pixel assertion requires original source dimensions")
-    diff = ImageChops.difference(before.convert("RGBA"), after.convert("RGBA"))
-    allowed = _allowed_change_mask(cal)
-    outside = ImageOps.invert(allowed)
-    transparent = Image.new("RGBA", before.size, (0, 0, 0, 0))
-    outside_diff = Image.composite(diff, transparent, outside)
-    if outside_diff.getbbox() is not None:
-        raise StreamDeckPhotoError("key compositing modified pixels outside calibrated LCD apertures")
+def _screen_is_real_alpha_hole(device: Image.Image, key: KeyAperture, threshold: int) -> bool:
+    alpha = device.getchannel("A").crop(key.screen)
+    width, height = alpha.size
+    center = alpha.getpixel((width // 2, height // 2))
+    if center > threshold:
+        return False
+    # Most of the calibrated screen box must actually be transparent/near-
+    # transparent in the source plate. This catches a bad calibration before
+    # product art can be rendered in the wrong place.
+    low_alpha = alpha.point(lambda value: 255 if value <= threshold else 0)
+    histogram = low_alpha.histogram()
+    transparent_pixels = histogram[255]
+    return transparent_pixels >= width * height * 0.58
 
 
 def compose_device(
@@ -193,35 +174,34 @@ def compose_device(
     *,
     device_path: Path = DEFAULT_DEVICE,
     calibration_path: Path = DEFAULT_CALIBRATION,
-    preserve_glass: float = 0.06,
 ) -> Image.Image:
     cal = load_calibration(calibration_path)
     if len(key_images) != len(cal.keys):
         raise StreamDeckPhotoError(f"expected 15 key images, got {len(key_images)}")
-    original = Image.open(device_path).convert("RGBA")
-    if original.size != cal.source_size:
-        raise StreamDeckPhotoError(f"device source size {original.size} != calibrated {cal.source_size}")
-    composed = original.copy()
 
+    plate = Image.open(device_path).convert("RGBA")
+    if plate.size != cal.source_size:
+        raise StreamDeckPhotoError(f"device source size {plate.size} != calibrated {cal.source_size}")
+    for key in cal.keys:
+        if not _screen_is_real_alpha_hole(plate, key, cal.alpha_hole_threshold):
+            raise StreamDeckPhotoError(f"key {key.index} calibration does not match a transparent LCD hole in the source plate")
+
+    # Product pixels live exclusively on an underlay behind the hardware.
+    underlay = Image.new("RGBA", plate.size, (0, 0, 0, 0))
     for aperture, key_image in zip(cal.keys, key_images):
         x1, y1, x2, y2 = aperture.screen
-        size = (x2 - x1, y2 - y1)
         fitted = fit_key_art(
             key_image,
-            size,
+            (x2 - x1, y2 - y1),
             transparent_padding=cal.transparent_content_padding,
         )
-        if preserve_glass > 0:
-            photographed_screen = original.crop(aperture.screen)
-            fitted = Image.blend(fitted, photographed_screen, max(0.0, min(0.18, preserve_glass)))
-            fitted = ImageEnhance.Contrast(fitted).enhance(1.02)
-        mask = _rounded_mask(size, cal.screen_radius)
-        transparent = Image.new("RGBA", size, (0, 0, 0, 0))
-        patch = Image.composite(fitted, transparent, mask)
-        composed.alpha_composite(patch, (x1, y1))
+        underlay.alpha_composite(fitted, (x1, y1))
 
-    assert_only_apertures_changed(original, composed, cal)
-    return composed
+    # The original plate is the top layer, unchanged byte-for-byte in memory.
+    # Its real transparency defines the LCD roundness and its opaque pixels
+    # preserve every photographed bezel/reflection automatically.
+    result = Image.alpha_composite(underlay, plate)
+    return result
 
 
 def alpha_crop_device(device: Image.Image, pad: int = 0) -> Image.Image:
@@ -235,3 +215,9 @@ def alpha_crop_device(device: Image.Image, pad: int = 0) -> Image.Image:
         min(device.width, x2 + pad),
         min(device.height, y2 + pad),
     ))
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    digest.update(path.read_bytes())
+    return digest.hexdigest()
