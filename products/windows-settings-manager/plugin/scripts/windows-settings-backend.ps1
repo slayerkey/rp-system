@@ -330,6 +330,9 @@ public static class PackRatWindowsNative
 
     public static bool SetTopology(string topology)
     {
+        if (string.Equals(GetTopology(), topology, StringComparison.OrdinalIgnoreCase))
+            return true;
+
         uint flag;
         switch ((topology ?? "").ToLowerInvariant())
         {
@@ -724,10 +727,10 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
             }
             "setTopology" {
                 $target = [string]$args.topology
-                $ok = [PackRatWindowsNative]::SetTopology($target)
+                [void][PackRatWindowsNative]::SetTopology($target)
                 $actual = [PackRatWindowsNative]::GetTopology()
                 $result = [pscustomobject]@{
-                    status = $(if ($ok -and $actual -eq $target) { "COMPLETE" } else { "FAILED" })
+                    status = $(if ($actual -eq $target) { "COMPLETE" } else { "FAILED" })
                     state = $actual
                 }
                 Write-Reply $id ($result.status -eq "COMPLETE") $result $(if ($result.status -eq "FAILED") { "Windows did not confirm the requested display topology." } else { $null })
