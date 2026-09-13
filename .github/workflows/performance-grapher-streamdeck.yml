@@ -190,15 +190,18 @@ jobs:
             presentmon_sha256 = $presentMonHash
             presentmon_version = "2.5.1"
             libre_hardware_monitor = "0.9.6"
+            javascript_syntax_gate = "PASS"
             unit_fixture_tests = "PASS"
             synthetic_performance = "PASS"
             native_provider_probe = "PASS_OR_EXPLICIT_UNAVAILABLE"
+            native_helper_benchmark = "PASS_OR_EXPLICIT_UNAVAILABLE"
             official_elgato_validation = "PASS"
             official_elgato_packaging = "PASS"
             deterministic_marketplace_media = "PASS"
             marketplace_v2_thumbnail_review = "PASS"
             runtime_npm_license_inventory = "PASS"
             nuget_license_inventory = "PASS"
+            presentmon_standalone_license = "PASS"
             real_game_hardware_smoke = "PENDING"
           }
           $evidence | ConvertTo-Json -Depth 4 | Set-Content -Path (Join-Path $stage "evidence.json") -Encoding UTF8
