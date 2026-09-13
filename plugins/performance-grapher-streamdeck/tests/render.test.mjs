@@ -69,3 +69,63 @@ test("long process and secondary labels are bounded on key", () => {
   assert.ok(svg.includes("AN EXTREMELY LONG SES…"));
   assert.ok(!svg.includes("EXTREMELYLONGGAMEEXECUTABLENAME"));
 });
+
+
+test("generic game FPS graph preserves drops regardless of threshold direction", () => {
+  const calls = [];
+  const telemetry = {
+    watchMetric() {},
+    metricDescriptor() { return { id: "game.fps", name: "Game FPS", unit: "FPS", source: "PresentMon" }; },
+    metricValue() { return 144; },
+    metricSeries() { return [[1, 144], [2, 50], [3, 144]]; },
+    safeStatus() { return { fps: { state: "ready" }, hardware: { state: "ready" } }; },
+    session: { snapshot() { return { active: true, process: "game.exe", current: { onePercentLow: 90, pointOnePercentLow: 60 } }; } },
+  };
+
+  const view = makeView(telemetry, "graph", {
+    metricId: "game.fps",
+    thresholdDirection: "above",
+    windowMs: 60_000,
+  });
+  assert.equal(view.mode, "min");
+});
+
+test("generic frametime graph preserves spikes regardless of threshold direction", () => {
+  const telemetry = {
+    watchMetric() {},
+    metricDescriptor() { return { id: "game.frametime", name: "Frametime", unit: "ms", source: "PresentMon" }; },
+    metricValue() { return 7; },
+    metricSeries() { return [[1, 7], [2, 40], [3, 7]]; },
+    safeStatus() { return { fps: { state: "ready" }, hardware: { state: "ready" } }; },
+    session: { snapshot() { return { active: true, process: "game.exe", current: { onePercentLow: 90, pointOnePercentLow: 60 } }; } },
+  };
+
+  const view = makeView(telemetry, "graph", {
+    metricId: "game.frametime",
+    thresholdDirection: "below",
+    windowMs: 60_000,
+  });
+  assert.equal(view.mode, "max");
+});
+
+test("performance alert downsampling follows the configured threshold direction", () => {
+  const telemetry = {
+    watchMetric() {},
+    metricDescriptor() { return { id: "game.fps", name: "Game FPS", unit: "FPS", source: "PresentMon" }; },
+    metricValue() { return 144; },
+    metricSeries() { return [[1, 100], [2, 160], [3, 120]]; },
+    safeStatus() { return { fps: { state: "ready" }, hardware: { state: "ready" } }; },
+    session: { snapshot() { return { active: true, process: "game.exe", current: { onePercentLow: 90, pointOnePercentLow: 60 } }; } },
+  };
+
+  assert.equal(makeView(telemetry, "alert", {
+    metricId: "game.fps",
+    thresholdDirection: "above",
+    threshold: 150,
+  }).mode, "max");
+  assert.equal(makeView(telemetry, "alert", {
+    metricId: "game.fps",
+    thresholdDirection: "below",
+    threshold: 90,
+  }).mode, "min");
+});
