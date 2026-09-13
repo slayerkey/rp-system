@@ -91,7 +91,13 @@ jobs:
           Start-Sleep -Seconds 2
           $p.Refresh()
           if ($p.HasExited) {
-            Write-Host "HELPER_BENCH skipped: clean runner reported hardware provider unavailable."
+            $out = if (Test-Path $stdout) { Get-Content $stdout -Raw } else { "" }
+            $err = if (Test-Path $stderr) { Get-Content $stderr -Raw } else { "" }
+            if ($p.ExitCode -eq 2 -and $out -match '"type":"status"' -and $out -match '"status":"unavailable"') {
+              Write-Host "HELPER_BENCH skipped: clean runner explicitly reported hardware provider unavailable."
+            } else {
+              throw "Sensor helper exited unexpectedly during benchmark. exit=$($p.ExitCode) stdout=$out stderr=$err"
+            }
           } else {
             $cpu0 = $p.TotalProcessorTime.TotalSeconds
             Start-Sleep -Seconds 6
