@@ -5,6 +5,7 @@ function Test-RatDevGitRef {
     )
 
     $previous = $ErrorActionPreference
+    $previousExitCode = $global:LASTEXITCODE
     $ErrorActionPreference = "Continue"
     try {
         & git -C $RepoRoot rev-parse --verify --quiet $Ref *> $null
@@ -12,6 +13,7 @@ function Test-RatDevGitRef {
     }
     finally {
         $ErrorActionPreference = $previous
+        $global:LASTEXITCODE = $previousExitCode
     }
 }
 
@@ -22,6 +24,7 @@ function Test-RatDevGitObject {
     )
 
     $previous = $ErrorActionPreference
+    $previousExitCode = $global:LASTEXITCODE
     $ErrorActionPreference = "Continue"
     try {
         & git -C $RepoRoot cat-file -e $Object 2>$null
@@ -29,6 +32,7 @@ function Test-RatDevGitObject {
     }
     finally {
         $ErrorActionPreference = $previous
+        $global:LASTEXITCODE = $previousExitCode
     }
 }
 
@@ -39,6 +43,7 @@ function Read-RatDevJsonFromGitObject {
     )
 
     $previous = $ErrorActionPreference
+    $previousExitCode = $global:LASTEXITCODE
     $ErrorActionPreference = "Continue"
     try {
         $raw = & git -C $RepoRoot show $Object 2>$null
@@ -46,6 +51,7 @@ function Read-RatDevJsonFromGitObject {
     }
     finally {
         $ErrorActionPreference = $previous
+        $global:LASTEXITCODE = $previousExitCode
     }
 
     if ($code -ne 0 -or -not $raw) { return $null }
@@ -62,6 +68,7 @@ function Get-RatDevProductRefs {
     param([Parameter(Mandatory = $true)][string]$RepoRoot)
 
     $previous = $ErrorActionPreference
+    $previousExitCode = $global:LASTEXITCODE
     $ErrorActionPreference = "Continue"
     try {
         $refs = & git -C $RepoRoot for-each-ref "--format=%(refname:short)" "refs/remotes/origin/product" 2>$null
@@ -69,6 +76,7 @@ function Get-RatDevProductRefs {
     }
     finally {
         $ErrorActionPreference = $previous
+        $global:LASTEXITCODE = $previousExitCode
     }
 
     if ($code -ne 0) { return @() }
