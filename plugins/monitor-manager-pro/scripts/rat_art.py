@@ -70,17 +70,17 @@ def hero(path):
 def controls(path):
     im=bg(); header(im,"One control surface for the whole setup.","Windows display configuration, supported monitor hardware and saved Monitor Profiles.")
     d=ImageDraw.Draw(im)
-    items=[("MONITOR BRIGHTNESS","Set a value or use Brightness Up / Down. Stream Deck+ gets a real dial."),
-           ("REFRESH RATE SWITCH","60 / 120 / 144 / 165 / 240 Hz only when Windows reports the requested mode."),
-           ("MONITOR POWER","Uses DDC/CI power control only when the monitor advertises the feature."),
-           ("CURRENT DISPLAY STATUS","See current Hz and resolution directly on the key.")]
+    items=[("MONITOR PROFILES","Save PC, CONSOLE, WORK LAPTOP or NIGHT and restore supported state with one key."),
+           ("DISPLAY CONTROL","Resolution, Hz, HDR, orientation, primary display and Windows topology."),
+           ("HARDWARE CONTROL","Brightness, contrast, volume, power and capability-aware input switching."),
+           ("MULTI-MONITOR","Target discovered displays and orchestrate the whole supported setup.")]
     y=330
     for title,body in items:
         d.ellipse((135,y+7,151,y+23),fill=(*ACCENT,255)); d.text((175,y),title,font=font(27),fill=(*WHITE,255)); d.text((175,y+45),body,font=font(20,False),fill=(*MUTED,255)); y+=125
     footer(im); save(im,path)
 
 def capabilities(path):
-    im=bg(); header(im,"Capability aware by design.","DDC/CI is monitor-specific, so Lite reports what it knows instead of guessing.")
+    im=bg(); header(im,"Capability aware by design.","DDC/CI is monitor-specific, so Pro reports what it knows instead of guessing.")
     d=ImageDraw.Draw(im)
     for i,(state,body,color) in enumerate([
         ("SUPPORTED","The monitor/API explicitly exposes this control.",ACCENT),
@@ -91,9 +91,9 @@ def capabilities(path):
 
 def profiles(path):
     im=bg(); header(im,"Four real control pages included.","MONITORS, PROFILES, DISPLAY MODES and BRIGHTNESS across Standard / MK, XL, Plus and Virtual.")
-    labels=[("MONITORS","STATUS",ACCENT),("65%","BRIGHTNESS",ACCENT),("POWER","DDC/CI",WARN),("60 HZ","DISPLAY",ACCENT),("120 HZ","DISPLAY",ACCENT),
-            ("144 HZ","DISPLAY",ACCENT),("165 HZ","DISPLAY",ACCENT),("240 HZ","DISPLAY",ACCENT),("25%","BRIGHTNESS",ACCENT),("50%","BRIGHTNESS",ACCENT),
-            ("65%","BRIGHTNESS",ACCENT),("80%","BRIGHTNESS",ACCENT),("BRIGHT -","5%",ACCENT),("BRIGHT +","5%",ACCENT),("STATUS","CURRENT",ACCENT)]
+    labels=[("MONITORS","STATUS",ACCENT),("DP","INPUT",ACCENT),("HDMI","INPUT",ACCENT),("HDR","WINDOWS",ACCENT),("PRIMARY","DISPLAY",ACCENT),
+            ("PC MODE","PROFILE",ACCENT),("CONSOLE","PROFILE",ACCENT),("WORK LAPTOP","PROFILE",ACCENT),("NIGHT","PROFILE",ACCENT),("EXTEND","DISPLAY",ACCENT),
+            ("165 HZ","DISPLAY",ACCENT),("1440P","RESOLUTION",ACCENT),("65%","BRIGHTNESS",ACCENT),("50%","CONTRAST",ACCENT),("50%","VOLUME",ACCENT)]
     deck(im,labels,x=500,y=305); footer(im); save(im,path)
 
 def plus(path):
@@ -106,9 +106,9 @@ def plus(path):
 def compatibility(path):
     im=bg(); header(im,"Windows first. Hardware honest.","Pro never assumes HDMI, DisplayPort, USB-C or a VCP code exists on every monitor.")
     d=ImageDraw.Draw(im)
-    boxes=[("EXTERNAL MONITOR","DDC/CI capability discovery\nBrightness + safe power when exposed"),
-           ("LAPTOP PANEL","Windows internal brightness path\nNo fake DDC/CI requirement"),
-           ("DISPLAY MODES","Windows mode enumeration\nUnsupported Hz requests are rejected")]
+    boxes=[("CAPABILITY GATE","SUPPORTED / NOT SUPPORTED / UNKNOWN\nNo arbitrary VCP writes"),
+           ("MONITOR PROFILES","Transactional apply where practical\nCOMPLETE / PARTIAL / FAILED"),
+           ("WINDOWS DISPLAY","Topology + modes + HDR\nNative Windows APIs first")]
     x=120
     for title,body in boxes:
         card(d,(x,350,x+520,650)); d.text((x+35,400),title,font=font(25),fill=(*WHITE,255))
