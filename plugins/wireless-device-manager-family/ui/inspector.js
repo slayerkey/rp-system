@@ -30,9 +30,9 @@ function save(patch){
 }
 function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function selectedDeviceId(){
-  return snapshot?.edition==="lite"
-    ? (snapshot?.liteDeviceId||settings.deviceId||"")
-    : (settings.deviceId||"");
+  if(snapshot?.edition==="lite") return snapshot?.liteDeviceId||settings.deviceId||"";
+  const slot=settings.slot;
+  return (slot && snapshot?.slots?.[slot]) || settings.deviceId || "";
 }
 function groupsFor(id){
   if(!id)return "";
@@ -45,6 +45,7 @@ function render(){
   const action=actionInfo.action||"";
   const isDevice=action.endsWith(".device"), isDashboard=action.endsWith(".dashboard"), isCycle=action.endsWith(".cycle");
   $("device-fields").hidden=!isDevice; $("dashboard-fields").hidden=!isDashboard; $("cycle-fields").hidden=!isCycle;
+  $("lite-upsell").hidden=snapshot?.edition==="pro";
   if(snapshot){
     $("status").textContent=snapshot.adapterAvailable ? (snapshot.error||`${snapshot.devices.length} paired Bluetooth device(s) visible`) : "Bluetooth adapter unavailable or disabled";
     $("status").className="status"+(snapshot.adapterAvailable?"":" bad");
@@ -90,7 +91,8 @@ function render(){
           deviceId,
           favorite:$("favorite").checked,
           groupName:$("groupName").value,
-          lowBatteryThreshold:Number($("threshold").value||20)
+          lowBatteryThreshold:Number($("threshold").value||20),
+          slot:settings.slot||""
         });
       }
     }else if(id==="threshold"){
