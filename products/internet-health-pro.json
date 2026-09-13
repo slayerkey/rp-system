@@ -1,0 +1,29 @@
+{
+  "id": "internet-health-pro",
+  "name": "Internet Health Pro",
+  "type": "plugin",
+  "status": "testing",
+  "workflow_state": "QA",
+  "blocker": null,
+  "price_usd": 7.99,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows + macOS",
+  "source": "plugins/internet-health-pro",
+  "submission_metadata": "plugins/internet-health-pro/submission.json",
+  "branch": "product/internet-health-pro",
+  "release_gate": [
+    "one shared monitoring engine per plugin process",
+    "native ICMP latency with honest TCP-connect, DNS lookup and HTTPS response timing labels",
+    "multi-signal outage detection with two-cycle confirmation",
+    "ICMP-blocked network fallback without false 100% probe loss",
+    "user-adjustable latency, jitter and probe-loss thresholds",
+    "bounded local-only 24-hour raw health history",
+    "manual-only throughput test capped at approximately 10 MB per run",
+    "deterministic healthy/latency/jitter/loss/outage/DNS/recovery/sleep/target/IPv4-IPv6/restart/storage tests",
+    "clean Windows and macOS live network smoke",
+    "official Elgato Stream Deck CLI validation",
+    "official .streamDeckPlugin packaging",
+    "deterministic Rat Art and marketplace kit preflight"
+  ],
+  "final_boundary": "Install the exact packaged .streamDeckPlugin in Stream Deck and physically observe live key rendering through a disconnect/reconnect and one manual speed test before Marketplace submission."
+}
