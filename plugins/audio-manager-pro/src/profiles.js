@@ -249,6 +249,30 @@ export function mergeApplyResult(plan, helperResponse) {
   };
 }
 
+export function verifyApplyResult(profileInput, resultInput, snapshot) {
+  const result = resultInput && typeof resultInput === "object"
+    ? { ...resultInput, failures: [...(resultInput.failures || [])] }
+    : { status: "FAILED", successCount: 0, failureCount: 1, failures: [] };
+
+  if (result.status !== "SUCCESS") return result;
+
+  const error = !snapshot
+    ? "Applied audio operations but could not verify the final Windows audio state."
+    : snapshot.error
+      ? `Applied audio operations but final verification failed: ${snapshot.error}`
+      : !profileMatchesSnapshot(profileInput, snapshot)
+        ? "Applied audio operations but the final Windows audio state did not fully match the Audio Profile."
+        : "";
+
+  if (!error) return result;
+
+  result.status = result.successCount > 0 ? "PARTIAL" : "FAILED";
+  result.failures.push({ slot: "verification", error });
+  result.failureCount = result.failures.length;
+  result.snapshot = snapshot || result.snapshot || null;
+  return result;
+}
+
 export function profileMatchesSnapshot(profileInput, snapshot) {
   const profile = normalizeProfile(profileInput);
   if (!profile) return false;
