@@ -25,6 +25,6 @@
     "Windows 11 24H2 HDR supported / unsupported physical QA: REQUIRED"
   ],
   "notes": "Price target $9.99. Commercial differentiation is the unified Windows + DDC/CI layer and saved whole-setup Monitor Profiles, not isolated brightness or projection-mode buttons. Exact HDR uses the dedicated Windows 11 24H2+ DisplayConfig HDR packets and fails closed on older ambiguous Advanced Color APIs. Night Light is excluded from v1 rather than using undocumented toggles.",
-  "blocker": "Required Monitor Manager Pro release QA is incomplete: the hosted Windows build/Elgato package gate has not produced a successful current-head run, and the required physical multi-monitor/DDC/HDR/profile rollback matrix is not yet complete.",
-  "final_boundary": "Pass build, tests, official Elgato validation/package, and the documented physical Windows QA matrix; then move this product to READY_TO_SHIP and publish Pro before enabling the Lite upsell."
+  "blocker": "Required physical Monitor Manager Pro release QA is still incomplete: the multi-monitor, DDC/CI, HDR, topology, sleep/wake, reconnect, and Monitor Profile rollback matrix must be proven on real Windows hardware before Marketplace submission.",
+  "final_boundary": "Complete the documented physical Windows QA matrix; then move this product to READY_TO_SHIP, merge to canonical main, and publish Pro before enabling the Lite direct Marketplace upsell."
 }
