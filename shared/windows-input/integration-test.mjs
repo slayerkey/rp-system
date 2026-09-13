@@ -269,8 +269,8 @@ await run("SendInput release failure preserves recovery state until next helper 
     const stopped=failing.event("playbackStopped",5000);
     await failing.command("play",{
       events:[
-        {type:"keyDown",delayMs:0,vk:135,scan:0,extended:false},
-        {type:"keyUp",delayMs:20,vk:135,scan:0,extended:false}
+        {type:"keyDown",delayMs:0,vk:39,scan:77,extended:true},
+        {type:"keyUp",delayMs:20,vk:39,scan:77,extended:true}
       ],
       speed:1,
       repeatCount:1,
@@ -281,7 +281,9 @@ await run("SendInput release failure preserves recovery state until next helper 
     assert.match(String(result.error||""),/forced SendInput failure/i);
     assert.equal(await exists(journal),true,"failed release should preserve held-input recovery journal");
     const saved=JSON.parse(await readFile(journal,"utf8"));
-    assert.equal(saved.keys?.[0]?.vk,135);
+    assert.equal(saved.keys?.[0]?.vk,39);
+    assert.equal(saved.keys?.[0]?.scan,77);
+    assert.equal(saved.keys?.[0]?.extended,true);
 
     failing.kill();
     await failing.exit(3000);
