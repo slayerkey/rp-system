@@ -57,7 +57,8 @@
     "official Elgato CLI validation",
     "official plugin packaging",
     "final Windows host smoke",
-    "physical Stream Deck stop/interruption smoke"
+    "physical Stream Deck stop/interruption smoke",
+    "verified exact Macro Recorder Pro Marketplace URL injected into Lite upsell before public Lite launch"
   ],
   "ci_runner_state": {
     "observed_at": "2026-09-13",
@@ -67,5 +68,18 @@
     "local_fallback": "plugins/macro-recorder-pro/run-family-qa.ps1"
   },
   "native_release_blockers": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md",
-  "native_release_gate": "docs/MACRO_RECORDER_NATIVE_GATE.json"
+  "native_release_gate": "docs/MACRO_RECORDER_NATIVE_GATE.json",
+  "upsell_release_gate": {
+    "required_before_public_lite_launch": true,
+    "canonical_source": "products/lite-pro-map.json",
+    "current_state": "waiting_for_verified_direct_macro_recorder_pro_marketplace_url",
+    "accepted_url_shape": "https://marketplace.elgato.com/product/<verified-pro-slug-and-id>",
+    "forbidden": [
+      "search URL",
+      "creator URL",
+      "generic Marketplace URL",
+      "placeholder",
+      "guessed slug"
+    ]
+  }
 }
