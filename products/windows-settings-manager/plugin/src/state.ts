@@ -49,6 +49,7 @@ export class StateService {
           ...this.snapshot,
           backendOnline: false,
           capturedAt: new Date().toISOString(),
+          keepAwake: false,
           errors: [error instanceof Error ? error.message : String(error)]
         };
       }
