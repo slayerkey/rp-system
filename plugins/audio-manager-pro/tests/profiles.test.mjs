@@ -60,6 +60,23 @@ test("profile normalization preserves unset volume as null",()=>{
   assert.equal(p.slots.outputCommunications.volume,null);
 });
 
+test("disabled volume restore discards latent saved volume",()=>{
+  const p=normalizeProfile({
+    id:"p-latent",
+    name:"Profile",
+    slots:{
+      outputCommunications:{
+        device:{endpointId:"out",name:"Headset"},
+        restoreVolume:false,
+        volume:88,
+        restoreMute:false,
+        muted:false,
+      },
+    },
+  });
+  assert.equal(p.slots.outputCommunications.volume,null);
+});
+
 test("captured communications roles do not silently become zero-volume restores",()=>{
   const s=snap();
   const p=captureProfileFromSnapshot("MEETING",s,"meeting-null-volume");
