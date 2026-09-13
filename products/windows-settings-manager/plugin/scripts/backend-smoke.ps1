@@ -8,7 +8,6 @@ $psi.UseShellExecute = $false
 $psi.RedirectStandardInput = $true
 $psi.RedirectStandardOutput = $true
 $psi.RedirectStandardError = $true
-$psi.StandardInputEncoding = New-Object System.Text.UTF8Encoding($false)
 $psi.CreateNoWindow = $true
 
 $p = [System.Diagnostics.Process]::new()
