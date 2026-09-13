@@ -26,10 +26,11 @@ const roots=[
 ];
 
 for(const [edition,root,prefix] of roots){
-  test(`${edition} manifest is Windows key-only and has three bundled profiles`,async()=>{
+  test(`${edition} manifest is Windows key-only and has five bundled profiles`,async()=>{
     const manifest=JSON.parse(await readFile(path.join(root,"manifest.json"),"utf8"));
     assert.equal(manifest.OS[0].Platform,"windows");
     assert.equal(manifest.Profiles.length,5);
+    assert.deepEqual(manifest.Profiles.map(profile=>profile.DeviceType),[0,1,2,7,9]);
     for(const action of manifest.Actions) {
       assert.deepEqual(action.Controllers,["Keypad"]);
       for (const state of action.States ?? []) {
@@ -143,7 +144,7 @@ test("settings reads are side-effect free and global writes are explicit",async(
 
 
 test("bundled Pro headset status and control keys share one logical slot",async()=>{
-  for(const suffix of ["standard","xl"]){
+  for(const suffix of ["standard","mini","xl"]){
     const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
     const manifest=readStoredProfileManifest(data);
     const devices=Object.values(manifest.Actions).filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.device");
