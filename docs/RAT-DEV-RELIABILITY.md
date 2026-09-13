@@ -55,3 +55,11 @@ The Rat command bootstrap explicitly fetches:
 ```
 
 It then fast-forwards local `main` and verifies local `HEAD` exactly equals `refs/remotes/origin/main`. A normal Git progress message written to stderr is not treated as a PowerShell failure; the real Git process exit code controls success.
+
+## Shared-source internal product families
+
+Internal Lite/Pro product families may share one source root while producing separate Stream Deck plugin directories. Rat Dev resolves these through canonical product metadata rather than folder-name guessing.
+
+For each requested slug, `products/<slug>.json` supplies the shared `source` and the exact `ship_plugin_dir`. This allows a family branch such as `product/text-expander` to serve both `rat dev text-expander` and `rat dev text-expander-pro` while linking the correct UUID/build output for each SKU.
+
+If no explicit plugin directory is configured, Rat Dev only accepts a single unambiguous top-level `.sdPlugin` directory. Multiple candidates fail closed and require product metadata or `rat-dev.json` configuration.
