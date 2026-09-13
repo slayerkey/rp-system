@@ -250,3 +250,12 @@ test("Lite generated profile coordinates fit Standard XL and Plus hardware", asy
   }
   assert.deepEqual([...new Set(encoderUuids)],["com.packrat.monitormanagerlite.brightness"]);
 });
+
+test("Lite Pro URL validator requires an exact direct Marketplace product URL", async () => {
+  const source=await readFile("src/product.ts","utf8");
+  assert.match(source,/hostname\.toLowerCase\(\) !== "marketplace\.elgato\.com"/);
+  assert.match(source,/url\.search \|\| url\.hash/);
+  assert.match(source,/\[0-9a-f\]\{8\}.*\[0-9a-f\]\{12\}/);
+  assert.doesNotMatch(source,/marketplace\.elgato\.com\/search\?/i);
+  assert.doesNotMatch(source,/marketplace\.elgato\.com\/@packrat/i);
+});
