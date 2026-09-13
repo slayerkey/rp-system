@@ -227,3 +227,23 @@ test("Macro Library does not mislabel filesystem read errors as corruption", asy
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("Macro Library atomically reuses the same deterministic starter macro", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    const library=await new MacroLibrary(file).load();
+    const seed={id:"starter-shared",name:"Shared Starter",events:[
+      {type:"keyDown",vk:65,delayMs:1},
+      {type:"keyUp",vk:65,delayMs:1}
+    ]};
+    const [a,b]=await Promise.all([library.ensure(seed),library.ensure(seed)]);
+    assert.equal(a.id,"starter-shared");
+    assert.equal(b.id,"starter-shared");
+    assert.equal(library.list().length,1);
+    const reloaded=await new MacroLibrary(file).load();
+    assert.equal(reloaded.list().length,1);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
