@@ -75,7 +75,7 @@
     },
     {
       "UUID": "com.packrat.performance-grapher.alert",
-      "Name": "Alert",
+      "Name": "Performance Alert",
       "Tooltip": "Turn a selected metric into a visible above/below threshold warning.",
       "Icon": "imgs/actions/alert/icon",
       "Controllers": [
