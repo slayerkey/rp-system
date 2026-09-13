@@ -14,9 +14,10 @@ GitHub remains the source of truth. Do not rebuild the Stream Deck process from 
 2. `STREAMDECK.md`
 3. `skills/rat-build/SKILL.md`
 4. the matching platform/product-type guidance
-5. `skills/rat-art/SKILL.md`
-6. `skills/rat-ship/SKILL.md`
-7. `products/index.json`
+5. `standards/streamdeck-key-visuals-v1.md`
+6. `skills/rat-art/SKILL.md`
+7. `skills/rat-ship/SKILL.md`
+8. `products/index.json`
 
 Read product-specific source and QA only after the product slug and type are known.
 
@@ -44,6 +45,14 @@ Use the Stream Deck SDK and canonical plugin build/test/package path.
 
 Validate manifest structure, built code paths, property inspectors, actions, assets, settings, cache/API behavior, error states, and Elgato CLI validation/package.
 
+Key-face visual quality is part of plugin correctness. Read `standards/streamdeck-key-visuals-v1.md` before designing action art or bundled profiles. A key must be obvious at real 72 x 72 Stream Deck scale, with the action or live value upfront. Do not cover a small generic device illustration with long Stream Deck title text.
+
+Every plugin with Keypad actions must run the shared key-face audit when practical:
+
+`node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>`
+
+The automated audit is only a floor. Also review actual keys at 72 x 72 and a reduced 36 x 36 preview. Dynamic keys must be reviewed using representative rendered states, not only their manifest fallback image.
+
 Use GitHub Actions for clean Node builds and vendor CLI work.
 
 Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures.
@@ -52,7 +61,9 @@ Physical Stream Deck testing is final confidence where actual hardware behavior 
 
 Treat profiles as deterministic generated products when possible.
 
-Validate profile archive structure, pages, navigation, action UUIDs, plugin dependencies, grid placement, icons, compatibility, and required platform/device variants.
+Validate profile archive structure, pages, navigation, action UUIDs, plugin dependencies, grid placement, icons, compatibility, required platform/device variants, and key-face legibility.
+
+Bundled profile titles and action images must follow `standards/streamdeck-key-visuals-v1.md`. Profile generation is not allowed to reintroduce long labels over icon art that the plugin manifest avoided.
 
 Generate Windows, Mac, VSD, XL, Plus, or other required variants from canonical definitions rather than hand-editing several independent copies.
 
@@ -116,6 +127,7 @@ Depending on product type, this can include:
 * manifest validation
 * property inspector checks
 * SVG/PNG dimensions
+* 72 x 72 key-face visual audit and reduced-scale review
 * profile archive validation
 * action UUID/dependency checks
 * golden package comparisons
