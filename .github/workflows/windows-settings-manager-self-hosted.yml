@@ -1,0 +1,123 @@
+name: Windows Settings Manager Self-Hosted Gate
+
+on:
+  push:
+    branches:
+      - product/windows-settings-manager
+    paths:
+      - "products/windows-settings-manager/**"
+      - "products/windows-settings-manager-lite.json"
+      - "products/windows-settings-manager-pro.json"
+      - "products/index.json"
+      - "products/lite-pro-map.json"
+      - ".github/workflows/windows-settings-manager-self-hosted.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-host:
+    name: PackRat Windows host build + backend gate
+    runs-on: [self-hosted, Windows, X64, packrat]
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: products/windows-settings-manager/plugin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: products/windows-settings-manager/plugin/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install locked dependencies
+        run: npm ci --no-fund --no-audit
+
+      - name: Install deterministic Rat Art runtime
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0
+
+      - name: Typecheck and build Lite + Pro
+        run: npm run build
+
+      - name: Product policy tests
+        run: npm test
+
+      - name: Native Windows backend smoke
+        shell: powershell
+        run: npm run backend:smoke
+
+      - name: Official Elgato validation
+        run: npm run validate
+
+      - name: Production dependency audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Package Lite
+        run: npx streamdeck pack out/com.packrat.windows-settings-manager-lite.sdPlugin --output dist --force --no-update-check --no-file-list
+
+      - name: Package Pro
+        run: npx streamdeck pack out/com.packrat.windows-settings-manager-pro.sdPlugin --output dist --force --no-update-check --no-file-list
+
+      - name: Render Lite Marketplace media
+        shell: powershell
+        run: python scripts/rat-art.py --flavor lite --output dist/marketplace-lite
+
+      - name: Render Pro Marketplace media
+        shell: powershell
+        run: python scripts/rat-art.py --flavor pro --output dist/marketplace-pro
+
+      - name: Verify packages and Marketplace media
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $packages = @(Get-ChildItem dist -Filter *.streamDeckPlugin -File)
+          if ($packages.Count -ne 2) {
+            throw "Expected two Stream Deck packages, found $($packages.Count)."
+          }
+
+          @'
+          from pathlib import Path
+          from PIL import Image
+
+          expected = {
+              "01_search_icon.png": (288, 288),
+              "02_cover.png": (1920, 960),
+              "03_gallery_01.png": (1920, 960),
+              "04_gallery_02.png": (1920, 960),
+              "05_gallery_03.png": (1920, 960),
+              "06_gallery_04.png": (1920, 960),
+          }
+
+          for flavor in ("lite", "pro"):
+              root = Path("dist") / f"marketplace-{flavor}"
+              for name, size in expected.items():
+                  path = root / name
+                  if not path.is_file():
+                      raise SystemExit(f"missing Marketplace asset: {path}")
+                  actual = Image.open(path).size
+                  if actual != size:
+                      raise SystemExit(f"bad size {path}: {actual}, expected {size}")
+          print("WINDOWS SETTINGS PACKAGE + MEDIA PASS")
+          '@ | python -
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-settings-manager-self-hosted
+          path: |
+            products/windows-settings-manager/plugin/dist/*.streamDeckPlugin
+            products/windows-settings-manager/plugin/dist/marketplace-lite/*.png
+            products/windows-settings-manager/plugin/dist/marketplace-pro/*.png
+          if-no-files-found: error
