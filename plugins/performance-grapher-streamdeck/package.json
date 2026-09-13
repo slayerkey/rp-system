@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs && rollup -c && node scripts/cleanup-build.mjs",
-    "test": "node --test tests/*.test.mjs",
+    "build": "node scripts/build-profiles.mjs && node scripts/build.mjs && rollup -c && node scripts/cleanup-build.mjs",
+    "test": "node scripts/build-profiles.mjs && node --test tests/*.test.mjs",
     "check": "npm run test && npm run build",
     "validate": "streamdeck validate com.packrat.performance-grapher.sdPlugin --no-update-check",
     "pack": "streamdeck pack com.packrat.performance-grapher.sdPlugin --no-update-check --force --no-file-list --output dist",
