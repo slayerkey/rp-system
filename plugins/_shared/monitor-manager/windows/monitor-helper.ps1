@@ -380,8 +380,10 @@ public static class MonitorNative {
             } finally { Marshal.FreeHGlobal(hp); }
 
             if (hdrRc == 0) {
-                supported = (hdr.value & (1u << 4)) != 0; // highDynamicRangeSupported
-                current = (hdr.value & (1u << 5)) != 0;   // highDynamicRangeUserEnabled
+                bool policyLimited = (hdr.value & (1u << 3)) != 0; // advancedColorLimitedByPolicy
+                bool hdrCapable = (hdr.value & (1u << 4)) != 0;    // highDynamicRangeSupported
+                current = hdr.activeColorMode == 2;                 // DISPLAYCONFIG_ADVANCED_COLOR_MODE_HDR
+                supported = current || (hdrCapable && !policyLimited);
                 if (set) {
                     if (!supported) return true;
                     var packet = new DISPLAYCONFIG_SET_HDR_STATE();
@@ -404,7 +406,7 @@ public static class MonitorNative {
                         Marshal.StructureToPtr(hdr, hp, false);
                         if (DisplayConfigGetDeviceInfo(hp) != 0) return false;
                         hdr = (DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2)Marshal.PtrToStructure(hp, typeof(DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO_2));
-                        current = (hdr.value & (1u << 5)) != 0;
+                        current = hdr.activeColorMode == 2;
                     } finally { Marshal.FreeHGlobal(hp); }
                 }
                 return true;
