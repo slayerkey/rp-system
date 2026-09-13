@@ -223,3 +223,10 @@ test("wireless upsell renderer validates direct Marketplace URLs",async()=>{
   assert.match(source,/raise SystemExit/);
   assert.match(source,/upsell-config\.js/);
 });
+
+
+test("native address normalization uses an explicit string target",async()=>{
+  const source=await readFile("bridge/Program.cs","utf8");
+  assert.match(source,/new string\(value\.Where\(Uri\.IsHexDigit\)\.ToArray\(\)\)/);
+  assert.doesNotMatch(source,/=>\s*new\(value\.Where\(Uri\.IsHexDigit\)/);
+});
