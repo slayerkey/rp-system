@@ -46,3 +46,46 @@ test("desktop compositor and PackRat helper frames are ignored", () => {
   for (let i = 0; i < 100; i += 1) tracker.observeFrame({ application: "dwm.exe", frameTimeMs: 16 }, {}, i * 16);
   assert.equal(tracker.snapshot().active, false);
 });
+
+
+test("recent persisted session resumes after a short plugin restart", () => {
+  const original = new SessionTracker({ switchMs: 0, idleMs: 3000 });
+  const savedAt = feed(original, "game.exe", 1000, 120, 10, {
+    "gpu.load": 97,
+    "gpu.temperature": 72,
+    "cpu.temperature": 62,
+  });
+  const before = original.snapshot(savedAt);
+  const state = original.toJSON(savedAt);
+
+  const restored = new SessionTracker({ switchMs: 0, idleMs: 3000 });
+  restored.restore(state, { savedAt, now: savedAt + 5000, resumeGraceMs: 60_000 });
+
+  const resumed = restored.snapshot(savedAt + 5000);
+  assert.equal(resumed.active, true);
+  assert.equal(resumed.process, "game.exe");
+  assert.equal(resumed.currentFps, null, "live FPS must not be restored as a stale current value");
+  assert.equal(resumed.current.samples, before.current.samples);
+  assert.ok(resumed.recent.series(0, savedAt + 5000).length > 0);
+
+  const later = feed(restored, "game.exe", savedAt + 5000, 20, 10);
+  const continued = restored.snapshot(later);
+  assert.equal(continued.active, true);
+  assert.ok(continued.current.samples > before.current.samples);
+  assert.equal(continued.current.startedAt, before.current.startedAt);
+});
+
+test("old persisted active session finalizes at its save boundary instead of false resume", () => {
+  const original = new SessionTracker({ switchMs: 0, idleMs: 3000 });
+  const savedAt = feed(original, "oldgame.exe", 2000, 80, 12.5);
+  const state = original.toJSON(savedAt);
+
+  const restored = new SessionTracker({ switchMs: 0, idleMs: 3000 });
+  restored.restore(state, { savedAt, now: savedAt + 120_000, resumeGraceMs: 60_000 });
+
+  const snap = restored.snapshot(savedAt + 120_000);
+  assert.equal(snap.active, false);
+  assert.equal(snap.lastCompleted.process, "oldgame.exe");
+  assert.equal(snap.lastCompleted.endedAt, savedAt);
+  assert.ok(snap.recent.series(0, savedAt + 120_000).length > 0);
+});
