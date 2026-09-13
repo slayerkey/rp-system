@@ -116,3 +116,38 @@ test("persistence commits through a temporary file and leaves valid JSON", async
   assert.equal(saved.version, 1);
   assert.ok(saved.histories["cpu.load"]);
 });
+
+
+test("whole-session hardware graph is bounded to the active or last game session", () => {
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "missing-performance-provider"),
+    persistPath: resolve(tmpdir(), "packrat-test-session-window.json")
+  });
+
+  const now = Date.now();
+  telemetry._history("gpu.temperature").push(now - 20_000, 60);
+  telemetry._history("gpu.temperature").push(now - 8_000, 70);
+  telemetry._history("gpu.temperature").push(now - 4_000, 75);
+  telemetry._history("gpu.temperature").push(now - 1_000, 68);
+
+  telemetry.session.setLastCompleted({
+    process: "game.exe",
+    startedAt: now - 9_000,
+    endedAt: now - 2_000,
+    durationMs: 7_000,
+    averageFps: 144,
+    onePercentLow: 120,
+    pointOnePercentLow: 100,
+    worstFrametimeMs: 20,
+    peakGpuTemperature: 75,
+    peakCpuTemperature: 65,
+    peakGpuLoad: 99,
+    samples: 1000,
+    pressure: "GPU PRESSURE",
+  });
+
+  assert.deepEqual(
+    telemetry.metricSeries("gpu.temperature", 0).map((point) => point[1]),
+    [70, 75]
+  );
+});
