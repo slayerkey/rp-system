@@ -48,7 +48,7 @@ export function parsePresentMonRows(lines) {
     };
     const application = pick(["Application", "ProcessName", "Process"]);
     const pid = Number(pick(["ProcessID", "PID"]));
-    const frameTimeMs = Number(pick(["FrameTime", "MsBetweenPresents", "CPUFrameTime", "MsBetweenSimulationStart"]));
+    const frameTimeMs = Number(pick(["MsBetweenPresents", "FrameTime", "CPUFrameTime", "MsBetweenSimulationStart"]));
     if (application && Number.isFinite(frameTimeMs) && frameTimeMs > 0) rows.push({ application, pid: Number.isFinite(pid) ? pid : null, frameTimeMs });
   }
   return rows;
@@ -124,7 +124,6 @@ export class PresentMonProvider extends EventEmitter {
       "--output_stdout",
       "--no_console_stats",
       "--qpc_time_ms",
-      "--exclude_dropped",
       "--session_name", "PackRatPerformanceGrapher",
       "--stop_existing_session",
       "--no_track_gpu",
