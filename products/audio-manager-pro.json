@@ -21,7 +21,8 @@
     "deterministic Marketplace media",
     "physical Windows audio-device and Stream Deck Plus smoke",
     "real-hardware Marketplace demonstration video when required",
-    "Stream Deck sleep/wake action and Property Inspector event smoke"
+    "Stream Deck sleep/wake action and Property Inspector event smoke",
+    "read-only Audio Manager host audit on exact Rat Dev candidate"
   ],
   "final_boundary": "Official current-head Elgato validate/package, physical USB/Bluetooth/reboot/endpoint-recreation/role separation and Stream Deck+ validation, plus real-hardware Marketplace demo evidence when required.",
   "automated_release_evidence": {
@@ -43,7 +44,8 @@
       "Property Inspector syntax",
       "manifest/product/submission price and version consistency",
       "conservative endpoint ID -> Container ID + endpoint name -> explicit rebind policy",
-      "post-operation snapshot verification for profiles/direct actions/dial state"
+      "post-operation snapshot verification for profiles/direct actions/dial state",
+      "read-only host-audit source contains snapshot-only helper access and balanced structure"
     ],
     "latest_runner_blocked_run": 34767167852,
     "current_runner_state": "Latest current-head job fails before checkout/setup; GitHub reports steps=null and provides no job log."
