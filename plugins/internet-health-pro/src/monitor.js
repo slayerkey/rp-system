@@ -70,7 +70,7 @@ export class NetworkMonitor extends EventEmitter {
     this.running = false;
     if (this.timer) this.clearTimer(this.timer);
     this.timer = null;
-    this.history.flush(true);
+    this.history.flush(true, this.now());
   }
 
   schedule(delayMs = null) {
@@ -227,7 +227,7 @@ export class NetworkMonitor extends EventEmitter {
         await this.pollTargets();
       }
 
-      this.history.flush(false);
+      this.history.flush(false, now);
       this.emitUpdate();
       return this.snapshot();
     })().finally(() => {
@@ -351,7 +351,7 @@ export class NetworkMonitor extends EventEmitter {
           timeoutMs: 25_000
         });
         this.history.addSpeedTest(result);
-        this.history.flush(true);
+        this.history.flush(true, this.now());
         return result;
       } finally {
         this.speedRunning = false;
