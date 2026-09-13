@@ -1,188 +1,85 @@
-# Macro Recorder Native Fix Handoff
+# Macro Recorder Native Acceptance Handoff
 
-Use this when continuing the Macro Recorder family on a local Windows machine / local Codex environment with access to the full repository and Windows build tools.
+This file keeps its historical path so existing references remain valid. The native implementation is complete; this is now the handoff for final real-host acceptance.
 
 ## Repository / branch
 
 - Repository: `slayerkey/rp-system`
 - Branch: `product/macro-recorder`
-- Do not merge to `main` until the complete release gate passes.
+- State: **TESTING**
+- Do not merge or publicly ship until the acceptance gate is complete.
 
-## Read first
+## Automated candidate already passed
 
-1. `RATPACK.md`
-2. `STREAMDECK.md`
-3. `skills/rat-build/SKILL.md`
-4. `skills/rat-qa/SKILL.md`
-5. `skills/rat-ship/SKILL.md`
-6. `docs/MACRO_RECORDER_QA.md`
-7. `docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md`
-8. `docs/MACRO_RECORDER_NATIVE_GATE.json`
-9. `shared/windows-input/PackRat.InputHost/Program.cs`
-10. `shared/macro-recorder/model.mjs`
-11. `shared/macro-recorder/runtime.mjs`
+Current-main-synchronized evidence:
 
-## Scope
+- workflow run: `34777832830`
+- tested head: `b91ed6e14e5b90ed97af2bed69b0dc0c39a7860f`
+- source-contract: **PASS**
+- Windows release: **PASS**
+- Lite tests: **19/19**
+- Pro tests: **37/37**
+- production dependency audits: **PASS**
+- native win-x64 build, self-test and daemon ping: **PASS**
+- official Elgato validation/package: **PASS** for both editions
+- five generated profiles per edition: **PASS**
+- exact-package teardown and runtime notices: **PASS**
+- Rat Ship media adapters: **PASS**
+- Lite package SHA-256: `75F8ABD1829E72866B98D5FDC22DC9B5F65E1EBE5283D312D8F2A333C3D63965`
+- Pro package SHA-256: `29DE0D65292ED42785BA5BB5EDEDD9577B2B07E2694B0DA997F6318FFF429051`
+- release artifact: `10323523216`
+- artifact digest: `sha256:350e2ff485add52a6591be0cf86ac14ef3755d65adc0bcc234647acbf864adf1`
 
-Do not redesign the product and do not change the Lite/Pro commercial split.
+## Native implementation already landed
 
-The remaining work is the native Windows input helper plus real host/device validation.
+The Windows helper now implements the release-safety architecture in `docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md`:
 
-Keep:
-- Lite: keyboard only, 30 seconds, 60 events, free
-- Pro: keyboard + mouse, 10 minutes, 25,000 events, $7.99
-- local-only macro data
-- Ctrl+Shift+F12 emergency stop
-- exact held-input crash-recovery journal
-- no scripting language
-- no anti-AFK / gameplay farming / cheat examples
+- recovery before hook startup when family ownership is available
+- one cross-process active session across Lite + Pro
+- shared journal access only by the active family-session owner
+- exact VK / scan-code / extended-key descriptors for held keys
+- journal-before-down fail-closed injection
+- release-before-journal-removal cleanup
+- durable empty held-state tombstone before best-effort deletion
+- recorded delays up to the edition duration limit
+- Ctrl+Shift+F12 interception only during playback
+- plugin-parent PID watchdog
+- checked `SendInput` results with clean UIPI failure reporting
+- no blanket release of unrelated modifiers or mouse buttons
 
-## Required native fixes
+Regression contracts live in both editions at `tests/native-contract.test.mjs`.
 
-### 1. Recover held input before hook startup
+## Remaining work: real-host acceptance only
 
-Current startup calls hook initialization before crash recovery.
+Use `docs/MACRO_RECORDER_NATIVE_GATE.json` as the machine-readable checklist. Every blocker boolean remains false until the corresponding real-host evidence is actually observed.
 
-Change startup order so the held-input journal is read and recovery releases are attempted before global keyboard/mouse hooks are installed.
+Required acceptance includes:
 
-Recovery must not depend on hook installation succeeding.
+- modifiers and Windows key down/up
+- Stop action interruption
+- Ctrl+Shift+F12 during playback
+- Ctrl+Shift+F12 passes through while idle
+- recording F12 without playback does not create a partial emergency-hotkey artifact
+- forced helper crash while a key is held
+- forced helper crash while a mouse button is held
+- exact cleanup for Right Ctrl / Right Alt / extended navigation keys
+- unwritable journal path fails closed before held-input injection
+- click, drag, vertical wheel, horizontal wheel
+- two-monitor virtual desktop including negative coordinates
+- 100%, 125%, 150% DPI
+- active-window-relative playback
+- one recorded idle gap over 60 seconds
+- 10-minute Pro recording boundary
+- Stream Deck restart persistence
+- count / while-held / toggle loop cancellation
+- force-kill plugin parent and verify helper exits
+- Lite + Pro cannot own simultaneous active sessions
+- idle other-edition helper does not touch a live journal
+- stale journal recovery after crashed owner
+- forced `SendInput` rejection stops playback cleanly
+- higher-integrity target fails cleanly with no stuck injected input
 
-### 2. Never clear held-input recovery state before releases are attempted
-
-Current cleanup snapshots held keys/buttons, clears the tracked state + recovery journal, then sends release events.
-
-Change the order:
-
-1. snapshot exact held inputs
-2. leave recovery journal intact
-3. send key-up / mouse-up events
-4. confirm each `SendInput` call succeeded
-5. only then remove successfully released inputs from tracked state and rewrite/clear the journal
-
-If a release fails or the process dies during cleanup, enough journal state must remain for the next launch to retry.
-
-Do not solve this by releasing every possible key or mouse button. Recovery must remain exact to inputs the helper itself injected.
-
-### 3. Journal persistence must fail closed before held input injection
-
-Current journal writes suppress filesystem failures.
-
-For a key-down or mouse-button-down:
-
-1. update intended held state
-2. persist that intended held state successfully
-3. only then call `SendInput`
-
-If persistence fails:
-- roll back the in-memory held state
-- do not inject the down event
-- stop playback with an error
-
-For matching key-up / mouse-up:
-- send the release
-- only remove it from the journal after successful release
-
-Have `Native.SendKey`, `Native.SendMouseButton`, mouse movement, and wheel helpers return whether `SendInput` accepted the event where useful for safe cleanup/error reporting.
-
-### 4. Preserve exact keyboard descriptors for interrupted cleanup
-
-The current held-key set and recovery journal store only the virtual-key integer.
-
-Change held-key tracking so each injected keyboard down remembers the descriptor needed to release that exact key later, including:
-- virtual key
-- scan code
-- extended-key flag
-
-Use that descriptor for:
-- cancellation cleanup
-- error cleanup
-- normal final cleanup
-- next-launch crash recovery
-
-Do not assume `SendKey(vk, 0, true, false)` is an exact release for every injected extended/right-side key.
-
-### 5. Preserve Pro recorded idle gaps beyond 60 seconds
-
-Native capture currently clamps one recorded delay to 60,000 ms.
-
-The JS model/editor/import/playback path already permits:
-- Lite: up to 30,000 ms, matching its total recording limit
-- Pro: up to 600,000 ms, matching its total recording limit
-
-Native recording must preserve a Pro idle gap longer than 60 seconds accurately up to the remaining total recording duration.
-
-Do not reduce the advertised 10-minute Pro limit.
-
-### 6. Only reserve Ctrl+Shift+F12 during active playback
-
-The current hook consumes the Ctrl+Shift+F12 key-down whenever the helper is running.
-
-Change the hook so:
-- active playback: Ctrl+Shift+F12 stops playback and consumes the emergency combination
-- no active playback: do not intercept the combination
-- recording without playback: do not create a partial Ctrl/Shift-only capture because F12 was suppressed
-
-Keep Ctrl+Shift+F12 as the documented emergency playback fallback, but do not reserve it globally while idle.
-
-### 7. Tie helper lifetime to the Stream Deck plugin process
-
-A graceful Node shutdown calls `host.close()`, but the helper must also handle abrupt parent death.
-
-The current helper reads commands from the Node-owned stdin pipe, so the existing design may already exit naturally when the parent dies and the pipe reaches EOF.
-
-Do this in order:
-1. test forced parent death with the current stdin-pipe lifetime
-2. confirm `Console.ReadLine()` reaches EOF and `Engine.Dispose()` runs
-3. only if that is unreliable, add a Windows Job Object / kill-on-parent-close pattern or a parent-PID watchdog
-
-Requirements:
-- parent death causes prompt helper shutdown
-- no orphaned global hooks
-- playback held-input cleanup/recovery remains safe
-- do not add extra process-lifetime machinery if the existing pipe ownership already proves reliable
-
-### 8. Coordinate Lite and Pro with one cross-process active-session lock
-
-Both editions may be installed simultaneously and each bundles its own helper.
-
-Use a Windows named mutex or equivalent user-session-wide primitive around active recording/playback.
-
-Requirements:
-- at most one active PackRat Macro Recorder record/play session across Lite + Pro
-- clean error when lock is busy
-- release on stop/cancel/completion/error/shutdown
-- safe abandoned mutex recovery after a crash
-- do not prevent both plugin helpers from existing idle; only active input work must be exclusive
-- guard the shared `%LOCALAPPDATA%\PackRat\InputHost\held-input.json` with the same mutex
-- never perform held-input journal recovery while another helper owns the session mutex
-- once this helper owns the mutex, recover any stale journal before injecting or recording new input
-- treat an abandoned mutex as crash ownership transfer: acquire it, recover stale held input, then continue
-- starting the idle helper for the other edition must never release/delete a live journal owned by the active edition
-
-This also makes the playback-only Ctrl+Shift+F12 emergency hook deterministic across the product family and prevents cross-edition crash-recovery corruption.
-
-### 9. Check every SendInput result
-
-Make the native keyboard/mouse injection helpers return whether `SendInput` accepted the event.
-
-On failure:
-- stop playback
-- surface a useful local error
-- keep/repair held-input recovery state correctly
-- never silently continue as if the event was injected
-
-Test the expected UIPI boundary with a higher-integrity target. Macro Recorder should fail cleanly, not claim it can automate Administrator/UAC secure UI from normal Stream Deck integrity.
-
-## Native safety constraints
-
-- Ignore injected hook events so playback is not re-recorded.
-- No failure path may intentionally leave a key or mouse button held.
-- Do not release unrelated user-held physical inputs as a blanket recovery strategy.
-- Keep Per-Monitor-V2 / virtual-desktop coordinate behavior intact.
-- Keep Secure Desktop claims conservative. Ordinary password fields cannot be identified reliably.
-- Keep everything local.
-
-## Required automated/local gate
+## Local release-candidate gate
 
 From repo root on Windows:
 
@@ -190,61 +87,41 @@ From repo root on Windows:
 powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1
 ```
 
-This must pass before physical smoke testing.
+After every real-host acceptance item is proven:
 
-## Required native host tests
-
-Test against the exact helper/plugin artifacts produced by the passing build:
-
-- Ctrl / Shift / Alt down-up
-- Windows key
-- rapid repeat
-- Stop action during playback
-- Ctrl+Shift+F12 during playback
-- forced helper kill while an injected modifier is held
-- forced helper kill while an injected mouse button is held
-- cancellation while Right Ctrl / Right Alt or an extended navigation key is held
-- restart and verify exact recovery
-- make the recovery journal path unwritable and verify down-event injection fails closed
-- left/right/middle/X1/X2 mouse buttons
-- drag
-- vertical + horizontal wheel
-- two monitors including negative virtual-screen coordinates
-- 100%, 125%, 150% DPI
-- active-window-relative playback
-- Pro recording with one idle gap over 60 seconds
-- 10-minute overall Pro recording boundary
-- Stream Deck restart persistence
-- count, while-held, and toggle loop cancellation
-- corrupt Macro Library backup/recovery
-
-## Updating the gate
-
-Only after every blocker in `docs/MACRO_RECORDER_NATIVE_GATE.json` is truthfully resolved and the required native smoke cases pass:
-
-1. update `docs/MACRO_RECORDER_NATIVE_GATE.json`
-2. set each blocker boolean to `true`
-3. set `ready` to `true`
-4. update `updated_at`
-5. update `docs/MACRO_RECORDER_QA.md` with concrete evidence
-
-Then run:
+1. set the matching booleans in `docs/MACRO_RECORDER_NATIVE_GATE.json` to `true`
+2. set `ready` to `true`
+3. attach concrete host/device evidence
+4. run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1 -ReleaseCandidate
 ```
 
-That command must pass before either product moves to `READY_TO_SHIP`.
+Do not mark an acceptance case passed unless it actually ran.
+
+## Marketplace sequence
+
+Pro is the commercial anchor:
+
+1. complete native/physical acceptance
+2. move Pro to `READY_TO_SHIP`
+3. merge the approved candidate to `main`
+4. publish/create the real Macro Recorder Pro Marketplace listing
+5. capture its exact direct product URL
+6. update `products/lite-pro-map.json`, Lite `upgrade_url`, and Lite submission `pro_marketplace_url`
+7. rebuild/retest Lite and verify its PI opens that exact URL
+8. move Lite to `READY_TO_SHIP`
+
+No guessed, search, creator, or generic Marketplace URL is acceptable.
 
 ## Shipping boundary
 
-Do not run:
+Do not run public submission yet:
 
 ```powershell
-rat ship macro-recorder-lite
 rat ship macro-recorder-pro
+rat ship macro-recorder-lite
 ```
 
-until the release-candidate gate and physical Stream Deck smoke matrix are both clean.
-
-Do not mark tests as passed unless they actually ran.
+Current `main` correctly blocks public Rat Ship unless the product is explicitly `READY_TO_SHIP`.
