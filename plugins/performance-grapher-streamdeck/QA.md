@@ -120,3 +120,34 @@ Until a Windows runner actually executes, do **not** claim these passed:
 - exact package SHA-256
 
 The product therefore remains `BUILDING`, not `READY_FOR_HARDWARE_QA`.
+
+
+## Hardening continuation — 2026-09-12
+
+Additional deterministic review after the core smoke found and fixed:
+
+- PresentMon FPS cadence now prefers `MsBetweenPresents`, matching PresentMon's presented-FPS semantics, instead of preferring the v2 CPU-oriented `FrameTime` column.
+- Removed `--exclude_dropped` while using `--no_track_display`; the two options describe contradictory display-tracking assumptions.
+- `windowMs = 0` now survives JavaScript fallback logic, so the Session history option is no longer silently converted back to 60 seconds.
+- Hardware Session graphs now filter to the active game session or most recently completed game session rather than showing the full retained six-hour hardware archive under a misleading SESSION label.
+- Persistence now writes a temporary state file and atomically renames it into place, with corrupt-state quarantine retained as a second recovery layer.
+- The package build now includes Libre Hardware Monitor's exact MPL-2.0 license and upstream third-party notices.
+- PresentMon documentation now matches the deterministic direct-binary download and pinned SHA-256 build.
+- Marketplace description reduced from 2,000 to 1,352 characters to fit the current 1,500-character limit while preserving primary search terms early.
+- Rat Art already enforces a 288×288 search icon and 1920×960 cover/gallery media.
+
+### Latest hosted-runner evidence
+
+Latest observed dedicated workflow:
+
+- workflow: `Performance Grapher Stream Deck`
+- run: `34741687462`
+- job: `103682340114`
+- conclusion: `failure`
+- runner steps: **null / never started**
+
+On the same commit, XENEON Lite Pro Link Rebuild, Voice Deck Release QA, RatPack Lightweight CI, Lite Pro Portfolio Audit, and Rat Ship Marketplace Routing CI also failed before useful execution. This remains an infrastructure-wide Actions blocker, not evidence that the Performance Grapher build or tests ran and failed.
+
+### Additional distribution gate
+
+LibreHardwareMonitorLib 0.9.6 has transitive managed dependencies. Before the package may move to `READY_FOR_HARDWARE_QA`, the successful Windows publish must generate and archive a dependency/license inventory from the resolved publish graph. The final release kit must preserve all required notices for every redistributed dependency, not only the top-level MPL and PresentMon MIT notices.
