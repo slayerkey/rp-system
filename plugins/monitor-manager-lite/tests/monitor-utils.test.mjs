@@ -5,7 +5,7 @@ import test from "node:test";
 import { inflateRawSync } from "node:zlib";
 
 import {
-  SAFE_VCP, SUPPORT, classifyProfileResult, matchSavedMonitor, modeSupported, parseVcpCapabilities, vcpSupport
+  SAFE_VCP, SUPPORT, boundedPercent, classifyProfileResult, matchSavedMonitor, modeSupported, parseVcpCapabilities, vcpSupport
 } from "../../_shared/monitor-manager/monitor-utils.mjs";
 function zipText(data) {
   const parts=[];
@@ -141,4 +141,17 @@ test("B1 dial feedback updates text and progress indicator", async () => {
   const source=await readFile("src/actions.ts","utf8");
   assert.match(source,/value: String\(value\) \+ "%", indicator: value/);
   assert.match(source,/value: String\(value \?\? 0\) \+ "%", indicator: value \?\? 0/);
+});
+
+test("non-finite hardware percentages fail closed", () => {
+  assert.equal(boundedPercent(65),65);
+  assert.equal(boundedPercent(150),100);
+  assert.equal(boundedPercent(-5),0);
+  assert.throws(()=>boundedPercent(Number.NaN),/finite number/);
+  assert.throws(()=>boundedPercent("not-a-number"),/finite number/);
+});
+
+test("malformed power behavior is rejected before a write", async () => {
+  const source=await readFile("src/runtime.ts","utf8");
+  assert.match(source,/if \(!\["toggle","on","off"\]\.includes\(wanted\)\) throw new Error\("Invalid monitor power behavior\."/);
 });
