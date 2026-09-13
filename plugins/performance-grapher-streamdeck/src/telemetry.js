@@ -106,8 +106,8 @@ export class TelemetryService extends EventEmitter {
     const presentMonPath = resolve(this.pluginRoot, "third_party", "presentmon", presentMonExecutable);
     this.presentMon = presentMonProvider || new PresentMonProvider({ executable: presentMonPath, log });
     this.presentMon.on("frame", (frame) => {
-      const metrics = Object.fromEntries(this.values);
-      if (this.session.observeFrame(frame, metrics, Date.now())) this._emitFrameUpdate();
+      const now = Date.now();
+      if (this.session.observeFrame(frame, this._sessionMetrics(now), now)) this._emitFrameUpdate();
     });
     this.presentMon.on("status", (status) => {
       this.status.fps = status;
@@ -137,6 +137,17 @@ export class TelemetryService extends EventEmitter {
     if (this.watched.has(key)) this.watched.delete(key);
     this.watched.add(key);
     while (this.watched.size > 32) this.watched.delete(this.watched.values().next().value);
+  }
+
+  _sessionMetrics(now = Date.now()) {
+    const out = {};
+    for (const id of ["cpu.load", "gpu.load", "cpu.temperature", "gpu.temperature"]) {
+      if (!this.values.has(id)) continue;
+      const at = this.timestamps.get(id);
+      if (!Number.isFinite(at) || now - at > 5000) continue;
+      out[id] = this.values.get(id);
+    }
+    return out;
   }
 
   metricDescriptor(id) {
@@ -218,7 +229,8 @@ export class TelemetryService extends EventEmitter {
     this.nativeTimer = setInterval(() => this._sampleWindows(), 1000);
     this.nativeTimer.unref?.();
     this.sessionTimer = setInterval(() => {
-      const completed = this.session.tick(Object.fromEntries(this.values), Date.now());
+      const now = Date.now();
+      const completed = this.session.tick(this._sessionMetrics(now), now);
       if (completed) {
         this._schedulePersist();
         this.emit("session", completed);
