@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { endpointIdentity, matchEndpoint } from "../src/device-matching.js";
-import { buildApplyPlan, captureProfileFromSnapshot, cycleCurrentIndex, mergeApplyResult, profileMatchesSnapshot } from "../src/profiles.js";
+import { buildApplyPlan, captureProfileFromSnapshot, cycleCurrentIndex, mergeApplyResult, profileMatchesSnapshot, snapshotDefaultRoleConflicts } from "../src/profiles.js";
 
 function ep(id,name,{instanceId="",containerId="",volume=50,muted=false}={}) {
   return { id,name,instanceId,containerId,volume,muted,volumeAvailable:true,muteAvailable:true };
@@ -59,6 +59,15 @@ test("Unicode names survive identity matching",()=>{
   const saved={endpointId:"gone",name:"麦克风 🎙️",instanceId:"USB-UNICODE",containerId:"z"};
   const m=matchEndpoint(saved,[ep("new","麦克风 🎙️",{instanceId:"usb-unicode",containerId:"z"})]);
   assert.equal(m.status,"matched");
+});
+
+test("capture preflight detects split Console and Multimedia defaults",()=>{
+  const s=snap();
+  assert.deepEqual(snapshotDefaultRoleConflicts(s),[]);
+  s.multimediaOutputId="render-speakers";
+  assert(snapshotDefaultRoleConflicts(s).some(x=>x.includes("output")));
+  s.multimediaInputId="capture-headset";
+  assert(snapshotDefaultRoleConflicts(s).some(x=>x.includes("input")));
 });
 
 test("captured meeting profile owns all four Windows roles",()=>{
