@@ -47,7 +47,8 @@ function profileBody(profile, status = "", active = false) {
 
 export function renderKey(kind, { profile = null, endpoint = null, active = false, status = "", muted = false, missing = false } = {}) {
   if (["apply", "cycle", "status"].includes(kind)) {
-    return svgDataUri(frame(profileBody(profile, status, active), profile?.accent || resultColor(status)));
+    const frameColor = status ? resultColor(status) : (profile?.accent || (active ? ACCENT : MUTED));
+    return svgDataUri(frame(profileBody(profile, status, active), frameColor));
   }
 
   if (kind === "set-output" || kind === "set-input") {
