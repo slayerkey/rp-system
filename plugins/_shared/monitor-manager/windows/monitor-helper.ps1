@@ -384,6 +384,10 @@ public static class MonitorNative {
         if(!EnumDisplaySettingsEx(deviceName,ENUM_CURRENT_SETTINGS,ref dm,0)) return false;
         dm.dmPelsWidth=width; dm.dmPelsHeight=height; dm.dmDisplayFrequency=frequency; dm.dmDisplayOrientation=orientation;
         dm.dmFields |= 0x00080000 | 0x00100000 | 0x00400000 | 0x00000080;
+        if (primary) {
+            dm.dmPositionX=0; dm.dmPositionY=0;
+            dm.dmFields |= 0x00000020;
+        }
         uint flags=CDS_TEST;
         int test=ChangeDisplaySettingsEx(deviceName,ref dm,IntPtr.Zero,flags,IntPtr.Zero);
         if(test!=DISP_CHANGE_SUCCESSFUL) return false;
