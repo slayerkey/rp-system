@@ -25,7 +25,7 @@ internal static class Program
         Native.EnableDpiAwareness();
         using var engine = new Engine();
         engine.StartHooks();
-        engine.ReleaseKeys(Enumerable.Range(1, 254));
+        engine.RecoverStuckInput();
         string? line;
         while ((line = Console.ReadLine()) is not null)
         {
@@ -157,6 +157,9 @@ internal sealed class Engine : IDisposable
     private Task? _playbackTask;
     private readonly HashSet<int> _downKeys = [];
     private readonly HashSet<string> _downButtons = [];
+    private readonly string _recoveryFile = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "PackRat", "InputHost", "held-input.json");
 
     public void StartHooks()
     {
@@ -432,6 +435,7 @@ internal sealed class Engine : IDisposable
             {
                 if (type == "keyDown") _downKeys.Add(vk);
                 else _downKeys.Remove(vk);
+                PersistHeldInputLocked();
             }
             return;
         }
@@ -450,6 +454,7 @@ internal sealed class Engine : IDisposable
             {
                 if (type == "mouseDown") _downButtons.Add(button);
                 else _downButtons.Remove(button);
+                PersistHeldInputLocked();
             }
         }
         else if (type == "wheel")
@@ -491,12 +496,41 @@ internal sealed class Engine : IDisposable
         }
     }
 
+    public void RecoverStuckInput()
+    {
+        try
+        {
+            if (!File.Exists(_recoveryFile)) return;
+            using var doc = JsonDocument.Parse(File.ReadAllText(_recoveryFile));
+            var keys = new List<int>();
+            var buttons = new List<string>();
+            if (doc.RootElement.TryGetProperty("keys", out var keyArray) && keyArray.ValueKind == JsonValueKind.Array)
+                foreach (var item in keyArray.EnumerateArray())
+                    if (item.TryGetInt32(out var key) && key > 0 && key <= 255) keys.Add(key);
+            if (doc.RootElement.TryGetProperty("buttons", out var buttonArray) && buttonArray.ValueKind == JsonValueKind.Array)
+                foreach (var item in buttonArray.EnumerateArray())
+                    if (item.ValueKind == JsonValueKind.String && item.GetString() is { } button) buttons.Add(button);
+            foreach (var key in keys.Distinct()) Native.SendKey(key, 0, true, false);
+            foreach (var button in buttons.Distinct()) Native.SendMouseButton(button, true);
+        }
+        catch { }
+        finally
+        {
+            try { File.Delete(_recoveryFile); } catch { }
+        }
+    }
+
     public void ReleaseKeys(IEnumerable<int> keys)
     {
         foreach (var key in keys.Concat([Native.VK_SHIFT, Native.VK_CONTROL, Native.VK_MENU, Native.VK_LWIN, Native.VK_RWIN]).Distinct())
             if (key > 0 && key <= 255) Native.SendKey(key, 0, true, false);
         foreach (var button in new[] { "left", "right", "middle", "x1", "x2" }) Native.SendMouseButton(button, true);
-        lock (_gate) { _downKeys.Clear(); _downButtons.Clear(); }
+        lock (_gate)
+        {
+            _downKeys.Clear();
+            _downButtons.Clear();
+            ClearHeldInputJournalLocked();
+        }
     }
 
     private void ReleasePressed()
@@ -509,9 +543,34 @@ internal sealed class Engine : IDisposable
             buttons = _downButtons.ToArray();
             _downKeys.Clear();
             _downButtons.Clear();
+            ClearHeldInputJournalLocked();
         }
         foreach (var key in keys) Native.SendKey(key, 0, true, false);
         foreach (var button in buttons) Native.SendMouseButton(button, true);
+    }
+
+    private void PersistHeldInputLocked()
+    {
+        try
+        {
+            if (_downKeys.Count == 0 && _downButtons.Count == 0)
+            {
+                ClearHeldInputJournalLocked();
+                return;
+            }
+            var directory = Path.GetDirectoryName(_recoveryFile);
+            if (!string.IsNullOrWhiteSpace(directory)) Directory.CreateDirectory(directory);
+            var temp = _recoveryFile + ".tmp";
+            File.WriteAllText(temp, JsonSerializer.Serialize(new { keys = _downKeys.ToArray(), buttons = _downButtons.ToArray() }));
+            File.Move(temp, _recoveryFile, true);
+        }
+        catch { }
+    }
+
+    private void ClearHeldInputJournalLocked()
+    {
+        try { File.Delete(_recoveryFile); } catch { }
+        try { File.Delete(_recoveryFile + ".tmp"); } catch { }
     }
 
     private static bool IsDown(int vk) => (Native.GetAsyncKeyState(vk) & 0x8000) != 0;

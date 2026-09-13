@@ -35,7 +35,7 @@ The release workflow must pass on Windows:
 | Interrupted playback | yes | yes | cancellation + finally cleanup | Stop key during macro |
 | Stream Deck restart | yes | yes | persisted action settings / local library | restart smoke |
 | User changes app mid-macro | yes | yes | coordinate modes deterministic | app-switch smoke |
-| Stuck-key prevention | yes | yes | tracked down-state + finally + crash recovery | modifier interruption smoke |
+| Stuck-key prevention | yes | yes | tracked down-state + finally + local held-input crash-recovery journal | modifier interruption smoke |
 | Crash during playback | yes | yes | plugin recovery release command | forced helper-kill smoke |
 | Loop cancellation | no | yes | mode normalization + host cancellation | count/held/toggle smoke |
 | Very long recording | no | yes | 10 min / 25k caps | shortened stress + max-boundary smoke |
