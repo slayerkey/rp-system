@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - product/internet-health-pro
     paths:
       - "plugins/internet-health-pro/**"
