@@ -28,10 +28,6 @@ concurrency:
 permissions:
   contents: read
 
-concurrency:
-  group: windows-settings-manager-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   portable:
     runs-on: ubuntu-latest

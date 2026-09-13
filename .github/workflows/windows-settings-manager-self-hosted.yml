@@ -20,10 +20,6 @@ concurrency:
 permissions:
   contents: read
 
-concurrency:
-  group: windows-settings-manager-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   windows-host:
     name: PackRat Windows host build + backend gate
