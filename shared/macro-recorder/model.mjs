@@ -64,7 +64,7 @@ export function normalizeMacro(raw = {}, { pro = true, limits = pro ? PRO_LIMITS
     id: String(raw.id || randomUUID()),
     name: String(raw.name || "Recorded Macro").trim().slice(0, 80) || "Recorded Macro",
     createdAt: String(raw.createdAt || new Date().toISOString()),
-    updatedAt: new Date().toISOString(),
+    updatedAt: String(raw.updatedAt || raw.createdAt || new Date().toISOString()),
     durationMs: bounded.reduce((sum, event) => sum + event.delayMs, 0),
     events: bounded,
   };
