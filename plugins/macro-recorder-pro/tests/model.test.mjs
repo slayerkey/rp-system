@@ -129,3 +129,11 @@ test("infinite repeat modes reject effectively zero-duration macros",()=>{
  ]},{pro:true,limits});
  assert.equal(playbackSafetyError(safe,settings),"");
 });
+
+test("PackRat import rejects envelopes with no playable events",()=>{
+ assert.throws(()=>importEnvelope({
+  format:"packrat-macro",
+  schema:1,
+  macro:{name:"Empty",events:[{type:"not-real",delayMs:1}]}
+ }),/no playable events/i);
+});
