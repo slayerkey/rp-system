@@ -64,6 +64,21 @@ function endpointById(snapshot, def) {
   return list.find((endpoint) => String(endpoint.id || "") === id) || null;
 }
 
+export function snapshotDefaultRoleConflicts(snapshot) {
+  const conflicts = [];
+  const outputDefault = String(snapshot?.defaultOutputId || "");
+  const outputMultimedia = String(snapshot?.multimediaOutputId || "");
+  const inputDefault = String(snapshot?.defaultInputId || "");
+  const inputMultimedia = String(snapshot?.multimediaInputId || "");
+
+  if (outputDefault && outputMultimedia && outputDefault !== outputMultimedia)
+    conflicts.push("Windows Console and Multimedia output defaults are currently split.");
+  if (inputDefault && inputMultimedia && inputDefault !== inputMultimedia)
+    conflicts.push("Windows Console and Multimedia input defaults are currently split.");
+
+  return conflicts;
+}
+
 export function captureProfileFromSnapshot(name, snapshot, id) {
   const slots = {};
   for (const def of SLOT_DEFS) {
