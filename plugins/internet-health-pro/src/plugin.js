@@ -198,7 +198,7 @@ process.on("unhandledRejection", (error) => logger(error?.stack || error));
 
 async function main() {
   streamDeck.settings.onDidReceiveGlobalSettings?.((ev) => {
-    monitor.updateSettings(normalizeGlobalSettings(ev?.settings || {}));
+    monitor.updateSettings(normalizeGlobalSettings(ev?.payload?.settings || {}));
   });
   streamDeck.system.onSystemDidWakeUp?.(() => void monitor.refresh());
   await streamDeck.connect();
