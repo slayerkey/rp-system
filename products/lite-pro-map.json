@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-12",
+  "updated_at": "2026-09-13",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -191,7 +191,9 @@
         "shared/windows-input/PackRat.InputHost"
       ],
       "source_status": "source_built_marketplace_urls_unverified",
-      "notes": "Lite is keyboard-only with 30-second / 60-event limits and one macro per Replay action. Pro adds mouse capture, 10-minute / 25,000-event recordings, speed, loops and a reusable Macro Library. No Lite-to-Pro URL is shipped until a verified direct Macro Recorder Pro Marketplace listing exists."
+      "notes": "Lite is keyboard-only with 30-second / 60-event limits and one macro per Replay action. Pro adds mouse capture, 10-minute / 25,000-event recordings, speed, loops and a reusable Macro Library. No Lite-to-Pro URL is shipped until a verified direct Macro Recorder Pro Marketplace listing exists.",
+      "launch_sequence": "Publish/verify Pro direct listing first, then rebuild Lite from this canonical URL before public Lite launch.",
+      "upsell_build_source": "plugins/macro-recorder-lite/scripts/build-assets.mjs"
     }
   ],
   "standalone_free": [
