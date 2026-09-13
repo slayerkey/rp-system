@@ -118,3 +118,18 @@ test("duplicate restored archive buckets merge using history semantics", () => {
   }, { rawMax: 10, archiveMax: 10, archiveMs: 1000, archiveMode: "max" });
   assert.deepEqual(maxHistory.archive, [[1000, 55]]);
 });
+
+
+test("toJSON does not mutate live archive points", () => {
+  const history = BoundedHistory.fromJSON({
+    archive: [[1000, 40]],
+  }, { rawMax: 10, archiveMax: 10, archiveMs: 1000, archiveMode: "min" });
+
+  history.push(1500, 30);
+  const before = JSON.stringify(history.archive);
+  const snapshot = history.toJSON();
+
+  assert.equal(JSON.stringify(history.archive), before);
+  assert.deepEqual(snapshot.archive, [[1000, 30]]);
+  assert.ok(history.pending, "snapshot must not consume the live pending bucket");
+});
