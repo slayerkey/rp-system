@@ -230,7 +230,7 @@ export class TelemetryService extends EventEmitter {
     this.presentMon.start();
   }
 
-  stop() {
+  _stopRuntime() {
     this.stopping = true;
     this.started = false;
     if (this.nativeTimer) clearInterval(this.nativeTimer);
@@ -246,7 +246,16 @@ export class TelemetryService extends EventEmitter {
       try { this.hardware.kill(); } catch {}
       this.hardware = null;
     }
-    void this._persistNow();
+  }
+
+  stop({ persist = true } = {}) {
+    this._stopRuntime();
+    if (persist) void this._persistNow();
+  }
+
+  async shutdown() {
+    this._stopRuntime();
+    await this._persistNow();
   }
 
   resume() {
