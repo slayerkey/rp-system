@@ -178,7 +178,7 @@ def render_app_icon(slug: str, product: dict, out_dir: Path) -> Path:
 
 
 def render_gallery(slug: str, product: dict, out_dir: Path) -> list[Path]:
-    """Render three factual 1920x960 Marketplace gallery slides."""
+    """Render four factual 1920x960 Marketplace gallery slides."""
     outputs = []
     for index, (filename, title, subtitle, points) in enumerate(product["gallery"], start=1):
         canvas = background()
