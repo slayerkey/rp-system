@@ -31,7 +31,7 @@ These checks were executed in an isolated local harness and are useful regressio
 
 ## Automated execution status
 
-Canonical automated gates pass on the exact current candidate commit `8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939`.
+Canonical automated gates pass on implementation/artifact commit `8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939`. Commits after that point only update validation/catalog evidence and do not change plugin runtime, profile generation, Marketplace art, packaging, or shipping behavior.
 
 ### Hosted Windows evidence
 
