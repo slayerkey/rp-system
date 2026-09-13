@@ -100,7 +100,7 @@ The Stream Deck Node process starts one compressed bundled bridge process and ke
 - charging state where Windows exposes it
 - audio connect/disconnect only where the device advertises the supported capability
 - one configurable Stream Deck action type
-- Standard / XL / Stream Deck+ key-only profiles
+- Standard / Mini / XL / Stream Deck+ / Neo key-only profiles
 
 ### Wireless Device Manager Pro — $7.99
 
@@ -116,7 +116,7 @@ Everything in Lite, plus:
 - low-battery transition alerts
 - charging state where exposed
 - supported audio connect/disconnect
-- Standard / XL / Stream Deck+ multi-device profiles
+- Standard / Mini / XL / Stream Deck+ / Neo multi-device profiles
 
 Pro thresholds are stored per device and drive both the device alert and the Dashboard LOW count.
 
