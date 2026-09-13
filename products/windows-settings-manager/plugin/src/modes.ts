@@ -66,25 +66,39 @@ export async function applyMode(
     try {
       const reply = await execute(operation.op, operation.args);
       const reported = typeof reply.result?.status === "string" ? reply.result.status : undefined;
-      const ok = reply.ok && reported !== "FAILED";
+      const status = !reply.ok || reported === "FAILED"
+        ? "FAILED"
+        : reported === "PARTIAL"
+          ? "PARTIAL"
+          : "COMPLETE";
       steps.push({
         key: operation.key,
         label: operation.label,
-        ok,
-        error: ok ? undefined : (reply.error || reply.result?.error || "Windows did not confirm the requested state")
+        status,
+        ok: status === "COMPLETE",
+        error: status === "COMPLETE"
+          ? undefined
+          : (reply.error || reply.result?.error || "Windows did not fully confirm the requested state")
       });
     } catch (error) {
       steps.push({
         key: operation.key,
         label: operation.label,
+        status: "FAILED",
         ok: false,
         error: error instanceof Error ? error.message : String(error)
       });
     }
   }
 
-  const successes = steps.filter((step) => step.ok).length;
-  const status = successes === steps.length ? "COMPLETE" : successes === 0 ? "FAILED" : "PARTIAL";
+  const completeCount = steps.filter((step) => step.status === "COMPLETE").length;
+  const hasPartial = steps.some((step) => step.status === "PARTIAL");
+  const anyConfirmedChange = completeCount > 0 || hasPartial;
+  const status = completeCount === steps.length
+    ? "COMPLETE"
+    : anyConfirmedChange
+      ? "PARTIAL"
+      : "FAILED";
   return { status, modeId: mode.id, modeName: mode.name, steps };
 }
 
