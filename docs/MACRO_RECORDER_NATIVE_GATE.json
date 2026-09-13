@@ -43,7 +43,7 @@
   ],
   "source_of_truth": "docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md",
   "implementation": {
-    "status": "implemented_pending_windows_and_physical_acceptance",
+    "status": "implemented_and_windows_build_validated_pending_real_host_acceptance",
     "native_commit": "cc72c031546c883d0fc248882a7980a87e396b36",
     "parent_watch_commit": "b41ccbc9f76742f1a4f38ccdf03f0a5b63b92717",
     "regression_tests": [
@@ -55,5 +55,15 @@
       "Acceptance booleans remain false until the canonical Windows build and required real-host smoke cases pass.",
       "Family-wide Lite/Pro exclusion uses a kernel-backed exclusive file handle so ownership is process-scoped rather than thread-affine."
     ]
+  },
+  "automated_evidence": {
+    "run_id": 34777365333,
+    "head_sha": "2f6aa418ffbbbd4927034689d224c6dccd3b1b0b",
+    "artifact_id": 10324027648,
+    "artifact_digest": "sha256:d54960f0be72105341d33810cd13e3eb8a5eadea909ca39c53eaa43ae91c62cd",
+    "lite_package_sha256": "01DFA188482FEF0E8F735F7408879C5B0AE77EEDE8D8961765792AB81E9F009A",
+    "pro_package_sha256": "B5D7C15C0B94E75A0900037EA36F1593168AE092A909F2386E00275D3972DCAF",
+    "lite_tests": "19/19",
+    "pro_tests": "37/37"
   }
 }
