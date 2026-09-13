@@ -101,15 +101,17 @@ def perf_key(draw, x, y, size, label, value, unit="", secondary="", values=None,
 
 
 def deck(img, x, y, keys, key_size=155, gap=18, cols=5):
+    # This is intentionally a deterministic key cluster, not a simulated
+    # Stream Deck hardware chassis. PackRat has no approved calibrated
+    # Stream Deck device plate in-repo, so Rat Art must not invent one.
     d = ImageDraw.Draw(img)
     rows = (len(keys) + cols - 1) // cols
-    width = cols * key_size + (cols - 1) * gap + 70
-    height = rows * key_size + (rows - 1) * gap + 70
-    d.rounded_rectangle((x, y, x + width, y + height), 48, fill=(25, 29, 36), outline=(74, 82, 94), width=4)
+    width = cols * key_size + (cols - 1) * gap
+    height = rows * key_size + (rows - 1) * gap
     for i, spec in enumerate(keys):
         col = i % cols
         row = i // cols
-        perf_key(d, x + 35 + col * (key_size + gap), y + 35 + row * (key_size + gap), key_size, **spec)
+        perf_key(d, x + col * (key_size + gap), y + row * (key_size + gap), key_size, **spec)
     return width, height
 
 
@@ -141,7 +143,7 @@ def hero(out):
         dict(label="FRAMETIME", value="31.4", unit="ms", secondary="SPIKE", values=[7, 7, 8, 8, 31, 9, 8, 7, 8, 7], color=DANGER, alert=True),
         dict(label="SESSION", value="42m", unit="", secondary="AVG 141", values=[]),
     ]
-    deck(img, 770, 300, keys, key_size=185, gap=18, cols=5)
+    deck(img, 730, 315, keys, key_size=205, gap=18, cols=5)
     d.text((1320, 635), "ONE SHARED TELEMETRY ENGINE  •  FIVE READABLE KEYS", font=font(17, True), fill=MUTED, anchor="mm")
     d.text((1320, 685), "PresentMon + Libre Hardware Monitor + Windows native fallback", font=font(17), fill=MUTED, anchor="mm")
     signature(img)
@@ -214,7 +216,7 @@ def readable_keys(out):
 
 def local_architecture(out):
     img = background()
-    title(img, "Local telemetry without a HWiNFO subscription", "Purpose-built providers, slow sensor polling, bounded history, and explicit permission states.")
+    title(img, "Local telemetry without another paid monitor", "Purpose-built providers, slow sensor polling, bounded history, and explicit permission states.")
     d = ImageDraw.Draw(img)
     boxes = [
         (150, "WINDOWS", "CPU + RAM fallback", "1 Hz", ACCENT),
@@ -231,7 +233,7 @@ def local_architecture(out):
         d.line((x, 430, x+75, 430), fill=(86, 98, 116), width=5)
         d.polygon([(x+75,430),(x+58,420),(x+58,440)], fill=(86,98,116))
     d.rounded_rectangle((370, 665, 1550, 760), 26, fill=(14, 20, 24), outline=(55, 70, 75), width=2)
-    d.text((960, 700), "NO API KEY  •  NO CLOUD  •  NO SCREEN SCRAPING  •  NO HWiNFO REQUIRED", font=font(20, True), fill=WHITE, anchor="mm")
+    d.text((960, 700), "NO API KEY  •  NO CLOUD  •  NO SCREEN SCRAPING  •  NO PAID SENSOR APP REQUIRED", font=font(20, True), fill=WHITE, anchor="mm")
     d.text((960, 735), "PresentMon permission and unsupported hardware states are shown honestly.", font=font(17), fill=MUTED, anchor="mm")
     signature(img)
     img.convert("RGB").save(out / "06_gallery_04.png", quality=95)
