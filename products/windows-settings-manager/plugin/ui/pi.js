@@ -191,7 +191,11 @@ function renderContext() {
     ? snapshot.errors.join(" | ")
     : "";
 
-  const hdrUsable = Boolean(snapshot?.hdr?.available && snapshot.hdr.supportedCount > 0);
+  const hdrUsable = Boolean(
+    snapshot?.hdr?.available
+    && snapshot.hdr.supportedCount > 0
+    && (snapshot.hdr.errors?.length ?? 0) === 0
+  );
   const modeHdr = document.getElementById("modeHdr");
   for (const option of modeHdr?.options ?? []) {
     if (option.value === "on" || option.value === "off") option.disabled = !hdrUsable;
@@ -314,6 +318,7 @@ function duration(seconds) {
 }
 function hdrLabel(hdr) {
   if (!hdr?.available || hdr.supportedCount === 0) return "N/A";
+  if ((hdr.errors?.length ?? 0) > 0) return "Check";
   if (hdr.mixed) return "Mixed";
   return hdr.enabledCount === hdr.supportedCount ? "On" : "Off";
 }
