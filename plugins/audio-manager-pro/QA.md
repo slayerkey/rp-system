@@ -52,11 +52,15 @@ The corrected source received an additional implementation-session preflight:
 - current Property Inspector source parses successfully
 - current profile logic source parses successfully
 - current tests parse successfully
-- current branch pure logic executes successfully for role capture, endpoint recreation, safe rebinding, missing-device handling, fail-closed status, Unicode rendering, and role-aware key labels
+- current branch pure logic executes successfully for role capture, endpoint recreation, safe rebinding, missing-device handling, Console/Multimedia drift detection, contradictory-state suppression, fail-closed status, Unicode rendering, and role-aware key labels
 - Rat Art V2 Python source compiles
 - Rat Art V2 renderer was exercised off-runner through all six required Marketplace outputs at the expected dimensions; exact canonical-logo release rendering still belongs to the official release gate
 - Rat Art V2 generates the required 480×240, 320×160, and 240×120 thumbnail review sheet
 - Marketplace cover/gallery outputs are distinct
+
+The branch has also been merged forward to current `main` so its canonical Rat Art / Marketplace V2 standards are no longer stale.
+
+The Windows CI definition now performs both the helper executable self-test and a real JSON `snapshot` request through the helper stdin/stdout protocol, then verifies that the packaged `.streamDeckPlugin` actually contains the native helper.
 
 These checks do not replace the official Elgato CLI or physical Windows hardware gate.
 
