@@ -66,6 +66,6 @@ test("long process and secondary labels are bounded on key", () => {
   const svg = decodeURIComponent(image);
 
   assert.ok(svg.includes("EXTREMELYLONGGAM…"));
-  assert.ok(svg.includes("AN EXTREMELY LONG SE…"));
+  assert.ok(svg.includes("AN EXTREMELY LONG SES…"));
   assert.ok(!svg.includes("EXTREMELYLONGGAMEEXECUTABLENAME"));
 });
