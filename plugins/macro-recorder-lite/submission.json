@@ -21,7 +21,7 @@
   "release_notes": [
     "Record keyboard key-down/key-up events, shortcuts and timing.",
     "Assign the latest recording to any Replay Macro key and edit event delays.",
-    "Includes a ready-to-use REC / STOP starter profile with safe replay examples.",
+    "Includes ready-to-use starter profiles for standard Stream Deck, XL, Plus, and Neo with REC / STOP / PLAY and safe keyboard examples.",
     "Adds a global Stop action and Ctrl+Shift+F12 emergency playback stop."
   ],
   "privacy": "Macro contents are never uploaded to PackRat. Lite stores assigned macros in local Stream Deck action settings; if the user exports or shares a Stream Deck profile, those action settings can be included in that exported profile.",
@@ -44,5 +44,27 @@
   "limitations": [
     "Playback uses the Windows SendInput API and may be blocked when the target app runs at a higher Administrator integrity level than Stream Deck.",
     "Windows secure desktop, including UAC secure prompts, is outside normal recording and playback."
-  ]
+  ],
+  "bundled_profiles": {
+    "device_types": [
+      {
+        "name": "Stream Deck / MK.2",
+        "device_type": 0
+      },
+      {
+        "name": "Stream Deck XL",
+        "device_type": 2
+      },
+      {
+        "name": "Stream Deck +",
+        "device_type": 7
+      },
+      {
+        "name": "Stream Deck Neo",
+        "device_type": 9
+      }
+    ],
+    "auto_install": true,
+    "auto_switch": false
+  }
 }
