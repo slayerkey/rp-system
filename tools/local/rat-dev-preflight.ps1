@@ -6,6 +6,7 @@ param(
 $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $Worktree = Join-Path $RepoRoot "out\dev\worktrees\$Slug"
+. (Join-Path $PSScriptRoot "rat-dev-source.ps1")
 
 function Get-StreamDeckCli {
     $cmd = Get-Command "streamdeck.cmd" -ErrorAction SilentlyContinue
@@ -66,16 +67,14 @@ function Read-JsonFromGitObject {
 }
 
 function Get-Registration {
-    $productRef = "refs/remotes/origin/product/${Slug}"
-    & git -C $RepoRoot rev-parse --verify --quiet $productRef *> $null
-    if ($LASTEXITCODE -eq 0) {
-        $productObject = "origin/product/${Slug}:plugins/${Slug}/rat-dev.json"
-        $config = Read-JsonFromGitObject $productObject
+    $source = Resolve-RatDevInternalProductSource -RepoRoot $RepoRoot -Slug $Slug
+    if ($source -and $source.Kind -eq "ratpack") {
+        $productObject = "$($source.Ref):plugins/$Slug/rat-dev.json"
+        $config = Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object $productObject
         if ($config) { return $config }
     }
 
-    $mainObject = "origin/main:plugins/${Slug}/rat-dev.json"
-    return (Read-JsonFromGitObject $mainObject)
+    return (Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object "origin/main:plugins/$Slug/rat-dev.json")
 }
 
 function Test-ReusableCheckout {
