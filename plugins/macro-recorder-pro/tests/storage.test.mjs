@@ -62,3 +62,22 @@ test("Macro Library preserves saved modified timestamps across reload", async ()
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("Macro Library serializes rapid saves without losing the final edit", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    const library=await new MacroLibrary(file).load();
+    const added=await library.add({name:"Original",events:[
+      {type:"keyDown",vk:65,delayMs:1},
+      {type:"keyUp",vk:65,delayMs:1}
+    ]});
+    const first=library.update(added.id,{name:"First"});
+    const second=library.update(added.id,{name:"Second"});
+    await Promise.all([first,second]);
+    const reloaded=await new MacroLibrary(file).load();
+    assert.equal(reloaded.get(added.id).name,"Second");
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
