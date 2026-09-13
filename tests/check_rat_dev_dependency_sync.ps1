@@ -61,6 +61,11 @@ try {
         throw "A plugin containing a .csproj must fail Rat Dev prerequisite checks when no .NET SDK is available."
     }
 
+    $ratDevPath = Join-Path $root "rat-dev.json"
+    Set-Content -Path $ratDevPath -NoNewline -Encoding utf8 -Value '{"build_prerequisites":{"dotnet_sdk":"self-managed"}}'
+    Assert-RatDevBuildPrerequisites -PluginRoot $root -Slug "fixture-plugin"
+    Remove-Item $ratDevPath -Force
+
     Set-Item -Path Function:Get-RatDevDotNetSdkVersions -Value { @("8.0.425") }
     Assert-RatDevBuildPrerequisites -PluginRoot $root -Slug "fixture-plugin"
 
