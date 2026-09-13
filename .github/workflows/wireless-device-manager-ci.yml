@@ -24,8 +24,8 @@ concurrency:
 
 jobs:
   windows-release:
-    name: Windows build, test, bridge, validate, pack
-    runs-on: [self-hosted, Windows, X64, packrat]
+    name: Hosted Windows build, test, bridge, validate, pack
+    runs-on: windows-latest
     defaults:
       run:
         working-directory: plugins/wireless-device-manager-family
