@@ -151,3 +151,39 @@ test("whole-session hardware graph is bounded to the active or last game session
     [70, 75]
   );
 });
+
+
+test("persistence round trip retains recent FPS session history", async () => {
+  const dir = await mkdtemp(resolve(tmpdir(), "packrat-perf-session-persist-"));
+  const path = resolve(dir, "state.json");
+  const first = new TelemetryService({ pluginRoot: resolve(dir, "missing"), persistPath: path });
+
+  first.session.setForeground("game.exe");
+  let now = Date.now();
+  for (let i = 0; i < 120; i += 1) {
+    now += 10;
+    first.session.observeFrame({ application: "game.exe", frameTimeMs: 10 }, { "gpu.load": 95 }, now);
+  }
+  first.session.tick({ "gpu.load": 95 }, now + 150);
+  const before = first.session.snapshot(now + 150);
+  assert.equal(before.active, true);
+  assert.ok(before.recent.series(0, now + 150).length > 0);
+
+  await first._persistNow();
+
+  const second = new TelemetryService({ pluginRoot: resolve(dir, "missing"), persistPath: path });
+  const oldNow = Date.now;
+  Date.now = () => now + 1000;
+  try {
+    await second._restore();
+  } finally {
+    Date.now = oldNow;
+  }
+
+  const restored = second.session.snapshot(now + 1000);
+  assert.equal(restored.active, true);
+  assert.equal(restored.process, "game.exe");
+  assert.equal(restored.currentFps, null);
+  assert.equal(restored.current.samples, before.current.samples);
+  assert.ok(restored.recent.series(0, now + 1000).length > 0);
+});
