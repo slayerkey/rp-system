@@ -32,6 +32,7 @@ internal static class Program
             return 0;
         }
 
+        TestHooks.Configure(args);
         Native.EnableDpiAwareness();
         using var engine = new Engine();
 
@@ -172,6 +173,14 @@ internal static class Program
         return 0;
     }
 
+    internal static string ReadArgString(string[] args, string name)
+    {
+        for (var i = 0; i < args.Length - 1; i++)
+            if (string.Equals(args[i], name, StringComparison.OrdinalIgnoreCase))
+                return args[i + 1];
+        return "";
+    }
+
     private static string ReadString(JsonElement root, string name)
         => root.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() ?? "" : "";
 
@@ -227,10 +236,14 @@ internal sealed class Engine : IDisposable
 
     public Engine()
     {
-        _stateDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "PackRat", "InputHost");
-        _recoveryFile = Path.Combine(_stateDirectory, "held-input.json");
+        _stateDirectory = !string.IsNullOrWhiteSpace(TestHooks.StateDirectory)
+            ? TestHooks.StateDirectory
+            : Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "PackRat", "InputHost");
+        _recoveryFile = !string.IsNullOrWhiteSpace(TestHooks.RecoveryFile)
+            ? TestHooks.RecoveryFile
+            : Path.Combine(_stateDirectory, "held-input.json");
         _sessionLockFile = Path.Combine(_stateDirectory, "macro-recorder-session.lock");
     }
 
@@ -249,6 +262,8 @@ internal sealed class Engine : IDisposable
 
     public void StartHooks()
     {
+        if (TestHooks.ForceHookFailure)
+            throw new InvalidOperationException("Test-only forced hook startup failure.");
         if (_hookThread is not null) return;
         _hookThread = new Thread(HookLoop) { IsBackground = true, Name = "PackRat Input Hooks" };
         _hookThread.Start();
@@ -1109,6 +1124,33 @@ internal sealed class MacroEvent
     public bool Horizontal { get; set; }
 }
 
+internal static class TestHooks
+{
+    internal static string StateDirectory { get; private set; } = "";
+    internal static string RecoveryFile { get; private set; } = "";
+    internal static bool ForceHookFailure { get; private set; }
+    private static int _failSendInputAfter = -1;
+    private static int _sendInputCalls;
+
+    internal static void Configure(string[] args)
+    {
+        StateDirectory = Program.ReadArgString(args, "--packrat-test-state-dir");
+        RecoveryFile = Program.ReadArgString(args, "--packrat-test-recovery-file");
+        ForceHookFailure = args.Contains("--packrat-test-force-hook-failure", StringComparer.OrdinalIgnoreCase);
+
+        var raw = Program.ReadArgString(args, "--packrat-test-fail-sendinput-after");
+        _failSendInputAfter = int.TryParse(raw, out var parsed) ? parsed : -1;
+        _sendInputCalls = 0;
+    }
+
+    internal static bool ShouldFailSendInput()
+    {
+        if (_failSendInputAfter < 0) return false;
+        var call = Interlocked.Increment(ref _sendInputCalls);
+        return call > _failSendInputAfter;
+    }
+}
+
 internal static class Native
 {
     internal const int WH_KEYBOARD_LL = 13;
@@ -1230,6 +1272,9 @@ internal static class Native
 
     private static void SendOne(INPUT input, string operation)
     {
+        if (TestHooks.ShouldFailSendInput())
+            throw new InvalidOperationException($"{operation} failed: test-only forced SendInput failure.");
+
         Marshal.SetLastPInvokeError(0);
         var sent = SendInput(1, [input], Marshal.SizeOf<INPUT>());
         if (sent == 1) return;
