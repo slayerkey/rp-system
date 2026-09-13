@@ -463,3 +463,23 @@ test("removed hardware sensors leave the selectable metric catalog immediately",
   assert.equal(telemetry.metricValue("lhm.temp"), null);
   assert.equal(telemetry.metricCatalog().some((item) => item.id === "lhm.temp"), false);
 });
+
+
+test("system wake resets the Windows CPU delta baseline", () => {
+  const provider = fakeProvider();
+  let restarts = 0;
+  provider.restart = () => { restarts += 1; };
+  const telemetry = new TelemetryService({
+    pluginRoot: resolve(tmpdir(), "wake-baseline"),
+    persistPath: resolve(tmpdir(), "packrat-wake-baseline.json"),
+    presentMonProvider: provider,
+  });
+
+  telemetry.started = true;
+  telemetry.previousCpu = { idle: 1, total: 2 };
+  telemetry.resume();
+
+  assert.equal(restarts, 1);
+  assert.ok(telemetry.previousCpu);
+  assert.notDeepEqual(telemetry.previousCpu, { idle: 1, total: 2 });
+});
