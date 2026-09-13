@@ -4,7 +4,7 @@ import { BoundedHistory } from "../src/history.js";
 
 test("history stays bounded and preserves worst bucket point", () => {
   const h = new BoundedHistory({ rawMax: 5, archiveMax: 3, archiveMs: 1000, archiveMode: "max" });
-  for (let i = 0; i < 30; i += 1) h.push(i * 250, i === 6 ? 999 : i);
+  for (let i = 0; i < 30; i += 1) h.push(i * 250, i === 26 ? 999 : i);
   const json = h.toJSON();
   assert.equal(json.raw.length, 5);
   assert.ok(json.archive.length <= 3);
