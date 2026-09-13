@@ -208,7 +208,21 @@ test("Macro Library does not load malformed interrupted temp data", async () => 
     await writeFile(file+".tmp","{bad-json","utf8");
     const library=await new MacroLibrary(file).load();
     assert.equal(library.list().length,0);
-    assert.match(library.warning,/could not be recovered/i);
+    assert.match(library.warning,/malformed/i);
+    const names=await readdir(dir);
+    assert.ok(names.some(name=>name.startsWith("library.json.tmp.corrupt-")));
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
+
+test("Macro Library does not mislabel filesystem read errors as corruption", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  try {
+    const library=await new MacroLibrary(dir).load();
+    assert.equal(library.list().length,0);
+    assert.doesNotMatch(library.warning,/corrupt/i);
+    assert.match(library.warning,/left untouched|could not read/i);
   } finally {
     await rm(dir,{recursive:true,force:true});
   }
