@@ -24,7 +24,7 @@ The release workflow must pass on Windows:
 | Simultaneous key combinations | yes | yes | down/up order fixtures | Ctrl+C, Ctrl+Shift+key |
 | Key-down / key-up correctness | yes | yes | unit test + cleanup model | physical smoke |
 | Rapid key sequence | yes | yes | event cap / ordering model | physical smoke |
-| Very slow sequence | yes | yes | duration cap model | physical smoke |
+| Very slow sequence | yes | yes | duration cap model | physical smoke, including an idle gap over 60 seconds |
 | Recording cancellation | yes | yes | protocol path | Stream Deck + PI cancel |
 | Windows key | yes | yes | native VK path | physical smoke |
 | Mouse click | no | yes | native host code path | physical smoke |
@@ -40,6 +40,12 @@ The release workflow must pass on Windows:
 | Loop cancellation | no | yes | mode normalization + host cancellation | count/held/toggle smoke |
 | Very long recording | no | yes | 10 min / 25k caps | shortened stress + max-boundary smoke |
 | Corrupt saved macro | action settings normalize | yes | Pro library recovery preserves .corrupt backup | corrupt-file smoke |
+
+## Native timing blocker
+
+The current native recorder limits any single recorded delay between two input events to 60 seconds. Pro's overall recording limit is 10 minutes, so macros with continuing input can span 10 minutes, but an idle pause longer than 60 seconds is not yet preserved exactly.
+
+Before shipping Pro, update the native recorder so a single recorded delay can remain accurate up to the edition's recording-duration limit, then add a host smoke case with an idle gap over 60 seconds. Do not weaken the advertised 10-minute overall recording limit to hide this issue.
 
 ## Release boundary
 
