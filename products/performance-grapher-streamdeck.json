@@ -87,7 +87,6 @@
       "elgato_package_verified": false
     },
     "hardening": {
-      "presentmon_presented_cadence": "MsBetweenPresents",
       "session_window_zero_regression": "FIXED",
       "session_scoped_hardware_history": "FIXED",
       "atomic_persistence": "FIXED",
@@ -134,7 +133,9 @@
       "lhm_catalog_serialization_churn": "REDUCED",
       "lhm_sensor_id_hash_churn": "REDUCED",
       "lhm_complete_sensor_units": "PINNED_0_9_6_ENUM_VERIFIED",
-      "presentmon_standalone_license": "BUNDLED_BY_BUILD_PENDING_WINDOWS_EXECUTION"
+      "presentmon_standalone_license": "BUNDLED_BY_BUILD_PENDING_WINDOWS_EXECUTION",
+      "presentmon_present_call_cadence": "MsBetweenPresents",
+      "presentmon_display_confirmed_fps_claim": false
     },
     "contracts": {
       "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
