@@ -142,7 +142,11 @@ export class TelemetryService extends EventEmitter {
     if (!key) return;
     if (this.watched.has(key)) this.watched.delete(key);
     this.watched.add(key);
-    while (this.watched.size > 32) this.watched.delete(this.watched.values().next().value);
+    while (this.watched.size > 32) {
+      const oldest = this.watched.values().next().value;
+      this.watched.delete(oldest);
+      if (!CANONICAL.has(oldest)) this.histories.delete(oldest);
+    }
   }
 
   _sessionMetrics(now = Date.now()) {
