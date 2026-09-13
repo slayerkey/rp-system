@@ -1,6 +1,7 @@
 param(
   [switch]$SkipAudit,
-  [switch]$SkipArt
+  [switch]$SkipArt,
+  [switch]$ReleaseCandidate
 )
 
 $ErrorActionPreference = "Stop"
@@ -104,7 +105,18 @@ foreach ($Path in $Expected) {
   if (-not (Test-Path (Join-Path $Root $Path))) { throw "Missing expected output: $Path" }
 }
 
+if ($ReleaseCandidate) {
+  $GatePath = Join-Path $Root "docs\MACRO_RECORDER_NATIVE_GATE.json"
+  if (-not (Test-Path $GatePath)) { throw "Missing native release gate: $GatePath" }
+  $Gate = Get-Content $GatePath -Raw | ConvertFrom-Json
+  if (-not $Gate.ready) {
+    $Open = @($Gate.blockers.PSObject.Properties | Where-Object { -not [bool]$_.Value } | ForEach-Object { $_.Name })
+    throw "Release candidate blocked by native gates: $($Open -join ', ')"
+  }
+}
+
 Write-Host "[7/7] Automated local QA complete" -ForegroundColor Green
+if ($ReleaseCandidate) { Write-Host "Native release gate is marked ready." -ForegroundColor Green }
 Write-Host ""
 Write-Host "Still required before READY_TO_SHIP:" -ForegroundColor Yellow
 Write-Host "  - real recording/playback smoke on Windows"
@@ -117,3 +129,6 @@ Write-Host "  - Stream Deck restart persistence"
 Write-Host "  - Pro loop cancellation + corrupt library recovery"
 Write-Host ""
 Write-Host "Do not ship until those host/device checks pass."
+Write-Host ""
+Write-Host "For the final release-candidate gate after native fixes:" -ForegroundColor Cyan
+Write-Host "  powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1 -ReleaseCandidate"
