@@ -1,0 +1,157 @@
+name: Window Manager Pro Installed Compatibility Audit
+
+on:
+  push:
+    branches:
+      - audit/window-manager-pro-installed-20260912
+    paths:
+      - .github/workflows/window-manager-pro-installed-audit.yml
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Audit installed Window Manager Pro
+    runs-on: [self-hosted, Windows, X64, packrat]
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inspect installed Pro without publishing paid source
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $paths = @(
+            (Join-Path $env:APPDATA 'Elgato\StreamDeck\Plugins\com.packrat.windowmanagerpro.sdPlugin'),
+            (Join-Path $env:LOCALAPPDATA 'Elgato\StreamDeck\Plugins\com.packrat.windowmanagerpro.sdPlugin')
+          ) | Where-Object { $_ -and (Test-Path $_) }
+
+          if (-not $paths -or $paths.Count -eq 0) {
+            Write-Host "Checked:"
+            Write-Host (Join-Path $env:APPDATA 'Elgato\StreamDeck\Plugins\com.packrat.windowmanagerpro.sdPlugin')
+            Write-Host (Join-Path $env:LOCALAPPDATA 'Elgato\StreamDeck\Plugins\com.packrat.windowmanagerpro.sdPlugin')
+            throw 'Installed Window Manager Pro plugin was not found in the standard Stream Deck plugin folders.'
+          }
+
+          $root = $paths[0]
+          $manifestPath = Join-Path $root 'manifest.json'
+          if (-not (Test-Path $manifestPath)) { throw "manifest.json missing from $root" }
+          $manifest = Get-Content -Raw -Encoding UTF8 $manifestPath | ConvertFrom-Json
+          if ($manifest.UUID -ne 'com.packrat.windowmanagerpro') { throw "Unexpected plugin UUID: $($manifest.UUID)" }
+
+          $files = Get-ChildItem -Recurse -File $root
+          $textFiles = $files | Where-Object { $_.Extension -in @('.js','.mjs','.cjs','.html','.json','.css') -and $_.Length -lt 5000000 }
+
+          $settingKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+          $htmlFields = New-Object System.Collections.Generic.List[object]
+          $capabilities = [ordered]@{
+            enumWindows = $false
+            getWindowRect = $false
+            setWindowPos = $false
+            enumDisplayMonitors = $false
+            getMonitorInfo = $false
+            monitorFromWindow = $false
+            windowState = $false
+            processPath = $false
+            className = $false
+            launchProcess = $false
+            globalSettings = $false
+            perActionSettings = $false
+            workspaceLiteral = $false
+            restoreLiteral = $false
+            saveLiteral = $false
+          }
+
+          foreach ($f in $textFiles) {
+            try { $t = Get-Content -Raw -Encoding UTF8 $f.FullName } catch { continue }
+
+            foreach ($m in [regex]::Matches($t, '(?i)(?:payload\.)?settings\.([A-Za-z_][A-Za-z0-9_]*)')) {
+              [void]$settingKeys.Add($m.Groups[1].Value)
+            }
+            foreach ($m in [regex]::Matches($t, '(?i)(?:getSettings|setSettings)\s*\(\s*\{([^}]*)\}')) {
+              foreach ($k in [regex]::Matches($m.Groups[1].Value, '([A-Za-z_][A-Za-z0-9_]*)\s*:')) {
+                [void]$settingKeys.Add($k.Groups[1].Value)
+              }
+            }
+            foreach ($m in [regex]::Matches($t, '(?i)data-setting\s*=\s*["'']([^"'']+)["'']')) {
+              [void]$settingKeys.Add($m.Groups[1].Value)
+            }
+
+            $capabilities.enumWindows = $capabilities.enumWindows -or ($t -match '(?i)EnumWindows')
+            $capabilities.getWindowRect = $capabilities.getWindowRect -or ($t -match '(?i)GetWindowRect')
+            $capabilities.setWindowPos = $capabilities.setWindowPos -or ($t -match '(?i)SetWindowPos')
+            $capabilities.enumDisplayMonitors = $capabilities.enumDisplayMonitors -or ($t -match '(?i)EnumDisplayMonitors')
+            $capabilities.getMonitorInfo = $capabilities.getMonitorInfo -or ($t -match '(?i)GetMonitorInfo')
+            $capabilities.monitorFromWindow = $capabilities.monitorFromWindow -or ($t -match '(?i)MonitorFromWindow')
+            $capabilities.windowState = $capabilities.windowState -or ($t -match '(?i)(IsZoomed|IsIconic|ShowWindow)')
+            $capabilities.processPath = $capabilities.processPath -or ($t -match '(?i)(QueryFullProcessImageName|MainModule|processPath|executable)')
+            $capabilities.className = $capabilities.className -or ($t -match '(?i)(GetClassName|className)')
+            $capabilities.launchProcess = $capabilities.launchProcess -or ($t -match '(?i)(child_process|spawn\s*\(|execFile\s*\(|CreateProcess|Start-Process)')
+            $capabilities.globalSettings = $capabilities.globalSettings -or ($t -match '(?i)(getGlobalSettings|setGlobalSettings)')
+            $capabilities.perActionSettings = $capabilities.perActionSettings -or ($t -match '(?i)(getSettings|setSettings)')
+            $capabilities.workspaceLiteral = $capabilities.workspaceLiteral -or ($t -match '(?i)workspace')
+            $capabilities.restoreLiteral = $capabilities.restoreLiteral -or ($t -match '(?i)restore')
+            $capabilities.saveLiteral = $capabilities.saveLiteral -or ($t -match '(?i)(save|record|capture)')
+          }
+
+          $layout = @($manifest.Actions | Where-Object { $_.UUID -eq 'com.packrat.windowmanagerpro.layout' })[0]
+          if (-not $layout) { throw 'Window Layout action missing from installed manifest.' }
+
+          foreach ($html in ($textFiles | Where-Object Extension -eq '.html')) {
+            $t = Get-Content -Raw -Encoding UTF8 $html.FullName
+            foreach ($m in [regex]::Matches($t, '(?is)<(input|select|textarea)\b([^>]*)>')) {
+              $attrs = $m.Groups[2].Value
+              $id = ([regex]::Match($attrs, '(?i)\bid\s*=\s*["'']([^"'']+)["'']')).Groups[1].Value
+              $name = ([regex]::Match($attrs, '(?i)\bname\s*=\s*["'']([^"'']+)["'']')).Groups[1].Value
+              $type = ([regex]::Match($attrs, '(?i)\btype\s*=\s*["'']([^"'']+)["'']')).Groups[1].Value
+              if ($id -or $name) {
+                $htmlFields.Add([ordered]@{
+                  file = $html.FullName.Substring($root.Length + 1)
+                  tag = $m.Groups[1].Value.ToLowerInvariant()
+                  id = $id
+                  name = $name
+                  type = $type
+                })
+              }
+            }
+          }
+
+          $tree = foreach ($f in $files) {
+            [ordered]@{
+              path = $f.FullName.Substring($root.Length + 1)
+              bytes = $f.Length
+              sha256 = (Get-FileHash -Algorithm SHA256 $f.FullName).Hash.ToLowerInvariant()
+            }
+          }
+
+          $report = [ordered]@{
+            auditedAtUtc = [DateTime]::UtcNow.ToString('o')
+            installedRootLeaf = Split-Path $root -Leaf
+            manifest = $manifest
+            layoutAction = $layout
+            settingKeys = @($settingKeys | Sort-Object)
+            htmlFields = @($htmlFields)
+            capabilities = $capabilities
+            files = @($tree)
+          }
+
+          New-Item -ItemType Directory -Force audit-output | Out-Null
+          $report | ConvertTo-Json -Depth 50 | Set-Content -Encoding UTF8 audit-output/window-manager-pro-installed-audit.json
+
+          Write-Host '=== SAFE AUDIT SUMMARY ==='
+          Write-Host "Version=$($manifest.Version)"
+          Write-Host "SDKVersion=$($manifest.SDKVersion)"
+          Write-Host "ActionCount=$(@($manifest.Actions).Count)"
+          Write-Host "LayoutPI=$($layout.PropertyInspectorPath)"
+          Write-Host "LayoutTooltip=$($layout.Tooltip)"
+          Write-Host "Settings=$((@($settingKeys | Sort-Object) -join ','))"
+          Write-Host "Capabilities=$($capabilities | ConvertTo-Json -Compress)"
+
+      - name: Upload redacted compatibility audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-pro-installed-audit
+          path: audit-output/window-manager-pro-installed-audit.json
+          if-no-files-found: error
