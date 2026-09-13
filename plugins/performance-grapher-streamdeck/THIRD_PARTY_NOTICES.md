@@ -36,3 +36,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - Used through the official Stream Deck plugin SDK.
 
 The release build inventories the exact installed production npm dependency graph and includes each package's supplied license / notice evidence under `licenses/npm/`, including the Elgato SDK and its bundled runtime dependencies.
+
+
+## SDPI Components
+
+- Vendored UI library: sdpi-components 4.0.1
+- Project: https://github.com/GeekyEggo/sdpi-components
+- License: MIT
+- Copyright: Corsair Memory Inc. and contributors
+- Usage: bundled locally in the Stream Deck Property Inspector so per-action settings use Elgato's maintained settings transport instead of a custom WebSocket implementation.
+
+The distributed plugin includes the upstream MIT license text as `licenses/SDPI-Components-MIT.txt`. The minified distribution also preserves its upstream license banner, including its Lit attribution.
