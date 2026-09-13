@@ -41,6 +41,10 @@ The release workflow must pass on Windows:
 | Very long recording | no | yes | 10 min / 25k caps | shortened stress + max-boundary smoke |
 | Corrupt saved macro | action settings normalize | yes | Pro library recovery preserves .corrupt backup | corrupt-file smoke |
 
+## Native release blockers
+
+The complete native input safety and timing blocker list is maintained in `docs/MACRO_RECORDER_NATIVE_RELEASE_BLOCKERS.md`. These blockers must be resolved before either edition is READY_TO_SHIP.
+
 ## Native timing blocker
 
 The current native recorder limits any single recorded delay between two input events to 60 seconds. Pro's overall recording limit is 10 minutes, so macros with continuing input can span 10 minutes, but an idle pause longer than 60 seconds is not yet preserved exactly.
