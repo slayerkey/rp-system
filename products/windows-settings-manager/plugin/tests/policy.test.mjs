@@ -76,6 +76,14 @@ test("Pro owns the PC Mode layer without inventing optimization actions", async 
   assert.ok(!JSON.stringify(value).match(/registry|cloudstore|sendkeys|quick settings/i));
 });
 
+test("Rat Art resolves the exact Lite or Pro ship destination instead of guessing", async () => {
+  const script = await readFile(path.resolve("rat-art.ps1"), "utf8");
+  assert.match(script, /"windows-settings-manager-lite" \{ "lite" \}/);
+  assert.match(script, /"windows-settings-manager-pro" \{ "pro" \}/);
+  assert.match(script, /cannot infer edition from destination/);
+  assert.doesNotMatch(script, /Destination -match 'lite'/);
+});
+
 test("generated profile names and Marketplace copy avoid long dashes", async () => {
   const assemble = await readFile(path.resolve("scripts", "assemble.mjs"), "utf8");
   const art = await readFile(path.resolve("scripts", "rat-art.py"), "utf8");
