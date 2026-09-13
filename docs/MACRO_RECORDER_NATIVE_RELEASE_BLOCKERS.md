@@ -164,6 +164,26 @@ Acceptance:
 - after abandoned-lock acquisition, verify stale journal recovery occurs before new input work begins
 - verify Ctrl+Shift+F12 stops the single active PackRat playback regardless of which edition owns it
 
+## 9. Treat SendInput failure as a real playback failure
+
+The native injection helpers currently ignore the return value from `SendInput`.
+
+Required behavior:
+- keyboard, mouse-button, pointer-move and wheel injection helpers must report whether Windows accepted the requested input
+- if `SendInput` returns zero, stop playback and surface an error
+- do not remove a held input from the recovery journal until its release injection has succeeded
+- if a down-event was journaled but Windows rejects the injection, roll back that intended held state safely
+- never report successful playback when Windows rejected an event
+- do not claim UIPI can be bypassed; elevated/higher-integrity targets are an expected Windows limitation
+
+Reason:
+Windows documents that `SendInput` is subject to UIPI and can return zero when injection is blocked. Ignoring that return value makes failures look successful and can invalidate the held-input safety model.
+
+Acceptance:
+- force a `SendInput` failure in a controlled test and verify playback stops with an error
+- test a higher-integrity target from normal Stream Deck integrity and verify the failure is clean
+- verify no failed injection path clears recovery state prematurely or leaves an injected key/button stuck
+
 ## Final native smoke matrix
 
 After all eight fixes:
