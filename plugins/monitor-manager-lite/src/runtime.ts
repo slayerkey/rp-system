@@ -15,6 +15,7 @@ type Snapshot = { monitors: any[]; internalBrightness?: any };
 export class MonitorLiteRuntime {
   readonly bridge = new MonitorBridge();
   private cache: { at: number; value: Snapshot } | null = null;
+  private scanInFlight: Promise<Snapshot> | null = null;
   private configuredMonitorKey: string | null = null;
 
   constructor(private readonly requireConfiguredMonitor = false) {}
@@ -31,10 +32,18 @@ export class MonitorLiteRuntime {
 
   async scan(force = false): Promise<Snapshot> {
     if (!force && this.cache && Date.now() - this.cache.at < 1500) return this.cache.value;
-    const value = await this.bridge.request("scan") as Snapshot;
-    for (const monitor of value.monitors ?? []) monitor.monitorKey = normalizeMonitorKey(monitor);
-    this.cache = { at: Date.now(), value };
-    return value;
+    if (this.scanInFlight) return this.scanInFlight;
+    const request=this.bridge.request("scan",{},30000).then((value:Snapshot)=>{
+      for (const monitor of value.monitors ?? []) monitor.monitorKey = normalizeMonitorKey(monitor);
+      this.cache = { at: Date.now(), value };
+      return value;
+    });
+    this.scanInFlight=request;
+    try {
+      return await request;
+    } finally {
+      if (this.scanInFlight===request) this.scanInFlight=null;
+    }
   }
 
   async selected(settings: MonitorSettings): Promise<{ monitor: any; snapshot: Snapshot }> {
