@@ -89,5 +89,6 @@
     "pro_package_sha256": "B5D7C15C0B94E75A0900037EA36F1593168AE092A909F2386E00275D3972DCAF",
     "lite_tests": "19/19",
     "pro_tests": "37/37"
-  }
+  },
+  "submission_metadata": "plugins/macro-recorder-pro/submission.json"
 }
