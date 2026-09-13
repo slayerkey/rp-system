@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Performance Grapher</title>
+  <link rel="stylesheet" href="inspector.css" />
+</head>
+<body>
+  <main>
+    <section class="status-card">
+      <div class="status-row"><span id="fpsDot" class="dot"></span><strong id="fpsTitle">Checking game telemetry…</strong></div>
+      <div id="fpsDetail" class="muted">PresentMon runs locally and keeps frame history off the network.</div>
+      <div class="status-row second"><span id="sensorDot" class="dot"></span><strong id="sensorTitle">Checking hardware sensors…</strong></div>
+      <div id="sensorDetail" class="muted">CPU and RAM remain available from Windows even if an advanced sensor is unsupported.</div>
+    </section>
+
+    <section class="group" data-kinds="graph metric alert">
+      <label for="metricId">Metric</label>
+      <select id="metricId"></select>
+      <p id="metricHint" class="hint">One key, one readable metric.</p>
+    </section>
+
+    <section class="group" data-kinds="graph fps">
+      <label for="windowMs">History window</label>
+      <select id="windowMs">
+        <option value="60000">60 seconds</option>
+        <option value="300000">5 minutes</option>
+        <option value="900000">15 minutes</option>
+        <option value="0">Session / available history</option>
+      </select>
+      <p class="hint" data-kinds="graph">Press the key to cycle these windows.</p>
+    </section>
+
+    <section class="group" data-kinds="fps">
+      <label for="fpsMode">Primary readout</label>
+      <select id="fpsMode">
+        <option value="fps">FPS</option>
+        <option value="frametime">Frametime (ms)</option>
+      </select>
+      <label for="lowMode">Low statistic</label>
+      <select id="lowMode">
+        <option value="one">1% low</option>
+        <option value="pointOne">0.1% low</option>
+      </select>
+      <p class="hint">Press the key to toggle FPS and frametime.</p>
+    </section>
+
+    <section class="group" data-kinds="graph alert">
+      <label for="threshold">Threshold</label>
+      <div class="two">
+        <select id="thresholdDirection">
+          <option value="above">Warn above</option>
+          <option value="below">Warn below</option>
+        </select>
+        <input id="threshold" type="number" step="0.1" />
+      </div>
+      <p class="hint">The key changes state when this metric crosses the threshold.</p>
+    </section>
+
+    <section class="group" data-kinds="graph">
+      <label>Graph scale</label>
+      <div class="two">
+        <input id="scaleMin" type="number" step="0.1" placeholder="Auto min" />
+        <input id="scaleMax" type="number" step="0.1" placeholder="Auto max" />
+      </div>
+      <p class="hint">Leave both blank for automatic scale. Custom max must be greater than min.</p>
+    </section>
+
+    <section class="group" data-kinds="session">
+      <strong>Session Summary</strong>
+      <p class="hint">Press the key to cycle average FPS, 1% low, 0.1% low, worst frametime, temperature/load peaks, duration, and the pressure signal.</p>
+      <button id="resetSession" type="button" class="secondary full">End / reset current session</button>
+    </section>
+
+    <section class="group">
+      <label for="accent">Accent</label>
+      <div class="color-row"><input id="accent" type="color" /><code id="accentValue">#2BE86A</code></div>
+    </section>
+
+    <section class="group diagnostics">
+      <strong>Telemetry diagnostics</strong>
+      <p class="hint">Game FPS uses PresentMon. If Windows blocks ETW capture, add your user to Performance Log Users or run Stream Deck with sufficient rights. Performance Grapher never installs a driver automatically.</p>
+      <button id="restartFps" type="button" class="secondary full">Restart game telemetry</button>
+      <div id="sessionLine" class="session-line">No active game session.</div>
+    </section>
+  </main>
+  <script src="inspector.js"></script>
+</body>
+</html>
