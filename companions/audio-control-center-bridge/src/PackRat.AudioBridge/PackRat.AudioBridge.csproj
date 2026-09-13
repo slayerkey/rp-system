@@ -12,4 +12,7 @@
     <DebugType>embedded</DebugType>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../packrat-audio-core/src/PackRat.AudioCore/PackRat.AudioCore.csproj" />
+  </ItemGroup>
 </Project>
