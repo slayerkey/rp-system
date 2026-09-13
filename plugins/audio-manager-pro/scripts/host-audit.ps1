@@ -146,18 +146,19 @@ if (-not $StaticOnly) {
                 $outputIds = @($snapshot.outputs | ForEach-Object { [string]$_.id })
                 $inputIds = @($snapshot.inputs | ForEach-Object { [string]$_.id })
                 $missingRoleIds = @()
-                foreach ($pair in @(
-                    @("Default output", $outConsole, $outputIds),
-                    @("Multimedia output", $outMulti, $outputIds),
-                    @("Communications output", $outComm, $outputIds),
-                    @("Default input", $inConsole, $inputIds),
-                    @("Multimedia input", $inMulti, $inputIds),
-                    @("Communications input", $inComm, $inputIds)
-                )) {
-                    $label = [string]$pair[0]
-                    $id = [string]$pair[1]
-                    $ids = @($pair[2])
-                    if ($id -and $ids -notcontains $id) { $missingRoleIds += $label }
+                $roleChecks = @(
+                    [PSCustomObject]@{ Label = "Default output"; Id = $outConsole; ActiveIds = $outputIds },
+                    [PSCustomObject]@{ Label = "Multimedia output"; Id = $outMulti; ActiveIds = $outputIds },
+                    [PSCustomObject]@{ Label = "Communications output"; Id = $outComm; ActiveIds = $outputIds },
+                    [PSCustomObject]@{ Label = "Default input"; Id = $inConsole; ActiveIds = $inputIds },
+                    [PSCustomObject]@{ Label = "Multimedia input"; Id = $inMulti; ActiveIds = $inputIds },
+                    [PSCustomObject]@{ Label = "Communications input"; Id = $inComm; ActiveIds = $inputIds }
+                )
+                foreach ($roleCheck in $roleChecks) {
+                    $id = [string]$roleCheck.Id
+                    if ($id -and @($roleCheck.ActiveIds) -notcontains $id) {
+                        $missingRoleIds += [string]$roleCheck.Label
+                    }
                 }
                 Add-Check "role endpoints are active" $(if ($missingRoleIds.Count) { "FAIL" } else { "PASS" }) $(if ($missingRoleIds.Count) { "Missing from active endpoint lists: $($missingRoleIds -join ', ')" } else { "All non-empty role IDs resolve to active endpoints" })
             }
