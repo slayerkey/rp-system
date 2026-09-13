@@ -58,7 +58,7 @@ export class MonitorLiteRuntime {
       this.invalidate();
       return percent;
     }
-    if (snapshot.internalBrightness?.available) {
+    if (monitor.internalDisplay && snapshot.internalBrightness?.available) {
       await this.bridge.request("set-brightness", { kind: "internal", value: percent });
       this.invalidate();
       return percent;
@@ -74,7 +74,7 @@ export class MonitorLiteRuntime {
       const current = Number(monitor.brightness ?? min);
       return Math.round(((current - min) / Math.max(1, max - min)) * 100);
     }
-    if (snapshot.internalBrightness?.available) return Number(snapshot.internalBrightness.current ?? 0);
+    if (monitor.internalDisplay && snapshot.internalBrightness?.available) return Number(snapshot.internalBrightness.current ?? 0);
     return null;
   }
 
