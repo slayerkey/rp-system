@@ -61,6 +61,7 @@ export class SessionTracker {
     this.activity = new Map();
     this.bucket = null;
     this.recent = new BoundedHistory({ rawMax: FPS_RECENT_MAX, archiveMax: FPS_ARCHIVE_MAX, archiveMs: 1000, archiveMode: "min" });
+    this.frametimeRecent = new BoundedHistory({ rawMax: FPS_RECENT_MAX, archiveMax: FPS_ARCHIVE_MAX, archiveMs: 1000, archiveMode: "max" });
     this.currentFps = null;
     this.lastFrameAt = 0;
   }
@@ -135,6 +136,7 @@ export class SessionTracker {
     this.bucket = null;
     this.currentFps = null;
     this.recent = new BoundedHistory({ rawMax: FPS_RECENT_MAX, archiveMax: FPS_ARCHIVE_MAX, archiveMs: 1000, archiveMode: "min" });
+    this.frametimeRecent = new BoundedHistory({ rawMax: FPS_RECENT_MAX, archiveMax: FPS_ARCHIVE_MAX, archiveMs: 1000, archiveMode: "max" });
     this.candidate = null;
   }
 
