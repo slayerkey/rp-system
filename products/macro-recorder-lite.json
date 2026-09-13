@@ -35,6 +35,7 @@
     ],
     "device_types": [
       "Stream Deck / MK.2",
+      "Stream Deck Mini",
       "Stream Deck XL",
       "Stream Deck +",
       "Stream Deck Neo"
@@ -44,6 +45,7 @@
     "editable": true,
     "files": [
       "macro-recorder-lite-starter-mk2.streamDeckProfile",
+      "macro-recorder-lite-starter-mini.streamDeckProfile",
       "macro-recorder-lite-starter-xl.streamDeckProfile",
       "macro-recorder-lite-starter-plus.streamDeckProfile",
       "macro-recorder-lite-starter-neo.streamDeckProfile"
@@ -53,7 +55,7 @@
     "Windows CI build",
     "input-host selftest and daemon ping",
     "unit tests",
-    "four-device profile generation + ZIP/action/manifest validation",
+    "five-device profile generation + ZIP/action/manifest validation",
     "official Elgato CLI validation",
     "official plugin packaging",
     "final Windows host smoke",
