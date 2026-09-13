@@ -29,10 +29,15 @@ test("Lite manifest keeps the intended platform and action contract",async()=>{
   assert.equal(manifest.Nodejs?.Version,"24");
   assert.equal(manifest.Software?.MinimumVersion,"7.1");
   assert.deepEqual(manifest.OS,[{Platform:"windows",MinimumVersion:"10"}]);
-  assert.equal(manifest.Profiles?.length,1);
-  assert.equal(manifest.Profiles[0].DeviceType,0);
-  assert.equal(manifest.Profiles[0].Name,"profiles/macro-recorder-lite-starter");
-  assert.ok(!manifest.Profiles[0].Name.endsWith(".streamDeckProfile"));
+  assert.equal(manifest.Profiles?.length,4);
+  assert.deepEqual(manifest.Profiles.map(profile=>profile.DeviceType),[0,2,7,9]);
+  assert.deepEqual(manifest.Profiles.map(profile=>profile.Name),[
+    "profiles/macro-recorder-lite-starter-mk2",
+    "profiles/macro-recorder-lite-starter-xl",
+    "profiles/macro-recorder-lite-starter-plus",
+    "profiles/macro-recorder-lite-starter-neo"
+  ]);
+  for(const profile of manifest.Profiles) assert.ok(!profile.Name.endsWith(".streamDeckProfile"));
   for(const action of manifest.Actions) assert.equal(action.UserTitleEnabled,false);
   const record=manifest.Actions.find(action=>action.UUID.endsWith(".record"));
   const stop=manifest.Actions.find(action=>action.UUID.endsWith(".stop"));
