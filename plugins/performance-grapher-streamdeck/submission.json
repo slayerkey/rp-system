@@ -5,7 +5,9 @@
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "marketplace_category": [
-    "Monitoring"
+    "Gaming",
+    "Monitoring",
+    "Utilities"
   ],
   "marketplace_language": [
     "English"
