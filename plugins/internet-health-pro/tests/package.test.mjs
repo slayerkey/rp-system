@@ -6,6 +6,7 @@ const manifest = JSON.parse(fs.readFileSync("com.packrat.internet-health-pro.sdP
 const pluginSource = fs.readFileSync("src/plugin.js", "utf8");
 const probesSource = fs.readFileSync("src/probes.js", "utf8");
 const submission = JSON.parse(fs.readFileSync("submission.json", "utf8"));
+const product = JSON.parse(fs.readFileSync("../../products/internet-health-pro.json", "utf8"));
 
 test("manifest exposes exactly the seven planned actions", () => {
   assert.equal(manifest.UUID, "com.packrat.internet-health-pro");
@@ -38,4 +39,22 @@ test("marketplace positioning is Internet Health, not a generic speed-test launc
 test("global settings changes read the SDK event payload shape", () => {
   assert.match(pluginSource, /ev\?\.payload\?\.settings/);
   assert.doesNotMatch(pluginSource, /normalizeGlobalSettings\(ev\?\.settings/);
+});
+
+
+test("ship metadata stays version-consistent and release notes stay scannable", () => {
+  assert.equal(manifest.Version, submission.version);
+  assert.equal(product.version, submission.version);
+  const bullets = String(submission.release_notes || "").split("\n").filter(Boolean);
+  assert.ok(bullets.length >= 3 && bullets.length <= 6);
+  assert.ok(bullets.every((line) => line.startsWith("- ")));
+});
+
+test("manifest asset references use extensionless Elgato paths", () => {
+  const paths = [manifest.Icon, manifest.CategoryIcon];
+  for (const action of manifest.Actions) {
+    paths.push(action.Icon);
+    for (const state of action.States || []) paths.push(state.Image);
+  }
+  assert.ok(paths.every((value) => typeof value === "string" && !/\.(?:png|svg)$/i.test(value)));
 });
