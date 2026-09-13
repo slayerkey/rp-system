@@ -82,9 +82,13 @@ function profileForRecord(record) {
   const selectedId = String(record?.settings?.profileId || "");
   if (selectedId) return findProfile(globalSettings, selectedId);
 
-  return findProfile(globalSettings, globalSettings.lastAppliedProfileId)
-    || globalSettings.profiles[0]
-    || null;
+  if (record?.kind === "cycle") {
+    return findProfile(globalSettings, globalSettings.lastAppliedProfileId)
+      || globalSettings.profiles[0]
+      || null;
+  }
+
+  return null;
 }
 
 function endpointForDeviceRecord(record) {
