@@ -10,7 +10,7 @@ The release workflow must pass on Windows:
 - input-host daemon startup + JSON ping
 - npm ci and production dependency audit for Lite and Pro
 - model / limits / import-export unit tests
-- deterministic four-device starter-profile generation (MK.2 / standard, XL, Plus, Neo)
+- deterministic five-device starter-profile generation (MK.2 / standard, Mini, XL, Plus, Neo)
 - Rollup bundle
 - official Elgato CLI manifest validation
 - official Elgato CLI package generation
