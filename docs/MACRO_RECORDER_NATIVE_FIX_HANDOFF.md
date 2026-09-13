@@ -128,14 +128,18 @@ Keep Ctrl+Shift+F12 as the documented emergency playback fallback, but do not re
 
 A graceful Node shutdown calls `host.close()`, but the helper must also handle abrupt parent death.
 
-Implement either:
-- a Windows Job Object / kill-on-parent-close pattern, or
-- pass the Node parent PID to `PackRat.InputHost.exe` and have the helper watch it
+The current helper reads commands from the Node-owned stdin pipe, so the existing design may already exit naturally when the parent dies and the pipe reaches EOF.
+
+Do this in order:
+1. test forced parent death with the current stdin-pipe lifetime
+2. confirm `Console.ReadLine()` reaches EOF and `Engine.Dispose()` runs
+3. only if that is unreliable, add a Windows Job Object / kill-on-parent-close pattern or a parent-PID watchdog
 
 Requirements:
 - parent death causes prompt helper shutdown
 - no orphaned global hooks
-- do not destroy crash-recovery journal evidence before held inputs are safely released/recoverable
+- playback held-input cleanup/recovery remains safe
+- do not add extra process-lifetime machinery if the existing pipe ownership already proves reliable
 
 ### 8. Coordinate Lite and Pro with one cross-process active-session lock
 
