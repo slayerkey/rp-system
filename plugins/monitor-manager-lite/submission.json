@@ -1,0 +1,15 @@
+{
+  "slug": "monitor-manager-lite",
+  "name": "Monitor Manager Lite",
+  "type": "plugin",
+  "price_usd": 0,
+  "version": "1.0.0.0",
+  "marketplace_category": ["Utilities"],
+  "marketplace_language": ["English"],
+  "marketplace_operating_systems": ["Windows"],
+  "marketplace_tags": ["Windows", "Monitor", "Display", "Utilities"],
+  "marketplace_auto_publish": true,
+  "headline": "Control Your Monitor From Stream Deck",
+  "description": "Monitor Manager Lite is a free Windows monitor manager for Stream Deck. Control one configured display without reaching for monitor buttons or digging through Windows settings.\n\nWhat’s Inside:\nMonitor Brightness with exact presets, Brightness Up / Down, Stream Deck+ brightness dial control, Monitor Power where the display advertises safe DDC/CI power support, Refresh Rate Switch for the selected monitor, and Current Display Status with live Hz and resolution.\n\nRefresh-rate choices are checked against modes Windows actually reports for the selected screen. If 120 Hz, 144 Hz, 165 Hz, 240 Hz, or another requested mode is unavailable at the current resolution, Monitor Manager Lite fails clearly instead of forcing an unsupported configuration.\n\nExternal monitor control uses Windows monitor APIs and DDC/CI where available. Laptop internal-panel brightness uses the Windows internal brightness path instead of pretending every screen is DDC/CI capable. Hardware features are surfaced as SUPPORTED, NOT SUPPORTED, or UNKNOWN when the monitor cannot be verified safely.\n\nStarter Stream Deck profiles are included for Standard / MK, XL, Stream Deck+, and Virtual Stream Deck.\n\nNeed multiple monitors, HDMI / DisplayPort / USB-C input switching, contrast, monitor volume, HDR, resolution, orientation, Windows display topology, primary-display control, or one-key monitor profiles? Monitor Manager Pro is the full display-control edition. The direct Pro link appears in Lite only after the real public Marketplace listing is verified.\n\nWindows 10 or newer. DDC/CI features depend on monitor hardware, firmware, cable path, and monitor settings.\n\nPart of the PackRat ecosystem.",
+  "release_notes": "Initial release. Free one-monitor Windows display control with brightness presets and Stream Deck+ dial support, capability-gated monitor power, refresh-rate switching against Windows-reported modes, live display status, laptop internal brightness fallback, and bundled Standard / MK, XL, Plus, and Virtual Stream Deck profiles."
+}
