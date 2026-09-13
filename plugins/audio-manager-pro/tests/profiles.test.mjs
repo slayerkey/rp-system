@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { endpointIdentity, matchEndpoint } from "../src/device-matching.js";
-import { buildApplyPlan, captureProfileFromSnapshot, cycleCurrentIndex, mergeApplyResult, normalizeGlobalSettings, normalizeProfile, profileMatchesSnapshot, snapshotDefaultRoleConflicts } from "../src/profiles.js";
+import { buildApplyPlan, captureProfileFromSnapshot, cycleCurrentIndex, mergeApplyResult, normalizeGlobalSettings, normalizeProfile, profileMatchesSnapshot, snapshotDefaultRoleConflicts, verifyApplyResult } from "../src/profiles.js";
 
 function ep(id,name,{instanceId="",containerId="",volume=50,muted=false}={}) {
   return { id,name,instanceId,containerId,volume,muted,volumeAvailable:true,muteAvailable:true };
@@ -178,6 +178,33 @@ test("all operation failures are FAILED",()=>{
   const plan=buildApplyPlan(p,s);
   const merged=mergeApplyResult(plan,{results:plan.operations.map((x,index)=>({index,ok:false,error:"nope"})),snapshot:s});
   assert.equal(merged.status,"FAILED");
+});
+
+test("successful operations stay SUCCESS only when final Windows state matches",()=>{
+  const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
+  const plan=buildApplyPlan(p,s);
+  const merged=mergeApplyResult(plan,{results:plan.operations.map((x,index)=>({index,ok:true})),snapshot:s});
+  const verified=verifyApplyResult(p,merged,s);
+  assert.equal(verified.status,"SUCCESS");
+});
+
+test("successful operations downgrade to PARTIAL when final roles drift",()=>{
+  const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
+  const plan=buildApplyPlan(p,s);
+  const merged=mergeApplyResult(plan,{results:plan.operations.map((x,index)=>({index,ok:true})),snapshot:s});
+  const drift={...s,multimediaOutputId:"render-speakers"};
+  const verified=verifyApplyResult(p,merged,drift);
+  assert.equal(verified.status,"PARTIAL");
+  assert(verified.failures.some(x=>x.slot==="verification"));
+});
+
+test("successful operations downgrade to PARTIAL when final snapshot cannot be verified",()=>{
+  const s=snap(),p=captureProfileFromSnapshot("MEETING",s,"meeting");
+  const plan=buildApplyPlan(p,s);
+  const merged=mergeApplyResult(plan,{results:plan.operations.map((x,index)=>({index,ok:true})),snapshot:s});
+  const verified=verifyApplyResult(p,merged,{...s,error:"snapshot unavailable"});
+  assert.equal(verified.status,"PARTIAL");
+  assert(verified.failures.some(x=>String(x.error).includes("verification failed")));
 });
 
 test("matching profile status checks roles and restored state",()=>{
