@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const root=new URL("../",import.meta.url);
-const repoRoot=new URL("../../../",root);
+const repoRoot=new URL("../../",root);
 
 test("Lite Pro upsell matches canonical PackRat catalog routing",async()=>{
   const [mapRaw,productRaw,submissionRaw,html,js]=await Promise.all([
