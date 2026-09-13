@@ -52,6 +52,15 @@ test("all five canonical bundled profile device families are generated", async (
   }
 });
 
+test("every Pro profile keeps two-way Modes / Settings navigation", async () => {
+  const profileDir = path.join(root, "com.packrat.windows-settings-manager-pro.sdPlugin", "profiles");
+  for (const device of ["standard", "mini", "xl", "plus", "neo"]) {
+    const data = (await readFile(path.join(profileDir, `windows-settings-pro-${device}.streamDeckProfile`))).toString("utf8");
+    const matches = data.match(/com\.packrat\.windows-settings-manager-pro\.profile-page/g) ?? [];
+    assert.equal(matches.length, 2, `${device} should contain one navigation key on each of two pages`);
+  }
+});
+
 test("Pro profiles ship named mode slots but no preconfigured system changes", async () => {
   const modes = await readFile(path.resolve("src", "modes.ts"), "utf8");
   for (const id of ["gaming", "work", "night", "present", "movie"]) {
