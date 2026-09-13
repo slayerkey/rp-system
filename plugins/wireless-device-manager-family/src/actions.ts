@@ -27,7 +27,8 @@ export type CycleSettings = {
 };
 
 async function paintDevice(key: KeyAction<DeviceSettings>, runtime: WirelessRuntime, settings: DeviceSettings) {
-  const device = runtime.device(settings.deviceId);
+  const deviceId = await runtime.selectedDeviceId(settings.deviceId);
+  const device = runtime.device(deviceId);
   if (!runtime.adapterAvailable) {
     await key.setTitle("BLUETOOTH\nOFF");
     return;
@@ -52,16 +53,21 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
   override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<DeviceSettings>): Promise<void> {
     if (!ev.action.isKey()) return;
     const settings = ev.payload.settings ?? {};
-    if (this.runtime.edition === "pro" && settings.deviceId) {
-      await this.runtime.setFavorite(settings.deviceId, settings.favorite === true);
-      await this.runtime.assignGroup(settings.groupName ?? "", settings.deviceId);
+    if (settings.deviceId) {
+      if (this.runtime.edition === "lite") {
+        await this.runtime.setLiteDeviceId(settings.deviceId);
+      } else {
+        await this.runtime.setFavorite(settings.deviceId, settings.favorite === true);
+        await this.runtime.assignGroup(settings.groupName ?? "", settings.deviceId);
+      }
     }
     await this.paint(ev.action, settings);
   }
 
   override async onKeyDown(ev: KeyDownEvent<DeviceSettings>): Promise<void> {
     const settings = ev.payload.settings ?? {};
-    const device = this.runtime.device(settings.deviceId);
+    const deviceId = await this.runtime.selectedDeviceId(settings.deviceId);
+    const device = this.runtime.device(deviceId);
     if (!device || (settings.view ?? "status") !== "control") {
       await this.runtime.refresh();
       return;
@@ -75,7 +81,8 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
   private async paint(key: KeyAction<DeviceSettings>, settings: DeviceSettings): Promise<void> {
     await paintDevice(key, this.runtime, settings);
     if (!this.alerts) return;
-    const device = this.runtime.device(settings.deviceId);
+    const deviceId = await this.runtime.selectedDeviceId(settings.deviceId);
+    const device = this.runtime.device(deviceId);
     if (!device) return;
     const threshold = Math.max(1, Math.min(99, Number(settings.lowBatteryThreshold ?? 20)));
     const before = this.lowState.get(key as object) ?? false;
