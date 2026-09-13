@@ -220,27 +220,37 @@ def readable_keys(out):
     img.convert("RGB").save(out / "05_gallery_03.png", quality=95)
 
 
-def local_architecture(out):
+def ready_made_dashboards(out):
     img = background()
-    title(img, "Local telemetry without another paid monitor", "Purpose-built providers, slow sensor polling, bounded history, and explicit permission states.")
+    title(img, "Start with a complete monitoring dashboard", "Four editable profiles are included for MK.2 / 15-key, XL, Stream Deck +, and Neo.")
     d = ImageDraw.Draw(img)
-    boxes = [
-        (150, "WINDOWS", "CPU + RAM fallback", "1 Hz", ACCENT),
-        (620, "LIBRE HARDWARE MONITOR", "Temps · load · power", "1 Hz", BLUE),
-        (1090, "PRESENTMON", "FPS · frametime", "100 ms buckets", WARN),
-        (1560, "STREAM DECK", "Readable keys", "≤ 4 Hz render", ACCENT),
+
+    base = [
+        dict(label="FPS", value="144", unit="", secondary="1% 118", values=[122,138,145,142,144], color=ACCENT),
+        dict(label="FRAME", value="7.1", unit="ms", secondary="SPIKE", values=[7,7,8,31,7], color=DANGER, alert=True),
+        dict(label="SESSION", value="42m", unit="", secondary="AVG 141", values=[]),
+        dict(label="GPU TEMP", value="73", unit="°C", secondary="5 MIN", values=[61,66,70,74,73], color=WARN),
+        dict(label="GPU LOAD", value="92", unit="%", secondary="60 SEC", values=[52,67,84,94,92], color=ACCENT),
+        dict(label="CPU LOAD", value="54", unit="%", secondary="5 MIN", values=[42,48,53,59,54], color=BLUE),
+        dict(label="RAM", value="68", unit="%", secondary="LOCAL", values=[]),
+        dict(label="GPU ALERT", value="73", unit="°C", secondary="NORMAL", values=[], color=ACCENT),
     ]
-    for x, heading, desc, cadence, color in boxes:
-        d.rounded_rectangle((x-115, 300, x+285, 560), 30, fill=(*PANEL, 245), outline=color, width=3)
-        d.text((x+85, 355), heading, font=font(21, True), fill=color, anchor="mm")
-        d.text((x+85, 425), desc, font=font(19), fill=WHITE, anchor="mm")
-        d.text((x+85, 478), cadence, font=font(17, True), fill=MUTED, anchor="mm")
-    for x in [450, 920, 1390]:
-        d.line((x, 430, x+75, 430), fill=(86, 98, 116), width=5)
-        d.polygon([(x+75,430),(x+58,420),(x+58,440)], fill=(86,98,116))
-    d.rounded_rectangle((370, 665, 1550, 760), 26, fill=(14, 20, 24), outline=(55, 70, 75), width=2)
-    d.text((960, 700), "NO API KEY  •  NO CLOUD  •  NO SCREEN SCRAPING  •  NO PAID SENSOR APP REQUIRED", font=font(20, True), fill=WHITE, anchor="mm")
-    d.text((960, 735), "PresentMon permission and unsupported hardware states are shown honestly.", font=font(17), fill=MUTED, anchor="mm")
+
+    def card(x, y, width, height, label, cols, rows, key_size, gap):
+        d.rounded_rectangle((x, y, x + width, y + height), 28, fill=(*PANEL, 245), outline=BORDER, width=2)
+        d.text((x + 28, y + 30), label, font=font(21, True), fill=WHITE)
+        d.text((x + width - 28, y + 31), f"{cols * rows} KEYS", font=font(16, True), fill=ACCENT, anchor="ra")
+        keys = [dict(base[i % len(base)]) for i in range(cols * rows)]
+        cluster_w = cols * key_size + (cols - 1) * gap
+        cluster_h = rows * key_size + (rows - 1) * gap
+        deck(img, x + (width - cluster_w) // 2, y + 62 + max(0, (height - 78 - cluster_h) // 2), keys, key_size=key_size, gap=gap, cols=cols)
+
+    card(90, 275, 805, 275, "MK.2 / 15-KEY", 5, 3, 61, 8)
+    card(1025, 275, 805, 275, "XL", 8, 4, 43, 5)
+    card(190, 630, 650, 215, "STREAM DECK +", 4, 2, 64, 8)
+    card(1080, 630, 650, 215, "NEO", 4, 2, 64, 8)
+
+    d.text((960, 885), "EDITABLE AFTER INSTALL  •  NO AUTO-SWITCH  •  SAME FIVE PERFORMANCE GRAPHER ACTIONS", font=font(18, True), fill=MUTED, anchor="mm")
     signature(img)
     img.convert("RGB").save(out / "06_gallery_04.png", quality=95)
 
@@ -280,7 +290,7 @@ def main():
     history_context(out)
     session_summary(out)
     readable_keys(out)
-    local_architecture(out)
+    ready_made_dashboards(out)
     thumbnail_review(out)
     required = ["01_search_icon.png", "02_cover.png", "03_gallery_01.png", "04_gallery_02.png", "05_gallery_03.png", "06_gallery_04.png"]
     for name in required:
