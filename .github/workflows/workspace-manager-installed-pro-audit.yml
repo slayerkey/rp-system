@@ -1,0 +1,105 @@
+name: Workspace Manager Installed Pro Redundancy Audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/workspace-manager-installed-pro-audit.yml'
+      - 'plugins/workspace-manager-pro/**'
+      - 'products/workspace-manager-pro.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64, packrat]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inspect installed Window Manager Pro behavior without exposing source
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $roots = @(
+            (Join-Path $env:APPDATA 'Elgato\StreamDeck\Plugins\com.packrat.windowmanagerpro.sdPlugin'),
+            (Join-Path $env:APPDATA 'Elgato\StreamDeck\Plugins')
+          )
+          $plugin = $null
+          foreach ($root in $roots) {
+            if (-not (Test-Path $root)) { continue }
+            if ((Split-Path $root -Leaf) -eq 'com.packrat.windowmanagerpro.sdPlugin') {
+              $plugin = $root
+              break
+            }
+            $candidate = Get-ChildItem -LiteralPath $root -Directory -Filter 'com.packrat.windowmanagerpro.sdPlugin' -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($candidate) { $plugin = $candidate.FullName; break }
+          }
+          if (-not $plugin) {
+            Write-Host 'INSTALLED_PRO_FOUND=false'
+            exit 2
+          }
+          Write-Host 'INSTALLED_PRO_FOUND=true'
+
+          $manifestPath = Join-Path $plugin 'manifest.json'
+          if (-not (Test-Path $manifestPath)) { throw 'Installed Pro manifest missing' }
+          $manifest = Get-Content -Raw $manifestPath | ConvertFrom-Json
+          Write-Host ('UUID=' + $manifest.UUID)
+          Write-Host ('VERSION=' + $manifest.Version)
+
+          $layout = $manifest.Actions | Where-Object { $_.UUID -eq 'com.packrat.windowmanagerpro.layout' } | Select-Object -First 1
+          if (-not $layout) { throw 'Window Layout action missing from installed Pro' }
+          Write-Host ('LAYOUT_NAME=' + $layout.Name)
+          Write-Host ('LAYOUT_TOOLTIP=' + $layout.Tooltip)
+          Write-Host ('LAYOUT_PI=' + $layout.PropertyInspectorPath)
+
+          $textFiles = Get-ChildItem -Recurse -File $plugin | Where-Object { $_.Extension -in @('.js','.mjs','.cjs','.html','.json') }
+          $allText = ($textFiles | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
+          $layoutFiles = $textFiles | Where-Object { $_.Name -match '(?i)layout' -or $_.FullName -match '(?i)layout' }
+          $layoutText = ($layoutFiles | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
+
+          function Signal([string]$name, [string]$pattern, [string]$scope='all') {
+            $source = if ($scope -eq 'layout') { $layoutText } else { $allText }
+            $present = [bool]($source -match $pattern)
+            Write-Host ($name + '=' + $present.ToString().ToLowerInvariant())
+          }
+
+          Signal 'SIGNAL_WORKSPACE_LITERAL' '(?i)workspace'
+          Signal 'SIGNAL_SAVE_WORKSPACE' '(?i)save.{0,30}workspace'
+          Signal 'SIGNAL_RESTORE_WORKSPACE' '(?i)restore.{0,30}workspace'
+          Signal 'SIGNAL_LAUNCH_APP' '(?i)(spawn|execFile|ShellExecute|CreateProcess|launch.{0,20}(app|exe|process))'
+          Signal 'SIGNAL_WINDOW_COLLECTION_PERSISTENCE' '(?i)(windows|windowList).{0,80}(JSON|stringify|settings|persist|save)'
+          Signal 'SIGNAL_FOREGROUND_OR_ACTIVE' '(?i)(GetForegroundWindow|foregroundWindow|activeWindow|frontmost)' 'layout'
+          Signal 'SIGNAL_SINGLE_WINDOW_MOVE' '(?i)(SetWindowPos|MoveWindow|moveWindow|setBounds|setRect)' 'layout'
+          Signal 'SIGNAL_LAYOUT_PRESET' '(?i)(preset|left.?half|right.?half|top.?left|top.?right|bottom.?left|bottom.?right|center)' 'layout'
+          Signal 'SIGNAL_ENUM_WINDOWS_IN_LAYOUT' '(?i)(EnumWindows|enumerateWindows|listWindows)' 'layout'
+
+          if ($layoutFiles.Count -gt 0) {
+            foreach ($file in $layoutFiles) {
+              $hash = (Get-FileHash -Algorithm SHA256 $file.FullName).Hash.ToLowerInvariant()
+              Write-Host ('LAYOUT_FILE=' + $file.FullName.Substring($plugin.Length + 1) + '|sha256=' + $hash)
+            }
+          }
+
+          $piPath = if ($layout.PropertyInspectorPath) { Join-Path $plugin $layout.PropertyInspectorPath } else { $null }
+          if ($piPath -and (Test-Path $piPath)) {
+            $html = Get-Content -Raw $piPath
+            $labels = [regex]::Matches($html, '(?i)<(?:label|option)[^>]*>([^<]{1,80})</(?:label|option)>') |
+              ForEach-Object { ($_.Groups[1].Value -replace '\s+',' ').Trim() } |
+              Where-Object { $_ } |
+              Select-Object -Unique
+            Write-Host ('LAYOUT_PI_LABELS=' + ($labels -join ' | '))
+            $values = [regex]::Matches($html, '(?i)<option[^>]*value=["'']([^"'']+)["''][^>]*>([^<]+)</option>') |
+              ForEach-Object { $_.Groups[1].Value + ':' + (($_.Groups[2].Value -replace '\s+',' ').Trim()) } |
+              Select-Object -Unique
+            Write-Host ('LAYOUT_PI_OPTIONS=' + ($values -join ' | '))
+          }
+
+          $completeWorkspace = [bool](
+            ($allText -match '(?i)save.{0,30}workspace') -or
+            ($allText -match '(?i)restore.{0,30}workspace') -or
+            (($allText -match '(?i)workspace') -and ($allText -match '(?i)(spawn|execFile|CreateProcess|ShellExecute)'))
+          )
+          Write-Host ('COMPLETE_WORKSPACE_CAPTURE_RESTORE=' + $completeWorkspace.ToString().ToLowerInvariant())
