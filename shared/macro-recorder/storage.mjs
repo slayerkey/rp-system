@@ -8,6 +8,27 @@ function defaultPath() {
   return join(root, "PackRat", "Macro Recorder Pro", "library.json");
 }
 
+function parseLibrary(raw) {
+  const parsed = JSON.parse(raw);
+  if (Number(parsed?.schema) !== 1 || !Array.isArray(parsed?.macros)) {
+    throw new Error("Unsupported or malformed Macro Library.");
+  }
+  const normalized = parsed.macros.map((macro) => {
+    if (!macro || typeof macro !== "object" || !Array.isArray(macro.events)) {
+      throw new Error("Malformed macro entry in Macro Library.");
+    }
+    const next = normalizeMacro(macro, { pro: true });
+    if (!next.events.length) throw new Error("Macro Library entry contains no playable events.");
+    return next;
+  });
+  const ids = new Set();
+  for (const macro of normalized) {
+    if (ids.has(macro.id)) throw new Error("Macro Library contains duplicate macro IDs.");
+    ids.add(macro.id);
+  }
+  return normalized;
+}
+
 export class MacroLibrary {
   constructor(file = defaultPath()) {
     this.file = file;
@@ -20,29 +41,29 @@ export class MacroLibrary {
   async load() {
     this.warning = "";
     try {
-      const parsed = JSON.parse(await readFile(this.file, "utf8"));
-      if (Number(parsed?.schema) !== 1 || !Array.isArray(parsed?.macros)) {
-        throw new Error("Unsupported or malformed Macro Library.");
-      }
-      const normalized = parsed.macros.map((macro) => {
-        if (!macro || typeof macro !== "object" || !Array.isArray(macro.events)) {
-          throw new Error("Malformed macro entry in Macro Library.");
-        }
-        const next = normalizeMacro(macro, { pro: true });
-        if (!next.events.length) throw new Error("Macro Library entry contains no playable events.");
-        return next;
-      });
-      const ids = new Set();
-      for (const macro of normalized) {
-        if (ids.has(macro.id)) throw new Error("Macro Library contains duplicate macro IDs.");
-        ids.add(macro.id);
-      }
-      this.macros = normalized;
+      this.macros = parseLibrary(await readFile(this.file, "utf8"));
+      return this;
     } catch (error) {
       if (error?.code === "ENOENT") {
-        this.macros = [];
-        return this;
+        const temp = `${this.file}.tmp`;
+        try {
+          const recovered = parseLibrary(await readFile(temp, "utf8"));
+          await mkdir(dirname(this.file), { recursive: true });
+          await rename(temp, this.file);
+          this.macros = recovered;
+          this.warning = "Recovered the Macro Library from an interrupted save.";
+          return this;
+        } catch (tempError) {
+          if (tempError?.code === "ENOENT") {
+            this.macros = [];
+            return this;
+          }
+          this.macros = [];
+          this.warning = "An interrupted Macro Library save could not be recovered.";
+          return this;
+        }
       }
+
       let backupPreserved = false;
       try {
         await mkdir(dirname(this.file), { recursive: true });
@@ -53,8 +74,8 @@ export class MacroLibrary {
         ? "The macro library was corrupt and was reset. A backup was preserved."
         : "The macro library was corrupt and was reset. The original file could not be preserved as a backup.";
       this.macros = [];
+      return this;
     }
-    return this;
   }
 
   list() {
