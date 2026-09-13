@@ -35,3 +35,40 @@ test("Lite filters mouse input and fixes playback to one pass",()=>{
  assert.equal(macro.events.length,1);
  assert.deepEqual(playbackSettings({playbackMode:"toggle",playbackSpeed:4},{pro:false}),{speed:1,mode:"once",repeatCount:1,coordinateMode:"absolute"});
 });
+
+test("rapid keyboard sequences retain every event in order",()=>{
+ const events=[];
+ for(let i=0;i<12;i++){
+  const vk=65+(i%4);
+  events.push({type:"keyDown",vk,delayMs:0},{type:"keyUp",vk,delayMs:1});
+ }
+ const macro=normalizeMacro({events},{pro:false,limits});
+ assert.equal(macro.events.length,24);
+ assert.deepEqual(macro.events.slice(0,4).map(e=>e.type),["keyDown","keyUp","keyDown","keyUp"]);
+});
+
+test("Windows key survives normalization and balanced playback validation",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"keyDown",vk:91,name:"Left Windows",delayMs:5},
+  {type:"keyDown",vk:82,name:"R",delayMs:25},
+  {type:"keyUp",vk:82,name:"R",delayMs:20},
+  {type:"keyUp",vk:91,name:"Left Windows",delayMs:10}
+ ]},{pro:false,limits});
+ assert.deepEqual(macro.events.map(e=>e.vk),[91,82,82,91]);
+ assert.equal(validateMacro(macro,{pro:false}).unmatchedKeys.length,0);
+});
+
+test("unmatched key-down is surfaced for edited or truncated recordings",()=>{
+ const macro=normalizeMacro({events:[{type:"keyDown",vk:16,name:"Shift",delayMs:5}]},{pro:false,limits});
+ const result=validateMacro(macro,{pro:false});
+ assert.deepEqual(result.unmatchedKeys,[16]);
+});
+
+test("slow sequence just inside Lite duration remains valid",()=>{
+ const macro=normalizeMacro({events:[
+  {type:"keyDown",vk:65,delayMs:29_000},
+  {type:"keyUp",vk:65,delayMs:900}
+ ]},{pro:false,limits});
+ assert.equal(macro.events.length,2);
+ assert.equal(macro.durationMs,29_900);
+});
