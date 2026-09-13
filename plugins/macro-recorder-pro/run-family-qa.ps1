@@ -133,7 +133,38 @@ if (-not $SkipArt) {
     $Hero = Join-Path $MediaRoot "01-hero.png"
     if (-not (Test-Path $AppIcon)) { throw "Missing 288x288 Marketplace app icon: $AppIcon" }
     if (-not (Test-Path $Hero)) { throw "Missing Marketplace thumbnail: $Hero" }
-    $Gallery = @(Get-ChildItem $MediaRoot -Filter "0[2-4]-*.png" -File)
+    $Gallery = @(Get-ChildItem $MediaRoot -File | Where-Object { $_.Name -match '^0[2-4]-.*\.png
+  }
+}
+
+$HelperMb = [math]::Round((Get-Item $HelperExe).Length / 1MB, 2)
+Write-Host "Native helper size: $HelperMb MB"
+foreach ($Slug in @("macro-recorder-lite","macro-recorder-pro")) {
+  $Package = @(Get-ChildItem (Join-Path $Root "plugins\$Slug\dist") -Filter *.streamDeckPlugin -File)
+  if ($Package.Count -eq 1) {
+    $PackageMb = [math]::Round($Package[0].Length / 1MB, 2)
+    Write-Host "$Slug package size: $PackageMb MB"
+  }
+}
+
+Write-Host "[7/7] Automated local QA complete" -ForegroundColor Green
+if ($ReleaseCandidate) { Write-Host "Native release gate is marked ready." -ForegroundColor Green }
+Write-Host ""
+Write-Host "Still required before READY_TO_SHIP:" -ForegroundColor Yellow
+Write-Host "  - real recording/playback smoke on Windows"
+Write-Host "  - modifiers and Windows key"
+Write-Host "  - Pro click/drag/wheel"
+Write-Host "  - multi-monitor + 100/125/150% DPI"
+Write-Host "  - interrupt playback with Stop and Ctrl+Shift+F12"
+Write-Host "  - kill helper during held modifier, restart, confirm recovery"
+Write-Host "  - Stream Deck restart persistence"
+Write-Host "  - Pro loop cancellation + corrupt library recovery"
+Write-Host ""
+Write-Host "Do not ship until those host/device checks pass."
+Write-Host ""
+Write-Host "For the final release-candidate gate after native fixes:" -ForegroundColor Cyan
+Write-Host "  powershell -ExecutionPolicy Bypass -File .\plugins\macro-recorder-pro\run-family-qa.ps1 -ReleaseCandidate"
+ })
     if ($Gallery.Count -ne 3) { throw "$Slug expected exactly three Marketplace gallery images; found $($Gallery.Count)." }
   }
 }
