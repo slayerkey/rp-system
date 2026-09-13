@@ -64,6 +64,39 @@ function Read-RatDevJsonFromGitObject {
     }
 }
 
+
+function Resolve-RatDevProductMetadataSource {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$Ref,
+        [Parameter(Mandatory = $true)][string]$Slug
+    )
+
+    $metadata = Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object "${Ref}:products/$Slug.json"
+    if (-not $metadata) { return $null }
+    if ([string]$metadata.type -ne "plugin") { return $null }
+    if (-not $metadata.source) { return $null }
+
+    $sourcePath = [string]$metadata.source
+    if (-not (Test-RatDevGitObject -RepoRoot $RepoRoot -Object "${Ref}:$sourcePath")) {
+        return $null
+    }
+
+    $config = [PSCustomObject]@{
+        type = "streamdeck-plugin"
+        plugin_dir = if ($metadata.ship_plugin_dir) { [string]$metadata.ship_plugin_dir } else { $null }
+        plugin_uuid = if ($metadata.plugin_uuid) { [string]$metadata.plugin_uuid } else { $null }
+    }
+
+    return [PSCustomObject]@{
+        Kind = "ratpack"
+        Ref = $Ref
+        Config = $config
+        SourceRoot = $sourcePath.Replace("/", "\")
+        Display = "$Ref via products/$Slug.json"
+    }
+}
+
 function Get-RatDevProductRefs {
     param([Parameter(Mandatory = $true)][string]$RepoRoot)
 
@@ -102,6 +135,17 @@ function Resolve-RatDevInternalProductSource {
 
     foreach ($ref in $orderedRefs) {
         if (-not (Test-RatDevGitRef -RepoRoot $RepoRoot -Ref $ref)) { continue }
+
+        # Canonical product metadata can point multiple SKUs at one shared source
+        # directory, e.g. Lite + Pro editions under plugins/<family>.
+        $metadataMatch = Resolve-RatDevProductMetadataSource -RepoRoot $RepoRoot -Ref $ref -Slug $Slug
+        if ($metadataMatch) {
+            if ($ref -eq $exact -or ($familySlug -ne $Slug -and $ref -eq "origin/product/$familySlug")) {
+                return $metadataMatch
+            }
+            $matches += $metadataMatch
+            continue
+        }
 
         $pluginObject = "${ref}:plugins/$Slug"
         $widgetObject = "${ref}:widgets/_src/$Slug"
