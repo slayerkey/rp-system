@@ -2,6 +2,7 @@ name: XENEON Lite Pro Link Rebuild
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
     paths:
       - widgets/_src/weather-timeline/**
@@ -23,8 +24,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: xeneon-lite-pro-links-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   package:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     name: Package ${{ matrix.slug }}
     runs-on: ubuntu-latest
     strategy:
@@ -95,6 +101,7 @@ jobs:
           retention-days: 30
 
   smoke:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     name: Exact-package smoke ${{ matrix.slug }}
     needs: package
     runs-on: ubuntu-latest
