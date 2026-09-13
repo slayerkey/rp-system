@@ -90,7 +90,7 @@ def capabilities(path):
     footer(im); save(im,path)
 
 def profiles(path):
-    im=bg(); header(im,"Starter profiles included.","Standard / MK, XL, Stream Deck+ and Virtual Stream Deck layouts use real plugin actions.")
+    im=bg(); header(im,"Starter profiles included.","Standard / MK.2, XL, Stream Deck+ and Virtual Stream Deck layouts use real plugin actions.")
     labels=[("MONITORS","STATUS",ACCENT),("65%","BRIGHTNESS",ACCENT),("POWER","DDC/CI",WARN),("60 HZ","DISPLAY",ACCENT),("120 HZ","DISPLAY",ACCENT),
             ("144 HZ","DISPLAY",ACCENT),("165 HZ","DISPLAY",ACCENT),("240 HZ","DISPLAY",ACCENT),("25%","BRIGHTNESS",ACCENT),("50%","BRIGHTNESS",ACCENT),
             ("65%","BRIGHTNESS",ACCENT),("80%","BRIGHTNESS",ACCENT),("BRIGHT -","5%",ACCENT),("BRIGHT +","5%",ACCENT),("STATUS","CURRENT",ACCENT)]
