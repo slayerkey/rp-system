@@ -35,6 +35,9 @@ jobs:
               print(f'OK {path}')
           PY
 
+      - name: Validate plugin release metadata
+        run: python tests/check_plugin_release_metadata.py
+
       - name: Validate Maker Console runtime patches
         run: node tests/check_maker_console_patch.mjs
 

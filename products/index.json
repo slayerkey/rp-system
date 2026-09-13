@@ -779,7 +779,7 @@
       "id": "window-manager",
       "name": "Window Manager Lite",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 0,
       "version": "1.0.0.3"
     },
@@ -787,9 +787,9 @@
       "id": "window-manager-pro",
       "name": "Window Manager Pro",
       "type": "plugin",
-      "status": "submitted",
+      "status": "published",
       "price_usd": 6.99,
-      "version": "1.0.0.1"
+      "version": "1.1.0.0"
     },
     {
       "id": "window-manager-xeneon",
