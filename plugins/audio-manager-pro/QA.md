@@ -53,7 +53,7 @@ The corrected source received an additional implementation-session preflight:
 - current Property Inspector source parses successfully
 - current profile logic source parses successfully
 - current tests parse successfully
-- the exact current pure source/test files were materialized from GitHub and executed with Node's built-in test runner after the final logic hardening: **39 tests passed, 0 failed**
+- the exact current pure source/test files were materialized from GitHub and executed with Node's built-in test runner after the final logic hardening: **41 tests passed, 0 failed**
 - current branch pure logic executes successfully for settings normalization, role capture, endpoint recreation, conservative Container ID + endpoint-name rebinding, proof that instance ID alone cannot authorize an automatic rebind, missing-device handling, Console/Multimedia drift detection, contradictory-state suppression, cycle recovery, exact-capture preflight, post-operation verification, backend-offline truthfulness, fail-closed status, Unicode rendering, and role-aware key labels
 - Rat Art V2 Python source compiles
 - Rat Art V2 renderer was exercised off-runner through all six required Marketplace outputs at the expected dimensions; exact canonical-logo release rendering still belongs to the official release gate
