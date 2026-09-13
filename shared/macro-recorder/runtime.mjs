@@ -30,6 +30,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   let playback = null;
   let lastError = "";
   let latestSignature = "";
+  let recoveringCrash = false;
 
   function settingsFor(kind, raw = {}) {
     const source = raw && typeof raw === "object" ? raw : {};
@@ -153,12 +154,23 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   host.on("crash", () => { void recoverFromCrash(); });
 
   async function recoverFromCrash() {
+    if (recoveringCrash) return;
+    recoveringCrash = true;
     playback = null;
     recording = null;
-    lastError = "The input engine stopped unexpectedly. Playback was cancelled; exact held-input recovery will run when the local input host restarts.";
+    lastError = "The input engine stopped unexpectedly. Playback was cancelled; one local recovery restart will be attempted.";
     await renderAll();
     await broadcastInspectors();
-    try { await host.ensure(); } catch {}
+    try {
+      await host.ensure();
+      lastError = "The input engine restarted after a crash and ran held-input recovery.";
+    } catch {
+      lastError = "The input engine could not restart automatically. Playback remains stopped; the next action will retry the local helper.";
+    } finally {
+      recoveringCrash = false;
+      await renderAll();
+      await broadcastInspectors();
+    }
   }
 
   async function startRecording(record) {
