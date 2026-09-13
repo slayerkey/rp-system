@@ -190,7 +190,7 @@
       "Name": "Windows HDR",
       "UUID": "com.packrat.monitormanagerpro.hdr",
       "Icon": "imgs/actions/common/icon",
-      "Tooltip": "Toggle or set Windows HDR where the active display path supports advanced color.",
+      "Tooltip": "Toggle or set true Windows HDR when Windows 11 24H2+ reports HDR support for the selected active display.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
         "Keypad"
