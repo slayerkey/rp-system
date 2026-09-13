@@ -13,7 +13,7 @@
   "submission_metadata": "plugins/window-manager-pro/submission.json",
   "source_repository": "https://github.com/slayerkey/vcs.git",
   "source_ref": "refs/heads/product/window-manager-pro",
-  "source_commit": "bc159fa28be9cca9763dab8dc067076a619e0fca",
+  "source_commit": "c1041c259345c0d4bc27b88848dd5667d50bc246",
   "plugin_uuid": "com.packrat.windowmanagerpro",
   "marketplace_product_id": "f3ed6217-0282-419d-a71d-4b1548147b11",
   "marketplace_url": "https://marketplace.elgato.com/product/window-manager-pro-f3ed6217-0282-419d-a71d-4b1548147b11",
@@ -21,7 +21,7 @@
   "lite_marketplace_product_id": "a7693b4c-4afd-4dce-925a-262fd23b1f23",
   "lite_marketplace_url": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23",
   "release_gate": [
-    "53 deterministic branch checks: PASS",
+    "54 deterministic branch checks: PASS",
     "750 generated optimal-assignment cross-checks against brute force: PASS",
     "published plugin/action UUID compatibility: PASS",
     "live 1.1 Marketplace contract preserved: Windows + macOS, Stream Deck 6.9+, dial support, Profiles: No",
