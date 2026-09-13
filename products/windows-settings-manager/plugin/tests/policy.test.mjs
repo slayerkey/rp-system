@@ -86,10 +86,13 @@ test("backend forbids brittle UI automation and uses supported Windows control s
     "powercfg.exe"
   ]) assert.match(backend, new RegExp(required));
 
-  assert.match(backend, /Build >= 22000/);
-  assert.doesNotMatch(backend, /Build >= 26100/);
+  assert.match(backend, /Build >= 26100/);
+  assert.doesNotMatch(backend, /Build >= 22000/);
   assert.match(backend, /enabled = info\.activeColorMode == 2;/);
   assert.doesNotMatch(backend, /activeColorMode == 2 \|\|/);
+  assert.match(backend, /wideColorEnforced/);
+  assert.match(backend, /advancedColorForceDisabled/);
+  assert.match(backend, /supported = advancedColorSupported && !wideColorEnforced && !advancedColorForceDisabled;/);
   assert.match(backend, /sourceKeys\.Count == 1/);
   assert.match(backend, /sourceKeys\.Count == paths\.Length/);
   assert.match(backend, /mixed clone \+ extend graph/i);

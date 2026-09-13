@@ -298,8 +298,16 @@ public static class PackRatWindowsNative
             error = "GET_ADVANCED_COLOR_INFO failed: " + rc;
             return false;
         }
-        supported = (info.flags & 1u) != 0;
-        enabled = (info.flags & 2u) != 0;
+        bool advancedColorSupported = (info.flags & 1u) != 0;
+        bool advancedColorEnabled = (info.flags & 2u) != 0;
+        bool wideColorEnforced = (info.flags & (1u << 2)) != 0;
+        bool advancedColorForceDisabled = (info.flags & (1u << 3)) != 0;
+
+        // Before Windows 11 24H2, "Advanced Color" also covers SDR WCG /
+        // automatic color management. wideColorEnforced distinguishes that
+        // SDR path from HDR-capable output on these builds.
+        supported = advancedColorSupported && !wideColorEnforced && !advancedColorForceDisabled;
+        enabled = supported && advancedColorEnabled;
         error = null;
         return true;
     }
@@ -319,11 +327,10 @@ public static class PackRatWindowsNative
             string error;
 
             bool got;
-            if (Environment.OSVersion.Version.Build >= 22000)
+            if (Environment.OSVersion.Version.Build >= 26100)
             {
-                // Windows 11 exposes HDR-specific state. Do not fall back to
-                // legacy "Advanced Color" here because that can also represent
-                // WCG/ACM on SDR displays and would create a false HDR state.
+                // Windows 11 24H2+ exposes HDR-specific state, separating HDR
+                // from SDR WCG/automatic color management.
                 got = TryReadNewHdr(path.targetInfo, out supported, out enabled, out error);
                 if (got) usedNew = true;
                 else if (!String.IsNullOrWhiteSpace(error)) errors.Add(error);
@@ -382,7 +389,7 @@ public static class PackRatWindowsNative
 
     private static bool SetHdrForTarget(PathTargetInfo target, bool enabled)
     {
-        if (Environment.OSVersion.Version.Build >= 22000)
+        if (Environment.OSVersion.Version.Build >= 26100)
         {
             bool supported;
             bool current;
@@ -428,7 +435,7 @@ public static class PackRatWindowsNative
             bool current;
             string error;
             bool readable;
-            if (Environment.OSVersion.Version.Build >= 22000)
+            if (Environment.OSVersion.Version.Build >= 26100)
                 readable = TryReadNewHdr(path.targetInfo, out isSupported, out current, out error);
             else
                 readable = TryReadLegacyHdr(path.targetInfo, out isSupported, out current, out error);
