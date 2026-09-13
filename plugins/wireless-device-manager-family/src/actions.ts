@@ -80,6 +80,7 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
       }
     }
 
+    this.runtime.notify();
     await this.runtime.sendInspector();
   }
 
