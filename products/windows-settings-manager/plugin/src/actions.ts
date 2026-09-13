@@ -210,9 +210,13 @@ class CycleModeBase extends LiveTitleAction<Record<string, never>> {
     const baseId = matching?.id || this.lastId;
     const index = Math.max(-1, available.findIndex((mode) => mode.id === baseId));
     const mode = available[(index + 1) % available.length];
-    this.lastId = mode.id;
     const result = await applyMode(mode, (op, args) => runtime.state.execute(op, args));
-    result.status === "COMPLETE" ? await ev.action.showOk() : await ev.action.showAlert();
+    if (result.status === "COMPLETE") {
+      this.lastId = mode.id;
+      await ev.action.showOk();
+    } else {
+      await ev.action.showAlert();
+    }
   }
 }
 
