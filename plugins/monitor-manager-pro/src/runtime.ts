@@ -264,6 +264,8 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
       if(profile.topology&&profile.topology!=="unknown") await this.bridge.request("set-topology",{mode:profile.topology},12000);
     } catch(e:any) { errors.push("topology: "+e.message); }
     this.invalidate();
+
+    const pendingInputs:ProfileMonitor[]=[];
     const current:any=await this.scan(true);
     for(const saved of profile.monitors) {
       const monitor=matchSavedMonitor(saved,current.monitors??[]);
@@ -286,26 +288,42 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
           await this.bridge.request("set-contrast",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
         }
       } catch(e:any) { errors.push(saved.description+" contrast: "+e.message); }
-      for(const [field,code] of [["volume",SAFE_VCP.AUDIO_VOLUME],["input",SAFE_VCP.INPUT_SOURCE]] as const) {
-        const value=(saved as any)[field]; if(value===undefined) continue;
+      if(saved.volume!==undefined) {
         try {
-          const support=vcpSupport(monitor.capabilities,code);
-          if(support.state!==SUPPORT.SUPPORTED) continue;
-          let native=Number(value);
-          if(field==="volume") {
-            const currentV=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code});
-            if(Number(currentV.maximum)<=0) continue;
-            native=Math.round((Number(value)/100)*Number(currentV.maximum));
+          const support=vcpSupport(monitor.capabilities,SAFE_VCP.AUDIO_VOLUME);
+          if(support.state===SUPPORT.SUPPORTED) {
+            const currentV=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME});
+            if(Number(currentV.maximum)>0) {
+              const native=Math.round((Number(saved.volume)/100)*Number(currentV.maximum));
+              await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME,value:native});
+            }
           }
-          if(field==="input"&&support.values.length&&!support.values.includes(native)) continue;
-          await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code,value:native});
-        } catch(e:any) { errors.push(saved.description+" "+field+": "+e.message); }
+        } catch(e:any) { errors.push(saved.description+" volume: "+e.message); }
       }
+      if(saved.input!==undefined) pendingInputs.push(saved);
     }
+
     if(profile.internalBrightness!==undefined) {
       try { await this.bridge.request("set-brightness",{kind:"internal",value:profile.internalBrightness}); }
       catch(e:any) { errors.push("internal brightness: "+e.message); }
     }
+
+    // Inputs are restored last because changing a monitor away from the PC can
+    // remove that display/DDC path and invalidate work still pending elsewhere.
+    for(const saved of pendingInputs) {
+      try {
+        this.invalidate();
+        const live:any=await this.scan(true);
+        const monitor=matchSavedMonitor(saved,live.monitors??[]);
+        if(!monitor) continue;
+        const support=vcpSupport(monitor.capabilities,SAFE_VCP.INPUT_SOURCE);
+        const native=Number(saved.input);
+        if(support.state!==SUPPORT.SUPPORTED) continue;
+        if(support.values.length&&!support.values.includes(native)) continue;
+        await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.INPUT_SOURCE,value:native});
+      } catch(e:any) { errors.push(saved.description+" input: "+e.message); }
+    }
+
     this.invalidate();
     return errors;
   }
@@ -316,12 +334,15 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
     if(!profile) throw new Error("Monitor Profile not found: "+name);
     const before=await this.capture("__rollback__");
     const steps:Step[]=[];
+    const pendingInputs:ProfileMonitor[]=[];
+
     try {
       if(profile.topology&&profile.topology!=="unknown") {
         await this.bridge.request("set-topology",{mode:profile.topology},12000);
         steps.push({item:"Display topology",status:"COMPLETE"});
         this.invalidate();
       }
+
       const snapshot:any=await this.scan(true);
       for(const saved of profile.monitors) {
         const monitor=matchSavedMonitor(saved,snapshot.monitors??[]);
@@ -329,6 +350,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
           steps.push({item:saved.description,status:"SKIPPED",message:"Monitor is not present or matching is ambiguous."});
           continue;
         }
+
         if(saved.mode) {
           if(modeSupported(monitor.modes,saved.mode)) {
             await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...saved.mode,primary:Boolean(saved.primary)},12000);
@@ -337,51 +359,85 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
             steps.push({item:saved.description+" display mode",status:"SKIPPED",message:"Saved resolution / Hz / orientation is unavailable."});
           }
         }
+
         if(saved.hdr!==undefined) {
           if(monitor.hdrState===SUPPORT.SUPPORTED) {
             await this.bridge.request("set-hdr",{deviceName:monitor.deviceName,enabled:saved.hdr});
             steps.push({item:saved.description+" HDR",status:"COMPLETE"});
-          } else steps.push({item:saved.description+" HDR",status:"SKIPPED",message:"HDR is not supported on the current display path."});
+          } else {
+            steps.push({item:saved.description+" HDR",status:"SKIPPED",message:"True HDR support is not proven on the current Windows display path."});
+          }
         }
+
         if(saved.brightness!==undefined) {
           if(monitor.ddcBrightness) {
             const native=nativePercent(Number(monitor.brightnessMin??0),Number(monitor.brightnessMax??100),saved.brightness);
             await this.bridge.request("set-brightness",{kind:"ddc",deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
             steps.push({item:saved.description+" brightness",status:"COMPLETE"});
-          } else steps.push({item:saved.description+" brightness",status:"SKIPPED",message:"DDC brightness unavailable."});
+          } else {
+            steps.push({item:saved.description+" brightness",status:"SKIPPED",message:"DDC brightness unavailable."});
+          }
         }
+
         if(saved.contrast!==undefined) {
           if(monitor.ddcContrast) {
             const native=nativePercent(Number(monitor.contrastMin??0),Number(monitor.contrastMax??100),saved.contrast);
             await this.bridge.request("set-contrast",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
             steps.push({item:saved.description+" contrast",status:"COMPLETE"});
-          } else steps.push({item:saved.description+" contrast",status:"SKIPPED",message:"DDC contrast unavailable."});
+          } else {
+            steps.push({item:saved.description+" contrast",status:"SKIPPED",message:"DDC contrast unavailable."});
+          }
         }
-        for(const [field,code] of [["volume",SAFE_VCP.AUDIO_VOLUME],["input",SAFE_VCP.INPUT_SOURCE]] as const) {
-          const stored=(saved as any)[field]; if(stored===undefined) continue;
-          const support=vcpSupport(monitor.capabilities,code);
+
+        if(saved.volume!==undefined) {
+          const support=vcpSupport(monitor.capabilities,SAFE_VCP.AUDIO_VOLUME);
           if(support.state!==SUPPORT.SUPPORTED) {
-            steps.push({item:saved.description+" "+field,status:"SKIPPED",message:"VCP feature is not advertised."}); continue;
+            steps.push({item:saved.description+" volume",status:"SKIPPED",message:"VCP volume is not advertised."});
+          } else {
+            const v=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME});
+            if(Number(v.maximum)<=0) {
+              steps.push({item:saved.description+" volume",status:"SKIPPED",message:"Volume range unknown."});
+            } else {
+              const native=Math.round((Number(saved.volume)/100)*Number(v.maximum));
+              await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME,value:native});
+              steps.push({item:saved.description+" volume",status:"COMPLETE"});
+            }
           }
-          let native=Number(stored);
-          if(field==="volume") {
-            const v=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code});
-            if(Number(v.maximum)<=0) { steps.push({item:saved.description+" volume",status:"SKIPPED",message:"Volume range unknown."}); continue; }
-            native=Math.round((Number(stored)/100)*Number(v.maximum));
-          }
-          if(field==="input"&&support.values.length&&!support.values.includes(native)) {
-            steps.push({item:saved.description+" input",status:"SKIPPED",message:"Saved input is not advertised by the current monitor."}); continue;
-          }
-          await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code,value:native});
-          steps.push({item:saved.description+" "+field,status:"COMPLETE"});
         }
+
+        if(saved.input!==undefined) pendingInputs.push(saved);
       }
+
       if(profile.internalBrightness!==undefined&&snapshot.internalBrightness?.available) {
         await this.bridge.request("set-brightness",{kind:"internal",value:profile.internalBrightness});
         steps.push({item:"Internal panel brightness",status:"COMPLETE"});
       } else if(profile.internalBrightness!==undefined) {
         steps.push({item:"Internal panel brightness",status:"SKIPPED",message:"No internal brightness device is active."});
       }
+
+      // Input changes are intentionally the final transaction phase.
+      for(const saved of pendingInputs) {
+        this.invalidate();
+        const live:any=await this.scan(true);
+        const monitor=matchSavedMonitor(saved,live.monitors??[]);
+        if(!monitor) {
+          steps.push({item:saved.description+" input",status:"SKIPPED",message:"Monitor disappeared before the final input-switch phase."});
+          continue;
+        }
+        const support=vcpSupport(monitor.capabilities,SAFE_VCP.INPUT_SOURCE);
+        const native=Number(saved.input);
+        if(support.state!==SUPPORT.SUPPORTED) {
+          steps.push({item:saved.description+" input",status:"SKIPPED",message:"Input switching is not advertised."});
+          continue;
+        }
+        if(support.values.length&&!support.values.includes(native)) {
+          steps.push({item:saved.description+" input",status:"SKIPPED",message:"Saved input is not advertised by the current monitor."});
+          continue;
+        }
+        await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.INPUT_SOURCE,value:native});
+        steps.push({item:saved.description+" input",status:"COMPLETE"});
+      }
+
       this.invalidate();
       return {status:classifyProfileResult(steps),steps,rollbackErrors:[]};
     } catch(error:any) {
