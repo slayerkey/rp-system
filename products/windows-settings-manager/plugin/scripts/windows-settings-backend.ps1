@@ -157,17 +157,28 @@ public static class PackRatWindowsNative
 
     public sealed class HdrSummary
     {
+        public HdrSummary()
+        {
+            api = "unavailable";
+            errors = new string[0];
+        }
+
         public bool available { get; set; }
-        public string api { get; set; } = "unavailable";
+        public string api { get; set; }
         public int supportedCount { get; set; }
         public int enabledCount { get; set; }
         public bool mixed { get; set; }
-        public string[] errors { get; set; } = Array.Empty<string>();
+        public string[] errors { get; set; }
     }
 
     public sealed class SetResult
     {
-        public string status { get; set; } = "FAILED";
+        public SetResult()
+        {
+            status = "FAILED";
+        }
+
+        public string status { get; set; }
         public string error { get; set; }
         public HdrSummary state { get; set; }
     }
