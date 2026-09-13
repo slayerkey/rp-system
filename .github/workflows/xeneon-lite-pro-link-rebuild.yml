@@ -16,8 +16,6 @@ on:
       - widgets/_src/pc-power-meter/**
       - widgets/_shared/pc-power-meter/**
       - widgets/pc-power-meter/manifest.json
-      - products/lite-pro-map.json
-      - products/index.json
       - .github/workflows/xeneon-lite-pro-link-rebuild.yml
   workflow_dispatch:
 
