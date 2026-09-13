@@ -51,10 +51,10 @@ function proPages(){return [
 function crc32(b){let crc=0xffffffff;for(const x of b){crc^=x;for(let i=0;i<8;i++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);}return(crc^0xffffffff)>>>0;}
 function zip(entries){const locals=[],centrals=[];let offset=0;const date=((2026-1980)<<9)|(9<<5)|12;for(const [path,value] of entries){const name=Buffer.from(path);const raw=Buffer.from(value);const z=deflateRawSync(raw,{level:9});const crc=crc32(raw);const local=Buffer.alloc(30);local.writeUInt32LE(0x04034b50,0);local.writeUInt16LE(20,4);local.writeUInt16LE(8,8);local.writeUInt16LE(date,12);local.writeUInt32LE(crc,14);local.writeUInt32LE(z.length,18);local.writeUInt32LE(raw.length,22);local.writeUInt16LE(name.length,26);locals.push(Buffer.concat([local,name,z]));const c=Buffer.alloc(46);c.writeUInt32LE(0x02014b50,0);c.writeUInt16LE(20,4);c.writeUInt16LE(20,6);c.writeUInt16LE(8,10);c.writeUInt16LE(date,14);c.writeUInt32LE(crc,16);c.writeUInt32LE(z.length,20);c.writeUInt32LE(raw.length,24);c.writeUInt16LE(name.length,28);c.writeUInt32LE(offset,42);centrals.push(Buffer.concat([c,name]));offset+=30+name.length+z.length;}const cd=Buffer.concat(centrals),end=Buffer.alloc(22);end.writeUInt32LE(0x06054b50,0);end.writeUInt16LE(entries.length,8);end.writeUInt16LE(entries.length,10);end.writeUInt32LE(cd.length,12);end.writeUInt32LE(offset,16);return Buffer.concat([...locals,cd,end]);}
 
-function compactPages(pages, columns=4){
+function compactPages(pages, columns=4, rows=2){
   return pages.map(page=>{
     const actions={};
-    Object.values(page.actions).forEach((action,index)=>{
+    Object.values(page.actions).slice(0,columns*rows).forEach((action,index)=>{
       const row=Math.floor(index/columns),col=index%columns;
       actions[`${col},${row}`]=action;
     });
@@ -78,6 +78,7 @@ await mkdir(profileMapDir,{recursive:true});
 const basePages=proPages();
 const variants=[
   {suffix:"mk2",deviceType:0,pages:basePages,name:"Macro Recorder Pro Starter"},
+  {suffix:"mini",deviceType:1,pages:compactPages(basePages,3,2),name:"Macro Recorder Pro Starter Mini"},
   {suffix:"xl",deviceType:2,pages:basePages,name:"Macro Recorder Pro Starter XL"},
   {suffix:"plus",deviceType:7,pages:compactPages(basePages,4),name:"Macro Recorder Pro Starter +"},
   {suffix:"neo",deviceType:9,pages:compactPages(basePages,4),name:"Macro Recorder Pro Starter Neo"},
@@ -91,4 +92,4 @@ for(const variant of variants){
     pages:variant.pages.map((p,i)=>({index:i+1,label:p.label,actions:Object.entries(p.actions).map(([position,a])=>({position,name:a.Name,uuid:a.UUID}))}))
   },null,2));
 }
-console.log("Built Pro starter profiles for MK.2, XL, Plus, and Neo.");
+console.log("Built Pro starter profiles for MK.2, Mini, XL, Plus, and Neo.");
