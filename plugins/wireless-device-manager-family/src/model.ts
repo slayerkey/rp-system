@@ -82,9 +82,16 @@ export class DeviceCatalog {
       if (!seen.has(id)) {
         this.devices.set(id, {
           ...device,
+          paired: false,
           present: false,
           connected: false,
-          capabilities: { ...device.capabilities, CONNECT: false, DISCONNECT: false }
+          capabilities: {
+            STATUS: true,
+            CONNECT: false,
+            DISCONNECT: false,
+            BATTERY: false,
+            CHARGING: false
+          }
         });
       }
     }
@@ -113,6 +120,7 @@ export function batteryLabel(device: Device | null): string {
 
 export function statusLabel(device: Device | null): string {
   if (!device) return "SELECT\nDEVICE";
+  if (device.paired === false) return `${shortName(device.name)}\nUNPAIRED`;
   if (device.connected) return `${shortName(device.name)}\nCONNECTED`;
   if (device.present === false) return `${shortName(device.name)}\nSLEEP/OFF`;
   return `${shortName(device.name)}\nDISCONNECTED`;
