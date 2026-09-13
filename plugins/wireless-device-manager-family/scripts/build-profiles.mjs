@@ -55,10 +55,10 @@ const layouts = {
   },
   pro: {
     default: {
-      "0,0": (c)=>device("pro:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20}),
-      "1,0": (c)=>device("pro:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20}),
-      "2,0": (c)=>device("pro:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20}),
-      "3,0": (c)=>device("pro:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20}),
+      "0,0": (c)=>device("pro:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL"}),
+      "1,0": (c)=>device("pro:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20,favorite:true,groupName:"WORK"}),
+      "2,0": (c)=>device("pro:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL"}),
+      "3,0": (c)=>device("pro:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING"}),
       "4,0": (c)=>dashboard("pro:all",c),
       "0,1": (c)=>device("pro:headphones-control",c,"CONNECT","control"),
       "1,1": (c)=>cycle("pro:cycle",c),
@@ -67,10 +67,10 @@ const layouts = {
       "4,1": (c)=>dashboard("pro:travel",c,"TRAVEL")
     },
     plus: {
-      "0,0": (c)=>device("pro:plus:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20}),
-      "1,0": (c)=>device("pro:plus:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20}),
-      "2,0": (c)=>device("pro:plus:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20}),
-      "3,0": (c)=>device("pro:plus:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20}),
+      "0,0": (c)=>device("pro:plus:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL"}),
+      "1,0": (c)=>device("pro:plus:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20,favorite:true,groupName:"WORK"}),
+      "2,0": (c)=>device("pro:plus:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING, TRAVEL"}),
+      "3,0": (c)=>device("pro:plus:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20,favorite:true,groupName:"GAMING"}),
       "0,1": (c)=>dashboard("pro:plus:all",c),
       "1,1": (c)=>cycle("pro:plus:cycle",c),
       "2,1": (c)=>dashboard("pro:plus:gaming",c,"GAMING"),
