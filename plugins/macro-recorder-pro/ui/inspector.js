@@ -2,6 +2,8 @@
   const edition=document.body.dataset.edition;
   const pro=edition==="pro";
   let socket=null,uiUuid="",context="",actionUuid="",kind="",settings={},state=null;
+  const PAGE_SIZE=200;
+  let timelinePage=0,timelineMacroId="";
   const $=id=>document.getElementById(id);
   const send=msg=>{if(socket?.readyState===WebSocket.OPEN){socket.send(JSON.stringify(msg));return true;}return false;};
   const command=(command,extra={})=>send({event:"sendToPlugin",action:actionUuid,context,payload:{type:"macroRecorder.command",command,...extra}});
@@ -32,21 +34,49 @@
     if(state?.libraryWarning){$("errorText").hidden=false;$("errorText").textContent=state.libraryWarning;}
   }
 
-  function eventLabel(ev,i){return state?.eventDescriptions?.[i]||ev.type||"Event";}
+  function eventLabel(ev){
+    if(!ev)return"Unknown";
+    if(ev.type==="keyDown")return`Key down · ${ev.name||("VK "+Number(ev.vk||0).toString(16).toUpperCase().padStart(2,"0"))}`;
+    if(ev.type==="keyUp")return`Key up · ${ev.name||("VK "+Number(ev.vk||0).toString(16).toUpperCase().padStart(2,"0"))}`;
+    if(ev.type==="mouseMove")return`Move mouse · ${ev.x}, ${ev.y}`;
+    if(ev.type==="mouseDown")return`${String(ev.button||"mouse")} mouse down`;
+    if(ev.type==="mouseUp")return`${String(ev.button||"mouse")} mouse up`;
+    if(ev.type==="wheel")return`${ev.horizontal?"Horizontal":"Vertical"} wheel · ${ev.delta}`;
+    return ev.type||"Unknown";
+  }
   function saveTimeline(macro){
     if(!macro)return;
     if(pro)command("saveMacro",{macroId:macro.id,macro});
     else command("saveLiteMacro",{macro});
   }
   function renderTimeline(){
-    const timeline=$("timeline");timeline.replaceChildren();
+    const timeline=$("timeline"),pager=$("timelinePager"),warning=$("timelineWarning");
+    timeline.replaceChildren();
     const macro=state?.macro;
-    if(!macro?.events?.length){timeline.textContent="No macro assigned yet.";$("macroMeta").textContent="";return;}
+    if(!macro?.events?.length){
+      timeline.textContent="No macro assigned yet.";
+      $("macroMeta").textContent="";
+      pager.hidden=true;
+      warning.hidden=true;
+      timelinePage=0;
+      return;
+    }
+
     $("macroMeta").textContent=`${macro.events.length} events · ${(macro.durationMs/1000).toFixed(2)}s`;
-    macro.events.forEach((ev,index)=>{
+    const pageCount=Math.max(1,Math.ceil(macro.events.length/PAGE_SIZE));
+    timelinePage=Math.max(0,Math.min(pageCount-1,timelinePage));
+    const first=timelinePage*PAGE_SIZE;
+    const last=Math.min(macro.events.length,first+PAGE_SIZE);
+    pager.hidden=pageCount<=1;
+    $("timelinePageLabel").textContent=`${first+1}–${last} of ${macro.events.length}`;
+    $("timelinePrev").disabled=timelinePage<=0;
+    $("timelineNext").disabled=timelinePage>=pageCount-1;
+
+    macro.events.slice(first,last).forEach((ev,offset)=>{
+      const index=first+offset;
       const row=document.createElement("div");row.className="event";
       const main=document.createElement("div");main.className="event-main";
-      const title=document.createElement("div");title.className="event-title";title.textContent=eventLabel(ev,index);
+      const title=document.createElement("div");title.className="event-title";title.textContent=eventLabel(ev);
       main.appendChild(title);
       if(pro){
         const controls=document.createElement("div");controls.className="event-controls";
@@ -63,12 +93,15 @@
       delay.addEventListener("change",()=>{ev.delayMs=Math.max(0,Math.min(60000,Number(delay.value||0)));saveTimeline(macro);});
       row.append(main,delay);timeline.appendChild(row);
     });
+
     const validation=state?.validation;
-    $("timelineWarning").hidden=!validation?.unmatchedKeys?.length;
-    $("timelineWarning").textContent=validation?.unmatchedKeys?.length?"Timeline has unmatched key-down events. Playback cleanup will still release them, but review the edits.":"";
+    warning.hidden=!validation?.unmatchedKeys?.length;
+    warning.textContent=validation?.unmatchedKeys?.length?"Timeline has unmatched key-down events. Playback cleanup will still release them, but review the edits.":"";
   }
 
   function applyState(next){
+    const nextMacroId=String(next?.macro?.id||"");
+    if(nextMacroId!==timelineMacroId){timelineMacroId=nextMacroId;timelinePage=0;}
     state=next||state; if(!state)return;
     updateStatus();populateLibrary();renderTimeline();
   }
@@ -94,6 +127,8 @@
   $("cancelRecording").addEventListener("click",()=>command("cancelRecording"));
   $("stopPlayback").addEventListener("click",()=>command("stopPlayback"));
   $("assignLatest").addEventListener("click",()=>command("assignLatest"));
+  $("timelinePrev").addEventListener("click",()=>{if(timelinePage>0){timelinePage-=1;renderTimeline();}});
+  $("timelineNext").addEventListener("click",()=>{timelinePage+=1;renderTimeline();});
   if(pro){
     $("captureMouseMovement").addEventListener("change",()=>saveSettings({captureMouseMovement:$("captureMouseMovement").checked}));
     $("macroSelect").addEventListener("change",()=>command("selectMacro",{macroId:$("macroSelect").value}));
