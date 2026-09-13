@@ -161,6 +161,33 @@ internal static class Program
         };
     }
 
+    private static async Task<AudioServiceSupport> FindBluetoothAudioServicesAsync()
+    {
+        var result = new AudioServiceSupport();
+        var services = await DeviceInformation.FindAllAsync(
+            BluetoothClassicServiceSelector,
+            RequestedServiceProperties,
+            DeviceInformationKind.AssociationEndpointService);
+
+        foreach (var service in services)
+        {
+            if (BoolProp(service, ServiceParentPairedKey) != true) continue;
+
+            var serviceClass = GuidProp(service, ServiceClassKey);
+            if (serviceClass != AudioSink && serviceClass != HandsFree) continue;
+
+            var containerId = StringProp(service, ServiceContainerKey);
+            if (!string.IsNullOrWhiteSpace(containerId))
+                result.ContainerIds.Add(containerId);
+
+            var aepId = StringProp(service, ServiceAepIdKey);
+            if (!string.IsNullOrWhiteSpace(aepId))
+                result.AepIds.Add(aepId);
+        }
+
+        return result;
+    }
+
     private static async Task AddDevicesAsync(
         Dictionary<string, DeviceDto> output,
         string selector,
