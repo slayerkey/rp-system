@@ -167,14 +167,16 @@ internal sealed class Engine : IDisposable
         _hookThread = new Thread(HookLoop) { IsBackground = true, Name = "PackRat Input Hooks" };
         _hookThread.Start();
         if (!_hooksReady.Wait(TimeSpan.FromSeconds(5))) throw new InvalidOperationException("Input hooks did not start.");
+        if (_keyboardHook == IntPtr.Zero || _mouseHook == IntPtr.Zero) throw new InvalidOperationException("Windows input hooks could not be installed.");
     }
 
     private void HookLoop()
     {
         _keyboardProc = KeyboardHook;
         _mouseProc = MouseHook;
-        _keyboardHook = Native.SetWindowsHookEx(Native.WH_KEYBOARD_LL, _keyboardProc, IntPtr.Zero, 0);
-        _mouseHook = Native.SetWindowsHookEx(Native.WH_MOUSE_LL, _mouseProc, IntPtr.Zero, 0);
+        var module = Native.GetModuleHandle(null);
+        _keyboardHook = Native.SetWindowsHookEx(Native.WH_KEYBOARD_LL, _keyboardProc, module, 0);
+        _mouseHook = Native.SetWindowsHookEx(Native.WH_MOUSE_LL, _mouseProc, module, 0);
         _hooksReady.Set();
         if (_keyboardHook == IntPtr.Zero || _mouseHook == IntPtr.Zero) return;
         while (Native.GetMessage(out var msg, IntPtr.Zero, 0, 0) > 0)
@@ -430,12 +432,23 @@ internal sealed class Engine : IDisposable
             var vk = GetInt(ev, "vk");
             var scan = GetInt(ev, "scan");
             var extended = GetBool(ev, "extended");
-            Native.SendKey(vk, scan, type == "keyUp", extended);
-            lock (_gate)
+            if (type == "keyDown")
             {
-                if (type == "keyDown") _downKeys.Add(vk);
-                else _downKeys.Remove(vk);
-                PersistHeldInputLocked();
+                lock (_gate)
+                {
+                    _downKeys.Add(vk);
+                    PersistHeldInputLocked();
+                }
+                Native.SendKey(vk, scan, false, extended);
+            }
+            else
+            {
+                Native.SendKey(vk, scan, true, extended);
+                lock (_gate)
+                {
+                    _downKeys.Remove(vk);
+                    PersistHeldInputLocked();
+                }
             }
             return;
         }
@@ -449,12 +462,23 @@ internal sealed class Engine : IDisposable
         if (type is "mouseDown" or "mouseUp")
         {
             var button = ev.TryGetProperty("button", out var buttonEl) ? buttonEl.GetString() ?? "left" : "left";
-            Native.SendMouseButton(button, type == "mouseUp");
-            lock (_gate)
+            if (type == "mouseDown")
             {
-                if (type == "mouseDown") _downButtons.Add(button);
-                else _downButtons.Remove(button);
-                PersistHeldInputLocked();
+                lock (_gate)
+                {
+                    _downButtons.Add(button);
+                    PersistHeldInputLocked();
+                }
+                Native.SendMouseButton(button, false);
+            }
+            else
+            {
+                Native.SendMouseButton(button, true);
+                lock (_gate)
+                {
+                    _downButtons.Remove(button);
+                    PersistHeldInputLocked();
+                }
             }
         }
         else if (type == "wheel")
@@ -635,6 +659,7 @@ internal static class Native
     [StructLayout(LayoutKind.Sequential)] internal struct INPUT { public uint type; public InputUnion U; }
 
     [DllImport("user32.dll", SetLastError = true)] internal static extern IntPtr SetWindowsHookEx(int idHook, HookProc callback, IntPtr hMod, uint threadId);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] internal static extern IntPtr GetModuleHandle(string? moduleName);
     [DllImport("user32.dll")] internal static extern bool UnhookWindowsHookEx(IntPtr hook);
     [DllImport("user32.dll")] internal static extern IntPtr CallNextHookEx(IntPtr hook, int code, IntPtr wParam, IntPtr lParam);
     [DllImport("user32.dll")] internal static extern int GetMessage(out MSG msg, IntPtr hwnd, uint min, uint max);
