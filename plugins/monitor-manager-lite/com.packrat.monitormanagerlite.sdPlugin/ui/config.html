@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Monitor Manager Lite</title>
+  <link rel="stylesheet" href="pi.css">
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="eyebrow">PACKRAT</div>
+    <h1>Monitor Manager Lite</h1>
+    <p>Control one Windows monitor with capability-aware actions. Unsupported DDC/CI controls are never guessed.</p>
+  </section>
+
+  <section class="card">
+    <div class="row"><h2>Monitor</h2><button id="refresh" class="small" type="button">Refresh</button></div>
+    <label for="monitor">Selected monitor</label>
+    <select id="monitor"><option value="">Detecting monitors…</option></select>
+    <div id="capabilities" class="caps">SUPPORTED / NOT SUPPORTED / UNKNOWN will appear after detection.</div>
+  </section>
+
+  <section id="brightnessCard" class="card hidden">
+    <h2>Brightness</h2>
+    <label for="brightnessMode">Key behavior</label>
+    <select id="brightnessMode">
+      <option value="set">Set brightness</option>
+      <option value="up">Brightness up</option>
+      <option value="down">Brightness down</option>
+    </select>
+    <label for="brightnessValue">Set value</label>
+    <input id="brightnessValue" type="number" min="0" max="100" step="1" value="65">
+    <label for="brightnessStep">Step</label>
+    <input id="brightnessStep" type="number" min="1" max="25" step="1" value="5">
+  </section>
+
+  <section id="powerCard" class="card hidden">
+    <h2>Monitor Power</h2>
+    <label for="powerMode">Behavior</label>
+    <select id="powerMode">
+      <option value="toggle">Toggle</option>
+      <option value="on">On</option>
+      <option value="off">Off / standby</option>
+    </select>
+  </section>
+
+  <section id="refreshCard" class="card hidden">
+    <h2>Refresh Rate</h2>
+    <label for="refreshRate">Hz</label>
+    <select id="refreshRate"></select>
+    <p class="help">Only modes Windows reports for the selected display are offered.</p>
+  </section>
+
+  <section id="proCard" class="card pro hidden">
+    <div class="eyebrow">MONITOR MANAGER PRO</div>
+    <h2>Control your whole monitor setup</h2>
+    <p>Profiles, multiple monitors, resolution, HDR, topology, input source, contrast, monitor volume and more.</p>
+    <button id="pro" type="button">View Monitor Manager Pro</button>
+  </section>
+
+  <section class="privacy">
+    <strong>Capability aware</strong>
+    <p>DDC/CI varies by monitor. Lite queries what it can and reports SUPPORTED, NOT SUPPORTED or UNKNOWN instead of sending arbitrary VCP writes.</p>
+  </section>
+</main>
+<script src="pi.js"></script>
+</body>
+</html>
