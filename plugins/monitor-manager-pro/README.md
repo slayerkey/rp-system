@@ -27,7 +27,9 @@ Stream Deck+ encoder actions are limited to brightness, contrast and volume. Dis
 
 ## Monitor Profiles
 
-Profiles capture only state Windows or the current monitor can read safely. Application order is topology, Windows display state, HDR, then DDC/CI controls. Unsupported state is skipped and produces PARTIAL. A write failure produces FAILED and triggers best-effort rollback of the readable state captured immediately before application.
+Profiles capture only state Windows or the current monitor can read safely. Application order is topology, Windows display state, HDR, brightness / contrast / volume, then input source last. Unsupported state is skipped and produces PARTIAL. A write failure produces FAILED and triggers best-effort rollback of the readable state captured immediately before application.
+
+Monitor power remains a standalone Pro action rather than saved profile state. A sleeping/off display cannot be reliably queried, and power writes around an input switch can sever the DDC/CI path mid-transaction.
 
 Saved-profile JSON is never silently overwritten if parsing or schema validation fails.
 
