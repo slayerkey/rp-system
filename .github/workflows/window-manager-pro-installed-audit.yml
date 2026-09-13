@@ -6,6 +6,11 @@ on:
       - audit/window-manager-pro-installed-20260912
     paths:
       - .github/workflows/window-manager-pro-installed-audit.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/window-manager-pro-installed-audit.yml
 
 permissions:
   contents: read
