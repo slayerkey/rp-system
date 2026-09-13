@@ -311,3 +311,30 @@ test("Pro generated profile coordinates fit Standard XL and Plus hardware", asyn
   assertControllerBounds(zipJsonDocuments(await readFile(path.join(root,"monitor-manager-pro-xl.streamDeckProfile"))),8,4);
   assertControllerBounds(zipJsonDocuments(await readFile(path.join(root,"monitor-manager-pro-plus.streamDeckProfile"))),4,2,4);
 });
+
+
+test("physical-test UX keeps continuous preset titles compact and repeat-restorable", async () => {
+  const source=await readFile("src/actions/continuous.ts","utf8");
+  assert.match(source,/private previous=new Map<string,number>/);
+  assert.match(source,/Math\.abs\(current-target\)<=1/);
+  assert.match(source,/setTitle\(String\(value\)\+"%"\)/);
+});
+test("status HDR and power repaint from live state after settings changes", async () => {
+  const hardware=await readFile("src/actions/hardware.ts","utf8");const windows=await readFile("src/actions/windows.ts","utf8");
+  assert.match(hardware,/StatusAction[\s\S]*onDidReceiveSettings/);assert.match(hardware,/runtime\.powerState/);assert.match(windows,/runtime\.hdrDisplayState/);
+});
+test("display-mode inspector prioritizes useful modes and hides legacy low Hz by default", async () => {
+  const pi=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.js","utf8");
+  assert.match(pi,/if\(area===maxArea\)return 0/);assert.match(pi,/1920&&Number\(m\.height\)===1080/);assert.match(pi,/rate>=60\|\|rate===Number\(cur\?\.frequency\)/);assert.match(pi,/sort\(\(a,b\)=>b-a\)/);
+});
+test("generated profile exposes dynamic MAX HZ and MAX MODE presets", async () => {
+  const source=await readFile("scripts/build-profiles.mjs","utf8");assert.match(source,/MAX HZ/);assert.match(source,/refreshRate:0/);assert.match(source,/modePreset:"best"/);assert.match(source,/modePreset:"1080p-best"/);
+});
+test("profile inspector persists names while typing and offers explicit backed-up recovery", async () => {
+  const pi=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.js","utf8");const runtimeSource=await readFile("src/runtime.ts","utf8");
+  assert.match(pi,/profileName"\)\?\.addEventListener\("input"/);assert.match(pi,/reset-profiles/);assert.match(runtimeSource,/resetProfileStore/);assert.match(runtimeSource,/\.backup-/);
+});
+test("native mode list always retains the actual current mode for high-refresh DSC paths", async () => {
+  const helper=await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin","helper","monitor-helper.ps1"),"utf8");
+  assert.match(helper,/Always preserve the actual current mode/);assert.match(helper,/var current = GetCurrentMode\(deviceName\)/);assert.match(helper,/if \(seen\.Add\(currentKey\)\) modes\.Add\(current\)/);
+});

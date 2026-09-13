@@ -56,7 +56,7 @@
     {
       "Name": "Monitor Brightness",
       "UUID": "com.packrat.monitormanagerpro.brightness",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/brightness/key",
       "Tooltip": "Set or dial brightness on the selected monitor.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -71,15 +71,15 @@
       },
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "Image": "imgs/actions/brightness/key",
+          "TitleAlignment": "bottom"
         }
       ]
     },
     {
       "Name": "Monitor Contrast",
       "UUID": "com.packrat.monitormanagerpro.contrast",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/contrast/key",
       "Tooltip": "Set or dial contrast when the selected monitor supports it.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -94,15 +94,15 @@
       },
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "Image": "imgs/actions/contrast/key",
+          "TitleAlignment": "bottom"
         }
       ]
     },
     {
       "Name": "Monitor Volume",
       "UUID": "com.packrat.monitormanagerpro.volume",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/volume/key",
       "Tooltip": "Set or dial monitor speaker volume when DDC/CI advertises it.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -117,24 +117,24 @@
       },
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "Image": "imgs/actions/volume/key",
+          "TitleAlignment": "bottom"
         }
       ]
     },
     {
       "Name": "Monitor Power",
       "UUID": "com.packrat.monitormanagerpro.power",
-      "Icon": "imgs/actions/common/icon",
-      "Tooltip": "Control monitor power only when DDC/CI advertises the safe power feature.",
+      "Icon": "imgs/actions/power/key",
+      "Tooltip": "Safely toggle or set the selected monitor's advertised DDC/CI power state. This does not shut down Windows or cut AC power.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
         "Keypad"
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "Image": "imgs/actions/power/key",
+          "TitleAlignment": "bottom"
         }
       ]
     },
@@ -150,7 +150,7 @@
       "States": [
         {
           "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom"
         }
       ]
     },
@@ -166,7 +166,7 @@
       "States": [
         {
           "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom"
         }
       ]
     },
@@ -182,14 +182,14 @@
       "States": [
         {
           "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom"
         }
       ]
     },
     {
       "Name": "Windows HDR",
       "UUID": "com.packrat.monitormanagerpro.hdr",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/hdr/key",
       "Tooltip": "Toggle or set true Windows HDR when Windows 11 24H2+ reports HDR support for the selected active display.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -197,8 +197,8 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "Image": "imgs/actions/hdr/key",
+          "TitleAlignment": "bottom"
         }
       ]
     },
@@ -214,7 +214,7 @@
       "States": [
         {
           "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom"
         }
       ]
     },
@@ -230,7 +230,7 @@
       "States": [
         {
           "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom"
         }
       ]
     },
@@ -246,7 +246,7 @@
       "States": [
         {
           "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom"
         }
       ]
     },
@@ -262,7 +262,7 @@
       "States": [
         {
           "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom"
         }
       ]
     },
@@ -278,7 +278,7 @@
       "States": [
         {
           "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom"
         }
       ]
     },
@@ -294,7 +294,7 @@
       "States": [
         {
           "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom"
         }
       ]
     }

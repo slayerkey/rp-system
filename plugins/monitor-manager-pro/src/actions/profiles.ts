@@ -1,7 +1,8 @@
 import { action, type DidReceiveSettingsEvent, type KeyDownEvent, SingletonAction, type WillAppearEvent } from "@elgato/streamdeck";
 import { runtime, type ProSettings } from "../runtime.js";
 
-async function fail(target:any):Promise<void>{if(target.isKey?.())await target.showAlert();}
+function shortName(name:string):string{return (name.trim()||"PROFILE").slice(0,10).toUpperCase();}
+async function fail(target:any,title:string):Promise<void>{if(target.isKey?.()){await target.setTitle(title);await target.showAlert();}}
 
 @action({UUID:"com.packrat.monitormanagerpro.save-profile"})
 export class SaveProfileAction extends SingletonAction<ProSettings>{
@@ -11,11 +12,11 @@ export class SaveProfileAction extends SingletonAction<ProSettings>{
     try{
       const name=String(ev.payload.settings?.profileName??"").trim();
       await runtime.saveProfile(name);
-      await ev.action.setTitle("SAVED\n"+name.toUpperCase());
+      await ev.action.setTitle("SAVED\n"+shortName(name));
       await ev.action.showOk();
-    }catch{await fail(ev.action);}
+    }catch{await fail(ev.action,"SAVE\nFAILED");}
   }
-  private async paint(target:any,s:ProSettings):Promise<void>{await target.setTitle("SAVE\n"+String(s.profileName??"PROFILE").toUpperCase());}
+  private async paint(target:any,s:ProSettings):Promise<void>{await target.setTitle("SAVE\n"+shortName(String(s.profileName??"")));}
 }
 
 @action({UUID:"com.packrat.monitormanagerpro.apply-profile"})
@@ -25,9 +26,9 @@ export class ApplyProfileAction extends SingletonAction<ProSettings>{
   override async onKeyDown(ev:KeyDownEvent<ProSettings>):Promise<void>{
     try{
       const result=await runtime.applyProfile(String(ev.payload.settings?.profileName??""));
-      await ev.action.setTitle(result.status+"\nPROFILE");
+      await ev.action.setTitle(result.status+"\n"+shortName(String(ev.payload.settings?.profileName??"")));
       if(result.status==="FAILED") await ev.action.showAlert(); else await ev.action.showOk();
-    }catch{await fail(ev.action);}
+    }catch{await fail(ev.action,"APPLY\nFAILED");}
   }
-  private async paint(target:any,s:ProSettings):Promise<void>{await target.setTitle(String(s.profileName??"PROFILE").toUpperCase()+"\nMODE");}
+  private async paint(target:any,s:ProSettings):Promise<void>{await target.setTitle("APPLY\n"+shortName(String(s.profileName??"")));}
 }

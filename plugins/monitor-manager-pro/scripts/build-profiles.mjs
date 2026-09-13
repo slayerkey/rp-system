@@ -35,9 +35,9 @@ function folder(id){
  return chunks.map(x=>parseInt(x,16).toString(32).padStart(4,"0")).join("").slice(0,26).toUpperCase().replace(/V/g,"W").replace(/U/g,"V")+"Z";
 }
 function action(seed,id,name,title,settings={}){
- return {ActionID:uuid("pro-action:"+seed),LinkedTitle:true,Name:name,UUID:id,Settings:settings,State:0,States:[{Title:title,ShowTitle:true,TitleAlignment:"middle",TitleColor:"#FFFFFF",FontFamily:"Arial",FontSize:12,FontStyle:"Regular",FontUnderline:false}]};
+ return {ActionID:uuid("pro-action:"+seed),LinkedTitle:true,Name:name,UUID:id,Settings:settings,State:0,States:[{Title:title,ShowTitle:true,TitleAlignment:"bottom",TitleColor:"#FFFFFF",FontFamily:"Arial",FontSize:11,FontStyle:"Regular",FontUnderline:false}]};
 }
-function p(seed,name,apply=false){return action(seed,apply?U.apply:U.save,apply?"Apply Monitor Profile":"Save Monitor Profile",(apply?"":"SAVE\n")+name+(apply?"\nMODE":""),{profileName:name});}
+function p(seed,name,apply=false){return action(seed,apply?U.apply:U.save,apply?"Apply Monitor Profile":"Save Monitor Profile",(apply?"APPLY\n":"SAVE\n")+name,{profileName:name});}
 
 function standardPages(prefix){
  return [
@@ -48,8 +48,8 @@ function standardPages(prefix){
     "3,0":action(prefix+":hdmi",U.input,"Input Source","HDMI",{inputValue:0x11}),
     "4,0":action(prefix+":hdr",U.hdr,"Windows HDR","HDR",{hdr:"toggle"}),
     "0,1":action(prefix+":bright",U.brightness,"Monitor Brightness","65%",{value:65}),
-    "1,1":action(prefix+":contrast",U.contrast,"Monitor Contrast","50% CONTRAST",{contrast:50}),
-    "2,1":action(prefix+":volume",U.volume,"Monitor Volume","50% VOLUME",{volume:50}),
+    "1,1":action(prefix+":contrast",U.contrast,"Monitor Contrast","50%",{contrast:50}),
+    "2,1":action(prefix+":volume",U.volume,"Monitor Volume","50%",{volume:50}),
     "3,1":action(prefix+":power",U.power,"Monitor Power","POWER",{power:"toggle"})
   }},
   {label:"PROFILES",keypad:{
@@ -64,13 +64,13 @@ function standardPages(prefix){
     "2,0":action(prefix+":internal",U.topology,"Display Mode","PC SCREEN",{topology:"internal"}),
     "3,0":action(prefix+":external",U.topology,"Display Mode","SECOND SCREEN",{topology:"external"}),
     "4,0":action(prefix+":hdr2",U.hdr,"Windows HDR","HDR",{hdr:"toggle"}),
-    "0,1":action(prefix+":60",U.refresh,"Refresh Rate","60 HZ",{refreshRate:60}),
-    "1,1":action(prefix+":120",U.refresh,"Refresh Rate","120 HZ",{refreshRate:120}),
+    "0,1":action(prefix+":maxhz",U.refresh,"Refresh Rate","MAX HZ",{refreshRate:0}),
+    "1,1":action(prefix+":60",U.refresh,"Refresh Rate","60 HZ",{refreshRate:60}),
     "2,1":action(prefix+":144",U.refresh,"Refresh Rate","144 HZ",{refreshRate:144}),
     "3,1":action(prefix+":165",U.refresh,"Refresh Rate","165 HZ",{refreshRate:165}),
     "4,1":action(prefix+":240",U.refresh,"Refresh Rate","240 HZ",{refreshRate:240}),
-    "0,2":action(prefix+":1080",U.resolution,"Resolution","1080P",{width:1920,height:1080,frequency:60,orientation:0}),
-    "1,2":action(prefix+":1440",U.resolution,"Resolution","1440P 165",{width:2560,height:1440,frequency:165,orientation:0}),
+    "0,2":action(prefix+":best",U.resolution,"Resolution","MAX MODE",{modePreset:"best"}),
+    "1,2":action(prefix+":1080best",U.resolution,"Resolution","1080P MAX",{modePreset:"1080p-best"}),
     "2,2":action(prefix+":landscape",U.orientation,"Orientation","LANDSCAPE",{orientation:0}),
     "3,2":action(prefix+":portrait",U.orientation,"Orientation","PORTRAIT",{orientation:1})
   }},
@@ -79,10 +79,10 @@ function standardPages(prefix){
     "1,0":action(prefix+":50",U.brightness,"Monitor Brightness","50%",{value:50}),
     "2,0":action(prefix+":65",U.brightness,"Monitor Brightness","65%",{value:65}),
     "3,0":action(prefix+":80",U.brightness,"Monitor Brightness","80%",{value:80}),
-    "0,1":action(prefix+":c40",U.contrast,"Monitor Contrast","40% CONTRAST",{contrast:40}),
-    "1,1":action(prefix+":c60",U.contrast,"Monitor Contrast","60% CONTRAST",{contrast:60}),
-    "2,1":action(prefix+":v25",U.volume,"Monitor Volume","25% VOLUME",{volume:25}),
-    "3,1":action(prefix+":v50",U.volume,"Monitor Volume","50% VOLUME",{volume:50})
+    "0,1":action(prefix+":c40",U.contrast,"Monitor Contrast","40%",{contrast:40}),
+    "1,1":action(prefix+":c60",U.contrast,"Monitor Contrast","60%",{contrast:60}),
+    "2,1":action(prefix+":v25",U.volume,"Monitor Volume","25%",{volume:25}),
+    "3,1":action(prefix+":v50",U.volume,"Monitor Volume","50%",{volume:50})
   }}
  ];
 }

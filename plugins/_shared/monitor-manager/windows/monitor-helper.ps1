@@ -281,6 +281,14 @@ public static class MonitorNative {
             if (!seen.Add(key)) continue;
             modes.Add(new ModeRecord { width=dm.dmPelsWidth, height=dm.dmPelsHeight, frequency=dm.dmDisplayFrequency, orientation=dm.dmDisplayOrientation });
         }
+        // Some GPU/DSC paths omit the active high-refresh mode from indexed enumeration.
+        // Always preserve the actual current mode so a live 480 Hz path can never disappear
+        // from the plugin merely because EnumDisplaySettingsEx skipped it in the numbered list.
+        var current = GetCurrentMode(deviceName);
+        if (current != null) {
+            var currentKey = current.width + "x" + current.height + "@" + current.frequency + "/" + current.orientation;
+            if (seen.Add(currentKey)) modes.Add(current);
+        }
         return modes;
     }
 

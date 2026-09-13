@@ -13,6 +13,7 @@ export type ProSettings = MonitorSettings & {
   height?: number;
   frequency?: number;
   orientation?: number;
+  modePreset?: "best" | "1080p-best";
   hdr?: "toggle" | "on" | "off";
   topology?: "internal" | "duplicate" | "extend" | "external";
   profileName?: string;
@@ -42,7 +43,7 @@ type MonitorProfile = {
 type Step = { item:string; status:"COMPLETE"|"SKIPPED"|"FAILED"; message?:string };
 
 const INPUT_LABELS = new Map([
-  [0x0f,"DISPLAYPORT 1"], [0x10,"DISPLAYPORT 2"],
+  [0x0f,"DP 1"], [0x10,"DP 2"],
   [0x11,"HDMI 1"], [0x12,"HDMI 2"], [0x1b,"USB-C"]
 ]);
 
@@ -81,6 +82,56 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
 
   inputLabel(value:number): string {
     return INPUT_LABELS.get(value) ?? ("INPUT 0x"+value.toString(16).toUpperCase().padStart(2,"0"));
+  }
+
+  async currentModeState(settings:ProSettings):Promise<{width:number;height:number;frequency:number;orientation:number}|null>{
+    const {monitor}=await this.selected(settings);
+    const mode=monitor.currentMode;
+    return mode?{width:Number(mode.width),height:Number(mode.height),frequency:Number(mode.frequency),orientation:Number(mode.orientation??0)}:null;
+  }
+
+  async setModeState(settings:ProSettings,mode:{width:number;height:number;frequency:number;orientation:number}):Promise<{width:number;height:number;frequency:number;orientation:number}>{
+    await this.setExactMode({...settings,...mode,modePreset:undefined});
+    return mode;
+  }
+
+  async currentTopology():Promise<string>{
+    const snapshot:any=await this.scan(true);
+    return String(snapshot.topology??"unknown");
+  }
+
+  async powerState(settings:ProSettings):Promise<"ON"|"OFF"|null>{
+    const {monitor}=await this.selected(settings);
+    const support=vcpSupport(monitor.capabilities,SAFE_VCP.POWER_MODE);
+    if(support.state!==SUPPORT.SUPPORTED)return null;
+    const current=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.POWER_MODE});
+    const value=Number(current.current);
+    if(value===1)return "ON";
+    if(support.values.includes(value))return "OFF";
+    return null;
+  }
+
+  async hdrDisplayState(settings:ProSettings):Promise<"ON"|"OFF"|"UNSUPPORTED"|"UNKNOWN">{
+    const {monitor}=await this.selected(settings);
+    if(monitor.hdrState===SUPPORT.SUPPORTED)return monitor.hdrEnabled?"ON":"OFF";
+    if(monitor.hdrState===SUPPORT.NOT_SUPPORTED)return "UNSUPPORTED";
+    return "UNKNOWN";
+  }
+
+  async setRefreshRate(settings:ProSettings):Promise<number>{
+    const requested=Math.round(Number(settings.refreshRate??60));
+    if(requested>0)return super.setRefreshRate(settings);
+    const {monitor}=await this.selected(settings);
+    const current=monitor.currentMode;
+    if(!current)throw new Error("Current Windows display mode is unavailable.");
+    const orientation=Number(current.orientation??0);
+    const rates=(monitor.modes??[])
+      .filter((m:any)=>Number(m.width)===Number(current.width)&&Number(m.height)===Number(current.height)&&Number(m.orientation??0)===orientation)
+      .map((m:any)=>Number(m.frequency))
+      .filter((v:number)=>Number.isFinite(v)&&v>=60);
+    if(!rates.length)throw new Error("No 60 Hz or higher mode is available at the current resolution.");
+    const rate=Math.max(...rates);
+    return super.setRefreshRate({...settings,refreshRate:rate});
   }
 
   async contrastPercent(settings: ProSettings): Promise<number|null> {
@@ -197,12 +248,28 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
   async setExactMode(settings: ProSettings): Promise<string> {
     const { monitor }=await this.selected(settings);
     const current=monitor.currentMode;
-    const request={
-      width:Number(settings.width??current?.width),
-      height:Number(settings.height??current?.height),
-      frequency:Number(settings.frequency??settings.refreshRate??current?.frequency),
-      orientation:Number(settings.orientation??current?.orientation??0)
-    };
+    let request:{width:number;height:number;frequency:number;orientation:number};
+    if(settings.modePreset){
+      const orientation=Number(current?.orientation??0);
+      let candidates=(monitor.modes??[]).filter((m:any)=>Number(m.orientation??0)===orientation);
+      if(!candidates.length)candidates=monitor.modes??[];
+      if(settings.modePreset==="1080p-best")candidates=candidates.filter((m:any)=>Number(m.width)===1920&&Number(m.height)===1080);
+      candidates=[...candidates].sort((a:any,b:any)=>
+        (Number(b.width)*Number(b.height)-Number(a.width)*Number(a.height))||
+        (Number(b.frequency)-Number(a.frequency))||
+        (Number(b.width)-Number(a.width))
+      );
+      const best=candidates[0];
+      if(!best)throw new Error(settings.modePreset==="1080p-best"?"No 1920x1080 mode is available.":"No display mode is available.");
+      request={width:Number(best.width),height:Number(best.height),frequency:Number(best.frequency),orientation:Number(best.orientation??orientation)};
+    }else{
+      request={
+        width:Number(settings.width??current?.width),
+        height:Number(settings.height??current?.height),
+        frequency:Number(settings.frequency??settings.refreshRate??current?.frequency),
+        orientation:Number(settings.orientation??current?.orientation??0)
+      };
+    }
     if(!modeSupported(monitor.modes,request)) throw new Error("Requested resolution / Hz / orientation combination is not available.");
     await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...request,primary:false},12000);
     this.invalidate();
@@ -244,6 +311,25 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
   async listProfiles(): Promise<string[]> {
     const store=await this.readStore();
     return store.profiles.map(p=>p.name).sort((a,b)=>a.localeCompare(b));
+  }
+
+  async resetProfileStore():Promise<string|null>{
+    const operation=this.profileMutationQueue.then(async()=>{
+      const file=this.profilePath();
+      let backup:string|null=null;
+      try{
+        const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+        backup=file+".backup-"+stamp+"-"+process.pid;
+        await rename(file,backup);
+      }catch(error:any){
+        if(error?.code!=="ENOENT")throw error;
+        backup=null;
+      }
+      await this.writeStore({schemaVersion:1,profiles:[]});
+      return backup;
+    });
+    this.profileMutationQueue=operation.then(()=>undefined,()=>undefined);
+    return operation;
   }
 
   private async capture(name:string): Promise<MonitorProfile> {
