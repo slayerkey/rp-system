@@ -54,16 +54,28 @@ const layouts = {
     "2,0": (c)=>device("lite:connect",c,"CONNECT","control")
   },
   pro: {
-    "0,0": (c)=>device("pro:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20}),
-    "1,0": (c)=>device("pro:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20}),
-    "2,0": (c)=>device("pro:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20}),
-    "3,0": (c)=>device("pro:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20}),
-    "4,0": (c)=>dashboard("pro:all",c),
-    "0,1": (c)=>device("pro:headphones-control",c,"CONNECT","control"),
-    "1,1": (c)=>cycle("pro:cycle",c),
-    "2,1": (c)=>dashboard("pro:gaming",c,"GAMING"),
-    "3,1": (c)=>dashboard("pro:work",c,"WORK"),
-    "4,1": (c)=>dashboard("pro:travel",c,"TRAVEL")
+    default: {
+      "0,0": (c)=>device("pro:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20}),
+      "1,0": (c)=>device("pro:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20}),
+      "2,0": (c)=>device("pro:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20}),
+      "3,0": (c)=>device("pro:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20}),
+      "4,0": (c)=>dashboard("pro:all",c),
+      "0,1": (c)=>device("pro:headphones-control",c,"CONNECT","control"),
+      "1,1": (c)=>cycle("pro:cycle",c),
+      "2,1": (c)=>dashboard("pro:gaming",c,"GAMING"),
+      "3,1": (c)=>dashboard("pro:work",c,"WORK"),
+      "4,1": (c)=>dashboard("pro:travel",c,"TRAVEL")
+    },
+    plus: {
+      "0,0": (c)=>device("pro:plus:headphones",c,"HEADPHONES","status",{lowBatteryThreshold:20}),
+      "1,0": (c)=>device("pro:plus:keyboard",c,"KEYBOARD","battery",{lowBatteryThreshold:20}),
+      "2,0": (c)=>device("pro:plus:mouse",c,"MOUSE","battery",{lowBatteryThreshold:20}),
+      "3,0": (c)=>device("pro:plus:controller",c,"CONTROLLER","status",{lowBatteryThreshold:20}),
+      "0,1": (c)=>dashboard("pro:plus:all",c),
+      "1,1": (c)=>cycle("pro:plus:cycle",c),
+      "2,1": (c)=>dashboard("pro:plus:gaming",c,"GAMING"),
+      "3,1": (c)=>dashboard("pro:plus:work",c,"WORK")
+    }
   }
 };
 
@@ -103,7 +115,10 @@ for (const [edition,cfg] of Object.entries(plugins)) {
     {suffix:"plus",name:"Stream Deck +",deviceType:7}
   ]) {
     const actions={};
-    for (const [pos,builder] of Object.entries(layouts[edition])) actions[pos]=builder(cfg);
+    const layout = edition === "pro"
+      ? (variant.suffix === "plus" ? layouts.pro.plus : layouts.pro.default)
+      : layouts.lite;
+    for (const [pos,builder] of Object.entries(layout)) actions[pos]=builder(cfg);
     const root=deterministicUuid(`${edition}:${variant.suffix}:profile`);
     const manifest={Actions:actions,Name:`Wireless Device Manager ${edition==="pro"?"Pro":"Lite"} - ${variant.name}`,Version:"1.0"};
     const archive=zipStore([{name:`${root}.sdProfile/manifest.json`,data:JSON.stringify(manifest,null,2)+"\n"}]);
