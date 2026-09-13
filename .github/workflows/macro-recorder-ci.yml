@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: macro-recorder-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   windows-release:
     runs-on: windows-latest
@@ -27,6 +31,25 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+
+      - name: Parse Macro Recorder PowerShell release scripts
+        shell: pwsh
+        run: |
+          $files = @(
+            'plugins/macro-recorder-pro/run-family-qa.ps1',
+            'plugins/macro-recorder-lite/rat-art.ps1',
+            'plugins/macro-recorder-pro/rat-art.ps1'
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $file), [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count) {
+              $errors | ForEach-Object { Write-Error "${file}: $($_.Message)" }
+              throw "PowerShell parse failed: $file"
+            }
+            Write-Host "POWERSHELL PASS: $file"
+          }
 
       - name: Build shared Windows input host
         shell: pwsh
