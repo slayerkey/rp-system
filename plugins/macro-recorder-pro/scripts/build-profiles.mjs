@@ -40,7 +40,7 @@ function litePages(){return [{label:"BASIC",actions:{
  "0,1":replay("lite-home","HOME",examples.home),"1,1":replay("lite-page","PAGE DOWN",examples.pageDown)
 }}];}
 function proPages(){return [
- {label:"MACROS",actions:{"0,0":act("p-rec","record","REC"),"1,0":act("p-stop","stop","STOP"),"2,0":replay("p-find","FIND",examples.find),"3,0":replay("p-save","SAVE",examples.save),"4,0":replay("p-next","NEXT x3",examples.next3)}},
+ {label:"MACROS",actions:{"0,0":act("p-rec","record","REC"),"1,0":act("p-stop","stop","STOP"),"2,0":act("p-play","replay","PLAY"),"3,0":replay("p-find","FIND",examples.find),"4,0":replay("p-save","SAVE",examples.save),"0,1":replay("p-next","NEXT x3",examples.next3)}},
  {label:"GAMING",actions:{"0,0":replay("g-menu","MENU OK",examples.menu),"1,0":replay("g-back","MENU BACK",examples.escape),"2,0":replay("g-cycle","MENU CYCLE",examples.leftRight)}},
  {label:"PRODUCTIVITY",actions:{"0,0":replay("prod-find","FIND",examples.find),"1,0":replay("prod-save","SAVE",examples.save),"2,0":replay("prod-next","NEXT FIELDS",examples.next3),"3,0":replay("prod-home","HOME",examples.home),"4,0":replay("prod-page","PAGE DOWN",examples.pageDown)}},
  {label:"MOUSE",actions:{"0,0":replay("m-center","CENTER",examples.center,{coordinateMode:"active-window"}),"1,0":replay("m-scroll","SCROLL",examples.scroll,{coordinateMode:"active-window"}),"2,0":replay("m-click","CLICK DEMO",examples.clickDemo,{coordinateMode:"active-window"})}},
