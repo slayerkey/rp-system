@@ -180,13 +180,19 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
       });
     }
     if (speed?.ok) {
+      const factor = settings.lowSpeedPercent / 100;
+      const lowDownload = settings.expectedDownloadMbps > 0 && Number(speed.downloadMbps) < settings.expectedDownloadMbps * factor;
+      const lowUpload = settings.expectedUploadMbps > 0 && Number(speed.uploadMbps) < settings.expectedUploadMbps * factor;
+      const low = lowDownload || lowUpload;
       return baseSvg({
         label: "SPEED TEST",
-        primary: "↓ " + Math.round(speed.downloadMbps),
-        secondary: "↑ " + Math.round(speed.uploadMbps) + " Mbps",
-        status: "GOOD",
+        primary: low ? "LOW" : "↓ " + Math.round(speed.downloadMbps),
+        secondary: "↓ " + Math.round(speed.downloadMbps) + "  ↑ " + Math.round(speed.uploadMbps) + " Mbps",
+        status: low ? "BAD" : "GOOD",
         accent: settings.accent,
-        footer: "PRESS TO RETEST"
+        footer: (settings.expectedDownloadMbps > 0 || settings.expectedUploadMbps > 0)
+          ? (low ? "BELOW " + settings.lowSpeedPercent + "% EXPECTED" : "WITHIN EXPECTED RANGE")
+          : "PRESS TO RETEST"
       });
     }
     return baseSvg({
