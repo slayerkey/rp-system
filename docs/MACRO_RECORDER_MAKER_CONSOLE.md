@@ -113,6 +113,7 @@ Do not claim the category is empty.
 
 Bundled device variants for both editions:
 - Stream Deck / MK.2 (DeviceType 0)
+- Stream Deck Mini (DeviceType 1)
 - Stream Deck XL (DeviceType 2)
 - Stream Deck + keypad (DeviceType 7)
 - Stream Deck Neo (DeviceType 9)
@@ -131,7 +132,7 @@ Pro starter pages:
 - MOUSE
 - LOOPS
 
-Plus/Neo use compact 4×2 keypad layouts. XL preserves the same logical pages with additional empty grid space. Macro Recorder does not claim encoder actions because its current action surface is keypad-only.
+Mini uses a compact 3×2 keypad layout. Plus/Neo use compact 4×2 keypad layouts. XL preserves the same logical pages with additional empty grid space. Macro Recorder does not claim encoder actions because its current action surface is keypad-only.
 
 Examples must remain generic and harmless:
 - no anti-AFK
