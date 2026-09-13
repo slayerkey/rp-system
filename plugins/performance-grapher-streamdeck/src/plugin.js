@@ -222,7 +222,22 @@ telemetry.on("session", () => scheduleInspector());
 
 process.on("uncaughtException", (error) => logger(error?.stack || error));
 process.on("unhandledRejection", (error) => logger(error?.stack || error));
-process.on("exit", () => telemetry.stop());
+let shutdownStarted = false;
+
+async function shutdown(exitCode = 0) {
+  if (shutdownStarted) return;
+  shutdownStarted = true;
+  try {
+    await telemetry.shutdown();
+  } catch (error) {
+    logger(error?.stack || error?.message || error);
+  }
+  process.exit(exitCode);
+}
+
+process.once("SIGTERM", () => { void shutdown(0); });
+process.once("SIGINT", () => { void shutdown(0); });
+process.on("exit", () => telemetry.stop({ persist: false }));
 
 async function main() {
   streamDeck.system.onSystemDidWakeUp(() => telemetry.resume());
