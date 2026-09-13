@@ -424,6 +424,14 @@
       "version": "0.1.0.0"
     },
     {
+      "id": "monitor-manager-lite",
+      "name": "Monitor Manager Lite",
+      "type": "plugin",
+      "status": "testing",
+      "price_usd": 0,
+      "version": "1.0.0.0"
+    },
+    {
       "id": "nascar-tracker",
       "name": "NASCAR Tracker",
       "type": "plugin",
