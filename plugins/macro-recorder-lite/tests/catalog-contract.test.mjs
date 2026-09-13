@@ -6,12 +6,13 @@ const root=new URL("../",import.meta.url);
 const repoRoot=new URL("../../",root);
 
 test("Lite Pro upsell matches canonical PackRat catalog routing",async()=>{
-  const [mapRaw,productRaw,submissionRaw,html,js]=await Promise.all([
+  const [mapRaw,productRaw,submissionRaw,html,js,build]=await Promise.all([
     readFile(new URL("products/lite-pro-map.json",repoRoot),"utf8"),
     readFile(new URL("products/macro-recorder-lite.json",repoRoot),"utf8"),
     readFile(new URL("plugins/macro-recorder-lite/submission.json",repoRoot),"utf8"),
     readFile(new URL("ui/inspector.html",root),"utf8"),
-    readFile(new URL("ui/inspector.js",root),"utf8")
+    readFile(new URL("ui/inspector.js",root),"utf8"),
+    readFile(new URL("scripts/build-assets.mjs",root),"utf8")
   ]);
   const map=JSON.parse(mapRaw);
   const product=JSON.parse(productRaw);
@@ -28,14 +29,17 @@ test("Lite Pro upsell matches canonical PackRat catalog routing",async()=>{
   assert.equal(product.upgrade_url,canonical);
   assert.equal(submission.pro_marketplace_url,canonical);
 
+  assert.equal(piUrl,"","source PI keeps the URL slot blank; build injects the canonical catalog URL");
   if(canonical){
     assert.match(canonical,/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9-]+$/i);
-    assert.equal(piUrl,canonical);
   }else{
-    assert.equal(piUrl,"");
     assert.equal(product.upgrade_url_state,"withheld_until_verified_direct_pro_listing");
   }
 
+  assert.match(build,/lite-pro-map\.json/);
+  assert.match(build,/pro_marketplace_url/);
+  assert.match(build,/data-pro-url/);
+  assert.match(build,/marketplace\\\.elgato\\\.com\\\/product/);
   assert.match(js,/event:"openUrl"/);
   assert.match(js,/marketplace\\\.elgato\\\.com\\\/product/);
   assert.doesNotMatch(html,/marketplace\.elgato\.com\/(search|@|maker|creator)/i);
