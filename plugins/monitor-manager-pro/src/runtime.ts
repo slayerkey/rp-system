@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { MonitorLiteRuntime, type MonitorSettings } from "../../monitor-manager-lite/src/runtime.js";
-import { classifyProfileResult, matchSavedMonitor, modeSupported, SAFE_VCP, SUPPORT, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
+import { boundedPercent, classifyProfileResult, matchSavedMonitor, modeSupported, SAFE_VCP, SUPPORT, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
 
 export type ProSettings = MonitorSettings & {
   contrast?: number;
@@ -52,6 +52,24 @@ function percent(min:number,current:number,max:number): number {
 function nativePercent(min:number,max:number,value:number): number {
   return Math.round(min+(Math.max(0,Math.min(100,value))/100)*Math.max(1,max-min));
 }
+function validStoredPercent(value:unknown): boolean {
+  return value===undefined||(typeof value==="number"&&Number.isFinite(value)&&value>=0&&value<=100);
+}
+function validStoredMode(mode:unknown): boolean {
+  if(mode===undefined) return true;
+  const value=mode as any;
+  return Boolean(value)&&[value.width,value.height,value.frequency,value.orientation].every(Number.isFinite)&&
+    value.width>0&&value.height>0&&value.frequency>0&&[0,1,2,3].includes(value.orientation);
+}
+function validStoredMonitor(monitor:unknown): boolean {
+  const value=monitor as any;
+  return Boolean(value)&&typeof value.monitorKey==="string"&&typeof value.description==="string"&&typeof value.deviceName==="string"&&
+    validStoredMode(value.mode)&&
+    (value.primary===undefined||typeof value.primary==="boolean")&&
+    (value.hdr===undefined||typeof value.hdr==="boolean")&&
+    validStoredPercent(value.brightness)&&validStoredPercent(value.contrast)&&validStoredPercent(value.volume)&&
+    (value.input===undefined||(Number.isInteger(value.input)&&value.input>=0&&value.input<=0xffff));
+}
 
 export class MonitorProRuntime extends MonitorLiteRuntime {
   private profileMutationQueue: Promise<unknown> = Promise.resolve();
@@ -74,7 +92,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
   async setContrastPercent(settings: ProSettings, requested:number): Promise<number> {
     const { monitor }=await this.selected(settings);
     if(!monitor.ddcContrast) throw new Error("Contrast is not supported by this monitor.");
-    const value=Math.max(0,Math.min(100,Math.round(requested)));
+    const value=boundedPercent(requested,"Contrast");
     const native=nativePercent(Number(monitor.contrastMin??0),Number(monitor.contrastMax??100),value);
     await this.bridge.request("set-contrast",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
     this.invalidate();
@@ -103,7 +121,7 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
     const current=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME});
     const max=Number(current.maximum);
     if(!Number.isFinite(max)||max<=0) throw new Error("Monitor volume range is unknown.");
-    const value=Math.max(0,Math.min(100,Math.round(requested)));
+    const value=boundedPercent(requested,"Monitor volume");
     const native=Math.round((value/100)*max);
     await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME,value:native});
     this.invalidate();
@@ -195,10 +213,10 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
       const raw=await readFile(file,"utf8");
       const parsed=JSON.parse(raw);
       const validProfiles=Array.isArray(parsed?.profiles)&&parsed.profiles.every((profile:any)=>
-        profile&&typeof profile.name==="string"&&typeof profile.savedAt==="string"&&Array.isArray(profile.monitors)&&
-        profile.monitors.every((monitor:any)=>
-          monitor&&typeof monitor.monitorKey==="string"&&typeof monitor.description==="string"&&typeof monitor.deviceName==="string"
-        )
+        profile&&typeof profile.name==="string"&&profile.name.trim().length>0&&profile.name.length<=48&&
+        typeof profile.savedAt==="string"&&Array.isArray(profile.monitors)&&profile.monitors.every(validStoredMonitor)&&
+        (profile.topology===undefined||["unknown","internal","duplicate","extend","external"].includes(profile.topology))&&
+        validStoredPercent(profile.internalBrightness)
       );
       if(parsed?.schemaVersion!==1||!validProfiles) throw new Error("invalid schema");
       return parsed;
