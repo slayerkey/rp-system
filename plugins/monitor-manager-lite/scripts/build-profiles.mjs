@@ -61,7 +61,11 @@ function pages(prefix, plus = false) {
     "3,0": action(prefix+":165", UUID.refresh, "Refresh Rate Switch", "165 HZ", { refreshRate:165 }),
     "4,0": action(prefix+":240", UUID.refresh, "Refresh Rate Switch", "240 HZ", { refreshRate:240 })
   };
-  if (plus) {\n    modesPage["0,1"] = modesPage["4,0"];\n    delete modesPage["4,0"];\n  }\n  const brightnessPage = {
+  if (plus) {
+    modesPage["0,1"] = modesPage["4,0"];
+    delete modesPage["4,0"];
+  }
+  const brightnessPage = {
     "0,0": action(prefix+":25", UUID.brightness, "Monitor Brightness", "25%", { mode:"set", value:25 }),
     "1,0": action(prefix+":50", UUID.brightness, "Monitor Brightness", "50%", { mode:"set", value:50 }),
     "2,0": action(prefix+":65b", UUID.brightness, "Monitor Brightness", "65%", { mode:"set", value:65 }),
