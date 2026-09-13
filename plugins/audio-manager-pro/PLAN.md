@@ -90,7 +90,7 @@ Why:
 
 The existing XENEON bridge remains a thin adapter and preserves its original behavior of moving Windows roles together.
 
-Audio Manager Pro exposes Default and Communications roles separately.
+Audio Manager Pro exposes Default and Communications roles separately. Internally, its user-facing Default role intentionally owns both Windows Console and Multimedia so the setup behaves as one stable default for normal applications; Communications remains independent.
 
 ## Device resilience decision
 
@@ -121,6 +121,8 @@ Every Audio Profile application resolves to:
 - **FAILED** — no requested operation succeeded
 
 Missing devices are visible and never silently replaced by another endpoint.
+
+If two profile roles point to the same endpoint but contain contradictory saved volume or mute values, Audio Manager Pro skips that conflicting endpoint-state restore and reports the conflict. It does not pick whichever value happened to be processed first.
 
 ## v1 action set
 
