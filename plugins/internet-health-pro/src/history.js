@@ -97,16 +97,16 @@ export class HistoryStore {
     this.dirty = true;
   }
 
-  flush(force = false) {
+  flush(force = false, now = Date.now()) {
     if (!this.dirty) return false;
-    if (!force && Date.now() - this.lastWriteAt < 60_000) return false;
-    this.prune();
+    if (!force && Number(now) - this.lastWriteAt < 60_000) return false;
+    this.prune(now);
     const dir = path.dirname(this.filePath);
     fs.mkdirSync(dir, { recursive: true });
     const temp = this.filePath + ".tmp";
     fs.writeFileSync(temp, JSON.stringify(this.state), "utf8");
     fs.renameSync(temp, this.filePath);
-    this.lastWriteAt = Date.now();
+    this.lastWriteAt = Number(now);
     this.dirty = false;
     return true;
   }
