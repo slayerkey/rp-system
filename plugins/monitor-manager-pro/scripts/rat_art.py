@@ -90,7 +90,7 @@ def capabilities(path):
     footer(im); save(im,path)
 
 def profiles(path):
-    im=bg(); header(im,"Four real control pages included.","MONITORS, PROFILES, DISPLAY MODES and BRIGHTNESS across Standard / MK, XL, Plus and Virtual.")
+    im=bg(); header(im,"Four real control pages included.","MONITORS, PROFILES, DISPLAY MODES and BRIGHTNESS across Standard / MK.2, XL, Plus and Virtual.")
     labels=[("MONITORS","STATUS",ACCENT),("DP","INPUT",ACCENT),("HDMI","INPUT",ACCENT),("HDR","WINDOWS",ACCENT),("PRIMARY","DISPLAY",ACCENT),
             ("PC MODE","PROFILE",ACCENT),("CONSOLE","PROFILE",ACCENT),("WORK LAPTOP","PROFILE",ACCENT),("NIGHT","PROFILE",ACCENT),("EXTEND","DISPLAY",ACCENT),
             ("165 HZ","DISPLAY",ACCENT),("1440P","RESOLUTION",ACCENT),("65%","BRIGHTNESS",ACCENT),("50%","CONTRAST",ACCENT),("50%","VOLUME",ACCENT)]
