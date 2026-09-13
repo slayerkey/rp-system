@@ -1,0 +1,40 @@
+name: Stream Deck Photo Hero Preview
+
+on:
+  push:
+    branches:
+      - feature/streamdeck-photo-hero-v1
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: windows-latest
+    env:
+      RATPACK_ART_FONT: C:\\Windows\\Fonts\\segoeui.ttf
+      RATPACK_ART_FONT_BOLD: C:\\Windows\\Fonts\\segoeuib.ttf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install deterministic art dependency
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check Pillow==12.3.0
+      - name: Render real-photo Stream Deck hero
+        shell: pwsh
+        run: python tools/art/render_streamdeck_photo_hero.py --out artifacts/streamdeck-photo/02_cover.png
+      - name: Verify deterministic contract
+        shell: pwsh
+        run: |
+          $r = Get-Content artifacts/streamdeck-photo/streamdeck-photo-hero-report.json -Raw | ConvertFrom-Json
+          if ($r.image_generation -ne 'disabled') { throw 'Image generation must remain disabled' }
+          if ($r.hardware_source -ne 'tools/art/assets/streamdeck-mk2-straight.png') { throw 'Wrong hardware source' }
+          if (-not (Test-Path artifacts/streamdeck-photo/02_cover.png)) { throw 'Hero missing' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streamdeck-photo-hero-preview
+          path: artifacts/streamdeck-photo/
+          if-no-files-found: error
+          retention-days: 3
