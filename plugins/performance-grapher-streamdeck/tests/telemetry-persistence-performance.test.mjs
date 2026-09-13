@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, readdir, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { performance } from "node:perf_hooks";
@@ -98,4 +98,21 @@ test("synthetic aggregation + key rendering stays cheap and bounded", () => {
   assert.ok(renderElapsed < 5000, "1200 key renders exceeded 5s synthetic budget");
   assert.ok(heapDeltaMb < 96, "synthetic heap growth exceeded 96 MB");
   assert.ok(tracker.snapshot(now).recent.raw.length <= 3600);
+});
+
+
+test("persistence commits through a temporary file and leaves valid JSON", async () => {
+  const dir = await mkdtemp(resolve(tmpdir(), "packrat-perf-persist-"));
+  const path = resolve(dir, "state.json");
+  const telemetry = new TelemetryService({ pluginRoot: resolve(dir, "missing"), persistPath: path });
+  telemetry._setMetric("cpu.load", 47, Date.now());
+  await telemetry._persistNow();
+
+  const names = await readdir(dir);
+  assert.ok(names.includes("state.json"));
+  assert.ok(!names.includes("state.json.tmp"));
+
+  const saved = JSON.parse(await readFile(path, "utf8"));
+  assert.equal(saved.version, 1);
+  assert.ok(saved.histories["cpu.load"]);
 });
