@@ -10,6 +10,7 @@ export function statusTitle(snapshot: SystemSnapshot): string {
 export function hdrTitle(snapshot: SystemSnapshot): string {
   if (!snapshot.backendOnline) return "HDR\nOFFLINE";
   if (!snapshot.hdr.available || snapshot.hdr.supportedCount === 0) return "HDR\nN/A";
+  if (snapshot.hdr.errors.length > 0) return "HDR\nCHECK";
   if (snapshot.hdr.mixed) return "HDR\nMIXED";
   return snapshot.hdr.enabledCount === snapshot.hdr.supportedCount ? "HDR\nON" : "HDR\nOFF";
 }
@@ -51,6 +52,7 @@ export function resultTitle(result: ApplyResult): string {
 
 function hdrText(snapshot: SystemSnapshot): string {
   if (!snapshot.hdr.available || snapshot.hdr.supportedCount === 0) return "HDR N/A";
+  if (snapshot.hdr.errors.length > 0) return "HDR CHECK";
   if (snapshot.hdr.mixed) return "HDR MIX";
   return snapshot.hdr.enabledCount === snapshot.hdr.supportedCount ? "HDR ON" : "HDR OFF";
 }
