@@ -33,7 +33,7 @@ function resultColor(status) {
     ? ACCENT
     : status === "PARTIAL" || status === "INACTIVE"
       ? WARN
-      : status === "FAILED"
+      : status === "FAILED" || status === "OFFLINE"
         ? DANGER
         : MUTED;
 }
