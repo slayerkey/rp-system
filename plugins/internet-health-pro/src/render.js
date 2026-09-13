@@ -7,7 +7,7 @@ function escapeXml(value) {
 }
 
 function dataUri(svg) {
-  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  return "data:image/svg+xml;base64," + Buffer.from(svg, "utf8").toString("base64");
 }
 
 function stateColor(state, accent) {
