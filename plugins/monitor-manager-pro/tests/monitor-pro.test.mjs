@@ -259,3 +259,11 @@ test("Pro manifest action UUIDs exactly match backend handlers", async () => {
     "com.packrat.monitormanagerpro.volume"
   ].sort());
 });
+
+test("Pro inherits single-flight monitor scanning and timeout recovery", async () => {
+  const base=await readFile("../monitor-manager-lite/src/runtime.ts","utf8");
+  const client=await readFile("../_shared/monitor-manager/monitor-client.ts","utf8");
+  assert.match(base,/scanInFlight/);
+  assert.match(base,/request\("scan",\{\},30000\)/);
+  assert.match(client,/failPending\(error, true\)/);
+});
