@@ -22,6 +22,11 @@ function finite(value) {
   return Number.isFinite(n) ? n : null;
 }
 
+function compactText(value, max) {
+  const text = String(value ?? "").replace(/\s+/g, " ").trim();
+  return text.length > max ? text.slice(0, Math.max(1, max - 1)) + "…" : text;
+}
+
 function formatNumber(value, unit = "") {
   const n = finite(value);
   if (n === null) return "--";
@@ -182,13 +187,16 @@ export function renderKey(view, settings = {}, size = 144) {
   const accent = view?.breached ? DANGER : /^#[0-9A-Fa-f]{6}$/.test(String(settings.accent || "")) ? String(settings.accent) : ACCENT;
   const state = String(view?.state || "ready");
   const unavailable = ["unavailable", "offline", "permission_required"].includes(state) && finite(view?.value) === null && !String(view?.value || "").length;
-  const top = xml(String(view?.label || "PERFORMANCE").toUpperCase());
+  const top = xml(compactText(String(view?.label || "PERFORMANCE").toUpperCase(), 17));
   const unit = String(view?.unit || "");
   let valueText = typeof view?.value === "string" ? view.value : formatNumber(view?.value, unit);
   if (unavailable) valueText = state === "permission_required" ? "PERM" : "--";
-  const secondary = unavailable
-    ? (state === "permission_required" ? "CHECK SETUP" : "NO DATA")
-    : String(view?.secondary || "");
+  const secondary = compactText(
+    unavailable
+      ? (state === "permission_required" ? "CHECK SETUP" : "NO DATA")
+      : String(view?.secondary || ""),
+    22,
+  );
 
   const graphX = s * 0.12;
   const graphY = s * 0.69;
