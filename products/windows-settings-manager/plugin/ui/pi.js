@@ -5,6 +5,7 @@ let settings = {};
 let context = { flavor: "lite", snapshot: null, modes: [] };
 let built = false;
 let modeDirty = false;
+const PRO_MARKETPLACE_URL = "";
 
 function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
   uuid = inUUID;
@@ -62,6 +63,13 @@ function requestContext() { sendPlugin({ type: "get-context" }); }
 
 function build() {
   document.getElementById("refresh").addEventListener("click", () => sendPlugin({ type: "refresh" }));
+  document.getElementById("proUpgrade").addEventListener("click", () => {
+    if (!PRO_MARKETPLACE_URL || websocket?.readyState !== WebSocket.OPEN) return;
+    websocket.send(JSON.stringify({
+      event: "openUrl",
+      payload: { url: PRO_MARKETPLACE_URL }
+    }));
+  });
 
   bindSelect("hdrOperation", "operation");
   bindSelect("powerOperation", "operation");
@@ -164,6 +172,10 @@ function renderContext() {
     ? "PC Modes & System Controls for Stream Deck"
     : "Windows System Controls for Stream Deck";
   document.getElementById("modeEditor").classList.toggle("hidden", context.flavor !== "pro");
+  document.getElementById("liteUpsell").classList.toggle(
+    "hidden",
+    context.flavor !== "lite" || !PRO_MARKETPLACE_URL
+  );
 
   const live = document.getElementById("live");
   live.textContent = "";
