@@ -4,13 +4,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
 
-from streamdeck_photo import DEFAULT_DEVICE, alpha_crop_device, compose_device
-from xeneon_all_hero_batch import F, MON, ORANGE, WHITE, fit, safe_logo
+from streamdeck_photo import DEFAULT_DEVICE, alpha_crop_device, compose_device, save_diagnostics
+from xeneon_all_hero_batch import WHITE, fit, monitor, safe_logo
 
 ROOT = Path(__file__).resolve().parents[2]
 ART = ROOT / "tools" / "art"
@@ -20,7 +19,6 @@ GREEN = (44, 232, 112)
 MUTED = (175, 184, 196)
 WARN = (244, 180, 56)
 RED = (242, 78, 78)
-PLATFORM_SUBTITLE = "for Stream Deck"
 
 LABELS = [
     ("CLAUDE", "WORKING", "2:14", GREEN),
@@ -46,7 +44,7 @@ def fail(msg: str) -> None:
 
 
 def key_face(top: str, main: str, sub: str, accent: tuple[int, int, int]) -> Image.Image:
-    """Auto Queue adapter: render one real product key as a clean source image."""
+    """Auto Queue adapter: product LCD content only, with no fake hardware bezel."""
     size = 288
     image = Image.new("RGBA", (size, size), (10, 12, 16, 255))
     draw = ImageDraw.Draw(image)
@@ -57,52 +55,6 @@ def key_face(top: str, main: str, sub: str, accent: tuple[int, int, int]) -> Ima
     draw.text((pad, 120), main, font=fit(draw, main, 232, 38, 22), fill=(*WHITE, 255))
     draw.text((pad, 206), sub, font=fit(draw, sub, 232, 24, 16, False), fill=(*accent, 255))
     return image
-
-
-def monitor(canvas: Image.Image, line1: str, line2: str) -> None:
-    """Exact XENEON hero typography/hierarchy with a Stream Deck subtitle."""
-    x1, y1, x2, y2 = MON
-    width = x2 - x1
-    height = y2 - y1
-    panel = Image.new("RGBA", (width, height), (4, 6, 8, 255))
-    draw = ImageDraw.Draw(panel)
-
-    glow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    glow_draw = ImageDraw.Draw(glow)
-    glow_draw.ellipse((-120, int(height * 0.60), width + 140, int(height * 1.26)), fill=(*ORANGE, 30))
-    panel.alpha_composite(glow.filter(ImageFilter.GaussianBlur(42)))
-
-    for band in range(6):
-        points = []
-        baseline = int(height * 0.88) + band * 3
-        for x in range(-20, width + 20, 8):
-            points.append((x, baseline + int(math.sin(x / width * math.pi * 2 + band * 0.18) * (4 + band))))
-        draw.line(points, fill=(*ORANGE, max(7, 27 - band * 3)), width=1)
-
-    for x in range(int(width * 0.81), width - 28, 10):
-        for y in range(22, 122, 10):
-            draw.ellipse((x, y, x + 2, y + 2), fill=(*ORANGE, 25))
-
-    f1 = fit(draw, line1, int(width * 0.84), 116, 50)
-    f2 = fit(draw, line2, int(width * 0.88), 126, 48)
-    fs = fit(draw, PLATFORM_SUBTITLE, int(width * 0.58), 46, 29)
-
-    def center(text: str, font, center_y: float, color: tuple[int, int, int]) -> None:
-        box = draw.textbbox((0, 0), text, font=font)
-        text_width = box[2] - box[0]
-        text_height = box[3] - box[1]
-        tx = (width - text_width) // 2
-        ty = int(center_y - text_height / 2 - box[1])
-        shadow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-        shadow_draw = ImageDraw.Draw(shadow)
-        shadow_draw.text((tx + 2, ty + 4), text, font=font, fill=(0, 0, 0, 175))
-        panel.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(4)))
-        draw.text((tx, ty), text, font=font, fill=(*color, 255))
-
-    center(line1, f1, height * 0.10, WHITE)
-    center(line2, f2, height * 0.31, ORANGE)
-    center(PLATFORM_SUBTITLE, fs, height * 0.49, WHITE)
-    canvas.alpha_composite(panel, (x1, y1))
 
 
 def sha256(path: Path) -> str:
@@ -116,27 +68,46 @@ def render(out: Path) -> None:
     if canvas.size != (W, H):
         fail(f"scene must be {W}x{H}")
 
-    # Always begin from the untouched scene. Never cover a previously rendered
-    # hero with a matte or shadow patch.
-    monitor(canvas, "AUTO QUEUE", "CLAUDE CODE")
+    # Reuse the exact approved XENEON monitor-title implementation.
+    monitor(canvas, "AUTO QUEUE", "CLAUDE CODE", platform_subtitle="for Stream Deck")
 
     key_images = [key_face(*label) for label in LABELS]
-    device = alpha_crop_device(compose_device(key_images), pad=0)
+    composition = compose_device(key_images)
+    debug_files = save_diagnostics(composition, out.parent)
+    device = alpha_crop_device(composition.device, pad=0)
 
-    # Smaller than the first prototype so the full XENEON-style title stack has
-    # comfortable separation from the hardware.
+    # Slightly smaller than the first prototype so the shared title stack has
+    # comfortable breathing room above the hardware.
     max_width, max_height = 1000, 590
     scale = min(max_width / device.width, max_height / device.height)
-    device = device.resize((round(device.width * scale), round(device.height * scale)), Image.Resampling.LANCZOS)
+    device = device.resize(
+        (round(device.width * scale), round(device.height * scale)),
+        Image.Resampling.LANCZOS,
+    )
     x = (W - device.width) // 2
     y = H - device.height - 10
 
+    # Broad, restrained silhouette shadow.
     shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
-    alpha = device.getchannel("A").filter(ImageFilter.GaussianBlur(12))
-    shadow_surface = Image.new("RGBA", device.size, (0, 0, 0, 52))
-    shadow_surface.putalpha(alpha.point(lambda value: round(value * 0.34)))
-    shadow.alpha_composite(shadow_surface, (x + 4, y + 9))
+    alpha = device.getchannel("A").filter(ImageFilter.GaussianBlur(11))
+    shadow_surface = Image.new("RGBA", device.size, (0, 0, 0, 46))
+    shadow_surface.putalpha(alpha.point(lambda value: round(value * 0.31)))
+    shadow.alpha_composite(shadow_surface, (x + 4, y + 11))
     canvas.alpha_composite(shadow)
+
+    # Small contact shadow under the bottom edge so the deck sits on the desk.
+    contact = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    contact_draw = ImageDraw.Draw(contact)
+    contact_draw.ellipse(
+        (
+            x + round(device.width * 0.10),
+            y + device.height - 13,
+            x + round(device.width * 0.90),
+            y + device.height + 24,
+        ),
+        fill=(0, 0, 0, 72),
+    )
+    canvas.alpha_composite(contact.filter(ImageFilter.GaussianBlur(16)))
     canvas.alpha_composite(device, (x, y))
 
     logo = safe_logo()
@@ -144,8 +115,9 @@ def render(out: Path) -> None:
 
     out.parent.mkdir(parents=True, exist_ok=True)
     canvas.convert("RGB").save(out, "PNG", optimize=True)
+
     report = {
-        "schema_version": 2,
+        "schema_version": 3,
         "product": "claude-auto-queue",
         "image_generation": "disabled",
         "renderer": "tools/art/render_streamdeck_photo_hero.py",
@@ -154,11 +126,21 @@ def render(out: Path) -> None:
         "hardware_source": "tools/art/assets/streamdeck-mk2-straight.png",
         "hardware_sha256": sha256(DEFAULT_DEVICE),
         "scene": "warm-studio-v1",
-        "composition_model": "key-underlay+untouched-hardware-overlay",
+        "composition_model": "alpha-detected-lcd-underlay+untouched-hardware-overlay",
         "hardware_plate_modified": False,
+        "detected_key_count": len(composition.holes),
+        "uncovered_lcd_pixels": composition.uncovered_pixels,
+        "detected_lcds": [
+            {"index": hole.index, "bounds": list(hole.bounds), "pixels": hole.pixels}
+            for hole in composition.holes
+        ],
+        "debug_outputs": debug_files,
         "output": {"name": out.name, "size": [W, H], "sha256": sha256(out)},
     }
-    (out.parent / "streamdeck-photo-hero-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    (out.parent / "streamdeck-photo-hero-report.json").write_text(
+        json.dumps(report, indent=2) + "\n",
+        encoding="utf-8",
+    )
     print(f"STREAM DECK PHOTO HERO PASS: {out}")
 
 
