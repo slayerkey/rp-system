@@ -64,7 +64,8 @@ export class WirelessRuntime {
     if (!device) return { ok: false, error: "Device not found" };
     const capability = operation === "connect" ? device.capabilities.CONNECT : device.capabilities.DISCONNECT;
     if (!capability) return { ok: false, error: `${operation} is not available for this device` };
-    const result = await control(device.id, operation);
+    const controlId = device.controlId ?? device.id;
+    const result = await control(controlId, operation);
     await this.refresh();
     return result;
   }
