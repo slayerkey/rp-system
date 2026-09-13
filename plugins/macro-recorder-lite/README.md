@@ -19,7 +19,9 @@ Do not deliberately record passwords. Windows secure-desktop input is outside th
 
 ## Limits
 
-- 30 seconds per recording\n- 60 keyboard events\n- keyboard only
+- 30 seconds per recording
+- 60 keyboard events
+- keyboard only
 
 ## Build
 
