@@ -3,8 +3,8 @@
   "name": "Performance Grapher for Stream Deck",
   "type": "plugin",
   "status": "building",
-  "workflow_state": "BUILDING",
-  "blocker": "GitHub Actions hosted jobs are still failing before any runner steps execute across multiple unrelated workflows. The merged branch passes exact-source JavaScript behavior/syntax gates locally, but Windows .NET publish, NuGet license inventory, official Elgato validation/package, deterministic Marketplace V2 art render, and real hardware QA remain unverified.",
+  "workflow_state": "READY_FOR_HARDWARE_QA",
+  "blocker": "Real Windows game/GPU matrix, physical Stream Deck smoke, and real-game A/B frametime-overhead comparison remain required before READY_TO_SHIP.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -77,16 +77,38 @@
       "note": "Exact current committed JavaScript logic executed in an isolated V8 harness. This does not replace npm/node execution, Windows native helper compilation, PresentMon executable execution, Elgato CLI/package validation, deterministic Python art render, or physical-device validation."
     },
     "github_actions": {
-      "status": "RUNNER_DID_NOT_EXECUTE_STEPS",
+      "status": "PASS_WINDOWS_RELEASE_PIPELINE",
       "workflow": "Performance Grapher Stream Deck",
-      "run_id": 34742207090,
-      "job_id": 103683691891,
-      "manual_retry_job_id": 103734846092,
-      "manual_retry_result": "RUNNER_DID_NOT_EXECUTE_STEPS",
-      "windows_build_verified": false,
-      "dependency_license_inventory_verified": false,
-      "elgato_validation_verified": false,
-      "elgato_package_verified": false
+      "run_id": 34785403209,
+      "job_id": 103799853041,
+      "verified_source_head": "579da5df225b8d90ed3a338d6a46e64e13c16f9f",
+      "runner": "Windows Server 2025 hosted runner",
+      "node_version": "24.20.0",
+      "npm_tests": {
+        "passed": 88,
+        "failed": 0
+      },
+      "windows_build_verified": true,
+      "native_provider_probe": "PASS_SAMPLE",
+      "native_helper_benchmark": {
+        "normalized_cpu_pct": 0.326,
+        "working_set_mb": 49.1
+      },
+      "dependency_license_inventory_verified": true,
+      "runtime_npm_packages_in_inventory": 5,
+      "nuget_packages_in_inventory": 28,
+      "presentmon_version": "2.5.1",
+      "presentmon_sha256": "9bec3083069f58f911e6a512f4806db51a27bd096103087bc1d05ef54c80a191",
+      "elgato_validation_verified": true,
+      "elgato_package_verified": true,
+      "packaged_profiles": "PASS_MK2_XL_PLUS_NEO",
+      "marketplace_art_rendered": true,
+      "marketplace_thumbnail_review": true,
+      "package_sha256": "1aa0f28dd64c08e41ceaf4eb8e4682c02c2e2154091f700a61903ca4fbfbb8bc",
+      "package_bytes": 33097796,
+      "release_candidate_artifact_id": 10326039229,
+      "release_candidate_artifact_sha256": "64c73277d01edbe994626bad9e84da169ed7235db77ad9e6f84b5c7c635b524a",
+      "physical_hardware_game_qa_verified": false
     },
     "hardening": {
       "session_window_zero_regression": "FIXED",
@@ -104,7 +126,7 @@
       ],
       "rat_art_faux_hardware_removed": true,
       "rat_art_missing_brand_asset_fails_closed": true,
-      "nuget_license_inventory_gate_added": true,
+      "nuget_license_inventory_gate_added": "PASS_WINDOWS_RELEASE_PIPELINE",
       "presentmon_live_cadence": "FIXED_AND_EXACT_SOURCE_TESTED",
       "active_session_restart_persistence": "FIXED_AND_EXACT_SOURCE_TESTED",
       "presentmon_child_restart_race": "FIXED_AND_EXACT_SOURCE_TESTED",
@@ -122,9 +144,9 @@
       "rat_art_packrat_mark_position": "TOP_CENTER",
       "rat_art_thumbnail_review": "GENERATED_SEPARATELY_AT_480x240_320x160_240x120_PENDING_WINDOWS_RENDER",
       "product_registry_duplicate": "FIXED_AND_CONTRACT_TESTED",
-      "runtime_npm_license_inventory_gate": "ADDED_PENDING_WINDOWS_BUILD_EXECUTION",
-      "runtime_npm_license_evidence_staged": "ADDED_PENDING_WINDOWS_BUILD_EXECUTION",
-      "rat_art_python_compile_gate": "ADDED_PENDING_WINDOWS_WORKFLOW_EXECUTION",
+      "runtime_npm_license_inventory_gate": "PASS_WINDOWS_RELEASE_PIPELINE",
+      "runtime_npm_license_evidence_staged": "PASS_WINDOWS_RELEASE_PIPELINE",
+      "rat_art_python_compile_gate": "PASS_WINDOWS_RELEASE_PIPELINE",
       "submission_json_literal_newline_terminator": "FIXED_AND_CONTRACT_TESTED",
       "cross_file_metadata_drift": "CONTRACT_TEST_ADDED",
       "presentmon_permission_retry_churn": "FIXED_AND_EXACT_SOURCE_TESTED",
@@ -135,23 +157,29 @@
       "lhm_catalog_serialization_churn": "REDUCED",
       "lhm_sensor_id_hash_churn": "REDUCED",
       "lhm_complete_sensor_units": "PINNED_0_9_6_ENUM_VERIFIED",
-      "presentmon_standalone_license": "BUNDLED_BY_BUILD_PENDING_WINDOWS_EXECUTION",
+      "presentmon_standalone_license": "PASS_WINDOWS_RELEASE_PIPELINE",
       "presentmon_present_call_cadence": "MsBetweenPresents",
       "presentmon_display_confirmed_fps_claim": false,
       "marketplace_description_limit": 1500,
       "package_size_ceiling_mb": 500,
       "package_size_ceiling_source": "PackRat internal CI guard",
-      "bundled_profiles": "MK2_XL_PLUS_NEO_DETERMINISTIC_GENERATOR_ADDED",
+      "bundled_profiles": "PASS_PACKAGED_MK2_XL_PLUS_NEO",
       "upsell_relationship": "NONE_STANDALONE_PAID_PLUGIN_NO_LITE_PRO_PAIR",
       "xeneon_performance_grapher_relationship": "ADJACENT_PLATFORM_PRODUCT_NOT_EDITION_UPSELL",
       "profile_manifest_schema": "VERIFIED_CURRENT_ELGATO_SCHEMA_DEVICE_TYPES_0_2_7_9",
-      "profile_contract_suite": "ADDED_PENDING_REAL_NODE_EXECUTION",
+      "profile_contract_suite": "PASS_NODE24_WINDOWS",
       "history_buffer_count_bound": "FIXED_AND_LATEST_HEAD_TESTED",
       "legacy_restore_history_bound": "FIXED_AND_LATEST_HEAD_TESTED",
       "history_snapshot_bucket_extremes": "FIXED_AND_LATEST_HEAD_TESTED",
       "history_window_uses_actual_raw_coverage": "FIXED_AND_LATEST_HEAD_TESTED",
       "wake_cpu_delta_baseline": "FIXED_AND_LATEST_HEAD_TESTED",
-      "hardware_alias_hot_remove": "FIXED_AND_LATEST_HEAD_TESTED"
+      "hardware_alias_hot_remove": "FIXED_AND_LATEST_HEAD_TESTED",
+      "marketplace_v2_thumbnail_review": "PASS_WINDOWS_RENDER_480x240_320x160_240x120",
+      "official_streamdeck_package_profile_check": "PASS_EXACTLY_ONE_EACH",
+      "native_helper_windows_probe": "PASS_SAMPLE_AMD_EPYC_HOST",
+      "native_helper_ci_benchmark": "0.326_PERCENT_NORMALIZED_CPU_49.1_MB_WORKING_SET",
+      "release_candidate_package_sha256": "1aa0f28dd64c08e41ceaf4eb8e4682c02c2e2154091f700a61903ca4fbfbb8bc",
+      "release_candidate_package_bytes": 33097796
     },
     "contracts": {
       "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
@@ -184,10 +212,10 @@
         "system wake resets CPU delta baseline and restarts providers",
         "long key/process labels remain bounded"
       ],
-      "note": "Latest committed JavaScript source executed through the isolated exact-source harness after the final main sync. Profile ZIP generation still requires real Node because the harness lacks Buffer/crypto/zlib/fs."
+      "note": "Latest committed JavaScript logic passed the isolated exact-source harness. The real Windows Node 24 workflow subsequently passed 88/88 tests, deterministic profile generation, .NET 8 publish, native helper probe, official Elgato validation/packaging, package-level profile verification, dependency license inventories, and Python Marketplace art generation. Physical Stream Deck and real-game/GPU QA remain pending."
     },
     "catalog_profile_audit": {
-      "status": "PASS_STATIC_CONTRACT",
+      "status": "PASS_WINDOWS_OFFICIAL_PACKAGE",
       "registry_exactly_one": true,
       "metadata_aligned": true,
       "marketplace_description_characters": 1434,
@@ -205,9 +233,11 @@
       "workflow_profile_staging": true,
       "marketplace_profile_gallery": true,
       "lite_pro_pair_count": 0,
-      "xeneon_relationship": "SEPARATE_PUBLISHED_WIDGET_NOT_EDITION_UPSELL"
+      "xeneon_relationship": "SEPARATE_PUBLISHED_WIDGET_NOT_EDITION_UPSELL",
+      "packaged_profiles_exactly_once": true,
+      "marketplace_art_windows_render": true
     }
   },
   "physical_release_evidence": null,
-  "final_boundary": "Real Windows game/GPU matrix plus physical Stream Deck smoke and frametime-overhead comparison before READY_TO_SHIP."
+  "final_boundary": "Run rat dev performance-grapher-streamdeck on the real Windows gaming host, complete REAL_WINDOWS_SMOKE.md including physical profile/device checks and game A/B performance, then promote to READY_TO_SHIP only if those pass."
 }
