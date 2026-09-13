@@ -51,12 +51,24 @@ jobs:
       - name: Run fixture and package tests
         shell: pwsh
         run: npm test
-      - name: Smoke bundled bridge without Bluetooth hardware requirement
+      - name: Smoke bundled bridge and persistent stdio protocol
         shell: pwsh
         run: |
-          $result = & .\com.packrat.wireless-device-manager.sdPlugin\bin\wireless-device-bridge-x64.exe snapshot
+          $bridge = '.\com.packrat.wireless-device-manager.sdPlugin\bin\wireless-device-bridge-x64.exe'
+          $result = & $bridge snapshot
           if ($LASTEXITCODE -notin @(0,2)) { throw "Bridge snapshot failed: $result" }
           $result | Write-Host
+
+          $request = '{"id":"ci-snapshot","command":"snapshot"}'
+          $serverResponse = @($request | & $bridge server)
+          if ($LASTEXITCODE -ne 0) { throw "Persistent bridge server failed." }
+          $line = $serverResponse | Where-Object { $_ -match '^\s*\{' } | Select-Object -Last 1
+          if (-not $line) { throw "Persistent bridge returned no JSON response." }
+          $parsed = $line | ConvertFrom-Json
+          if ($parsed.id -ne 'ci-snapshot' -or $null -eq $parsed.result.ok) {
+            throw "Persistent bridge protocol response was invalid: $line"
+          }
+          Write-Host "PERSISTENT BRIDGE PASS: $line"
       - name: Verify capability boundary and packaging structure
         shell: pwsh
         run: |
@@ -68,6 +80,8 @@ jobs:
             if ($profiles.Count -ne 3) { throw "$plugin expected three profiles" }
             $manifest = Get-Content "$plugin\manifest.json" -Raw
             if ($manifest -match '"Encoder"') { throw "$plugin must not expose fake dial support" }
+            Get-Item "$plugin\bin\wireless-device-bridge-x64.exe","$plugin\bin\wireless-device-bridge-arm64.exe" |
+              Select-Object Name,Length | Format-Table -AutoSize
           }
       - name: Validate with official Elgato CLI
         shell: pwsh
@@ -88,6 +102,7 @@ jobs:
           if($lite.Count -ne 1 -or $pro.Count -ne 1){throw 'Expected one Lite and one Pro package'}
           Get-FileHash $lite[0].FullName -Algorithm SHA256
           Get-FileHash $pro[0].FullName -Algorithm SHA256
+          $lite[0],$pro[0] | Select-Object Name,Length,@{Name='MiB';Expression={[math]::Round($_.Length/1MB,2)}} | Format-Table -AutoSize
       - uses: actions/upload-artifact@v4
         with:
           name: wireless-device-manager-family
