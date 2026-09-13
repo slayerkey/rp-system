@@ -39,11 +39,12 @@ export function stableId(raw: RawDevice): string {
 export function resolveSelectedDeviceId(
   edition: "lite" | "pro",
   liteDeviceId?: string | null,
-  localDeviceId?: string | null
+  localDeviceId?: string | null,
+  slotDeviceId?: string | null
 ): string | null {
   return edition === "lite"
     ? (liteDeviceId ?? localDeviceId ?? null)
-    : (localDeviceId ?? null);
+    : (slotDeviceId ?? localDeviceId ?? null);
 }
 
 export function parseGroupNames(value: string): string[] {
