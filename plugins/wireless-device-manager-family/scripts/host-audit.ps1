@@ -7,6 +7,9 @@ foreach($plugin in @($lite,$pro)){
   if(-not(Test-Path (Join-Path $plugin "manifest.json"))){throw "Missing manifest: $plugin"}
   if(-not(Test-Path (Join-Path $plugin "bin\plugin.js"))){throw "Missing built plugin.js: $plugin"}
   if(-not(Test-Path (Join-Path $plugin "bin\wireless-device-bridge-x64.exe"))){throw "Missing x64 bridge: $plugin"}
+  if(-not(Test-Path (Join-Path $plugin "bin\wireless-device-bridge-arm64.exe"))){throw "Missing ARM64 bridge: $plugin"}
+  $profiles=@(Get-ChildItem (Join-Path $plugin "profiles") -Filter *.streamDeckProfile -File)
+  if($profiles.Count -ne 5){throw "Expected five bundled profiles in $plugin; found $($profiles.Count)"}
 }
 Write-Host "Wireless Device Manager static host audit PASS."
 if($StaticOnly){return}
