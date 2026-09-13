@@ -26,13 +26,15 @@ Final confidence boundary: install the exact packaged `.streamDeckPlugin` into S
 
 ## Current automated gate status
 
-Candidate `925899d40ed6f894896ad6932205a6dd3829130a` triggered Internet Health Pro CI run `34761798011`.
+Candidate `dc9a53e7a9dd01ea569facbdc072158414f58c64` passed Internet Health Pro CI run `34770102676` after the repository was made public and GitHub-hosted runners could execute normally.
 
-Both hosted test jobs failed before runner assignment:
+- Windows job `103758022787`: deterministic tests, build, and live network smoke passed
+- macOS job `103758023052`: deterministic tests, build, and live network smoke passed
+- release job `103758125462`: npm audit/check, official Elgato validation, official package creation, deterministic Rat Art, package/media verification, and artifact upload passed
+- release artifact `10321692257`: `internet-health-pro-release-qa`
+- artifact ZIP digest: `sha256:265f7b80015b060eb14c44a6a4f401f8cf2e6c601077ec4e1da81fdf7d20c1d0`
+- packaged plugin SHA256: `B7E9DEDA74D1316583A05B634E3B778B8B88AE0DCCD0E3F3B51986C219C47039`
 
-- `windows-latest`: runner_id 0, zero executed steps
-- `macos-latest`: runner_id 0, zero executed steps
-- Elgato validate/package job: skipped because the test matrix never started
+During the first real hosted run, CI exposed a deterministic-clock bug: `HistoryStore.flush()` pruned using wall-clock time while monitor tests used an injected clock. That was fixed by passing the monitor clock into history flushes. The corrected candidate then passed on both supported operating systems.
 
-Other repository workflows on the same commit failed at the same pre-runner boundary. This is recorded as an infrastructure/runner allocation blocker, not as a product QA failure. Do not mark the plugin qa_passed until the deterministic test/build/live-smoke/Elgato validate/package gate actually executes and passes.
-
+Automated QA is passed. The remaining human confidence boundary is installing the exact packaged `.streamDeckPlugin` in Stream Deck and physically observing healthy rendering, a temporary disconnect/reconnect, and one manual speed test before Marketplace submission.
