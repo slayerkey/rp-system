@@ -10,11 +10,12 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = Path(__file__).resolve().parents[4]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
+ART_TOOLS = REPO / "tools" / "art"
+if str(ART_TOOLS) not in sys.path:
+    sys.path.insert(0, str(ART_TOOLS))
 
-from tools.art.marketplace_text import draw_fitted_text
-from tools.art.streamdeck_photo import alpha_crop_device, compose_device
+from marketplace_text import draw_fitted_text
+from streamdeck_photo import alpha_crop_device, compose_device
 
 W, H = 1920, 960
 BG = (8, 10, 14)
