@@ -534,67 +534,67 @@ function safeSeconds(value: unknown, fallback: number): number {
 }
 
 // Lite: a useful free slice of the same Windows Control Center.
-@action({ UUID: "com.packrat.windows-settings-manager-lite.lock" })
+@action({ UUID: "com.packrat.windows-settings-manager-lite2.lock" })
 export class LiteLockAction extends LockBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-lite.sleep" })
+@action({ UUID: "com.packrat.windows-settings-manager-lite2.sleep" })
 export class LiteSleepAction extends SleepBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-lite.power" })
+@action({ UUID: "com.packrat.windows-settings-manager-lite2.power" })
 export class LitePowerAction extends PowerBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-lite.awake" })
+@action({ UUID: "com.packrat.windows-settings-manager-lite2.awake" })
 export class LiteAwakeAction extends AwakeBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-lite.desktop-previous" })
+@action({ UUID: "com.packrat.windows-settings-manager-lite2.desktop-previous" })
 export class LiteDesktopPreviousAction extends DesktopPreviousBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-lite.desktop-next" })
+@action({ UUID: "com.packrat.windows-settings-manager-lite2.desktop-next" })
 export class LiteDesktopNextAction extends DesktopNextBase {}
 
 // Pro core 15-key control center.
-@action({ UUID: "com.packrat.windows-settings-manager-pro.lock" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.lock" })
 export class ProLockAction extends LockBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.sleep" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.sleep" })
 export class ProSleepAction extends SleepBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.hibernate" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.hibernate" })
 export class ProHibernateAction extends HibernateBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.restart" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.restart" })
 export class ProRestartAction extends RestartBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.shutdown" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.shutdown" })
 export class ProShutdownAction extends ShutdownBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.wifi" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.wifi" })
 export class ProWifiAction extends WifiBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.bluetooth" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.bluetooth" })
 export class ProBluetoothAction extends BluetoothBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.power" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.power" })
 export class ProPowerAction extends PowerBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.awake" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.awake" })
 export class ProAwakeAction extends AwakeBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.theme" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.theme" })
 export class ProThemeAction extends ThemeBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.desktop-previous" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.desktop-previous" })
 export class ProDesktopPreviousAction extends DesktopPreviousBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.desktop-next" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.desktop-next" })
 export class ProDesktopNextAction extends DesktopNextBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.desktop-new" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.desktop-new" })
 export class ProDesktopNewAction extends DesktopNewBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.desktop-close" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.desktop-close" })
 export class ProDesktopCloseAction extends DesktopCloseBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.desktop-current" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.desktop-current" })
 export class ProDesktopCurrentAction extends DesktopCurrentBase {}
 
 // Existing advanced controls remain available without owning the default profile.
-@action({ UUID: "com.packrat.windows-settings-manager-pro.status" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.status" })
 export class ProStatusAction extends StatusBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.hdr" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.hdr" })
 export class ProHdrAction extends HdrBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.display" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.display" })
 export class ProDisplayAction extends TopologyBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.timeout" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.timeout" })
 export class ProTimeoutAction extends TimeoutBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.apply-mode" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.apply-mode" })
 export class ProApplyModeAction extends ApplyModeBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.cycle-mode" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.cycle-mode" })
 export class ProCycleModeAction extends CycleModeBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.current-mode" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.current-mode" })
 export class ProCurrentModeAction extends CurrentModeBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.save-mode" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.save-mode" })
 export class ProSaveModeAction extends SaveModeBase {}
-@action({ UUID: "com.packrat.windows-settings-manager-pro.profile-page" })
+@action({ UUID: "com.packrat.windows-settings-manager-pro2.profile-page" })
 export class ProProfilePageAction extends ProfilePageBase {}
