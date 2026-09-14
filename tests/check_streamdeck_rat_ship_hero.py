@@ -135,6 +135,7 @@ def main() -> None:
         renderer_source = (ROOT / "tools" / "art" / "render_streamdeck_ship_hero.py").read_text(encoding="utf-8")
         assert '".svg"' in renderer_source
         assert "render_svg_icon.mjs" in renderer_source
+        assert "hashlib.sha256(svg_path.read_bytes())" in renderer_source
         assert "text-fallback" in renderer_source
 
     print("STREAM DECK RAT SHIP HERO TEST PASS")
