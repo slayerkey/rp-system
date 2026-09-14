@@ -1,22 +1,16 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import importlib.util
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
-HELPER = ROOT / "tools" / "art" / "marketplace_text.py"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-
-def load_helper():
-    spec = importlib.util.spec_from_file_location("marketplace_text", HELPER)
-    if spec is None or spec.loader is None:
-        raise SystemExit("Could not load marketplace_text helper")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+from tools.art import marketplace_text
 
 
 def font_factory(size: int, bold: bool = False):
@@ -32,7 +26,7 @@ def font_factory(size: int, bold: bool = False):
 
 
 def main() -> None:
-    helper = load_helper()
+    helper = marketplace_text
 
     image = Image.new("RGB", (900, 500), "black")
     draw = ImageDraw.Draw(image)
