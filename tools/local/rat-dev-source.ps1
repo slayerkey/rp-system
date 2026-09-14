@@ -86,6 +86,8 @@ function Resolve-RatDevProductMetadataSource {
         type = "streamdeck-plugin"
         plugin_dir = if ($metadata.ship_plugin_dir) { [string]$metadata.ship_plugin_dir } else { $null }
         plugin_uuid = if ($metadata.plugin_uuid) { [string]$metadata.plugin_uuid } else { $null }
+        open_dev_profile = if ($metadata.dev_profile) { [string]$metadata.dev_profile } else { $null }
+        open_dev_folder = [bool]($metadata.open_dev_folder)
     }
 
     return [PSCustomObject]@{
