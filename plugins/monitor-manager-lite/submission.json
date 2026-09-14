@@ -1,0 +1,26 @@
+{
+  "slug": "monitor-manager-lite",
+  "name": "Monitor Manager Lite",
+  "type": "plugin",
+  "price_usd": 0,
+  "version": "1.0.0.0",
+  "marketplace_category": [
+    "Utilities"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows"
+  ],
+  "marketplace_tags": [
+    "Windows",
+    "Monitor",
+    "Brightness",
+    "Utilities"
+  ],
+  "marketplace_auto_publish": true,
+  "headline": "Monitor Brightness On Stream Deck",
+  "description": "Monitor Manager Lite is the free, focused version of Monitor Manager for Windows. It does one everyday job well: control the brightness of one monitor directly from Stream Deck.\n\nSet exact brightness presets, create Brightness Up / Down keys, or use a Stream Deck+ dial for continuous adjustment. External monitors use Windows monitor APIs / DDC where supported, while laptop internal panels use the Windows internal brightness path.\n\nLite is intentionally simple. It does not include monitor power, refresh-rate switching, resolution, input switching, HDR, orientation, topology, multi-monitor orchestration, or saved Monitor Profiles.\n\nNeed the full display control center? Monitor Manager Pro adds those deeper controls plus whole-setup Monitor Profiles.\n\nStarter profiles are included for Standard / MK.2, XL, Stream Deck+, and Virtual Stream Deck.\n\nWindows 10 or newer. Hardware support depends on the connected display and Windows capabilities.\n\nPart of the PackRat ecosystem.",
+  "release_notes": "Initial release. Free one-monitor brightness control with exact presets, Brightness Up / Down, Stream Deck+ dial support, laptop internal-brightness fallback, and bundled profiles."
+}

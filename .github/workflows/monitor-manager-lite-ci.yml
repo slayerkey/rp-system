@@ -1,0 +1,133 @@
+name: Monitor Manager Lite CI
+
+on:
+  push:
+    branches:
+      - product/monitor-manager-lite
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+    paths:
+      - 'plugins/monitor-manager-lite/**'
+      - 'plugins/_shared/monitor-manager/**'
+      - 'products/monitor-manager-lite.json'
+      - 'products/index.json'
+      - '.github/workflows/monitor-manager-lite-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monitor-manager-lite-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-streamdeck:
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: plugins/monitor-manager-lite/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install locked dependencies
+        working-directory: plugins/monitor-manager-lite
+        run: npm ci --no-fund --no-audit
+
+      - name: Install deterministic Rat Art runtime
+        run: python -m pip install Pillow==11.3.0
+
+      - name: Build plugin and bundled V2 profiles
+        working-directory: plugins/monitor-manager-lite
+        run: npm run build
+
+      - name: Run fixtures
+        working-directory: plugins/monitor-manager-lite
+        run: npm test
+
+      - name: Compile and scan Windows monitor helper
+        working-directory: plugins/monitor-manager-lite
+        shell: pwsh
+        run: ./scripts/host-audit.ps1
+
+      - name: Verify packaged plugin icon dimensions
+        working-directory: plugins/monitor-manager-lite
+        shell: pwsh
+        run: |
+          python -c "from PIL import Image; from pathlib import Path; p=Path('com.packrat.monitormanagerlite.sdPlugin/imgs/plugin'); expected={'marketplace.png':(256,256),'marketplace@2x.png':(512,512)}; bad=[(n,Image.open(p/n).size,s) for n,s in expected.items() if Image.open(p/n).size!=s]; assert not bad,bad; print('PLUGIN ICON PASS')"
+
+      - name: Validate with official Stream Deck CLI
+        working-directory: plugins/monitor-manager-lite
+        run: npx streamdeck validate com.packrat.monitormanagerlite.sdPlugin --no-update-check
+
+      - name: Package release candidate
+        working-directory: plugins/monitor-manager-lite
+        run: npx streamdeck pack com.packrat.monitormanagerlite.sdPlugin --output dist --force --no-update-check --no-file-list
+
+      - name: Render deterministic Marketplace media
+        shell: pwsh
+        working-directory: plugins/monitor-manager-lite
+        run: ./rat-art.ps1 -Destination (Join-Path $PWD 'dist\marketplace')
+
+      - name: Verify Marketplace media dimensions
+        working-directory: plugins/monitor-manager-lite
+        shell: pwsh
+        run: |
+          python -c "from PIL import Image; from pathlib import Path; p=Path('dist/marketplace'); expected={'01_search_icon.png':(512,512),'02_cover.png':(1920,960),'03_gallery_01.png':(1920,960),'04_gallery_02.png':(1920,960),'05_gallery_03.png':(1920,960),'06_gallery_04.png':(1920,960)}; bad=[(n,Image.open(p/n).size,s) for n,s in expected.items() if Image.open(p/n).size!=s]; assert not bad,bad; print('MARKETPLACE MEDIA PASS')"
+
+      - name: Strict Lite-to-Pro shipping audit when release-ready
+        shell: pwsh
+        run: |
+          $product = Get-Content products/monitor-manager-lite.json -Raw | ConvertFrom-Json
+          if ([string]$product.workflow_state -eq 'READY_TO_SHIP' -and [string]$product.pro_cta_release_policy -eq 'deferred_until_verified_public_url') {
+            Write-Host 'Monitor Manager Lite ships with the Pro CTA intentionally hidden until the verified public Pro URL exists.'
+          }
+          elseif ([string]$product.workflow_state -eq 'READY_TO_SHIP') {
+            python tools/lite_pro_audit.py --shipping monitor-manager-lite
+            if ($LASTEXITCODE -ne 0) { throw 'Monitor Manager Lite strict Lite-to-Pro shipping audit failed.' }
+          }
+          else {
+            Write-Host "Lite-to-Pro ship gate deferred while workflow_state=$($product.workflow_state)"
+          }
+
+      - name: Exercise canonical Rat Ship plugin kit
+        shell: pwsh
+        run: |
+          $dest = Join-Path $env:RUNNER_TEMP 'monitor-manager-lite-ship-kit'
+          ./tools/local/rat-ship-plugin.ps1 -PluginSlug monitor-manager-lite -Destination $dest
+          $required = @(
+            'monitor-manager-lite.streamDeckPlugin',
+            'submission.json',
+            'PASTE_description.txt',
+            'PASTE_release_notes.txt',
+            '01_search_icon.png',
+            '02_cover.png',
+            '03_gallery_01.png',
+            '04_gallery_02.png',
+            '05_gallery_03.png',
+            '06_gallery_04.png'
+          )
+          $missing = @($required | Where-Object { -not (Test-Path (Join-Path $dest $_)) })
+          if ($missing.Count) { throw "Canonical plugin ship kit is incomplete: $($missing -join ', ')" }
+          Write-Host 'MONITOR MANAGER LITE RAT SHIP KIT PASS'
+
+      - name: Upload release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-manager-lite
+          path: |
+            plugins/monitor-manager-lite/dist/*.streamDeckPlugin
+            plugins/monitor-manager-lite/dist/marketplace/*.png
+          if-no-files-found: error

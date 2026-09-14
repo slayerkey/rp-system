@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "Monitor Manager Lite",
+  "Version": "1.0.0.0",
+  "Author": "Packrat",
+  "Description": "Free one-monitor brightness control for Stream Deck with exact presets, up/down adjustment, and Stream Deck+ dial support.",
+  "Category": "Monitor Manager Lite",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "Icon": "imgs/plugin/marketplace",
+  "CodePath": "bin/plugin.js",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.0"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20"
+  },
+  "UUID": "com.packrat.monitormanagerlite",
+  "Profiles": [
+    {
+      "Name": "profiles/monitor-manager-lite-standard",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/monitor-manager-lite-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/monitor-manager-lite-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/monitor-manager-lite-virtual",
+      "DeviceType": 11,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
+  ],
+  "Actions": [
+    {
+      "Name": "Monitor Brightness",
+      "UUID": "com.packrat.monitormanagerlite.brightness",
+      "Icon": "imgs/actions/brightness/icon",
+      "Tooltip": "Set monitor brightness, raise/lower it, or use a Stream Deck+ dial on one configured display.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": {
+          "Rotate": "Adjust brightness"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/brightness/key",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ]
+}

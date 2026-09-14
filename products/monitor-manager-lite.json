@@ -1,0 +1,29 @@
+{
+  "id": "monitor-manager-lite",
+  "name": "Monitor Manager Lite",
+  "type": "plugin",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "price_usd": 0,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/monitor-manager-lite",
+  "plugin_uuid": "com.packrat.monitormanagerlite",
+  "automated_feasibility": "PASS",
+  "release_gate": [
+    "brightness-only Lite surface: REQUIRED",
+    "Windows helper compile and scan smoke: REQUIRED",
+    "unit and capability parser fixtures: REQUIRED",
+    "four deterministic one-page V2 brightness profiles: REQUIRED",
+    "official Stream Deck CLI validation and packaging: REQUIRED",
+    "deterministic Rat Art dimension gate: REQUIRED",
+    "real-host external/laptop brightness behavior accepted from family QA: PASSED Sep 14",
+    "direct Pro CTA intentionally deferred until a verified public Pro product URL exists"
+  ],
+  "notes": "Lite intentionally exposes one configured monitor and one product job: brightness control. It includes exact presets, Brightness Up / Down and Stream Deck+ dial control. The direct Pro CTA remains fail-closed until the real public Monitor Manager Pro Marketplace URL exists; shipping Lite without a placeholder CTA is intentional, and the upsell can be enabled after publication.",
+  "blocker": null,
+  "final_boundary": "READY_TO_SHIP. Lite is intentionally brightness-only. Automated Windows CI, profiles, helper smoke, official Elgato validation/package and Rat Art must be green on the final candidate. Direct Pro CTA is a post-publication enhancement, not a release blocker.",
+  "open_profile_on_dev": true,
+  "dev_profile": "profiles/monitor-manager-lite-standard.streamDeckProfile",
+  "pro_cta_release_policy": "deferred_until_verified_public_url"
+}
