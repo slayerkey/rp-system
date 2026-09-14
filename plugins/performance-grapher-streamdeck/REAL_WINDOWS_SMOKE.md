@@ -29,11 +29,15 @@ This is the remaining release boundary after automated QA. Use the exact validat
 - [ ] Confirm profiles remain editable and do not auto-switch on installation.
 - [ ] Confirm Stream Deck + profile uses keypad actions only; no phantom encoder action appears.
 - [ ] Confirm a profile key opens the correct Property Inspector settings and can be customized.
-- [ ] Change Sensor / Metric from CPU Load to RAM Used and confirm the physical key changes immediately.
-- [ ] Change Sensor / Metric to GPU Temperature and confirm the picker reports the same live source the key is using, not a false "unavailable" row.
+- [ ] Confirm the Metric picker opens with a short Common list before any advanced raw sensors.
+- [ ] Confirm Common includes GPU Temperature, CPU Temperature, GPU Fan Speed, GPU Load, CPU Load, RAM Used, GPU Power, CPU Power, Game FPS, and Frametime when supported.
+- [ ] Confirm raw hardware sensors stay behind Show advanced sensors and are grouped by friendly hardware names rather than a Libre Hardware Monitor wall.
+- [ ] Change Sensor / Metric from CPU Load to RAM Used to GPU Temperature to GPU Fan Speed and confirm the physical key changes immediately.
+- [ ] Confirm GPU Temperature picker state agrees with the live physical key rather than showing a false unavailable row.
 - [ ] Change Accent, close/reopen the Property Inspector, and confirm the color persists and the key redraws.
 - [ ] Change a Performance Graph history window from 60 sec to 5 min, close/reopen the Property Inspector, and confirm the window persists and the key redraws.
-- [ ] Confirm healthy providers do not leave permanent "Checking game telemetry" / "Checking hardware sensors" cards at the top of every action.
+- [ ] Confirm top and bottom key labels remain fully inside the physical key at 72/96/144 px, including Ryzen/GeForce hardware names.
+- [ ] Confirm healthy providers do not leave permanent Checking game telemetry / Checking hardware sensors cards at the top of every action.
 - [ ] Confirm provider warnings appear only when the selected action/metric actually depends on the failing provider.
 
 ## Game telemetry
@@ -55,7 +59,8 @@ This is the remaining release boundary after automated QA. Use the exact validat
 - [ ] Exercise PresentMon without required ETW rights where practical.
 - [ ] Confirm key/PI shows permission-required state rather than 0 FPS.
 - [ ] Confirm PresentMon does not relaunch continuously while permission is denied.
-- [ ] Add Performance Log Users rights or use sufficient admin rights.
+- [ ] Use the one-click Enable Game FPS button and approve the Windows UAC prompt.
+- [ ] Sign out and back in once, then confirm Game FPS works without any manual group-management steps.
 - [ ] Use Restart game telemetry and confirm capture recovers.
 - [ ] Confirm hardware-helper launch failure backs off instead of retrying every few seconds forever.
 
@@ -111,7 +116,7 @@ Record a repeatable real-game baseline and plugin-enabled comparison using the s
 
 Target release budget:
 
-- sensor polling: 1 Hz
+- hardware sensor polling: 2 Hz
 - visible FPS-like key refresh: <= 4 Hz
 - visible hardware key refresh: <= 1 Hz
 - one shared PresentMon process
