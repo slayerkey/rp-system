@@ -600,6 +600,19 @@ When hardware finds a repeatable defect, add a regression test or shared QA rule
 | Every preset key changed to the same live value | Keep preset keys on configured targets; reserve live values for status actions and encoder feedback |
 | Raw resolution text ran off the key | Map common modes to compact labels such as 1080P, 1440P, or 4K and use a short fallback |
 | Too many useful actions were crammed onto one page | Generate a small multi-page profile organized by user workflow |
+| PackRat mark rendered as a square, disappeared, or changed by WebView CSS | Bundle the real transparent PNG inside the plugin and render it as a normal local `<img>`; do not use CSS masks or data-URI logo tricks |
+| PackRat branding drifted inside the first settings card | Keep PackRat chrome outside product cards; Lite products use the approved top bar with PackRat left and Pro CTA right |
+| Lite upsell was easy to miss | Require both conversion surfaces: persistent top `Upgrade to Pro ↗` and the explanatory bottom Pro feature card |
+| Product rollout started rewriting the global design file | Product tasks consume the canonical design system read-only; only an explicit global-system task edits this file |
+| Backend selected/saved a value but the PI still showed the old selection | Treat plugin state as authoritative; merge returned settings/state into PI-local state before rendering and keep one selected-ID source of truth |
+| Neutral controls turned muddy brown/gold | Keep normal controls charcoal; orange is the brand/focus/primary-CTA accent, not the base material |
+| Static key asset looked right but runtime key still used an old color/layout | Audit both manifest assets and runtime-generated representative states; runtime rendering is the actual product |
+| Extensionless Stream Deck asset resolved unpredictably | Keep exactly one canonical file for an extensionless asset path; do not ship competing SVG/PNG/@2x targets for the same manifest path |
+| Action-list/sidebar icon inherited colorful key-face art | Keep action-list/category icons monochrome white when Elgato presentation requires it; reserve orange accent for the key face and PI |
+| Long key text fit technically but looked tiny | Use adaptive text fitting against the longest real label, consume available safe space, and simplify copy before shrinking below useful hardware size |
+| A product scope/behavior reset reused old green QA evidence | Any behavior or release-boundary change invalidates prior final QA; rerun tests, native smoke, validation/package, art, and exact-commit evidence |
+| A risky rollback/refactor threatened useful work | Snapshot/freeze the current exact branch/commit before destructive product-boundary changes, then work from the new candidate |
+| Private GitHub job failed before meaningful steps ran | Separate runner/allocation failure from product failure; use the established public control-plane/private-source QA bridge when available and never expose paid source/artifacts publicly |
 
 ## 10. Definition of done
 
@@ -619,3 +632,6 @@ It is done when:
 - complex products use a coherent multi-page profile instead of a crowded single page
 - Elgato validate/package passes
 - a real-device smoke test confirms the final interaction
+- `streamdeck-plugin-design-audit.mjs` passes against the real Property Inspector files; use `--require-canonical-pi` for canonical UI refreshes and `--require-lite-pro-upsell` for Lite products with a direct Pro counterpart
+- every extensionless action/key asset resolves to one unambiguous file
+- final QA evidence points to the exact source commit and package under review; stale evidence from an earlier feature boundary is not reused
