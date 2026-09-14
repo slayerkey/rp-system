@@ -82,7 +82,9 @@ function Get-RatDevBuildOwnedProcesses {
             $owned = $true
         }
 
-        if (-not $owned -and $commandLines.ContainsKey([int]$process.Id)) {
+        if (-not $owned -and
+            $process.ProcessName -ieq "node" -and
+            $commandLines.ContainsKey([int]$process.Id)) {
             $commandLine = [string]$commandLines[[int]$process.Id]
             if ($commandLine.IndexOf($rootFull, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
                 $owned = $true
