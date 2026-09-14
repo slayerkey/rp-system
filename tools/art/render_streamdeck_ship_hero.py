@@ -152,44 +152,58 @@ def normalize_face(image: Image.Image) -> Image.Image:
 def blank_face() -> Image.Image:
     image = Image.new("RGBA", (W, H), BG)
     draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((5, 5, W - 5, H - 5), 30, fill=CARD, outline=BORDER, width=3)
+    draw.rounded_rectangle((5, 5, W - 5, H - 5), 30, fill=BG, outline=BORDER, width=4)
     return image
 
 
-def fallback_face(name: str, icon_path: Path | None = None) -> Image.Image:
+def compact_action_name(name: str, product_name: str = "") -> str:
+    words = [part for part in str(name or "ACTION").strip().upper().replace("/", " / ").split() if part]
+    product_words = {
+        part
+        for part in str(product_name or "").strip().upper().replace("/", " ").split()
+        if len(part) > 2
+    }
+    trimmed = [part for part in words if part not in product_words]
+    # Avoid removing everything when the action is intentionally the same as
+    # the product name.
+    return " ".join(trimmed or words)
+
+
+def fallback_face(name: str, icon_path: Path | None = None, product_name: str = "") -> Image.Image:
     image = blank_face()
     draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((20, 20, 66, 26), 3, fill=ORANGE)
-    draw.rounded_rectangle((W - 54, 20, W - 20, 26), 3, fill=ORANGE)
+    # Match the canonical PackRat hardware-key language used by newer products:
+    # one restrained orange status/accent line, one large white glyph, concise
+    # bottom text. Do not invent extra decorative bars or PACKRAT wordmarks.
+    draw.rounded_rectangle((44, 20, W - 44, 27), 3, fill=ORANGE)
 
     if icon_path:
         try:
             icon = Image.open(icon_path).convert("RGBA")
-            icon.thumbnail((112, 112), Image.Resampling.LANCZOS)
-            image.alpha_composite(icon, ((W - icon.width) // 2, 62))
+            icon.thumbnail((126, 126), Image.Resampling.LANCZOS)
+            image.alpha_composite(icon, ((W - icon.width) // 2, 55))
         except Exception:
             icon_path = None
 
-    line1, line2 = wrap_action_name(name)
+    line1, line2 = wrap_action_name(compact_action_name(name, product_name))
     if icon_path:
-        top = 205
-        f1 = fit(draw, line1, 236, 28, 18)
-        draw.text((W // 2, top), line1, font=f1, fill=WHITE, anchor="ma")
+        top = 211
+        f1 = fit(draw, line1, 238, 29, 18)
+        draw.text((W // 2, top), line1, font=f1, fill=WHITE, anchor="mm")
         if line2:
-            f2 = fit(draw, line2, 236, 24, 16)
-            draw.text((W // 2, top + 34), line2, font=f2, fill=MUTED, anchor="ma")
+            f2 = fit(draw, line2, 238, 25, 16)
+            draw.text((W // 2, top + 31), line2, font=f2, fill=WHITE, anchor="mm")
     else:
         f1 = fit(draw, line1, 236, 38, 22)
-        draw.text((W // 2, 110), line1, font=f1, fill=WHITE, anchor="mm")
+        draw.text((W // 2, 122), line1, font=f1, fill=WHITE, anchor="mm")
         if line2:
             f2 = fit(draw, line2, 236, 34, 20)
-            draw.text((W // 2, 154), line2, font=f2, fill=MUTED, anchor="mm")
-        draw.text((W // 2, 212), "PACKRAT", font=F(16, True), fill=ORANGE, anchor="mm")
+            draw.text((W // 2, 164), line2, font=f2, fill=WHITE, anchor="mm")
 
     return image
 
 
-def action_face(plugin_dir: Path, action: dict, cache_dir: Path) -> tuple[Image.Image, str]:
+def action_face(plugin_dir: Path, action: dict, cache_dir: Path, product_name: str) -> tuple[Image.Image, str]:
     states = action.get("States") if isinstance(action.get("States"), list) else []
     state_ref = None
     if states and isinstance(states[0], dict):
@@ -210,11 +224,11 @@ def action_face(plugin_dir: Path, action: dict, cache_dir: Path) -> tuple[Image.
     visual_path = raster_asset(visual_asset, cache_dir)
     if visual_path:
         return (
-            fallback_face(str(action.get("Name") or "Action"), visual_path),
+            fallback_face(str(action.get("Name") or "Action"), visual_path, product_name),
             f"icon-{visual_asset.suffix.lower().lstrip('.')}:{visual_asset.name}",
         )
 
-    return fallback_face(str(action.get("Name") or "Action"), None), "text-fallback"
+    return fallback_face(str(action.get("Name") or "Action"), None, product_name), "text-fallback"
 
 
 def render_ship_hero(
@@ -261,7 +275,7 @@ def render_ship_hero(
         for action in actions[:15]:
             if not isinstance(action, dict):
                 continue
-            face, source = action_face(plugin_dir, action, svg_cache)
+            face, source = action_face(plugin_dir, action, svg_cache, name)
             faces.append(face)
             sources.append(source)
 
