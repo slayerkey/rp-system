@@ -135,5 +135,7 @@ jobs:
           path: |
             plugins/monitor-manager-pro/dist/*.streamDeckPlugin
             plugins/monitor-manager-pro/dist/marketplace/*.png
+            ${{ runner.temp }}/monitor-manager-pro-ship-kit/*.png
+            ${{ runner.temp }}/monitor-manager-pro-ship-kit/streamdeck-ship-hero-report.json
             plugins/monitor-manager-pro/dist/ship-marketplace/*.png
           if-no-files-found: error
