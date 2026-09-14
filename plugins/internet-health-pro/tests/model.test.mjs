@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { classifyHealth, computeMetrics, outageSummary } from "../src/model.js";
+import { DEFAULT_GLOBAL_SETTINGS, classifyHealth, computeMetrics, normalizeGlobalSettings, outageSummary } from "../src/model.js";
 
 function sample(t, ms, extra = {}) {
   return { t, ok: true, ms, method: "icmp", lossCounted: true, lossOk: true, ...extra };
@@ -60,4 +60,11 @@ test("outage summary separates current duration, last outage and recent count", 
   assert.equal(summary.currentDurationMs, 10_000);
   assert.equal(summary.last.durationMs, 30_000);
   assert.equal(summary.count24h, 2);
+});
+
+
+test("default monitoring cadence is five seconds", () => {
+  assert.equal(DEFAULT_GLOBAL_SETTINGS.intervalSeconds, 5);
+  assert.equal(normalizeGlobalSettings({}).intervalSeconds, 5);
+  assert.equal(normalizeGlobalSettings({ intervalSeconds: 10 }).intervalSeconds, 10);
 });
