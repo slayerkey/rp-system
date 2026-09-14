@@ -199,6 +199,8 @@ for(const [uuid,name] of expected){
   if(!plugin.includes("streamDeck.ui.sendToPropertyInspector"))fail(`${name} must use global streamDeck.ui.sendToPropertyInspector PI transport.`);
   if(/\.action\.sendToPropertyInspector/.test(plugin))fail(`${name} must not use per-action PI response transport.`);
   if(!plugin.includes("renderSnippetKey")||!plugin.includes("setImage("))fail(`${name} must runtime-render semantic snippet keys.`);
+  if(!plugin.includes("loadSnippetSelection")||!plugin.includes("setSettings(selection.settings)"))fail(`${name} must repair stale/missing snippet selections before rendering or insertion.`);
+  if(!plugin.includes("onLibraryChanged"))fail(`${name} must refresh runtime state when the local full-library manager saves.`);
 
 }
 
@@ -211,6 +213,8 @@ if(!inspector.includes('src="../imgs/plugin/packrat-logo.png"'))fail("Property I
 if(!inspector.includes("Loading snippets…"))fail("Property Inspector must show a clear snippet-loading state instead of a blank selector.");
 if(!inspector.includes("Open snippet library"))fail("Property Inspector must expose a clear snippet-library control.");
 if(!inspector.includes("Dynamic text"))fail("Pro Property Inspector must explain available dynamic text.");
+if(!inspector.includes("Open reusable variables & full library"))fail("Pro Property Inspector must expose reusable/global variables without requiring the hidden legacy action.");
+if(!inspector.includes("{{name}}")||!inspector.includes("literal braces"))fail("Pro Property Inspector must explain how code/text can escape fill-in braces.");
 if(!inspector.includes("Type text")||!inspector.includes("Paste with clipboard"))fail("Insert method copy must use plain-language labels.");
 if(inspector.includes("Unicode typing")||inspector.includes("Clipboard paste + restore"))fail("Old technical insertion labels must not return.");
 
@@ -222,6 +226,8 @@ if(!inspectorJs.includes('event:"sendToPlugin"'))fail("Property Inspector must u
 if(inspectorJs.includes("context:actionContext"))fail("Property Inspector must not use the action instance as websocket context.");
 if(!inspectorJs.includes("Saving…")||!inspectorJs.includes("Saved"))fail("Property Inspector must visibly report settings persistence.");
 if(!inspectorJs.includes('document.createElement("optgroup")'))fail("Pro snippet selector must group the built-in library by folder.");
+if(!inspectorJs.includes('type:"openManager"'))fail("Pro Property Inspector must wire the reusable-variable/full-library manager.");
+if(!inspectorJs.includes("multiline, tabbed, or very long text"))fail("Smart insertion help must describe its structured-text clipboard fallback.");
 
 for(const token of ["#080A0E","#151920","#0D1015","#FFB21E","#181C21","#FF5D6C"]){
   if(!inspectorCss.includes(token))fail(`Property Inspector CSS is missing canonical PackRat token ${token}.`);
@@ -256,6 +262,22 @@ if(!liteEdition.includes(`VERIFIED_PRO_URL=${JSON.stringify(expectedProUrl)}`)){
 const bridge=await fs.readFile(path.join(root,"runtime","win-bridge.ps1"),"utf8");
 for(const forbidden of ["Invoke-Expression","iex ","cmd.exe /c","Start-Process"]){
   if(bridge.toLowerCase().includes(forbidden.toLowerCase()))fail(`Unsafe bridge primitive found: ${forbidden}`);
+}
+if(!bridge.includes("Invoke-ClipboardRetry"))fail("Windows bridge must retry transient clipboard locks.");
+if(!bridge.includes("pasteDelayMs"))fail("Windows bridge must wait adaptively before restoring clipboard after paste.");
+if(!bridge.includes("UnicodeChar('\\r')")||!bridge.includes("UnicodeChar('\\t')"))fail("Type text must inject authored newlines/tabs as text packets instead of submit/navigation keys.");
+
+const windowsSource=await fs.readFile(path.join(root,"src","windows.mjs"),"utf8");
+if(!windowsSource.includes("Windows bridge timed out while running")||!windowsSource.includes("15000")){
+  fail("Windows bridge wrapper must time out hung host input work.");
+}
+
+const smoke=await fs.readFile(path.join(root,"scripts","hardware-smoke.ps1"),"utf8");
+if(!smoke.includes("Get-PackagedDirectoryDigest")||!smoke.includes(".sdignore")){
+  fail("Hardware smoke must compare the package-equivalent content view instead of the raw build directory.");
+}
+if(!smoke.includes("lite_unpacked_content_sha256")||!smoke.includes("pro_unpacked_content_sha256")){
+  fail("Hardware smoke must require exact unpacked-package digests for both editions.");
 }
 
 console.log("Text Expander structural QA passed.");
