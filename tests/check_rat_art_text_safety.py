@@ -61,9 +61,12 @@ def main() -> None:
         failed = True
     assert failed, "overflow must fail closed instead of clipping"
 
-    rat_art_scripts = sorted((ROOT / "plugins").glob("*/scripts/rat-art.py"))
+    rat_art_scripts = sorted(
+        set((ROOT / "plugins").glob("**/scripts/rat-art.py"))
+        | set((ROOT / "products").glob("**/scripts/rat-art.py"))
+    )
     if not rat_art_scripts:
-        raise SystemExit("No plugin Rat Art scripts found")
+        raise SystemExit("No Stream Deck product Rat Art scripts found")
 
     for path in rat_art_scripts:
         source = path.read_text(encoding="utf-8")
@@ -76,7 +79,7 @@ def main() -> None:
                 f"{path.relative_to(ROOT)} does not use the shared fail-closed Marketplace text fitter"
             )
 
-    print(f"RAT ART TEXT SAFETY PASS: {len(rat_art_scripts)} plugin renderers use bounded text")
+    print(f"RAT ART TEXT SAFETY PASS: {len(rat_art_scripts)} Stream Deck product renderers use bounded text")
 
 
 if __name__ == "__main__":
