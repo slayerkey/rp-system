@@ -488,19 +488,24 @@ function Install-DevPlugin {
             $profileDecision = Get-RatDevProfileOpenDecision -ProfilePath $profileToOpen -StateRoot $DevRoot -Slug $Slug
 
             if (-not $profileDecision.Open) {
-                Write-Host "Bundled profile is unchanged and already installed; skipping duplicate import." -ForegroundColor DarkGray
-                if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor DarkGray }
+                if ($profileDecision.ManualRefresh) {
+                    Write-Host "Bundled profile changed or is unverified, but the same named profile is already installed." -ForegroundColor Yellow
+                    if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor Yellow }
+                    Write-Host "Rat Dev will not edit Stream Deck's profile store or import a duplicate automatically." -ForegroundColor DarkGray
+                    Write-Host "For profile visual QA: delete the existing profile in Stream Deck, then rerun: rat dev $Slug" -ForegroundColor Cyan
+                }
+                else {
+                    Write-Host "Bundled profile is unchanged and already installed; skipping duplicate import." -ForegroundColor DarkGray
+                    if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor DarkGray }
+                }
             }
             else {
                 Start-Sleep -Milliseconds 900
-                if ($profileDecision.Reason -eq "profile-changed") {
-                    Write-Host "Bundled profile changed since the last Rat Dev run. Opening the newest profile for Replace/Update..." -ForegroundColor Cyan
-                }
-                elseif ($profileDecision.Reason -eq "existing-installed-untracked" -or $profileDecision.Reason -eq "profile-state-upgrade") {
-                    Write-Host "An installed profile exists but Rat Dev cannot prove it matches this bundle. Opening the newest profile for Replace/Update..." -ForegroundColor Cyan
-                }
-                elseif ($profileDecision.Reason -eq "installed-profile-missing") {
+                if ($profileDecision.Reason -eq "installed-profile-missing") {
                     Write-Host "Bundled profile is no longer installed. Opening it again..." -ForegroundColor Cyan
+                }
+                elseif ($profileDecision.Reason -eq "profile-changed") {
+                    Write-Host "The older installed profile is gone. Opening the changed bundled profile for QA..." -ForegroundColor Cyan
                 }
                 else {
                     Write-Host "Opening bundled Stream Deck profile for first import: $profileToOpen" -ForegroundColor Cyan

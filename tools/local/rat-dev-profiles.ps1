@@ -131,29 +131,33 @@ function Get-RatDevProfileOpenDecision {
         [PSCustomObject]@{ Found = $false; Name = $null; Path = $null }
     }
 
-    # Never silently adopt an already-installed profile when Rat Dev cannot prove
-    # that it came from this exact bundle revision. Opening the bundle lets Stream
-    # Deck offer its normal Replace/Update flow instead of leaving stale buttons.
+    # Stream Deck does not expose a supported in-place profile replacement command
+    # to Rat Dev. Never open another bundle while a same-named installed profile is
+    # unverified, because Stream Deck may create a duplicate instead of replacing it.
     if (-not $state -and $installed.Found) {
-        return [PSCustomObject]@{ Open=$true; Adopt=$false; Reason="existing-installed-untracked"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        return [PSCustomObject]@{ Open=$false; ManualRefresh=$true; Adopt=$false; Reason="existing-installed-untracked"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
     }
 
     $stateVersion = if ($state -and $state.state_version) { [int]$state.state_version } else { 0 }
     if ($state -and $stateVersion -lt 2 -and $installed.Found) {
-        return [PSCustomObject]@{ Open=$true; Adopt=$false; Reason="profile-state-upgrade"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        return [PSCustomObject]@{ Open=$false; ManualRefresh=$true; Adopt=$false; Reason="profile-state-upgrade"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
     }
 
     if ($state -and [string]$state.sha256 -eq $fingerprint -and $installed.Found) {
-        return [PSCustomObject]@{ Open=$false; Adopt=$false; Reason="unchanged-installed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        return [PSCustomObject]@{ Open=$false; ManualRefresh=$false; Adopt=$false; Reason="unchanged-installed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
     }
 
     if ($state -and [string]$state.sha256 -eq $fingerprint -and -not $installed.Found) {
-        return [PSCustomObject]@{ Open=$true; Adopt=$false; Reason="installed-profile-missing"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$null }
+        return [PSCustomObject]@{ Open=$true; ManualRefresh=$false; Adopt=$false; Reason="installed-profile-missing"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$null }
+    }
+
+    if ($state -and [string]$state.sha256 -ne $fingerprint -and $installed.Found) {
+        return [PSCustomObject]@{ Open=$false; ManualRefresh=$true; Adopt=$false; Reason="profile-changed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
     }
 
     if ($state -and [string]$state.sha256 -ne $fingerprint) {
-        return [PSCustomObject]@{ Open=$true; Adopt=$false; Reason="profile-changed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        return [PSCustomObject]@{ Open=$true; ManualRefresh=$false; Adopt=$false; Reason="profile-changed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$null }
     }
 
-    return [PSCustomObject]@{ Open=$true; Adopt=$false; Reason="first-import"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+    return [PSCustomObject]@{ Open=$true; ManualRefresh=$false; Adopt=$false; Reason="first-import"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
 }
