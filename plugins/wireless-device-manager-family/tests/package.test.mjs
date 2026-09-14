@@ -298,7 +298,7 @@ test("Property Inspector uses the canonical PackRat UI envelope and preserves ac
   assert.match(inspector,/type:"refresh-wireless"/);
   assert.match(inspector,/requestId:lastRequestId/);
   assert.doesNotMatch(inspector,/setInterval\(requestSnapshot/);
-  assert.match(inspector,/Wireless plugin is not responding/);
+  assert.match(inspector,/Plugin process did not reply/);
 });
 
 test("Wireless troubleshooting contract captures every real-machine transport stage",async()=>{
