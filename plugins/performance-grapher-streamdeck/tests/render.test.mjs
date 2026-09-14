@@ -28,8 +28,8 @@ for (const size of [72, 96, 144]) {
 
 test("permission state is visible instead of showing stale FPS", () => {
   const svg = decode(renderKey({ label: "GAME FPS", value: null, unit: "FPS", secondary: "", points: [], state: "permission_required" }, {}, 144));
-  assert.match(svg, /PERM/);
-  assert.match(svg, /CHECK SETUP/);
+  assert.match(svg, /SETUP/);
+  assert.match(svg, /ENABLE FPS/);
 });
 
 
@@ -128,4 +128,35 @@ test("performance alert downsampling follows the configured threshold direction"
     thresholdDirection: "below",
     threshold: 90,
   }).mode, "min");
+});
+
+
+test("common hardware labels are shortened before key rendering", () => {
+  const telemetry = {
+    watchMetric() {},
+    metricDescriptor(id) {
+      return {
+        id,
+        name: "CPU Temperature",
+        unit: "°C",
+        source: "Libre Hardware Monitor",
+        hardwareName: "AMD Ryzen 7 5700X3D",
+      };
+    },
+    metricValue() { return 47; },
+    metricSeries() { return []; },
+    safeStatus() { return { fps: { state: "ready" }, hardware: { state: "ready" } }; },
+    session: { snapshot() { return { active: false, current: null, lastCompleted: null }; } },
+  };
+
+  const view = makeView(telemetry, "metric", { metricId: "cpu.temperature" });
+  assert.equal(view.label, "CPU TEMP");
+  assert.equal(view.secondary, "Ryzen 7 5700X3D");
+
+  const svg = decode(renderKey(view, {}, 144));
+  assert.match(svg, /clipPath id="topText"/);
+  assert.match(svg, /clipPath id="bottomText"/);
+  assert.match(svg, /CPU TEMP/);
+  assert.match(svg, /RYZEN 7 5700X3D/);
+  assert.doesNotMatch(svg, /AMD RYZEN/);
 });
