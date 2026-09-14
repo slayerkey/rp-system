@@ -232,6 +232,26 @@ public static class PackRatWindowsNative
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool LockWorkStation();
 
+    [DllImport("PowrProf.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.U1)]
+    private static extern bool SetSuspendState(
+        [MarshalAs(UnmanagedType.U1)] bool hibernate,
+        [MarshalAs(UnmanagedType.U1)] bool forceCritical,
+        [MarshalAs(UnmanagedType.U1)] bool disableWakeEvent);
+
+    [DllImport("user32.dll")]
+    private static extern void keybd_event(byte virtualKey, byte scanCode, uint flags, UIntPtr extraInfo);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern IntPtr SendMessageTimeout(
+        IntPtr hwnd,
+        uint msg,
+        UIntPtr wParam,
+        IntPtr lParam,
+        uint flags,
+        uint timeout,
+        out UIntPtr result);
+
     private static PathInfo[] ActivePaths()
     {
         uint pathCount;
@@ -496,6 +516,48 @@ public static class PackRatWindowsNative
     public static bool Lock()
     {
         return LockWorkStation();
+    }
+
+    public static bool Suspend(bool hibernate)
+    {
+        return SetSuspendState(hibernate, false, false);
+    }
+
+    public static void SendVirtualDesktopCommand(string command)
+    {
+        byte key;
+        switch ((command ?? "").ToLowerInvariant())
+        {
+            case "previous": key = 0x25; break; // Left
+            case "next": key = 0x27; break;     // Right
+            case "new": key = 0x44; break;      // D
+            case "close": key = 0x73; break;    // F4
+            default: throw new ArgumentException("Unsupported virtual desktop command.");
+        }
+
+        const uint KEYUP = 0x0002;
+        keybd_event(0x11, 0, 0, UIntPtr.Zero); // Ctrl
+        keybd_event(0x5B, 0, 0, UIntPtr.Zero); // Left Windows
+        keybd_event(key, 0, 0, UIntPtr.Zero);
+        keybd_event(key, 0, KEYUP, UIntPtr.Zero);
+        keybd_event(0x5B, 0, KEYUP, UIntPtr.Zero);
+        keybd_event(0x11, 0, KEYUP, UIntPtr.Zero);
+    }
+
+    public static void BroadcastThemeChanged()
+    {
+        const uint WM_SETTINGCHANGE = 0x001A;
+        const uint SMTO_ABORTIFHUNG = 0x0002;
+        var text = Marshal.StringToHGlobalUni("ImmersiveColorSet");
+        try
+        {
+            UIntPtr ignored;
+            SendMessageTimeout(new IntPtr(0xffff), WM_SETTINGCHANGE, UIntPtr.Zero, text, SMTO_ABORTIFHUNG, 750, out ignored);
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(text);
+        }
     }
 }
 '@
