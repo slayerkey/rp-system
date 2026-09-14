@@ -7,7 +7,10 @@ ROOT=Path(__file__).resolve().parents[3]
 sys.dont_write_bytecode=True
 sys.path.insert(0,str(ROOT/"tools"/"art"))
 from marketplace_text import draw_fitted_text
+from render_streamdeck_ship_hero import fixture_faces
 RAT=ROOT/"tools"/"art"/"assets"/"ratpack-icon-transparent.png"
+PLUGIN_DIR=ROOT/"plugins"/"monitor-manager-pro"/"com.packrat.monitormanagerpro.sdPlugin"
+MANIFEST_PATH=PLUGIN_DIR/"manifest.json"
 W,H=1920,960
 BG=(7,10,14); PANEL=(16,20,26); BORDER=(43,50,61); WHITE=(247,249,251); MUTED=(169,179,192); ACCENT=(255,178,30); WARN=(255,196,77); GREEN=(43,232,106)
 
@@ -29,9 +32,8 @@ def bg():
     d.ellipse((540,180,1500,1080),fill=(*ACCENT,9))
     base=Image.alpha_composite(base,glow.filter(ImageFilter.GaussianBlur(140)))
     d=ImageDraw.Draw(base)
-    d.rounded_rectangle((1180,95,1810,430),radius=30,fill=(10,14,19,120),outline=(58,65,75,90),width=2)
-    d.rectangle((1470,430,1515,510),fill=(25,29,35,100))
-    d.rounded_rectangle((1340,505,1645,525),radius=8,fill=(28,32,38,100))
+    # Environmental continuity comes from light pools + the wood desk band.
+    # Avoid monitor/card outlines here; they read like empty placeholder UI.
     d.rectangle((0,785,W,824),fill=(62,37,18,110))
     for x in range(0,W,115):
         d.line((x,790,x+80,823),fill=(135,78,29,34),width=1)
@@ -168,6 +170,22 @@ def dial_strip(im,x,y,w,title,value):
     d.ellipse((progress-18,bary-18,progress+18,bary+18),fill=(*ACCENT,255),outline=(*WHITE,180),width=2)
 
 
+
+def canonical_faces(out):
+    fixture_path=out/"rat-art-key-fixtures.json"
+    if not fixture_path.is_file():
+        write_key_fixtures(out)
+    manifest=json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    faces,_=fixture_faces(PLUGIN_DIR,manifest,fixture_path,out/"rat-art-svg-cache")
+    if len(faces)!=15:
+        raise SystemExit(f"RAT ART FAIL: expected 15 canonical key faces, got {len(faces)}")
+    return faces
+
+def paste_face(im,face,x,y,size):
+    rendered=face.resize((size,size),Image.Resampling.LANCZOS)
+    im.alpha_composite(rendered,(x,y))
+
+
 def key(im,x,y,label,sub="",accent=ACCENT,size=142):
     d=ImageDraw.Draw(im); card(d,(x,y,x+size,y+size))
     inner=size-28
@@ -202,89 +220,103 @@ def hero(path):
             ("PC MODE","PROFILE",ACCENT),("CONSOLE","PROFILE",ACCENT),("EXTEND","DISPLAY",ACCENT),("PRIMARY","DISPLAY",ACCENT),("POWER","DDC/CI",WARN)]
     deck(im,labels); footer(im); save(im,path)
 
-def controls(path):
+def controls(path,faces):
     im=bg()
     header(im,"Stop reaching behind your monitor.","Input, brightness and display mode move from tiny monitor menus to physical Stream Deck controls.")
     d=ImageDraw.Draw(im)
-    d.rounded_rectangle((110,300,900,720),radius=35,fill=(10,14,19,235),outline=(58,66,78,255),width=3)
-    d.rounded_rectangle((170,345,840,640),radius=22,fill=(3,5,8,255),outline=(35,42,52,255),width=2)
-    d.text((505,455),"MONITOR OSD",font=font(33),fill=(*MUTED,255),anchor="mm")
+    d.rounded_rectangle((105,305,840,715),radius=35,fill=(10,14,19,235),outline=(58,66,78,255),width=3)
+    d.rounded_rectangle((165,348,780,625),radius=22,fill=(3,5,8,255),outline=(35,42,52,255),width=2)
+    d.text((472,460),"MONITOR OSD",font=font(33),fill=(*MUTED,255),anchor="mm")
     for i in range(5):
-        x=355+i*58
+        x=325+i*58
         d.ellipse((x,650,x+18,668),fill=(74,80,88,255))
-    d.text((505,690),"tiny buttons  •  hidden menus",font=font(20,False),fill=(*MUTED,255),anchor="mm")
-    arrow(d,930,520,1045)
-    keys=[("input",["DP"]),("brightness",["65%"]),("topology",["EXTEND"]),("refresh-rate",["165HZ"])]
-    coords=[(1100,320),(1290,320),(1100,510),(1290,510)]
-    for (kind,lines),(x,y) in zip(keys,coords):
-        runtime_key(im,x,y,kind,lines,165)
-    d.text((1490,382),"ON YOUR",font=font(28),fill=(*ACCENT,255))
-    d.text((1490,425),"STREAM DECK",font=font(39),fill=(*WHITE,255))
-    draw_fitted_text(d,(1490,492,1795,600),"Input, brightness, display mode and refresh rate stay where your hand already is.",font,fill=(*MUTED,255),max_size=23,min_size=18,bold=False,max_lines=4,spacing=6)
+    d.text((472,690),"tiny buttons  •  hidden menus",font=font(20,False),fill=(*MUTED,255),anchor="mm")
+    arrow(d,875,510,1015)
+
+    # Exact canonical faces used by Rat Ship: input, brightness, topology, refresh.
+    proof=[faces[4],faces[0],faces[8],faces[5]]
+    coords=[(1060,315),(1250,315),(1060,505),(1250,505)]
+    for face,(x,y) in zip(proof,coords):
+        paste_face(im,face,x,y,165)
+
+    d.text((1480,365),"ON YOUR",font=font(28),fill=(*ACCENT,255))
+    d.text((1480,410),"STREAM DECK",font=font(39),fill=(*WHITE,255))
+    draw_fitted_text(
+        d,(1480,478,1800,600),
+        "Input, brightness, display mode and refresh rate stay where your hand already is.",
+        font,fill=(*MUTED,255),max_size=23,min_size=18,bold=False,max_lines=4,spacing=6
+    )
     footer(im); save(im,path)
 
 
-def capabilities(path):
+
+def capabilities(path,faces):
     im=bg()
     header(im,"One press. Your setup comes back.","Saved Monitor Profiles restore the supported state you use for gaming, console, work or night.")
     d=ImageDraw.Draw(im)
-    runtime_key(im,160,350,"apply-profile",["APPLY","GAMING"],220)
-    d.text((270,610),"PRESS ONCE",font=font(26),fill=(*ACCENT,255),anchor="mm")
-    arrow(d,410,460,620)
-    states=[("input",["DP"],"INPUT"),("refresh-rate",["165HZ"],"REFRESH"),("hdr",["HDR","ON"],"HDR"),("brightness",["65%"],"BRIGHTNESS")]
-    for i,(kind,lines,label) in enumerate(states):
-        x=680+i*270
-        runtime_key(im,x,345,kind,lines,185,"success" if kind=="hdr" else "brand")
-        d.text((x+92,565),label,font=font(19),fill=(*MUTED,255),anchor="mm")
+    paste_face(im,faces[12],150,340,220)
+    d.text((260,600),"PRESS ONCE",font=font(26),fill=(*ACCENT,255),anchor="mm")
+    arrow(d,405,450,610)
+
+    # Resulting representative state: input, refresh, HDR, brightness.
+    proof=[faces[4],faces[5],faces[7],faces[0]]
+    labels=["INPUT","REFRESH","HDR","BRIGHTNESS"]
+    for i,(face,label) in enumerate(zip(proof,labels)):
+        x=670+i*270
+        paste_face(im,face,x,335,185)
+        d.text((x+92,555),label,font=font(19),fill=(*MUTED,255),anchor="mm")
+
     for i,name in enumerate(["GAMING","CONSOLE","NIGHT"]):
-        x=680+i*360
-        d.rounded_rectangle((x,640,x+320,725),radius=18,fill=(*PANEL,245),outline=(*BORDER,255),width=2)
-        d.text((x+160,683),name,font=font(24),fill=(*ACCENT,255),anchor="mm")
+        x=670+i*360
+        d.rounded_rectangle((x,635,x+320,720),radius=18,fill=(*PANEL,245),outline=(*BORDER,255),width=2)
+        d.text((x+160,678),name,font=font(24),fill=(*ACCENT,255),anchor="mm")
     footer(im); save(im,path)
 
 
-def profiles(path):
+
+def profiles(path,faces):
     im=bg()
-    header(im,"Stop opening Windows Display Settings.","Real semantic key faces, real values and the states you actually see on your deck.")
+    header(im,"Stop opening Windows Display Settings.","The same semantic key faces and representative states used by the canonical Rat Ship cover.")
     d=ImageDraw.Draw(im)
-    x0,y0=270,285; keysize=168; gap=17; pad=32
+    x0,y0=205,290; keysize=140; gap=15; pad=28
     width=pad*2+5*keysize+4*gap; height=pad*2+3*keysize+2*gap
-    d.rounded_rectangle((x0,y0,x0+width,y0+height),radius=45,fill=(4,6,9,255),outline=(63,72,86,255),width=4)
-    d.rounded_rectangle((x0+18,y0+18,x0+width-18,y0+height-18),radius=34,outline=(*ACCENT,60),width=2)
-    specs=[
-      ("brightness",["65%"],"brand"),("contrast",["50%"],"brand"),("volume",["50%"],"brand"),("power",["ON"],"success"),("input",["DP"],"brand"),
-      ("refresh-rate",["165HZ"],"brand"),("resolution",["1440P"],"brand"),("hdr",["HDR","ON"],"success"),("topology",["EXTEND"],"brand"),("primary",["PRIMARY"],"brand"),
-      ("orientation",["LAND"],"brand"),("save-profile",["SAVE","GAMING"],"brand"),("apply-profile",["APPLY","GAMING"],"brand"),("status",["165HZ","1440P"],"brand"),(None,[],"brand")
-    ]
-    for i,(kind,lines,tone) in enumerate(specs):
-        x=x0+pad+(i%5)*(keysize+gap); y=y0+pad+(i//5)*(keysize+gap)
-        if kind:
-            runtime_key(im,x,y,kind,lines,keysize,tone)
-        else:
-            d.rounded_rectangle((x,y,x+keysize,y+keysize),radius=26,fill=(5,7,10,255),outline=(50,57,68,255),width=3)
-    d.text((1435,360),"REAL",font=font(27),fill=(*ACCENT,255))
-    d.text((1435,405),"KEY STATES",font=font(40),fill=(*WHITE,255))
+    d.rounded_rectangle((x0,y0,x0+width,y0+height),radius=42,fill=(4,6,9,255),outline=(63,72,86,255),width=4)
+    d.rounded_rectangle((x0+16,y0+16,x0+width-16,y0+height-16),radius=32,outline=(*ACCENT,60),width=2)
+    for i,face in enumerate(faces):
+        x=x0+pad+(i%5)*(keysize+gap)
+        y=y0+pad+(i//5)*(keysize+gap)
+        paste_face(im,face,x,y,keysize)
+
+    d.text((1195,355),"REAL",font=font(27),fill=(*ACCENT,255))
+    d.text((1195,402),"KEY STATES",font=font(42),fill=(*WHITE,255))
+    draw_fitted_text(
+        d,(1195,462,1750,535),
+        "Inputs, profiles, Windows display modes and live status are visible at a glance.",
+        font,fill=(*MUTED,255),max_size=24,min_size=18,bold=False,max_lines=3,spacing=5
+    )
     for i,label in enumerate(["INPUTS","HDR","PROFILES","LIVE STATUS"]):
-        y=480+i*68
-        d.rounded_rectangle((1435,y,1765,y+50),radius=14,fill=(*PANEL,235),outline=(*BORDER,255),width=2)
-        d.text((1460,y+25),label,font=font(20),fill=(*WHITE,255),anchor="lm")
+        y=565+i*58
+        d.rounded_rectangle((1195,y,1585,y+43),radius=13,fill=(*PANEL,235),outline=(*BORDER,255),width=2)
+        d.text((1220,y+22),label,font=font(19),fill=(*WHITE,255),anchor="lm")
     footer(im); save(im,path)
 
 
-def plus(path):
+
+def plus(path,faces):
     im=bg()
     header(im,"Turn the controls you tweak all day.","Stream Deck+ gives brightness, contrast and monitor volume native continuous dial feedback.")
     d=ImageDraw.Draw(im)
-    runtime_key(im,160,360,"brightness",["65%"],190)
-    runtime_key(im,380,360,"contrast",["50%"],190)
-    runtime_key(im,600,360,"volume",["50%"],190)
-    d.text((475,590),"KEY PRESETS",font=font(24),fill=(*MUTED,255),anchor="mm")
-    dial_strip(im,920,305,800,"BRIGHTNESS",65)
-    dial_strip(im,920,455,800,"CONTRAST",50)
-    dial_strip(im,920,605,800,"VOLUME",50)
-    d.text((160,680),"Rotate to adjust.",font=font(31),fill=(*WHITE,255))
-    d.text((160,726),"Press a key for an exact preset.",font=font(22,False),fill=(*MUTED,255))
+    for face,x in zip([faces[0],faces[1],faces[2]],[145,365,585]):
+        paste_face(im,face,x,350,190)
+    d.text((460,585),"KEY PRESETS",font=font(24),fill=(*MUTED,255),anchor="mm")
+
+    dial_strip(im,900,300,825,"BRIGHTNESS",65)
+    dial_strip(im,900,445,825,"CONTRAST",50)
+    dial_strip(im,900,590,825,"VOLUME",50)
+    d.text((145,675),"Rotate to adjust.",font=font(31),fill=(*WHITE,255))
+    d.text((145,722),"Press a key for an exact preset.",font=font(22,False),fill=(*MUTED,255))
     footer(im); save(im,path)
+
 
 
 def compatibility(path):
@@ -350,8 +382,9 @@ def validate_outputs(out):
 def main():
     p=argparse.ArgumentParser(); p.add_argument("--out",required=True); args=p.parse_args(); out=Path(args.out).resolve(); out.mkdir(parents=True,exist_ok=True)
     if not RAT.is_file(): raise SystemExit("RAT ART FAIL: PackRat logo asset missing: "+str(RAT))
-    search_icon(out/"01_search_icon.png"); hero(out/"02_cover.png"); controls(out/"03_gallery_01.png"); capabilities(out/"04_gallery_02.png"); profiles(out/"05_gallery_03.png"); plus(out/"06_gallery_04.png")
     write_key_fixtures(out)
+    faces=canonical_faces(out)
+    search_icon(out/"01_search_icon.png"); hero(out/"02_cover.png"); controls(out/"03_gallery_01.png",faces); capabilities(out/"04_gallery_02.png",faces); profiles(out/"05_gallery_03.png",faces); plus(out/"06_gallery_04.png",faces)
     validate_outputs(out)
     print("RAT ART PASS:",out)
 
