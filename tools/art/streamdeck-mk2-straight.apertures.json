@@ -6,6 +6,7 @@
   "alpha_hole_threshold": 240,
   "safety_bleed": 3,
   "transparent_content_padding": 0.07,
+  "opaque_content_padding": 0.025,
   "cached_bound_tolerance": 8,
   "screen_background": [10, 12, 16, 255],
   "keys": [
