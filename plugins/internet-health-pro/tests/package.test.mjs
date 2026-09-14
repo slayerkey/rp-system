@@ -8,6 +8,8 @@ const probesSource = fs.readFileSync("src/probes.js", "utf8");
 const renderSource = fs.readFileSync("src/render.js", "utf8");
 const inspectorSource = fs.readFileSync("ui/inspector.js", "utf8");
 const inspectorHtml = fs.readFileSync("ui/inspector.html", "utf8");
+const inspectorCss = fs.readFileSync("ui/inspector.css", "utf8");
+const packratLogo = fs.readFileSync("ui/packrat-logo.svg", "utf8");
 const submission = JSON.parse(fs.readFileSync("submission.json", "utf8"));
 const product = JSON.parse(fs.readFileSync("../../products/internet-health-pro.json", "utf8"));
 
@@ -83,6 +85,43 @@ test("property inspector uses Monitor Manager's proven PI transport pattern", ()
   assert.doesNotMatch(pluginSource, /record\.action\.sendToPropertyInspector/);
 });
 
+
+test("canonical PackRat visual contract is applied without changing product semantics", () => {
+  assert.match(inspectorCss, /--packrat-bg:\s*#080A0E/i);
+  assert.match(inspectorCss, /--packrat-card-start:\s*#151920/i);
+  assert.match(inspectorCss, /--packrat-card-end:\s*#0D1015/i);
+  assert.match(inspectorCss, /--packrat-input:\s*#15191E/i);
+  assert.match(inspectorCss, /--packrat-button:\s*#181C21/i);
+  assert.match(inspectorCss, /--packrat-button-hover:\s*#22272E/i);
+  assert.match(inspectorCss, /--packrat-border:\s*#303640/i);
+  assert.match(inspectorCss, /--packrat-text:\s*#F5F7FB/i);
+  assert.match(inspectorCss, /--packrat-muted:\s*#9AA2AF/i);
+  assert.match(inspectorCss, /--packrat-accent:\s*#FFB21E/i);
+  assert.match(inspectorCss, /body::before/);
+  assert.match(inspectorCss, /rgba\(255,178,30,\.12\)/);
+  assert.match(inspectorCss, /button\.secondary[\s\S]*var\(--packrat-button\)/);
+  assert.match(inspectorHtml, /packrat-logo\.svg/);
+  assert.match(inspectorHtml, /PackRat ↗/);
+  assert.match(inspectorSource, /https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
+  assert.match(inspectorSource, /event:\s*"openUrl"/);
+  assert.match(packratLogo, /<svg/);
+  assert.match(packratLogo, /fill="white"/);
+
+  assert.match(renderSource, /fill="#080A0E"/);
+  assert.match(renderSource, /fill="#9AA2AF"/);
+  assert.match(renderSource, /fill="#F5F7FB"/);
+  assert.match(renderSource, /stroke="#303640"/);
+  assert.match(renderSource, /fill="#FFB21E"/);
+
+  for (const action of manifest.Actions) {
+    const statePath = action.States?.[0]?.Image;
+    assert.ok(statePath, "missing state image for " + action.UUID);
+    const fallback = fs.readFileSync("com.packrat.internet-health-pro.sdPlugin/" + statePath + ".svg", "utf8");
+    assert.match(fallback, /fill="#080A0E"/);
+    assert.match(fallback, /fill="#FFB21E"/);
+    assert.match(fallback, /fill="#F5F7FB"/);
+  }
+});
 
 test("physical key graphs use a dedicated 30 second visual window", () => {
   assert.match(renderSource, /const KEY_GRAPH_SECONDS = 30/);
