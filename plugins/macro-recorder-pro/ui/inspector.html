@@ -80,6 +80,17 @@
       </div>
     </div>
 
+    <div class="pro-only diagnostic-block">
+      <h3>Deep troubleshooting</h3>
+      <p class="hint">Runs a non-destructive end-to-end check of the Property Inspector connection, selected Play action, saved Stream Deck settings, Macro Library file, disk/memory consistency, and library-folder write access.</p>
+      <div class="button-row">
+        <button id="runDiagnostic" type="button" class="primary">Run deep diagnostic</button>
+        <button id="copyDiagnostic" type="button" class="secondary" disabled>Copy report</button>
+      </div>
+      <p id="diagnosticStatus" class="hint">No diagnostic has been run yet.</p>
+      <pre id="diagnosticReport" class="diagnostic-report">No diagnostic has been run yet.</pre>
+    </div>
+
     <div class="timeline-head">
       <strong>Recorded steps</strong><span id="macroMeta" class="muted"></span>
     </div>
