@@ -55,43 +55,11 @@ function Invoke-StreamDeckCliBestEffort {
     catch { }
 }
 
-function Get-PackagedDirectoryDigest {
+function Get-DirectoryContentDigest {
     param([string]$Path)
 
-    # Match the content view produced by `streamdeck pack`. The build folder
-    # contains .sdignore itself plus ignored development files; those are not
-    # part of the validated Marketplace package and must not create a false
-    # hardware-smoke mismatch.
-    $patterns = @()
-    $ignorePath = Join-Path $Path ".sdignore"
-    if (Test-Path $ignorePath -PathType Leaf) {
-        $patterns = @(
-            Get-Content $ignorePath |
-                ForEach-Object { ([string]$_).Trim().Replace("\", "/") } |
-                Where-Object { $_ -and -not $_.StartsWith("#") }
-        )
-    }
-
     $records = foreach ($file in Get-ChildItem -Path $Path -File -Recurse -Force | Sort-Object FullName) {
-        $relative = $file.FullName.Substring($Path.Length).TrimStart("\", "/").Replace("\", "/")
-        if ($relative -eq ".sdignore") { continue }
-
-        $ignored = $false
-        foreach ($rawPattern in $patterns) {
-            $pattern = $rawPattern.TrimStart("/")
-            if ($pattern.EndsWith("/")) {
-                if ($relative.StartsWith($pattern, [System.StringComparison]::OrdinalIgnoreCase)) {
-                    $ignored = $true
-                    break
-                }
-            }
-            elseif ($relative -like $pattern) {
-                $ignored = $true
-                break
-            }
-        }
-        if ($ignored) { continue }
-
+        $relative = $file.FullName.Substring($Path.Length).TrimStart("\\", "/").Replace("\\", "/")
         $hash = (Get-FileHash -Algorithm SHA256 -Path $file.FullName).Hash.ToLowerInvariant()
         "$relative$([char]9)$hash"
     }
@@ -102,6 +70,43 @@ function Get-PackagedDirectoryDigest {
     }
     finally {
         $sha.Dispose()
+    }
+}
+
+function Get-OfficialPackagedContentDigest {
+    param([string]$Path)
+
+    # Hash the exact file set produced by the official Elgato packer rather
+    # than approximating package exclusions from the build directory. ZIP
+    # timestamps may vary between pack operations, but extracted file bytes
+    # and relative paths are the stable shipping identity we care about.
+    $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("packrat-text-expander-pack-" + [guid]::NewGuid().ToString("N"))
+    $packRoot = Join-Path $tempRoot "package"
+    $unpackRoot = Join-Path $tempRoot "unpacked"
+    New-Item -ItemType Directory -Force -Path $packRoot,$unpackRoot | Out-Null
+
+    try {
+        Invoke-StreamDeckCli pack $Path --output $packRoot --force --no-update-check --no-file-list
+        $package = Get-ChildItem -Path $packRoot -Filter "*.streamDeckPlugin" -File | Select-Object -First 1
+        if (-not $package) {
+            throw "Official Stream Deck pack did not produce a .streamDeckPlugin for $Path."
+        }
+
+        # Expand-Archive keys off extension, so copy the ZIP-compatible package
+        # to a temporary .zip name before extracting it.
+        $zipPath = Join-Path $tempRoot "candidate.zip"
+        Copy-Item $package.FullName $zipPath -Force
+        Expand-Archive -Path $zipPath -DestinationPath $unpackRoot -Force
+
+        $pluginRoots = @(Get-ChildItem -Path $unpackRoot -Directory | Where-Object { $_.Name.EndsWith(".sdPlugin", [System.StringComparison]::OrdinalIgnoreCase) })
+        if ($pluginRoots.Count -ne 1) {
+            throw "Expected exactly one .sdPlugin root in the official package, found $($pluginRoots.Count)."
+        }
+
+        return Get-DirectoryContentDigest $pluginRoots[0].FullName
+    }
+    finally {
+        Remove-Item $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 
@@ -178,7 +183,7 @@ try {
         if ([string]::IsNullOrWhiteSpace($expectedDigest)) {
             throw "Missing validated unpacked content digest for $($target.Name)."
         }
-        $actualDigest = Get-PackagedDirectoryDigest $target.Dir
+        $actualDigest = Get-OfficialPackagedContentDigest $target.Dir
         if ($actualDigest -ne $expectedDigest.ToLowerInvariant()) {
             throw "$($target.Name) content digest mismatch. Expected $expectedDigest, got $actualDigest."
         }
