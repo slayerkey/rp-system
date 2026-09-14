@@ -25,6 +25,9 @@ if ($source -notmatch 'render_streamdeck_ship_hero\.py') {
 if ($source -notmatch 'rat-art-keys' -or $source -notmatch '--keys-dir') {
     throw "Rat Ship does not hand product Rat Art key faces to the canonical hero."
 }
+if ($source -notmatch 'rat-art-key-fixtures\.json' -or $source -notmatch '--key-fixtures') {
+    throw "Rat Ship does not hand representative runtime key fixtures to the canonical hero."
+}
 
 if ($source -notmatch 'playwright@1\.62\.1' -or $source -notmatch 'Add-RatSharedNodeModulesJunction') {
     throw "Rat Ship does not provision/cache the canonical SVG key renderer."
