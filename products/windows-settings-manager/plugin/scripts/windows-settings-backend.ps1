@@ -563,6 +563,328 @@ public static class PackRatWindowsNative
 '@
 
 $script:keepAwake = $false
+$script:asTaskGeneric = $null
+
+function Initialize-RadioRuntime {
+    if ($script:asTaskGeneric) { return }
+
+    Add-Type -AssemblyName System.Runtime.WindowsRuntime
+    [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime] | Out-Null
+    [Windows.Devices.Radios.RadioAccessStatus,Windows.System.Devices,ContentType=WindowsRuntime] | Out-Null
+    [Windows.Devices.Radios.RadioState,Windows.System.Devices,ContentType=WindowsRuntime] | Out-Null
+
+    $script:asTaskGeneric = ([System.WindowsRuntimeSystemExtensions].GetMethods() |
+        Where-Object {
+            $_.Name -eq "AsTask" -and
+            $_.IsGenericMethod -and
+            $_.GetParameters().Count -eq 1 -and
+            $_.GetParameters()[0].ParameterType.Name -eq "IAsyncOperation`1"
+        } |
+        Select-Object -First 1)
+
+    if (-not $script:asTaskGeneric) {
+        throw "Windows Runtime async bridge is unavailable."
+    }
+}
+
+function Invoke-WinRtAwait {
+    param($Operation, [Type]$ResultType)
+    Initialize-RadioRuntime
+    $asTask = $script:asTaskGeneric.MakeGenericMethod($ResultType)
+    $task = $asTask.Invoke($null, @($Operation))
+    [void]$task.Wait(10000)
+    if (-not $task.IsCompleted) { throw "Windows Runtime operation timed out." }
+    if ($task.IsFaulted) { throw $task.Exception.GetBaseException() }
+    $task.Result
+}
+
+function Get-RadioState {
+    param([ValidateSet("WiFi","Bluetooth")][string]$Kind)
+
+    Initialize-RadioRuntime
+    $listType = [System.Collections.Generic.IReadOnlyList[Windows.Devices.Radios.Radio]]
+    $radios = @(Invoke-WinRtAwait ([Windows.Devices.Radios.Radio]::GetRadiosAsync()) $listType)
+    $matches = @($radios | Where-Object { [string]$_.Kind -eq $Kind })
+
+    if ($matches.Count -eq 0) {
+        return [pscustomobject]@{
+            available = $false
+            state = "unknown"
+            count = 0
+            access = "unknown"
+        }
+    }
+
+    $states = @($matches | ForEach-Object { ([string]$_.State).ToLowerInvariant() } | Sort-Object -Unique)
+    $state = if ($states.Count -eq 1 -and $states[0] -in @("on","off","disabled")) {
+        $states[0]
+    }
+    elseif ($states.Count -gt 1) {
+        "mixed"
+    }
+    else {
+        "unknown"
+    }
+
+    [pscustomobject]@{
+        available = $true
+        state = $state
+        count = $matches.Count
+        access = "unknown"
+    }
+}
+
+function Set-RadioState {
+    param(
+        [ValidateSet("WiFi","Bluetooth")][string]$Kind,
+        [bool]$Enabled
+    )
+
+    Initialize-RadioRuntime
+    $access = Invoke-WinRtAwait ([Windows.Devices.Radios.Radio]::RequestAccessAsync()) ([Windows.Devices.Radios.RadioAccessStatus])
+    if ([string]$access -ne "Allowed") {
+        return [pscustomobject]@{
+            status = "FAILED"
+            state = Get-RadioState $Kind
+            error = "Windows denied radio-control access: $access"
+        }
+    }
+
+    $listType = [System.Collections.Generic.IReadOnlyList[Windows.Devices.Radios.Radio]]
+    $radios = @(Invoke-WinRtAwait ([Windows.Devices.Radios.Radio]::GetRadiosAsync()) $listType)
+    $matches = @($radios | Where-Object { [string]$_.Kind -eq $Kind })
+    if ($matches.Count -eq 0) {
+        return [pscustomobject]@{
+            status = "FAILED"
+            state = Get-RadioState $Kind
+            error = "No $Kind radio is available."
+        }
+    }
+
+    $target = if ($Enabled) { [Windows.Devices.Radios.RadioState]::On } else { [Windows.Devices.Radios.RadioState]::Off }
+    $errors = [System.Collections.Generic.List[string]]::new()
+    foreach ($radio in $matches) {
+        try {
+            $setResult = Invoke-WinRtAwait ($radio.SetStateAsync($target)) ([Windows.Devices.Radios.RadioAccessStatus])
+            if ([string]$setResult -ne "Allowed") {
+                $errors.Add("$($radio.Name): $setResult")
+            }
+        }
+        catch {
+            $errors.Add("$($radio.Name): $($_.Exception.Message)")
+        }
+    }
+
+    $expected = if ($Enabled) { "on" } else { "off" }
+    $after = $null
+    for ($attempt = 0; $attempt -lt 12; $attempt++) {
+        Start-Sleep -Milliseconds $(if ($attempt -eq 0) { 180 } else { 120 })
+        $after = Get-RadioState $Kind
+        if ($after.available -and $after.state -eq $expected) { break }
+    }
+
+    $ok = $after -and $after.available -and $after.state -eq $expected -and $errors.Count -eq 0
+    [pscustomobject]@{
+        status = $(if ($ok) { "COMPLETE" } elseif ($after -and $after.state -eq $expected) { "PARTIAL" } else { "FAILED" })
+        state = $after
+        error = $(if ($ok) { $null } elseif ($errors.Count) { $errors -join " | " } else { "$Kind did not confirm the requested state." })
+    }
+}
+
+function Get-ThemeState {
+    $path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+    try {
+        if (-not (Test-Path $path)) {
+            return [pscustomobject]@{ available = $false; apps = "unknown"; system = "unknown"; combined = "unknown" }
+        }
+        $item = Get-ItemProperty -Path $path
+        $appsValue = if ($null -ne $item.AppsUseLightTheme) { [int]$item.AppsUseLightTheme } else { 1 }
+        $systemValue = if ($null -ne $item.SystemUsesLightTheme) { [int]$item.SystemUsesLightTheme } else { 1 }
+        $apps = if ($appsValue -eq 0) { "dark" } else { "light" }
+        $system = if ($systemValue -eq 0) { "dark" } else { "light" }
+        [pscustomobject]@{
+            available = $true
+            apps = $apps
+            system = $system
+            combined = $(if ($apps -eq $system) { $apps } else { "mixed" })
+        }
+    }
+    catch {
+        [pscustomobject]@{ available = $false; apps = "unknown"; system = "unknown"; combined = "unknown" }
+    }
+}
+
+function Set-ThemeState {
+    param(
+        [ValidateSet("light","dark")][string]$Theme,
+        [ValidateSet("both","apps","system")][string]$Scope = "both"
+    )
+
+    $path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+    if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+    $value = if ($Theme -eq "light") { 1 } else { 0 }
+
+    if ($Scope -in @("both","apps")) {
+        New-ItemProperty -Path $path -Name AppsUseLightTheme -PropertyType DWord -Value $value -Force | Out-Null
+    }
+    if ($Scope -in @("both","system")) {
+        New-ItemProperty -Path $path -Name SystemUsesLightTheme -PropertyType DWord -Value $value -Force | Out-Null
+    }
+
+    [PackRatWindowsNative]::BroadcastThemeChanged()
+    Start-Sleep -Milliseconds 120
+    $after = Get-ThemeState
+    $ok = if ($Scope -eq "apps") {
+        $after.apps -eq $Theme
+    }
+    elseif ($Scope -eq "system") {
+        $after.system -eq $Theme
+    }
+    else {
+        $after.apps -eq $Theme -and $after.system -eq $Theme
+    }
+
+    [pscustomobject]@{
+        status = $(if ($ok) { "COMPLETE" } else { "FAILED" })
+        state = $after
+        error = $(if ($ok) { $null } else { "Windows did not confirm the requested theme." })
+    }
+}
+
+function Convert-DesktopBytesToGuid {
+    param($Value)
+    if ($null -eq $Value) { return $null }
+    [byte[]]$bytes = @($Value)
+    if ($bytes.Length -ne 16) { return $null }
+    try {
+        return (New-Object System.Guid -ArgumentList (,$bytes)).ToString("D")
+    }
+    catch {
+        return $null
+    }
+}
+
+function Get-VirtualDesktopState {
+    $root = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VirtualDesktops"
+    try {
+        if (-not (Test-Path $root)) {
+            return [pscustomobject]@{ available = $false; currentIndex = $null; count = 0; currentId = $null }
+        }
+
+        $item = Get-ItemProperty -Path $root
+        [byte[]]$idBytes = @($item.VirtualDesktopIDs)
+        $ids = @()
+        if ($idBytes.Length -gt 0 -and ($idBytes.Length % 16) -eq 0) {
+            for ($offset = 0; $offset -lt $idBytes.Length; $offset += 16) {
+                [byte[]]$slice = $idBytes[$offset..($offset + 15)]
+                $id = Convert-DesktopBytesToGuid $slice
+                if ($id) { $ids += $id }
+            }
+        }
+
+        $currentId = Convert-DesktopBytesToGuid $item.CurrentVirtualDesktop
+        if (-not $currentId) {
+            $sessionRoot = Join-Path $root "SessionInfo"
+            foreach ($session in @(Get-ChildItem -Path $sessionRoot -ErrorAction SilentlyContinue)) {
+                try {
+                    $sessionValue = (Get-ItemProperty -Path (Join-Path $session.PSPath "VirtualDesktops") -Name CurrentVirtualDesktop -ErrorAction Stop).CurrentVirtualDesktop
+                    $candidate = Convert-DesktopBytesToGuid $sessionValue
+                    if ($candidate) { $currentId = $candidate; break }
+                }
+                catch { }
+            }
+        }
+
+        if ($ids.Count -eq 1 -and -not $currentId) { $currentId = $ids[0] }
+        $index = if ($currentId) { [array]::IndexOf([object[]]$ids, $currentId) } else { -1 }
+        $available = $ids.Count -gt 0 -and $index -ge 0
+
+        [pscustomobject]@{
+            available = $available
+            currentIndex = $(if ($available) { $index + 1 } else { $null })
+            count = $ids.Count
+            currentId = $(if ($available) { $currentId } else { $null })
+        }
+    }
+    catch {
+        [pscustomobject]@{ available = $false; currentIndex = $null; count = 0; currentId = $null }
+    }
+}
+
+function Invoke-VirtualDesktopAction {
+    param([ValidateSet("previous","next","new","close")][string]$Command)
+
+    $before = Get-VirtualDesktopState
+    if (-not $before.available) {
+        return [pscustomobject]@{ status = "FAILED"; state = $before; error = "Windows virtual desktop state is unavailable." }
+    }
+
+    if ($Command -eq "previous" -and $before.currentIndex -le 1) {
+        return [pscustomobject]@{ status = "COMPLETE"; state = $before; error = $null }
+    }
+    if ($Command -eq "next" -and $before.currentIndex -ge $before.count) {
+        return [pscustomobject]@{ status = "COMPLETE"; state = $before; error = $null }
+    }
+    if ($Command -eq "close" -and $before.count -le 1) {
+        return [pscustomobject]@{ status = "FAILED"; state = $before; error = "Windows will not close the only virtual desktop." }
+    }
+
+    [PackRatWindowsNative]::SendVirtualDesktopCommand($Command)
+    $after = $before
+    $confirmed = $false
+    for ($attempt = 0; $attempt -lt 15; $attempt++) {
+        Start-Sleep -Milliseconds $(if ($attempt -eq 0) { 180 } else { 100 })
+        $after = Get-VirtualDesktopState
+        if (-not $after.available) { continue }
+
+        if ($Command -eq "previous" -and $after.currentIndex -eq ($before.currentIndex - 1)) { $confirmed = $true; break }
+        if ($Command -eq "next" -and $after.currentIndex -eq ($before.currentIndex + 1)) { $confirmed = $true; break }
+        if ($Command -eq "new" -and $after.count -eq ($before.count + 1) -and $after.currentId -ne $before.currentId) { $confirmed = $true; break }
+        if ($Command -eq "close" -and $after.count -eq ($before.count - 1) -and $after.currentId -ne $before.currentId) { $confirmed = $true; break }
+    }
+
+    [pscustomobject]@{
+        status = $(if ($confirmed) { "COMPLETE" } else { "FAILED" })
+        state = $after
+        error = $(if ($confirmed) { $null } else { "Windows did not confirm the virtual desktop change." })
+    }
+}
+
+function Get-HibernateAvailability {
+    try {
+        $power = Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name HibernateEnabled -ErrorAction Stop
+        return [bool]([int]$power.HibernateEnabled -ne 0)
+    }
+    catch {
+        return $false
+    }
+}
+
+function Invoke-PowerTransition {
+    param([ValidateSet("sleep","hibernate","restart","shutdown")][string]$Command)
+
+    if ($Command -eq "sleep") {
+        $ok = [PackRatWindowsNative]::Suspend($false)
+        return [pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }); error = $(if ($ok) { $null } else { "SetSuspendState sleep request failed." }) }
+    }
+
+    if ($Command -eq "hibernate") {
+        if (-not (Get-HibernateAvailability)) {
+            return [pscustomobject]@{ status = "FAILED"; error = "Hibernate is not available on this PC." }
+        }
+        $ok = [PackRatWindowsNative]::Suspend($true)
+        return [pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }); error = $(if ($ok) { $null } else { "SetSuspendState hibernate request failed." }) }
+    }
+
+    $arguments = if ($Command -eq "restart") { @("/r","/t","0") } else { @("/s","/t","0") }
+    $process = Start-Process -FilePath "$env:SystemRoot\System32\shutdown.exe" -ArgumentList $arguments -WindowStyle Hidden -PassThru -Wait
+    $ok = $process.ExitCode -eq 0
+    [pscustomobject]@{
+        status = $(if ($ok) { "COMPLETE" } else { "FAILED" })
+        error = $(if ($ok) { $null } else { "shutdown.exe returned exit code $($process.ExitCode)." })
+    }
+}
+
 
 function Invoke-PowerCfg {
     param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
