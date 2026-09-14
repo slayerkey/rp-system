@@ -396,3 +396,17 @@ test("Monitor Profile inspector explicitly explains the saved snapshot contents"
   assert.match(html,/Monitor power is intentionally not saved/);
   assert.match(html,/If you lower brightness before pressing Save/);
 });
+
+
+test("Monitor Manager uses the PackRat orange-yellow accent direction", async () => {
+  const visuals=await readFile("src/key-visuals.ts","utf8");
+  const css=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.css","utf8");
+  assert.match(visuals,/PRIMARY_ACCENT="#FFB21E"/);
+  assert.match(visuals,/ACCENT_HOVER="#FFC94A"/);
+  assert.match(visuals,/ACCENT_DEEP="#C97A00"/);
+  assert.match(css,/#ffb21e/i);
+  assert.match(css,/#ffc94a/i);
+  assert.match(css,/#c97a00/i);
+  assert.match(css,/rgba\(255,178,30,\.35\)/);
+  assert.doesNotMatch(css,/#2be86a/i);
+});
