@@ -1,12 +1,15 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
+const repoRoot=path.resolve(root,"..","..");
 const expected=[
   ["com.packrat.textexpanderlite","Text Expander Lite"],
   ["com.packrat.textexpanderpro","Text Expander Pro"]
 ];
+
 function fail(message){throw new Error(message)}
 function profileFolderId(uuid){
   return ((uuid.replace(/-/g,"")+"000").match(/.{5}/g)||[])
@@ -40,13 +43,20 @@ function pngSizeBytes(bytes,label="PNG"){
   if(!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))fail(`${label} is not PNG.`);
   return [bytes.readUInt32BE(16),bytes.readUInt32BE(20)];
 }
-async function pngSize(file){
-  return pngSizeBytes(await fs.readFile(file),file);
-}
 async function requirePng(file,w,h){
-  const [width,height]=await pngSize(file);
+  const bytes=await fs.readFile(file);
+  const [width,height]=pngSizeBytes(bytes,file);
   if(width!==w||height!==h)fail(`${file} expected ${w}x${h}, got ${width}x${height}.`);
 }
+async function requireSvg(file){
+  const value=await fs.readFile(file,"utf8");
+  if(!/<svg\b/i.test(value))fail(`${file} is not SVG.`);
+  return value;
+}
+async function exists(file){
+  try{await fs.access(file);return true}catch{return false}
+}
+
 for(const [uuid,name] of expected){
   const dir=path.join(root,"dist",uuid+".sdPlugin");
   const manifest=JSON.parse(await fs.readFile(path.join(dir,"manifest.json"),"utf8"));
@@ -55,6 +65,7 @@ for(const [uuid,name] of expected){
   if(manifest.Nodejs?.Version!=="24")fail(`${name} must use the current Node 24 runtime.`);
   if(manifest.Software?.MinimumVersion!=="7.1")fail(`${name} must match the current SDK 2.x Stream Deck baseline.`);
   if(manifest.OS?.length!==1||manifest.OS[0].Platform!=="windows")fail(`${name} must remain truthfully Windows-only in v1.`);
+
   const expectedDeviceTypes=[0,1,2,7,9];
   const isLite=uuid.endsWith("textexpanderlite");
   const expectedPages=isLite?["STARTER"]:["QUICK","EMAIL","SUPPORT","CREATOR","DEVELOPMENT","PERSONAL"];
@@ -62,6 +73,7 @@ for(const [uuid,name] of expected){
     ?["lite-email","lite-clipboard"]
     :["pro-quick-email","pro-quick-clipboard","pro-quick-time","pro-quick-date","pro-quick-address","pro-quick-link"];
   const deviceDimensions=new Map([[0,[5,3]],[1,[3,2]],[2,[8,4]],[7,[4,2]],[9,[4,2]]]);
+
   if(!Array.isArray(manifest.Profiles)||manifest.Profiles.length!==expectedDeviceTypes.length){
     fail(`${name} must bundle five device-specific starter profiles.`);
   }
@@ -110,6 +122,7 @@ for(const [uuid,name] of expected){
       if(entries.has(`${profileRoot}/Profiles/${pageId}/manifest.json`)){
         fail(`${name} incorrectly uses raw page UUID folder names.`);
       }
+
       const page=JSON.parse(pageBytes.toString("utf8"));
       actualPageNames.push(page.Name||"");
       const [maxCols,maxRows]=deviceDimensions.get(profileEntry.DeviceType)||[];
@@ -128,15 +141,18 @@ for(const [uuid,name] of expected){
           if(value.LinkedTitle!==true)fail(`${name} bundled action must link its title.`);
           if(!value.Settings?.snippetId)fail(`${name} bundled action has no snippetId setting.`);
           if(value.UUID!==uuid+".insert")fail(`${name} bundled profile references the wrong action UUID.`);
-          if(value.States?.[0]?.Image!=="state0.png")fail(`${name} bundled starter key must use its custom state0.png icon.`);
-          if(value.States?.[0]?.ShowTitle!==false)fail(`${name} bundled starter key must disable Stream Deck title overlays and render its label into the image.`);
-          const customImage=entries.get(`${profileRoot}/Profiles/${encoded}/${coordinate}/CustomImages/state0.png`);
-          if(!customImage)fail(`${name} bundled starter key ${coordinate} is missing CustomImages/state0.png.`);
-          const [iconW,iconH]=pngSizeBytes(customImage,`${name} profile icon ${coordinate}`);
-          if(iconW!==288||iconH!==288)fail(`${name} profile icon ${coordinate} must be 288x288, got ${iconW}x${iconH}.`);
+          if(value.States?.[0]?.ShowTitle!==false)fail(`${name} bundled starter key must disable Stream Deck title overlays.`);
+          if(String(value.States?.[0]?.Title||"")!=="")fail(`${name} bundled profile must leave host title empty; runtime owns the full key face.`);
+          if(value.States?.[0]?.Image)fail(`${name} bundled profile must not pin custom profile pixel art; runtime owns setImage().`);
+
+          const customPrefix=`${profileRoot}/Profiles/${encoded}/${coordinate}/CustomImages/`;
+          if([...entries.keys()].some(entry=>entry.startsWith(customPrefix))){
+            fail(`${name} bundled starter key ${coordinate} still contains CustomImages pixel art.`);
+          }
         }
       }
     }
+
     if(JSON.stringify(actualPageNames)!==JSON.stringify(expectedPages)){
       fail(`${name} starter page order mismatch. Expected ${expectedPages.join(", ")}, got ${actualPageNames.join(", ")}.`);
     }
@@ -147,19 +163,28 @@ for(const [uuid,name] of expected){
 
   for(const action of manifest.Actions){
     for(const field of ["UUID","Name","PropertyInspectorPath"])if(!action[field])fail(`${name} action missing ${field}`);
+    if(action.States?.[0]?.ShowTitle!==false)fail(`${name} action must disable host title overlays.`);
   }
   const manageAction=manifest.Actions.find(action=>action.UUID===uuid+".manage");
   if(!manageAction||manageAction.VisibleInActionsList!==false)fail(`${name} legacy Manage action must stay registered but hidden from the actions list.`);
 
-  await requirePng(path.join(dir,"imgs/plugin/category-icon.png"),28,28);
-  await requirePng(path.join(dir,"imgs/plugin/category-icon@2x.png"),56,56);
-  await requirePng(path.join(dir,"imgs/plugin/marketplace.png"),256,256);
-  await requirePng(path.join(dir,"imgs/plugin/marketplace@2x.png"),512,512);
+  const category=await requireSvg(path.join(dir,"imgs","plugin","category-icon.svg"));
+  if(!/stroke="#FFFFFF"/i.test(category))fail(`${name} category icon must remain monochrome white.`);
+  await requirePng(path.join(dir,"imgs","plugin","marketplace.png"),256,256);
+  await requirePng(path.join(dir,"imgs","plugin","marketplace@2x.png"),512,512);
+  await requirePng(path.join(dir,"imgs","plugin","packrat-logo.png"),0,0).catch(()=>{});
+  if(!(await exists(path.join(dir,"imgs","plugin","packrat-logo.png"))))fail(`${name} must package the real PackRat logo.`);
+
   for(const actionName of ["insert","manage"]){
-    await requirePng(path.join(dir,`imgs/actions/${actionName}/icon.png`),20,20);
-    await requirePng(path.join(dir,`imgs/actions/${actionName}/icon@2x.png`),40,40);
-    await requirePng(path.join(dir,`imgs/actions/${actionName}/key.png`),72,72);
-    await requirePng(path.join(dir,`imgs/actions/${actionName}/key@2x.png`),144,144);
+    const icon=await requireSvg(path.join(dir,`imgs/actions/${actionName}/icon.svg`));
+    const key=await requireSvg(path.join(dir,`imgs/actions/${actionName}/key.svg`));
+    if(!/stroke="#FFFFFF"/i.test(icon))fail(`${name} ${actionName} action-list icon must be monochrome white.`);
+    if(!/#FFB21E/i.test(key)||!/#080A0E/i.test(key))fail(`${name} ${actionName} fallback key must use canonical PackRat key colors.`);
+    for(const forbidden of ["icon.png","icon@2x.png","key.png","key@2x.png"]){
+      if(await exists(path.join(dir,"imgs","actions",actionName,forbidden))){
+        fail(`${name} ${actionName} ships competing pixel fallback ${forbidden}.`);
+      }
+    }
   }
 
   for(const pkg of ["@elgato/streamdeck","@elgato/schemas","@elgato/utils","ws","zod"]){
@@ -167,37 +192,65 @@ for(const [uuid,name] of expected){
   }
   const shippedWs=JSON.parse(await fs.readFile(path.join(dir,"node_modules","ws","package.json"),"utf8"));
   if(shippedWs.version!=="8.21.0")fail(`${name} must ship patched ws 8.21.0, got ${shippedWs.version}.`);
+
   const plugin=await fs.readFile(path.join(dir,"bin","plugin.mjs"),"utf8");
   if(!plugin.includes('from "@elgato/streamdeck"'))fail(`${name} is not using the official SDK runtime.`);
   if(plugin.includes("./streamdeck.mjs"))fail(`${name} still references the raw WebSocket runtime.`);
+  if(!plugin.includes("streamDeck.ui.onSendToPlugin"))fail(`${name} must use global streamDeck.ui.onSendToPlugin PI transport.`);
+  if(!plugin.includes("streamDeck.ui.sendToPropertyInspector"))fail(`${name} must use global streamDeck.ui.sendToPropertyInspector PI transport.`);
+  if(/\.action\.sendToPropertyInspector/.test(plugin))fail(`${name} must not use per-action PI response transport.`);
+  if(!plugin.includes("renderSnippetKey")||!plugin.includes("setImage("))fail(`${name} must runtime-render semantic snippet keys.`);
+
+  const design=spawnSync(process.execPath,[
+    path.join(repoRoot,"tools","qa","streamdeck-plugin-design-audit.mjs"),
+    dir,
+    "--require-canonical-pi"
+  ],{encoding:"utf8"});
+  process.stdout.write(design.stdout||"");
+  process.stderr.write(design.stderr||"");
+  if(design.status!==0)fail(`${name} failed canonical Stream Deck plugin design audit.`);
 }
+
 const inspector=await fs.readFile(path.join(root,"ui","inspector.html"),"utf8");
-if(inspector.includes("ctx=uuid"))fail("Property Inspector must not use its registration UUID as the action context.");
-if(!inspector.includes('ctx=parsed.context||""'))fail("Property Inspector must source action context from actionInfo.");
-if(!inspector.includes('event:"getSettings",action,context:ctx'))fail("Property Inspector getSettings must include action UUID and action context.");
-if(!inspector.includes('event:"setSettings",action,context:ctx'))fail("Property Inspector setSettings must include action UUID and action context.");
-if(!inspector.includes('$("afterWrap").style.display=edition==="pro"?"block":"none"'))fail("Tab/Enter controls must be hidden in Lite.");
-if(!inspector.includes('Create / edit snippets'))fail("Property Inspector must expose the inline snippet editor.");
-if(!inspector.includes('type:"saveSnippet"')||!inspector.includes('type:"deleteSnippet"'))fail("Property Inspector must support inline snippet save/delete.");
-if(!inspector.includes('Type text')||!inspector.includes('Paste with clipboard'))fail("Insert method copy must use plain-language labels.");
-if(inspector.includes('Unicode typing')||inspector.includes('Clipboard paste + restore'))fail("Old technical insertion labels must not return.");
-if(!inspector.includes('$("insertSettings").style.display="none"'))fail("Legacy hidden library action must show the editor instead of insertion controls.");
-for(const token of ["--packrat-bg:#080A0E","--packrat-accent:#FFB21E","--packrat-button:#181C21","--packrat-danger:#FF5D6C"]){
-  if(!inspector.includes(token))fail(`Property Inspector is missing canonical PackRat token ${token}.`);
+const inspectorJs=await fs.readFile(path.join(root,"ui","inspector.js"),"utf8");
+const inspectorCss=await fs.readFile(path.join(root,"ui","inspector.css"),"utf8");
+
+if(!inspector.includes('class="packrat-topbar"'))fail("Property Inspector PackRat chrome must live in the canonical topbar.");
+if(!inspector.includes('src="../imgs/plugin/packrat-logo.png"'))fail("Property Inspector must use the packaged PackRat logo asset.");
+if(!inspector.includes("Loading snippets…"))fail("Property Inspector must show a clear snippet-loading state instead of a blank selector.");
+if(!inspector.includes("Open snippet library"))fail("Property Inspector must expose a clear snippet-library control.");
+if(!inspector.includes("Dynamic text"))fail("Pro Property Inspector must explain available dynamic text.");
+if(!inspector.includes("Type text")||!inspector.includes("Paste with clipboard"))fail("Insert method copy must use plain-language labels.");
+if(inspector.includes("Unicode typing")||inspector.includes("Clipboard paste + restore"))fail("Old technical insertion labels must not return.");
+
+if(!inspectorJs.includes('context:uiUuid'))fail("Property Inspector websocket envelopes must use the PI UUID.");
+if(!inspectorJs.includes("actionContext"))fail("Property Inspector must pass selected action context separately.");
+if(!inspectorJs.includes('event:"getSettings",action:actionUuid,context:uiUuid'))fail("Property Inspector getSettings must use canonical PI UUID transport.");
+if(!inspectorJs.includes('event:"setSettings",action:actionUuid,context:uiUuid'))fail("Property Inspector setSettings must use canonical PI UUID transport.");
+if(!inspectorJs.includes('event:"sendToPlugin"'))fail("Property Inspector must use sendToPlugin for snippet library commands.");
+if(inspectorJs.includes("context:actionContext"))fail("Property Inspector must not use the action instance as websocket context.");
+if(!inspectorJs.includes("Saving…")||!inspectorJs.includes("Saved"))fail("Property Inspector must visibly report settings persistence.");
+if(!inspectorJs.includes('document.createElement("optgroup")'))fail("Pro snippet selector must group the built-in library by folder.");
+
+for(const token of ["#080A0E","#151920","#0D1015","#FFB21E","#181C21","#FF5D6C"]){
+  if(!inspectorCss.includes(token))fail(`Property Inspector CSS is missing canonical PackRat token ${token}.`);
 }
-if(!inspector.includes("linear-gradient(145deg,var(--packrat-card-start),var(--packrat-card-end))"))fail("Property Inspector must use the canonical PackRat card gradient.");
-if(!inspector.includes("rgba(255,178,30,.12) 0%")||!inspector.includes("top:-130px")||!inspector.includes("right:-110px"))fail("Property Inspector must include the canonical top-right PackRat ambient glow.");
-if(!inspector.includes('src="packrat-icon.png"'))fail("Property Inspector must use the packaged PackRat logo asset.");
-if(!inspector.includes("https://marketplace.elgato.com/maker/packrat"))fail("Property Inspector must link to the PackRat maker page.");
-if(!inspector.includes('$("brandLink").addEventListener("click"'))fail("PackRat maker branding must use Stream Deck openUrl behavior.");
+if(!inspectorCss.includes("rgba(255,178,30,.12) 0%")||!inspectorCss.includes("top:-130px")||!inspectorCss.includes("right:-110px")){
+  fail("Property Inspector must include the canonical top-right PackRat ambient glow.");
+}
+
 const buildSource=await fs.readFile(path.join(root,"scripts","build.mjs"),"utf8");
-if(!buildSource.includes('tools","art","assets","ratpack-icon-transparent.png'))fail("Build must package the shared PackRat logo locally.");
-if(!buildSource.includes("const bg=[5,7,10,255],panel=[13,16,21,255]")||!buildSource.includes("accent=[255,178,30,255]"))fail("Key renderer must use the canonical PackRat dark surface and cheddar accent.");
-if(!buildSource.includes("roundRect(0,0,width,height,s*.16,bg)"))fail("Key renderer must own a rounded dark key face.");
-const sourcePlugin=await fs.readFile(path.join(root,"src","plugin.mjs"),"utf8");
-if(!sourcePlugin.includes('afterInsert: EDITION === "pro" ? (settings.afterInsert || "none") : "none"'))fail("Lite runtime must ignore Tab/Enter settings.");
-if(!sourcePlugin.includes('saveSnippetFromInspector')||!sourcePlugin.includes('deleteSnippetFromInspector'))fail("Plugin must implement inline snippet CRUD.");
-const map=JSON.parse(await fs.readFile(path.join(root,"..","..","products","lite-pro-map.json"),"utf8"));
+for(const forbidden of ["FONT_5X7","drawProfileLabel","profileKeyImage","CustomImages/state0.png"]){
+  if(buildSource.includes(forbidden))fail(`Text Expander build must not restore pixel-profile renderer primitive: ${forbidden}`);
+}
+if(!buildSource.includes('key-visuals.mjs'))fail("Build must package the semantic runtime key renderer.");
+if(!buildSource.includes('packrat-logo.png'))fail("Build must package the shared PackRat logo at the canonical PI path.");
+
+const sourceLibrary=await fs.readFile(path.join(root,"src","library.mjs"),"utf8");
+if(!sourceLibrary.includes("CURRENT_SCHEMA_VERSION = 3"))fail("Text Expander must migrate existing local libraries to schema v3.");
+if(!sourceLibrary.includes("ensureSeeds"))fail("Text Expander v3 migration must restore missing built-in starter snippets.");
+
+const map=JSON.parse(await fs.readFile(path.join(repoRoot,"products","lite-pro-map.json"),"utf8"));
 const pair=(map.pairs||[]).find(item=>item.lite_id==="text-expander"&&item.pro_id==="text-expander-pro");
 if(!pair)fail("Text Expander Lite→Pro mapping is missing.");
 const expectedProUrl=String(pair.pro_marketplace_url||"").trim();
@@ -208,6 +261,10 @@ const liteEdition=await fs.readFile(path.join(root,"dist","com.packrat.textexpan
 if(!liteEdition.includes(`VERIFIED_PRO_URL=${JSON.stringify(expectedProUrl)}`)){
   fail("Lite packaged upsell URL does not match canonical Lite→Pro metadata.");
 }
+
 const bridge=await fs.readFile(path.join(root,"runtime","win-bridge.ps1"),"utf8");
-for(const forbidden of ["Invoke-Expression","iex ","cmd.exe /c","Start-Process"])if(bridge.toLowerCase().includes(forbidden.toLowerCase()))fail(`Unsafe bridge primitive found: ${forbidden}`);
+for(const forbidden of ["Invoke-Expression","iex ","cmd.exe /c","Start-Process"]){
+  if(bridge.toLowerCase().includes(forbidden.toLowerCase()))fail(`Unsafe bridge primitive found: ${forbidden}`);
+}
+
 console.log("Text Expander structural QA passed.");
