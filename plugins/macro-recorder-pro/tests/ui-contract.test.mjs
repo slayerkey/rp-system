@@ -52,6 +52,7 @@ test("Pro manifest keeps the intended platform, profile and loop safety contract
   for(const action of manifest.Actions) assert.equal(action.UserTitleEnabled,false);
   const record=manifest.Actions.find(action=>action.UUID.endsWith(".record"));
   const stop=manifest.Actions.find(action=>action.UUID.endsWith(".stop"));
+  assert.equal(stop?.Name,"Emergency Stop");
   const replay=manifest.Actions.find(action=>action.UUID==="com.packrat.macro-recorder-pro.replay");
   assert.equal(record?.SupportedInKeyLogicActions,false);
   assert.equal(stop?.SupportedInKeyLogicActions,false);
