@@ -1,7 +1,7 @@
 (() => {
   const edition=document.body.dataset.edition;
   const pro=edition==="pro";
-  let socket=null,uiUuid="",actionContext="",actionUuid="",kind="",settings={},state=null,stateConnected=false,stateRetryTimer=null,stateRetries=0,diagnostic=null;
+  let socket=null,uiUuid="",actionContext="",actionUuid="",kind="",settings={},state=null,stateConnected=false,stateRetryTimer=null,stateRetries=0,diagnostic=null,diagnosticTimer=null;
   const PAGE_SIZE=200;
   const MAX_IMPORT_BYTES=16*1024*1024;
   let timelinePage=0,timelineMacroId="";
@@ -58,6 +58,7 @@
   }
 
   function showDiagnostic(report){
+    if(diagnosticTimer){clearTimeout(diagnosticTimer);diagnosticTimer=null;}
     diagnostic=report;
     const output=$("diagnosticReport");
     if(output)output.textContent=diagnosticText(report);
@@ -72,26 +73,50 @@
     if(status)status.textContent="Running end-to-end diagnostic…";
     const output=$("diagnosticReport");
     if(output)output.textContent="Waiting for plugin response…";
-    send({
+    diagnostic=null;
+    $("copyDiagnostic").disabled=true;
+    const client={
+      uiUuid,
+      actionContext,
+      actionUuid,
+      kind,
+      websocketOpen:socket?.readyState===WebSocket.OPEN,
+      stateConnected,
+      stateRetries,
+      localSettings:settings,
+      lastLibraryCount:state?.library?.length??null,
+      selectedMacroId:state?.settings?.macroId??settings.macroId??"",
+    };
+    const sent=send({
       event:"sendToPlugin",
       action:actionUuid,
       context:uiUuid,
       payload:{
         type:"macroRecorder.diagnostic",
         actionContext,
-        client:{
-          uiUuid,
-          actionContext,
-          actionUuid,
-          kind,
-          stateConnected,
-          stateRetries,
-          localSettings:settings,
-          lastLibraryCount:state?.library?.length??null,
-          selectedMacroId:state?.settings?.macroId??settings.macroId??"",
-        }
+        client,
       }
     });
+    if(diagnosticTimer)clearTimeout(diagnosticTimer);
+    diagnosticTimer=setTimeout(()=>{
+      if(diagnostic)return;
+      showDiagnostic({
+        type:"macroRecorder.diagnostic",
+        timestamp:new Date().toISOString(),
+        summary:"FAIL: no plugin diagnostic response within 2.5 seconds.",
+        checks:[
+          {name:"Property Inspector websocket open",ok:Boolean(client.websocketOpen),detail:`readyState=${socket?.readyState??"none"}`},
+          {name:"Diagnostic request sent",ok:Boolean(sent),detail:sent?"websocket send succeeded":"websocket send failed"},
+          {name:"Selected action context available",ok:Boolean(actionContext),detail:actionContext||"missing"},
+          {name:"Plugin response received",ok:false,detail:"No macroRecorder.diagnostic response arrived within 2.5 seconds"},
+        ],
+        transport:{mode:"property-inspector-timeout",uiUuid,actionContext},
+        client,
+        selectedAction:null,
+        runtime:null,
+        library:null,
+      });
+    },2500);
   }
 
   function detectKind(){if(actionUuid.endsWith(".record"))return"record";if(actionUuid.endsWith(".stop"))return"stop";return"replay";}
