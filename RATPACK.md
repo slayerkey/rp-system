@@ -94,6 +94,10 @@ Claude, Codex, and ChatGPT adapters should be thin. They may route to canonical 
 
 Existing published identifiers are immutable. Do not rename published plugin or product identifiers solely to make namespaces consistent.
 
+Canonical standards and skills are shared source-of-truth inputs. Normal product tasks consume them; they do not rewrite global rules to match one product. Promote a product-level lesson globally only when the failure is repeatable and the user is explicitly asking for a shared-system improvement.
+
+Before destructive product-boundary work such as a rollback, split, or replacement, preserve the current exact working state on a branch/tag/commit. Git history is recoverable, but an explicit frozen reference makes reuse deterministic and keeps later chats from depending on conversational memory.
+
 ## Web first execution rule
 
 Stay in ChatGPT until a real technical boundary is reached.
