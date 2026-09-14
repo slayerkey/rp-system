@@ -38,6 +38,9 @@ jobs:
       - name: Validate global Rat Ship Stream Deck hero
         run: python tests/check_streamdeck_rat_ship_hero.py
 
+      - name: Validate Rat Art text safety
+        run: python tests/check_rat_art_text_safety.py
+
       - name: Validate Rat Ship Stream Deck hero routing
         shell: pwsh
         run: ./tests/check_rat_ship_streamdeck_hero.ps1
