@@ -223,12 +223,29 @@ test("Pro exposes the 15-key Windows Control Center and keeps PC Modes secondary
   assert.ok(!JSON.stringify(value).match(/cloudstore|sendkeys|quick settings/i));
 });
 
-test("Marketplace cover key grids fail closed instead of clipping outside the safe frame", async () => {
+test("Marketplace art shows the real Control Center instead of text-only placeholder frames", async () => {
   const art = await readFile(path.resolve("scripts", "rat-art.py"), "utf8");
-  assert.match(art, /available_top = 340/);
-  assert.match(art, /available_bottom = 920/);
-  assert.match(art, /if total_h > available_h:[\s\S]*key = \(available_h - \(rows - 1\) \* gap\) \/\/ rows/);
-  assert.match(art, /if oy \+ total_h > available_bottom:[\s\S]*Marketplace key grid exceeds safe cover bounds/);
+  assert.match(art, /from tools\.art\.streamdeck_photo import alpha_crop_device, compose_device/);
+  assert.match(art, /rat-art-keys/);
+  assert.match(art, /PRO_KEYS = \[/);
+  assert.match(art, /LITE_KEYS = \[/);
+  assert.match(art, /THE PROFILE YOU ACTUALLY USE/);
+  assert.match(art, /LIVE WINDOWS STATE, RIGHT ON THE KEYS/);
+  assert.match(art, /VIRTUAL DESKTOPS FEEL MADE FOR STREAM DECK/);
+  assert.match(art, /WHEN YOU WANT THE WHOLE CONTROL CENTER/);
+  assert.match(art, /signature\(image\)/);
+  assert.doesNotMatch(art, /def text_frame\(/);
+});
+
+test("Rat Art exports exactly 15 hero key fixtures with honest representative states", async () => {
+  const art = await readFile(path.resolve("scripts", "rat-art.py"), "utf8");
+  assert.match(art, /\("wifi", "WI-FI\\\\nN\/A"/);
+  assert.match(art, /\("bluetooth", "BT\\\\nN\/A"/);
+  assert.match(art, /\("power", "POWER\\\\nPERFORM"/);
+  assert.match(art, /\("theme", "THEME\\\\nDARK"/);
+  assert.match(art, /\("desktop-current", "DESKTOP\\\\n2 \/ 3"/);
+  assert.match(art, /while len\(faces\) < 15:/);
+  assert.match(art, /expected 15 product key faces/);
 });
 
 test("Rat Art PowerShell wrapper keeps colon-adjacent variables parse-safe", async () => {
