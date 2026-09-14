@@ -10,6 +10,7 @@ $WorktreeRoot = Join-Path $DevRoot "worktrees"
 $Worktree = Join-Path $WorktreeRoot $Slug
 . (Join-Path $PSScriptRoot "rat-dev-dependencies.ps1")
 . (Join-Path $PSScriptRoot "rat-dev-source.ps1")
+. (Join-Path $PSScriptRoot "rat-dev-processes.ps1")
 
 function Require-Command {
     param([string]$Name, [string]$Hint)
@@ -272,6 +273,59 @@ function Get-ExistingPluginUuid {
     }
 }
 
+function Invoke-StreamDeckBestEffort {
+    param([string[]]$Arguments)
+
+    $previous = $ErrorActionPreference
+    $previousExitCode = $global:LASTEXITCODE
+    $ErrorActionPreference = "Continue"
+    try {
+        & streamdeck @Arguments *> $null
+        return $LASTEXITCODE -eq 0
+    }
+    catch {
+        return $false
+    }
+    finally {
+        $ErrorActionPreference = $previous
+        $global:LASTEXITCODE = $previousExitCode
+    }
+}
+
+function Release-RatDevBuildLocks {
+    param(
+        [string]$PluginRoot,
+        [string]$PreviousUuid
+    )
+
+    if ($env:OS -ne "Windows_NT" -or -not (Test-Path $PluginRoot -PathType Container)) {
+        return $false
+    }
+
+    $owned = @(Get-RatDevBuildOwnedProcesses -PluginRoot $PluginRoot)
+    if (-not $owned.Count) {
+        return $false
+    }
+
+    $names = ($owned | ForEach-Object { "$($_.ProcessName) ($($_.Id))" }) -join ", "
+    Write-Host "Current development build has native helper processes open: $names" -ForegroundColor Yellow
+    Write-Host "Pausing this plugin briefly so Windows can replace its build-owned executables..." -ForegroundColor DarkGray
+
+    if ($PreviousUuid) {
+        [void](Invoke-StreamDeckBestEffort -Arguments @("stop", $PreviousUuid))
+        Start-Sleep -Milliseconds 500
+    }
+
+    $remaining = @(Stop-RatDevBuildOwnedProcesses -PluginRoot $PluginRoot)
+    if ($remaining.Count) {
+        $remainingNames = ($remaining | ForEach-Object { "$($_.ProcessName) ($($_.Id))" }) -join ", "
+        throw "Could not release native helper process(es) for '$Slug': $remainingNames. Close Stream Deck once, then retry: rat dev $Slug"
+    }
+
+    Write-Host "Native helper build lock released." -ForegroundColor DarkGray
+    return $true
+}
+
 function Build-And-TestPlugin {
     param(
         [string]$PluginRoot,
@@ -353,8 +407,9 @@ function Build-And-TestPlugin {
         Uuid = [string]$manifest.UUID
         Version = [string]$manifest.Version
         OpenUrl = if ($config -and $config.open_url) { [string]$config.open_url } else { $null }
-        OpenDevProfile = if ($config -and $config.open_dev_profile) { [string]$config.open_dev_profile } else { $null }
         OpenDevFolder = [bool]($config -and $config.open_dev_folder)
+        OpenProfileOnDev = [bool]($config -and $config.open_profile_on_dev)
+        DevProfile = if ($config -and $config.dev_profile) { [string]$config.dev_profile } else { $null }
     }
 }
 
@@ -367,9 +422,9 @@ function Install-DevPlugin {
     Write-Host "Enabling Stream Deck developer mode..." -ForegroundColor DarkGray
     & streamdeck dev *> $null
 
-    # Keep the currently linked plugin alive while source sync, build, tests, and validation run.
-    # Only switch the link after the replacement has passed every local gate. This prevents a
-    # failed Rat Dev update from turning an existing profile into unresolved question-mark keys.
+    # Most plugins can stay live through source sync/build. Native-helper plugins may be paused
+    # just before build so Windows releases executable file locks. The final link switch still
+    # happens only after the replacement passes local build, tests, and validation.
     Write-Host "Switching $($Plugin.Uuid) to the validated development build..." -ForegroundColor Cyan
     if ($PreviousUuid -and $PreviousUuid -ne $Plugin.Uuid) {
         & streamdeck stop $PreviousUuid *> $null
@@ -397,29 +452,30 @@ function Install-DevPlugin {
         Write-Host "Profiles: none bundled" -ForegroundColor DarkGray
     }
 
-    $profileToOpen = $null
-    if ($Plugin.OpenDevProfile) {
-        $pluginRootFull = [System.IO.Path]::GetFullPath($Plugin.PluginDir)
-        $candidate = [System.IO.Path]::GetFullPath((Join-Path $pluginRootFull ([string]$Plugin.OpenDevProfile)))
-        $pluginPrefix = $pluginRootFull.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
-        if (-not $candidate.StartsWith($pluginPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-            throw "Configured Rat Dev profile '$($Plugin.OpenDevProfile)' escapes plugin directory '$($Plugin.PluginDir)'."
+    if ($Plugin.OpenProfileOnDev) {
+        $profileToOpen = $null
+        if ($Plugin.DevProfile) {
+            $relative = ([string]$Plugin.DevProfile).Replace("/", [System.IO.Path]::DirectorySeparatorChar)
+            $candidate = Join-Path $Plugin.PluginDir $relative
+            if (Test-Path $candidate -PathType Leaf) {
+                $profileToOpen = (Resolve-Path $candidate).Path
+            }
+            else {
+                Write-Host "Configured development profile was not found: $candidate" -ForegroundColor Yellow
+            }
         }
-        if (-not (Test-Path $candidate -PathType Leaf)) {
-            throw "Configured Rat Dev profile was not built: $candidate"
+        elseif ($profiles.Count) {
+            $profileToOpen = $profiles[0].FullName
         }
-        if ([System.IO.Path]::GetExtension($candidate) -ne ".streamDeckProfile") {
-            throw "Configured Rat Dev profile must be a .streamDeckProfile file: $candidate"
+
+        if ($profileToOpen) {
+            Start-Sleep -Milliseconds 900
+            Write-Host "Opening bundled Stream Deck profile for import: $profileToOpen" -ForegroundColor Cyan
+            Start-Process $profileToOpen
         }
-        $profileToOpen = Get-Item $candidate
     }
 
-    if ($profileToOpen) {
-        Start-Sleep -Milliseconds 700
-        Write-Host "Opening Stream Deck profile for import: $($profileToOpen.FullName)" -ForegroundColor Cyan
-        Start-Process $profileToOpen.FullName
-    }
-    elseif ($Plugin.OpenDevFolder) {
+    if ($Plugin.OpenDevFolder) {
         Start-Sleep -Milliseconds 600
         $openPath = if ($profiles.Count) { $profiles[0].Directory.FullName } else { $Plugin.PluginDir }
         Write-Host "Opening development bundle: $openPath" -ForegroundColor DarkGray
@@ -505,6 +561,13 @@ if ($source.Kind -eq "xeneon") {
 
 Ensure-StreamDeckCli
 $oldUuid = Get-ExistingPluginUuid $source
+$pluginRoot = Get-PluginRoot $source
+
+# Native helpers from the currently linked development build can keep files inside
+# the reusable worktree locked. Release those processes before git reset/clean,
+# otherwise Git for Windows can enter an interactive "Unlink failed. Try again?"
+# loop before Rat Dev ever reaches its normal pre-build lock-release step.
+[void](Release-RatDevBuildLocks -PluginRoot $pluginRoot -PreviousUuid $oldUuid)
 
 if ($source.Kind -eq "external") {
     Sync-ExternalCheckout $source
@@ -513,6 +576,5 @@ else {
     Sync-RatPackWorktree ([string]$source.Ref)
 }
 
-$pluginRoot = Get-PluginRoot $source
 $plugin = Build-And-TestPlugin -PluginRoot $pluginRoot -RegistrationConfig $source.Config
 Install-DevPlugin -Plugin $plugin -PreviousUuid $oldUuid
