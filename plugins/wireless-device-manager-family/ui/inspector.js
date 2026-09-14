@@ -126,10 +126,39 @@ function save(patch){
   ws?.send(JSON.stringify({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings}));
 }
 function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function soleVisibleDevice(){
+  const devices=(snapshot?.devices||[]).filter(device=>device.paired!==false && device.present!==false);
+  return devices.length===1?devices[0]:null;
+}
 function selectedDeviceId(){
-  if(snapshot?.edition==="lite") return snapshot?.liteDeviceId||settings.deviceId||"";
-  const slot=settings.slot;
-  return (slot && snapshot?.slots?.[slot]) || settings.deviceId || "";
+  let configured="";
+  if(snapshot?.edition==="lite") configured=snapshot?.liteDeviceId||settings.deviceId||"";
+  else{
+    const slot=settings.slot;
+    configured=(slot && snapshot?.slots?.[slot]) || settings.deviceId || "";
+  }
+  if(configured)return configured;
+  return soleVisibleDevice()?.stableId||"";
+}
+function deviceTransportLabel(device){
+  if(device?.kind==="2.4ghz-receiver")return "2.4 GHz receiver";
+  if(device?.kind==="usb-wired")return "Wired USB";
+  if(device?.transport==="bluetooth")return "Bluetooth";
+  if(device?.transport==="usb-hid")return "USB HID";
+  return "Wireless";
+}
+function telemetryAgeLabel(timestamp){
+  if(!Number.isFinite(Number(timestamp)))return "";
+  const seconds=Math.max(0,Math.round((Date.now()-Number(timestamp))/1000));
+  if(seconds<2)return "just now";
+  if(seconds<60)return `${seconds}s ago`;
+  const minutes=Math.floor(seconds/60);
+  return `${minutes}m ago`;
+}
+function batterySourceLabel(source){
+  if(source==="hid-feature-report")return "direct HID read";
+  if(source==="windows-aep")return "Windows battery telemetry";
+  return "battery telemetry";
 }
 function groupsFor(id){
   if(!id)return "";
@@ -193,6 +222,20 @@ function render(){
 
     const d=devices.find(x=>x.stableId===selectedId);
     $("caps").innerHTML=d?["STATUS","CONNECT","DISCONNECT","BATTERY","CHARGING"].map(c=>`<span class="cap ${d.capabilities?.[c]?"":"off"}">${c}</span>`).join(""):"";
+    if(d){
+      const pieces=[deviceTransportLabel(d)];
+      if(d.capabilities?.BATTERY){
+        pieces.push(`${d.batteryPercent}%`);
+        if(d.charging===true)pieces.push("charging");
+        const age=telemetryAgeLabel(d.batteryObservedAt);
+        pieces.push(`${batterySourceLabel(d.batterySource)}${age?` · ${age}`:""}`);
+      }
+      $("device-meta").textContent=pieces.join(" · ");
+    }else{
+      $("device-meta").textContent=devices.length===1
+        ?"The only visible device is selected automatically."
+        :"Choose a device to bind this key.";
+    }
   }
   if(isDashboard)$("dashboardGroup").value=settings.groupName||"";
 }
