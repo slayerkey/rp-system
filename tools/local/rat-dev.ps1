@@ -9,6 +9,9 @@ $DevRoot = Join-Path $RepoRoot "out\dev"
 $WorktreeRoot = Join-Path $DevRoot "worktrees"
 $Worktree = Join-Path $WorktreeRoot $Slug
 . (Join-Path $PSScriptRoot "rat-dev-dependencies.ps1")
+. (Join-Path $PSScriptRoot "rat-dev-source.ps1")
+. (Join-Path $PSScriptRoot "rat-dev-processes.ps1")
+. (Join-Path $PSScriptRoot "rat-dev-profiles.ps1")
 
 function Require-Command {
     param([string]$Name, [string]$Hint)
@@ -78,48 +81,26 @@ function Ensure-XeneonTools {
 }
 
 function Read-OriginMainRegistration {
-    $configObject = "origin/main:plugins/$Slug/rat-dev.json"
-    $raw = & git -C $RepoRoot show $configObject 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $raw) {
-        return $null
-    }
-    try {
-        return (($raw -join "`n") | ConvertFrom-Json)
-    }
-    catch {
-        throw "Invalid rat-dev.json registration for $Slug on origin/main."
-    }
+    return (Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object "origin/main:plugins/$Slug/rat-dev.json")
 }
 
 function Resolve-Source {
     Write-Host "Fetching canonical RatPack source..." -ForegroundColor Cyan
-    Invoke-Checked -Command "git" -Arguments @("-C", $RepoRoot, "fetch", "--prune", "origin") -Failure "Git fetch failed"
+    # Do not rely on remote.origin.fetch here. Some local PackRat clones were
+    # created with a main-only fetch refspec, which leaves previously discovered
+    # origin/product/* refs stale even though 'git fetch origin' reports success.
+    # Rat Dev resolves canonical work from origin/main plus product family branches,
+    # so refresh those refs explicitly every run.
+    Invoke-Checked -Command "git" -Arguments @(
+        "-C", $RepoRoot,
+        "fetch", "--prune", "origin",
+        "+refs/heads/main:refs/remotes/origin/main",
+        "+refs/heads/product/*:refs/remotes/origin/product/*"
+    ) -Failure "Git fetch failed"
 
-    $productRef = "refs/remotes/origin/product/$Slug"
-    if (Test-GitRef $productRef) {
-        $productWidget = "origin/product/${Slug}:widgets/_src/${Slug}"
-        if (Test-GitObject $productWidget) {
-            return [PSCustomObject]@{
-                Kind = "xeneon"
-                Ref = "origin/product/$Slug"
-                Config = $null
-                SourceRoot = "widgets\_src\$Slug"
-                Display = "origin/product/$Slug"
-            }
-        }
-
-        $productPlugin = "origin/product/${Slug}:plugins/${Slug}"
-        if (Test-GitObject $productPlugin) {
-            return [PSCustomObject]@{
-                Kind = "ratpack"
-                Ref = "origin/product/$Slug"
-                Config = $null
-                SourceRoot = "plugins\$Slug"
-                Display = "origin/product/$Slug"
-            }
-        }
-    }
-
+    # An explicit external registration on origin/main is authoritative. Resolve
+    # it before scanning product branches so private products cannot be shadowed
+    # by stale/copied slug directories on unrelated internal branches.
     $registration = Read-OriginMainRegistration
     if ($registration -and $registration.repository) {
         $externalRef = if ($registration.ref) { [string]$registration.ref } else { "product/$Slug" }
@@ -132,6 +113,11 @@ function Resolve-Source {
             SourceRoot = $sourceRoot
             Display = "$($registration.repository) @ $externalRef"
         }
+    }
+
+    $productSource = Resolve-RatDevInternalProductSource -RepoRoot $RepoRoot -Slug $Slug
+    if ($productSource) {
+        return $productSource
     }
 
     $mainWidget = "origin/main:widgets/_src/$Slug"
@@ -287,14 +273,7 @@ function Get-ExistingPluginUuid {
         }
     }
 
-    $pluginDir = $null
-    if ($config -and $config.plugin_dir) {
-        $pluginDir = Join-Path $root ([string]$config.plugin_dir)
-    }
-    if (-not $pluginDir) {
-        $candidate = Get-ChildItem $root -Directory -Filter "*.sdPlugin" -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($candidate) { $pluginDir = $candidate.FullName }
-    }
+    $pluginDir = Resolve-RatDevPluginDirectory -PluginRoot $root -Config $config -AllowMissing
     if (-not $pluginDir) { return $null }
 
     $manifestPath = Join-Path $pluginDir "manifest.json"
@@ -306,6 +285,59 @@ function Get-ExistingPluginUuid {
     catch {
         return $null
     }
+}
+
+function Invoke-StreamDeckBestEffort {
+    param([string[]]$Arguments)
+
+    $previous = $ErrorActionPreference
+    $previousExitCode = $global:LASTEXITCODE
+    $ErrorActionPreference = "Continue"
+    try {
+        & streamdeck @Arguments *> $null
+        return $LASTEXITCODE -eq 0
+    }
+    catch {
+        return $false
+    }
+    finally {
+        $ErrorActionPreference = $previous
+        $global:LASTEXITCODE = $previousExitCode
+    }
+}
+
+function Release-RatDevBuildLocks {
+    param(
+        [string]$PluginRoot,
+        [string]$PreviousUuid
+    )
+
+    if ($env:OS -ne "Windows_NT" -or -not (Test-Path $PluginRoot -PathType Container)) {
+        return $false
+    }
+
+    $owned = @(Get-RatDevBuildOwnedProcesses -PluginRoot $PluginRoot)
+    if (-not $owned.Count) {
+        return $false
+    }
+
+    $names = ($owned | ForEach-Object { "$($_.ProcessName) ($($_.Id))" }) -join ", "
+    Write-Host "Current development build has native helper processes open: $names" -ForegroundColor Yellow
+    Write-Host "Pausing this plugin briefly so Windows can replace its build-owned executables..." -ForegroundColor DarkGray
+
+    if ($PreviousUuid) {
+        [void](Invoke-StreamDeckBestEffort -Arguments @("stop", $PreviousUuid))
+        Start-Sleep -Milliseconds 500
+    }
+
+    $remaining = @(Stop-RatDevBuildOwnedProcesses -PluginRoot $PluginRoot)
+    if ($remaining.Count) {
+        $remainingNames = ($remaining | ForEach-Object { "$($_.ProcessName) ($($_.Id))" }) -join ", "
+        throw "Could not release native helper process(es) for '$Slug': $remainingNames. Close Stream Deck once, then retry: rat dev $Slug"
+    }
+
+    Write-Host "Native helper build lock released." -ForegroundColor DarkGray
+    return $true
 }
 
 function Build-And-TestPlugin {
@@ -332,6 +364,7 @@ function Build-And-TestPlugin {
     $packagePath = Join-Path $PluginRoot "package.json"
     if (Test-Path $packagePath) {
         $package = Get-Content $packagePath -Raw | ConvertFrom-Json
+        Assert-RatDevBuildPrerequisites -PluginRoot $PluginRoot -Slug $Slug
         $nodeModules = Join-Path $PluginRoot "node_modules"
         $lockPath = Join-Path $PluginRoot "package-lock.json"
         Push-Location $PluginRoot
@@ -368,18 +401,7 @@ function Build-And-TestPlugin {
         }
     }
 
-    $pluginDir = $null
-    if ($config -and $config.plugin_dir) {
-        $pluginDir = Join-Path $PluginRoot ([string]$config.plugin_dir)
-    }
-    else {
-        $candidate = Get-ChildItem $PluginRoot -Directory -Filter "*.sdPlugin" | Select-Object -First 1
-        if ($candidate) { $pluginDir = $candidate.FullName }
-    }
-
-    if (-not $pluginDir -or -not (Test-Path $pluginDir)) {
-        throw "Could not locate the built .sdPlugin directory under $PluginRoot"
-    }
+    $pluginDir = Resolve-RatDevPluginDirectory -PluginRoot $PluginRoot -Config $config
 
     $manifestPath = Join-Path $pluginDir "manifest.json"
     if (-not (Test-Path $manifestPath)) {
@@ -393,12 +415,17 @@ function Build-And-TestPlugin {
     Write-Host "Validating with the official Stream Deck CLI..." -ForegroundColor Cyan
     Invoke-Checked -Command "streamdeck" -Arguments @("validate", $pluginDir) -Failure "Stream Deck validation failed"
 
+    $profilePreference = Resolve-RatDevProfilePreference -Manifest $manifest -Config $config
+
     return [PSCustomObject]@{
         Root = $PluginRoot
         PluginDir = $pluginDir
         Uuid = [string]$manifest.UUID
         Version = [string]$manifest.Version
         OpenUrl = if ($config -and $config.open_url) { [string]$config.open_url } else { $null }
+        OpenDevFolder = [bool]($config -and $config.open_dev_folder)
+        OpenProfileOnDev = [bool]$profilePreference.Open
+        DevProfile = $profilePreference.Profile
     }
 }
 
@@ -411,9 +438,9 @@ function Install-DevPlugin {
     Write-Host "Enabling Stream Deck developer mode..." -ForegroundColor DarkGray
     & streamdeck dev *> $null
 
-    # Keep the currently linked plugin alive while source sync, build, tests, and validation run.
-    # Only switch the link after the replacement has passed every local gate. This prevents a
-    # failed Rat Dev update from turning an existing profile into unresolved question-mark keys.
+    # Most plugins can stay live through source sync/build. Native-helper plugins may be paused
+    # just before build so Windows releases executable file locks. The final link switch still
+    # happens only after the replacement passes local build, tests, and validation.
     Write-Host "Switching $($Plugin.Uuid) to the validated development build..." -ForegroundColor Cyan
     if ($PreviousUuid -and $PreviousUuid -ne $Plugin.Uuid) {
         & streamdeck stop $PreviousUuid *> $null
@@ -429,6 +456,72 @@ function Install-DevPlugin {
     Write-Host "Version: $($Plugin.Version)"
     Write-Host "Source:  $($Plugin.Root)"
     Write-Host "Plugin:  $($Plugin.PluginDir)"
+
+    $profiles = @(Get-ChildItem -Path $Plugin.PluginDir -Recurse -Filter "*.streamDeckProfile" -File -ErrorAction SilentlyContinue)
+    if ($profiles.Count) {
+        Write-Host "Profiles:" -ForegroundColor DarkGray
+        foreach ($profile in $profiles) {
+            Write-Host "  $($profile.FullName)"
+        }
+    }
+    else {
+        Write-Host "Profiles: none bundled" -ForegroundColor DarkGray
+    }
+
+    if ($Plugin.OpenProfileOnDev) {
+        $profileToOpen = $null
+        if ($Plugin.DevProfile) {
+            $relative = ([string]$Plugin.DevProfile).Replace("/", [System.IO.Path]::DirectorySeparatorChar)
+            $candidate = Join-Path $Plugin.PluginDir $relative
+            if (Test-Path $candidate -PathType Leaf) {
+                $profileToOpen = (Resolve-Path $candidate).Path
+            }
+            else {
+                Write-Host "Configured development profile was not found: $candidate" -ForegroundColor Yellow
+            }
+        }
+        elseif ($profiles.Count) {
+            $profileToOpen = $profiles[0].FullName
+        }
+
+        if ($profileToOpen) {
+            $profileDecision = Get-RatDevProfileOpenDecision -ProfilePath $profileToOpen -StateRoot $DevRoot -Slug $Slug
+
+            if (-not $profileDecision.Open) {
+                Write-Host "Bundled profile is unchanged and already installed; skipping duplicate import." -ForegroundColor DarkGray
+                if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor DarkGray }
+            }
+            else {
+                Start-Sleep -Milliseconds 900
+                if ($profileDecision.Reason -eq "profile-changed") {
+                    Write-Host "Bundled profile changed since the last Rat Dev run. Opening the newest profile for Replace/Update..." -ForegroundColor Cyan
+                }
+                elseif ($profileDecision.Reason -eq "existing-installed-untracked" -or $profileDecision.Reason -eq "profile-state-upgrade") {
+                    Write-Host "An installed profile exists but Rat Dev cannot prove it matches this bundle. Opening the newest profile for Replace/Update..." -ForegroundColor Cyan
+                }
+                elseif ($profileDecision.Reason -eq "installed-profile-missing") {
+                    Write-Host "Bundled profile is no longer installed. Opening it again..." -ForegroundColor Cyan
+                }
+                else {
+                    Write-Host "Opening bundled Stream Deck profile for first import: $profileToOpen" -ForegroundColor Cyan
+                }
+                Start-Process $profileToOpen
+                Write-RatDevProfileState -StateRoot $DevRoot -Slug $Slug -ProfilePath $profileToOpen -Fingerprint $profileDecision.Fingerprint -ProfileName $profileDecision.ProfileName
+            }
+        }
+    }
+
+    if ($Plugin.OpenDevFolder) {
+        Start-Sleep -Milliseconds 600
+        $openPath = if ($profiles.Count) { $profiles[0].Directory.FullName } else { $Plugin.PluginDir }
+        Write-Host "Opening development bundle: $openPath" -ForegroundColor DarkGray
+        if ($env:OS -eq "Windows_NT") {
+            Start-Process explorer.exe $openPath
+        }
+        else {
+            Start-Process $openPath
+        }
+    }
 
     if ($Plugin.OpenUrl) {
         Start-Sleep -Seconds 2
@@ -504,6 +597,13 @@ if ($source.Kind -eq "xeneon") {
 
 Ensure-StreamDeckCli
 $oldUuid = Get-ExistingPluginUuid $source
+$pluginRoot = Get-PluginRoot $source
+
+# Native helpers from the currently linked development build can keep files inside
+# the reusable worktree locked. Release those processes before git reset/clean,
+# otherwise Git for Windows can enter an interactive "Unlink failed. Try again?"
+# loop before Rat Dev ever reaches its normal pre-build lock-release step.
+[void](Release-RatDevBuildLocks -PluginRoot $pluginRoot -PreviousUuid $oldUuid)
 
 if ($source.Kind -eq "external") {
     Sync-ExternalCheckout $source
@@ -512,6 +612,5 @@ else {
     Sync-RatPackWorktree ([string]$source.Ref)
 }
 
-$pluginRoot = Get-PluginRoot $source
 $plugin = Build-And-TestPlugin -PluginRoot $pluginRoot -RegistrationConfig $source.Config
 Install-DevPlugin -Plugin $plugin -PreviousUuid $oldUuid

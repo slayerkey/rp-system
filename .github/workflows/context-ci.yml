@@ -22,8 +22,26 @@ jobs:
         with:
           python-version: '3.13'
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Validate canonical context
         run: python tests/check_context.py
+      - name: Install deterministic art test dependency
+        run: python -m pip install --disable-pip-version-check Pillow==12.3.0
+
+      - name: Validate Stream Deck photo hero compositor
+        run: python tools/art/test_streamdeck_photo.py
+
+      - name: Validate global Rat Ship Stream Deck hero
+        run: python tests/check_streamdeck_rat_ship_hero.py
+
+      - name: Validate Rat Ship Stream Deck hero routing
+        shell: pwsh
+        run: ./tests/check_rat_ship_streamdeck_hero.ps1
+
 
       - name: Validate JSON files
         run: |
@@ -34,6 +52,9 @@ jobs:
               json.loads(path.read_text(encoding='utf-8'))
               print(f'OK {path}')
           PY
+
+      - name: Validate plugin release metadata
+        run: python tests/check_plugin_release_metadata.py
 
       - name: Validate Maker Console runtime patches
         run: node tests/check_maker_console_patch.mjs
@@ -55,9 +76,28 @@ jobs:
             throw "PowerShell syntax errors found in: $($failures -join ', ')"
           }
 
+      - name: Validate Stream Deck profile builder
+        run: node tests/check_streamdeck_profile_builder.mjs
+
+      - name: Validate Rat Dev source resolution
+        shell: pwsh
+        run: ./tests/check_rat_dev_source_resolution.ps1
+
+      - name: Validate Rat Dev profile deduplication
+        shell: pwsh
+        run: ./tests/check_rat_dev_profile_open.ps1
+
       - name: Validate Rat Dev dependency sync
         shell: pwsh
         run: ./tests/check_rat_dev_dependency_sync.ps1
+
+      - name: Validate Rat Dev failure UX
+        shell: pwsh
+        run: ./tests/check_rat_dev_failure_ux.ps1
+
+      - name: Validate Rat Dev native build locks
+        shell: pwsh
+        run: ./tests/check_rat_dev_native_build_lock.ps1
 
       - name: Validate external Rat Dev lifecycle
         shell: pwsh

@@ -56,3 +56,97 @@ function Set-RatDevDependencyState {
 
     Set-Content -Path $state.MarkerPath -Value $state.Fingerprint -NoNewline -Encoding ascii
 }
+
+function Get-RatDevDotNetSdkVersions {
+    if (-not (Get-Command "dotnet" -ErrorAction SilentlyContinue)) {
+        return @()
+    }
+
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $lines = @(& dotnet --list-sdks 2>$null)
+        $code = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previous
+    }
+
+    if ($code -ne 0) { return @() }
+
+    return @(
+        $lines |
+            ForEach-Object {
+                $text = ([string]$_).Trim()
+                if ($text -match '^([0-9]+(?:\.[0-9]+){1,3})\s') {
+                    $matches[1]
+                }
+            } |
+            Where-Object { $_ }
+    )
+}
+
+function Test-RatDevSelfManagedDotNetSdk {
+    param([string]$PluginRoot)
+
+    $configPath = Join-Path $PluginRoot "rat-dev.json"
+    if (-not (Test-Path $configPath -PathType Leaf)) {
+        return $false
+    }
+
+    try {
+        $config = Get-Content $configPath -Raw | ConvertFrom-Json
+    }
+    catch {
+        throw "Invalid Rat Dev configuration at $configPath"
+    }
+
+    return (
+        $config.build_prerequisites -and
+        [string]$config.build_prerequisites.dotnet_sdk -eq "self-managed"
+    )
+}
+
+function Assert-RatDevBuildPrerequisites {
+    param(
+        [string]$PluginRoot,
+        [string]$Slug
+    )
+
+    $projects = @(
+        Get-ChildItem -Path $PluginRoot -Recurse -Filter *.csproj -File -ErrorAction SilentlyContinue |
+            Where-Object {
+                $_.FullName -notmatch '[\\/](?:node_modules|bin|obj)[\\/]'
+            }
+    )
+    if (-not $projects.Count) { return }
+
+    if (Test-RatDevSelfManagedDotNetSdk -PluginRoot $PluginRoot) {
+        return
+    }
+
+    $sdkVersions = @(Get-RatDevDotNetSdkVersions)
+    $hasModernSdk = $false
+    foreach ($version in $sdkVersions) {
+        $majorText = ([string]$version).Split('.')[0]
+        $major = 0
+        if ([int]::TryParse($majorText, [ref]$major) -and $major -ge 8) {
+            $hasModernSdk = $true
+            break
+        }
+    }
+
+    if ($hasModernSdk) { return }
+
+    $product = if ($Slug) { "'$Slug'" } else { "this plugin" }
+    throw @"
+Rat Dev cannot build $product because its source includes a .NET project, but this PC does not have a .NET 8+ SDK.
+A .NET runtime by itself is not enough.
+
+Install the SDK once:
+  winget install --id Microsoft.DotNet.SDK.8 -e --source winget
+
+Then rerun:
+  rat dev $Slug
+"@.Trim()
+}

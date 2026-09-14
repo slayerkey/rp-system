@@ -1,0 +1,31 @@
+{
+  "schema_version": 3,
+  "device": "streamdeck-mk2-straight.png",
+  "source_size": [1536, 1024],
+  "expected_key_count": 15,
+  "alpha_hole_threshold": 240,
+  "safety_bleed": 3,
+  "transparent_content_padding": 0.07,
+  "opaque_content_padding": 0.025,
+  "cached_bound_tolerance": 8,
+  "screen_background": [10, 12, 16, 255],
+  "keys": [
+    {"index": 0, "button": [190,190,426,385], "expected_hole_bounds": [229,227,395,360]},
+    {"index": 1, "button": [418,190,655,385], "expected_hole_bounds": [454,227,622,360]},
+    {"index": 2, "button": [646,190,883,385], "expected_hole_bounds": [682,227,849,359]},
+    {"index": 3, "button": [874,190,1111,385], "expected_hole_bounds": [909,227,1079,359]},
+    {"index": 4, "button": [1102,190,1339,385], "expected_hole_bounds": [1135,228,1306,359]},
+
+    {"index": 5, "button": [174,390,419,590], "expected_hole_bounds": [213,430,385,567]},
+    {"index": 6, "button": [406,390,651,590], "expected_hole_bounds": [447,430,619,566]},
+    {"index": 7, "button": [640,390,880,590], "expected_hole_bounds": [680,430,852,566]},
+    {"index": 8, "button": [868,390,1110,590], "expected_hole_bounds": [913,430,1088,568]},
+    {"index": 9, "button": [1098,390,1340,590], "expected_hole_bounds": [1148,430,1324,567]},
+
+    {"index": 10, "button": [158,590,414,800], "expected_hole_bounds": [197,638,376,782]},
+    {"index": 11, "button": [392,590,646,800], "expected_hole_bounds": [440,638,617,783]},
+    {"index": 12, "button": [626,590,880,800], "expected_hole_bounds": [681,638,856,782]},
+    {"index": 13, "button": [856,590,1110,800], "expected_hole_bounds": [917,638,1099,783]},
+    {"index": 14, "button": [1085,590,1345,800], "expected_hole_bounds": [1159,638,1341,782]}
+  ]
+}

@@ -26,9 +26,9 @@ if /I "%~1"=="dev" (
   if exist "%~dp0tools\local\rat-dev-preflight.ps1" (
     %SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\local\rat-dev-preflight.ps1" "%~2"
     if errorlevel 1 (
-      if exist "%~dp0tools\local\rat-dev-open.ps1" (
-        %SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\local\rat-dev-open.ps1" "%~2" >nul 2>&1
-      )
+      echo.
+      echo Rat Dev preflight failed. No development folder was opened.
+      echo If you want to inspect the checkout manually, run: rat dev-open %~2
       exit /b 1
     )
   )
@@ -40,10 +40,8 @@ if /I "%~1"=="dev" (
   if errorlevel 1 (
     echo.
     echo Rat Dev failed. No new validated development build was activated.
-    if exist "%~dp0tools\local\rat-dev-open.ps1" (
-      echo Opening the local development folder for inspection only...
-      %SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\local\rat-dev-open.ps1" "%~2" >nul 2>&1
-    )
+    echo The development checkout was kept for recovery, but Explorer was not opened.
+    echo If you want to inspect it manually, run: rat dev-open %~2
     exit /b 1
   )
   exit /b 0

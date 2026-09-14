@@ -44,7 +44,6 @@ widgets/*.icuewidget
 Thumbs.db
 .vscode/
 .idea/
-
 # Monitor Manager Lite deterministic build output
 plugins/monitor-manager-lite/com.packrat.monitormanagerlite.sdPlugin/bin/
 plugins/monitor-manager-lite/com.packrat.monitormanagerlite.sdPlugin/helper/

@@ -1,0 +1,102 @@
+{
+  "id": "internet-health-pro",
+  "name": "Internet Health Pro",
+  "type": "plugin",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "blocker": null,
+  "price_usd": 7.99,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows + macOS",
+  "source": "plugins/internet-health-pro",
+  "submission_metadata": "plugins/internet-health-pro/submission.json",
+  "branch": "product/internet-health-pro",
+  "release_gate": [
+    "one shared monitoring engine per plugin process",
+    "native ICMP latency with honest TCP-connect, DNS lookup and HTTPS response timing labels",
+    "multi-signal outage detection with two-cycle confirmation",
+    "ICMP-blocked network fallback without false 100% probe loss",
+    "user-adjustable latency, jitter and probe-loss thresholds",
+    "bounded local-only 24-hour raw health history",
+    "manual-only warmed adaptive multi-stream throughput test capped at approximately 300 MB per run",
+    "deterministic healthy/latency/jitter/loss/outage/DNS/recovery/sleep/target/IPv4-IPv6/restart/storage tests",
+    "clean Windows and macOS live network smoke",
+    "official Elgato Stream Deck CLI validation",
+    "official .streamDeckPlugin packaging",
+    "deterministic Rat Art and marketplace kit preflight",
+    "bundled deterministic dashboards for standard/MK.2, XL, Plus, and Neo with AutoInstall and no forced profile switching"
+  ],
+  "final_boundary": "Completed Sep 14, 2026. Final physical hardware pass confirmed the current Rat Dev/profile flow and live Internet Health experience are working well enough to ship. Product is READY_TO_SHIP. Marketplace submission is not authorized by this state change.",
+  "qa_note": "Final physical QA passed Sep 14, 2026 after the Rat Dev/profile hardening and 1-second cadence changes. The bundled profile flow now works, the dashboard updates smoothly, and the final key/Property Inspector presentation was accepted for release. Post-merge Internet Health Pro CI run 34870329575 completed successfully on release commit 86fca9e5383e17c50ff3edf05e2c4fca4ab89448. The product remains Pro-only with no Lite counterpart. Do not submit to Marketplace unless explicitly requested.",
+  "automated_release_evidence": {
+    "status": "PASSED",
+    "release_candidate_commit": "86fca9e5383e17c50ff3edf05e2c4fca4ab89448",
+    "post_merge_github_actions_run": 34870329575,
+    "post_merge_ci_conclusion": "success",
+    "physical_hardware_qa": {
+      "date": "2026-09-14",
+      "status": "PASSED",
+      "summary": "User confirmed the previously failing flow now works, updates well, looks good, and is ready to ship.",
+      "accepted_release_checks": [
+        "Rat Dev bundled profile/install flow works",
+        "dashboard buttons render and update smoothly",
+        "1-second live cadence is acceptable as the default",
+        "5-second cadence remains available",
+        "Outage presentation is acceptable on hardware",
+        "Property Inspector behavior is working",
+        "30-second graph presentation remains acceptable",
+        "Speed tile presentation remains acceptable"
+      ]
+    },
+    "previous": {
+      "status": "PENDING_RAT_DEV_PROFILE_1S_AND_OUTAGE_QA",
+      "previous": {
+        "status": "PENDING_RAT_DEV_PROFILE_AND_1S_QA",
+        "previous": {
+          "candidate_commit": "423b325096b1028f74636bf8798cd6caba721e15",
+          "github_actions_run": 34867182849,
+          "status": "PASSED_AWAITING_PROFILE_HARDWARE_QA",
+          "windows_job": 104053837832,
+          "macos_job": 104053838004,
+          "package_job": 104054157049,
+          "artifact_id": 10357119021,
+          "artifact_digest": "sha256:7fadc6093f9e5837ef075c103977b112a0686d86c0bf301e7da47230908d42fc",
+          "package_sha256": "DB085412DA9006FADC9A74E018940D265981D7AFE9FE5D84DC98634F81279BEF",
+          "lite_pro_audit_run": 34867182754,
+          "rat_ship_routing_run": 34867182768,
+          "lightweight_ci_run": 34867182803,
+          "packaged_profiles_verified": [
+            "internet-health-dashboard-mk2.streamDeckProfile",
+            "internet-health-dashboard-xl.streamDeckProfile",
+            "internet-health-dashboard-plus.streamDeckProfile",
+            "internet-health-dashboard-neo.streamDeckProfile"
+          ]
+        }
+      }
+    }
+  },
+  "catalog_audit": {
+    "profiles": {
+      "included": true,
+      "decision": "included",
+      "major_models": [
+        "standard/MK.2 (DeviceType 0)",
+        "XL (DeviceType 2)",
+        "Plus (DeviceType 7)",
+        "Neo (DeviceType 9)"
+      ],
+      "auto_install": true,
+      "dont_auto_switch_when_installed": true,
+      "generator": "tools/streamdeck/profile-builder.mjs",
+      "note": "Default Internet Health dashboards are generated deterministically and package-tested."
+    },
+    "upsell": {
+      "classification": "standalone_paid",
+      "lite_pro_pair": false,
+      "verified_against": "products/lite-pro-map.json",
+      "note": "Do not invent a Lite counterpart. net-spike remains explicitly classified as a standalone free XENEON network probe, not an Internet Health Lite edition."
+    }
+  },
+  "open_profile_on_dev": true,
+  "dev_profile": "profiles/internet-health-dashboard-mk2.streamDeckProfile"
+}
