@@ -1,5 +1,5 @@
 from __future__ import annotations
-import argparse, os, hashlib
+import argparse, os, hashlib, json
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -130,6 +130,29 @@ def compatibility(path):
         x+=600
     footer(im); save(im,path)
 
+def write_key_fixtures(out):
+    keys = [
+        {"action_uuid":"com.packrat.monitormanagerpro.brightness","lines":["65%"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.contrast","lines":["50%"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.volume","lines":["50%"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.power","lines":["ON"],"tone":"success"},
+        {"action_uuid":"com.packrat.monitormanagerpro.input","lines":["DP"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.refresh-rate","lines":["165HZ"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.resolution","lines":["1440P"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.hdr","lines":["HDR","ON"],"tone":"success"},
+        {"action_uuid":"com.packrat.monitormanagerpro.topology","lines":["EXTEND"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.primary","lines":["PRIMARY"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.orientation","lines":["LAND"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.save-profile","lines":["SAVE","GAMING"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.apply-profile","lines":["APPLY","GAMING"]},
+        {"action_uuid":"com.packrat.monitormanagerpro.status","lines":["165HZ","1440P"]},
+        None,
+    ]
+    (out/"rat-art-key-fixtures.json").write_text(
+        json.dumps({"schema_version":1,"keys":keys},indent=2)+"\n",
+        encoding="utf-8",
+    )
+
 def validate_outputs(out):
     if not RAT.is_file():
         raise SystemExit("RAT ART FAIL: PackRat logo asset missing: "+str(RAT))
@@ -158,6 +181,7 @@ def main():
     p=argparse.ArgumentParser(); p.add_argument("--out",required=True); args=p.parse_args(); out=Path(args.out).resolve(); out.mkdir(parents=True,exist_ok=True)
     if not RAT.is_file(): raise SystemExit("RAT ART FAIL: PackRat logo asset missing: "+str(RAT))
     search_icon(out/"01_search_icon.png"); hero(out/"02_cover.png"); controls(out/"03_gallery_01.png"); capabilities(out/"04_gallery_02.png"); profiles(out/"05_gallery_03.png"); plus(out/"06_gallery_04.png")
+    write_key_fixtures(out)
     validate_outputs(out)
     print("RAT ART PASS:",out)
 
