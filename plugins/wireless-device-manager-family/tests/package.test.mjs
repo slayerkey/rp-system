@@ -295,7 +295,8 @@ test("Property Inspector uses the canonical PackRat UI envelope and preserves ac
   assert.match(inspector,/event,uuid:uiUuid/);
   assert.match(inspector,/event:"sendToPlugin"[\s\S]*context:uiUuid[\s\S]*payload:\{\.\.\.payload,actionContext\}/);
   assert.match(inspector,/event:"setSettings",action:actionUuid,context:uiUuid/);
-  assert.match(inspector,/sendPlugin\(\{type:"refresh-wireless"\}\)/);
+  assert.match(inspector,/type:"refresh-wireless"/);
+  assert.match(inspector,/requestId:lastRequestId/);
   assert.doesNotMatch(inspector,/setInterval\(requestSnapshot/);
   assert.match(inspector,/Wireless plugin is not responding/);
 });
