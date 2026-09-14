@@ -7,14 +7,15 @@ const root=new URL("../",import.meta.url);
 const repoRoot=new URL("../../",root);
 
 test("Pro property inspector keeps replay setup visible and debuggable",async()=>{
-  const [html,js,runtime,assets]=await Promise.all([
+  const [html,css,js,runtime,assets]=await Promise.all([
     readFile(new URL("ui/inspector.html",root),"utf8"),
+    readFile(new URL("ui/inspector.css",root),"utf8"),
     readFile(new URL("ui/inspector.js",root),"utf8"),
     readFile(new URL("shared/macro-recorder/runtime.mjs",repoRoot),"utf8"),
     readFile(new URL("scripts/build-assets.mjs",root),"utf8"),
   ]);
   new vm.Script(js);
-  for(const id of ["captureMouseMovement","macroSelect","stateConnection","refreshLibrary","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
+  for(const id of ["packratLink","captureMouseMovement","macroSelect","stateConnection","refreshLibrary","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
     assert.match(html,new RegExp(`id=["']${id}["']`),`missing inspector control ${id}`);
   }
   assert.doesNotMatch(html,/id=["']macroName["']/);
@@ -53,10 +54,22 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(html,/<option value="1" selected>1×<\/option>/);
   assert.ok(html.indexOf('value="0.25"') < html.indexOf('value="0.5"'));
   assert.ok(html.indexOf('value="0.5"') < html.indexOf('value="1" selected'));
-  assert.match(assets,/1-t/);
-  assert.match(assets,/red=\[244,76,86,255\]/);
-  assert.match(assets,/green=\[53,230,126,255\]/);
-  assert.match(assets,/mode==="list"\?white/);
+  for(const token of ["#14171B","#1B1F24","#15191E","#181C21","#22272E","#303640","#F5F7FB","#9AA2AF","#FFB21E","#FFC44D","#FF5D6C","#2BE86A"]){
+    assert.ok(css.includes(token),`missing canonical PackRat token ${token}`);
+  }
+  assert.match(css,/body::before/);
+  assert.match(css,/rgba\(255,178,30,\.12\)/);
+  assert.match(css,/button\.secondary\{background:var\(--packrat-button\)/);
+  assert.match(css,/button\.danger\{background:var\(--packrat-danger\)/);
+  assert.match(html,/packrat\.png/);
+  assert.match(html,/PackRat ↗/);
+  assert.match(js,/https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
+  assert.match(assets,/ratpack-icon-transparent\.png/);
+  assert.match(assets,/accent=\[255,178,30,255\]/);
+  assert.match(runtime,/function packRatKeyImage/);
+  assert.match(runtime,/setImage\(packRatKeyImage\(record\.kind, title\)\)/);
+  assert.match(runtime,/#14171B/);
+  assert.match(runtime,/#FFB21E/);
 });
 
 test("Pro manifest keeps the intended platform, profile and loop safety contract",async()=>{
@@ -73,7 +86,7 @@ test("Pro manifest keeps the intended platform, profile and loop safety contract
   const record=manifest.Actions.find(action=>action.UUID.endsWith(".record"));
   const stop=manifest.Actions.find(action=>action.UUID.endsWith(".stop"));
   assert.equal(stop?.Name,"Stop");
-  assert.equal(stop?.States?.[0]?.TitleAlignment,"bottom");
+  for(const action of manifest.Actions) assert.equal(action.States?.[0]?.ShowTitle,false);
   const replay=manifest.Actions.find(action=>action.UUID==="com.packrat.macro-recorder-pro.replay");
   assert.equal(record?.SupportedInKeyLogicActions,false);
   assert.equal(stop?.SupportedInKeyLogicActions,false);
