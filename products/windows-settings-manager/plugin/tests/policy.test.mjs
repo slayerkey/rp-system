@@ -276,26 +276,30 @@ test("Lite upsell is injected only from a verified direct Pro Marketplace URL", 
   assert.doesNotMatch(builtPi, /marketplace\.elgato\.com\/(?:search|\?search|@packrat|icue)/i);
 });
 
-test("every Pro profile keeps two-way Modes / Settings navigation", async () => {
-  const profileDir = path.join(root, "com.packrat.windows-settings-manager-pro.sdPlugin", "profiles");
-  for (const device of ["standard", "mini", "xl", "plus", "neo", "galleon", "plus-xl"]) {
-    const data = (await readFile(path.join(profileDir, `windows-settings-pro-${device}.streamDeckProfile`))).toString("utf8");
-    const matches = data.match(/com\.packrat\.windows-settings-manager-pro\.profile-page/g) ?? [];
-    assert.equal(matches.length, 2, `${device} should contain one navigation key on each of two pages`);
-  }
-});
-
-test("Pro profiles ship named mode slots but no preconfigured system changes", async () => {
-  const modes = await readFile(path.resolve("src", "modes.ts"), "utf8");
-  for (const id of ["gaming", "work", "night", "present", "movie"]) {
-    assert.match(modes, new RegExp(`id: "${id}".*settings: \\{\\}`));
-  }
-
+test("standard Pro profile is the exact 15-key Windows Control Center", async () => {
   const profileDir = path.join(root, "com.packrat.windows-settings-manager-pro.sdPlugin", "profiles");
   const standard = (await readFile(path.join(profileDir, "windows-settings-pro-standard.streamDeckProfile"))).toString("utf8");
-  for (const id of ["gaming", "work", "night", "present", "movie"]) {
-    assert.match(standard, new RegExp(`"modeId": "${id}"`));
+  const expected = [
+    ".lock", ".sleep", ".hibernate", ".restart", ".shutdown",
+    ".wifi", ".bluetooth", ".power", ".awake", ".theme",
+    ".desktop-previous", ".desktop-next", ".desktop-new", ".desktop-close", ".desktop-current"
+  ];
+  for (const suffix of expected) {
+    assert.ok(standard.includes(`com.packrat.windows-settings-manager-pro${suffix}`), `standard profile missing ${suffix}`);
   }
+  assert.equal((standard.match(/com\.packrat\.windows-settings-manager-pro\./g) ?? []).length, 15);
+  assert.doesNotMatch(standard, /"modeId":/);
+});
+
+test("PC Modes remain empty optional advanced slots instead of the default profile", async () => {
+  const modes = await readFile(path.resolve("src", "modes.ts"), "utf8");
+  for (const id of ["gaming", "work", "night", "present", "movie"]) {
+    assert.match(modes, new RegExp(`id: "${id}".*settings: \\\{\\\}`));
+  }
+
+  const profileDir = path.join(root, "com.packrat.windows-settings-manager-pro.sdPlugin", "profiles");
+  const xl = (await readFile(path.join(profileDir, "windows-settings-pro-xl.streamDeckProfile"))).toString("utf8");
+  assert.match(xl, /"modeId": "gaming"/);
 });
 
 test("Elgato validation invokes the installed CLI through Node on every OS", async () => {
