@@ -196,6 +196,200 @@ Canonical behavior:
 - keep the mark small and secondary to the product title
 - do not substitute emoji or generated replacement logos
 
+### Lite → Pro upgrade pattern
+
+This is the approved default conversion pattern for a PackRat Stream Deck Lite/free product that has a direct Pro counterpart.
+
+**Reference implementation:** Window Manager Lite on `product/window-manager`:
+
+- `plugins/window-manager/com.packrat.windowmanager.sdPlugin/ui/pro-footer.js`
+- `plugins/window-manager/com.packrat.windowmanager.sdPlugin/ui/pi.css`
+
+Product-specific rollout tasks consume this pattern. They do not redesign it and they do not modify this global design file.
+
+#### 1. Top PackRat / Pro bar
+
+The very first visible UI row is a compact top bar **outside all product cards/boxes**.
+
+Layout:
+
+`[PackRat icon] PackRat ↗                                      [Upgrade to Pro ↗]`
+
+Requirements:
+
+- the top bar is not inside a hero card, section card, settings box, or bordered container
+- PackRat branding stays on the left
+- the Pro CTA stays on the right
+- both are vertically centered on one row
+- use `display:flex`, `align-items:center`, `justify-content:space-between`
+- keep a clear gap so the two controls never collide
+- top CTA copy is exactly `Upgrade to Pro ↗`
+- top CTA uses the canonical orange primary-button treatment and glow
+- keep the CTA compact with `width:auto` and `white-space:nowrap`
+- clicking the CTA opens the **exact direct Pro Marketplace listing** through Stream Deck `openUrl`
+- do not use a creator page, search URL, placeholder URL, or guessed Marketplace URL
+- this row must remain visible above the fold at normal Property Inspector width
+
+Do not put the PackRat logo inside the first product card. The top bar is its own chrome layer above the product content.
+
+Approved structural baseline:
+
+```html
+<div class="packrat-topbar">
+  <button class="packrat-brand">[PackRat icon] PackRat ↗</button>
+  <button class="primary packrat-upgrade">Upgrade to Pro ↗</button>
+</div>
+
+<div class="section">
+  <!-- normal Lite product UI begins here -->
+</div>
+```
+
+Approved CSS baseline:
+
+```css
+.packrat-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+
+.packrat-upgrade {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  white-space: nowrap;
+  font-size: 10.5px;
+}
+```
+
+#### 2. Bottom feature-rich Pro card
+
+The Lite Property Inspector also includes a second, more explanatory Pro conversion surface at the **very bottom of the inspector after all normal Lite product content and auxiliary/setup sections**.
+
+The bottom card is a standalone canonical dark card with a subtle orange border/glow.
+
+Structure:
+
+1. orange uppercase eyebrow: `<PRODUCT> PRO`
+2. short benefit headline
+3. one concise sentence explaining the Lite → Pro difference
+4. two or three feature rows describing the most important Pro-only benefits
+5. full-width canonical orange CTA: `Open <Product> Pro ↗`
+
+Feature rows:
+
+- are stacked vertically
+- use a subtle divider between rows
+- start with a bold feature name
+- follow with one short plain-language benefit sentence
+- describe real Pro features only
+- do not promise features that are not in the published/current Pro product
+
+Approved Window Manager Lite example:
+
+- eyebrow: `WINDOW MANAGER PRO`
+- headline: `Save layouts. Nudge precisely.`
+- relation copy: `Lite gives you Snap + Cycle. Pro adds the two controls that turn it into a fuller window-management setup.`
+- feature row: **Window Layout** — hold to save a complete arrangement, then press once to restore it.
+- feature row: **Nudge Window** — move or resize in small steps, including Stream Deck + dial control.
+- CTA: `Open Window Manager Pro ↗`
+
+Approved structural baseline:
+
+```html
+<div class="upsell">
+  <div class="upsell-eyebrow"><PRODUCT> PRO</div>
+  <h3>Short benefit headline.</h3>
+  <p>One-sentence Lite → Pro explanation.</p>
+
+  <ul class="upsell-list">
+    <li><strong>Feature One</strong> — short benefit.</li>
+    <li><strong>Feature Two</strong> — short benefit.</li>
+  </ul>
+
+  <button class="primary pro-button">
+    Open <Product> Pro ↗
+  </button>
+</div>
+```
+
+Approved visual baseline:
+
+```css
+.upsell {
+  background: linear-gradient(145deg,#151920,#0d1015);
+  border: 1px solid rgba(255,178,30,.38);
+  border-radius: 9px;
+  padding: 12px;
+  box-shadow: 0 0 22px rgba(255,178,30,.07);
+}
+
+.upsell-eyebrow {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .09em;
+  margin-bottom: 5px;
+}
+
+.upsell-list {
+  list-style: none;
+  padding: 0;
+  margin: 9px 0;
+}
+
+.upsell-list li {
+  padding: 7px 0;
+  border-top: 1px solid #2b3038;
+  color: #cbd1db;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.upsell-list strong {
+  color: #fff;
+}
+
+.pro-button {
+  width: 100%;
+  margin-top: 2px;
+}
+```
+
+#### Conversion and QA rules
+
+Both conversion surfaces are required when a Lite product has a direct Pro counterpart:
+
+- **top:** persistent, compact `Upgrade to Pro ↗`
+- **bottom:** explanatory Pro feature card with direct CTA
+
+Do not replace one with the other.
+
+Do not:
+
+- bury the only upgrade CTA at the bottom
+- remove the explanatory bottom card just because the top CTA exists
+- put PackRat branding inside a product card
+- invent locked/disabled Pro controls inside the Lite feature UI
+- change Lite functionality to manufacture an upsell
+- change UUIDs, pricing, release state, Marketplace identity, or product behavior as part of this visual conversion pattern
+
+Regression coverage for a Lite → Pro product should verify:
+
+- `.packrat-topbar` exists
+- PackRat brand is left-side topbar content
+- `Upgrade to Pro ↗` exists
+- top CTA points to the exact direct Pro Marketplace URL
+- bottom `.upsell` exists
+- bottom card names the real Pro product
+- bottom card contains real Pro feature explanations
+- bottom full-width Pro CTA exists
+- no placeholder/generic Marketplace route is packaged
+- no stale or unshipped feature claims are present
+
 ### Key-face style
 
 Recent PackRat keys use:
