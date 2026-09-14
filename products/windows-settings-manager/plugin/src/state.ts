@@ -10,6 +10,11 @@ const OFFLINE: SystemSnapshot = {
   topology: "unknown",
   powerPlans: [],
   keepAwake: false,
+  hibernateAvailable: false,
+  wifi: { available: false, state: "unknown", count: 0 },
+  bluetooth: { available: false, state: "unknown", count: 0 },
+  theme: { available: false, apps: "unknown", system: "unknown", combined: "unknown" },
+  virtualDesktop: { available: false, count: 0 },
   errors: ["Waiting for Windows backend"]
 };
 
