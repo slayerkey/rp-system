@@ -239,9 +239,15 @@ async function buildEdition(edition){
   await copyRuntimeDependencies(out);
   await copy(path.join(root,"runtime","win-bridge.ps1"),path.join(out,"runtime","win-bridge.ps1"));
 
-  for(const file of ["inspector.html","inspector.css","inspector.js","manager.html"]){
+  for(const file of ["inspector.html","inspector.css","manager.html"]){
     await copy(path.join(root,"ui",file),path.join(out,"ui",file));
   }
+  const inspectorJs=await fs.readFile(path.join(root,"ui","inspector.js"),"utf8");
+  const piVerifiedProUrl=edition==="lite"?verifiedProUrl:"";
+  await write(
+    path.join(out,"ui","inspector.js"),
+    inspectorJs.replaceAll("__PACKRAT_VERIFIED_PRO_URL__",piVerifiedProUrl)
+  );
   await copy(
     path.join(repoRoot,"tools","art","assets","ratpack-icon-transparent.png"),
     path.join(out,"imgs","plugin","packrat-logo.png")
