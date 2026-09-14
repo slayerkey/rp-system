@@ -196,6 +196,7 @@ for(const [uuid,name] of expected){
   if(!plugin.includes('from "@elgato/streamdeck"'))fail(`${name} is not using the official SDK runtime.`);
   if(plugin.includes("./streamdeck.mjs"))fail(`${name} still references the raw WebSocket runtime.`);
   if(!plugin.includes("streamDeck.ui.onSendToPlugin"))fail(`${name} must use global streamDeck.ui.onSendToPlugin PI transport.`);
+  if(!plugin.includes("actionContext")||!plugin.includes("visible.get(actionContext)"))fail(`${name} global PI handler must resolve the selected actionContext.`);
   if(!plugin.includes("streamDeck.ui.sendToPropertyInspector"))fail(`${name} must use global streamDeck.ui.sendToPropertyInspector PI transport.`);
   if(/\.action\.sendToPropertyInspector/.test(plugin))fail(`${name} must not use per-action PI response transport.`);
   if(!plugin.includes("renderSnippetKey")||!plugin.includes("setImage("))fail(`${name} must runtime-render semantic snippet keys.`);
