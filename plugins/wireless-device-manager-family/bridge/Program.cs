@@ -228,6 +228,9 @@ internal static class Program
                     battery = charging == true ? plusCharging - 100 : plusCharging;
             }
             if (battery is > 100) battery = null;
+            long? batteryObservedAt = battery is not null || charging is not null
+                ? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                : null;
 
             var key = !string.IsNullOrWhiteSpace(address)
                 ? "bt:" + NormalizeAddress(address)
@@ -250,6 +253,8 @@ internal static class Program
                 present = present,
                 batteryPercent = battery,
                 charging = charging,
+                batteryObservedAt = batteryObservedAt,
+                batterySource = batteryObservedAt is not null ? "windows-aep" : null,
                 control = new ControlDto
                 {
                     // AEP Service objects are Windows' service-contract view of what the paired
@@ -285,6 +290,8 @@ internal static class Program
                 : null,
         batteryPercent = b.batteryPercent ?? a.batteryPercent,
         charging = b.charging ?? a.charging,
+        batteryObservedAt = b.batteryObservedAt ?? a.batteryObservedAt,
+        batterySource = b.batterySource ?? a.batterySource,
         control = new ControlDto
         {
             connect = a.control.connect || b.control.connect,
@@ -403,6 +410,8 @@ internal static class Program
         public bool? present { get; set; }
         public int? batteryPercent { get; set; }
         public bool? charging { get; set; }
+        public long? batteryObservedAt { get; set; }
+        public string? batterySource { get; set; }
         public ControlDto control { get; set; } = new();
     }
 
@@ -463,6 +472,8 @@ internal static class Program
                             present = true,
                             batteryPercent = status.Value.percent,
                             charging = status.Value.charging,
+                            batteryObservedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                            batterySource = "hid-feature-report",
                             control = new ControlDto { connect = false, disconnect = false }
                         }
                     ]);
