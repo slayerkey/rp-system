@@ -136,7 +136,7 @@ The plugin never passes snippet text into PowerShell source, a shell command, `I
 
 The fixed Windows bridge receives UTF-8 snippet text as base64 JSON over stdin.
 
-Normal snippets use Win32 Unicode keyboard input. Auto mode switches very long snippets to clipboard paste for practical speed and compatibility.
+Short single-line snippets use Win32 Unicode keyboard input. Smart mode switches multiline, tabbed, and very long snippets to clipboard paste so authored line breaks/tabs are not reinterpreted as submit or focus-navigation keys, while explicit Type text remains available for direct synthetic text input.
 
 Clipboard-paste mode:
 
