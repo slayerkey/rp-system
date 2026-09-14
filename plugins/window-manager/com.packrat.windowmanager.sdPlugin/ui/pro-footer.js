@@ -41,6 +41,27 @@ function buildPackRatTopbar() {
   document.body.prepend(topbar);
 }
 
+
+function buildProFooter() {
+  if (document.querySelector(".upsell")) return;
+
+  const footer = document.createElement("div");
+  footer.className = "upsell";
+  footer.innerHTML = `
+    <div class="upsell-eyebrow">WINDOW MANAGER PRO</div>
+    <h3>Save layouts. Nudge precisely.</h3>
+    <p>Lite gives you Snap + Cycle. Pro adds the two controls that turn it into a fuller window-management setup.</p>
+    <ul class="upsell-list">
+      <li><strong>Window Layout</strong> — hold to save a complete arrangement, then press once to restore it.</li>
+      <li><strong>Nudge Window</strong> — move or resize in small steps, including Stream Deck + dial control.</li>
+    </ul>
+    <button type="button" class="primary pro-button" id="openWindowManagerProBottom">Open Window Manager Pro ↗</button>
+  `;
+
+  document.body.append(footer);
+  document.getElementById("openWindowManagerProBottom").addEventListener("click", () => openUrl(PRO_URL));
+}
+
 function buildXeneonSetup() {
   const section = document.createElement("div");
   section.className = "xeneon-setup";
@@ -96,4 +117,5 @@ function buildXeneonSetup() {
 document.addEventListener("DOMContentLoaded", () => {
   buildPackRatTopbar();
   buildXeneonSetup();
+  buildProFooter();
 });
