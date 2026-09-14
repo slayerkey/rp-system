@@ -234,6 +234,7 @@ if(!inspectorJs.includes("Saving…")||!inspectorJs.includes("Saved"))fail("Prop
 if(!inspectorJs.includes('document.createElement("optgroup")'))fail("Pro snippet selector must group the built-in library by folder.");
 if(!inspectorJs.includes('type:"getSnippet"')||!inspectorJs.includes('"Loading snippet…"'))fail("Property Inspector must lazy-load only the selected snippet body.");
 if(!inspectorJs.includes('type:"openManager"'))fail("Pro Property Inspector must wire the reusable-variable/full-library manager.");
+if(!inspectorJs.includes('BUILD_VERIFIED_PRO_URL')||!inspectorJs.includes('__PACKRAT_VERIFIED_PRO_URL__'))fail("Source Property Inspector must reserve the verified Pro URL for build-time injection.");
 if(!inspectorJs.includes('const topUpgrade=$("topUpgrade")')||!inspectorJs.includes('topUpgrade.classList.remove("hidden")'))fail("Lite top Pro CTA must activate only through verified Pro URL state.");
 if(!inspectorJs.includes('topUpgrade.classList.add("hidden")'))fail("Lite top Pro CTA must stay hidden without a verified Pro URL.");
 if(!inspectorJs.includes("multiline, tabbed, or very long text"))fail("Smart insertion help must describe its structured-text clipboard fallback.");
@@ -266,6 +267,13 @@ if(expectedProUrl&&!/^https:\/\/marketplace\.elgato\.com\/product\/[^/?#]+-[0-9a
 const liteEdition=await fs.readFile(path.join(root,"dist","com.packrat.textexpanderlite.sdPlugin","bin","edition.mjs"),"utf8");
 if(!liteEdition.includes(`VERIFIED_PRO_URL=${JSON.stringify(expectedProUrl)}`)){
   fail("Lite packaged upsell URL does not match canonical Lite→Pro metadata.");
+}
+const liteInspectorJs=await fs.readFile(path.join(root,"dist","com.packrat.textexpanderlite.sdPlugin","ui","inspector.js"),"utf8");
+if(!liteInspectorJs.includes(`const BUILD_VERIFIED_PRO_URL=${JSON.stringify(expectedProUrl)}`)){
+  fail("Lite packaged Property Inspector does not embed the same verified direct Pro URL as canonical metadata.");
+}
+if(liteInspectorJs.includes("__PACKRAT_VERIFIED_PRO_URL__")){
+  fail("Lite packaged Property Inspector still contains the build-time Pro URL placeholder.");
 }
 
 const bridge=await fs.readFile(path.join(root,"runtime","win-bridge.ps1"),"utf8");
