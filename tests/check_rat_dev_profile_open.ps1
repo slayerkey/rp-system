@@ -1,5 +1,17 @@
 $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+
+$profileHelpers = Get-Content (Join-Path $RepoRoot "tools\local\rat-dev-profiles.ps1") -Raw
+$ratDev = Get-Content (Join-Path $RepoRoot "tools\local\rat-dev.ps1") -Raw
+if ($profileHelpers -notmatch 'Assert-RatDevBundledProfileActionIdsUnique') {
+    throw "Rat Dev profile helpers must expose the cross-profile ActionID uniqueness guard."
+}
+if ($profileHelpers -notmatch 'Generated action instance IDs must be unique across all device variants') {
+    throw "Rat Dev duplicate ActionID failure must explain the cross-device collision."
+}
+if ($ratDev -notmatch 'Checking bundled profile ActionID uniqueness') {
+    throw "Rat Dev must run the profile ActionID uniqueness guard before activation."
+}
 . (Join-Path $RepoRoot "tools\local\rat-dev-profiles.ps1")
 
 function Assert-Equal {
