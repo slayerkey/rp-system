@@ -95,6 +95,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
         macro: !pro && source.macro ? normalizeMacro(source.macro, { pro: false, limits }) : null,
         macroId: pro ? String(source.macroId || "") : "",
         seedMacro: pro && source.seedMacro ? normalizeMacro(source.seedMacro, { pro:true, limits }) : null,
+        autoLatest: pro ? source.autoLatest !== false : false,
         playbackSpeed: pro ? Number(source.playbackSpeed || 1) : 1,
         playbackMode: pro ? String(source.playbackMode || "once") : "once",
         repeatCount: pro ? Number(source.repeatCount || 2) : 1,
@@ -116,7 +117,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     if (record.kind === "record") {
       if (recording) title = `REC\n${Math.max(0, Math.round(Number(recording.elapsedMs || 0) / 100) / 10).toFixed(1)}s`;
     } else if (record.kind === "stop") {
-      title = recording || playback ? "STOP\nNOW" : "EMERGENCY\nSTOP";
+      title = "STOP";
     } else if (record.kind === "replay") {
       const macro = macroFor(record);
       if (playback?.actionId === record.id) title = "PLAYING";
@@ -181,16 +182,20 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       .map((record) => record.action.sendToPropertyInspector(status).catch(() => {})));
   }
 
-  async function assignNewRecordingToBlankReplayKeys(macro) {
+  async function assignNewRecordingToReplayKeys(macro) {
     if (!pro || !macro?.id) return 0;
-    const blankReplayKeys = [...visible.values()].filter((item) => item.kind === "replay" && !item.settings.macroId && !item.settings.seedMacro);
-    await Promise.all(blankReplayKeys.map(async (item) => {
-      const next = { ...item.settings, macroId: macro.id };
+    const targets = [...visible.values()].filter((item) =>
+      item.kind === "replay" &&
+      item.settings.autoLatest !== false &&
+      !item.settings.seedMacro
+    );
+    await Promise.all(targets.map(async (item) => {
+      const next = { ...item.settings, macroId: macro.id, autoLatest: true };
       delete next.seedMacro;
       await item.action.setSettings(next);
       item.settings = settingsFor("replay", next);
     }));
-    return blankReplayKeys.length;
+    return targets.length;
   }
 
   async function finalizeCapture(raw) {
@@ -209,7 +214,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
     if (pro) macro = await library.add(macro);
     latestMacro = macro;
-    const assignedCount = await assignNewRecordingToBlankReplayKeys(macro);
+    const assignedCount = await assignNewRecordingToReplayKeys(macro);
     setSavedFeedback(macro, assignedCount);
     lastError = "";
     await renderAll();
@@ -416,7 +421,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
         if (pro && this.kind === "replay" && !record.settings.macroId && record.settings.seedMacro) {
           const seed = record.settings.seedMacro;
           const stored = await library.ensure(seed);
-          const next = { ...record.settings, macroId: stored.id };
+          const next = { ...record.settings, macroId: stored.id, autoLatest: false };
           delete next.seedMacro;
           await ev.action.setSettings(next);
           record.settings = settingsFor(this.kind, next);
@@ -475,7 +480,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
           await record.action.setSettings(next);
           record.settings = settingsFor("replay", next);
         } else if (command === "selectMacro" && pro) {
-          const next = { ...record.settings, macroId: String(payload.macroId || "") };
+          const next = { ...record.settings, macroId: String(payload.macroId || ""), autoLatest: false };
           await record.action.setSettings(next);
           record.settings = settingsFor("replay", next);
         } else if (command === "saveMacro" && pro) {
@@ -496,7 +501,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
           const macro = library.get(String(payload.macroId || record.settings.macroId));
           if (macro) {
             const copy = await library.add({ ...macro, id: undefined, createdAt: undefined, updatedAt: undefined, name: `${macro.name} Copy` });
-            const next = { ...record.settings, macroId: copy.id };
+            const next = { ...record.settings, macroId: copy.id, autoLatest: false };
             await record.action.setSettings(next);
             record.settings = settingsFor("replay", next);
           }
