@@ -48,7 +48,17 @@ body::before{background:radial-gradient(circle,rgba(255,178,30,.12),transparent)
   write(join(plugin,"ui","pi.js"),`const urls={
 maker:"https://marketplace.elgato.com/maker/packrat",
 pro:"https://marketplace.elgato.com/product/demo-pro-00000000-0000-0000-0000-000000000000"
-};`);
+};
+let uiUuid="",actionContext="",actionUuid="",socket=null;
+function send(message){socket?.send(JSON.stringify(message));}
+function command(command){send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"demo.command",actionContext,command}});}
+function save(settings){send({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings});}
+`);
+  write(join(root,"src","plugin.js"),`streamDeck.ui.onSendToPlugin((ev)=>{
+  const actionContext=String(ev.payload?.actionContext||"");
+  if(!actionContext)return;
+  streamDeck.ui.sendToPropertyInspector({type:"demo.state",actionContext});
+});`);
   write(join(plugin,"imgs","plugin","packrat-logo.png"),"png");
   write(join(plugin,"imgs","actions","snap","icon.svg"),`<svg viewBox="0 0 144 144"><path stroke="#fff" stroke-width="6"/></svg>`);
   write(join(plugin,"imgs","actions","snap","key.svg"),`<svg viewBox="0 0 144 144"><path stroke="#FFB21E" stroke-width="6"/></svg>`);
@@ -79,6 +89,33 @@ pro:"https://marketplace.elgato.com/product/demo-pro-00000000-0000-0000-0000-000
     assert.notEqual(result.status,0,"Lite→Pro audit must fail when the bottom explanatory card is removed");
     assert.match(result.stderr,/bottom \.upsell feature card is missing/);
     assert.match(result.stderr,/bottom direct 'Open <Product> Pro ↗' CTA is missing/);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
+    write(join(plugin,"ui","pi.js"),`let uiUuid="",actionUuid="",socket=null;
+function send(message){socket?.send(JSON.stringify(message));}
+function command(command){send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"demo.command",command}});}
+`);
+    const result=run(designAudit,[root,"--require-canonical-pi"]);
+    assert.notEqual(result.status,0,"design audit must fail when PI commands omit actionContext");
+    assert.match(result.stderr,/does not carry the selected action separately as actionContext/);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
+    write(join(root,"src","plugin.js"),`streamDeck.ui.onSendToPlugin((ev)=>{
+  const actionContext=String(ev.payload?.actionContext||"");
+  ev.action.sendToPropertyInspector({type:"demo.state",actionContext});
+});`);
+    const result=run(designAudit,[root,"--require-canonical-pi"]);
+    assert.notEqual(result.status,0,"design audit must fail when global PI requests use per-action response transport");
+    assert.match(result.stderr,/without the global streamDeck.ui channel/);
+    assert.match(result.stderr,/Per-action sendToPropertyInspector found/);
   } finally { rmSync(root,{recursive:true,force:true}); }
 }
 
