@@ -124,10 +124,10 @@ def feature_gallery(out):
     header(img, "See the problem, not just a number", "Clear states explain whether the issue is latency, jitter, probe loss, DNS, a target, or the full connection.")
     d = ImageDraw.Draw(img)
     cards = [
-        ("WHOLE INTERNET", "Multiple independent checks must fail before the plugin marks your whole internet offline.", "OFFLINE", BAD),
-        ("DNS FAILURE", "IP connectivity can stay up while name resolution fails, so DNS trouble stays separate.", "DNS FAIL", WARN),
-        ("TARGET ONLY", "One dead host never marks your whole internet down. Target failures stay isolated.", "TARGET DOWN", BAD),
-        ("ICMP BLOCKED", "TCP fallback keeps healthy networks from showing fake packet loss when ICMP is blocked.", "TCP HEALTHY", ACCENT),
+        ("WHOLE INTERNET", "Requires multiple failed checks before the whole internet is marked offline.", "OFFLINE", BAD),
+        ("DNS FAILURE", "Internet can stay up while DNS fails, so name-resolution trouble stays separate.", "DNS FAIL", WARN),
+        ("TARGET ONLY", "One dead host stays isolated to Target Health instead of marking everything down.", "TARGET DOWN", BAD),
+        ("ICMP BLOCKED", "TCP fallback avoids fake loss when ICMP is blocked.", "TCP HEALTHY", ACCENT),
     ]
 
     card_w = 826
@@ -154,7 +154,7 @@ def feature_gallery(out):
         )
         draw_fitted_text(
             d, (x + 38, y + 142, x + card_w - 38, y + card_h - 28), desc, font,
-            fill=MUTED, max_size=27, min_size=21, spacing=7, max_lines=3
+            fill=MUTED, max_size=31, min_size=24, spacing=7, max_lines=2
         )
 
     signature(img)
