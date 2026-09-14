@@ -9,6 +9,8 @@ Require a clean automated QA report before preparing submission.
 
 Create the release candidate from canonical source and generated artifacts. Include package, listing art, description, tags or keywords, pricing evidence, compatibility, version, changelog or release notes, QA report, and gallery order where the marketplace needs it.
 
+Final evidence must match the exact source commit and package being submitted. If product behavior, feature scope, or release boundary changed after an earlier green QA run, invalidate that earlier final evidence and regenerate the package/art/QA record before Rat Ship can proceed.
+
 ## Marketplace rejection versioning
 
 Treat a rejected Marketplace submission as a correction to the same release, not as a new product update. When fixing a rejected submission for resubmission, preserve the exact version that was rejected unless the marketplace explicitly requires otherwise. Code changes made only to satisfy rejection feedback do not by themselves justify a version bump.
@@ -29,6 +31,23 @@ For normal in-repository Stream Deck plugins, Rat Ship owns the Marketplace cove
 - external immutable release artifacts remain exact validated artifacts and are not rewritten by this rule
 
 This is the default for future Stream Deck plugins. Do not reimplement the hero product by product.
+
+## Stream Deck canonical UI preflight
+
+Before packaging a Stream Deck plugin that uses the PackRat canonical Property Inspector, Rat Ship should require the shared design audit against the actual shipping source:
+
+`node tools/qa/streamdeck-plugin-design-audit.mjs <plugin-source-root> --require-canonical-pi`
+
+For a Lite/free plugin with a direct Pro counterpart, add `--require-lite-pro-upsell`.
+
+The Lite→Pro ship gate must verify both conversion surfaces are packaged:
+
+- top PackRat chrome row with direct `Upgrade to Pro ↗`
+- bottom explanatory Pro feature card with direct `Open <Product> Pro ↗`
+
+Both CTAs must resolve to the exact public Pro Marketplace `/product/` listing. A maker page, search route, guessed URL, placeholder URL, or unpublished Pro listing is not acceptable. If the Pro listing is not live, leave the Lite upsell release blocked rather than inventing a route.
+
+Product-specific shipping work consumes the canonical design standard; it must not rewrite `standards/streamdeck-plugin-design-system-v1.md` to match a local implementation.
 
 ## XENEON marketplace media
 
