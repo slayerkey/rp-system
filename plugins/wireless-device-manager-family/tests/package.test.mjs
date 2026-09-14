@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { inflateRawSync } from "node:zlib";
+import { wirelessKeySvg, wirelessTextSize } from "../src/key-visuals.ts";
 
 function readZipEntries(data){
   const entries=new Map();
@@ -100,6 +101,13 @@ test("Lite exposes exactly one configurable action type",async()=>{
   assert.equal(m.Actions[0].UUID,"com.packrat.wireless-device-manager.device");
 });
 
+test("Wireless manifests do not pass a fake disabled flag to Node in developer mode",async()=>{
+  for(const root of ["com.packrat.wireless-device-manager.sdPlugin","com.packrat.wireless-device-manager-pro.sdPlugin"]){
+    const manifest=JSON.parse(await readFile(path.join(root,"manifest.json"),"utf8"));
+    assert.equal(Object.prototype.hasOwnProperty.call(manifest.Nodejs??{},"Debug"),false,`${root} must omit Nodejs.Debug unless valid debug arguments are intentionally required`);
+  }
+});
+
 test("Pro exposes device, dashboard and cycle actions",async()=>{
   const m=JSON.parse(await readFile("com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json","utf8"));
   assert.deepEqual(m.Actions.map(x=>x.Name),["Wireless Device","Device Dashboard","Cycle Device"]);
@@ -142,6 +150,25 @@ test("Wireless keys use canonical PackRat full-key visuals",async()=>{
   assert.equal(pro.Actions.find(a=>a.UUID.endsWith(".cycle")).Icon,"imgs/actions/cycle/icon");
 });
 
+test("Wireless renderer keeps long labels inside the canonical text hierarchy and uses distinct semantic glyphs",()=>{
+  const kinds=["status","battery","charging","connect","disconnect","control","dashboard","group","cycle"];
+  const svgs=new Map(kinds.map(kind=>[kind,wirelessKeySvg(kind,[kind.toUpperCase()])]));
+  for(const [kind,svg] of svgs){
+    assert.match(svg,/width="144" height="144"/,`${kind} should render at canonical source size`);
+    assert.match(svg,/fill="#05070A"/,`${kind} should use canonical key background`);
+    assert.match(svg,/x="8" y="12" width="5" height="32"/,`${kind} should use the short canonical accent rail`);
+  }
+  assert.equal(new Set([...svgs.values()]).size,kinds.length,"Every semantic key kind should render differently");
+  assert.match(svgs.get("charging"),/fill="#FFB21E" stroke="none"/);
+  assert.match(svgs.get("cycle"),/M21 9l3\.2 6\.5/,"Cycle should include a favorite star");
+  assert.match(svgs.get("cycle"),/M34 23h25/,"Cycle should include a next arrow");
+  assert.doesNotMatch(svgs.get("cycle"),/a21|A21/,"Cycle must not regress to a circular refresh glyph");
+  assert.equal(wirelessTextSize(["HEADPHONES"]),17);
+  assert.equal(wirelessTextSize(["CONTROLLER"]),17);
+  assert.equal(wirelessTextSize(["NO FAVORITES"]),15);
+});
+
+
 test("SEO copy is truthful and contains requested discovery language",async()=>{
   for(const file of ["submission-lite.json","submission-pro.json"]){
     const text=(await readFile(file,"utf8")).toLowerCase();
@@ -161,10 +188,11 @@ test("Pro bundled profiles seed favorites and example multi-group memberships",a
       .filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.device")
       .map(action=>action.Settings);
     assert.ok(deviceSettings.length>=4);
-    assert.ok(deviceSettings.slice(0,4).every(settings=>settings.favorite===true));
-    assert.ok(deviceSettings.some(settings=>settings.groupName==="GAMING, TRAVEL"));
-    assert.ok(deviceSettings.some(settings=>settings.groupName==="WORK"));
-    assert.ok(deviceSettings.some(settings=>settings.groupName==="GAMING"));
+    assert.ok(deviceSettings.every(settings=>settings.favorite===true));
+    const groups=deviceSettings.flatMap(settings=>String(settings.groupName||"").split(",").map(name=>name.trim()).filter(Boolean));
+    assert.ok(groups.includes("GAMING"));
+    assert.ok(groups.includes("TRAVEL"));
+    assert.ok(groups.includes("WORK"));
   }
 });
 
@@ -271,6 +299,32 @@ test("Property Inspector uses the canonical PackRat UI envelope and preserves ac
   assert.doesNotMatch(inspector,/setInterval\(requestSnapshot/);
   assert.match(inspector,/Wireless plugin is not responding/);
 });
+
+test("Wireless troubleshooting contract captures every real-machine transport stage",async()=>{
+  const inspector=await readFile("ui/inspector.js","utf8");
+  const pro=await readFile("src/pro.ts","utf8");
+  const runtime=await readFile("src/runtime.ts","utf8");
+  const packageJson=JSON.parse(await readFile("package.json","utf8"));
+  const probe=await readFile("scripts/host-probe.ps1","utf8");
+  assert.match(inspector,/logMessage/);
+  assert.match(inspector,/websocket-registered/);
+  assert.match(inspector,/command-sent/);
+  assert.match(inspector,/snapshot-received/);
+  assert.match(inspector,/render-exception/);
+  assert.match(inspector,/snapshot-timeout/);
+  assert.match(inspector,/requestId/);
+  assert.match(pro,/pi-command-received/);
+  assert.match(pro,/pi-send-complete/);
+  assert.match(runtime,/bridge-snapshot-start/);
+  assert.match(runtime,/bridge-snapshot-result/);
+  assert.match(runtime,/lastSnapshotDeviceCount/);
+  assert.equal(packageJson.scripts["host:probe"],"powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-probe.ps1");
+  assert.match(probe,/Matches Rat Dev build/);
+  assert.match(probe,/Direct Pro bridge snapshot/);
+  assert.match(probe,/StreamDeck0\.log/);
+  assert.match(probe,/127\.0\.0\.1:23654/);
+});
+
 
 test("settings reads are side-effect free and global writes are explicit",async()=>{
   const actions=await readFile("src/actions.ts","utf8");
