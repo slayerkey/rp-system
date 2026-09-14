@@ -9,6 +9,8 @@ const plugin=resolve(root,"com.packrat.macro-recorder-pro.sdPlugin");
 for(const dir of ["bin","imgs","ui","helpers"])await rm(resolve(plugin,dir),{recursive:true,force:true});
 for(const dir of ["bin","imgs","ui","helpers"])await mkdir(resolve(plugin,dir),{recursive:true});
 for(const file of ["inspector.html","inspector.css","inspector.js"])await cp(resolve(root,"ui",file),resolve(plugin,"ui",file));
+const packratLogo=resolve(root,"..","..","tools","art","assets","ratpack-icon-transparent.png");
+await cp(packratLogo,resolve(plugin,"ui","packrat.png"));
 const helper=process.env.PACKRAT_INPUT_HOST||resolve(root,"..","..","artifacts","input-host","PackRat.InputHost.exe");
 try{await stat(helper);}catch{throw new Error("PackRat.InputHost.exe is missing. Publish shared/windows-input/PackRat.InputHost first.");}
 await cp(helper,resolve(plugin,"helpers","PackRat.InputHost.exe"));
