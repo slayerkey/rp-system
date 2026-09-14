@@ -30,7 +30,7 @@ Do not move this product to `READY_TO_SHIP` based only on GitHub Actions.
 3. Start and stop at least one real game.
 4. Verify process changes finalize the previous session.
 5. Verify current FPS, 1% low, 0.1% low, worst frametime, session length and peak sensors.
-6. Verify PresentMon permission-required UX using a non-authorized Windows account where practical.
+6. Verify permission-required UX using a non-authorized Windows account where practical: click Enable Game FPS, approve UAC, sign out/in once, and confirm capture recovers without manual group editing.
 7. Verify NVIDIA GPU.
 8. Verify AMD GPU.
 9. Verify Intel GPU where feasible.
@@ -44,9 +44,9 @@ Do not move this product to `READY_TO_SHIP` based only on GitHub Actions.
 
 ### Performance budget
 
-- hardware sensor polling: 1 Hz
+- hardware sensor polling: 2 Hz
 - FPS image refresh: <= 4 Hz per visible FPS-like key
-- hardware image refresh: <= 1 Hz per visible hardware key
+- hardware image refresh: <= 2 Hz per visible hardware key
 - one shared PresentMon process
 - one shared Libre Hardware Monitor helper
 - target PackRat-owned average CPU: < 1% normalized CPU on the release test PC
