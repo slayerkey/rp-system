@@ -39,6 +39,20 @@ For Stream Deck marketplace heroes, use the shared deterministic photo composito
 
 The MK.2 plate is an overlay, not a canvas to paint on. Product key art belongs on an underlay behind the plate's real transparent LCD windows. The untouched photographed hardware goes on top so the physical bezel, rounded glass edge, reflections, chassis, and lighting remain authentic.
 
+### Canonical Stream Deck hero key-source order
+
+The global hero must show real product key visuals, not generic text cards.
+
+Use this source order:
+
+1. If product Rat Art emits exactly 15 PNGs under `rat-art-keys/`, those are authoritative. Use them as the hero LCD faces. This is the preferred path for dynamic/live-state products because the product can choose honest representative states.
+2. Otherwise use the plugin's real action visual assets. Raster key/state art may be used directly. SVG action icons/state art must be deterministically rasterized through the shared Playwright renderer and composed into the canonical PackRat key face.
+3. A missing action visual is a hard art failure. Never silently replace it with a text-only action-name tile.
+
+When a product paints substantially different runtime key faces than its static manifest art, its product Rat Art should export `rat-art-keys/` so the Marketplace cover demonstrates what customers actually see on their Stream Deck.
+
+The generic fallback face follows the canonical PackRat key language: one orange top accent, one large white product glyph, concise bottom copy, dark key background, and no decorative `PACKRAT` wordmark inside each key.
+
 Detect the 15 LCD windows from the source PNG alpha channel inside calibrated physical button bounds. Cached LCD bounds are regression evidence only, not the rendering mask. Fill every detected LCD pixel with an opaque screen underlay plus a small under-bezel safety bleed before placing product content. Rat Art must fail unless exactly 15 LCDs are detected and uncovered LCD pixels equal zero.
 
 Transparent key art must be alpha-trimmed and contained automatically. Its transparency reveals the intentional LCD background, never the warm-studio scene. Opaque key-face art fills the detected LCD region. Never paste product pixels over the physical button rim or compensate for a bad fit by covering a finished hero with a dark matte.
