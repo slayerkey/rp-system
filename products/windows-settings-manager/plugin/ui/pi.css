@@ -1,0 +1,58 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #080a0e; color: #f5f7f9; }
+main { display: grid; gap: 12px; padding: 14px; }
+.hero, .card, .privacy {
+  border: 1px solid #272d36;
+  background: linear-gradient(145deg, #151920, #0d1015);
+  border-radius: 14px;
+  padding: 15px;
+}
+.hero { background: radial-gradient(circle at 90% 0%, rgba(238,241,245,.11), transparent 42%), linear-gradient(145deg, #171b22, #0d1015); }
+.eyebrow { color: #dce2ea; font-weight: 800; font-size: 10px; letter-spacing: .16em; }
+h1 { margin: 5px 0 6px; font-size: 20px; line-height: 1.1; }
+h2 { margin: 0 0 12px; font-size: 13px; }
+p { margin: 0; color: #aab2bd; line-height: 1.45; font-size: 12px; }
+label { display: block; margin: 11px 0 6px; color: #cbd1d9; font-size: 11px; font-weight: 700; }
+input, select {
+  width: 100%;
+  border-radius: 9px;
+  border: 1px solid #303744;
+  background: #090c10;
+  color: #f7f8fa;
+  padding: 9px 10px;
+  outline: none;
+  font: inherit;
+  font-size: 12px;
+}
+input:focus, select:focus { border-color: #dce2ea; box-shadow: 0 0 0 1px rgba(220,226,234,.18); }
+button {
+  flex: 1;
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 12px;
+  background: #eef1f5;
+  color: #0b0e13;
+  font-weight: 800;
+  cursor: pointer;
+}
+button.secondary { background: #252b34; color: #f5f7f9; border: 1px solid #38404c; }
+button.small { flex: 0 0 auto; width: auto; padding: 6px 9px; font-size: 10px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.between { justify-content: space-between; }
+.grid { display: grid; gap: 8px; }
+.grid.compact { grid-template-columns: 1fr 1fr; }
+.grid.four { grid-template-columns: 1fr 1fr; }
+.metric { border: 1px solid #282f38; border-radius: 9px; padding: 9px; background: #0a0d11; }
+.metric span { display: block; color: #7f8997; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+.metric strong { display: block; margin-top: 3px; font-size: 11px; }
+.help { color: #87919f; font-size: 10px; line-height: 1.5; margin-top: 7px; }
+.check { display: flex; align-items: center; gap: 7px; }
+.check input { width: auto; }
+.privacy { background: #0d1116; }
+.privacy strong { display: block; margin-bottom: 5px; font-size: 11px; }
+.hidden { display: none !important; }
+.action-fields { margin-top: 2px; }

@@ -178,6 +178,21 @@
       ],
       "source_status": "free_catalog_only_source_unavailable_pro_qa_passed",
       "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
+    },
+    {
+      "lite_id": "windows-settings-manager-lite",
+      "pro_id": "windows-settings-manager-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "products/windows-settings-manager/plugin",
+        "products/windows-settings-manager-lite.json",
+        "products/windows-settings-manager-pro.json"
+      ],
+      "source_status": "shared_core_release_candidate_automated_and_media_pass_physical_qa_blocked",
+      "notes": "Lite provides focused live Windows controls. Pro adds user-created multi-setting PC Modes with verified COMPLETE/PARTIAL/FAILED outcomes. Both target Stream Deck 7.3+ with seven bundled device profiles. HDR control is intentionally limited to Windows 11 24H2+ to avoid ambiguous legacy Advanced Color writes. Windows/portable build, native backend smoke, Elgato validation/package, metadata, portfolio, Marketplace-routing, deterministic media, and human media review gates pass for implementation/artifact commit 8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939; later commits only update release evidence/catalog metadata. Remaining release boundary is physical Windows/Stream Deck QA. Release order is Pro first; after verified direct Marketplace URLs/IDs are captured, the Lite build injects the Pro URL into its Property Inspector.",
+      "upsell_surface": "Lite Property Inspector",
+      "url_injection": "Build reads pro_marketplace_url from this map; the Lite upsell stays hidden until the URL is a verified direct Marketplace product URL."
     }
   ],
   "standalone_free": [

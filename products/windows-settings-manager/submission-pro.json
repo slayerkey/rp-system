@@ -1,0 +1,31 @@
+{
+  "slug": "windows-settings-manager-pro",
+  "name": "Windows Settings Manager Pro",
+  "type": "plugin",
+  "price_usd": 7.99,
+  "version": "0.1.0.0",
+  "marketplace_category": [
+    "Productivity"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows"
+  ],
+  "marketplace_tags": [
+    "Windows",
+    "Settings",
+    "PC",
+    "System",
+    "Wi-Fi",
+    "Bluetooth",
+    "Power",
+    "Virtual Desktop",
+    "Productivity",
+    "Stream Deck"
+  ],
+  "marketplace_auto_publish": false,
+  "description": "Turn Stream Deck into a focused Windows Control Center.\n\nWindows Settings Manager Pro puts 15 everyday Windows controls on the standard 5x3 profile: Lock, Sleep, Hibernate, protected Restart, protected Shutdown, Wi-Fi, Bluetooth, Power Plan, Keep Awake, Light/Dark theme, Previous Desktop, Next Desktop, New Desktop, Close Desktop, and Current Desktop.\n\nStateful keys re-read Windows. Wi-Fi and Bluetooth use the Windows radio API and fail closed when hardware, policy, or permissions do not allow control. Power Plan shows the active plan. Keep Awake clearly shows STAY AWAKE or SLEEP NORMAL. Theme shows LIGHT, DARK, or MIXED. Current Desktop shows the active desktop index and count when Windows exposes reliable state.\n\nRestart and Shutdown require a second press within three seconds by default so one accidental tap does not end your session. Hibernate reports N/A when unavailable. Virtual desktop changes are followed by Windows state readback instead of being treated as successful just because a shortcut was sent.\n\nAdvanced HDR, display topology, screen/sleep timeout, and optional empty PC Mode actions remain available for existing workflows, but they are not the default product experience. Monitor Manager remains PackRat's deep display-management product.\n\nThere is no coordinate clicking or Quick Settings automation. Includes editable profiles for Stream Deck, Stream Deck Mini, Stream Deck XL, Stream Deck +, Stream Deck Neo, Galleon 100 SD, and Stream Deck + XL.\n\nRequires Windows and Stream Deck 7.3 or later. Individual controls depend on Windows hardware, policy, and capability availability.\n\nPart of the PackRat ecosystem.",
+  "release_notes": "- 15-key Windows Control Center for the standard Stream Deck.\n- Lock, Sleep, Hibernate, protected Restart and Shutdown.\n- Live Wi-Fi, Bluetooth, Power Plan, Keep Awake, and Light/Dark theme controls.\n- Previous, Next, New, Close, and Current Windows virtual desktop actions with state verification where available.\n- Device-specific editable profiles for seven current Stream Deck families."
+}

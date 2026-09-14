@@ -1,0 +1,168 @@
+{
+  "id": "windows-settings-manager-lite",
+  "name": "Windows Settings Manager Lite",
+  "type": "plugin",
+  "status": "testing",
+  "workflow_state": "BLOCKED",
+  "blocker_kind": "physical_validation",
+  "blocker": "Windows Control Center pivot is implemented but fresh exact-head automation and physical Stream Deck/Windows QA are still required. Lite also remains commercially blocked until Pro publishes first and verified direct Lite/Pro Marketplace URLs/IDs pass the strict shipping routing audit.",
+  "final_boundary": "Pass fresh exact-head build/tests/Windows backend smoke/Elgato validation/package and the Control Center physical QA matrix, publish Pro first, record verified direct Lite/Pro Marketplace URLs/IDs, pass tools/lite_pro_audit.py --shipping windows-settings-manager-lite, then move Lite to READY_TO_SHIP.",
+  "price_usd": 0,
+  "version": "0.1.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "products/windows-settings-manager/plugin",
+  "ship_plugin_dir": "out/com.packrat.windows-settings-manager-lite.sdPlugin",
+  "submission_metadata": "products/windows-settings-manager/submission-lite.json",
+  "plugin_uuid": "com.packrat.windows-settings-manager-lite",
+  "build_flavor": "lite",
+  "dev_profile": "profiles/windows-settings-lite-standard.streamDeckProfile",
+  "minimum_stream_deck": "7.3",
+  "node_runtime": "20",
+  "plan": "products/windows-settings-manager/PLAN.md",
+  "qa": "products/windows-settings-manager/QA.md",
+  "validation": "products/windows-settings-manager/VALIDATION.md",
+  "release": "products/windows-settings-manager/RELEASE.md",
+  "bundled_profiles": {
+    "layouts": [
+      "Windows Control Center Lite"
+    ],
+    "device_types": [
+      "Stream Deck",
+      "Stream Deck Mini",
+      "Stream Deck XL",
+      "Stream Deck +",
+      "Stream Deck Neo",
+      "Galleon 100 SD",
+      "Stream Deck + XL"
+    ],
+    "auto_install": true,
+    "auto_switch_on_install": false,
+    "editable": true
+  },
+  "release_gate": [
+    "strict TypeScript compile",
+    "Windows backend smoke including Control Center snapshot shape",
+    "unit and policy tests",
+    "official Elgato CLI validation",
+    "official Stream Deck packaging",
+    "Lock / Sleep / Power Plan / Keep Awake physical validation",
+    "Previous / Next virtual desktop physical validation and readback",
+    "external Windows state refresh validation",
+    "Stream Deck restart and Windows reboot validation",
+    "deterministic Rat Art review",
+    "strict Lite to Pro Marketplace routing audit after Pro publication",
+    "bundled profile integrity across seven device families"
+  ],
+  "upsell": {
+    "target_product_id": "windows-settings-manager-pro",
+    "surface": "Property Inspector",
+    "url_source": "products/lite-pro-map.json",
+    "requires_verified_direct_marketplace_url": true,
+    "hidden_until_verified": true,
+    "release_order": "publish Pro first, then record direct Pro and Lite Marketplace URLs before Lite publication"
+  },
+  "commercial_release_boundary": "After technical/physical QA passes, publish Pro first. Lite remains BLOCKED until Pro is published, both exact direct Marketplace URLs/IDs are recorded in products/lite-pro-map.json, the rebuilt Lite package contains the exact Pro URL, and tools/lite_pro_audit.py --shipping windows-settings-manager-lite passes.",
+  "current_direction": {
+    "thesis": "The Windows controls people actually reach for, on Stream Deck.",
+    "primary_surface": "six-key Windows Control Center starter set",
+    "pc_modes": "optional advanced feature, not primary positioning",
+    "state_policy": "read live Windows state where available, verify state-changing controls, fail closed on uncertainty"
+  },
+  "previous_automated_release_evidence": {
+    "candidate_commit": "8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939",
+    "windows_ci_run": 34785418162,
+    "windows_ci_job": 103799897210,
+    "windows_package_artifact": {
+      "id": 10325769771,
+      "digest_sha256": "4db9c02a66c1c3dd40f8c3bf5c8b98e2e2b2322c45ae5781365936890e86480a"
+    },
+    "portable_ci_run": 34785418201,
+    "portable_ci_job": 103799896918,
+    "portable_release_artifact": {
+      "id": 10326347964,
+      "digest_sha256": "b39fa27e0d92877d1a63a7181c6c1a7f4352ea6b2ed0cf1c46d05f74c600d7f8"
+    },
+    "lite_pro_portfolio_audit": {
+      "run": 34785417411,
+      "job": 103799893940,
+      "status": "pass"
+    },
+    "rat_ship_marketplace_routing_ci": {
+      "run": 34785417400,
+      "job": 103799893701,
+      "status": "pass"
+    },
+    "ratpack_lightweight_ci": {
+      "run": 34785417398,
+      "job": 103799893665,
+      "status": "pass"
+    },
+    "locked_dependency_install": "pass",
+    "strict_typescript_build": "pass",
+    "policy_tests": "pass_41_of_41",
+    "native_windows_backend_smoke": "pass_windows_build_26100",
+    "official_elgato_validation": "pass_lite_and_pro",
+    "production_dependency_audit": "pass_0_vulnerabilities",
+    "official_lite_package": "pass",
+    "official_pro_package": "pass",
+    "deterministic_lite_rat_art": "pass",
+    "deterministic_pro_rat_art": "pass",
+    "marketplace_media_dimensions": "pass",
+    "human_marketplace_media_review": "pass",
+    "pro_cover_safe_bounds_regression": "pass_and_visually_confirmed",
+    "official_lite_package_sha256": "893d49e913b3801ca529e6d8b88be9ed3ea32c0284564176d1883643c6d1677a",
+    "official_pro_package_sha256": "148063a3bbe8cd41a3a97351695fb879078649d838c1c3093bccd67b27a3372f"
+  },
+  "automated_release_evidence": {
+    "candidate_commit": "f1fade4db8ea8b11e2e359c914b38e30a2b626f7",
+    "status": "PASSED_AWAITING_PHYSICAL_QA",
+    "windows_ci_run": 34866699986,
+    "windows_ci_job": 104052669806,
+    "windows_package_artifact": {
+      "id": 10357755664,
+      "digest_sha256": "d8bbddd8c35d2f039de2f62bdb3e2d1c530357abc1c656f47d66e28743766e7d"
+    },
+    "portable_ci_run": 34866700149,
+    "portable_ci_job": 104052366202,
+    "portable_release_artifact": {
+      "id": 10357795262,
+      "digest_sha256": "9f28b772a76dd56612134899d7faf17eb46fd5eb51201d6fdaf6fab4d171f3c5"
+    },
+    "ratpack_lightweight_ci": {
+      "run": 34866700093,
+      "job": 104052208632,
+      "status": "pass"
+    },
+    "lite_pro_portfolio_audit": {
+      "run": 34866700037,
+      "job": 104052207846,
+      "status": "pass"
+    },
+    "rat_ship_marketplace_routing_ci": {
+      "run": 34866700002,
+      "job": 104052209306,
+      "status": "pass"
+    },
+    "locked_dependency_install": "pass",
+    "strict_typescript_build": "pass",
+    "policy_tests": "pass_48_of_48",
+    "native_windows_backend_smoke": "pass_windows_build_26100",
+    "native_windows_smoke_observations": {
+      "hdr_api": "hdr-state",
+      "wifi": "unknown_on_hosted_runner",
+      "bluetooth": "unknown_on_hosted_runner",
+      "theme": "light",
+      "virtual_desktop_available": false
+    },
+    "official_elgato_validation": "pass_lite_and_pro",
+    "production_dependency_audit": "pass_0_high_or_higher_vulnerabilities",
+    "official_lite_package": "pass",
+    "official_pro_package": "pass",
+    "deterministic_lite_rat_art": "pass",
+    "deterministic_pro_rat_art": "pass",
+    "marketplace_media_dimensions": "pass",
+    "human_marketplace_media_review": "pending_for_control_center_art",
+    "physical_windows_streamdeck_qa": "required"
+  },
+  "open_profile_on_dev": true
+}
