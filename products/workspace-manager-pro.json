@@ -2,14 +2,14 @@
   "id": "workspace-manager-pro",
   "name": "Workspace Manager Pro",
   "type": "plugin",
-  "status": "qa_passed",
-  "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Physical Rat Dev visual/hardware QA on the user's actual Stream Deck remains before any release decision. Marketplace submission and shipping are not authorized.",
+  "status": "built",
+  "workflow_state": "TESTING",
+  "blocker": "Automated revalidation is running for the final pre-hardware UX hardening and global PackRat design/key audits. Physical Rat Dev hardware QA still remains before any release decision. Marketplace submission and shipping are not authorized.",
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows + macOS",
   "source_repository": "https://github.com/slayerkey/vcs.git",
   "source_ref": "refs/heads/product/workspace-manager-pro",
-  "source_commit": "e339b1924fd60cd124aa46f9d081df0352125137",
+  "source_commit": "537332014d278c49ada3f815599dde29f29393d2",
   "plugin_uuid": "com.packrat.workspacemanagerpro",
   "marketplace_identity": "NEW_STANDALONE_SKU_PENDING",
   "lite_product_id": null,
@@ -26,35 +26,16 @@
     "Window Manager Lite Property Inspector layout/row/button formatting adopted for Workspace Manager Pro hardware QA",
     "Canonical Property Inspector transport contract applied: uiUuid settings context, separate actionContext, debounced Saving/Saved persistence feedback, global streamDeck.ui command/state channel",
     "New/Capture/Rename/Duplicate/Delete now show immediate in-inspector progress and completion/error feedback",
-    "Private-source QA bridge run 34889302086: PASS on Windows + macOS at exact source commit e339b1924fd60cd124aa46f9d081df0352125137",
-    "Windows revalidation: npm ci, transport/UI regression tests, build, native Win32 ABI enumeration, official Elgato validation/package, standalone identity audit and repeated-restore/closed-app smoke: PASS",
-    "macOS revalidation: npm ci, transport/UI regression tests, build, AppKit monitor enumeration, platform bundle isolation, official Elgato validation/package and standalone identity audit: PASS"
+    "Final pre-hardware hardening: flush debounced settings on PI close, preserve pending edits, command watchdog, stale-workspace guards, empty-workspace restore guard, zero-window capture warning, shared-key refresh, and deleted-workspace reference clearing",
+    "Canonical real PackRat PNG asset copied from the validated Window Manager Lite implementation; substitute PI SVG removed",
+    "Public QA bridge now runs the shared streamdeck-plugin-design-audit with --require-canonical-pi and streamdeck-key-visual-audit on both Windows and macOS",
+    "Private-source revalidation requested for exact source commit 537332014d278c49ada3f815599dde29f29393d2"
   ],
   "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host. Verify Retry persists after close/reopen, New/Capture show in-inspector progress + completion feedback, captured window/app summary updates, and multiple Workspace keys keep independent selected workspace IDs. Keep this product out of Marketplace submission/ship until that hardware QA is explicitly accepted.",
   "notes": "Standalone Pro-only product with no Lite edition. This is a new future Marketplace identity and must never reuse Window Manager Pro Marketplace/product/action identifiers. Window Manager Pro source and control-plane metadata are not modified by this product registration.",
   "automated_release_evidence": {
-    "status": "PASSED_AWAITING_PHYSICAL_RAT_DEV_QA",
-    "source_commit": "e339b1924fd60cd124aa46f9d081df0352125137",
-    "private_source_qa_bridge_run": 34889302086,
-    "windows": {
-      "status": "PASSED",
-      "tests": "PASSED",
-      "build": "PASSED",
-      "native_win32_enumeration": "PASSED",
-      "elgato_validate": "PASSED",
-      "elgato_package": "PASSED",
-      "standalone_identity_audit": "PASSED",
-      "repeated_restore_smoke": "PASSED"
-    },
-    "macos": {
-      "status": "PASSED",
-      "tests": "PASSED",
-      "build": "PASSED",
-      "appkit_monitor_enumeration": "PASSED",
-      "platform_bundle_isolation": "PASSED",
-      "elgato_validate": "PASSED",
-      "elgato_package": "PASSED",
-      "standalone_identity_audit": "PASSED"
-    }
+    "status": "REVALIDATION_REQUIRED",
+    "source_commit": "537332014d278c49ada3f815599dde29f29393d2",
+    "previous_private_source_qa_bridge_run": 34889302086
   }
 }

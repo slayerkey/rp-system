@@ -16,7 +16,7 @@ concurrency:
 
 env:
   VCS_REPOSITORY: slayerkey/vcs
-  VCS_REF: e339b1924fd60cd124aa46f9d081df0352125137
+  VCS_REF: 537332014d278c49ada3f815599dde29f29393d2
   SOURCE_ROOT: vcs/streamdeck/workspace-manager-pro/0.1.0.0/source
   PLUGIN_DIR: com.packrat.workspacemanagerpro.sdPlugin
 
@@ -79,6 +79,14 @@ jobs:
       - name: Build paid runtime
         working-directory: ${{ env.SOURCE_ROOT }}
         run: npm run build
+
+      - name: Canonical PackRat Stream Deck design audit
+        shell: powershell
+        run: node rp-system/tools/qa/streamdeck-plugin-design-audit.mjs "$env:SOURCE_ROOT" --require-canonical-pi
+
+      - name: Stream Deck key visual audit
+        shell: powershell
+        run: node rp-system/tools/qa/streamdeck-key-visual-audit.mjs "$env:SOURCE_ROOT/$env:PLUGIN_DIR"
 
       - name: Native Win32 ABI enumeration
         working-directory: ${{ env.SOURCE_ROOT }}
@@ -170,6 +178,14 @@ jobs:
       - name: Build paid runtime
         working-directory: ${{ env.SOURCE_ROOT }}
         run: npm run build
+
+      - name: Canonical PackRat Stream Deck design audit
+        shell: bash
+        run: node rp-system/tools/qa/streamdeck-plugin-design-audit.mjs "$SOURCE_ROOT" --require-canonical-pi
+
+      - name: Stream Deck key visual audit
+        shell: bash
+        run: node rp-system/tools/qa/streamdeck-key-visual-audit.mjs "$SOURCE_ROOT/$PLUGIN_DIR"
 
       - name: macOS AppKit monitor enumeration
         working-directory: ${{ env.SOURCE_ROOT }}
