@@ -6,10 +6,10 @@ import path from "node:path";
 import { TextExpanderLibrary } from "../src/library.mjs";
 import { LocalUiServer } from "../src/server.mjs";
 
-async function setup() {
+async function setup({ onLibraryChanged } = {}) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "packrat-text-expander-server-"));
   const library = new TextExpanderLibrary({ edition:"pro", rootDir:root });
-  const server = await new LocalUiServer({ edition:"pro", library }).start();
+  const server = await new LocalUiServer({ edition:"pro", library, onLibraryChanged }).start();
   return { server, library };
 }
 
@@ -96,6 +96,28 @@ test("template requires every field and submits exact Unicode text once", async 
     });
     assert.equal(replay.status, 404);
     assert.equal(received.length, 1);
+  } finally {
+    await new Promise(resolve => server.server.close(resolve));
+  }
+});
+
+
+test("local manager save notifies the running plugin so visible keys and PI can refresh", async () => {
+  const updates = [];
+  const { server } = await setup({ onLibraryChanged: async library => updates.push(library) });
+  try {
+    const token = encodeURIComponent(server.token);
+    const read = await fetch(`http://127.0.0.1:${server.port}/api/library?token=${token}`);
+    const model = await read.json();
+    model.library.snippets[0].name = "Updated Email";
+    const save = await fetch(`http://127.0.0.1:${server.port}/api/library?token=${token}`, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({library:model.library})
+    });
+    assert.equal(save.status, 200);
+    assert.equal(updates.length, 1);
+    assert.equal(updates[0].snippets[0].name, "Updated Email");
   } finally {
     await new Promise(resolve => server.server.close(resolve));
   }
