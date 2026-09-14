@@ -66,20 +66,24 @@ test("Pro exposes device, dashboard and cycle actions",async()=>{
   assert.deepEqual(m.Actions.map(x=>x.Name),["Wireless Device","Device Dashboard","Cycle Device"]);
 });
 
-test("Wireless keys use rendered orange visuals and bundled profiles are self-labeling",async()=>{
+test("Wireless keys use canonical PackRat full-key visuals",async()=>{
   const visuals=await readFile("src/key-visuals.ts","utf8");
   const actions=await readFile("src/actions.ts","utf8");
+  const lite=JSON.parse(await readFile("com.packrat.wireless-device-manager.sdPlugin/manifest.json","utf8"));
+  const pro=JSON.parse(await readFile("com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json","utf8"));
   assert.match(visuals,/#FFB21E/);
-  assert.match(visuals,/setImage\(wirelessKeyImage/);
+  assert.match(visuals,/fill="#05070A"/);
+  assert.match(visuals,/stroke="#F5F7FB"/);
+  assert.match(visuals,/width="5"[\s\S]*WIRELESS_ACCENT/);
   assert.match(actions,/setWirelessKey/);
-  for(const suffix of ["standard","mini","xl","plus","neo"]){
-    const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
-    const manifest=readStoredProfileManifest(data);
-    for(const item of Object.values(manifest.Actions)){
-      assert.ok(String(item.States?.[0]?.Title||"").trim().length>0,`${suffix} should not ship an anonymous key`);
-      assert.equal(item.States?.[0]?.ShowTitle,true);
+  for(const manifest of [lite,pro]){
+    for(const action of manifest.Actions){
+      for(const state of action.States??[]) assert.equal(state.ShowTitle,false);
     }
   }
+  assert.equal(pro.Actions.find(a=>a.UUID.endsWith(".device")).Icon,"imgs/actions/device/icon");
+  assert.equal(pro.Actions.find(a=>a.UUID.endsWith(".dashboard")).Icon,"imgs/actions/dashboard/icon");
+  assert.equal(pro.Actions.find(a=>a.UUID.endsWith(".cycle")).Icon,"imgs/actions/cycle/icon");
 });
 
 test("SEO copy is truthful and contains requested discovery language",async()=>{
@@ -117,6 +121,30 @@ test("Lite bundled profiles stay free of Pro-only favorite and group settings",a
       assert.equal("groupName" in (action.Settings??{}),false);
     }
   }
+});
+
+test("Wireless Property Inspector consumes the canonical PackRat visual contract",async()=>{
+  const html=await readFile("ui/inspector.html","utf8");
+  const css=await readFile("ui/inspector.css","utf8");
+  const assets=await readFile("scripts/render-assets.py","utf8");
+  assert.match(css,/--packrat-bg:#080A0E/i);
+  assert.match(css,/--packrat-card-start:#151920/i);
+  assert.match(css,/--packrat-card-end:#0D1015/i);
+  assert.match(css,/--packrat-input:#15191E/i);
+  assert.match(css,/--packrat-button:#181C21/i);
+  assert.match(css,/--packrat-button-hover:#22272E/i);
+  assert.match(css,/--packrat-border:#303640/i);
+  assert.match(css,/--packrat-text:#F5F7FB/i);
+  assert.match(css,/--packrat-muted:#9AA2AF/i);
+  assert.match(css,/--packrat-accent:#FFB21E/i);
+  assert.match(css,/--packrat-accent-hover:#FFC44D/i);
+  assert.match(css,/rgba\(255,178,30,\.28\)/);
+  assert.match(css,/--packrat-error:#FF5D6C/i);
+  assert.match(css,/body::before/);
+  assert.match(html,/packrat-logo\.png/);
+  assert.match(html,/marketplace\.elgato\.com\/maker\/packrat/);
+  assert.match(assets,/tools\/art\/assets\/ratpack-icon-transparent\.png|tools\\art\\assets\\ratpack-icon-transparent\.png/);
+  assert.match(assets,/packrat-logo\.png/);
 });
 
 
@@ -168,7 +196,7 @@ test("wireless inspector does not block USB devices when Bluetooth is unavailabl
 });
 
 
-test("Property Inspector registers with UI UUID but routes commands to the action context",async()=>{
+test("Property Inspector uses the canonical PackRat UI envelope and preserves action context in payload",async()=>{
   const runtime=await readFile("src/runtime.ts","utf8");
   const lite=await readFile("src/lite.ts","utf8");
   const pro=await readFile("src/pro.ts","utf8");
@@ -177,15 +205,12 @@ test("Property Inspector registers with UI UUID but routes commands to the actio
   assert.match(lite,/streamDeck\.ui\.onSendToPlugin/);
   assert.match(pro,/streamDeck\.ui\.onDidAppear/);
   assert.match(pro,/streamDeck\.ui\.onSendToPlugin/);
-  assert.match(lite,/sendToPropertyInspector\(runtime\.inspectorPayload\(\)\)/);
-  assert.match(pro,/sendToPropertyInspector\(runtime\.inspectorPayload\(\)\)/);
   assert.match(runtime,/payload\?\.type === "refresh-wireless"/);
   assert.match(inspector,/uiUuid=inUUID/);
   assert.match(inspector,/actionContext=String\(actionInfo\.context\|\|""\)/);
   assert.match(inspector,/event,uuid:uiUuid/);
-  assert.match(inspector,/event:"sendToPlugin"[\s\S]*context:actionContext[\s\S]*payload/);
-  assert.match(inspector,/event:"setSettings",action:actionUuid,context:actionContext/);
-  assert.doesNotMatch(inspector,/event:"sendToPlugin"[\s\S]*context:uiUuid/);
+  assert.match(inspector,/event:"sendToPlugin"[\s\S]*context:uiUuid[\s\S]*payload:\{\.\.\.payload,actionContext\}/);
+  assert.match(inspector,/event:"setSettings",action:actionUuid,context:uiUuid/);
   assert.match(inspector,/sendPlugin\(\{type:"refresh-wireless"\}\)/);
   assert.doesNotMatch(inspector,/setInterval\(requestSnapshot/);
   assert.match(inspector,/Wireless plugin is not responding/);

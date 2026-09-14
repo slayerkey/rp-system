@@ -1,31 +1,78 @@
 <!doctype html>
-<html>
-<head><meta charset="utf-8"><link rel="stylesheet" href="inspector.css"></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wireless Device Manager</title>
+  <link rel="stylesheet" href="inspector.css">
+</head>
 <body>
-  <div id="status" class="status">Scanning wireless devices…</div>
-  <div id="device-fields">
-    <label>Device<select id="deviceId"><option value="">Select a device</option></select></label>
-    <div id="caps" class="caps"></div>
-    <label>Key view<select id="view"><option value="status">Status</option><option value="battery">Battery</option><option value="control">Connect / Disconnect</option></select></label>
-    <label>Key label<input id="label" maxlength="18" placeholder="Optional"></label>
-    <div id="pro-fields">
-      <label>Low battery alert<input id="threshold" type="number" min="1" max="99" value="20"></label>
-      <label class="check"><input id="favorite" type="checkbox"> Favorite for Cycle Device</label>
-      <label>Device groups<input id="groupName" maxlength="64" placeholder="GAMING, TRAVEL"></label>
-      <p>Use commas to place one device in multiple status groups.</p>
-    </div>
-  </div>
-  <div id="dashboard-fields" hidden>
-    <label>Group<input id="dashboardGroup" maxlength="24" placeholder="Blank = all devices"></label>
-    <p>Profiles organize and summarize devices. They never auto-connect every device.</p>
-  </div>
-  <div id="cycle-fields" hidden><p>Cycles through devices marked as favorites. Cycling changes what is shown; it does not auto-connect a device.</p></div>
-  <div id="lite-upsell" class="note" hidden>
-    <strong>Need more devices?</strong><br>
-    Wireless Device Manager Pro adds dedicated device keys, favorites, Cycle Device, groups, low-battery alerts, and multi-device dashboards.<br>
-    <a id="pro-link" hidden target="_blank" rel="noopener noreferrer">View Pro on Marketplace</a>
-  </div>
-  <p class="note">Battery and charging appear when Windows or a supported device protocol exposes them. Supported USB receivers can work without Bluetooth. Control is disabled per device when it cannot be done reliably.</p>
-<script src="upsell-config.js"></script>
-<script src="inspector.js"></script>
-</body></html>
+  <main>
+    <section class="hero">
+      <a id="packrat-brand" class="brand-link" href="https://marketplace.elgato.com/maker/packrat" target="_blank" rel="noopener noreferrer">
+        <img src="packrat-logo.png" alt="" aria-hidden="true">
+        <span>PackRat ↗</span>
+      </a>
+      <h1 id="product-title">Wireless Device Manager</h1>
+      <p>Live wireless status, battery telemetry, and capability-gated controls from one Stream Deck plugin.</p>
+    </section>
+
+    <section class="card status-card">
+      <div id="status" class="status">Scanning wireless devices…</div>
+    </section>
+
+    <section id="device-fields" class="card">
+      <h2>Wireless Device</h2>
+      <label for="deviceId">Device</label>
+      <select id="deviceId"><option value="">Select a device</option></select>
+      <div id="caps" class="caps"></div>
+
+      <label for="view">Key view</label>
+      <select id="view">
+        <option value="status">Status</option>
+        <option value="battery">Battery</option>
+        <option value="control">Connect / Disconnect</option>
+      </select>
+
+      <label for="label">Key label</label>
+      <input id="label" maxlength="18" placeholder="Optional">
+
+      <div id="pro-fields">
+        <label for="threshold">Low battery alert</label>
+        <input id="threshold" type="number" min="1" max="99" value="20">
+
+        <label class="check"><input id="favorite" type="checkbox"> Favorite for Cycle Device</label>
+
+        <label for="groupName">Device groups</label>
+        <input id="groupName" maxlength="64" placeholder="GAMING, TRAVEL">
+        <p class="help">Use commas to place one device in multiple status groups.</p>
+      </div>
+    </section>
+
+    <section id="dashboard-fields" class="card" hidden>
+      <h2>Device Dashboard</h2>
+      <label for="dashboardGroup">Group</label>
+      <input id="dashboardGroup" maxlength="24" placeholder="Blank = all devices">
+      <p class="help">Profiles organize and summarize devices. They never auto-connect every device.</p>
+    </section>
+
+    <section id="cycle-fields" class="card" hidden>
+      <h2>Cycle Device</h2>
+      <p class="help">Cycles through devices marked as favorites. Cycling changes what is shown; it does not auto-connect a device.</p>
+    </section>
+
+    <section id="lite-upsell" class="card note" hidden>
+      <h2>Wireless Device Manager Pro</h2>
+      <p>Dedicated device keys, favorites, Cycle Device, groups, low-battery alerts, and multi-device dashboards.</p>
+      <a id="pro-link" class="cta-link" hidden target="_blank" rel="noopener noreferrer">View Pro on Marketplace ↗</a>
+    </section>
+
+    <section class="privacy">
+      <strong>Hardware honest</strong>
+      <p>Battery and charging appear only when Windows or a supported device protocol exposes them. Supported USB receivers can work without Bluetooth. Control stays disabled per device when it cannot be done reliably.</p>
+    </section>
+  </main>
+  <script src="upsell-config.js"></script>
+  <script src="inspector.js"></script>
+</body>
+</html>

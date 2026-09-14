@@ -18,6 +18,8 @@ window.connectElgatoStreamDeckSocket=(port,inUUID,event,info,rawActionInfo)=>{
     if(msg.event==="didReceiveSettings"){settings=msg.payload?.settings||{}; render();}
     if(msg.event==="sendToPropertyInspector" && msg.payload?.type==="wireless-snapshot"){
       snapshot=msg.payload;
+      const productTitle=$("product-title");
+      if(productTitle) productTitle.textContent=snapshot.edition==="pro"?"Wireless Device Manager Pro":"Wireless Device Manager";
       clearTimeout(responseTimer);
       responseTimer=null;
       render();
@@ -36,8 +38,8 @@ function sendPlugin(payload){
   ws.send(JSON.stringify({
     event:"sendToPlugin",
     action:actionUuid,
-    context:actionContext,
-    payload
+    context:uiUuid,
+    payload:{...payload,actionContext}
   }));
   return true;
 }
@@ -60,7 +62,7 @@ function requestSnapshot(){
 }
 function save(patch){
   settings={...settings,...patch};
-  ws?.send(JSON.stringify({event:"setSettings",action:actionUuid,context:actionContext,payload:settings}));
+  ws?.send(JSON.stringify({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings}));
 }
 function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function selectedDeviceId(){
@@ -169,3 +171,11 @@ function render(){
   });
 });
 render();
+
+
+const packratBrand=$("packrat-brand");
+packratBrand?.addEventListener("click",e=>{
+  if(ws?.readyState!==WebSocket.OPEN)return;
+  e.preventDefault();
+  ws.send(JSON.stringify({event:"openUrl",payload:{url:"https://marketplace.elgato.com/maker/packrat"}}));
+});

@@ -73,8 +73,7 @@
       "States": [
         {
           "Image": "imgs/actions/device/key",
-          "TitleAlignment": "middle",
-          "FontSize": 10
+          "ShowTitle": false
         }
       ]
     }

@@ -73,15 +73,14 @@
       "States": [
         {
           "Image": "imgs/actions/device/key",
-          "TitleAlignment": "middle",
-          "FontSize": 10
+          "ShowTitle": false
         }
       ]
     },
     {
       "Name": "Device Dashboard",
       "UUID": "com.packrat.wireless-device-manager-pro.dashboard",
-      "Icon": "imgs/actions/device/icon",
+      "Icon": "imgs/actions/dashboard/icon",
       "Tooltip": "Summarize all devices or a device group without automatically connecting them.",
       "PropertyInspectorPath": "ui/inspector.html",
       "Controllers": [
@@ -89,16 +88,15 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/device/key",
-          "TitleAlignment": "middle",
-          "FontSize": 10
+          "Image": "imgs/actions/dashboard/key",
+          "ShowTitle": false
         }
       ]
     },
     {
       "Name": "Cycle Device",
       "UUID": "com.packrat.wireless-device-manager-pro.cycle",
-      "Icon": "imgs/actions/device/icon",
+      "Icon": "imgs/actions/cycle/icon",
       "Tooltip": "Cycle through favorite wireless devices without forcing a connection.",
       "PropertyInspectorPath": "ui/inspector.html",
       "Controllers": [
@@ -106,9 +104,8 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/device/key",
-          "TitleAlignment": "middle",
-          "FontSize": 10
+          "Image": "imgs/actions/cycle/key",
+          "ShowTitle": false
         }
       ]
     }
