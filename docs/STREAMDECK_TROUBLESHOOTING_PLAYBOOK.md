@@ -63,13 +63,64 @@ Then inspect the actual per-action Property Inspector path declared in the manif
 ### Canonical transport
 
 - PI websocket UUID is the message envelope context
-- selected action instance is passed separately in payload
+- selected action instance is passed separately in payload as `actionContext`
 - settings use the PI UUID context
-- plugin commands use the global `streamDeck.ui` channel by default
+- plugin commands and plugin-owned state use the global `streamDeck.ui` channel by default
+- responses use `streamDeck.ui.sendToPropertyInspector(...)`; do not mix a global request path with per-action response helpers
+
+### The "half-working PI" signature
+
+Treat this combination as a transport bug until disproven:
+
+- ordinary settings such as speed/dropdowns persist after leaving and reopening the PI
+- plugin-owned data such as a library, timeline, device list, live status, or diagnostics stays blank
+- Refresh/Rename/Duplicate buttons appear to do nothing
+- the hardware action itself still works
+
+This means the Stream Deck settings path is healthy, but the PI → plugin → PI state channel is not. Do **not** debug storage first just because the library UI is empty.
+
+Verify these hops in order:
+
+1. PI websocket is open.
+2. `sendToPlugin` uses `context: uiUuid`.
+3. selected key/action ID is carried separately as `payload.actionContext`.
+4. plugin receives the request through `streamDeck.ui.onSendToPlugin`.
+5. plugin resolves `actionContext` to the visible action instance.
+6. plugin returns state through `streamDeck.ui.sendToPropertyInspector`.
+7. PI receives and renders the returned state.
+
+### Deep diagnostic pattern
+
+For stateful plugins with a library/editor, add a temporary or collapsible **Deep troubleshooting** action before asking the user for repeated manual guesses. It should be non-destructive and report:
+
+- PI websocket/transport mode
+- requested action context and resolved visible action
+- persisted Stream Deck settings read-back
+- in-memory library count/IDs
+- library file path, existence, readability and parseability
+- disk IDs/count versus memory IDs/count
+- a temporary write → read → delete probe in the library directory
+- selected `macroId`/item ID resolution
+- current recording/playback/live runtime state
+- a copyable text report
+- a timeout report when the plugin does not answer at all
+
+A diagnostic that can itself fail silently is not a diagnostic.
 
 ### Stale-state variant
 
 If the plugin successfully changes state but the PI still renders the old selection, merge the authoritative state/settings returned by the plugin into PI-local state **before render**. Keep one selected-ID source of truth. Do not render from stale startup settings after the plugin has already acknowledged a new value.
+
+### Feedback rule
+
+Refresh/import/export/rename/duplicate actions must provide visible acknowledgement. A successful backend operation with no PI feedback is still a UX defect. Prefer short deterministic confirmations such as:
+
+- `Refreshed · 17 macros`
+- `Renamed`
+- `Duplicated`
+- `Exported · <path>`
+
+For exports inside the Stream Deck WebView, prefer a plugin-side deterministic file write with the saved path returned to the PI over relying only on browser-download behavior.
 
 ## 4. PackRat logo is missing, becomes a square, or renders inconsistently
 
@@ -263,7 +314,44 @@ Rat Dev fingerprints bundled profiles.
 
 Do not blindly import the same unchanged profile on every Rat Dev run.
 
-## 19. Global rules start changing while fixing one product
+### Generated-profile ActionID collision variant
+
+If actions from the generated profile behave strangely but manually dragged actions work, inspect the generated **ActionIDs** before debugging the plugin runtime.
+
+Every action instance in every bundled device profile must have a unique ActionID. Reusing the same generated ActionID across MK.2/Mini/XL/Plus/Neo can make profile-installed actions collide in runtime maps while drag-and-drop actions appear healthy because Stream Deck gives them fresh IDs.
+
+The profile builder should fail closed when:
+
+- a required action is missing
+- a profile contains unexpected extra actions
+- an ActionID is missing
+- any ActionID is duplicated across bundled device variants
+
+Expose generated ActionIDs in profile audit output/maps so this can be verified deterministically.
+
+## 19. Rat Ship says the product is not registered on canonical main
+
+Do not merge a long-lived/diverged product branch into `main` just to satisfy registration.
+
+Canonical `main` is the release control plane. For a product developed on a separate branch, register the minimal canonical release metadata on `main` and pin shipping to the **exact green artifact**:
+
+- `products/<slug>.json`
+- `products/_submission/<slug>.json`
+- `products/index.json` entry
+- exact source commit
+- exact QA run/artifact
+- exact package path and SHA-256
+- truthful workflow state
+
+If the product branch is hundreds of commits ahead/behind main, that is a strong signal to use canonical metadata + immutable release artifact routing rather than a wholesale merge.
+
+A registration fix must not silently bypass release blockers. Keep `workflow_state: TESTING` until the user explicitly accepts/promotes the remaining gate, then move to `READY_TO_SHIP`.
+
+### Release-note formatting trap
+
+Marketplace release notes are real newline-separated bullets. Do not serialize literal backslash-n text into one giant line. Contract tests should parse the submitted JSON value and verify the rendered release-note lines.
+
+## 20. Global rules start changing while fixing one product
 
 Stop.
 
