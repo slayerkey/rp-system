@@ -3,10 +3,6 @@ export type KeyKind =
   | "refresh-rate" | "resolution" | "hdr" | "topology" | "primary"
   | "orientation" | "save-profile" | "apply-profile" | "status";
 
-export const PRIMARY_ACCENT="#FFB21E";
-export const ACCENT_HOVER="#FFC44D";
-export const ACCENT_SOFT="rgba(255,178,30,.16)";
-export const ACCENT_GLOW="rgba(255,178,30,.28)";
 
 
 const GLYPHS:Record<KeyKind,string>={
