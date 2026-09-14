@@ -63,6 +63,21 @@ jobs:
       - name: JavaScript syntax gate
         run: npm run check:syntax
 
+      - name: FPS setup PowerShell syntax gate
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "setup/enable-fps-access.ps1"),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count) {
+            $errors | ForEach-Object { Write-Host "$($_.Extent.StartLineNumber): $($_.Message)" }
+            throw "enable-fps-access.ps1 has PowerShell syntax errors."
+          }
+
       - name: Unit, failure-state, and synthetic performance QA
         run: npm test
 
@@ -175,6 +190,9 @@ jobs:
           foreach ($profile in $profiles) {
             $profilePath = Join-Path "com.packrat.performance-grapher.sdPlugin/profiles" $profile
             if (-not (Test-Path $profilePath)) { throw "Missing bundled profile: $profile" }
+          }
+          if (-not (Test-Path "com.packrat.performance-grapher.sdPlugin/setup/enable-fps-access.ps1")) {
+            throw "Missing packaged one-click FPS setup helper."
           }
           foreach ($licenseEvidence in @(
             "com.packrat.performance-grapher.sdPlugin/licenses/PresentMon-MIT-v2.5.1.txt",
