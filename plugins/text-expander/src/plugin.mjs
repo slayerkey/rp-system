@@ -11,9 +11,17 @@ import { getWindowsContext, getClipboardText, focusWindow, insertText } from "./
 import { EDITION, ACTIONS, VERIFIED_PRO_URL } from "./edition.mjs";
 
 const library = new TextExpanderLibrary({ edition: EDITION });
-const ui = await new LocalUiServer({ edition: EDITION, library }).start();
 const visible = new Map();
 let insertionQueue = Promise.resolve();
+
+const ui = await new LocalUiServer({
+  edition: EDITION,
+  library,
+  onLibraryChanged: async () => {
+    await refreshVisibleKeys();
+    try { await sendSnippetList({ status:"Library updated." }); } catch {}
+  }
+}).start();
 
 function enqueue(work) {
   const next = insertionQueue.then(work, work);
@@ -64,18 +72,32 @@ async function performInsert({ snippet, settings, fields = {}, captured }) {
   });
 }
 
-async function resolveSnippet(settings = {}) {
+async function resolveSnippetSelection(settings = {}) {
   const current = await library.load();
   const requested = String(settings.snippetId || "");
-  return current.snippets.find(item => item.id === requested) || current.snippets[0] || null;
+  const snippet = current.snippets.find(item => item.id === requested) || current.snippets[0] || null;
+  if (!snippet || snippet.id === requested) {
+    return { snippet, settings, changed:false };
+  }
+  return {
+    snippet,
+    settings:{ ...settings, snippetId:snippet.id },
+    changed:true
+  };
 }
 
 async function renderInsertRecord(record) {
   if (!record?.action?.isKey?.()) return;
-  const snippet = await resolveSnippet(record.settings);
+  const selection = await resolveSnippetSelection(record.settings);
+  if (selection.changed) {
+    record.settings = selection.settings;
+    await record.action.setSettings(selection.settings).catch(error => {
+      streamDeck.logger.warn("Could not repair stale Text Expander snippet selection.", error);
+    });
+  }
   await record.action.setTitle("");
   await record.action.setImage(
-    snippet ? renderSnippetKey(snippet) : svgData(renderFallbackKeySvg("insert", "SNIPPET"))
+    selection.snippet ? renderSnippetKey(selection.snippet) : svgData(renderFallbackKeySvg("insert", "SNIPPET"))
   );
 }
 
@@ -95,14 +117,21 @@ async function refreshVisibleKeys() {
 }
 
 async function insertAction(ev) {
-  const settings = ev.payload?.settings && typeof ev.payload.settings === "object"
+  let settings = ev.payload?.settings && typeof ev.payload.settings === "object"
     ? ev.payload.settings
     : await ev.action.getSettings();
 
-  const snippet = await library.getSnippet(String(settings.snippetId || ""));
+  const selection = await resolveSnippetSelection(settings);
+  const snippet = selection.snippet;
   if (!snippet) {
     await ev.action.showAlert();
     return;
+  }
+  if (selection.changed) {
+    settings = selection.settings;
+    await ev.action.setSettings(settings).catch(error => {
+      streamDeck.logger.warn("Could not persist repaired Text Expander snippet selection.", error);
+    });
   }
 
   const latest = await library.load();
