@@ -53,9 +53,6 @@ def action_glyph(kind,size,transparent=False):
     w=max(1,size//16)
     fg=WHITE
     accent=WHITE if transparent else ACCENT
-    if not transparent:
-        rail=max(2,size//29)
-        d.rounded_rectangle((size*.055,size*.083,size*.055+rail,size*.305),radius=max(1,rail//2),fill=ACCENT)
     if kind=="device":
         d.rounded_rectangle((size*.24,size*.19,size*.76,size*.55),radius=max(2,size//13),outline=fg,width=w)
         d.line((size*.33,size*.45,size*.52,size*.45),fill=fg,width=w)

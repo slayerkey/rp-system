@@ -159,10 +159,11 @@ test("Wireless renderer keeps long labels inside the canonical text hierarchy an
   for(const [kind,svg] of svgs){
     assert.match(svg,/width="144" height="144"/,`${kind} should render at canonical source size`);
     assert.match(svg,/fill="#05070A"/,`${kind} should use canonical key background`);
-    assert.match(svg,/x="8" y="12" width="5" height="32"/,`${kind} should use the short canonical accent rail`);
+    assert.doesNotMatch(svg,/x="8" y="12" width="5" height="32"/,`${kind} should not render the decorative left accent rail`);
   }
   assert.equal(new Set([...svgs.values()]).size,kinds.length,"Every semantic key kind should render differently");
   assert.match(svgs.get("charging"),/fill="#FFB21E" stroke="none"/);
+  assert.doesNotMatch([...svgs.values()].join("\n"),/ACCENT_RAIL/,"Wireless runtime keys should stay visually simple without the left rail");
   assert.match(svgs.get("cycle"),/M21 9l3\.2 6\.5/,"Cycle should include a favorite star");
   assert.match(svgs.get("cycle"),/M34 23h25/,"Cycle should include a next arrow");
   assert.match(svgs.get("group"),/M10 15h18l6 6h28v25H10Z/,"Group should read as a folder, not a node triangle");
