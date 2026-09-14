@@ -17,6 +17,19 @@ Only increment the product version for a genuine new release or upgrade after th
 
 Validate that the ship helper has an explicit branch for the product type. Do not let widgets fall through to profile handling.
 
+## Stream Deck plugin hero rule
+
+For normal in-repository Stream Deck plugins, Rat Ship owns the Marketplace cover globally.
+
+- product-local Rat Art may generate the search icon and gallery frames
+- after product-local art finishes, Rat Ship must render the canonical warm-studio/photo Stream Deck hero and overwrite **only** `02_cover.png`
+- the global hero uses the approved warm-studio environment, real photographed Stream Deck hardware plate, PackRat white/orange monitor hierarchy, and deterministic action/key representation
+- product-local art must not be allowed to overwrite the canonical hero after this step
+- Marketplace preflight runs only after the global hero has been applied
+- external immutable release artifacts remain exact validated artifacts and are not rewritten by this rule
+
+This is the default for future Stream Deck plugins. Do not reimplement the hero product by product.
+
 ## XENEON marketplace media
 
 For XENEON widgets, treat the cover, search/app icon, and gallery as separate customer jobs.
