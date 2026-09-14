@@ -7,6 +7,7 @@ import {
   type WillAppearEvent
 } from "@elgato/streamdeck";
 import { deviceViewTitle, groupSummary, nextFavorite, shortName, shouldLowBatteryAlert } from "./model.js";
+import { setWirelessKey, type WirelessKeyKind } from "./key-visuals.js";
 import type { WirelessRuntime } from "./runtime.js";
 
 export type DeviceSettings = {
@@ -30,16 +31,14 @@ export type CycleSettings = {
 async function paintDevice(key: KeyAction<DeviceSettings>, runtime: WirelessRuntime, settings: DeviceSettings) {
   const deviceId = await runtime.selectedDeviceId(settings.deviceId, settings.slot);
   const device = runtime.device(deviceId);
-  if (runtime.lastError) {
-    await key.setTitle("SCAN\nERROR");
-    return;
-  }
-  if (!device && runtime.devices().length === 0) {
-    await key.setTitle("NO DEVICES\nFOUND");
-    return;
-  }
   const view = settings.view ?? "status";
-  await key.setTitle(deviceViewTitle(device, view, settings.label));
+  const kind: WirelessKeyKind = view === "battery" ? "battery" : view === "control" ? "control" : "device";
+  const label = settings.label?.trim().toUpperCase() || (view === "battery" ? "BATTERY" : view === "control" ? "CONTROL" : "WIRELESS");
+  if (runtime.lastError) {
+    await setWirelessKey(key, kind, [label, "SCAN ERROR"]);
+    return;
+  }
+  await setWirelessKey(key, kind, deviceViewTitle(device, view, settings.label).split("\n"));
 }
 
 abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
@@ -126,18 +125,18 @@ export class DashboardAction extends SingletonAction<DashboardSettings> {
 
   private async paint(key: KeyAction<DashboardSettings>, settings: DashboardSettings): Promise<void> {
     if (this.runtime.lastError) {
-      await key.setTitle("ALL DEVICES\nSCAN ERROR");
+      await setWirelessKey(key, "dashboard", [settings.groupName?.trim().toUpperCase() || "ALL DEVICES", "SCAN ERROR"]);
       return;
     }
     const devices = this.runtime.devices();
     if (!devices.length) {
-      await key.setTitle("ALL DEVICES\nNONE FOUND");
+      await setWirelessKey(key, "dashboard", [settings.groupName?.trim().toUpperCase() || "ALL DEVICES", "NONE FOUND"]);
       return;
     }
     const members = settings.groupName ? await this.runtime.groupMembers(settings.groupName) : devices.map(d => d.stableId);
     const summary = groupSummary(devices, members, await this.runtime.thresholds());
     const prefix = settings.groupName?.trim().toUpperCase() || "ALL DEVICES";
-    await key.setTitle(`${prefix}\n${summary.connected}/${summary.total} ON${summary.low ? ` • ${summary.low} LOW` : ""}`);
+    await setWirelessKey(key, "dashboard", [prefix, `${summary.connected}/${summary.total} ON${summary.low ? ` • ${summary.low} LOW` : ""}`]);
   }
 
   private async paintAll(): Promise<void> {
@@ -163,7 +162,7 @@ export class CycleDeviceAction extends SingletonAction<CycleSettings> {
     const favorites = await this.runtime.favorites();
     const next = nextFavorite(this.runtime.devices(), favorites, ev.payload.settings?.currentId);
     if (!next) {
-      await ev.action.setTitle("CYCLE\nNO FAVORITES");
+      await setWirelessKey(ev.action, "cycle", ["CYCLE", "NO FAVORITES"]);
       await ev.action.showAlert();
       return;
     }
@@ -180,12 +179,12 @@ export class CycleDeviceAction extends SingletonAction<CycleSettings> {
   private async paint(key: KeyAction<CycleSettings>, settings: CycleSettings): Promise<void> {
     const device = this.runtime.device(settings.currentId);
     if (!device) {
-      await key.setTitle("CYCLE\nFAVORITES");
+      await setWirelessKey(key, "cycle", ["CYCLE", "FAVORITES"]);
       return;
     }
     const state = device.paired === false ? "UNPAIRED" : device.connected ? "ON" : device.present === false ? "SLEEP" : "OFF";
     const battery = device.capabilities.BATTERY ? ` ${device.batteryPercent}%` : "";
-    await key.setTitle(`${shortName(device.name)}\n${state}${battery}`);
+    await setWirelessKey(key, "cycle", [shortName(device.name), `${state}${battery}`]);
   }
 
   private async paintAll(): Promise<void> {

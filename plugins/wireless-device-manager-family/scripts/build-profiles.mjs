@@ -25,7 +25,7 @@ function deterministicUuid(seed) {
   return `${value.slice(0,8)}-${value.slice(8,12)}-${value.slice(12,16)}-${value.slice(16,20)}-${value.slice(20)}`;
 }
 
-function action(seed, name, uuid, settings={}) {
+function action(seed, name, uuid, settings={}, title=name.toUpperCase()) {
   return {
     ActionID: deterministicUuid(seed),
     LinkedTitle: true,
@@ -33,18 +33,17 @@ function action(seed, name, uuid, settings={}) {
     UUID: uuid,
     Settings: settings,
     State: 0,
-    States: [{ Title: "" }]
+    States: [{ Title: title, ShowTitle: true, TitleAlignment: "bottom", TitleColor: "#FFFFFF", FontFamily: "Arial", FontSize: 10, FontStyle: "Regular", FontUnderline: false }]
   };
 }
-
 function device(seed, cfg, label, view="status", extra={}) {
-  return action(seed, "Wireless Device", cfg.deviceUuid, { label, view, ...extra });
+  return action(seed, "Wireless Device", cfg.deviceUuid, { label, view, ...extra }, label);
 }
 function dashboard(seed, cfg, groupName="") {
-  return action(seed, "Device Dashboard", cfg.dashboardUuid, { groupName });
+  return action(seed, "Device Dashboard", cfg.dashboardUuid, { groupName }, groupName || "ALL DEVICES");
 }
 function cycle(seed, cfg) {
-  return action(seed, "Cycle Device", cfg.cycleUuid, {});
+  return action(seed, "Cycle Device", cfg.cycleUuid, {}, "CYCLE");
 }
 
 const layouts = {

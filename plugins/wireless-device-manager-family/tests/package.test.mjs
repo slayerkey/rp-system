@@ -66,6 +66,22 @@ test("Pro exposes device, dashboard and cycle actions",async()=>{
   assert.deepEqual(m.Actions.map(x=>x.Name),["Wireless Device","Device Dashboard","Cycle Device"]);
 });
 
+test("Wireless keys use rendered orange visuals and bundled profiles are self-labeling",async()=>{
+  const visuals=await readFile("src/key-visuals.ts","utf8");
+  const actions=await readFile("src/actions.ts","utf8");
+  assert.match(visuals,/#FFB21E/);
+  assert.match(visuals,/setImage\(wirelessKeyImage/);
+  assert.match(actions,/setWirelessKey/);
+  for(const suffix of ["standard","mini","xl","plus","neo"]){
+    const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
+    const manifest=readStoredProfileManifest(data);
+    for(const item of Object.values(manifest.Actions)){
+      assert.ok(String(item.States?.[0]?.Title||"").trim().length>0,`${suffix} should not ship an anonymous key`);
+      assert.equal(item.States?.[0]?.ShowTitle,true);
+    }
+  }
+});
+
 test("SEO copy is truthful and contains requested discovery language",async()=>{
   for(const file of ["submission-lite.json","submission-pro.json"]){
     const text=(await readFile(file,"utf8")).toLowerCase();
@@ -152,28 +168,22 @@ test("wireless inspector does not block USB devices when Bluetooth is unavailabl
 });
 
 
-test("Property Inspector uses the proven global UI transport and bounded retry timeout",async()=>{
-  const actions=await readFile("src/actions.ts","utf8");
+test("Property Inspector mirrors Monitor Manager explicit request/response transport",async()=>{
   const runtime=await readFile("src/runtime.ts","utf8");
   const lite=await readFile("src/lite.ts","utf8");
   const pro=await readFile("src/pro.ts","utf8");
   const inspector=await readFile("ui/inspector.js","utf8");
-  assert.match(runtime,/attachInspector\(\)/);
-  assert.match(runtime,/streamDeck\.ui\.onDidAppear/);
-  assert.match(runtime,/streamDeck\.ui\.onDidDisappear/);
-  assert.match(runtime,/streamDeck\.ui\.onSendToPlugin/);
-  assert.match(runtime,/streamDeck\.ui\.sendToPropertyInspector\(await this\.inspectorPayload\(\)\)/);
-  assert.match(runtime,/payload\?\.type === "get-wireless-snapshot"/);
-  assert.match(lite,/runtime\.attachInspector\(\)/);
-  assert.match(pro,/runtime\.attachInspector\(\)/);
-  assert.doesNotMatch(actions,/onPropertyInspectorDidAppear|onSendToPlugin/);
-  assert.match(inspector,/setInterval\(requestSnapshot,1500\)/);
-  assert.match(inspector,/if\(!snapshot&&!responseTimer\)/);
-  assert.match(inspector,/responseTimer=null;[\s\S]*Wireless plugin is not responding/);
-  assert.match(inspector,/uiUuid=inUUID/);
-  assert.match(inspector,/event:"sendToPlugin"[\s\S]*context:uiUuid/);
-  assert.match(inspector,/event:"setSettings",action:actionUuid,context:uiUuid/);
-  assert.doesNotMatch(inspector,/context:actionInfo\.context/);
+  assert.match(lite,/streamDeck\.ui\.onDidAppear/);
+  assert.match(lite,/streamDeck\.ui\.onSendToPlugin/);
+  assert.match(pro,/streamDeck\.ui\.onDidAppear/);
+  assert.match(pro,/streamDeck\.ui\.onSendToPlugin/);
+  assert.match(lite,/sendToPropertyInspector\(runtime\.inspectorPayload\(\)\)/);
+  assert.match(pro,/sendToPropertyInspector\(runtime\.inspectorPayload\(\)\)/);
+  assert.match(runtime,/payload\?\.type === "refresh-wireless"/);
+  assert.match(inspector,/sendPlugin\(\{type:"refresh-wireless"\}\)/);
+  assert.doesNotMatch(inspector,/setInterval\(requestSnapshot/);
+  assert.doesNotMatch(inspector,/setTimeout\(requestSnapshot,250\)/);
+  assert.match(inspector,/Wireless plugin is not responding/);
 });
 
 test("settings reads are side-effect free and global writes are explicit",async()=>{
