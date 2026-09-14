@@ -138,3 +138,13 @@ test("one second is the default cadence while five seconds remains available", (
   assert.match(inspectorHtml, /value="5">5 seconds<\/option>/);
   assert.match(inspectorHtml, /1 second is the default/);
 });
+
+
+test("outage key uses a clipped-safe dedicated layout", () => {
+  assert.match(renderSource, /function outageSvg/);
+  assert.match(renderSource, /font-size="15\.5"[^>]*>OUTAGE<\/text>/);
+  assert.match(renderSource, /fitFont\(secondary, 14, 12\.5, 11\)/);
+  assert.match(renderSource, /secondary = "ACTIVE"/);
+  assert.match(renderSource, /secondary = "LAST 24H"/);
+  assert.match(renderSource, /return outageSvg\(primary, secondary, state, settings\.accent, snapshot\.samples\)/);
+});
