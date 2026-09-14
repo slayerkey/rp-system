@@ -23,10 +23,11 @@
     "monitor input supported and unsupported matrix: REQUIRED",
     "sleep / wake, unplug / replug, restart, scaling and primary-display physical QA: REQUIRED",
     "Monitor Profile COMPLETE / PARTIAL / FAILED and rollback physical QA: REQUIRED",
-    "Windows 11 24H2 HDR supported / unsupported physical QA: REQUIRED"
+    "Windows 11 24H2 HDR supported / unsupported physical QA: REQUIRED",
+    "observed real-host HDR failure from Sep 14 physical pass: investigate and retest before Marketplace release"
   ],
   "notes": "Price target $9.99. Commercial differentiation is the unified Windows + DDC/CI layer and saved whole-setup Monitor Profiles, not isolated brightness or projection-mode buttons. Exact HDR uses the dedicated Windows 11 24H2+ DisplayConfig HDR packets and fails closed on older ambiguous Advanced Color APIs. Night Light is excluded from v1 rather than using undocumented toggles.",
-  "blocker": "Required physical Monitor Manager Pro release QA is still incomplete: the multi-monitor, DDC/CI, HDR, topology, input-switching, and Monitor Profile rollback matrix must be verified on real Windows hardware before Marketplace submission.",
+  "blocker": "Required physical Monitor Manager Pro release QA is still incomplete. The current MK.2 visual/profile pass is good, but HDR did not work on the Sep 14 real-host test and must be diagnosed/retested; the remaining multi-monitor, DDC/CI, topology, input-switching, and Monitor Profile rollback matrix also remains required.",
   "final_boundary": "Automated Windows CI, fixtures, helper smoke, official Elgato validation/package, Rat Art, canonical Rat Ship kit, and artifact upload are passing. Complete the documented physical Windows QA matrix; then move this product to READY_TO_SHIP and publish Pro before enabling the Lite upsell.",
   "open_profile_on_dev": true,
   "dev_profile": "profiles/monitor-manager-pro-standard.streamDeckProfile"
