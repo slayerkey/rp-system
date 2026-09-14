@@ -15,6 +15,8 @@ For canonical PackRat Stream Deck UI work, also run `node tools/qa/streamdeck-pl
 
 The design audit must inspect the real per-action Property Inspector paths declared in the manifest, not assume one shared inspector file. A passing check against the wrong file is not evidence.
 
+For a stateful Property Inspector, add deterministic race regressions before hardware QA. At minimum verify: pending local settings survive stale settings/state responses until acknowledgement; authoritative plugin state can clear `Saving…`; commands flush dependent pending settings first; dirty rename/name/path drafts are not overwritten by render/focus churn; switching away and back preserves the immutable selected ID/value; and duplicate human-readable labels remain independently selectable. Treat these as correctness tests, not optional UI polish.
+
 
 For stateful Property Inspectors, treat "settings persist but plugin-owned library/timeline/live state is blank" as a transport failure signature. Verify the canonical PackRat route end-to-end: PI websocket context = `uiUuid`, selected key = separate `actionContext` payload, plugin receives commands on `streamDeck.ui.onSendToPlugin`, and plugin-owned state returns on `streamDeck.ui.sendToPropertyInspector`. Do not accept a per-action response helper mixed into a global request path.
 
