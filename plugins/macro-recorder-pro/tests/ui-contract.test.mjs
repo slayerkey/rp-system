@@ -15,7 +15,7 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
     readFile(new URL("scripts/build-assets.mjs",root),"utf8"),
   ]);
   new vm.Script(js);
-  for(const id of ["packratLink","captureMouseMovement","macroSelect","stateConnection","refreshLibrary","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","runDiagnostic","copyDiagnostic","diagnosticStatus","diagnosticReport","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
+  for(const id of ["packratLink","captureMouseMovement","macroSelect","stateConnection","refreshLibrary","libraryFeedback","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","recordedStepsDetails","runDiagnostic","copyDiagnostic","diagnosticStatus","diagnosticReport","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
     assert.match(html,new RegExp(`id=["']${id}["']`),`missing inspector control ${id}`);
   }
   assert.doesNotMatch(html,/id=["']macroName["']/);
@@ -59,8 +59,20 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(js,/no plugin diagnostic response within 2\.5 seconds/);
   assert.match(js,/,2500\)/);
   assert.match(html,/Copy report/);
+  assert.match(html,/<details id="recordedStepsDetails"/);
+  assert.match(html,/<summary><span>Recorded steps<\/span>/);
+  assert.match(html,/<details class="pro-only diagnostic-block">/);
+  assert.match(html,/<summary>Troubleshooting<\/summary>/);
   assert.match(js,/function requestState/);
   assert.match(js,/stateRetries<5/);
+  assert.match(js,/manualRefreshPending/);
+  assert.match(js,/Refreshed ·/);
+  assert.match(js,/Refreshing…/);
+  assert.match(js,/requestState\(true,true\)/);
+  assert.match(js,/recordedStepsDetails/);
+  assert.match(js,/if\(details&&!details\.open\)/);
+  assert.match(js,/macroRecorder\.exportSaved/);
+  assert.match(js,/Exported ·/);
   assert.match(js,/Macro Library connected/);
   assert.match(js,/Macro Library connection failed/);
   assert.match(js,/state\?\.settings\?\.macroId/);
@@ -84,6 +96,11 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(assets,/playGreen=\[43,232,106,255\]/);
   assert.match(runtime,/#FF5D6C/);
   assert.match(runtime,/#2BE86A/);
+  assert.match(runtime,/function safeExportName/);
+  assert.match(runtime,/function exportStamp/);
+  assert.match(runtime,/Downloads", "PackRat Macro Recorder"/);
+  assert.match(runtime,/macroRecorder\.exportSaved/);
+  assert.match(runtime,/writeFile\(path, JSON\.stringify\(exportEnvelope\(macro\)/);
   assert.match(runtime,/function packRatKeyImage/);
   assert.match(runtime,/setImage\(packRatKeyImage\(record\.kind, title\)\)/);
   assert.match(runtime,/#080A0E/);
