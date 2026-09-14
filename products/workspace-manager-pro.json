@@ -4,12 +4,12 @@
   "type": "plugin",
   "status": "built",
   "workflow_state": "TESTING",
-  "blocker": "Automated revalidation is rerunning after the final QA assertion syntax correction. Physical Rat Dev hardware QA remains the only intended product boundary before release. Marketplace submission and shipping are not authorized.",
+  "blocker": "Final exact-commit revalidation is running after strengthening the static fallback key stroke to clear the shared key-visual warning. Physical Rat Dev hardware QA remains the release boundary. Marketplace submission and shipping are not authorized.",
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows + macOS",
   "source_repository": "https://github.com/slayerkey/vcs.git",
   "source_ref": "refs/heads/product/workspace-manager-pro",
-  "source_commit": "4e8cccea6524ac79944fedc4b1bede7d4949b4a4",
+  "source_commit": "39d7188afb9cd4eaf74d65dd2a85885b45099346",
   "plugin_uuid": "com.packrat.workspacemanagerpro",
   "marketplace_identity": "NEW_STANDALONE_SKU_PENDING",
   "lite_product_id": null,
@@ -29,13 +29,14 @@
     "Final pre-hardware hardening: flush debounced settings on PI close, preserve pending edits, command watchdog, stale-workspace guards, empty-workspace restore guard, zero-window capture warning, shared-key refresh, and deleted-workspace reference clearing",
     "Canonical real PackRat PNG asset copied from the validated Window Manager Lite implementation; substitute PI SVG removed",
     "Public QA bridge now runs the shared streamdeck-plugin-design-audit with --require-canonical-pi and streamdeck-key-visual-audit on both Windows and macOS",
-    "Private-source revalidation requested for exact source commit 4e8cccea6524ac79944fedc4b1bede7d4949b4a4"
+    "Static fallback Workspace key border increased from 3 px to 4 px so the shared key visual audit has no thin-stroke warning at 144 px source scale",
+    "Private-source revalidation requested for exact source commit 39d7188afb9cd4eaf74d65dd2a85885b45099346"
   ],
   "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host. Verify Retry persists after close/reopen, New/Capture show in-inspector progress + completion feedback, captured window/app summary updates, and multiple Workspace keys keep independent selected workspace IDs. Keep this product out of Marketplace submission/ship until that hardware QA is explicitly accepted.",
   "notes": "Standalone Pro-only product with no Lite edition. This is a new future Marketplace identity and must never reuse Window Manager Pro Marketplace/product/action identifiers. Window Manager Pro source and control-plane metadata are not modified by this product registration.",
   "automated_release_evidence": {
     "status": "REVALIDATION_REQUIRED",
-    "source_commit": "4e8cccea6524ac79944fedc4b1bede7d4949b4a4",
-    "previous_private_source_qa_bridge_run": 34889302086
+    "source_commit": "39d7188afb9cd4eaf74d65dd2a85885b45099346",
+    "previous_private_source_qa_bridge_run": 34890855035
   }
 }
