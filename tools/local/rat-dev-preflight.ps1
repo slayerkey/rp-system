@@ -67,6 +67,14 @@ function Read-JsonFromGitObject {
 }
 
 function Get-Registration {
+    # Explicit external registrations on origin/main are authoritative and must
+    # be resolved before branch discovery. This prevents private products from
+    # failing preflight when stale slug copies exist on unrelated product branches.
+    $mainConfig = Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object "origin/main:plugins/$Slug/rat-dev.json"
+    if ($mainConfig -and $mainConfig.repository) {
+        return $mainConfig
+    }
+
     $source = Resolve-RatDevInternalProductSource -RepoRoot $RepoRoot -Slug $Slug
     if ($source -and $source.Kind -eq "ratpack") {
         $productObject = "$($source.Ref):plugins/$Slug/rat-dev.json"
@@ -74,7 +82,7 @@ function Get-Registration {
         if ($config) { return $config }
     }
 
-    return (Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object "origin/main:plugins/$Slug/rat-dev.json")
+    return $mainConfig
 }
 
 function Test-ReusableCheckout {
