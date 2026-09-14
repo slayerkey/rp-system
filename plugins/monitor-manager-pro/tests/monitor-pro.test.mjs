@@ -398,15 +398,18 @@ test("Monitor Profile inspector explicitly explains the saved snapshot contents"
 });
 
 
-test("Monitor Manager uses the PackRat orange-yellow accent direction", async () => {
+test("Monitor Manager keeps utility keys neutral while branding uses the orange-yellow accent", async () => {
   const visuals=await readFile("src/key-visuals.ts","utf8");
   const css=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.css","utf8");
-  assert.match(visuals,/PRIMARY_ACCENT="#FFB21E"/);
-  assert.match(visuals,/ACCENT_HOVER="#FFC94A"/);
-  assert.match(visuals,/ACCENT_DEEP="#C97A00"/);
+  const html=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/config.html","utf8");
+  assert.match(visuals,/stroke="#fff"/);
+  assert.match(visuals,/fill="#fff" stroke="none"/);
+  assert.doesNotMatch(visuals,/stroke="#FFB21E"/);
   assert.match(css,/#ffb21e/i);
   assert.match(css,/#ffc94a/i);
   assert.match(css,/#c97a00/i);
   assert.match(css,/rgba\(255,178,30,\.35\)/);
   assert.doesNotMatch(css,/#2be86a/i);
+  assert.match(html,/https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
+  assert.match(html,/PACKRAT ↗/);
 });

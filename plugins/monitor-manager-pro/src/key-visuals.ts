@@ -9,7 +9,7 @@ export const ACCENT_DEEP="#C97A00";
 
 const GLYPHS:Record<KeyKind,string>={
   brightness:'<circle cx="36" cy="21" r="8"/><path d="M36 7v5M36 30v5M22 21h5M45 21h5M26 11l4 4M42 27l4 4M46 11l-4 4M30 27l-4 4"/>',
-  contrast:'<circle cx="36" cy="21" r="15"/><path d="M36 6a15 15 0 0 1 0 30Z" fill="#FFB21E" stroke="none"/><path d="M36 6v30"/>',
+  contrast:'<circle cx="36" cy="21" r="15"/><path d="M36 6a15 15 0 0 1 0 30Z" fill="#fff" stroke="none"/><path d="M36 6v30"/>',
   volume:'<path d="M18 18h8l11-9v25l-11-8h-8Z"/><path d="M44 16c4 4 4 9 0 13M50 11c7 7 7 17 0 24"/>',
   power:'<path d="M36 6v15"/><path d="M26 12a15 15 0 1 0 20 0"/>',
   input:'<rect x="13" y="8" width="46" height="29" rx="4"/><path d="M8 22h27M28 15l7 7-7 7"/>',
@@ -61,7 +61,7 @@ export function keyImage(kind:KeyKind,rawLines:string[]):string{
   return "data:image/svg+xml;base64,"+Buffer.from(
     '<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">'+
     '<rect width="144" height="144" rx="24" fill="#05070A"/>'+
-    '<g transform="translate(21 4) scale(1.42)" fill="none" stroke="#FFB21E" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">'+GLYPHS[kind]+'</g>'+
+    '<g transform="translate(21 4) scale(1.42)" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">'+GLYPHS[kind]+'</g>'+
     text+'</svg>',
     "utf8"
   ).toString("base64");
