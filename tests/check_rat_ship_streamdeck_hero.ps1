@@ -22,4 +22,8 @@ if ($source -notmatch 'render_streamdeck_ship_hero\.py') {
     throw "Rat Ship is not wired to the canonical global hero wrapper."
 }
 
+if ($source -notmatch 'rat-art-keys' -or $source -notmatch '--keys-dir') {
+    throw "Rat Ship does not hand product Rat Art key faces to the canonical hero."
+}
+
 Write-Host "RAT SHIP STREAM DECK HERO ROUTING TEST PASS"
