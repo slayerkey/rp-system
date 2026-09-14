@@ -8,6 +8,14 @@ Use this file when starting a new ChatGPT chat or ChatGPT Project focused on Str
 
 GitHub remains the source of truth. Do not rebuild the Stream Deck process from conversation memory.
 
+## Natural shorthand
+
+When the user says **"check the global files"**, **"refer to the global files/stuff"**, **"check the troubleshooting files"**, **"use the global Stream Deck setup"**, or similar shorthand, that means: follow the complete canonical read order below, then inspect the product's own source/QA and any approved reference assets or implementations that those global files point to.
+
+Do not ask the user to restate the file list. Do not rely on a giant carry-over prompt. The repository is supposed to recover the design, known failure modes, Rat Dev behavior, QA gates, Rat Art rules, and shipping rules automatically.
+
+For visual work, prefer the canonical reference implementation/assets named by the standards over recreating the look from prose or conversation memory. For troubleshooting, check the shared troubleshooting playbook before inventing a new product-local fix.
+
 ## Read order for every new Stream Deck product chat
 
 1. `RATPACK.md`
