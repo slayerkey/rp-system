@@ -37,12 +37,19 @@ body::before{
   z-index:0;
 }
 body>*{position:relative;z-index:1}
+.packrat-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:0 0 10px;
+}
 .packrat-brand{
   display:inline-flex;
   width:auto;
   align-items:center;
   gap:7px;
-  margin:0 0 10px 2px;
+  margin:0;
   padding:3px 4px;
   background:transparent;
   border:0;
@@ -71,6 +78,13 @@ body>*{position:relative;z-index:1}
   flex:0 0 18px;
   object-fit:contain;
   filter:brightness(0) saturate(100%) invert(77%) sepia(90%) saturate(1928%) hue-rotate(344deg) brightness(104%) contrast(103%);
+}
+.packrat-upgrade{
+  width:auto;
+  flex:0 0 auto;
+  padding:7px 11px;
+  white-space:nowrap;
+  font-size:10.5px;
 }
 .section,.xeneon-setup{
   background:linear-gradient(145deg,#151920,#0d1015);
@@ -189,29 +203,4 @@ button.primary:hover{
   background:var(--accent-hover);
   color:#17120a;
   box-shadow:0 0 20px rgba(255,178,30,.4);
-}
-.pro-callout{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
-  margin:0 0 10px;
-  padding:10px 12px 11px;
-  background:linear-gradient(145deg,#151920,#0d1015);
-  border:1px solid rgba(255,178,30,.28);
-  border-radius:9px;
-  text-align:center;
-  box-shadow:0 0 18px rgba(255,178,30,.055);
-}
-.pro-callout-copy{
-  color:#d9dee7;
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:.01em;
-}
-.pro-callout-button{
-  width:auto;
-  min-width:150px;
-  padding:7px 14px;
 }
