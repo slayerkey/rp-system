@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v4.mjs';
+import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v7.mjs';
 
 const core = readFileSync(resolve('tools/ship/maker_console_core.mjs'), 'utf8').replace(/\r\n?/g, '\n');
 
@@ -21,7 +21,13 @@ function check(label, source) {
     'async function deleteConfirmedExistingDraft(target)',
     "Existing ' + prod.name + ' is confirmed Draft. Deleting the stale draft and recreating it cleanly...",
     "Maker Console reports ' + protectedStatus + '. Rat Ship will not modify or delete it.",
-    'await deleteConfirmedExistingDraft(page);'
+    'await deleteConfirmedExistingDraft(page);',
+    'async function editorLooksLikePackage(target)',
+    "Existing draft reopened at package upload. Replaying the same verified package and wizard steps safely.",
+    "state.uploaded = [];",
+    "required app icon upload did not stick",
+    "Maker Console still requires an app icon after upload",
+    "288\\s*[x×]\\s*288"
   ];
 
   for (const needle of required) {

@@ -38,7 +38,7 @@ def footer(im):
 def card(d,b): d.rounded_rectangle(b,radius=26,fill=(*PANEL,245),outline=(*BORDER,255),width=2)
 
 def key(im,x,y,label,sub="",accent=ACCENT,size=142):
-    d=ImageDraw.Draw(im); card(d,(x,y,x+size,y+size)); d.rounded_rectangle((x+16,y+14,x+58,y+18),radius=2,fill=(*accent,255))
+    d=ImageDraw.Draw(im); card(d,(x,y,x+size,y+size))
     d.text((x+15,y+44),label,font=font(19),fill=(*WHITE,255))
     if sub:d.text((x+15,y+82),sub,font=font(13,False),fill=(*accent,255))
 
@@ -68,36 +68,45 @@ def hero(path):
     deck(im,labels); footer(im); save(im,path)
 
 def controls(path):
-    im=bg(); header(im,"Useful on day one.","Real Lite actions for one configured Windows display.")
+    im=bg(); header(im,"Stop reaching for monitor buttons.","Brightness becomes a Stream Deck control instead of a tiny menu under the display.")
     d=ImageDraw.Draw(im)
-    items=[("EXACT PRESETS","Put the brightness levels you actually use on dedicated keys."),
-           ("BRIGHTNESS UP / DOWN","Simple steps when you do not need an exact preset."),
-           ("STREAM DECK+ DIAL","Rotate for continuous brightness adjustment."),
-           ("ONE MONITOR","Lite stays focused. Pro owns the deeper display-control workflows.")]
+    items=[("ONE-TAP PRESETS","Put the brightness levels you actually use on dedicated keys."),
+           ("BRIGHTNESS UP / DOWN","Make a quick adjustment without opening Windows or the monitor menu."),
+           ("STREAM DECK+ DIAL","Turn a dial when you want smooth, continuous brightness control."),
+           ("ONE SIMPLE JOB","Lite stays focused on the display control almost everyone understands immediately.")]
     y=330
     for title,body in items:
         d.ellipse((135,y+7,151,y+23),fill=(*ACCENT,255)); d.text((175,y),title,font=font(27),fill=(*WHITE,255)); d.text((175,y+45),body,font=font(20,False),fill=(*MUTED,255)); y+=125
     footer(im); save(im,path)
 
 def capabilities(path):
-    im=bg(); header(im,"Capability aware by design.","DDC/CI is monitor-specific, so Lite reports what it knows instead of guessing.")
+    im=bg(); header(im,"One tap. The brightness you want.","Keep a few useful levels on your deck and stop rebuilding the same setting.")
     d=ImageDraw.Draw(im)
     for i,(state,body,color) in enumerate([
-        ("SUPPORTED","External DDC / Windows APIs expose brightness.",ACCENT),
-        ("LAPTOP PANEL","Uses the Windows internal brightness path.",ACCENT),
-        ("UNAVAILABLE","Lite reports the limitation instead of faking success.",WARN)]):
+        ("25%","A dim-room or late-night preset ready on a key.",ACCENT),
+        ("50%","An everyday level you can return to instantly.",ACCENT),
+        ("100%","A bright-room preset without touching the monitor controls.",ACCENT)]):
         y=340+i*145; card(d,(180,y,1740,y+110)); d.text((230,y+22),state,font=font(28),fill=(*color,255)); d.text((600,y+28),body,font=font(21,False),fill=(*MUTED,255))
     footer(im); save(im,path)
 
 def profiles(path):
-    im=bg(); header(im,"Starter profiles included.","Standard / MK.2, XL, Stream Deck+ and Virtual Stream Deck layouts use real plugin actions.")
-    labels=[("25%","BRIGHTNESS",ACCENT),("50%","BRIGHTNESS",ACCENT),("75%","BRIGHTNESS",ACCENT),("100%","BRIGHTNESS",ACCENT),("BRIGHT +","5%",ACCENT),
-            ("BRIGHT -","5%",ACCENT),("25%","PRESET",ACCENT),("50%","PRESET",ACCENT),("75%","PRESET",ACCENT),("100%","PRESET",ACCENT),
-            ("BRIGHT +","5%",ACCENT),("BRIGHT -","5%",ACCENT),("DIAL","PLUS",ACCENT),("ONE","MONITOR",ACCENT),("LITE","FOCUSED",ACCENT)]
-    deck(im,labels,x=500,y=305); footer(im); save(im,path)
+    im=bg(); header(im,"Brightness is free. Pro takes over the rest.","Start with the one control everyone uses. Upgrade when you want the whole display setup.")
+    d=ImageDraw.Draw(im)
+    card(d,(170,335,900,700)); card(d,(1020,335,1750,700))
+    d.text((220,390),"LITE · FREE",font=font(31),fill=(*ACCENT,255))
+    d.text((220,455),"• Brightness presets",font=font(24),fill=(*WHITE,255))
+    d.text((220,505),"• Brightness up / down",font=font(24),fill=(*WHITE,255))
+    d.text((220,555),"• Stream Deck+ dial",font=font(24),fill=(*WHITE,255))
+    d.text((220,605),"• One configured monitor",font=font(24),fill=(*WHITE,255))
+    d.text((1070,390),"PRO",font=font(31),fill=(*ACCENT,255))
+    d.text((1070,455),"• Multiple monitors + inputs",font=font(24),fill=(*WHITE,255))
+    d.text((1070,505),"• Refresh rate, resolution + HDR",font=font(24),fill=(*WHITE,255))
+    d.text((1070,555),"• Power, contrast + monitor volume",font=font(24),fill=(*WHITE,255))
+    d.text((1070,605),"• Saved whole-setup Monitor Profiles",font=font(24),fill=(*WHITE,255))
+    footer(im); save(im,path)
 
 def plus(path):
-    im=bg(); header(im,"Turn a dial. Change brightness.","Stream Deck+ gets continuous control where a dial actually makes sense.")
+    im=bg(); header(im,"Turn a dial instead of opening a menu.","Stream Deck+ makes brightness feel like a physical control again.")
     d=ImageDraw.Draw(im); card(d,(250,330,1670,690))
     d.text((335,390),"BRIGHTNESS",font=font(30),fill=(*WHITE,255)); d.line((340,510,1450,510),fill=(*WHITE,255),width=18); d.ellipse((1040,468,1124,552),fill=(*ACCENT,255))
     d.text((335,570),"Rotate for fine adjustment. Pressed keys still support exact presets.",font=font(23,False),fill=(*MUTED,255))

@@ -45,6 +45,23 @@ Transparent key art must be alpha-trimmed and contained automatically. Its trans
 
 Stream Deck hero typography must use the same deterministic font resolver and warm-studio white/orange hierarchy as the approved XENEON hero system.
 
+### Stream Deck gallery conversion rule
+
+The Stream Deck cover and gallery have different jobs. The cover earns the click. The four product-local gallery frames must sell the workflow after the click.
+
+Default Stream Deck gallery sequence:
+
+1. **Pain removed / core outcome** — show the annoying task the product eliminates and the one-sentence payoff.
+2. **Best differentiator** — show the capability that makes this meaningfully better than a basic shortcut or the Lite edition.
+3. **Concrete workflow proof** — real controls, modes, profiles, or states that demonstrate what the buyer can actually do.
+4. **High-frequency interaction or upgrade story** — dials, repeated daily use, multi-device depth, or a clear Lite→Pro comparison.
+
+Do not lead a Stream Deck gallery with implementation details such as capability parsing, API safety, DDC terminology, profile-file formats, or “starter profiles included” unless that is genuinely the primary buying reason. Those belong later in the listing, documentation, or Property Inspector.
+
+Use the canonical PackRat orange-yellow `#FFB21E` as the default marketplace accent. Green is reserved for true success/healthy/connected states and must not become the dominant gallery accent.
+
+The Maker Console may include the separate Thumbnail in its own carousel preview. Product-local Rat Art still emits exactly four gallery files and must never intentionally duplicate the cover as one of them.
+
 ## XENEON and iCUE widget products
 
 `standards/xeneon-marketplace-hero-v1.md` is the approved XENEON hero standard. For catalogued XENEON products, the hero uses the deterministic `warm-studio-v1` environment, a real `XL_H` product capture, the approved transparent XENEON Edge hardware plate, a large product name on the background monitor, and the PackRat rat/package mark in the upper-right. The approved mark is rendered at twice the original September prototype size for clearer browsing-scale brand recognition.

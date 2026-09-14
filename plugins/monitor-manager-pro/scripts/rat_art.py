@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ROOT=Path(__file__).resolve().parents[3]
 RAT=ROOT/"tools"/"art"/"assets"/"ratpack-icon-transparent.png"
 W,H=1920,960
-BG=(7,10,14); PANEL=(16,20,26); BORDER=(43,50,61); WHITE=(247,249,251); MUTED=(169,179,192); ACCENT=(43,232,106); WARN=(243,184,74)
+BG=(7,10,14); PANEL=(16,20,26); BORDER=(43,50,61); WHITE=(247,249,251); MUTED=(169,179,192); ACCENT=(255,178,30); WARN=(255,196,77)
 
 def font(size,bold=True):
     candidates=[]
@@ -38,7 +38,7 @@ def footer(im):
 def card(d,b): d.rounded_rectangle(b,radius=26,fill=(*PANEL,245),outline=(*BORDER,255),width=2)
 
 def key(im,x,y,label,sub="",accent=ACCENT,size=142):
-    d=ImageDraw.Draw(im); card(d,(x,y,x+size,y+size)); d.rounded_rectangle((x+16,y+14,x+58,y+18),radius=2,fill=(*accent,255))
+    d=ImageDraw.Draw(im); card(d,(x,y,x+size,y+size))
     d.text((x+15,y+44),label,font=font(19),fill=(*WHITE,255))
     if sub:d.text((x+15,y+82),sub,font=font(13,False),fill=(*accent,255))
 
@@ -68,36 +68,36 @@ def hero(path):
     deck(im,labels); footer(im); save(im,path)
 
 def controls(path):
-    im=bg(); header(im,"One control surface for the whole setup.","Windows display configuration, supported monitor hardware and saved Monitor Profiles.")
+    im=bg(); header(im,"Stop reaching behind your monitor.","Put the display controls you actually change on physical Stream Deck keys.")
     d=ImageDraw.Draw(im)
-    items=[("MONITOR PROFILES","Save PC, CONSOLE, WORK LAPTOP or NIGHT and restore supported state with one key."),
-           ("DISPLAY CONTROL","Resolution, Hz, HDR, orientation, primary display and Windows topology."),
-           ("HARDWARE CONTROL","Brightness, contrast, volume, power and capability-aware input switching."),
-           ("MULTI-MONITOR","Target discovered displays and orchestrate the whole supported setup.")]
+    items=[("SWITCH INPUTS","Jump between PC and console without touching the monitor buttons."),
+           ("CHANGE DISPLAY MODE","Move between high-refresh gaming and everyday display modes in one press."),
+           ("CONTROL BRIGHTNESS","Use exact levels or a dial instead of digging through the monitor menu."),
+           ("RUN MULTIPLE DISPLAYS","Target the screen you mean and keep the whole workflow on Stream Deck.")]
     y=330
     for title,body in items:
         d.ellipse((135,y+7,151,y+23),fill=(*ACCENT,255)); d.text((175,y),title,font=font(27),fill=(*WHITE,255)); d.text((175,y+45),body,font=font(20,False),fill=(*MUTED,255)); y+=125
     footer(im); save(im,path)
 
 def capabilities(path):
-    im=bg(); header(im,"Capability aware by design.","DDC/CI is monitor-specific, so Pro reports what it knows instead of guessing.")
+    im=bg(); header(im,"One press. Your setup comes back.","Save the supported monitor state you use for gaming, console, work or night.")
     d=ImageDraw.Draw(im)
     for i,(state,body,color) in enumerate([
-        ("SUPPORTED","The monitor/API explicitly exposes this control.",ACCENT),
-        ("NOT SUPPORTED","The capability data explicitly omits it.",(255,90,103)),
-        ("UNKNOWN","Windows or the monitor cannot prove support safely.",WARN)]):
+        ("PC / GAMING","Restore your preferred input, mode, brightness and display choices.",ACCENT),
+        ("CONSOLE","Switch the monitor toward the console setup without rebuilding it by hand.",ACCENT),
+        ("WORK / NIGHT","Bring back the display state you actually use for a different part of the day.",ACCENT)]):
         y=340+i*145; card(d,(180,y,1740,y+110)); d.text((230,y+22),state,font=font(28),fill=(*color,255)); d.text((600,y+28),body,font=font(21,False),fill=(*MUTED,255))
     footer(im); save(im,path)
 
 def profiles(path):
-    im=bg(); header(im,"Four real control pages included.","MONITORS, PROFILES, DISPLAY MODES and BRIGHTNESS across Standard / MK.2, XL, Plus and Virtual.")
+    im=bg(); header(im,"Stop opening Windows Display Settings.","Refresh rate, resolution, HDR, primary display and Extend / Duplicate live on your deck.")
     labels=[("MONITORS","STATUS",ACCENT),("DP","INPUT",ACCENT),("HDMI","INPUT",ACCENT),("HDR","WINDOWS",ACCENT),("PRIMARY","DISPLAY",ACCENT),
             ("PC MODE","PROFILE",ACCENT),("CONSOLE","PROFILE",ACCENT),("WORK LAPTOP","PROFILE",ACCENT),("NIGHT","PROFILE",ACCENT),("EXTEND","DISPLAY",ACCENT),
             ("165 HZ","DISPLAY",ACCENT),("1440P","RESOLUTION",ACCENT),("65%","BRIGHTNESS",ACCENT),("50%","CONTRAST",ACCENT),("50%","VOLUME",ACCENT)]
     deck(im,labels,x=500,y=305); footer(im); save(im,path)
 
 def plus(path):
-    im=bg(); header(im,"Dials where dials make sense.","Stream Deck+ controls brightness, contrast and monitor volume continuously. Inputs stay discrete.")
+    im=bg(); header(im,"Turn the controls you tweak all day.","Brightness, contrast and monitor volume stay continuous on Stream Deck+.")
     d=ImageDraw.Draw(im); card(d,(250,330,1670,690))
     d.text((335,390),"BRIGHTNESS   •   CONTRAST   •   VOLUME",font=font(30),fill=(*WHITE,255)); d.line((340,510,1450,510),fill=(*WHITE,255),width=18); d.ellipse((1040,468,1124,552),fill=(*ACCENT,255))
     d.text((335,570),"Rotate for fine adjustment. Pressed keys still support exact presets.",font=font(23,False),fill=(*MUTED,255))

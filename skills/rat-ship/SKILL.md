@@ -46,7 +46,9 @@ Do not upload the cover again as a gallery item. The ship kit must fail if the c
 
 The first gallery frame should explain the product in more detail with concise feature or value points rather than repeat the hero composition. It is the conversion frame immediately after the click, so prioritize the most important practical reasons to use or buy the product rather than low-value implementation trivia.
 
-A search/app icon is never a gallery image. Only upload `01_search_icon.png` when Maker Console exposes a dedicated icon, search icon, or app icon control. If no dedicated icon control exists, skip the standalone icon upload. Never guess by sending the icon to an unlabeled or gallery file input.
+A search/app icon is never a gallery image. Only upload `01_search_icon.png` to the dedicated icon/search/app control. Maker Console has changed this control's DOM labeling before, so detection must use the live field context, validation copy, and the 288×288 / 1:1 requirement rather than one brittle element ID. If the page says **App icon required**, the media step is not complete: do not mark it done, do not advance, and capture diagnostics instead of silently skipping the icon.
+
+The Maker Console media editor may visually include the Thumbnail as the first item in its carousel/gallery preview. That is platform presentation, not permission to upload `02_cover.png` again. Rat Ship uploads only `03_gallery_01.png` through `06_gallery_04.png` to the gallery input and records the before/after count as proof.
 
 When the gallery input supports multiple files, upload the canonical gallery sequence as one ordered FileList and verify the browser FileList order before continuing. A resumed draft with unexpected pre-existing gallery media must not be treated as proof of correct ordering.
 
@@ -96,3 +98,14 @@ Prefer the canonical local Playwright driver under `tools/ship/` for repeatable 
 Treat irreversible fields such as product ID, name, paid versus free selection, price, gallery order, and final publication state as explicit submission decisions. Verify them immediately before the final submit action.
 
 Advance to SUBMITTED only after the actual marketplace submission has occurred.
+
+
+### Maker Console self-healing draft rule
+
+A retry must recover the wizard state instead of creating more manual cleanup.
+
+- if an existing Draft reopens at the package-upload slide, reuse the exact validated package and replay package → description → details → media in the same draft
+- never create a duplicate product merely because the create wizard returned to an earlier slide
+- if a Draft reopens directly on Media, invalidate stale media/continue completion markers and re-verify required icon and thumbnail fields before continuing
+- required-field validation is authoritative; a visible `App icon required`, `Thumbnail required`, or equivalent error means the step failed even if files were uploaded elsewhere
+- do not retry an unknown state three times with identical logic; capture the page, controls, file inputs, and validation text needed to make the next retry deterministic
