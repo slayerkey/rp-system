@@ -1,5 +1,5 @@
 export const DEFAULT_GLOBAL_SETTINGS = Object.freeze({
-  intervalSeconds: 5,
+  intervalSeconds: 1,
   diagnosticSeconds: 30,
   httpSeconds: 60,
   targetSeconds: 30,
@@ -41,7 +41,7 @@ export function normalizeAccent(value) {
 export function normalizeGlobalSettings(raw = {}) {
   const source = raw && typeof raw === "object" ? raw : {};
   return {
-    intervalSeconds: clamp(source.intervalSeconds, 5, 60, DEFAULT_GLOBAL_SETTINGS.intervalSeconds),
+    intervalSeconds: clamp(source.intervalSeconds, 1, 60, DEFAULT_GLOBAL_SETTINGS.intervalSeconds),
     diagnosticSeconds: clamp(source.diagnosticSeconds, 15, 120, DEFAULT_GLOBAL_SETTINGS.diagnosticSeconds),
     httpSeconds: clamp(source.httpSeconds, 30, 300, DEFAULT_GLOBAL_SETTINGS.httpSeconds),
     targetSeconds: clamp(source.targetSeconds, 15, 300, DEFAULT_GLOBAL_SETTINGS.targetSeconds),

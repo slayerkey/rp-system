@@ -216,9 +216,9 @@ async function main() {
   try {
     const globals = await streamDeck.settings.getGlobalSettings();
     const raw = globals && typeof globals === "object" ? globals : {};
-    const migrated = Number(raw.cadenceVersion || 0) >= 1
+    const migrated = Number(raw.cadenceVersion || 0) >= 2
       ? raw
-      : { ...raw, intervalSeconds: 5, cadenceVersion: 1 };
+      : { ...raw, intervalSeconds: 1, cadenceVersion: 2 };
     monitor.updateSettings(normalizeGlobalSettings(migrated));
     if (migrated !== raw) {
       await streamDeck.settings.setGlobalSettings(migrated).catch(() => {});

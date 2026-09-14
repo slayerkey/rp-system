@@ -17,6 +17,26 @@ function Test-RatDevGitRef {
     }
 }
 
+function Test-RatDevGitAncestor {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$Ancestor,
+        [Parameter(Mandatory = $true)][string]$Descendant
+    )
+
+    $previous = $ErrorActionPreference
+    $previousExitCode = $global:LASTEXITCODE
+    $ErrorActionPreference = "Continue"
+    try {
+        & git -C $RepoRoot merge-base --is-ancestor $Ancestor $Descendant *> $null
+        return $LASTEXITCODE -eq 0
+    }
+    finally {
+        $ErrorActionPreference = $previous
+        $global:LASTEXITCODE = $previousExitCode
+    }
+}
+
 function Test-RatDevGitObject {
     param(
         [Parameter(Mandatory = $true)][string]$RepoRoot,
@@ -82,12 +102,15 @@ function Resolve-RatDevProductMetadataSource {
         return $null
     }
 
+    $localConfig = Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object "${Ref}:$sourcePath/rat-dev.json"
     $config = [PSCustomObject]@{
         type = "streamdeck-plugin"
-        plugin_dir = if ($metadata.ship_plugin_dir) { [string]$metadata.ship_plugin_dir } else { $null }
-        plugin_uuid = if ($metadata.plugin_uuid) { [string]$metadata.plugin_uuid } else { $null }
-        open_profile_on_dev = if ($metadata.PSObject.Properties.Name -contains "open_profile_on_dev") { [bool]$metadata.open_profile_on_dev } else { $null }
-        dev_profile = if ($metadata.dev_profile) { [string]$metadata.dev_profile } else { $null }
+        plugin_dir = if ($metadata.ship_plugin_dir) { [string]$metadata.ship_plugin_dir } elseif ($localConfig -and $localConfig.plugin_dir) { [string]$localConfig.plugin_dir } else { $null }
+        plugin_uuid = if ($metadata.plugin_uuid) { [string]$metadata.plugin_uuid } elseif ($localConfig -and $localConfig.plugin_uuid) { [string]$localConfig.plugin_uuid } else { $null }
+        open_profile_on_dev = if ($metadata.PSObject.Properties.Name -contains "open_profile_on_dev") { [bool]$metadata.open_profile_on_dev } elseif ($localConfig -and ($localConfig.PSObject.Properties.Name -contains "open_profile_on_dev")) { [bool]$localConfig.open_profile_on_dev } else { $null }
+        dev_profile = if ($metadata.dev_profile) { [string]$metadata.dev_profile } elseif ($localConfig -and $localConfig.dev_profile) { [string]$localConfig.dev_profile } else { $null }
+        open_dev_folder = if ($metadata.PSObject.Properties.Name -contains "open_dev_folder") { [bool]$metadata.open_dev_folder } elseif ($localConfig -and ($localConfig.PSObject.Properties.Name -contains "open_dev_folder")) { [bool]$localConfig.open_dev_folder } else { $false }
+        open_url = if ($metadata.open_url) { [string]$metadata.open_url } elseif ($localConfig -and $localConfig.open_url) { [string]$localConfig.open_url } else { $null }
     }
 
     return [PSCustomObject]@{
@@ -211,9 +234,21 @@ function Resolve-RatDevInternalProductSource {
 
     $exact = "origin/product/$Slug"
 
-    # An exact product/<slug> branch is authoritative when it actually owns the
-    # requested product. If it is absent or does not contain the product, fall
-    # back to discovery across every other product branch.
+    # Prefer an exact product branch only while it contains work that is not
+    # already fully merged into newer canonical main. If the exact branch is an
+    # ancestor of origin/main, using it would install a stale merged build.
+    if ((Test-RatDevGitRef -RepoRoot $RepoRoot -Ref $exact) -and
+        (Test-RatDevGitRef -RepoRoot $RepoRoot -Ref "origin/main") -and
+        (Test-RatDevGitAncestor -RepoRoot $RepoRoot -Ancestor $exact -Descendant "origin/main")) {
+        $mainMetadataMatch = Resolve-RatDevProductMetadataSource -RepoRoot $RepoRoot -Ref "origin/main" -Slug $Slug
+        if ($mainMetadataMatch) {
+            $mainMetadataMatch.Display = "origin/main (newer than merged $exact) via products/$Slug.json"
+            return $mainMetadataMatch
+        }
+    }
+
+    # An exact product/<slug> branch is authoritative when it actually owns
+    # newer or divergent product work.
     if (Test-RatDevGitRef -RepoRoot $RepoRoot -Ref $exact) {
         $metadataMatch = Resolve-RatDevProductMetadataSource -RepoRoot $RepoRoot -Ref $exact -Slug $Slug
         if ($metadataMatch) {

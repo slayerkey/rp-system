@@ -7,6 +7,7 @@ const pluginSource = fs.readFileSync("src/plugin.js", "utf8");
 const probesSource = fs.readFileSync("src/probes.js", "utf8");
 const renderSource = fs.readFileSync("src/render.js", "utf8");
 const inspectorSource = fs.readFileSync("ui/inspector.js", "utf8");
+const inspectorHtml = fs.readFileSync("ui/inspector.html", "utf8");
 const submission = JSON.parse(fs.readFileSync("submission.json", "utf8"));
 const product = JSON.parse(fs.readFileSync("../../products/internet-health-pro.json", "utf8"));
 
@@ -91,11 +92,11 @@ test("physical key graphs use a dedicated 30 second visual window", () => {
 });
 
 
-test("pre-release monitoring cadence migrates to five seconds", () => {
-  assert.match(pluginSource, /intervalSeconds: 5, cadenceVersion: 1/);
+test("pre-release monitoring cadence migrates to one second", () => {
+  assert.match(pluginSource, /intervalSeconds: 1, cadenceVersion: 2/);
   assert.match(pluginSource, /setGlobalSettings\(migrated\)/);
-  assert.match(inspectorSource, /intervalSeconds: 5/);
-  assert.match(inspectorSource, /number\("intervalSeconds", 5\)/);
+  assert.match(inspectorSource, /intervalSeconds: 1/);
+  assert.match(inspectorSource, /number\("intervalSeconds", 1\)/);
 });
 
 test("speed key gives download and upload equal visual hierarchy", () => {
@@ -128,4 +129,22 @@ test("bundled major-model profiles are declared, generated and deterministic arc
     assert.equal(buffer.subarray(0, 2).toString("ascii"), "PK");
     assert.equal(file, entry.Name.split("/").pop() + ".streamDeckProfile");
   }
+});
+
+
+test("one second is the default cadence while five seconds remains available", () => {
+  assert.match(inspectorSource, /const allowed = \[1,5,10,15,30,60\]/);
+  assert.match(inspectorHtml, /value="1">1 second \(default\)<\/option>/);
+  assert.match(inspectorHtml, /value="5">5 seconds<\/option>/);
+  assert.match(inspectorHtml, /1 second is the default/);
+});
+
+
+test("outage key uses a clipped-safe dedicated layout", () => {
+  assert.match(renderSource, /function outageSvg/);
+  assert.match(renderSource, /font-size="15\.5"[^>]*>OUTAGE<\/text>/);
+  assert.match(renderSource, /fitFont\(secondary, 14, 12\.5, 11\)/);
+  assert.match(renderSource, /secondary = "ACTIVE"/);
+  assert.match(renderSource, /secondary = "LAST 24H"/);
+  assert.match(renderSource, /return outageSvg\(primary, secondary, state, settings\.accent, snapshot\.samples\)/);
 });
