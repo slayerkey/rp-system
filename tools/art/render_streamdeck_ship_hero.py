@@ -4,11 +4,15 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from render_streamdeck_product_hero import render
+
+ROOT = Path(__file__).resolve().parents[2]
+SVG_RENDERER = ROOT / "tools" / "ship" / "render_svg_icon.mjs"
 
 W = H = 288
 BG = (8, 10, 14, 255)
@@ -85,7 +89,7 @@ def wrap_action_name(name: str) -> tuple[str, str]:
     return best[2], best[3]
 
 
-def resolve_raster(plugin_dir: Path, ref: str | None) -> Path | None:
+def resolve_asset(plugin_dir: Path, ref: str | None) -> Path | None:
     if not ref:
         return None
     normalized = str(ref).replace("\\", "/").lstrip("/")
@@ -98,12 +102,43 @@ def resolve_raster(plugin_dir: Path, ref: str | None) -> Path | None:
                 Path(str(base) + "@2x.png"),
                 Path(str(base) + ".jpg"),
                 Path(str(base) + ".jpeg"),
+                Path(str(base) + ".webp"),
+                Path(str(base) + ".svg"),
+                Path(str(base) + "@2x.svg"),
             ]
         )
     for candidate in candidates:
-        if candidate.is_file() and candidate.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+        if candidate.is_file() and candidate.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".svg"}:
             return candidate
     return None
+
+
+def rasterize_svg(svg_path: Path, cache_dir: Path) -> Path:
+    if not SVG_RENDERER.is_file():
+        fail(f"canonical Stream Deck SVG renderer missing: {SVG_RENDERER}")
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    safe = svg_path.name.replace("@", "_at_").replace(".", "_")
+    target = cache_dir / f"{safe}.png"
+    if target.is_file():
+        return target
+    result = subprocess.run(
+        ["node", str(SVG_RENDERER), str(svg_path), str(target)],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0 or not target.is_file():
+        detail = (result.stderr or result.stdout or "").strip()
+        fail(f"could not rasterize Stream Deck SVG key asset {svg_path}: {detail}")
+    return target
+
+
+def raster_asset(asset: Path | None, cache_dir: Path) -> Path | None:
+    if asset is None:
+        return None
+    if asset.suffix.lower() == ".svg":
+        return rasterize_svg(asset, cache_dir)
+    return asset
 
 
 def normalize_face(image: Image.Image) -> Image.Image:
@@ -154,20 +189,32 @@ def fallback_face(name: str, icon_path: Path | None = None) -> Image.Image:
     return image
 
 
-def action_face(plugin_dir: Path, action: dict) -> tuple[Image.Image, str]:
+def action_face(plugin_dir: Path, action: dict, cache_dir: Path) -> tuple[Image.Image, str]:
     states = action.get("States") if isinstance(action.get("States"), list) else []
     state_ref = None
     if states and isinstance(states[0], dict):
         state_ref = states[0].get("Image")
-    state_path = resolve_raster(plugin_dir, state_ref)
-    if state_path:
+
+    state_asset = resolve_asset(plugin_dir, state_ref)
+    if state_asset and state_asset.suffix.lower() != ".svg":
         try:
-            return normalize_face(Image.open(state_path)), f"state:{state_path.name}"
+            return normalize_face(Image.open(state_asset)), f"state-raster:{state_asset.name}"
         except Exception:
             pass
 
-    icon_path = resolve_raster(plugin_dir, action.get("Icon"))
-    return fallback_face(str(action.get("Name") or "Action"), icon_path), "fallback"
+    # Modern PackRat actions often author their canonical glyph as SVG while the
+    # real key value is painted dynamically at runtime. Preserve that glyph in
+    # Marketplace heroes instead of degrading to a text-only placeholder.
+    icon_asset = resolve_asset(plugin_dir, action.get("Icon"))
+    visual_asset = icon_asset or state_asset
+    visual_path = raster_asset(visual_asset, cache_dir)
+    if visual_path:
+        return (
+            fallback_face(str(action.get("Name") or "Action"), visual_path),
+            f"icon-{visual_asset.suffix.lower().lstrip('.')}:{visual_asset.name}",
+        )
+
+    return fallback_face(str(action.get("Name") or "Action"), None), "text-fallback"
 
 
 def render_ship_hero(
@@ -194,6 +241,7 @@ def render_ship_hero(
 
     key_root = out.parent / "ship-hero-keys"
     key_root.mkdir(parents=True, exist_ok=True)
+    svg_cache = out.parent / "ship-hero-svg-cache"
 
     sources: list[str] = []
     faces: list[Image.Image] = []
@@ -213,12 +261,19 @@ def render_ship_hero(
         for action in actions[:15]:
             if not isinstance(action, dict):
                 continue
-            face, source = action_face(plugin_dir, action)
+            face, source = action_face(plugin_dir, action, svg_cache)
             faces.append(face)
             sources.append(source)
 
         if not faces:
             fail("Stream Deck hero could not derive any action faces")
+
+        text_only = [source for source in sources if source == "text-fallback"]
+        if text_only:
+            fail(
+                "Stream Deck hero refused text-only key placeholders. "
+                "Provide real action Icon/State art or product Rat Art key faces."
+            )
 
         while len(faces) < 15:
             faces.append(blank_face())
