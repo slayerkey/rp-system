@@ -1,4 +1,4 @@
-let ws, uuid, actionInfo={}, settings={}, snapshot=null;
+let ws, uuid, actionInfo={}, settings={}, snapshot=null, inspectTimer=null, responseTimer=null;
 const $=id=>document.getElementById(id);
 
 window.connectElgatoStreamDeckSocket=(port,inUUID,event,info,rawActionInfo)=>{
@@ -6,23 +6,49 @@ window.connectElgatoStreamDeckSocket=(port,inUUID,event,info,rawActionInfo)=>{
   ws=new WebSocket(`ws://127.0.0.1:${port}`);
   ws.onopen=()=>{
     ws.send(JSON.stringify({event,uuid}));
-    ws.send(JSON.stringify({event:"getSettings",context:actionInfo.context}));
-    sendPlugin({type:"get-wireless-snapshot"});
+    ws.send(JSON.stringify({event:"getSettings",action:actionInfo.action,context:actionInfo.context}));
+    requestSnapshot();
+    setTimeout(requestSnapshot,250);
+    clearInterval(inspectTimer);
+    inspectTimer=setInterval(requestSnapshot,1500);
+  };
+  ws.onclose=()=>{
+    clearInterval(inspectTimer);
+    clearTimeout(responseTimer);
+    inspectTimer=null;
+    responseTimer=null;
   };
   ws.onmessage=e=>{
     const msg=JSON.parse(e.data);
     if(msg.event==="didReceiveSettings"){settings=msg.payload?.settings||{}; render();}
-    if(msg.event==="sendToPropertyInspector" && msg.payload?.type==="wireless-snapshot"){snapshot=msg.payload; render();}
+    if(msg.event==="sendToPropertyInspector" && msg.payload?.type==="wireless-snapshot"){
+      snapshot=msg.payload;
+      clearTimeout(responseTimer);
+      render();
+    }
   };
 };
 
 function sendPlugin(payload){
-  ws?.send(JSON.stringify({
+  if(ws?.readyState!==WebSocket.OPEN)return false;
+  ws.send(JSON.stringify({
     event:"sendToPlugin",
     action:actionInfo.action,
     context:actionInfo.context,
     payload
   }));
+  return true;
+}
+function requestSnapshot(){
+  if(!sendPlugin({type:"get-wireless-snapshot"}))return;
+  clearTimeout(responseTimer);
+  if(!snapshot){
+    responseTimer=setTimeout(()=>{
+      if(snapshot)return;
+      $("status").textContent="Wireless plugin is not responding";
+      $("status").className="status bad";
+    },4000);
+  }
 }
 function save(patch){
   settings={...settings,...patch};
