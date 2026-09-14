@@ -15,8 +15,7 @@
       "States": [
         {
           "Image": "imgs/actions/record/key",
-          "ShowTitle": true,
-          "TitleAlignment": "middle"
+          "ShowTitle": false
         }
       ],
       "SupportedInKeyLogicActions": false
@@ -35,9 +34,7 @@
       "States": [
         {
           "Image": "imgs/actions/stop/key",
-          "ShowTitle": true,
-          "TitleAlignment": "bottom",
-          "FontSize": 10
+          "ShowTitle": false
         }
       ],
       "SupportedInKeyLogicActions": false
@@ -56,8 +53,7 @@
       "States": [
         {
           "Image": "imgs/actions/replay/key",
-          "ShowTitle": true,
-          "TitleAlignment": "middle"
+          "ShowTitle": false
         }
       ],
       "SupportedInKeyLogicActions": false
