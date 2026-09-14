@@ -71,11 +71,15 @@ test("hardware-key typography prioritizes physical readability", () => {
   assert.match(renderSource, /label: "SPEED"/);
 });
 
-test("property inspector uses the PI UUID context so settings and commands reach Stream Deck", () => {
+test("property inspector uses Monitor Manager's proven PI transport pattern", () => {
   assert.match(inspectorSource, /context: uiUuid/);
-  assert.doesNotMatch(inspectorSource, /actionInfo\.context/);
+  assert.match(inspectorSource, /actionContext = String\(actionInfo\.context \|\| ""\)/);
+  assert.doesNotMatch(inspectorSource, /context: actionContext/);
   assert.match(inspectorSource, /setInterval\(requestState, 1500\)/);
   assert.match(inspectorSource, /setSaveStatus\("Saved"\)/);
+  assert.match(pluginSource, /streamDeck\.ui\.onSendToPlugin/);
+  assert.match(pluginSource, /streamDeck\.ui\.sendToPropertyInspector/);
+  assert.doesNotMatch(pluginSource, /record\.action\.sendToPropertyInspector/);
 });
 
 
