@@ -152,15 +152,15 @@ test("wireless inspector does not block USB devices when Bluetooth is unavailabl
 });
 
 
-test("Property Inspector state is sent through the concrete action context",async()=>{
+test("Property Inspector state is requested per action and sent through the supported UI command",async()=>{
   const actions=await readFile("src/actions.ts","utf8");
   const runtime=await readFile("src/runtime.ts","utf8");
   const inspector=await readFile("ui/inspector.js","utf8");
   assert.match(actions,/onPropertyInspectorDidAppear/);
-  assert.match(actions,/ev\.action\.sendToPropertyInspector\(await this\.runtime\.inspectorPayload\(\)\)/);
+  assert.match(actions,/streamDeck\.ui\.sendToPropertyInspector\(await this\.runtime\.inspectorPayload\(\)\)/);
   assert.match(actions,/payload\.type === "get-wireless-snapshot"[\s\S]*sendToPropertyInspector/);
   assert.match(runtime,/inspectorPayload\(\)/);
-  assert.doesNotMatch(runtime,/streamDeck\.ui\.sendToPropertyInspector/);
+  assert.doesNotMatch(runtime,/sendInspector\(\)/);
   assert.match(inspector,/setInterval\(requestSnapshot,1500\)/);
   assert.match(inspector,/Wireless plugin is not responding/);
 });
