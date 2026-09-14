@@ -89,7 +89,7 @@
   $("timelineNext").addEventListener("click",()=>{timelinePage+=1;renderTimeline();});
   if(pro){
     $("captureMouseMovement").addEventListener("change",()=>saveSettings({captureMouseMovement:$("captureMouseMovement").checked}));
-    $("macroSelect").addEventListener("change",()=>{const macroId=$("macroSelect").value;settings={...settings,macroId,followLatest:false};if(state)state={...state,settings:{...(state.settings||{}),macroId,followLatest:false}};command("selectMacro",{macroId});});
+    $("macroSelect").addEventListener("change",()=>{const macroId=$("macroSelect").value;settings={...settings,macroId,autoLatest:false};if(state)state={...state,settings:{...(state.settings||{}),macroId,autoLatest:false}};command("selectMacro",{macroId});});
     $("renameMacro").addEventListener("click",()=>{if(!state?.macro)return;const name=prompt("Rename macro",state.macro.name||"");if(name?.trim()){const macro={...state.macro,name:name.trim()};command("saveMacro",{macroId:macro.id,macro});}});
     $("duplicateMacro").addEventListener("click",()=>command("duplicateMacro",{macroId:$("macroSelect").value}));
     $("deleteMacro").addEventListener("click",()=>{if(confirm("Delete this macro from the local library?"))command("deleteMacro",{macroId:$("macroSelect").value});});
