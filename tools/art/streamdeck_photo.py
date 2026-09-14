@@ -298,7 +298,11 @@ def fit_key_art(
         canvas.alpha_composite(fitted, ((target_w - fitted.width) // 2, (target_h - fitted.height) // 2))
         return canvas
 
-    fitted = ImageOps.fit(src, size, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+    # Full key-face images are authored for the entire physical LCD. The
+    # photographed device foreshortens a square key into a wider/shorter LCD
+    # shape, so preserve all source pixels and let the photo geometry provide
+    # that perspective compression. Cropping here would cut real top/bottom UI.
+    fitted = src.resize(size, Image.Resampling.LANCZOS)
     canvas.alpha_composite(fitted)
     return canvas
 
