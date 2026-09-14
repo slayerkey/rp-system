@@ -8,6 +8,7 @@ const OUT = path.join(ROOT, "out");
 const ASSETS = path.join(ROOT, "assets");
 const UI = path.join(ROOT, "ui");
 const BACKEND = path.join(ROOT, "scripts", "windows-settings-backend.ps1");
+const PACKRAT_LOGO = path.resolve(ROOT, "..", "..", "..", "tools", "art", "assets", "ratpack-icon-transparent.png");
 const LITE_PRO_MAP = path.resolve(ROOT, "..", "..", "lite-pro-map.json");
 const PRO_MARKETPLACE_URL = await resolveProMarketplaceUrl();
 
@@ -74,6 +75,7 @@ async function assemble(flavor) {
   await mkdir(path.join(plugin, "profiles"), { recursive: true });
 
   await copyFile(BACKEND, path.join(plugin, "bin", "windows-settings-backend.ps1"));
+  await copyFile(PACKRAT_LOGO, path.join(plugin, "ui", "packrat-icon.png"));
   await copyFile(path.join(ASSETS, "marketplace.png"), path.join(plugin, "imgs", "plugin", "marketplace.png"));
   await copyFile(path.join(ASSETS, "marketplace@2x.png"), path.join(plugin, "imgs", "plugin", "marketplace@2x.png"));
   for (const file of ["config.html", "pi.css", "pi.js"]) {
@@ -199,7 +201,7 @@ function actionDef(category, name, uuid, tooltip) {
       Image: "imgs/actions/common/key",
       TitleAlignment: "middle",
       FontSize: 14,
-      ShowTitle: true
+      ShowTitle: false
     }]
   };
 }
@@ -329,7 +331,7 @@ function pluginAction(flavor, kind, name, settings, seed) {
     UUID: ACTIONS[flavor][kind],
     Settings: settings,
     State: 0,
-    States: [{ Title: "", ShowTitle: true, TitleAlignment: "middle", FontSize: 14 }]
+    States: [{ Title: "", ShowTitle: false, TitleAlignment: "middle", FontSize: 14 }]
   };
 }
 
@@ -450,13 +452,14 @@ function iconSvg() {
 
 function keySvg() {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
-    <rect width="144" height="144" rx="24" fill="#0f1218"/>
-    <rect x="4" y="4" width="136" height="136" rx="21" fill="none" stroke="#2c333d" stroke-width="3"/>
-    <g fill="#7f8997" opacity=".32">
-      <rect x="112" y="112" width="8" height="8" rx="1"/>
-      <rect x="123" y="112" width="8" height="8" rx="1"/>
-      <rect x="112" y="123" width="8" height="8" rx="1"/>
-      <rect x="123" y="123" width="8" height="8" rx="1"/>
+    <rect width="144" height="144" rx="24" fill="#080A0E"/>
+    <rect x="4" y="4" width="136" height="136" rx="21" fill="none" stroke="#303640" stroke-width="3"/>
+    <path d="M22 12h100" stroke="#FFB21E" stroke-width="4" stroke-linecap="round"/>
+    <g fill="none" stroke="#F5F7FB" stroke-width="5" stroke-linejoin="round">
+      <rect x="49" y="39" width="19" height="19" rx="3"/>
+      <rect x="76" y="39" width="19" height="19" rx="3"/>
+      <rect x="49" y="66" width="19" height="19" rx="3"/>
+      <rect x="76" y="66" width="19" height="19" rx="3"/>
     </g>
   </svg>`;
 }
