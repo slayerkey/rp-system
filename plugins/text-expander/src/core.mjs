@@ -182,5 +182,9 @@ export function renderSnippet(content, {
 
 export function chooseInsertionMode(requestedMode, text) {
   if (requestedMode === "unicode" || requestedMode === "clipboard") return requestedMode;
-  return String(text).length > 2048 ? "clipboard" : "unicode";
+  const value = String(text);
+  // Smart mode should preserve authored text, not reinterpret line breaks/tabs
+  // as navigation or submit keys in chat/browser fields. Clipboard paste is the
+  // safer default for structured text and for large payloads.
+  return value.length > 2048 || /[\r\n\t]/.test(value) ? "clipboard" : "unicode";
 }
