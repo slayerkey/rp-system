@@ -14,6 +14,7 @@ const uiOut = resolve(plugin, "ui");
 const nativeOut = resolve(plugin, "native", "telemetry");
 const pmOut = resolve(plugin, "third_party", "presentmon");
 const licensesOut = resolve(plugin, "licenses");
+const setupOut = resolve(plugin, "setup");
 
 await rm(bin, { recursive: true, force: true });
 await rm(imgs, { recursive: true, force: true });
@@ -21,7 +22,8 @@ await rm(uiOut, { recursive: true, force: true });
 await rm(nativeOut, { recursive: true, force: true });
 await rm(pmOut, { recursive: true, force: true });
 await rm(licensesOut, { recursive: true, force: true });
-for (const dir of [bin, imgs, uiOut, nativeOut, pmOut, licensesOut]) await mkdir(dir, { recursive: true });
+await rm(setupOut, { recursive: true, force: true });
+for (const dir of [bin, imgs, uiOut, nativeOut, pmOut, licensesOut, setupOut]) await mkdir(dir, { recursive: true });
 
 for (const name of ["inspector.html", "inspector.css", "inspector.js", "sdpi-components.js"]) {
   await cp(resolve(root, "ui", name), resolve(uiOut, name));
@@ -31,6 +33,7 @@ await cp(resolve(root, "licenses", "LibreHardwareMonitor-MPL-2.0.txt"), resolve(
 await cp(resolve(root, "licenses", "LibreHardwareMonitor-THIRD-PARTY-NOTICES.txt"), resolve(licensesOut, "LibreHardwareMonitor-THIRD-PARTY-NOTICES.txt"));
 await cp(resolve(root, "licenses", "PresentMon-MIT-v2.5.1.txt"), resolve(licensesOut, "PresentMon-MIT-v2.5.1.txt"));
 await cp(resolve(root, "licenses", "SDPI-Components-MIT.txt"), resolve(licensesOut, "SDPI-Components-MIT.txt"));
+await cp(resolve(root, "setup", "enable-fps-access.ps1"), resolve(setupOut, "enable-fps-access.ps1"));
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, { cwd: root, stdio: "inherit", windowsHide: true, ...options });
