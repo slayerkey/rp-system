@@ -113,8 +113,15 @@ function Invoke-CanonicalStreamDeckHero {
 
     try {
         $hero = Join-Path $heroWork "02_cover.png"
+        $ratArtKeys = Join-Path $Target "rat-art-keys"
         Write-Host "Local Rat Ship plugin: render canonical orange desk hero..." -ForegroundColor DarkGray
-        & python $renderer --product $ProductSlug --plugin-dir $PluginDirectory --submission $SubmissionFile --out $hero | Out-Host
+        if (Test-Path $ratArtKeys -PathType Container) {
+            Write-Host "Local Rat Ship plugin: using product Rat Art key faces for hero fidelity..." -ForegroundColor DarkGray
+            & python $renderer --product $ProductSlug --plugin-dir $PluginDirectory --submission $SubmissionFile --out $hero --keys-dir $ratArtKeys | Out-Host
+        }
+        else {
+            & python $renderer --product $ProductSlug --plugin-dir $PluginDirectory --submission $SubmissionFile --out $hero | Out-Host
+        }
         if ($LASTEXITCODE -ne 0) {
             throw "Canonical Stream Deck hero renderer failed with exit code $LASTEXITCODE."
         }
