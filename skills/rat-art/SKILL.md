@@ -62,6 +62,20 @@ Use the canonical PackRat orange-yellow `#FFB21E` as the default marketplace acc
 
 The Maker Console may include the separate Thumbnail in its own carousel preview. Product-local Rat Art still emits exactly four gallery files and must never intentionally duplicate the cover as one of them.
 
+### Stream Deck proof-first art rule
+
+Marketplace art must show the thing the buyer is actually getting, not merely a themed composition.
+
+- use the real shipping key faces, representative runtime-rendered key states, Property Inspector controls, profiles, graphs, or workflow states that prove the product
+- do not fill galleries with decorative inserts, generic symbols, or unrelated mock controls just because space is available
+- if a graph/history view is a primary selling point, show a deterministic representative populated state so the customer can see the graph; an empty graph is not useful product proof
+- if a product's value is visual state/readability on Stream Deck, include that state prominently instead of making the customer infer it from prose
+- representative fixtures must remain truthful to the shipping product; do not fabricate features, unsupported values, or hardware evidence
+- key art used in Rat Art must come from the same canonical assets/runtime renderer used by the shipping plugin so marketing cannot drift from hardware
+- action/category icons are not substitutes for hardware key faces in a gallery that is supposed to demonstrate the Stream Deck experience
+
+Before accepting a Stream Deck gallery, ask: **could a customer understand what changes on their Stream Deck from these four frames alone?** If not, replace decorative content with product proof.
+
 ## XENEON and iCUE widget products
 
 `standards/xeneon-marketplace-hero-v1.md` is the approved XENEON hero standard. For catalogued XENEON products, the hero uses the deterministic `warm-studio-v1` environment, a real `XL_H` product capture, the approved transparent XENEON Edge hardware plate, a large product name on the background monitor, and the PackRat rat/package mark in the upper-right. The approved mark is rendered at twice the original September prototype size for clearer browsing-scale brand recognition.
@@ -109,6 +123,8 @@ All customer-facing Rat Art prose must be laid out inside explicit bounding boxe
 - inspect gallery frames at 480×240, 320×160, and 240×120; if text becomes decorative noise instead of useful information, simplify the layout or increase the content scale
 
 This rule exists specifically to prevent text from crossing card boundaries or becoming unreadable after Marketplace downsizing.
+
+For Stream Deck marketplace frames, reduced-size review is a release gate rather than a courtesy. Inspect the actual rendered frame at 480×240, 320×160, and 240×120. Text that technically fits at 1920×960 but becomes unreadable, overlaps a divider/card, or turns into decorative noise at these sizes must be enlarged, shortened, or removed. Prefer using available empty space to make fewer words larger.
 
 ## Required preflight
 
