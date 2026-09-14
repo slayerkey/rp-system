@@ -298,5 +298,5 @@ test("Lite consumes the canonical PackRat visual system", async () => {
   assert.match(html,/PackRat ↗/);
   assert.match(visuals,/setImage/);
   assert.match(visuals,/stroke="#fff"/);
-  assert.match(visuals,/#FFB21E/);
+  assert.doesNotMatch(visuals,/#FFB21E/i);
 });

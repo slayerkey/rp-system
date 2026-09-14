@@ -1,5 +1,3 @@
-export const ACCENT="#FFB21E";
-
 function escapeXml(value:string):string{
   return value.replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"}[c]??c));
 }
