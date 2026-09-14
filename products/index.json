@@ -803,7 +803,7 @@
       "id": "windows-settings-manager-lite",
       "name": "Windows Settings Manager Lite",
       "type": "plugin",
-      "status": "testing",
+      "status": "qa_passed",
       "price_usd": 0,
       "version": "0.1.0.0"
     },
