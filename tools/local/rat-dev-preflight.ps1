@@ -227,7 +227,7 @@ if (-not (Test-Path $Worktree)) {
 # a running native executable inside this checkout it will pause that plugin just
 # before the build so Windows can release the executable file lock.
 if (Test-ReusableCheckout -Config $config) {
-    Write-Host "Existing Rat Dev checkout is reusable. Native helpers will be paused automatically if Windows has them locked." -ForegroundColor DarkGray
+    Write-Host "Existing Rat Dev checkout is reusable. Continuing without stale-checkout cleanup." -ForegroundColor DarkGray
     exit 0
 }
 
