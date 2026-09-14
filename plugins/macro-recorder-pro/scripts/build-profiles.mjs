@@ -13,20 +13,6 @@ const PREFIX="com.packrat.macro-recorder-pro";
 function uuid(seed){const h=createHash("sha256").update(seed).digest("hex").slice(0,32).split("");h[12]="4";h[16]=["8","9","a","b"][parseInt(h[16],16)%4];return `${h.slice(0,8).join("")}-${h.slice(8,12).join("")}-${h.slice(12,16).join("")}-${h.slice(16,20).join("")}-${h.slice(20).join("")}`.toUpperCase();}
 function folder(id){const c=(id.replace(/-/g,"")+"000").match(/.{5}/g)||[];return c.map(v=>parseInt(v,16).toString(32).padStart(4,"0")).join("").slice(0,26).toUpperCase().replace(/V/g,"W").replace(/U/g,"V")+"Z";}
 function act(seed,kind,name,settings={}){return {ActionID:uuid("action:"+seed),LinkedTitle:false,Name:name,UUID:`${PREFIX}.${kind}`,Settings:settings,State:0,States:[{Title:"",ShowTitle:false,TitleAlignment:"middle",TitleColor:"#FFFFFF",FontFamily:"Arial",FontSize:11,FontStyle:"Regular",FontUnderline:false}]};}
-function macro(id,name,events){return {schema:1,id,name,createdAt:"2026-09-12T00:00:00.000Z",updatedAt:"2026-09-12T00:00:00.000Z",durationMs:events.reduce((s,e)=>s+e.delayMs,0),events};}
-function clickPair(delay=70){return [{type:"mouseDown",delayMs:delay,button:"left",x:960,y:540,relX:.5,relY:.5},{type:"mouseUp",delayMs:45,button:"left",x:960,y:540,relX:.5,relY:.5}];}
-function replay(seed,name,m,extra={}){return act(seed,"replay",name,{seedMacro:m,...extra});}
-
-const examples={
- rapidClick:macro("starter-rapid-click","Rapid Left Click",Array.from({length:8},()=>clickPair(65)).flat()),
- doubleClick:macro("starter-double-click","Double Click",[...clickPair(60),...clickPair(90)]),
- scrollBurst:macro("starter-scroll-burst","Scroll Burst",[
-  {type:"wheel",delayMs:80,x:960,y:540,relX:.5,relY:.5,delta:-120,horizontal:false},
-  {type:"wheel",delayMs:90,x:960,y:540,relX:.5,relY:.5,delta:-120,horizontal:false},
-  {type:"wheel",delayMs:90,x:960,y:540,relX:.5,relY:.5,delta:-120,horizontal:false}
- ])
-};
-
 function proPages(){return [{label:"MACROS",actions:{
  "0,0":act("p-rec","record","Record"),
  "1,0":act("p-play","replay","Play",{autoLatest:true}),
