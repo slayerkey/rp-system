@@ -154,6 +154,8 @@ QA: `skills/rat-qa/SKILL.md`
 
 Ship: `skills/rat-ship/SKILL.md`
 
+Stream Deck work: `STREAMDECK.md`, `platforms/streamdeck.md`, and `docs/STREAMDECK_TROUBLESHOOTING_PLAYBOOK.md`
+
 XENEON or iCUE work: `skills/icue-widget-builder/SKILL.md`, `platforms/icue-xeneon.md`, and `docs/XENEON_TROUBLESHOOTING_PLAYBOOK.md`
 
 Fresh chat acceptance: `docs/FRESH_CHAT_ACCEPTANCE.md`
