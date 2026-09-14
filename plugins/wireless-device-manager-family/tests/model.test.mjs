@@ -98,6 +98,8 @@ test("removed devices become unpaired and stale telemetry/control is hidden",()=
   assert.equal(removed?.connected,false);
   assert.equal(removed?.capabilities.CONNECT,false);
   assert.equal(removed?.capabilities.BATTERY,false);
+  assert.equal(removed?.batteryObservedAt,null);
+  assert.equal(removed?.batterySource,null);
   assert.match(statusLabel(removed),/UNPAIRED/);
 });
 
