@@ -4,6 +4,17 @@ on:
   push:
     branches:
       - product/monitor-manager-pro
+      - main
+    paths:
+      - 'plugins/monitor-manager-pro/**'
+      - 'plugins/monitor-manager-lite/src/runtime.ts'
+      - 'plugins/_shared/monitor-manager/**'
+      - 'products/monitor-manager-pro.json'
+      - 'products/index.json'
+      - 'products/lite-pro-map.json'
+      - 'tools/art/**'
+      - 'tools/local/rat-ship-plugin.ps1'
+      - '.github/workflows/monitor-manager-pro-ci.yml'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
@@ -110,6 +121,11 @@ jobs:
           )
           $missing = @($required | Where-Object { -not (Test-Path (Join-Path $dest $_)) })
           if ($missing.Count) { throw "Canonical Pro ship kit is incomplete: $($missing -join ', ')" }
+          $review = Join-Path $PWD 'plugins\monitor-manager-pro\dist\ship-marketplace'
+          New-Item -ItemType Directory -Force -Path $review | Out-Null
+          foreach ($name in @('01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png')) {
+            Copy-Item (Join-Path $dest $name) (Join-Path $review $name) -Force
+          }
           Write-Host 'MONITOR MANAGER PRO RAT SHIP KIT PASS'
 
       - name: Upload release candidate
@@ -119,4 +135,5 @@ jobs:
           path: |
             plugins/monitor-manager-pro/dist/*.streamDeckPlugin
             plugins/monitor-manager-pro/dist/marketplace/*.png
+            plugins/monitor-manager-pro/dist/ship-marketplace/*.png
           if-no-files-found: error
