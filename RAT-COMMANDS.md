@@ -151,7 +151,8 @@ Rat Dev:
 12. Attempts to restore the previous known good plugin if activation fails.
 13. Saves successful deployment identity under `out\dev\state\<slug>.json`.
 14. Prints the exact product version, repository, source branch, full source commit, plugin UUID, plugin path, link status and restart status.
-15. Prints bundled profile names and the profile folder when profiles exist.
+15. Prints bundled profile names when profiles exist.
+16. Opens the preferred bundled `.streamDeckProfile` for import when the product opts in, or by default when bundled profiles exist and the product has not explicitly opted out.
 
 A successful run therefore gives an unambiguous answer to “which build am I actually running?”
 
@@ -169,7 +170,7 @@ Link:              verified (CLI success)
 Restart:           verified (CLI success)
 ```
 
-Development linking and packaged Marketplace installation are intentionally described separately. A dev link does not guarantee the same profile auto install behavior as a normal package installation. Rat Dev prints the bundled profile folder so this boundary is explicit instead of appearing to be an installation failure.
+Development linking and packaged Marketplace installation are intentionally described separately. For bundled profiles, Rat Dev now opens the preferred `.streamDeckProfile` after a successful link so Windows/Stream Deck can present the normal Install Profile flow. Products can set `open_profile_on_dev` or `dev_profile` in canonical metadata or `rat-dev.json` to override that behavior.
 
 See `docs/RAT-DEV-RELIABILITY.md` for the full external lifecycle contract and failure behavior.
 
@@ -187,7 +188,9 @@ Rat Dev refuses to guess when an unregistered source root contains multiple top-
 
 Products sourced from RatPack itself keep the established internal worktree path in `tools/local/rat-dev.ps1`.
 
-For pre-merge product work, Rat Dev prefers an exact `origin/product/<slug>` branch when one exists. Lite/Pro families may also share a family branch such as `origin/product/macro-recorder`; Rat Dev discovers that branch by verifying which product branch actually contains `plugins/<slug>` or `widgets/_src/<slug>`. If multiple unrelated product branches contain the same slug, resolution fails closed instead of guessing.
+For pre-merge product work, Rat Dev prefers an exact `origin/product/<slug>` branch when it contains newer or divergent work. If that exact product branch is already fully merged and is merely an ancestor of newer `origin/main`, Rat Dev uses `origin/main` instead so a stale product ref cannot install an older build. Lite/Pro families may also share a family branch such as `origin/product/macro-recorder`; Rat Dev discovers that branch by verifying which product branch actually contains `plugins/<slug>` or `widgets/_src/<slug>`. If multiple unrelated product branches contain the same slug, resolution fails closed instead of guessing.
+
+For internal products, canonical product metadata and `plugins/<source>/rat-dev.json` are merged for development-only behavior such as preferred profiles, profile opening, plugin directories, and local inspection folders. Product metadata wins when both explicitly define the same field.
 
 Missing `rat-dev.json` files are treated as normal probes for internal products, so a pre-merge product can still be built by source inference when the plugin directory and manifest are unambiguous.
 
