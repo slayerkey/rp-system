@@ -79,6 +79,63 @@ function Invoke-RatArtUtf8Safe {
     }
 }
 
+function Ensure-StreamDeckHeroRuntime {
+    Require-Command "python" "Install Python 3.11 or newer for canonical Stream Deck marketplace art."
+
+    & python -c "import PIL" *> $null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Installing the canonical Rat Art Pillow runtime once..." -ForegroundColor Cyan
+        & python -m pip install --disable-pip-version-check "Pillow==12.3.0" | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not install Pillow for canonical Stream Deck marketplace art."
+        }
+    }
+}
+
+function Invoke-CanonicalStreamDeckHero {
+    param(
+        [string]$ProductSlug,
+        [string]$PluginDirectory,
+        [string]$SubmissionFile,
+        [string]$Target
+    )
+
+    $renderer = Join-Path $RepoRoot "tools\\art\\render_streamdeck_ship_hero.py"
+    if (-not (Test-Path $renderer -PathType Leaf)) {
+        throw "Canonical Stream Deck hero renderer missing: $renderer"
+    }
+
+    Ensure-StreamDeckHeroRuntime
+
+    $heroWork = Join-Path ([System.IO.Path]::GetTempPath()) ("PackRat\\streamdeck-hero-{0}-{1}" -f $ProductSlug, $PID)
+    if (Test-Path $heroWork) { Remove-Item $heroWork -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path $heroWork | Out-Null
+
+    try {
+        $hero = Join-Path $heroWork "02_cover.png"
+        Write-Host "Local Rat Ship plugin: render canonical orange desk hero..." -ForegroundColor DarkGray
+        & python $renderer --product $ProductSlug --plugin-dir $PluginDirectory --submission $SubmissionFile --out $hero | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+            throw "Canonical Stream Deck hero renderer failed with exit code $LASTEXITCODE."
+        }
+        if (-not (Test-Path $hero -PathType Leaf)) {
+            throw "Canonical Stream Deck hero renderer did not create 02_cover.png."
+        }
+
+        $report = Join-Path $heroWork "streamdeck-ship-hero-report.json"
+        if (-not (Test-Path $report -PathType Leaf)) {
+            throw "Canonical Stream Deck hero renderer did not create its provenance report."
+        }
+
+        Copy-Item $hero (Join-Path $Target "02_cover.png") -Force
+        Copy-Item $report (Join-Path $Target "streamdeck-ship-hero-report.json") -Force
+        Write-Host "Canonical Stream Deck photo hero applied to 02_cover.png only." -ForegroundColor Green
+    }
+    finally {
+        if (Test-Path $heroWork) { Remove-Item $heroWork -Recurse -Force -ErrorAction SilentlyContinue }
+    }
+}
+
 function Resolve-ProductPath {
     param([string]$RelativePath)
     if ([string]::IsNullOrWhiteSpace($RelativePath)) { return $null }
@@ -358,8 +415,13 @@ if (Test-Path $artScript) {
     Invoke-RatArtUtf8Safe -ArtScript $artScript -ArtDestination $Destination -SourceDirectory $sourceDir
 }
 else {
-    Write-Host "Local Rat Ship plugin: no product rat-art.ps1 yet; package kit created without Marketplace media." -ForegroundColor Yellow
+    Write-Host "Local Rat Ship plugin: no product rat-art.ps1 yet; package kit created without product-specific gallery media." -ForegroundColor Yellow
 }
+
+# Global Stream Deck rule: product-local Rat Art may own the icon and gallery,
+# but the canonical orange desk/photo composition always owns the Marketplace hero.
+# Run it last so legacy product art cannot silently overwrite the new hero again.
+Invoke-CanonicalStreamDeckHero -ProductSlug $PluginSlug -PluginDirectory $pluginDir -SubmissionFile $submissionPath -Target $Destination
 
 $requiredMedia = @("01_search_icon.png", "02_cover.png", "03_gallery_01.png", "04_gallery_02.png", "05_gallery_03.png", "06_gallery_04.png")
 $missingMedia = @($requiredMedia | Where-Object { -not (Test-Path (Join-Path $Destination $_)) })
