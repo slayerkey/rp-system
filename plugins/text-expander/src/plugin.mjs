@@ -178,10 +178,20 @@ async function insertAction(ev) {
 async function sendSnippetList(extra = {}) {
   const current = await library.load();
   const ids = new Set(current.snippets.map(item => item.id));
+  const selectedId = String(extra.selectedId || "");
+  const selectedSnippet = selectedId
+    ? current.snippets.find(item => item.id === selectedId) || null
+    : null;
   await streamDeck.ui.sendToPropertyInspector({
     type: "snippetList",
     edition: EDITION,
-    snippets: current.snippets.map(({ id, name, folder, content }) => ({ id, name, folder, content })),
+    // Keep the high-cardinality list lightweight. Snippet content is loaded
+    // only for the one item being edited so a 5,000-snippet Pro library cannot
+    // flood the Property Inspector WebSocket with megabytes of text.
+    snippets: current.snippets.map(({ id, name, folder }) => ({ id, name, folder })),
+    selectedSnippet: selectedSnippet
+      ? { id:selectedSnippet.id, name:selectedSnippet.name, folder:selectedSnippet.folder, content:selectedSnippet.content }
+      : null,
     builtinIds: BUILTIN_SNIPPET_IDS.filter(id => ids.has(id)),
     verifiedProUrl: VERIFIED_PRO_URL || "",
     upgradeReasons: [
@@ -193,6 +203,17 @@ async function sendSnippetList(extra = {}) {
       "app-aware behavior"
     ],
     ...extra
+  });
+}
+
+async function sendSnippetDetail(id) {
+  const current = await library.load();
+  const snippet = current.snippets.find(item => item.id === String(id || "")) || null;
+  await streamDeck.ui.sendToPropertyInspector({
+    type:"snippetDetail",
+    snippet:snippet
+      ? { id:snippet.id, name:snippet.name, folder:snippet.folder, content:snippet.content }
+      : null
   });
 }
 
@@ -234,7 +255,8 @@ async function deleteSnippetFromInspector(payload) {
 async function handlePropertyMessage(ev) {
   const payload = ev?.payload || {};
   try {
-    if (payload.type === "listSnippets") return sendSnippetList();
+    if (payload.type === "listSnippets") return sendSnippetList({ selectedId:String(payload.selectedId || "") });
+    if (payload.type === "getSnippet") return sendSnippetDetail(payload.snippetId);
     if (payload.type === "saveSnippet") return saveSnippetFromInspector(payload);
     if (payload.type === "deleteSnippet") return deleteSnippetFromInspector(payload);
     if (payload.type === "openManager") return streamDeck.system.openUrl(ui.managerUrl());
