@@ -2,6 +2,14 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 . (Join-Path $RepoRoot "tools\local\rat-dev-source.ps1")
 
+$ratDevScript = Get-Content (Join-Path $RepoRoot "tools\local\rat-dev.ps1") -Raw
+if ($ratDevScript -notmatch '\+refs/heads/main:refs/remotes/origin/main') {
+    throw "Rat Dev must explicitly refresh origin/main instead of relying on remote.origin.fetch."
+}
+if ($ratDevScript -notmatch '\+refs/heads/product/\*:refs/remotes/origin/product/\*') {
+    throw "Rat Dev must explicitly refresh origin/product/* so family branches cannot remain stale in main-only clones."
+}
+
 function Invoke-Git {
     param(
         [Parameter(Mandatory = $true)][string]$Root,
