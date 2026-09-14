@@ -23,8 +23,8 @@
     },
     {
       "UUID": "com.packrat.macro-recorder-pro.stop",
-      "Name": "Emergency Stop",
-      "Tooltip": "Immediately stop any active recording or playback.",
+      "Name": "Stop",
+      "Tooltip": "Stop the active recording or playback immediately.",
       "Icon": "imgs/actions/stop/icon",
       "Controllers": [
         "Keypad"
@@ -36,7 +36,8 @@
         {
           "Image": "imgs/actions/stop/key",
           "ShowTitle": true,
-          "TitleAlignment": "middle"
+          "TitleAlignment": "bottom",
+          "FontSize": 10
         }
       ],
       "SupportedInKeyLogicActions": false
