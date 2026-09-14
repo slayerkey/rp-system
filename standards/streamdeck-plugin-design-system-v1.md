@@ -196,6 +196,25 @@ Canonical behavior:
 - keep the mark small and secondary to the product title
 - do not substitute emoji or generated replacement logos
 
+### Lite → Pro upgrade callout
+
+When a free/Lite Stream Deck product has a direct Pro counterpart, the Property Inspector must expose the upgrade without making the user scroll to the bottom of the inspector.
+
+Canonical placement and copy:
+
+- place the callout immediately below the `[PackRat icon] PackRat ↗` brand link and before the product's first main content card
+- center the callout
+- use the generic label `Unlock More Features`
+- use a primary CTA button labeled `Upgrade to Pro ↗`
+- the CTA uses the normal PackRat orange primary-button treatment and glow; do not invent a second upsell color system
+- clicking opens that Lite product's direct Pro Marketplace listing through Stream Deck `openUrl`
+- keep the callout compact enough to remain visible above the fold in a normal Property Inspector
+- do not rely on a bottom-only upsell that users must scroll to discover
+- do not add fake locked controls, disabled Pro actions, or clutter simply to advertise the upgrade
+- product-specific feature explanations may appear elsewhere when useful, but the top callout itself stays generic and reusable
+
+This is the default Lite → Pro conversion pattern for future PackRat Stream Deck plugins unless a product has no direct Pro counterpart or has an explicit documented exception.
+
 ### Key-face style
 
 Recent PackRat keys use:
