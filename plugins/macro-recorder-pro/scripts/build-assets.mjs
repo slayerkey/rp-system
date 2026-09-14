@@ -24,7 +24,7 @@ function draw(size,kind,mode){
  const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x<0||y<0||x>=size||y>=size)return;p.set(c,(y*size+x)*4);};
  const rect=(x0,y0,x1,y1,c)=>{for(let y=Math.round(y0);y<=Math.round(y1);y++)for(let x=Math.round(x0);x<=Math.round(x1);x++)set(x,y,c);};
  const circle=(cx,cy,r,c,stroke=0)=>{for(let y=Math.floor(cy-r);y<=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x<=Math.ceil(cx+r);x++){const d=(x-cx)**2+(y-cy)**2;if(d<=r*r&&(!stroke||d>=(r-stroke)**2))set(x,y,c);}};
- const triangleRight=(cx,cy,w,h,c)=>{const left=cx-w/2,right=cx+w/2;for(let x=Math.floor(left);x<=Math.ceil(right);x++){const t=(x-left)/w;const half=(h/2)*Math.max(0,Math.min(1,t));for(let y=Math.ceil(cy-half);y<=Math.floor(cy+half);y++)set(x,y,c);}};
+ const triangleRight=(cx,cy,w,h,c)=>{const left=cx-w/2,right=cx+w/2;for(let x=Math.floor(left);x<=Math.ceil(right);x++){const t=(x-left)/w;const half=(h/2)*Math.max(0,Math.min(1,1-t));for(let y=Math.ceil(cy-half);y<=Math.floor(cy+half);y++)set(x,y,c);}};
  const s=size/144;
  const color=mode==="list"?white:(kind==="record"?red:kind==="replay"?green:kind==="stop"?amber:white);
  if(kind==="record")circle(72*s,72*s,(mode==="list"?29:30)*s,color);
