@@ -33,6 +33,7 @@
           <option value="on">Set HDR On</option>
           <option value="off">Set HDR Off</option>
         </select>
+        <p class="help">Changes HDR only. Supported displays can briefly flicker while Windows applies the change.</p>
       </div>
 
       <div id="powerFields" class="action-fields hidden">
@@ -43,6 +44,7 @@
         </select>
         <label for="powerGuid">Power plan</label>
         <select id="powerGuid"></select>
+        <p class="help">Changes the active Windows power plan only. It does not sleep, restart, or shut down the PC.</p>
       </div>
 
       <div id="displayFields" class="action-fields hidden">
@@ -59,6 +61,7 @@
           <option value="extend">Extend</option>
           <option value="external">Second screen only</option>
         </select>
+        <p class="help">Display topology can move windows or temporarily blank a monitor. Choose a specific topology instead of Cycle if you want predictable behavior.</p>
       </div>
 
       <div id="timeoutFields" class="action-fields hidden">
@@ -73,7 +76,7 @@
           <label>Sleep AC <input id="sleepAcSeconds" type="number" min="0" max="4294967295" step="60"></label>
           <label>Sleep battery <input id="sleepDcSeconds" type="number" min="0" max="4294967295" step="60"></label>
         </div>
-        <p class="help">Values are seconds. 0 means Never.</p>
+        <p class="help">Values are seconds. 0 means Never. The default Cycle action changes the screen-off timeout only; it does not immediately put the PC to sleep.</p>
       </div>
 
       <div id="modeActionFields" class="action-fields hidden">
@@ -87,7 +90,7 @@
     <section id="modeEditor" class="card hidden">
       <div class="eyebrow">PRO</div>
       <h2>PC Mode Editor</h2>
-      <p class="help">Only included settings change. Ignore anything you do not want this mode to touch.</p>
+      <p class="help">Modes start empty. An empty mode changes nothing and its key shows SETUP. Use Capture Current to save the PC state you already have, or include only the settings you explicitly want this mode to change.</p>
 
       <label for="editModeId">Mode slot</label>
       <select id="editModeId"></select>
