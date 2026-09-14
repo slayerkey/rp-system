@@ -4,13 +4,14 @@ import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { TextExpanderLibrary } from "../src/library.mjs";
+import { PRO_SEEDS } from "../src/core.mjs";
 
 async function temp(){return fs.mkdtemp(path.join(os.tmpdir(),"packrat-text-expander-"))}
 
 test("Lite seeds only Email and Clipboard by default and enforces a 10 snippet cap",async()=>{
   const root=await temp(),lib=new TextExpanderLibrary({edition:"lite",rootDir:root});
   const seeded=await lib.load();
-  assert.equal(seeded.schemaVersion,2);
+  assert.equal(seeded.schemaVersion,3);
   assert.deepEqual(seeded.snippets.map(s=>s.id),["lite-email","lite-clipboard"]);
   assert.equal(seeded.snippets[0].content,"REPLACE WITH YOUR EMAIL");
   assert.equal(seeded.snippets[1].content,"{clipboard}");
@@ -36,11 +37,11 @@ test("untouched legacy Lite defaults migrate to the simpler Email and Clipboard 
     variables:{}
   },null,2),"utf8");
   const migrated=await lib.load();
-  assert.equal(migrated.schemaVersion,2);
+  assert.equal(migrated.schemaVersion,3);
   assert.deepEqual(migrated.snippets.map(s=>s.id),["lite-email","lite-clipboard"]);
 });
 
-test("customized legacy Lite libraries are preserved during schema migration",async()=>{
+test("customized legacy Lite libraries preserve edits while restoring missing starter snippets",async()=>{
   const root=await temp(),lib=new TextExpanderLibrary({edition:"lite",rootDir:root});
   await fs.mkdir(root,{recursive:true});
   await fs.writeFile(lib.libraryPath,JSON.stringify({
@@ -52,14 +53,16 @@ test("customized legacy Lite libraries are preserved during schema migration",as
     variables:{}
   },null,2),"utf8");
   const migrated=await lib.load();
-  assert.equal(migrated.schemaVersion,2);
-  assert.deepEqual(migrated.snippets.map(s=>s.id),["lite-email","custom-note"]);
+  assert.equal(migrated.schemaVersion,3);
+  assert.deepEqual(migrated.snippets.map(s=>s.id),["lite-email","lite-clipboard","custom-note"]);
   assert.equal(migrated.snippets[0].content,"me@example.com");
 });
 
-test("Pro adds QUICK presets during migration and keeps folders and reusable variables",async()=>{
+test("Pro defaults include the complete built-in starter library",async()=>{
   const root=await temp(),lib=new TextExpanderLibrary({edition:"pro",rootDir:root});
   const value=await lib.load();
+  assert.equal(value.schemaVersion,3);
+  assert.deepEqual(value.snippets.map(s=>s.id),PRO_SEEDS.map(s=>s.id));
   assert.deepEqual(value.snippets.slice(0,6).map(s=>s.id),[
     "pro-quick-email","pro-quick-clipboard","pro-quick-time","pro-quick-date","pro-quick-address","pro-quick-link"
   ]);
@@ -71,13 +74,32 @@ test("Pro adds QUICK presets during migration and keeps folders and reusable var
   assert.equal(reread.snippets[0].folder,"MY QUICK");
 });
 
+test("schema v2 Pro libraries restore all missing built-ins without deleting edits or custom snippets",async()=>{
+  const root=await temp(),lib=new TextExpanderLibrary({edition:"pro",rootDir:root});
+  await fs.mkdir(root,{recursive:true});
+  await fs.writeFile(lib.libraryPath,JSON.stringify({
+    schemaVersion:2,
+    snippets:[
+      {id:"pro-quick-email",name:"My Work Email",folder:"QUICK",content:"me@example.com"},
+      {id:"custom-local",name:"Local Custom",folder:"MY STUFF",content:"kept"}
+    ],
+    variables:{signature:"Custom signature"}
+  },null,2),"utf8");
+  const migrated=await lib.load();
+  assert.equal(migrated.schemaVersion,3);
+  assert.deepEqual(migrated.snippets.slice(0,PRO_SEEDS.length).map(s=>s.id),PRO_SEEDS.map(s=>s.id));
+  assert.equal(migrated.snippets.find(s=>s.id==="pro-quick-email").content,"me@example.com");
+  assert.equal(migrated.snippets.find(s=>s.id==="custom-local").content,"kept");
+  assert.equal(migrated.variables.signature,"Custom signature");
+});
+
 test("Pro migration never exceeds the 5,000 snippet cap",async()=>{
   const root=await temp(),lib=new TextExpanderLibrary({edition:"pro",rootDir:root});
   await fs.mkdir(root,{recursive:true});
   const snippets=Array.from({length:5000},(_,i)=>({id:"old-"+i,name:"Old "+i,folder:"LEGACY",content:"x"}));
-  await fs.writeFile(lib.libraryPath,JSON.stringify({schemaVersion:1,snippets,variables:{}},null,2),"utf8");
+  await fs.writeFile(lib.libraryPath,JSON.stringify({schemaVersion:2,snippets,variables:{}},null,2),"utf8");
   const migrated=await lib.load();
-  assert.equal(migrated.schemaVersion,2);
+  assert.equal(migrated.schemaVersion,3);
   assert.equal(migrated.snippets.length,5000);
   assert.equal(migrated.snippets[0].id,"old-0");
 });
