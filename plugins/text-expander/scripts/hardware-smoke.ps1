@@ -55,10 +55,43 @@ function Invoke-StreamDeckCliBestEffort {
     catch { }
 }
 
-function Get-DirectoryDigest {
+function Get-PackagedDirectoryDigest {
     param([string]$Path)
+
+    # Match the content view produced by `streamdeck pack`. The build folder
+    # contains .sdignore itself plus ignored development files; those are not
+    # part of the validated Marketplace package and must not create a false
+    # hardware-smoke mismatch.
+    $patterns = @()
+    $ignorePath = Join-Path $Path ".sdignore"
+    if (Test-Path $ignorePath -PathType Leaf) {
+        $patterns = @(
+            Get-Content $ignorePath |
+                ForEach-Object { ([string]$_).Trim().Replace("\", "/") } |
+                Where-Object { $_ -and -not $_.StartsWith("#") }
+        )
+    }
+
     $records = foreach ($file in Get-ChildItem -Path $Path -File -Recurse -Force | Sort-Object FullName) {
         $relative = $file.FullName.Substring($Path.Length).TrimStart("\", "/").Replace("\", "/")
+        if ($relative -eq ".sdignore") { continue }
+
+        $ignored = $false
+        foreach ($rawPattern in $patterns) {
+            $pattern = $rawPattern.TrimStart("/")
+            if ($pattern.EndsWith("/")) {
+                if ($relative.StartsWith($pattern, [System.StringComparison]::OrdinalIgnoreCase)) {
+                    $ignored = $true
+                    break
+                }
+            }
+            elseif ($relative -like $pattern) {
+                $ignored = $true
+                break
+            }
+        }
+        if ($ignored) { continue }
+
         $hash = (Get-FileHash -Algorithm SHA256 -Path $file.FullName).Hash.ToLowerInvariant()
         "$relative$([char]9)$hash"
     }
@@ -145,7 +178,7 @@ try {
         if ([string]::IsNullOrWhiteSpace($expectedDigest)) {
             throw "Missing validated unpacked content digest for $($target.Name)."
         }
-        $actualDigest = Get-DirectoryDigest $target.Dir
+        $actualDigest = Get-PackagedDirectoryDigest $target.Dir
         if ($actualDigest -ne $expectedDigest.ToLowerInvariant()) {
             throw "$($target.Name) content digest mismatch. Expected $expectedDigest, got $actualDigest."
         }
