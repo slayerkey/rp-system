@@ -23,22 +23,33 @@ const DEVICES = [
 
 const ACTIONS = {
   lite: {
-    status: "com.packrat.windows-settings-manager-lite.status",
-    hdr: "com.packrat.windows-settings-manager-lite.hdr",
+    lock: "com.packrat.windows-settings-manager-lite.lock",
+    sleep: "com.packrat.windows-settings-manager-lite.sleep",
     power: "com.packrat.windows-settings-manager-lite.power",
-    display: "com.packrat.windows-settings-manager-lite.display",
-    timeout: "com.packrat.windows-settings-manager-lite.timeout",
     awake: "com.packrat.windows-settings-manager-lite.awake",
-    lock: "com.packrat.windows-settings-manager-lite.lock"
+    desktopPrev: "com.packrat.windows-settings-manager-lite.desktop-previous",
+    desktopNext: "com.packrat.windows-settings-manager-lite.desktop-next"
   },
   pro: {
+    lock: "com.packrat.windows-settings-manager-pro.lock",
+    sleep: "com.packrat.windows-settings-manager-pro.sleep",
+    hibernate: "com.packrat.windows-settings-manager-pro.hibernate",
+    restart: "com.packrat.windows-settings-manager-pro.restart",
+    shutdown: "com.packrat.windows-settings-manager-pro.shutdown",
+    wifi: "com.packrat.windows-settings-manager-pro.wifi",
+    bluetooth: "com.packrat.windows-settings-manager-pro.bluetooth",
+    power: "com.packrat.windows-settings-manager-pro.power",
+    awake: "com.packrat.windows-settings-manager-pro.awake",
+    theme: "com.packrat.windows-settings-manager-pro.theme",
+    desktopPrev: "com.packrat.windows-settings-manager-pro.desktop-previous",
+    desktopNext: "com.packrat.windows-settings-manager-pro.desktop-next",
+    desktopNew: "com.packrat.windows-settings-manager-pro.desktop-new",
+    desktopClose: "com.packrat.windows-settings-manager-pro.desktop-close",
+    desktopCurrent: "com.packrat.windows-settings-manager-pro.desktop-current",
     status: "com.packrat.windows-settings-manager-pro.status",
     hdr: "com.packrat.windows-settings-manager-pro.hdr",
-    power: "com.packrat.windows-settings-manager-pro.power",
     display: "com.packrat.windows-settings-manager-pro.display",
     timeout: "com.packrat.windows-settings-manager-pro.timeout",
-    awake: "com.packrat.windows-settings-manager-pro.awake",
-    lock: "com.packrat.windows-settings-manager-pro.lock",
     apply: "com.packrat.windows-settings-manager-pro.apply-mode",
     cycle: "com.packrat.windows-settings-manager-pro.cycle-mode",
     current: "com.packrat.windows-settings-manager-pro.current-mode",
@@ -117,25 +128,42 @@ function manifest(flavor, profiles) {
   const pro = flavor === "pro";
   const name = pro ? "Windows Settings Manager Pro" : "Windows Settings Manager Lite";
   const uuid = `com.packrat.windows-settings-manager-${flavor}`;
-  const actions = [
-    actionDef(name, "System Status", ACTIONS[flavor].status, "Refresh the Windows state used by every key. A successful press shows the Stream Deck OK check."),
-    actionDef(name, "HDR", ACTIONS[flavor].hdr, "Show real HDR state and toggle or set HDR where supported."),
-    actionDef(name, "Power Plan", ACTIONS[flavor].power, "Show the active Windows power plan and cycle or choose a plan."),
-    actionDef(name, "Display Topology", ACTIONS[flavor].display, "Show and change PC screen, duplicate, extend, or second-screen topology. Changing topology can move or temporarily blank displays."),
-    actionDef(name, "Screen & Sleep", ACTIONS[flavor].timeout, "Show the screen-off timeout. By default, pressing cycles 5, 15, 30, 60 minutes, then Never; exact screen and sleep values are optional."),
-    actionDef(name, "Keep Awake", ACTIONS[flavor].awake, "Toggle Stay Awake. When enabled, Windows idle screen-off and sleep are prevented while the plugin backend is active; this does not hibernate or shut down the PC."),
-    actionDef(name, "Lock PC", ACTIONS[flavor].lock, "Lock the current Windows workstation.")
-  ];
 
-  if (pro) {
-    actions.push(
-      actionDef(name, "Apply PC Mode", ACTIONS.pro.apply, "Apply only the Windows settings saved in the selected PC Mode. Empty slots show SETUP and make no changes."),
-      actionDef(name, "Cycle PC Mode", ACTIONS.pro.cycle, "Cycle through configured PC Modes and apply the next one."),
-      actionDef(name, "Current PC Mode", ACTIONS.pro.current, "Show which saved PC Mode matches the live Windows state."),
-      actionDef(name, "Save Current Mode", ACTIONS.pro.save, "Capture the currently readable Windows settings into a PC Mode."),
-      { ...actionDef(name, "Profile Page", ACTIONS.pro.page, "Navigate the bundled PC Modes profile."), VisibleInActionsList: false }
-    );
-  }
+  const actions = pro
+    ? [
+        actionDef(name, "Lock PC", ACTIONS.pro.lock, "Lock the current Windows workstation immediately."),
+        actionDef(name, "Sleep", ACTIONS.pro.sleep, "Put this PC into Windows sleep."),
+        actionDef(name, "Hibernate", ACTIONS.pro.hibernate, "Hibernate this PC when Windows reports hibernation is available."),
+        actionDef(name, "Restart", ACTIONS.pro.restart, "Restart Windows. Default behavior requires a second press within three seconds."),
+        actionDef(name, "Shutdown", ACTIONS.pro.shutdown, "Shut down Windows. Default behavior requires a second press within three seconds."),
+        actionDef(name, "Wi-Fi", ACTIONS.pro.wifi, "Show live Windows Wi-Fi radio state and request Toggle, On, or Off through the Windows radio API."),
+        actionDef(name, "Bluetooth", ACTIONS.pro.bluetooth, "Show live Windows Bluetooth radio state and request Toggle, On, or Off through the Windows radio API."),
+        actionDef(name, "Power Plan", ACTIONS.pro.power, "Show the active Windows power plan and cycle or choose an exact plan."),
+        actionDef(name, "Keep Awake", ACTIONS.pro.awake, "Toggle or explicitly set Stay Awake. It prevents idle display-off and sleep while the plugin backend is active."),
+        actionDef(name, "Light / Dark Theme", ACTIONS.pro.theme, "Show and change Windows light/dark personalization state for apps, system, or both."),
+        actionDef(name, "Previous Desktop", ACTIONS.pro.desktopPrev, "Move to the previous Windows virtual desktop and verify the resulting desktop state."),
+        actionDef(name, "Next Desktop", ACTIONS.pro.desktopNext, "Move to the next Windows virtual desktop and verify the resulting desktop state."),
+        actionDef(name, "New Desktop", ACTIONS.pro.desktopNew, "Create a Windows virtual desktop and verify that it was created."),
+        actionDef(name, "Close Desktop", ACTIONS.pro.desktopClose, "Close the current Windows virtual desktop. The only desktop is never closed."),
+        actionDef(name, "Current Desktop", ACTIONS.pro.desktopCurrent, "Show the current Windows virtual desktop index and desktop count."),
+        actionDef(name, "System Status", ACTIONS.pro.status, "Refresh the Windows state used by every key."),
+        actionDef(name, "HDR", ACTIONS.pro.hdr, "Advanced control retained for compatibility. Monitor Manager remains PackRat's deep display product."),
+        actionDef(name, "Display Topology", ACTIONS.pro.display, "Advanced projection-topology control retained for compatibility."),
+        actionDef(name, "Screen & Sleep Timeouts", ACTIONS.pro.timeout, "Advanced screen-off and sleep timeout control."),
+        actionDef(name, "Apply PC Mode", ACTIONS.pro.apply, "Advanced optional PC Mode. Only explicitly saved settings are changed."),
+        actionDef(name, "Cycle PC Mode", ACTIONS.pro.cycle, "Cycle through configured optional PC Modes."),
+        actionDef(name, "Current PC Mode", ACTIONS.pro.current, "Show which optional saved PC Mode matches live Windows state."),
+        actionDef(name, "Save Current Mode", ACTIONS.pro.save, "Capture readable Windows state into an optional PC Mode."),
+        { ...actionDef(name, "Profile Page", ACTIONS.pro.page, "Navigate a bundled profile page."), VisibleInActionsList: false }
+      ]
+    : [
+        actionDef(name, "Lock PC", ACTIONS.lite.lock, "Lock the current Windows workstation immediately."),
+        actionDef(name, "Sleep", ACTIONS.lite.sleep, "Put this PC into Windows sleep."),
+        actionDef(name, "Power Plan", ACTIONS.lite.power, "Show the active Windows power plan and cycle or choose an exact plan."),
+        actionDef(name, "Keep Awake", ACTIONS.lite.awake, "Toggle or explicitly set Stay Awake."),
+        actionDef(name, "Previous Desktop", ACTIONS.lite.desktopPrev, "Move to the previous Windows virtual desktop and verify the resulting state."),
+        actionDef(name, "Next Desktop", ACTIONS.lite.desktopNext, "Move to the next Windows virtual desktop and verify the resulting state.")
+      ];
 
   return {
     "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
@@ -143,8 +171,8 @@ function manifest(flavor, profiles) {
     Version: "0.1.0.0",
     Author: "PackRat",
     Description: pro
-      ? "PC Modes and live Windows system controls for HDR, power, display topology, screen and sleep, Keep Awake, and lock."
-      : "Live Windows system controls for HDR, power, display topology, screen and sleep, Keep Awake, and lock.",
+      ? "Premium Windows controls for Stream Deck with live state: power, radios, power plans, Keep Awake, theme, and virtual desktops."
+      : "Six useful Windows controls for Stream Deck: lock, sleep, power plan, Keep Awake, and virtual desktop navigation.",
     Category: name,
     CategoryIcon: "imgs/plugin/category-icon",
     Icon: "imgs/plugin/marketplace",
@@ -182,20 +210,14 @@ async function buildProfiles(flavor, plugin) {
     const stem = `windows-settings-${flavor}-${device.id}`;
     const profileName = `profiles/${stem}`;
     const displayName = flavor === "pro"
-      ? `Windows PC Modes Pro - ${device.label}`
-      : `Windows Settings Lite - ${device.label}`;
+      ? `Windows Control Center Pro - ${device.label}`
+      : `Windows Control Center Lite - ${device.label}`;
 
-    const pages = flavor === "pro"
-      ? [
-          profilePage(proModesPage(device, profileName)),
-          profilePage(proSettingsPage(device, profileName))
-        ]
-      : [profilePage(litePage(device))];
-
+    const page = flavor === "pro" ? proPage(device) : litePage(device);
     const archive = createProfileArchive({
       seed: `${flavor}|${device.id}`,
       name: displayName,
-      pages
+      pages: [profilePage(page)]
     });
     await writeFile(path.join(plugin, "profiles", `${stem}.streamDeckProfile`), archive);
     registrations.push({
@@ -211,63 +233,80 @@ async function buildProfiles(flavor, plugin) {
 
 function litePage(device) {
   const defs = [
-    item("status", "System Status"),
-    item("hdr", "HDR"),
-    item("power", "Power Plan"),
-    item("display", "Display Topology"),
-    item("timeout", "Screen & Sleep"),
-    item("awake", "Keep Awake"),
-    item("lock", "Lock PC")
+    profileDef("lock", "Lock PC"),
+    profileDef("sleep", "Sleep"),
+    profileDef("power", "Power Plan", { operation: "cycle" }),
+    profileDef("awake", "Keep Awake", { operation: "toggle" }),
+    profileDef("desktopPrev", "Previous Desktop"),
+    profileDef("desktopNext", "Next Desktop")
   ];
-  if (device.id === "mini") defs.splice(4, 1);
-  return layout(device, defs.map((def) => pluginAction("lite", def.kind, def.name, {}, `lite|${device.id}|${def.kind}`)));
+  return layout(device, defs.map((def) =>
+    pluginAction("lite", def.kind, def.name, def.settings, `lite|${device.id}|${def.kind}`)
+  ));
 }
 
-function proModesPage(device, profileName) {
-  const defs = MODE_IDS.map((id) => pluginAction("pro", "apply", id.toUpperCase(), { modeId: id }, `pro|${device.id}|apply|${id}`));
+function proPage(device) {
+  const core = [
+    profileDef("lock", "Lock PC"),
+    profileDef("sleep", "Sleep"),
+    profileDef("hibernate", "Hibernate"),
+    profileDef("restart", "Restart", { confirmation: "double" }),
+    profileDef("shutdown", "Shutdown", { confirmation: "double" }),
+    profileDef("wifi", "Wi-Fi", { operation: "toggle" }),
+    profileDef("bluetooth", "Bluetooth", { operation: "toggle" }),
+    profileDef("power", "Power Plan", { operation: "cycle" }),
+    profileDef("awake", "Keep Awake", { operation: "toggle" }),
+    profileDef("theme", "Light / Dark", { operation: "toggle", scope: "both" }),
+    profileDef("desktopPrev", "Previous Desktop"),
+    profileDef("desktopNext", "Next Desktop"),
+    profileDef("desktopNew", "New Desktop"),
+    profileDef("desktopClose", "Close Desktop"),
+    profileDef("desktopCurrent", "Current Desktop")
+  ];
 
-  if (device.columns * device.rows >= 15) {
-    for (const id of MODE_IDS) {
-      defs.push(pluginAction("pro", "save", `Save ${id}`, { modeId: id }, `pro|${device.id}|save|${id}`));
-    }
-    defs.push(pluginAction("pro", "current", "Current PC Mode", {}, `pro|${device.id}|current`));
-    defs.push(pluginAction("pro", "cycle", "Cycle PC Mode", {}, `pro|${device.id}|cycle`));
-    defs.push(pluginAction("pro", "hdr", "HDR", {}, `pro|${device.id}|modes-hdr`));
-    defs.push(pluginAction("pro", "power", "Power Plan", {}, `pro|${device.id}|modes-power`));
-    defs.push(pluginAction("pro", "page", "Settings", { profileName, page: 1 }, `pro|${device.id}|settings-page`));
-  } else if (device.columns * device.rows >= 8) {
-    defs.push(pluginAction("pro", "current", "Current PC Mode", {}, `pro|${device.id}|current`));
-    defs.push(pluginAction("pro", "cycle", "Cycle PC Mode", {}, `pro|${device.id}|cycle`));
-    defs.push(pluginAction("pro", "page", "Settings", { profileName, page: 1 }, `pro|${device.id}|settings-page`));
+  let defs;
+  if (device.id === "mini") {
+    defs = [
+      core[0], core[1], core[5], core[6], core[10], core[11]
+    ];
+  } else if (device.id === "plus" || device.id === "neo") {
+    defs = [
+      core[0], core[1], core[5], core[6], core[7], core[8], core[10], core[11]
+    ];
+  } else if (device.id === "galleon") {
+    defs = core.slice(0, 12);
   } else {
-    defs.push(pluginAction("pro", "page", "Settings", { profileName, page: 1 }, `pro|${device.id}|settings-page`));
+    defs = [...core];
   }
-  return layout(device, defs);
-}
 
-function proSettingsPage(device, profileName) {
   const capacity = device.columns * device.rows;
-  const controls = [
-    ["status", "System Status"],
-    ["hdr", "HDR"],
-    ["power", "Power Plan"],
-    ["timeout", "Screen & Sleep"],
-    ["awake", "Keep Awake"],
-    ["lock", "Lock PC"],
-    ["display", "Display Topology"]
-  ];
-
-  const defs = controls
-    .filter(([kind]) => !(device.id === "mini" && (kind === "timeout" || kind === "status")))
-    .map(([kind, name]) => pluginAction("pro", kind, name, {}, `pro|${device.id}|settings|${kind}`));
-
-  if (capacity >= 15) {
-    for (const id of MODE_IDS) {
-      defs.push(pluginAction("pro", "save", `Save ${id}`, { modeId: id }, `pro|${device.id}|settings-save|${id}`));
+  if (capacity > core.length) {
+    defs.push(
+      profileDef("status", "System Status"),
+      profileDef("hdr", "HDR"),
+      profileDef("display", "Display Topology"),
+      profileDef("timeout", "Screen & Sleep")
+    );
+    if (capacity >= 24) {
+      for (const id of MODE_IDS) {
+        defs.push(profileDef("apply", id.toUpperCase(), { modeId: id }));
+      }
+    }
+    if (capacity >= 30) {
+      defs.push(
+        profileDef("current", "Current PC Mode"),
+        profileDef("cycle", "Cycle PC Mode")
+      );
     }
   }
-  defs.push(pluginAction("pro", "page", "PC Modes", { profileName, page: 0 }, `pro|${device.id}|modes-page`));
-  return layout(device, defs.slice(0, capacity));
+
+  return layout(device, defs.slice(0, capacity).map((def, index) =>
+    pluginAction("pro", def.kind, def.name, def.settings, `pro|${device.id}|${index}|${def.kind}`)
+  ));
+}
+
+function profileDef(kind, name, settings = {}) {
+  return { kind, name, settings };
 }
 
 function profilePage(actions) {
