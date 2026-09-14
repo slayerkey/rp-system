@@ -64,7 +64,7 @@ exit 0
         name = "rat-audit-family-fixture"
         private = $true
         scripts = @{
-            "host:probe" = "node -e \"console.log('FAMILY_PROBE_FIXTURE_PASS')\""
+            "host:probe" = "node -e `"console.log('FAMILY_PROBE_FIXTURE_PASS')`""
         }
     } | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $FamilyProductRoot "package.json") -Encoding UTF8
 
