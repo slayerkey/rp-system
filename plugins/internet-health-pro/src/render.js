@@ -75,6 +75,22 @@ function baseSvg({ label, primary, secondary = "", status = "CHECK", accent = "#
   </svg>`);
 }
 
+function outageSvg(primary, secondary, state, accent, samples = []) {
+  const color = stateColor(state, accent);
+  const primarySize = fitFont(primary, 34, 30, 26);
+  const secondarySize = fitFont(secondary, 14, 12.5, 11);
+  const path = graphPath(samples, KEY_GRAPH_SECONDS, 116, 40, 14, 94);
+  return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
+    <rect width="144" height="144" rx="18" fill="#07090D"/>
+    <rect x="0" y="0" width="5" height="144" rx="2.5" fill="${color}"/>
+    <text x="14" y="23" fill="#C9CED6" font-family="Arial,sans-serif" font-size="15.5" font-weight="800">OUTAGE</text>
+    <text x="14" y="61" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="${primarySize}" font-weight="800">${escapeXml(primary)}</text>
+    <text x="14" y="84" fill="${color}" font-family="Arial,sans-serif" font-size="${secondarySize}" font-weight="800">${escapeXml(secondary)}</text>
+    <line x1="14" y1="91" x2="130" y2="91" stroke="#252A32" stroke-width="1"/>
+    ${path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
+  </svg>`);
+}
+
 function speedResultSvg(speed, settings, low) {
   const color = low ? "#FF5D6C" : settings.accent;
   const down = "↓" + Math.round(Number(speed.downloadMbps) || 0);
@@ -170,28 +186,19 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
     let state = "UP";
     if (summary.current) {
       primary = "DOWN " + formatDuration(summary.currentDurationMs);
-      secondary = "IN PROGRESS";
+      secondary = "ACTIVE";
       state = "DOWN";
     } else if (settings.outageMode === "last") {
       primary = summary.last ? formatDuration(summary.last.durationMs) : "NONE";
-      secondary = summary.last ? "LAST OUTAGE" : "NO OUTAGES";
+      secondary = summary.last ? "LAST OUTAGE" : "NONE";
     } else if (settings.outageMode === "count") {
       primary = String(summary.count24h);
-      secondary = "OUTAGES / 24H";
+      secondary = "LAST 24H";
     } else if (settings.outageMode === "current") {
       primary = "ONLINE";
-      secondary = "NO OUTAGE";
+      secondary = "NONE";
     }
-    return baseSvg({
-      label: "OUTAGE",
-      primary,
-      secondary,
-      status: state,
-      accent: settings.accent,
-      samples: snapshot.samples,
-      minutes,
-      footer: ""
-    });
+    return outageSvg(primary, secondary, state, settings.accent, snapshot.samples);
   }
 
   if (kind === "target") {
