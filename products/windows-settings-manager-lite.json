@@ -15,6 +15,7 @@
   "submission_metadata": "products/windows-settings-manager/submission-lite.json",
   "plugin_uuid": "com.packrat.windows-settings-manager-lite",
   "build_flavor": "lite",
+  "dev_profile": "profiles/windows-settings-lite-standard.streamDeckProfile",
   "minimum_stream_deck": "7.3",
   "node_runtime": "20",
   "plan": "products/windows-settings-manager/PLAN.md",
