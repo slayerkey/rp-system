@@ -9,6 +9,36 @@ function recordingName() {
   return `Recording ${new Date().toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" })}`;
 }
 
+function shortTitle(text, max = 16) {
+  const value = String(text || "").trim();
+  return value.length <= max ? value : value.slice(0, max - 1) + "…";
+}
+
+function proStarterMacros() {
+  const clickPair = (delay = 65) => [
+    { type:"mouseDown", delayMs:delay, button:"left", x:960, y:540, relX:.5, relY:.5 },
+    { type:"mouseUp", delayMs:45, button:"left", x:960, y:540, relX:.5, relY:.5 },
+  ];
+  const make = (id, name, events) => ({
+    schema:1,
+    id,
+    name,
+    createdAt:"2026-09-14T00:00:00.000Z",
+    updatedAt:"2026-09-14T00:00:00.000Z",
+    durationMs:events.reduce((sum, event) => sum + Number(event.delayMs || 0), 0),
+    events,
+  });
+  return [
+    make("starter-rapid-click", "Rapid Left Click", Array.from({ length:8 }, () => clickPair()).flat()),
+    make("starter-double-click", "Double Click", [...clickPair(60), ...clickPair(90)]),
+    make("starter-scroll-burst", "Scroll Burst", [
+      { type:"wheel", delayMs:80, x:960, y:540, relX:.5, relY:.5, delta:-120, horizontal:false },
+      { type:"wheel", delayMs:90, x:960, y:540, relX:.5, relY:.5, delta:-120, horizontal:false },
+      { type:"wheel", delayMs:90, x:960, y:540, relX:.5, relY:.5, delta:-120, horizontal:false },
+    ]),
+  ];
+}
+
 export async function startMacroRecorder({ streamDeck, SingletonAction, pro, prefix, version }) {
   const edition = pro ? "pro" : "lite";
   const limits = pro ? PRO_LIMITS : LITE_LIMITS;
@@ -20,12 +50,38 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   const visible = new Map();
   const host = new InputHost((message) => streamDeck.logger?.error?.(String(message)));
   const library = pro ? await new MacroLibrary().load() : null;
+  if (pro) {
+    for (const starter of proStarterMacros()) await library.ensure(starter);
+  }
   let recording = null;
   let latestMacro = null;
   let playback = null;
   let lastError = "";
   let latestSignature = "";
   let recoveringCrash = false;
+  let savedFeedback = null;
+  let savedFeedbackTimer = null;
+
+  function currentSavedFeedback() {
+    if (!savedFeedback || savedFeedback.until <= Date.now()) return null;
+    return savedFeedback;
+  }
+
+  function setSavedFeedback(macro, assignedCount) {
+    if (savedFeedbackTimer) clearTimeout(savedFeedbackTimer);
+    savedFeedback = {
+      macroId: macro.id,
+      name: macro.name,
+      assignedToPlay: assignedCount > 0,
+      until: Date.now() + 4000,
+    };
+    savedFeedbackTimer = setTimeout(() => {
+      savedFeedback = null;
+      savedFeedbackTimer = null;
+      void renderAll();
+      void broadcastStatus();
+    }, 4000);
+  }
 
   function settingsFor(kind, raw = {}) {
     const source = raw && typeof raw === "object" ? raw : {};
@@ -55,10 +111,19 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
 
   async function render(record) {
     if (!record?.action?.isKey?.()) return;
+    const saved = currentSavedFeedback();
     let title = "";
-    if (record.kind === "record" && recording) title = "REC";
-    else if (record.kind === "stop" && (recording || playback)) title = "STOP";
-    else if (record.kind === "replay" && playback?.actionId === record.id) title = "PLAY";
+    if (record.kind === "record") {
+      if (recording) title = `REC\n${Math.max(0, Math.round(Number(recording.elapsedMs || 0) / 100) / 10).toFixed(1)}s`;
+      else if (saved) title = "SAVED";
+    } else if (record.kind === "stop") {
+      title = recording || playback ? "STOP\nNOW" : "EMERGENCY\nSTOP";
+    } else if (record.kind === "replay") {
+      const macro = macroFor(record);
+      if (playback?.actionId === record.id) title = "PLAYING";
+      else if (saved && macro?.id === saved.macroId) title = "SAVED\nREADY";
+      else if (macro && record.settings.seedMacro) title = shortTitle(macro.name, 12);
+    }
     await record.action.setTitle(title).catch(() => {});
   }
 
@@ -77,6 +142,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       recording,
       playback: playback ? { actionId: playback.actionId, macroName: playback.macro?.name || "" } : null,
       hasLatestMacro: Boolean(latestMacro?.events?.length),
+      recentSaved: currentSavedFeedback(),
       macro,
       library: pro ? library.list() : [],
       libraryWarning: pro ? library.warning : "",
@@ -92,6 +158,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       recording,
       playback: playback ? { actionId: playback.actionId, macroName: playback.macro?.name || "" } : null,
       hasLatestMacro: Boolean(latestMacro?.events?.length),
+      recentSaved: currentSavedFeedback(),
       lastError,
     };
   }
@@ -113,15 +180,15 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   }
 
   async function assignNewRecordingToBlankReplayKeys(macro) {
-    if (!pro || !macro?.id) return;
+    if (!pro || !macro?.id) return 0;
     const blankReplayKeys = [...visible.values()].filter((item) => item.kind === "replay" && !item.settings.macroId && !item.settings.seedMacro);
     await Promise.all(blankReplayKeys.map(async (item) => {
       const next = { ...item.settings, macroId: macro.id };
       delete next.seedMacro;
       await item.action.setSettings(next);
       item.settings = settingsFor("replay", next);
-      await item.action.showOk?.().catch(() => {});
     }));
+    return blankReplayKeys.length;
   }
 
   async function finalizeCapture(raw) {
@@ -140,9 +207,9 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
     if (pro) macro = await library.add(macro);
     latestMacro = macro;
-    await assignNewRecordingToBlankReplayKeys(macro);
+    const assignedCount = await assignNewRecordingToBlankReplayKeys(macro);
+    setSavedFeedback(macro, assignedCount);
     lastError = "";
-    await Promise.all([...visible.values()].filter((item) => item.kind === "record").map((item) => item.action.showOk?.().catch(() => {})));
     await renderAll();
     await broadcastInspectors();
   }
