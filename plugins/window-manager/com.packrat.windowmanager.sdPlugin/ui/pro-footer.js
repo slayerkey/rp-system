@@ -1,90 +1,104 @@
-/** Shared Window Manager Lite footer: XENEON setup + quiet Pro cross-sell. */
+/** Shared Window Manager Lite footer: PackRat brand, XENEON setup, and Pro upgrade card. */
 
 const PRO_URL =
-	"https://marketplace.elgato.com/product/window-manager-pro-f3ed6217-0282-419d-a71d-4b1548147b11";
+  "https://marketplace.elgato.com/product/window-manager-pro-f3ed6217-0282-419d-a71d-4b1548147b11";
+const PACKRAT_MAKER_URL = "https://marketplace.elgato.com/maker/packrat";
 
 let xeneonKey = "";
 
 function send(message) {
-	if (typeof websocket === "undefined" || websocket?.readyState !== WebSocket.OPEN) return false;
-	websocket.send(JSON.stringify(message));
-	return true;
+  if (typeof websocket === "undefined" || websocket?.readyState !== WebSocket.OPEN) return false;
+  websocket.send(JSON.stringify(message));
+  return true;
+}
+
+function openUrl(url) {
+  return send({ event: "openUrl", payload: { url } });
+}
+
+function buildPackRatBrand() {
+  if (document.querySelector(".packrat-brand")) return;
+  const brand = document.createElement("button");
+  brand.type = "button";
+  brand.className = "packrat-brand";
+  brand.setAttribute("aria-label", "Open the PackRat maker page");
+  brand.innerHTML =
+    '<img class="packrat-logo" src="../imgs/plugin/packrat-logo.png" alt="" aria-hidden="true"><span>PackRat ↗</span>';
+  brand.addEventListener("click", () => openUrl(PACKRAT_MAKER_URL));
+  document.body.prepend(brand);
 }
 
 function buildXeneonSetup() {
-	const section = document.createElement("div");
-	section.className = "xeneon-setup";
-	section.innerHTML = `
-		<h3>XENEON Edge setup</h3>
-		<p>Window Manager Lite also powers the separate Window Manager for XENEON widget.</p>
-		<div class="xeneon-key" id="xeneonKey">Loading local pairing key…</div>
-		<div class="xeneon-buttons">
-			<button type="button" class="small-button" id="copyXeneonKey" disabled>Copy key</button>
-			<button type="button" class="small-button secondary" id="openXeneonSetup">Open setup page</button>
-		</div>
-	`;
-	document.body.append(section);
+  const section = document.createElement("div");
+  section.className = "xeneon-setup";
+  section.innerHTML = `
+    <h3>XENEON Edge</h3>
+    <p>Window Manager Lite also powers the separate Window Manager for XENEON widget.</p>
+    <div class="xeneon-key" id="xeneonKey">Loading local pairing key…</div>
+    <div class="xeneon-buttons">
+      <button type="button" id="copyXeneonKey" disabled>Copy key</button>
+      <button type="button" id="openXeneonSetup">Open setup page</button>
+    </div>
+  `;
+  document.body.append(section);
 
-	document.getElementById("copyXeneonKey").addEventListener("click", async () => {
-		if (!xeneonKey) return;
-		try {
-			await navigator.clipboard.writeText(xeneonKey);
-			document.getElementById("copyXeneonKey").textContent = "Copied";
-			setTimeout(() => { document.getElementById("copyXeneonKey").textContent = "Copy key"; }, 1200);
-		} catch {
-			document.getElementById("xeneonKey").textContent = xeneonKey;
-		}
-	});
+  document.getElementById("copyXeneonKey").addEventListener("click", async () => {
+    if (!xeneonKey) return;
+    try {
+      await navigator.clipboard.writeText(xeneonKey);
+      document.getElementById("copyXeneonKey").textContent = "Copied";
+      setTimeout(() => { document.getElementById("copyXeneonKey").textContent = "Copy key"; }, 1200);
+    } catch {
+      document.getElementById("xeneonKey").textContent = xeneonKey;
+    }
+  });
 
-	document.getElementById("openXeneonSetup").addEventListener("click", () => {
-		send({ event: "openUrl", payload: { url: "http://127.0.0.1:17487/" } });
-	});
+  document.getElementById("openXeneonSetup").addEventListener("click", () => {
+    openUrl("http://127.0.0.1:17487/");
+  });
 
-	const requestSettings = () => {
-		const context = (typeof pluginUuid !== "undefined" && pluginUuid) || (typeof uuid !== "undefined" && uuid);
-		if (context && send({ event: "getGlobalSettings", context })) return;
-		setTimeout(requestSettings, 150);
-	};
+  const requestSettings = () => {
+    const context = (typeof pluginUuid !== "undefined" && pluginUuid) || (typeof uuid !== "undefined" && uuid);
+    if (context && send({ event: "getGlobalSettings", context })) return;
+    setTimeout(requestSettings, 150);
+  };
 
-	const attachListener = () => {
-		if (typeof websocket === "undefined" || !websocket) return setTimeout(attachListener, 100);
-		websocket.addEventListener("message", (event) => {
-			let msg;
-			try { msg = JSON.parse(event.data); } catch { return; }
-			if (msg.event !== "didReceiveGlobalSettings") return;
-			const key = msg.payload?.settings?.windowManagerXeneonKey;
-			if (typeof key !== "string" || !key.trim()) return;
-			xeneonKey = key.trim();
-			document.getElementById("xeneonKey").textContent = xeneonKey;
-			document.getElementById("copyXeneonKey").disabled = false;
-		});
-	};
-	attachListener();
-	requestSettings();
+  const attachListener = () => {
+    if (typeof websocket === "undefined" || !websocket) return setTimeout(attachListener, 100);
+    websocket.addEventListener("message", (event) => {
+      let msg;
+      try { msg = JSON.parse(event.data); } catch { return; }
+      if (msg.event !== "didReceiveGlobalSettings") return;
+      const key = msg.payload?.settings?.windowManagerXeneonKey;
+      if (typeof key !== "string" || !key.trim()) return;
+      xeneonKey = key.trim();
+      document.getElementById("xeneonKey").textContent = xeneonKey;
+      document.getElementById("copyXeneonKey").disabled = false;
+    });
+  };
+  attachListener();
+  requestSettings();
 }
 
 function buildProFooter() {
-	const footer = document.createElement("div");
-	footer.className = "upsell";
-
-	const line = document.createElement("p");
-	line.textContent = "Pro adds saved layouts and pixel nudging.";
-
-	const link = document.createElement("button");
-	link.type = "button";
-	link.className = "link";
-	link.textContent = "Window Manager Pro";
-	link.addEventListener("click", openPro);
-
-	footer.append(line, link);
-	document.body.append(footer);
-}
-
-function openPro() {
-	send({ event: "openUrl", payload: { url: PRO_URL } });
+  const footer = document.createElement("div");
+  footer.className = "upsell";
+  footer.innerHTML = `
+    <div class="upsell-eyebrow">WINDOW MANAGER PRO</div>
+    <h3>Save layouts. Nudge precisely.</h3>
+    <p>Lite gives you Snap + Cycle. Pro adds the two controls that turn it into a fuller window-management setup.</p>
+    <ul class="upsell-list">
+      <li><strong>Window Layout</strong> — hold to save a complete arrangement, then press once to restore it.</li>
+      <li><strong>Nudge Window</strong> — move or resize in small steps, including Stream Deck + dial control.</li>
+    </ul>
+    <button type="button" class="primary pro-button" id="openWindowManagerPro">View Window Manager Pro ↗</button>
+  `;
+  document.body.append(footer);
+  document.getElementById("openWindowManagerPro").addEventListener("click", () => openUrl(PRO_URL));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-	buildXeneonSetup();
-	buildProFooter();
+  buildPackRatBrand();
+  buildXeneonSetup();
+  buildProFooter();
 });
