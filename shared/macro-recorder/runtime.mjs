@@ -31,7 +31,7 @@ function packRatKeyImage(kind, title = "") {
   const text = lines.length > 1
     ? `<text x="78" y="112" text-anchor="middle" fill="#F5F7FB" font-family="Arial,Segoe UI,sans-serif" font-size="16" font-weight="700">${keyXml(lines[0])}</text><text x="78" y="133" text-anchor="middle" fill="#9AA2AF" font-family="Arial,Segoe UI,sans-serif" font-size="15" font-weight="700">${keyXml(lines[1])}</text>`
     : `<text x="78" y="128" text-anchor="middle" fill="#F5F7FB" font-family="Arial,Segoe UI,sans-serif" font-size="${lines[0]?.length > 8 ? 15 : 18}" font-weight="700">${keyXml(lines[0] || fallback)}</text>`;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144"><rect width="144" height="144" rx="20" fill="#14171B"/><rect x="5" y="18" width="5" height="108" rx="2.5" fill="#FFB21E"/>${glyph}${text}</svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144"><rect width="144" height="144" rx="20" fill="#080A0E"/><rect x="5" y="18" width="5" height="108" rx="2.5" fill="#FFB21E"/>${glyph}${text}</svg>`;
   return "data:image/svg+xml;base64," + Buffer.from(svg).toString("base64");
 }
 
