@@ -17,10 +17,11 @@ GitHub remains the source of truth. Do not rebuild the Stream Deck process from 
 5. `standards/streamdeck-plugin-design-system-v1.md`
 6. `standards/streamdeck-key-visuals-v1.md`
 7. `docs/RAT-DEV-RELIABILITY.md`
-8. `skills/rat-qa/SKILL.md`
-9. `skills/rat-art/SKILL.md`
-10. `skills/rat-ship/SKILL.md`
-11. `products/index.json`
+8. `docs/STREAMDECK_TROUBLESHOOTING_PLAYBOOK.md`
+9. `skills/rat-qa/SKILL.md`
+10. `skills/rat-art/SKILL.md`
+11. `skills/rat-ship/SKILL.md`
+12. `products/index.json`
 
 Read product-specific source and QA only after the product slug and type are known.
 
