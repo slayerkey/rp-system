@@ -54,6 +54,33 @@ When a product paints substantially different runtime key faces than its static 
 
 The generic fallback face follows the canonical PackRat key language: one orange top accent, one large white product glyph, concise bottom copy, dark key background, and no decorative `PACKRAT` wordmark inside each key.
 
+### SVG action-art and cache invariants
+
+Real product visuals may be authored as SVG. The global Stream Deck hero pipeline must treat SVG as a first-class visual source instead of silently degrading to action-name text.
+
+- deterministically rasterize SVG action/state art through the shared repository renderer
+- preserve transparency and the original product glyph
+- do not substitute generated icons or lettermarks
+- cache rasterized SVGs by content hash or another collision-proof content identity
+- never cache only by basename such as `icon.svg`; many actions intentionally use the same basename in different directories
+- if a real action visual cannot be resolved, fail the art build instead of shipping a text-only placeholder
+
+A valid 1920 x 960 image with fifteen visible keys can still be wrong if those fifteen keys reused one cached SVG. Dimensions are not visual correctness.
+
+### Final Rat Ship artifact is the approval surface
+
+For normal Stream Deck products, product-local Rat Art is an intermediate input because Rat Ship overwrites the cover with the canonical photographed-device hero.
+
+Therefore:
+
+- visually approve the **final Rat Ship ship-kit `02_cover.png`**, not only product-local art
+- preserve the final ship-kit as a CI artifact for visually sensitive products
+- inspect the exact artifact generated from the candidate commit before asking the user to run Rat Ship
+- use the hero provenance report/key-source list to confirm whether each key came from exact product art, representative fixtures, or real manifest assets
+- if the final cover is wrong, fix the deterministic pipeline in the repository and rerun CI; do not make the user discover the same art defect through repeated Maker Console submissions
+
+The final Marketplace cover is not approved merely because product Rat Art, dimensions, or the hardware compositor passed independently.
+
 Detect the 15 LCD windows from the source PNG alpha channel inside calibrated physical button bounds. Cached LCD bounds are regression evidence only, not the rendering mask. Fill every detected LCD pixel with an opaque screen underlay plus a small under-bezel safety bleed before placing product content. Rat Art must fail unless exactly 15 LCDs are detected and uncovered LCD pixels equal zero.
 
 Transparent key art must be alpha-trimmed and contained automatically. Its transparency reveals the intentional LCD background, never the warm-studio scene. Opaque key-face art fills the detected LCD region. Never paste product pixels over the physical button rim or compensate for a bad fit by covering a finished hero with a dark matte.
