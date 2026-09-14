@@ -25,10 +25,10 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(js,/assignedSummary/);
   assert.match(js,/function applyStatus/);
   assert.match(runtime,/if \(recording\) return stopRecording\(record\.action\);/);
-  assert.match(runtime,/assignNewRecordingToBlankReplayKeys/);
+  assert.match(runtime,/assignNewRecordingToReplayKeys/);
   assert.match(runtime,/No macro is assigned to this Play key/);
   assert.match(runtime,/Rapid Left Click/);
-  assert.match(runtime,/EMERGENCY\\nSTOP/);
+  assert.match(runtime,/title = "STOP"/);
   assert.match(runtime,/saved && macro\?\.id === saved\.macroId\) title = "SAVED"/);
   assert.match(runtime,/recentSaved/);
   assert.match(html,/1× follows the timing you originally recorded/);
@@ -38,9 +38,13 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(runtime,/latestMacroId/);
   assert.match(runtime,/Date\.now\(\) \+ 15000/);
   assert.match(runtime,/settings: record \? \{ \.\.\.record\.settings/);
+  assert.match(runtime,/autoLatest: pro \? source\.autoLatest !== false : false/);
+  assert.match(js,/autoLatest:false/);
   assert.doesNotMatch(runtime,/record\.kind === "record"[\s\S]{0,180}else if \(saved\) title = "SAVED"/);
   assert.match(js,/context:uiUuid/);
-  assert.match(js,/context=uuid/);
+  assert.match(js,/actionContext=String\(ai\.context\|\|uuid\)/);
+  assert.match(js,/context:actionContext/);
+  assert.doesNotMatch(js,/sendToPlugin"[\s\S]{0,120}context:uiUuid/);
   assert.match(js,/state\?\.settings\?\.macroId/);
   assert.match(js,/if\(next\?\.settings\)applySettings\(next\.settings\)/);
   assert.match(html,/<option value="1" selected>1×<\/option>/);
@@ -65,7 +69,8 @@ test("Pro manifest keeps the intended platform, profile and loop safety contract
   for(const action of manifest.Actions) assert.equal(action.UserTitleEnabled,false);
   const record=manifest.Actions.find(action=>action.UUID.endsWith(".record"));
   const stop=manifest.Actions.find(action=>action.UUID.endsWith(".stop"));
-  assert.equal(stop?.Name,"Emergency Stop");
+  assert.equal(stop?.Name,"Stop");
+  assert.equal(stop?.States?.[0]?.TitleAlignment,"bottom");
   const replay=manifest.Actions.find(action=>action.UUID==="com.packrat.macro-recorder-pro.replay");
   assert.equal(record?.SupportedInKeyLogicActions,false);
   assert.equal(stop?.SupportedInKeyLogicActions,false);
