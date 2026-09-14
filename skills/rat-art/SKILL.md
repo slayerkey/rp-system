@@ -45,11 +45,12 @@ The global hero must show real product key visuals, not generic text cards.
 
 Use this source order:
 
-1. If product Rat Art emits exactly 15 PNGs under `rat-art-keys/`, those are authoritative. Use them as the hero LCD faces. This is the preferred path for dynamic/live-state products because the product can choose honest representative states.
-2. Otherwise use the plugin's real action visual assets. Raster key/state art may be used directly. SVG action icons/state art must be deterministically rasterized through the shared Playwright renderer and composed into the canonical PackRat key face.
-3. A missing action visual is a hard art failure. Never silently replace it with a text-only action-name tile.
+1. If product Rat Art emits exactly 15 PNGs under `rat-art-keys/`, those are authoritative. Use them as the hero LCD faces. This is the preferred path when the product already owns exact deterministic runtime-key renders.
+2. Otherwise, if product Rat Art emits `rat-art-key-fixtures.json`, use those 15 representative runtime states together with the plugin's real action icons. This is the preferred lightweight path for products whose runtime keys are icon + changing text/state.
+3. Otherwise use the plugin's real action visual assets. Raster key/state art may be used directly. SVG action icons/state art must be deterministically rasterized through the shared Playwright renderer and composed into the canonical PackRat key face.
+4. A missing action visual is a hard art failure. Never silently replace it with a text-only action-name tile.
 
-When a product paints substantially different runtime key faces than its static manifest art, its product Rat Art should export `rat-art-keys/` so the Marketplace cover demonstrates what customers actually see on their Stream Deck.
+When a product paints substantially different runtime key faces than its static manifest art, its product Rat Art should export either exact `rat-art-keys/` or representative `rat-art-key-fixtures.json` so the Marketplace cover demonstrates what customers actually see on their Stream Deck.
 
 The generic fallback face follows the canonical PackRat key language: one orange top accent, one large white product glyph, concise bottom copy, dark key background, and no decorative `PACKRAT` wordmark inside each key.
 
