@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -117,8 +118,9 @@ def rasterize_svg(svg_path: Path, cache_dir: Path) -> Path:
     if not SVG_RENDERER.is_file():
         fail(f"canonical Stream Deck SVG renderer missing: {SVG_RENDERER}")
     cache_dir.mkdir(parents=True, exist_ok=True)
-    safe = svg_path.name.replace("@", "_at_").replace(".", "_")
-    target = cache_dir / f"{safe}.png"
+    safe = svg_path.stem.replace("@", "_at_")
+    digest = hashlib.sha256(svg_path.read_bytes()).hexdigest()[:16]
+    target = cache_dir / f"{safe}-{digest}.png"
     if target.is_file():
         return target
     result = subprocess.run(
