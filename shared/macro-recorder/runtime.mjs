@@ -24,10 +24,10 @@ function packRatKeyImage(kind, title = "") {
   const fallback = kind === "record" ? "RECORD" : kind === "stop" ? "STOP" : "PLAY";
   const lines = String(title || fallback).split("\n").filter(Boolean).slice(0, 2);
   const glyph = kind === "record"
-    ? '<circle cx="78" cy="58" r="24" fill="none" stroke="#F5F7FB" stroke-width="7"/>'
+    ? '<circle cx="78" cy="58" r="24" fill="none" stroke="#FF5D6C" stroke-width="7"/>'
     : kind === "stop"
       ? '<rect x="54" y="34" width="48" height="48" rx="4" fill="#F5F7FB"/>'
-      : '<path d="M58 29 L108 58 L58 87 Z" fill="#F5F7FB"/>';
+      : '<path d="M58 29 L108 58 L58 87 Z" fill="#2BE86A"/>';
   const text = lines.length > 1
     ? `<text x="78" y="112" text-anchor="middle" fill="#F5F7FB" font-family="Arial,Segoe UI,sans-serif" font-size="16" font-weight="700">${keyXml(lines[0])}</text><text x="78" y="133" text-anchor="middle" fill="#9AA2AF" font-family="Arial,Segoe UI,sans-serif" font-size="15" font-weight="700">${keyXml(lines[1])}</text>`
     : `<text x="78" y="128" text-anchor="middle" fill="#F5F7FB" font-family="Arial,Segoe UI,sans-serif" font-size="${lines[0]?.length > 8 ? 15 : 18}" font-weight="700">${keyXml(lines[0] || fallback)}</text>`;
@@ -101,7 +101,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       savedFeedbackTimer = null;
       void renderAll();
       void broadcastStatus();
-    }, 4000);
+    }, 15000);
   }
 
   function settingsFor(kind, raw = {}) {
