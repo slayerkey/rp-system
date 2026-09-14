@@ -23,6 +23,12 @@ def main() -> None:
 
         real = Image.new("RGBA", (288, 288), (12, 15, 20, 255))
         real.save(plugin / "imgs" / "real-key.png", "PNG")
+        icon = Image.new("RGBA", (144, 144), (0, 0, 0, 0))
+        for x in range(36, 108):
+            for y in range(36, 108):
+                if x in (36, 107) or y in (36, 107):
+                    icon.putpixel((x, y), (245, 247, 251, 255))
+        icon.save(plugin / "imgs" / "icon.png", "PNG")
 
         manifest = {
             "Name": "Test Control Pro",
@@ -35,13 +41,9 @@ def main() -> None:
                     "States": [{"Image": "imgs/real-key", "ShowTitle": False}],
                 },
                 {
-                    "UUID": "com.packrat.test-control-pro.first",
-                    "Name": "First Action",
-                    "States": [{"Image": "imgs/not-rasterized-svg", "ShowTitle": False}],
-                },
-                {
                     "UUID": "com.packrat.test-control-pro.second",
                     "Name": "Second Action",
+                    "Icon": "imgs/icon",
                     "States": [{"ShowTitle": False}],
                 },
             ],
@@ -63,10 +65,28 @@ def main() -> None:
         assert report["only_marketplace_slot_replaced"] == "02_cover.png"
         assert report["image_generation"] == "disabled"
         assert len(report["key_sources"]) == 15
-        assert report["key_sources"][0].startswith("state:")
-        assert report["key_sources"][1] == "fallback"
-        assert report["key_sources"][2] == "fallback"
-        assert report["key_sources"][3:] == ["blank"] * 12
+        assert report["key_sources"][0].startswith("state-raster:")
+        assert report["key_sources"][1].startswith("icon-png:")
+        assert report["key_sources"][2:] == ["blank"] * 13
+
+        bad_manifest = {
+            "Name": "Broken Text Fallback",
+            "UUID": "com.packrat.broken",
+            "Actions": [
+                {
+                    "UUID": "com.packrat.broken.no-art",
+                    "Name": "No Visual Art",
+                    "States": [{"ShowTitle": False}],
+                }
+            ],
+        }
+        (plugin / "manifest.json").write_text(json.dumps(bad_manifest), encoding="utf-8")
+        try:
+            render_ship_hero("test-control-pro", plugin, submission, root / "bad-cover.png")
+            raise AssertionError("text-only fallback should be rejected")
+        except SystemExit as exc:
+            assert "refused text-only key placeholders" in str(exc)
+        (plugin / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
 
         canonical = report["canonical_report"]
         assert canonical["detected_key_count"] == 15
@@ -111,6 +131,11 @@ def main() -> None:
             cwd=ROOT,
         )
         assert cli_out.is_file()
+
+        renderer_source = (ROOT / "tools" / "art" / "render_streamdeck_ship_hero.py").read_text(encoding="utf-8")
+        assert '".svg"' in renderer_source
+        assert "render_svg_icon.mjs" in renderer_source
+        assert "text-fallback" in renderer_source
 
     print("STREAM DECK RAT SHIP HERO TEST PASS")
 
