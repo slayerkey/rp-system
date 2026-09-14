@@ -11,7 +11,7 @@
     <section class="hero">
       <div class="eyebrow">PACKRAT</div>
       <h1>Windows Settings Manager</h1>
-      <p id="edition">Live Windows system controls</p>
+      <p id="edition">Windows Control Center for Stream Deck</p>
     </section>
 
     <section class="card">
@@ -26,6 +26,41 @@
     <section id="actionCard" class="card">
       <h2>Key Settings</h2>
 
+      <div id="toggleFields" class="action-fields hidden">
+        <label for="toggleOperation">Press action</label>
+        <select id="toggleOperation">
+          <option value="toggle">Toggle current state</option>
+          <option value="on">Set On</option>
+          <option value="off">Set Off</option>
+        </select>
+        <p id="toggleHelp" class="help"></p>
+      </div>
+
+      <div id="themeFields" class="action-fields hidden">
+        <label for="themeOperation">Press action</label>
+        <select id="themeOperation">
+          <option value="toggle">Toggle Light / Dark</option>
+          <option value="on">Set Dark</option>
+          <option value="off">Set Light</option>
+        </select>
+        <label for="themeScope">Change</label>
+        <select id="themeScope">
+          <option value="both">Apps + Windows system</option>
+          <option value="apps">Apps only</option>
+          <option value="system">Windows system only</option>
+        </select>
+        <p class="help">The key shows MIXED if app and system theme do not match. Toggle refuses to guess from a mixed state; choose Set Dark or Set Light instead.</p>
+      </div>
+
+      <div id="confirmFields" class="action-fields hidden">
+        <label for="confirmation">Safety</label>
+        <select id="confirmation">
+          <option value="double">Require second press within 3 seconds</option>
+          <option value="none">Run immediately</option>
+        </select>
+        <p class="help">Restart and Shutdown default to two-step confirmation so a single accidental press cannot end your Windows session.</p>
+      </div>
+
       <div id="hdrFields" class="action-fields hidden">
         <label for="hdrOperation">Press action</label>
         <select id="hdrOperation">
@@ -33,18 +68,18 @@
           <option value="on">Set HDR On</option>
           <option value="off">Set HDR Off</option>
         </select>
-        <p class="help">Changes HDR only. Supported displays can briefly flicker while Windows applies the change.</p>
+        <p class="help">Advanced compatibility control. Monitor Manager remains PackRat's deep display-management product.</p>
       </div>
 
       <div id="powerFields" class="action-fields hidden">
         <label for="powerOperation">Press action</label>
         <select id="powerOperation">
           <option value="cycle">Cycle available plans</option>
-          <option value="set">Set one plan</option>
+          <option value="set">Set one exact plan</option>
         </select>
         <label for="powerGuid">Power plan</label>
         <select id="powerGuid"></select>
-        <p class="help">Changes the active Windows power plan only. It does not sleep, restart, or shut down the PC.</p>
+        <p class="help">Changes only the active Windows power plan. It never sleeps, restarts, or shuts down the PC.</p>
       </div>
 
       <div id="displayFields" class="action-fields hidden">
@@ -61,7 +96,7 @@
           <option value="extend">Extend</option>
           <option value="external">Second screen only</option>
         </select>
-        <p class="help">Display topology can move windows or temporarily blank a monitor. Choose a specific topology instead of Cycle if you want predictable behavior.</p>
+        <p class="help">Advanced compatibility control. Changing topology can move windows or temporarily blank a monitor.</p>
       </div>
 
       <div id="timeoutFields" class="action-fields hidden">
@@ -76,21 +111,22 @@
           <label>Sleep AC <input id="sleepAcSeconds" type="number" min="0" max="4294967295" step="60"></label>
           <label>Sleep battery <input id="sleepDcSeconds" type="number" min="0" max="4294967295" step="60"></label>
         </div>
-        <p class="help">Values are seconds. 0 means Never. The default Cycle action changes the screen-off timeout only; it does not immediately put the PC to sleep.</p>
+        <p class="help">Values are seconds. 0 means Never. This changes idle timers; it does not immediately put the PC to sleep.</p>
       </div>
 
       <div id="modeActionFields" class="action-fields hidden">
-        <label for="actionModeId">PC Mode</label>
+        <label for="actionModeId">Advanced PC Mode</label>
         <select id="actionModeId"></select>
+        <p class="help">PC Modes are optional advanced actions. They are no longer the default product experience.</p>
       </div>
 
-      <p id="noActionSettings" class="help">This key has no extra settings. Its title follows the live Windows state.</p>
+      <p id="noActionSettings" class="help">This key has no extra settings.</p>
     </section>
 
     <section id="modeEditor" class="card hidden">
-      <div class="eyebrow">PRO</div>
-      <h2>PC Mode Editor</h2>
-      <p class="help">Modes start empty. An empty mode changes nothing and its key shows SETUP. Use Capture Current to save the PC state you already have, or include only the settings you explicitly want this mode to change.</p>
+      <div class="eyebrow">ADVANCED PRO</div>
+      <h2>Optional PC Mode Editor</h2>
+      <p class="help">Modes start empty and are intentionally secondary. An empty mode changes nothing. Include only settings you explicitly want the mode to touch.</p>
 
       <label for="editModeId">Mode slot</label>
       <select id="editModeId"></select>
@@ -133,23 +169,22 @@
 
       <div class="row">
         <button id="saveMode" type="button">Save Mode</button>
-        <button id="captureMode" class="secondary" type="button">Save Current PC State</button>
+        <button id="captureMode" class="secondary" type="button">Capture Current</button>
       </div>
-      <p class="help">Saving current state captures only settings this plugin can read reliably. Mixed HDR across displays is not flattened into a false single value.</p>
     </section>
 
     <section id="liteUpsell" class="card hidden">
       <div class="eyebrow">PRO</div>
-      <h2>Build one-key PC Modes</h2>
-      <p>Windows Settings Manager Pro combines the exact Windows settings you choose into saved GAMING, WORK, NIGHT, PRESENT, and MOVIE modes with verified COMPLETE, PARTIAL, or FAILED results.</p>
+      <h2>Unlock the full Windows Control Center</h2>
+      <p>Pro adds Wi-Fi, Bluetooth, Hibernate, protected Restart and Shutdown, Light/Dark theme, and full virtual desktop create/close/status controls while keeping live Windows state visible on your keys.</p>
       <div class="row" style="margin-top:10px">
         <button id="proUpgrade" type="button">View Windows Settings Manager Pro</button>
       </div>
     </section>
 
     <section class="privacy">
-      <strong>Local by design</strong>
-      <p>No coordinate clicking. No Quick Settings automation. Windows state is re-read so changes made outside Stream Deck are reflected on your keys.</p>
+      <strong>Predictable by design</strong>
+      <p>No coordinate clicking or Quick Settings automation. PackRat reads Windows state, performs a defined system action, and verifies state-changing controls when Windows exposes a readable result.</p>
     </section>
   </main>
   <script src="pi.js"></script>
