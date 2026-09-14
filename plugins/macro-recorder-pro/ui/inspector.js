@@ -108,6 +108,10 @@
   $("timelinePrev").addEventListener("click",()=>{if(timelinePage>0){timelinePage-=1;renderTimeline();}});
   $("timelineNext").addEventListener("click",()=>{timelinePage+=1;renderTimeline();});
   $("refreshLibrary").addEventListener("click",()=>requestState(true));
+  $("packratLink").addEventListener("click",event=>{
+    event.preventDefault();
+    send({event:"openUrl",payload:{url:"https://marketplace.elgato.com/maker/packrat"}});
+  });
   if(pro){
     $("captureMouseMovement").addEventListener("change",()=>saveSettings({captureMouseMovement:$("captureMouseMovement").checked}));
     $("macroSelect").addEventListener("change",()=>{const macroId=$("macroSelect").value;settings={...settings,macroId,autoLatest:false};if(state)state={...state,settings:{...(state.settings||{}),macroId,autoLatest:false}};command("selectMacro",{macroId});});
