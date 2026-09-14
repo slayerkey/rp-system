@@ -7,10 +7,11 @@ const root=new URL("../",import.meta.url);
 const repoRoot=new URL("../../",root);
 
 test("Pro property inspector keeps replay setup visible and debuggable",async()=>{
-  const [html,js,runtime]=await Promise.all([
+  const [html,js,runtime,assets]=await Promise.all([
     readFile(new URL("ui/inspector.html",root),"utf8"),
     readFile(new URL("ui/inspector.js",root),"utf8"),
     readFile(new URL("shared/macro-recorder/runtime.mjs",repoRoot),"utf8"),
+    readFile(new URL("scripts/build-assets.mjs",root),"utf8"),
   ]);
   new vm.Script(js);
   for(const id of ["captureMouseMovement","macroSelect","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
@@ -26,6 +27,16 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(runtime,/if \(recording\) return stopRecording\(record\.action\);/);
   assert.match(runtime,/assignNewRecordingToBlankReplayKeys/);
   assert.match(runtime,/No macro is assigned to this Play key/);
+  assert.match(runtime,/Rapid Left Click/);
+  assert.match(runtime,/EMERGENCY\\nSTOP/);
+  assert.match(runtime,/SAVED\\nREADY/);
+  assert.match(runtime,/recentSaved/);
+  assert.match(html,/1× follows the timing you originally recorded/);
+  assert.match(html,/Emergency Stop now/);
+  assert.match(js,/NEW · /);
+  assert.match(assets,/red=\[244,76,86,255\]/);
+  assert.match(assets,/green=\[53,230,126,255\]/);
+  assert.match(assets,/mode==="list"\?white/);
 });
 
 test("Pro manifest keeps the intended platform, profile and loop safety contract",async()=>{
