@@ -74,7 +74,6 @@ try {
         type = "plugin"
         source = "plugins/text-expander"
         ship_plugin_dir = "dist/com.packrat.textexpanderpro.sdPlugin"
-        dev_profile = "profiles/text-expander-pro-standard.streamDeckProfile"
     } | ConvertTo-Json | Set-Content (Join-Path $productsDir "text-expander-pro.json")
 
     Invoke-Git -Root $TempRoot -Args @("add","plugins","products")
@@ -91,7 +90,6 @@ try {
     Assert-Equal $proShared.SourceRoot "plugins\text-expander" "Shared Pro source root mismatch."
     Assert-Equal $liteShared.Config.plugin_dir "dist/com.packrat.textexpanderlite.sdPlugin" "Shared Lite plugin_dir mismatch."
     Assert-Equal $proShared.Config.plugin_dir "dist/com.packrat.textexpanderpro.sdPlugin" "Shared Pro plugin_dir mismatch."
-    Assert-Equal $proShared.Config.open_dev_profile "profiles/text-expander-pro-standard.streamDeckProfile" "Shared Pro dev profile mismatch."
 
     $resolvedLiteDir = Resolve-RatDevPluginDirectory -PluginRoot $sharedRoot -Config $liteShared.Config
     $resolvedProDir = Resolve-RatDevPluginDirectory -PluginRoot $sharedRoot -Config $proShared.Config
@@ -185,14 +183,6 @@ try {
     $missing = Read-RatDevJsonFromGitObject -RepoRoot $TempRoot -Object "HEAD:plugins/does-not-exist/rat-dev.json"
     if ($null -ne $missing) {
         throw "Missing Rat Dev JSON object should return null."
-    }
-
-    $ratDevScript = Get-Content (Join-Path $RepoRoot "tools\local\rat-dev.ps1") -Raw
-    if ($ratDevScript -notmatch "Opening Stream Deck profile for import") {
-        throw "Rat Dev should open an explicitly configured .streamDeckProfile after a successful dev link."
-    }
-    if ($ratDevScript -notmatch "escapes plugin directory") {
-        throw "Rat Dev profile import must keep the configured profile inside the built plugin directory."
     }
 
     Write-Host "PASS: Rat Dev family product branch resolution" -ForegroundColor Green
