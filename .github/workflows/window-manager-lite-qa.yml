@@ -1,0 +1,43 @@
+name: Window Manager Lite QA
+
+on:
+  push:
+    branches: [product/window-manager]
+    paths:
+      - 'plugins/window-manager/**'
+      - '.github/workflows/window-manager-lite-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: plugins/window-manager
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install editable Lite dependency
+        run: npm install --no-fund --no-audit
+
+      - name: Lite regression tests
+        run: npm test
+
+      - name: Official Stream Deck validation
+        run: npx --yes @elgato/cli@1.9.0 validate com.packrat.windowmanager.sdPlugin --no-update-check
+
+      - name: Windows native load smoke
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          node -e "import('./com.packrat.windowmanager.sdPlugin/bin/win32.js').then(m=>{m.assertLayout(); console.log('windows='+(m.listWindows()?.length ?? 0)); console.log('monitors='+(m.monitors()?.length ?? 0));})"
