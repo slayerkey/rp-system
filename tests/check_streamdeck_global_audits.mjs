@@ -78,6 +78,7 @@ pro:"https://marketplace.elgato.com/product/demo-pro-00000000-0000-0000-0000-000
     const result=run(designAudit,[root,"--require-canonical-pi","--require-lite-pro-upsell"]);
     assert.notEqual(result.status,0,"Lite→Pro audit must fail when the bottom explanatory card is removed");
     assert.match(result.stderr,/bottom \.upsell feature card is missing/);
+    assert.match(result.stderr,/bottom direct 'Open <Product> Pro ↗' CTA is missing/);
   } finally { rmSync(root,{recursive:true,force:true}); }
 }
 
