@@ -71,6 +71,8 @@ For work using the canonical PackRat Property Inspector, add `--require-canonica
 
 That audit catches stable action-identity drift, host-title regressions, and the Property Inspector context/transport failure pattern that causes dead buttons, stale startup state, and settings that do not persist.
 
+For stateful Property Inspectors, transport correctness is not enough. Product regression tests must also cover save/render races: a pending local selection/value must survive a stale plugin state response, authoritative state must clear `Saving…`, text drafts used by Rename/Create/Apply must survive background renders until the command reads them, and dynamic selectors must persist immutable IDs rather than names/counts/positions.
+
 Dashboard-style plugins that promise the default major-model bundle must run:
 
 `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin> --require-major-profiles`
@@ -83,7 +85,7 @@ The automated audit is only a floor. Also review actual keys at 72 x 72 and a re
 
 Use GitHub Actions for clean Node builds and vendor CLI work.
 
-Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures. The hardware pass must explicitly cover readable 72 x 72 key faces, accent/state behavior, Property Inspector save/reopen persistence, PI command buttons, live update cadence, and bundled profile appearance when profiles are promised.
+Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures. The hardware pass must explicitly cover readable 72 x 72 key faces, accent/state behavior, Property Inspector save/reopen persistence, selector switching without rollback, mutable text commands such as Rename/Create, visible `Saving… → Saved` acknowledgement, PI command buttons, live update cadence, and bundled profile appearance when profiles are promised.
 
 ### Profile
 
@@ -164,6 +166,9 @@ Shared automation should catch, when applicable:
 - wrong canonical PI palette/branding
 - missing local PackRat logo asset
 - PI transport/settings-context mistakes
+- PI save/render races that overwrite pending selections or text drafts
+- save acknowledgements that can leave `Saving…` stuck despite persisted settings
+- dynamic selectors that use ambiguous labels/positions instead of immutable IDs
 - Lite→Pro top/bottom conversion surfaces
 - profile coverage/generation mistakes
 - marketplace text overflow and reduced-size readability failures
