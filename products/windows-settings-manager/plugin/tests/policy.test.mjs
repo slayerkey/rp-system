@@ -567,8 +567,23 @@ test("backend loss clears Keep Awake and stateful keys stop showing stale values
   const state = await readFile(path.resolve("src", "state.ts"), "utf8");
   const render = await readFile(path.resolve("src", "render.ts"), "utf8");
   assert.match(state, /backendOnline: false,[\s\S]*keepAwake: false/);
-  assert.match(render, /timeoutTitle[\s\S]*!snapshot\.backendOnline\) return "TIMEOUT\\nOFFLINE"/);
-  assert.match(render, /awakeTitle[\s\S]*!snapshot\.backendOnline\) return "AWAKE\\nOFFLINE"/);
+  assert.match(render, /timeoutTitle[\s\S]*!snapshot\.backendOnline\) return "SCREEN\\nOFFLINE"/);
+  assert.match(render, /awakeTitle[\s\S]*!snapshot\.backendOnline\) return "SLEEP\\nOFFLINE"/);
+});
+
+test("hardware keys keep the live-title area clear and explain safe states", async () => {
+  const assemble = await readFile(path.resolve("scripts", "assemble.mjs"), "utf8");
+  const render = await readFile(path.resolve("src", "render.ts"), "utf8");
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  const inspector = await readFile(path.resolve("ui", "config.html"), "utf8");
+
+  assert.doesNotMatch(assemble, /x="33" y="32" width="34"/);
+  assert.match(assemble, /opacity="\.32"/);
+  assert.match(render, /statusTitle[\s\S]*"PC\\nREADY"/);
+  assert.match(render, /awakeTitle[\s\S]*"STAY\\nAWAKE"[\s\S]*"SLEEP\\nNORMAL"/);
+  assert.match(actions, /SETUP\\n\$\{modeTitle\(mode\)\}/);
+  assert.match(inspector, /Modes start empty/);
+  assert.match(inspector, /does not immediately put the PC to sleep/);
 });
 
 test("state refresh polls Windows and the inspector refresh button forces a real read", async () => {
