@@ -21,9 +21,11 @@ Use the Stream Deck SDK project structure, lockfile, unit or fixture tests, mani
 
 Choose a key-face pattern before implementing actions:
 
-- Icon-led: one large semantic glyph, high contrast, usually `ShowTitle: false`.
-- Rendered key: compose all value/state text and graphics into one 144 x 144 or equivalent key image, with Stream Deck title overlay disabled.
-- Text-assisted icon: only when a short value or state is genuinely necessary; reserve a dedicated text band and never use middle-aligned title text over the glyph.
+- Icon-led: one large semantic glyph, high contrast, with `ShowTitle: false`.
+- Rendered state/preset key: compose the semantic glyph plus one or two short value/state lines into one 144 x 144 or equivalent key image and update it with `setImage(...)`.
+- Rendered data key: own the complete telemetry/dashboard layout inside the image.
+
+For PackRat Keypad actions, host-managed Stream Deck title overlays are not the product UI. Keep `ShowTitle: false` and render text inside the image in a reserved band. Preset buttons must show the preset they will set; do not repaint every preset key with one shared current value.
 
 Do not use one generic device silhouette as the background for unrelated actions when a specific symbol can communicate the action. Brightness should look like brightness, contrast like contrast, volume like volume, power like power, and so on.
 

@@ -45,7 +45,7 @@ Use the Stream Deck SDK and canonical plugin build/test/package path.
 
 Validate manifest structure, built code paths, property inspectors, actions, assets, settings, cache/API behavior, error states, and Elgato CLI validation/package.
 
-Key-face visual quality is part of plugin correctness. Read `standards/streamdeck-key-visuals-v1.md` before designing action art or bundled profiles. A key must be obvious at real 72 x 72 Stream Deck scale, with the action or live value upfront. Do not cover a small generic device illustration with long Stream Deck title text.
+Key-face visual quality is part of plugin correctness. Read `standards/streamdeck-key-visuals-v1.md` before designing action art or bundled profiles. A key must be obvious at real 72 x 72 Stream Deck scale, with the action or live value upfront. PackRat Keypad UI owns the full rendered key face: disable the Stream Deck title overlay with `ShowTitle: false` and render any state/value text into the image with an explicit text band. Do not cover a generic device illustration with host-managed title text.
 
 Every plugin with Keypad actions must run the shared key-face audit when practical:
 

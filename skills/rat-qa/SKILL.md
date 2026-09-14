@@ -11,7 +11,7 @@ At minimum cover metadata, package structure, assets, copy rules, required varia
 
 For plugins, include unit or fixture tests, vendor manifest validation, and the Stream Deck key-face visual gate from `standards/streamdeck-key-visuals-v1.md`. Run `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>` when applicable.
 
-The visual gate is not satisfied by correct image dimensions alone. Review keys at 72 x 72 and 36 x 36. Reject clipped text, text crossing the main glyph, tiny low-contrast subjects, dense generic device illustrations behind labels, and unrelated actions that all look the same. Dynamic state must be readable without requiring the user to remember what the button means.
+The visual gate is not satisfied by correct image dimensions alone. Every PackRat Keypad state must explicitly use `ShowTitle: false`; state/value text belongs inside the rendered key image. Review keys at 72 x 72 and 36 x 36. Reject clipped text, text crossing the main glyph, tiny low-contrast subjects, dense generic device illustrations behind labels, unrelated actions that all look the same, preset buttons that all collapse to one current value, and raw resolution strings that run off the key. Dynamic state must be readable without requiring the user to remember what the button means.
 
 For profiles, include ZIP structure, page structure, action IDs, required plugins, device variants, icons, platform encoding, and the same key-face visual standard. Generated profile labels must not undo the plugin's visual hierarchy.
 
