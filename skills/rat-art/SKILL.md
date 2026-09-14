@@ -79,6 +79,20 @@ For a game, stronger feature points are usually things like display fit, control
 
 Use setup convenience as supporting copy unless setup simplicity is itself the product's main advantage.
 
+## Marketplace text safety
+
+All customer-facing Rat Art prose must be laid out inside explicit bounding boxes with the shared helper at `tools/art/marketplace_text.py`.
+
+- use `draw_fitted_text(...)` for card descriptions, subtitles, explanatory copy, and any text that can wrap
+- let the helper choose the largest safe font size inside the declared box
+- wrapping must preserve the full copy; do not silently truncate or clip
+- if the copy cannot fit at the declared minimum readable size, Rat Art must fail closed
+- do not use raw Pillow `multiline_text(...)` for marketplace prose
+- prefer fewer, larger cards over many narrow cards when the listing is expected to be judged at thumbnail size
+- inspect gallery frames at 480×240, 320×160, and 240×120; if text becomes decorative noise instead of useful information, simplify the layout or increase the content scale
+
+This rule exists specifically to prevent text from crossing card boundaries or becoming unreadable after Marketplace downsizing.
+
 ## Required preflight
 
 Verify canonical engine imports, required source assets, brand logo, device plate, required widget captures, and exact brand font resolution.
