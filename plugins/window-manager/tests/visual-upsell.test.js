@@ -27,14 +27,15 @@ test("canonical PackRat visuals and branding are present",async()=>{
   await access(new URL("com.packrat.windowmanager.sdPlugin/imgs/plugin/packrat-logo.png",root));
 });
 
-test("Lite to Pro CTA is visible near the top and points at the published Pro product",()=>{
-  assert.match(footer,/buildPackRatBrand\(\);\s*buildProCallout\(\);/);
-  assert.match(footer,/Unlock More Features/);
+test("Lite to Pro CTA is in the top PackRat bar and points at the published Pro product",()=>{
+  assert.match(footer,/buildPackRatTopbar\(\)/);
+  assert.match(footer,/packrat-topbar/);
   assert.match(footer,/Upgrade to Pro ↗/);
-  assert.match(footer,/insertAdjacentElement\("afterend", callout\)/);
+  assert.match(footer,/topbar\.append\(brand, upgrade\)/);
   assert.match(footer,/f3ed6217-0282-419d-a71d-4b1548147b11/);
-  assert.match(css,/\.pro-callout\{/);
-  assert.match(css,/text-align:center/);
+  assert.match(css,/\.packrat-topbar\{/);
+  assert.match(css,/justify-content:space-between/);
+  assert.match(css,/\.packrat-upgrade\{/);
   assert.doesNotMatch(footer,/workspace|launch missing|missing apps/i);
 });
 
