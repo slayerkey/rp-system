@@ -21,6 +21,10 @@ test("native input host keeps Macro Recorder release-safety invariants",async()=
   assert.match(cs,/Native\.SendKey\(key\.Vk, key\.Scan, true, key\.Extended\)/);
 
   assert.match(cs,/ev\.DelayMs = \(int\)Math\.Clamp\(now - _lastEventMs, 0, _maxDurationMs\)/);
+  assert.match(cs,/targetMs \+= Math\.Max\(0, delay\) \/ speed/);
+  assert.match(cs,/WaitUntilAsync\(clock, targetMs, token\)/);
+  assert.match(cs,/timeBeginPeriod\(1\)/);
+  assert.match(cs,/timeEndPeriod\(1\)/);
   assert.match(cs,/data\.vkCode == Native\.VK_F12[\s\S]*IsPlaybackActive\(\)/);
 
   assert.match(buildHost,/--self-contained","true"/);
