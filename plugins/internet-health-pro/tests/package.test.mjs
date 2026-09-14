@@ -92,11 +92,11 @@ test("physical key graphs use a dedicated 30 second visual window", () => {
 });
 
 
-test("pre-release monitoring cadence migrates to five seconds", () => {
-  assert.match(pluginSource, /intervalSeconds: 5, cadenceVersion: 1/);
+test("pre-release monitoring cadence migrates to one second", () => {
+  assert.match(pluginSource, /intervalSeconds: 1, cadenceVersion: 2/);
   assert.match(pluginSource, /setGlobalSettings\(migrated\)/);
-  assert.match(inspectorSource, /intervalSeconds: 5/);
-  assert.match(inspectorSource, /number\("intervalSeconds", 5\)/);
+  assert.match(inspectorSource, /intervalSeconds: 1/);
+  assert.match(inspectorSource, /number\("intervalSeconds", 1\)/);
 });
 
 test("speed key gives download and upload equal visual hierarchy", () => {
@@ -132,8 +132,9 @@ test("bundled major-model profiles are declared, generated and deterministic arc
 });
 
 
-test("one second cadence is available without changing the five second default", () => {
+test("one second is the default cadence while five seconds remains available", () => {
   assert.match(inspectorSource, /const allowed = \[1,5,10,15,30,60\]/);
-  assert.match(inspectorHtml, /value="1">1 second \(most responsive\)<\/option>/);
-  assert.match(inspectorHtml, /5 seconds is the default/);
+  assert.match(inspectorHtml, /value="1">1 second \(default\)<\/option>/);
+  assert.match(inspectorHtml, /value="5">5 seconds<\/option>/);
+  assert.match(inspectorHtml, /1 second is the default/);
 });
