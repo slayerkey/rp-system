@@ -41,7 +41,8 @@ test("Marketplace submission keeps required product disclosures", async () => {
   const submission = await json(resolve(pluginRoot, "submission.json"));
   assert.ok(submission.description.includes("PresentMon"));
   assert.ok(submission.description.includes("Libre Hardware Monitor"));
-  assert.ok(submission.description.includes("Performance Log Users"));
+  assert.ok(submission.description.includes("Enable Game FPS"));
+  assert.ok(submission.description.includes("No manual group editing is required."));
   assert.ok(submission.description.includes("Sensor availability varies by hardware"));
   assert.ok(submission.description.includes("Part of the PackRat Ecosystem."));
   assert.ok(submission.description.includes("Ready-made dashboards are included for MK.2/15-key, XL, Stream Deck +, and Neo."));
