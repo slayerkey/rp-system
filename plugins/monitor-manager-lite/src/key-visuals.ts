@@ -21,7 +21,6 @@ export function keyImage(lines:string[]):string{
   return "data:image/svg+xml;base64,"+Buffer.from(
     '<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">'+
     '<rect width="144" height="144" rx="24" fill="#05070A"/>'+
-    '<rect x="8" y="12" width="5" height="32" rx="2.5" fill="'+ACCENT+'"/>'+
     '<g transform="translate(21 4) scale(1.42)" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">'+glyph+'</g>'+
     text+'</svg>',
     "utf8"
