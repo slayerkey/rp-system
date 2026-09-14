@@ -223,10 +223,11 @@ if (-not (Test-Path $Worktree)) {
 }
 
 # A healthy checkout may currently be the directory Stream Deck is running from.
-# Do not stop or unlink it before the replacement has built and validated. rat-dev.ps1
-# will switch the link only at the end of a successful update.
+# Reuse it in place. rat-dev.ps1 keeps ordinary plugins live, but if a plugin owns
+# a running native executable inside this checkout it will pause that plugin just
+# before the build so Windows can release the executable file lock.
 if (Test-ReusableCheckout -Config $config) {
-    Write-Host "Existing Rat Dev checkout is reusable. Keeping the current plugin live during the update." -ForegroundColor DarkGray
+    Write-Host "Existing Rat Dev checkout is reusable. Native helpers will be paused automatically if Windows has them locked." -ForegroundColor DarkGray
     exit 0
 }
 
