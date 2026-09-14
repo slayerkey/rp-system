@@ -38,8 +38,8 @@ if ($releaseAt -lt 0 -or $buildAt -lt 0 -or $releaseAt -gt $buildAt) {
 }
 
 $preflight = Get-Content (Join-Path $repoRoot "tools\local\rat-dev-preflight.ps1") -Raw
-if ($preflight -notmatch 'Native helpers will be paused automatically if Windows has them locked') {
-    throw "Rat Dev preflight does not explain native helper lock handling."
+if ($preflight -notmatch 'Existing Rat Dev checkout is reusable\. Continuing without stale-checkout cleanup\.') {
+    throw "Rat Dev preflight does not report the reusable-checkout path."
 }
 if ($preflight -match 'Keeping the current plugin live during the update') {
     throw "Rat Dev preflight still makes the incorrect always-live promise."
