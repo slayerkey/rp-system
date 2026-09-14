@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Performance Grapher</title>
-  <script src="sdpi-components.js?v=1.0.0.0-2"></script>
-  <link rel="stylesheet" href="inspector.css?v=1.0.0.0-2" />
+  <script src="sdpi-components.js?v=1.0.0.0-3"></script>
+  <link rel="stylesheet" href="inspector.css?v=1.0.0.0-3" />
 </head>
 <body>
   <main>
@@ -21,7 +21,10 @@
           <option value="">Loading metrics…</option>
         </select>
       </sdpi-item>
-      <div id="metricHint" class="help">One key, one readable metric.</div>
+      <div id="metricHint" class="help">Common PC metrics are shown first.</div>
+      <div class="subaction-row">
+        <button id="advancedMetricsButton" type="button">Show advanced sensors</button>
+      </div>
     </div>
 
     <div data-kinds="graph fps">
@@ -100,9 +103,9 @@
         <div><strong id="sensorTitle">Hardware sensors</strong><p id="sensorDetail">Waiting for plugin state…</p></div>
       </div>
       <button id="restartFps" type="button">Restart game telemetry</button>
-      <button id="presentMonHelp" type="button">Open FPS permission guide</button>
+      <button id="presentMonHelp" type="button">Why does FPS need Windows access?</button>
     </details>
   </main>
-  <script src="inspector.js?v=1.0.0.0-2"></script>
+  <script src="inspector.js?v=1.0.0.0-3"></script>
 </body>
 </html>
