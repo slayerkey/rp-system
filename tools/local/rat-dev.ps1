@@ -260,6 +260,22 @@ function Get-ExistingPluginUuid {
     if ($Source.Config -and $Source.Config.plugin_uuid) {
         return [string]$Source.Config.plugin_uuid
     }
+
+    # A failed build can remove the generated manifest while Stream Deck still
+    # has the previously linked plugin process alive. Rat Dev already trusts
+    # plugin_dir/ship_plugin_dir to select the exact bundle, and Stream Deck
+    # bundle folders use <plugin UUID>.sdPlugin. Recover that UUID here so a
+    # partial dist directory cannot make the next Rat Dev run blind.
+    if ($Source.Config -and $Source.Config.plugin_dir) {
+        $configuredLeaf = Split-Path -Leaf ([string]$Source.Config.plugin_dir).TrimEnd("\", "/")
+        if ($configuredLeaf.EndsWith(".sdPlugin", [System.StringComparison]::OrdinalIgnoreCase)) {
+            $derivedUuid = $configuredLeaf.Substring(0, $configuredLeaf.Length - ".sdPlugin".Length)
+            if (-not [string]::IsNullOrWhiteSpace($derivedUuid)) {
+                return $derivedUuid
+            }
+        }
+    }
+
     if (-not (Test-Path $Worktree)) { return $null }
 
     $root = Get-PluginRoot $Source
