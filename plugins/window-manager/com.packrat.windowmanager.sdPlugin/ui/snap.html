@@ -1,53 +1,47 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>Snap Window</title>
-		<link rel="stylesheet" href="pi.css" />
-	</head>
-	<body>
-		<h2>Where should this key put the window?</h2>
-		<div class="row">
-			<label class="key" for="position">Position</label>
-			<div class="field">
-				<select id="position">
-					<option value="left">Left half</option>
-					<option value="right">Right half</option>
-					<option value="maximize">Fill the screen</option>
-					<option value="center">Middle of the screen</option>
-				</select>
-			</div>
-		</div>
-		<div class="row">
-			<label class="key" for="monitor">Screen</label>
-			<div class="field">
-				<select id="monitor">
-					<option value="">Leave it where it is</option>
-					<option value="1">Screen 1, your main one</option>
-					<option value="2">Screen 2</option>
-					<option value="3">Screen 3</option>
-					<option value="4">Screen 4</option>
-				</select>
-			</div>
-		</div>
+<head>
+  <meta charset="utf-8" />
+  <title>Snap Window</title>
+  <link rel="stylesheet" href="pi.css" />
+</head>
+<body>
+  <div class="section">
+    <h1>Snap Window</h1>
+    <div class="muted">Put the active window exactly where you want it in one press.</div>
+  </div>
 
-		<p class="hint">
-			A press moves whatever window you are working in. Give one key the left half and another the right half and you
-			can set up a side by side view in two presses.
-		</p>
-		<p class="hint">
-			Choosing a screen sends the window across to it as well as positioning it. Leave it set to stay put and the
-			window is arranged on whichever screen it is already on.
-		</p>
-		<p class="hint">The key face draws the shape it makes, so a row of these is easy to tell apart at a glance.</p>
+  <div class="section">
+    <h2>Position</h2>
+    <div class="row">
+      <label class="key" for="position">Position</label>
+      <div class="field">
+        <select id="position">
+          <option value="left">Left half</option>
+          <option value="right">Right half</option>
+          <option value="maximize">Fill the screen</option>
+          <option value="center">Middle of the screen</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <label class="key" for="monitor">Screen</label>
+      <div class="field">
+        <select id="monitor">
+          <option value="">Leave it where it is</option>
+          <option value="1">Screen 1, your main one</option>
+          <option value="2">Screen 2</option>
+          <option value="3">Screen 3</option>
+          <option value="4">Screen 4</option>
+        </select>
+      </div>
+    </div>
+    <p class="hint">Use separate keys for left, right, center, or full screen to build a fast window-control row.</p>
+    <p class="hint">Choosing a screen moves the window there first. Leave it unset to arrange the window on its current display.</p>
+    <p class="disclaimer">Some windows cannot be moved. On Windows, elevated apps require Stream Deck to run with matching privileges. On macOS, allow Stream Deck under Privacy &amp; Security → Accessibility.</p>
+  </div>
 
-		<p class="disclaimer">
-			Some windows cannot be moved. On Windows that means anything run as administrator, unless Stream Deck is
-			running as administrator too. On a Mac, allow Stream Deck under System Settings, Privacy and Security,
-			Accessibility.
-		</p>
-
-		<script src="snap.js"></script>
-		<script src="pro-footer.js"></script>
-	</body>
+  <script src="snap.js"></script>
+  <script src="pro-footer.js"></script>
+</body>
 </html>
