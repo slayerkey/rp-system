@@ -54,7 +54,7 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(html,/<option value="1" selected>1×<\/option>/);
   assert.ok(html.indexOf('value="0.25"') < html.indexOf('value="0.5"'));
   assert.ok(html.indexOf('value="0.5"') < html.indexOf('value="1" selected'));
-  for(const token of ["#14171B","#1B1F24","#15191E","#181C21","#22272E","#303640","#F5F7FB","#9AA2AF","#FFB21E","#FFC44D","#FF5D6C","#2BE86A"]){
+  for(const token of ["#080A0E","#151920","#0D1015","#15191E","#181C21","#22272E","#303640","#F5F7FB","#9AA2AF","#FFB21E","#FFC44D","#FF5D6C","#2BE86A"]){
     assert.ok(css.includes(token),`missing canonical PackRat token ${token}`);
   }
   assert.match(css,/body::before/);
@@ -68,7 +68,7 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(assets,/accent=\[255,178,30,255\]/);
   assert.match(runtime,/function packRatKeyImage/);
   assert.match(runtime,/setImage\(packRatKeyImage\(record\.kind, title\)\)/);
-  assert.match(runtime,/#14171B/);
+  assert.match(runtime,/#080A0E/);
   assert.match(runtime,/#FFB21E/);
 });
 
