@@ -116,7 +116,7 @@ jobs:
             'streamDeckProfile',
             'Get-RatDevProfileOpenDecision',
             'Replace-RatDevInstalledProfile',
-            'Profile refreshed seamlessly at the existing Stream Deck profile path.',
+            'Profile refreshed seamlessly at {0} installed Stream Deck profile path(s).',
             'Start-Process $profileToOpen'
           )) {
             if ($devRaw -notmatch [regex]::Escape($required)) {
