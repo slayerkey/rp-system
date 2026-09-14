@@ -163,6 +163,11 @@ test("Property Inspector state is requested per action and sent through the supp
   assert.doesNotMatch(runtime,/sendInspector\(\)/);
   assert.match(inspector,/setInterval\(requestSnapshot,1500\)/);
   assert.match(inspector,/Wireless plugin is not responding/);
+  assert.match(inspector,/uiUuid=inUUID/);
+  assert.match(inspector,/actionContext=String\\(actionInfo\\.context\\|\\|\"\"\\)/);
+  assert.match(inspector,/event:\"sendToPlugin\"[\\s\\S]*context:uiUuid[\\s\\S]*payload:\\{\\.\\.\\.payload,actionContext\\}/);
+  assert.match(inspector,/event:\"setSettings\",action:actionUuid,context:uiUuid/);
+  assert.doesNotMatch(inspector,/context:actionInfo\\.context/);
 });
 
 test("settings reads are side-effect free and global writes are explicit",async()=>{
