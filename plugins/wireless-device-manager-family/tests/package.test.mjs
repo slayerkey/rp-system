@@ -316,6 +316,15 @@ test("Property Inspector uses the canonical PackRat UI envelope and preserves ac
   assert.match(inspector,/Plugin process did not reply/);
 });
 
+test("Rat Audit prints repeated fresh battery bridge samples",async()=>{
+  const audit=await readFile("scripts/host-audit.ps1","utf8");
+  assert.match(audit,/Live wireless battery samples \(fresh bridge reads\)/);
+  assert.match(audit,/sampleIndex=1;\$sampleIndex -le 3/);
+  assert.match(audit,/batterySource/);
+  assert.match(audit,/batteryObservedAt/);
+  assert.match(audit,/Each sample above is a new hardware bridge request/);
+});
+
 test("Wireless troubleshooting contract captures every real-machine transport stage",async()=>{
   const inspector=await readFile("ui/inspector.js","utf8");
   const pro=await readFile("src/pro.ts","utf8");
