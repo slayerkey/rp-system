@@ -135,27 +135,41 @@ def draw_fitted_text(
     )
 
     x1, y1, x2, y2 = box
-    text_w = layout.bbox[2] - layout.bbox[0]
-    text_h = layout.bbox[3] - layout.bbox[1]
+    resolved_font = font_factory(layout.font_size, bold)
+
+    # Pillow font metrics often have a positive top bearing (especially Segoe UI on
+    # Windows). Position the actual ink bounds, not the nominal baseline origin.
+    local_bbox = draw.multiline_textbbox(
+        (0, 0),
+        layout.text,
+        font=resolved_font,
+        spacing=spacing,
+        align=align,
+    )
+    text_w = local_bbox[2] - local_bbox[0]
+    text_h = local_bbox[3] - local_bbox[1]
 
     if align == "center":
-        x = x1 + (x2 - x1 - text_w) / 2
+        target_left = x1 + (x2 - x1 - text_w) / 2
     elif align == "right":
-        x = x2 - text_w
+        target_left = x2 - text_w
     else:
-        x = x1
+        target_left = x1
 
     if valign == "middle":
-        y = y1 + (y2 - y1 - text_h) / 2
+        target_top = y1 + (y2 - y1 - text_h) / 2
     elif valign == "bottom":
-        y = y2 - text_h
+        target_top = y2 - text_h
     else:
-        y = y1
+        target_top = y1
+
+    x = target_left - local_bbox[0]
+    y = target_top - local_bbox[1]
 
     draw.multiline_text(
         (x, y),
         layout.text,
-        font=font_factory(layout.font_size, bold),
+        font=resolved_font,
         fill=fill,
         spacing=spacing,
         align=align,
@@ -165,7 +179,7 @@ def draw_fitted_text(
     actual = draw.multiline_textbbox(
         (x, y),
         layout.text,
-        font=font_factory(layout.font_size, bold),
+        font=resolved_font,
         spacing=spacing,
         align=align,
     )
