@@ -16,8 +16,12 @@ function openUrl(url) {
   return send({ event: "openUrl", payload: { url } });
 }
 
-function buildPackRatBrand() {
-  if (document.querySelector(".packrat-brand")) return;
+function buildPackRatTopbar() {
+  if (document.querySelector(".packrat-topbar")) return;
+
+  const topbar = document.createElement("div");
+  topbar.className = "packrat-topbar";
+
   const brand = document.createElement("button");
   brand.type = "button";
   brand.className = "packrat-brand";
@@ -25,27 +29,16 @@ function buildPackRatBrand() {
   brand.innerHTML =
     '<img class="packrat-logo" src="../imgs/plugin/packrat-logo.png" alt="" aria-hidden="true"><span>PackRat ↗</span>';
   brand.addEventListener("click", () => openUrl(PACKRAT_MAKER_URL));
-  document.body.prepend(brand);
-}
 
-function buildProCallout() {
-  if (document.querySelector(".pro-callout")) return;
+  const upgrade = document.createElement("button");
+  upgrade.type = "button";
+  upgrade.className = "primary packrat-upgrade";
+  upgrade.id = "openWindowManagerPro";
+  upgrade.textContent = "Upgrade to Pro ↗";
+  upgrade.addEventListener("click", () => openUrl(PRO_URL));
 
-  const callout = document.createElement("div");
-  callout.className = "pro-callout";
-  callout.innerHTML = `
-    <div class="pro-callout-copy">Unlock More Features</div>
-    <button type="button" class="primary pro-callout-button" id="openWindowManagerPro">Upgrade to Pro ↗</button>
-  `;
-
-  const brand = document.querySelector(".packrat-brand");
-  if (brand) {
-    brand.insertAdjacentElement("afterend", callout);
-  } else {
-    document.body.prepend(callout);
-  }
-
-  document.getElementById("openWindowManagerPro").addEventListener("click", () => openUrl(PRO_URL));
+  topbar.append(brand, upgrade);
+  document.body.prepend(topbar);
 }
 
 function buildXeneonSetup() {
@@ -101,7 +94,6 @@ function buildXeneonSetup() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  buildPackRatBrand();
-  buildProCallout();
+  buildPackRatTopbar();
   buildXeneonSetup();
 });
