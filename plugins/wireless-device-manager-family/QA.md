@@ -4,11 +4,19 @@
 
 **TESTING — not READY_TO_SHIP.**
 
-The hardware-free source/model/profile/media gates and GitHub-hosted Windows release gate have now passed. Real wireless hardware behavior remains the release blocker before READY_TO_SHIP. This now includes both Bluetooth hardware and supported USB/HID receiver telemetry.
+The deep runtime/profile investigation is complete at validated code commit `a3e08aed08e968f755b95e3e36365dde4a6d2d30`. The latest GitHub-hosted Windows gate passed, but physical Stream Deck / wireless hardware behavior remains the release blocker before READY_TO_SHIP.
+
+The investigation found two concrete host-side regressions that matched the physical screenshots:
+- both Wireless manifests carried `Nodejs.Debug: "disabled"`; this has been removed so Rat Dev no longer launches the Node plugin with that fake debug argument
+- bundled profiles were generated with `ShowTitle: true`; Wireless now uses the canonical shared profile builder with host title rendering disabled so runtime key art owns the full key face
+
+The Property Inspector now traces websocket registration, command send/receive, bridge refresh, device count, response send/receive, and render failure with correlated request IDs. `scripts/host-probe.ps1` provides one-shot real-machine evidence if the physical run still disagrees with CI.
+
+The hardware-free source/model/profile/media gates and GitHub-hosted Windows release gate have now passed. Real wireless hardware behavior remains the release blocker before READY_TO_SHIP. This includes both Bluetooth hardware and supported USB/HID receiver telemetry.
 
 ## Hardware-free evidence completed
 
-- [x] 51 model/package/profile/catalog regression cases are currently defined in the hardware-free suite
+- [x] 62 model/package/profile/catalog/runtime-diagnostic regression cases pass in the hardware-free suite
 - [x] capability flags are per device rather than global
 - [x] A2DP/HFP control eligibility is derived from Windows AssociationEndpointService contracts rather than broad Audio/Video device-class inference
 - [x] group names are canonicalized case-insensitively so `gaming` and `GAMING` feed the same dashboard
@@ -33,6 +41,8 @@ The hardware-free source/model/profile/media gates and GitHub-hosted Windows rel
 - [x] Dashboard LOW count respects per-device thresholds
 - [x] Lite uses one shared selected device while Pro supports independent keys plus linked logical profile slots
 - [x] Lite and Pro each generate Standard / Mini / XL / Stream Deck+ / Neo profiles
+- [x] all generated profile actions disable Stream Deck host titles (`ShowTitle: false`) so runtime key rendering owns the full key face
+- [x] Pro profiles use canonical multi-page bundles with focused DEVICES and GROUPS workflows rather than crowding every concept onto page one
 - [x] all ten generated profile archives use valid device-grid coordinates
 - [x] Mini Pro is an explicit 3 x 2 compact layout
 - [x] Stream Deck+ and Neo Pro are explicit 4 x 2 key-only layouts prioritizing ALL DEVICES / CONNECT / CYCLE / GAMING
@@ -53,6 +63,9 @@ The hardware-free source/model/profile/media gates and GitHub-hosted Windows rel
 - [x] cover/gallery frames render at 1920 x 960
 - [x] Lite gallery does not advertise Pro-only groups/Cycle Device
 - [x] plugin/category/action/key assets render at the intended 256/512, 28/56, 20/40, and 72/144 dimensions
+- [x] semantic runtime glyph regressions cover status, battery, charging, connect, disconnect, unavailable control, dashboard, group, and favorite-cycle visuals
+- [x] Cycle Device uses favorite-star + next semantics rather than refresh arrows
+- [x] both Lite and Pro pass the canonical structural Stream Deck key-visual audit with 0 warnings
 
 ## Automated Windows release gate — PASS
 
@@ -67,7 +80,7 @@ The canonical self-hosted PackRat Windows workflow remains the executable releas
 - [x] bundled bridge snapshot smoke on Windows — hosted runner correctly reported no Bluetooth adapter
 - [x] persistent stdio bridge request/recovery smoke on Windows
 - [x] compressed bundled helper/package-size check
-- [x] fixture/package suite in the canonical checkout — 51/51 pass
+- [x] fixture/package suite in the canonical checkout — 62/62 pass
 - [x] official Elgato validation: Lite
 - [x] official Elgato validation: Pro
 - [x] official Elgato packaging: Lite
@@ -78,20 +91,25 @@ The canonical self-hosted PackRat Windows workflow remains the executable releas
 
 ### Hosted Windows release evidence
 
-GitHub Actions run `34785291188` on commit `95ce3902bd6a49f4b5d2b196fd5fd7d26334a30a` completed successfully on GitHub-hosted Windows.
+Latest deep-dive candidate:
 
-- Test suite: **51 passed / 0 failed**
-- Persistent bridge smoke: PASS with `adapterAvailable=false` on the runner, as expected
+- Validated code commit: `a3e08aed08e968f755b95e3e36365dde4a6d2d30`
+- GitHub Actions run: `34884032706`
+- Windows job: `104110084732`
+- Dependency audit: **0 vulnerabilities**
+- Test suite: **62 passed / 0 failed**
+- Canonical key visual audit: **Lite PASS, 0 warnings; Pro PASS, 0 warnings**
+- Official Elgato validation: **Lite PASS; Pro PASS**
 - Lite package: `com.packrat.wireless-device-manager.streamDeckPlugin`
-  - size: **70,949,723 bytes (67.66 MiB)**
-  - SHA-256: `AE8BB54B95E2FBF31DE45A61E7E44C51DF27E5DC5D9584CA4A152C67FE8F1053`
+  - size: **70,966,820 bytes (67.68 MiB)**
+  - SHA-256: `0329CE77CC724C300391813B068BEC85327D3D0FC1E6A99A5D2F842527FE5D16`
 - Pro package: `com.packrat.wireless-device-manager-pro.streamDeckPlugin`
-  - size: **70,951,706 bytes (67.66 MiB)**
-  - SHA-256: `ED3231F67576FA1FC6AEE47795FFEC94D195D9B936CB211FE6CEDB4DEA818815`
+  - size: **70,971,587 bytes (67.68 MiB)**
+  - SHA-256: `4637C1B8B074BC7660EF053565A4E81DF8E9E1359CC1BACDDF163C69336C2C28`
 - Uploaded workflow artifact: `wireless-device-manager-family`
-  - artifact ID: `10326163681`
-  - artifact ZIP SHA-256: `202939D672004DD10934634E9C7CB07C014524D5314C84C01F059D2BD308ECFD`
-  - uploaded size: **142,905,650 bytes**
+  - artifact ID: `10364232442`
+  - artifact ZIP SHA-256: `DE8455327BFB4BD7BE37469BBDA3A898FD3B1FC58A22393470A44225BABFB63F`
+  - uploaded size: **142,937,004 bytes**
 
 The hosted runner has no paired Bluetooth hardware, so this proves compile/package/runtime-startup behavior but does not replace the physical device matrix.
 
