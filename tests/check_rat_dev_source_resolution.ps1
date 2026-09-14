@@ -74,6 +74,7 @@ try {
         type = "plugin"
         source = "plugins/text-expander"
         ship_plugin_dir = "dist/com.packrat.textexpanderpro.sdPlugin"
+        dev_profile = "profiles/text-expander-pro-standard.streamDeckProfile"
     } | ConvertTo-Json | Set-Content (Join-Path $productsDir "text-expander-pro.json")
 
     Invoke-Git -Root $TempRoot -Args @("add","plugins","products")
@@ -90,6 +91,7 @@ try {
     Assert-Equal $proShared.SourceRoot "plugins\text-expander" "Shared Pro source root mismatch."
     Assert-Equal $liteShared.Config.plugin_dir "dist/com.packrat.textexpanderlite.sdPlugin" "Shared Lite plugin_dir mismatch."
     Assert-Equal $proShared.Config.plugin_dir "dist/com.packrat.textexpanderpro.sdPlugin" "Shared Pro plugin_dir mismatch."
+    Assert-Equal $proShared.Config.open_dev_profile "profiles/text-expander-pro-standard.streamDeckProfile" "Shared Pro dev profile mismatch."
 
     $resolvedLiteDir = Resolve-RatDevPluginDirectory -PluginRoot $sharedRoot -Config $liteShared.Config
     $resolvedProDir = Resolve-RatDevPluginDirectory -PluginRoot $sharedRoot -Config $proShared.Config
