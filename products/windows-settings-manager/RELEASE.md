@@ -27,13 +27,15 @@ Generated bundles:
 
 ## Primary product surfaces
 
-Lite:
+Lite — free everyday Windows essentials:
 - Lock
 - Sleep
 - Power Plan
 - Keep Awake
 - Previous Desktop
 - Next Desktop
+
+Lite solves one smaller, coherent problem: control the Windows basics you are most likely to reach for without opening Settings or leaving the task in front of you. It is intentionally the minimum useful edition, not a crippled Pro demo.
 
 Pro standard 5x3:
 - Lock
@@ -66,24 +68,20 @@ PC Modes and older HDR/display/timeout controls are optional advanced actions, n
 
 ## Release sequence
 
-1. Require fresh exact-head Windows and portable product CI.
-2. Require RatPack Lightweight CI, Lite Pro Portfolio Audit, and Rat Ship Marketplace Routing CI.
-3. Run physical Windows/Stream Deck QA from QA.md.
-4. Review deterministic Rat Art generated from the new Control Center profiles.
-5. Move **Pro only** from BLOCKED to READY_TO_SHIP after all technical and physical evidence is recorded.
-6. Final-sync approved branch to canonical main.
-7. Publish Pro:
-   `rat ship windows-settings-manager-pro`
-8. Record Pro's exact direct Marketplace URL and product ID in `products/lite-pro-map.json`.
-9. Stage Lite while BLOCKED:
-   `rat stage windows-settings-manager-lite`
-10. Save Lite draft and capture its exact direct URL and product ID.
-11. Record both verified direct URLs/IDs in the relationship map.
-12. Rebuild/stage Lite so its Property Inspector contains the exact Pro product URL.
-13. Require:
-    `python tools/lite_pro_audit.py --shipping windows-settings-manager-lite`
-14. Verify the rebuilt Lite package contains the exact Pro URL and no generic/search/placeholder destination.
-15. Only then move Lite to READY_TO_SHIP and publish:
-    `rat ship windows-settings-manager-lite`
+Both editions are now QA-passed / READY_TO_SHIP as product candidates. Public Marketplace sequencing still matters because Lite's upgrade path must point at a real Pro listing.
 
-Do not publish Lite first. Do not invent Marketplace URLs or IDs.
+1. Final-sync the approved branch to canonical main.
+2. Generate/upload Pro first:
+   `rat ship windows-settings-manager-pro`
+3. Create/save the Pro listing and capture its exact direct Marketplace URL + product ID.
+4. Generate/upload Lite:
+   `rat ship windows-settings-manager-lite`
+5. Save the Lite listing as a draft and capture its exact direct Marketplace URL + product ID.
+6. Record both verified direct URLs/IDs in `products/lite-pro-map.json`.
+7. Rebuild Lite so its Property Inspector contains the exact Pro product URL.
+8. Require:
+   `python tools/lite_pro_audit.py --shipping windows-settings-manager-lite`
+9. Verify the rebuilt Lite package contains the exact Pro URL and no generic/search/placeholder destination.
+10. Final-submit/publish Lite only after that strict audit passes.
+
+Lite is allowed to be uploaded before its final public submission. Do not publicly publish Lite before Pro, and do not invent Marketplace URLs or IDs.
