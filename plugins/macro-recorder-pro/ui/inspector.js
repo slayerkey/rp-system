@@ -1,13 +1,13 @@
 (() => {
   const edition=document.body.dataset.edition;
   const pro=edition==="pro";
-  let socket=null,uiUuid="",context="",actionUuid="",kind="",settings={},state=null;
+  let socket=null,uiUuid="",actionContext="",actionUuid="",kind="",settings={},state=null;
   const PAGE_SIZE=200;
   const MAX_IMPORT_BYTES=16*1024*1024;
   let timelinePage=0,timelineMacroId="";
   const $=id=>document.getElementById(id);
   const send=msg=>{if(socket?.readyState===WebSocket.OPEN){socket.send(JSON.stringify(msg));return true;}return false;};
-  const command=(command,extra={})=>send({event:"sendToPlugin",action:actionUuid,context,payload:{type:"macroRecorder.command",command,...extra}});
+  const command=(command,extra={})=>send({event:"sendToPlugin",action:actionUuid,context:actionContext,payload:{type:"macroRecorder.command",command,...extra}});
   const saveSettings=next=>{settings={...settings,...next};if(state)state={...state,settings:{...(state.settings||{}),...next}};send({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings});};
 
   function detectKind(){if(actionUuid.endsWith(".record"))return"record";if(actionUuid.endsWith(".stop"))return"stop";return"replay";}
@@ -80,7 +80,7 @@
   function applyState(next){const nextMacroId=String(next?.macro?.id||"");if(nextMacroId!==timelineMacroId){timelineMacroId=nextMacroId;timelinePage=0;}state=next||state;if(!state)return;if(next?.settings)applySettings(next.settings);updateStatus();populateLibrary();renderTimeline();}
   function applySettings(next){settings={...(next||{})};if(pro){$("captureMouseMovement").checked=settings.captureMouseMovement!==false;const speed=Number(settings.playbackSpeed);$("playbackSpeed").value=["0.25","0.5","1","1.5","2","4"].includes(String(speed))?String(speed):"1";$("playbackMode").value=["once","count","while-held","toggle"].includes(settings.playbackMode)?settings.playbackMode:"once";$("repeatCount").value=Number.isFinite(Number(settings.repeatCount))?Number(settings.repeatCount):2;$("coordinateMode").value=settings.coordinateMode==="active-window"?"active-window":"absolute";$("repeatRow").hidden=$("playbackMode").value!=="count";}}
 
-  window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{uiUuid=uuid;context=uuid;const ai=JSON.parse(rawActionInfo||"{}");actionUuid=String(ai.action||"");kind=detectKind();applySettings(ai.payload?.settings||{});filterKind();socket=new WebSocket(`ws://127.0.0.1:${port}`);socket.onopen=()=>{send({event:registerEvent,uuid:uiUuid});send({event:"getSettings",action:actionUuid,context:uiUuid});send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"macroRecorder.inspect"}});};socket.onmessage=event=>{let m;try{m=JSON.parse(event.data);}catch{return;}if(m.event==="didReceiveSettings")applySettings(m.payload?.settings||{});if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.state")applyState(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.status")applyStatus(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.export"){const blob=new Blob([JSON.stringify(m.payload.data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=m.payload.filename||"macro.packrat-macro.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}};};
+  window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{uiUuid=uuid;const ai=JSON.parse(rawActionInfo||"{}");actionContext=String(ai.context||uuid);actionUuid=String(ai.action||"");kind=detectKind();applySettings(ai.payload?.settings||{});filterKind();socket=new WebSocket(`ws://127.0.0.1:${port}`);socket.onopen=()=>{send({event:registerEvent,uuid:uiUuid});send({event:"getSettings",action:actionUuid,context:uiUuid});send({event:"sendToPlugin",action:actionUuid,context:actionContext,payload:{type:"macroRecorder.inspect"}});};socket.onmessage=event=>{let m;try{m=JSON.parse(event.data);}catch{return;}if(m.event==="didReceiveSettings")applySettings(m.payload?.settings||{});if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.state")applyState(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.status")applyStatus(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.export"){const blob=new Blob([JSON.stringify(m.payload.data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=m.payload.filename||"macro.packrat-macro.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}};};
 
   $("cancelRecording").addEventListener("click",()=>command("cancelRecording"));
   $("stopPlayback").addEventListener("click",()=>command("stopPlayback"));
