@@ -29,7 +29,7 @@ For PackRat Keypad actions, host-managed Stream Deck title overlays are not the 
 
 Do not use one generic device silhouette as the background for unrelated actions when a specific symbol can communicate the action. Brightness should look like brightness, contrast like contrast, volume like volume, power like power, and so on.
 
-For Keypad plugins, run `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>` as part of QA when the product layout permits. Dashboard-style plugins that promise the standard PackRat profile bundle must add `--require-major-profiles` and cover DeviceTypes 0, 2, 7, and 9.
+For Keypad plugins, run `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>` as part of QA when the product layout permits. New Node SDK plugins should also run `node tools/qa/streamdeck-plugin-design-audit.mjs <plugin-source-root>` so action identity and Property Inspector transport regressions fail before hardware QA. Dashboard-style plugins that promise the standard PackRat profile bundle must add `--require-major-profiles` and cover DeviceTypes 0, 2, 7, and 9.
 
 Before hardware QA, enforce the PackRat plugin design contract:
 
