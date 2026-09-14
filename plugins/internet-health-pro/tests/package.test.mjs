@@ -7,6 +7,7 @@ const pluginSource = fs.readFileSync("src/plugin.js", "utf8");
 const probesSource = fs.readFileSync("src/probes.js", "utf8");
 const renderSource = fs.readFileSync("src/render.js", "utf8");
 const inspectorSource = fs.readFileSync("ui/inspector.js", "utf8");
+const inspectorHtml = fs.readFileSync("ui/inspector.html", "utf8");
 const submission = JSON.parse(fs.readFileSync("submission.json", "utf8"));
 const product = JSON.parse(fs.readFileSync("../../products/internet-health-pro.json", "utf8"));
 
@@ -128,4 +129,11 @@ test("bundled major-model profiles are declared, generated and deterministic arc
     assert.equal(buffer.subarray(0, 2).toString("ascii"), "PK");
     assert.equal(file, entry.Name.split("/").pop() + ".streamDeckProfile");
   }
+});
+
+
+test("one second cadence is available without changing the five second default", () => {
+  assert.match(inspectorSource, /const allowed = \[1,5,10,15,30,60\]/);
+  assert.match(inspectorHtml, /value="1">1 second \(most responsive\)<\/option>/);
+  assert.match(inspectorHtml, /5 seconds is the default/);
 });
