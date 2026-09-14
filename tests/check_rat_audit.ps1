@@ -60,6 +60,14 @@ Write-Output "WRONG_UNRELATED_AUDIT"
 exit 0
 '@ | Set-Content (Join-Path $FamilyOtherScripts "host-audit.ps1") -Encoding UTF8
 
+    @{
+        name = "rat-audit-family-fixture"
+        private = $true
+        scripts = @{
+            "host:probe" = "node -e \"console.log('FAMILY_PROBE_FIXTURE_PASS')\""
+        }
+    } | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $FamilyProductRoot "package.json") -Encoding UTF8
+
     $familyOutput = (& $AuditHelper $FamilySlug 2>&1 | Out-String)
     if ($LASTEXITCODE -ne 0) {
         throw "Shared-family Rat Audit fixture returned exit code $LASTEXITCODE.`n$familyOutput"
@@ -69,6 +77,20 @@ exit 0
     }
     if ($familyOutput -match "WRONG_UNRELATED_AUDIT") {
         throw "Rat Audit scanned an unrelated plugin despite canonical product metadata.`n$familyOutput"
+    }
+
+    $familyProbeOutput = (& $AuditHelper $FamilySlug "--probe" 2>&1 | Out-String)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Shared-family Rat Audit --probe fixture returned exit code $LASTEXITCODE.`n$familyProbeOutput"
+    }
+    if ($familyProbeOutput -notmatch "FAMILY_AUDIT_FIXTURE_PASS") {
+        throw "Rat Audit --probe did not run the shared-family host audit before probing.`n$familyProbeOutput"
+    }
+    if ($familyProbeOutput -notmatch "FAMILY_PROBE_FIXTURE_PASS") {
+        throw "Rat Audit --probe did not execute the product host:probe script.`n$familyProbeOutput"
+    }
+    if ($familyProbeOutput -match "WRONG_UNRELATED_AUDIT") {
+        throw "Rat Audit --probe scanned an unrelated product despite canonical product metadata.`n$familyProbeOutput"
     }
 
     if (Test-Path $ExternalRegistrationRoot) { Remove-Item $ExternalRegistrationRoot -Recurse -Force }
