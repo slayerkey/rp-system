@@ -28,21 +28,23 @@ Do not mark this smoke PASS if the tested candidate differs from the package int
 Do this before any deeper variable testing.
 
 1. Add **Insert Snippet** to a key. Confirm there is no second visible Manage Snippets action in the actions list.
-2. In the Property Inspector click **Create / edit snippets**.
-3. Click **New**, name the snippet `TEST`, enter `hello world`, and click **Save**.
+2. In the Property Inspector click **Open snippet library**.
+3. Click **New snippet**, name the snippet `TEST`, enter `hello world`, and click **Save changes**.
 4. Confirm `TEST` immediately appears in the Snippet selector.
 5. Select `TEST`, focus Notepad, and press the Stream Deck key.
 6. Confirm exactly `hello world` is inserted.
 7. Edit `TEST` to `hello again`, save, press the same key, and confirm the updated text is inserted.
 8. Restart Stream Deck software and confirm `TEST` still exists and still inserts correctly.
 9. Confirm **Insert method** reads **Smart (recommended)**, **Type text**, and **Paste with clipboard**. There should be no old `Unicode typing` or `Clipboard paste + restore` wording.
-10. Confirm the legacy hidden library action, if already placed from an earlier dev build, no longer blocks access to editing: selecting it shows the inline snippet editor.
+10. Confirm Pro shows **Open reusable variables & full library ↗** under Dynamic text. Open it, change a reusable variable, save, and confirm the change is available on the next insertion.
+11. Confirm the legacy hidden library action, if already placed from an earlier dev build, no longer blocks access to editing: selecting it shows the inline snippet editor.
+12. Delete the snippet currently assigned to a placed key. Confirm the key automatically falls back to a valid remaining snippet, persists that repaired selection, and still works when pressed instead of showing a stale-ID alert.
 
 ## Insertion matrix
 
 For each target, focus a normal editable text field and press an Insert Snippet key.
 
-| Target | Unicode typing | Clipboard mode | Multiline | Emoji/Unicode | Result |
+| Target | Type text | Clipboard mode | Smart multiline/tab fallback | Emoji/Unicode | Result |
 | --- | --- | --- | --- | --- | --- |
 | Notepad | required | required | required | required | |
 | Browser text field | required | required | required | required | |
@@ -56,10 +58,12 @@ Use test content containing:
 PackRat αβγ 🙂
 line two	with a tab
 https://example.invalid/?a=1&b=<tag>
-const text = "{not-a-variable}";
+const text = "{{not-a-variable}}";
 ```
 
-Verify no text is executed as a command, URL, script, or shell expression.
+In Pro, doubled braces intentionally produce literal single braces so the final inserted code contains `{not-a-variable}` instead of opening a fill-in prompt. Verify no text is executed as a command, URL, script, or shell expression.
+
+For **Smart**, confirm the multiline/tabbed sample chooses clipboard insertion rather than treating Enter/Tab as submit/navigation keystrokes. For explicit **Type text**, confirm line breaks/tabs do not accidentally submit a chat message or move focus; if a protected target blocks synthetic text, use the documented Clipboard fallback.
 
 ## Lite variables
 
