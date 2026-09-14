@@ -32,7 +32,16 @@ async function paintDevice(key: KeyAction<DeviceSettings>, runtime: WirelessRunt
   const deviceId = await runtime.selectedDeviceId(settings.deviceId, settings.slot);
   const device = runtime.device(deviceId);
   const view = settings.view ?? "status";
-  const kind: WirelessKeyKind = view === "battery" ? "battery" : view === "control" ? "control" : "device";
+  let kind: WirelessKeyKind = "status";
+  if (view === "battery") {
+    kind = device?.charging === true ? "charging" : "battery";
+  } else if (view === "control") {
+    kind = device?.connected && device.capabilities.DISCONNECT
+      ? "disconnect"
+      : !device?.connected && device?.capabilities.CONNECT
+        ? "connect"
+        : "control";
+  }
   const label = settings.label?.trim().toUpperCase() || (view === "battery" ? "BATTERY" : view === "control" ? "CONTROL" : "WIRELESS");
   if (runtime.lastError) {
     await setWirelessKey(key, kind, [label, "SCAN ERROR"]);
@@ -125,18 +134,18 @@ export class DashboardAction extends SingletonAction<DashboardSettings> {
 
   private async paint(key: KeyAction<DashboardSettings>, settings: DashboardSettings): Promise<void> {
     if (this.runtime.lastError) {
-      await setWirelessKey(key, "dashboard", [settings.groupName?.trim().toUpperCase() || "ALL DEVICES", "SCAN ERROR"]);
+      await setWirelessKey(key, settings.groupName ? "group" : "dashboard", [settings.groupName?.trim().toUpperCase() || "ALL DEVICES", "SCAN ERROR"]);
       return;
     }
     const devices = this.runtime.devices();
     if (!devices.length) {
-      await setWirelessKey(key, "dashboard", [settings.groupName?.trim().toUpperCase() || "ALL DEVICES", "NONE FOUND"]);
+      await setWirelessKey(key, settings.groupName ? "group" : "dashboard", [settings.groupName?.trim().toUpperCase() || "ALL DEVICES", "NONE FOUND"]);
       return;
     }
     const members = settings.groupName ? await this.runtime.groupMembers(settings.groupName) : devices.map(d => d.stableId);
     const summary = groupSummary(devices, members, await this.runtime.thresholds());
     const prefix = settings.groupName?.trim().toUpperCase() || "ALL DEVICES";
-    await setWirelessKey(key, "dashboard", [prefix, `${summary.connected}/${summary.total} ON${summary.low ? ` • ${summary.low} LOW` : ""}`]);
+    await setWirelessKey(key, settings.groupName ? "group" : "dashboard", [prefix, `${summary.connected}/${summary.total} ON${summary.low ? ` • ${summary.low} LOW` : ""}`]);
   }
 
   private async paintAll(): Promise<void> {
