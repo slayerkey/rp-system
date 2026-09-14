@@ -5,18 +5,24 @@ import { TextExpanderLibrary } from "./library.mjs";
 import {
   analyzeTemplateFields, counterNames, renderSnippet, chooseInsertionMode
 } from "./core.mjs";
+import { renderSnippetKey, renderFallbackKeySvg, BUILTIN_SNIPPET_IDS } from "./key-visuals.mjs";
 import { LocalUiServer } from "./server.mjs";
 import { getWindowsContext, getClipboardText, focusWindow, insertText } from "./windows.mjs";
 import { EDITION, ACTIONS, VERIFIED_PRO_URL } from "./edition.mjs";
 
 const library = new TextExpanderLibrary({ edition: EDITION });
 const ui = await new LocalUiServer({ edition: EDITION, library }).start();
+const visible = new Map();
 let insertionQueue = Promise.resolve();
 
 function enqueue(work) {
   const next = insertionQueue.then(work, work);
   insertionQueue = next.catch(() => {});
   return next;
+}
+
+function svgData(svg) {
+  return "data:image/svg+xml;base64," + Buffer.from(svg, "utf8").toString("base64");
 }
 
 async function currentContext(content) {
@@ -56,6 +62,36 @@ async function performInsert({ snippet, settings, fields = {}, captured }) {
       afterInsert: EDITION === "pro" ? (settings.afterInsert || "none") : "none"
     });
   });
+}
+
+async function resolveSnippet(settings = {}) {
+  const current = await library.load();
+  const requested = String(settings.snippetId || "");
+  return current.snippets.find(item => item.id === requested) || current.snippets[0] || null;
+}
+
+async function renderInsertRecord(record) {
+  if (!record?.action?.isKey?.()) return;
+  const snippet = await resolveSnippet(record.settings);
+  await record.action.setTitle("");
+  await record.action.setImage(
+    snippet ? renderSnippetKey(snippet) : svgData(renderFallbackKeySvg("insert", "SNIPPET"))
+  );
+}
+
+async function renderLibraryRecord(record) {
+  if (!record?.action?.isKey?.()) return;
+  await record.action.setTitle("");
+  await record.action.setImage(svgData(renderFallbackKeySvg("library", "LIBRARY")));
+}
+
+async function renderRecord(record) {
+  if (record?.kind === "manage") return renderLibraryRecord(record);
+  return renderInsertRecord(record);
+}
+
+async function refreshVisibleKeys() {
+  await Promise.allSettled([...visible.values()].map(renderRecord));
 }
 
 async function insertAction(ev) {
@@ -119,12 +155,14 @@ async function insertAction(ev) {
   });
 }
 
-async function sendSnippetList(ev, extra = {}) {
+async function sendSnippetList(extra = {}) {
   const current = await library.load();
-  await ev.action.sendToPropertyInspector({
+  const ids = new Set(current.snippets.map(item => item.id));
+  await streamDeck.ui.sendToPropertyInspector({
     type: "snippetList",
     edition: EDITION,
     snippets: current.snippets.map(({ id, name, folder, content }) => ({ id, name, folder, content })),
+    builtinIds: BUILTIN_SNIPPET_IDS.filter(id => ids.has(id)),
     verifiedProUrl: VERIFIED_PRO_URL || "",
     upgradeReasons: [
       "more snippets",
@@ -138,9 +176,9 @@ async function sendSnippetList(ev, extra = {}) {
   });
 }
 
-async function saveSnippetFromInspector(ev) {
+async function saveSnippetFromInspector(payload) {
   const current = await library.load();
-  const raw = ev.payload?.snippet && typeof ev.payload.snippet === "object" ? ev.payload.snippet : {};
+  const raw = payload?.snippet && typeof payload.snippet === "object" ? payload.snippet : {};
   const requestedId = String(raw.id || "").trim();
   const id = requestedId || `snippet-${crypto.randomUUID()}`;
   const snippet = {
@@ -157,28 +195,32 @@ async function saveSnippetFromInspector(ev) {
   else snippets.push(snippet);
 
   await library.replace({ ...current, snippets });
-  await sendSnippetList(ev, { selectedId:id, status:"Saved locally." });
+  await refreshVisibleKeys();
+  await sendSnippetList({ selectedId:id, status:"Saved locally." });
 }
 
-async function deleteSnippetFromInspector(ev) {
+async function deleteSnippetFromInspector(payload) {
   const current = await library.load();
-  const id = String(ev.payload?.snippetId || "").trim();
+  const id = String(payload?.snippetId || "").trim();
   if (!id) throw new Error("Choose a snippet to delete.");
   const snippets = current.snippets.filter(item => item.id !== id);
   if (snippets.length === current.snippets.length) throw new Error("Snippet was not found.");
+
   await library.replace({ ...current, snippets });
-  await sendSnippetList(ev, { selectedId:snippets[0]?.id || "", status:"Deleted." });
+  await refreshVisibleKeys();
+  await sendSnippetList({ selectedId:snippets[0]?.id || "", status:"Deleted." });
 }
 
 async function handlePropertyMessage(ev) {
+  const payload = ev?.payload || {};
   try {
-    if (ev.payload?.type === "listSnippets") return sendSnippetList(ev);
-    if (ev.payload?.type === "saveSnippet") return saveSnippetFromInspector(ev);
-    if (ev.payload?.type === "deleteSnippet") return deleteSnippetFromInspector(ev);
-    if (ev.payload?.type === "openManager") return streamDeck.system.openUrl(ui.managerUrl());
+    if (payload.type === "listSnippets") return sendSnippetList();
+    if (payload.type === "saveSnippet") return saveSnippetFromInspector(payload);
+    if (payload.type === "deleteSnippet") return deleteSnippetFromInspector(payload);
+    if (payload.type === "openManager") return streamDeck.system.openUrl(ui.managerUrl());
   } catch (error) {
     streamDeck.logger.error("Text Expander Property Inspector request failed.", error);
-    await ev.action.sendToPropertyInspector({
+    await streamDeck.ui.sendToPropertyInspector({
       type:"snippetError",
       message:String(error?.message || "Could not update snippets.")
     });
@@ -186,18 +228,49 @@ async function handlePropertyMessage(ev) {
 }
 
 class InsertSnippetAction extends SingletonAction {
+  async onWillAppear(ev) {
+    const id = String(ev.action?.id || "");
+    if (!id) return;
+    const record = {
+      id,
+      kind:"insert",
+      action:ev.action,
+      settings:ev.payload?.settings || {}
+    };
+    visible.set(id, record);
+    await renderRecord(record);
+  }
+
+  onWillDisappear(ev) {
+    visible.delete(String(ev.action?.id || ""));
+  }
+
+  async onDidReceiveSettings(ev) {
+    const id = String(ev.action?.id || "");
+    const record = visible.get(id);
+    if (!record) return;
+    record.settings = ev.payload?.settings || {};
+    await renderRecord(record);
+  }
+
   async onKeyDown(ev) {
     await insertAction(ev);
-  }
-  async onSendToPlugin(ev) {
-    await handlePropertyMessage(ev);
-  }
-  async onPropertyInspectorDidAppear(ev) {
-    await sendSnippetList(ev);
   }
 }
 
 class ManageSnippetsAction extends SingletonAction {
+  async onWillAppear(ev) {
+    const id = String(ev.action?.id || "");
+    if (!id) return;
+    const record = { id, kind:"manage", action:ev.action, settings:ev.payload?.settings || {} };
+    visible.set(id, record);
+    await renderRecord(record);
+  }
+
+  onWillDisappear(ev) {
+    visible.delete(String(ev.action?.id || ""));
+  }
+
   async onKeyDown(ev) {
     try {
       await streamDeck.system.openUrl(ui.managerUrl());
@@ -207,17 +280,18 @@ class ManageSnippetsAction extends SingletonAction {
       await ev.action.showAlert();
     }
   }
-  async onSendToPlugin(ev) {
-    await handlePropertyMessage(ev);
-  }
-  async onPropertyInspectorDidAppear(ev) {
-    await sendSnippetList(ev);
-  }
 }
 
 const RegisteredInsert = action({ UUID: ACTIONS.insert })(InsertSnippetAction, {});
 const RegisteredManage = action({ UUID: ACTIONS.manage })(ManageSnippetsAction, {});
-
 streamDeck.actions.registerAction(new RegisteredInsert());
 streamDeck.actions.registerAction(new RegisteredManage());
+
+streamDeck.ui.onDidAppear(() => {
+  void sendSnippetList();
+});
+streamDeck.ui.onSendToPlugin((ev) => {
+  void handlePropertyMessage(ev);
+});
+
 streamDeck.connect();
