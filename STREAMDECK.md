@@ -52,6 +52,12 @@ Every plugin with Keypad actions must run the shared key-face audit when practic
 
 `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>`
 
+New Node SDK plugins should also run the source-level design contract audit:
+
+`node tools/qa/streamdeck-plugin-design-audit.mjs <plugin-source-root>`
+
+That audit catches stable action-identity drift, host-title regressions, and the Property Inspector context/transport failure pattern that causes dead buttons, stale startup state, and settings that do not persist.
+
 Dashboard-style plugins that promise the default major-model bundle must run:
 
 `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin> --require-major-profiles`
