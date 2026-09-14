@@ -38,6 +38,8 @@ Use a large semantic glyph in the upper portion and render one or two short line
 
 Examples: `65%`, `HDR / ON`, `240HZ`, `SAVE / PC`.
 
+Monitor Manager's validated utility-key baseline uses a 144 x 144 source, a glyph in the upper area, one-line text around y=131, or two lines around y=112/y=136. Start near 24/20/17 px for short/medium/long compact labels and adjust only when the real 72 x 72 result demands it.
+
 ### Rendered data key
 For dense telemetry, own the entire 144 x 144 layout with explicit label, value, graph and footer regions.
 
@@ -51,10 +53,11 @@ Internet Health Pro is the reference for this pattern.
 4. One or two short text lines maximum inside the rendered image.
 5. Preset buttons show the preset they will set, not a shared current value that makes several different preset keys look identical.
 6. Live dials/status keys may show the current value.
-7. Resolution/mode labels must use compact forms such as `1080P`, `1440P`, `4K`, or a short fallback.
-8. Unsupported hardware shows `N/A` or `?`, never a believable fake zero.
-9. Bundled profile generation must preserve `ShowTitle: false`; it may not reintroduce host title overlays.
-10. Long explanations belong in the tooltip or Property Inspector.
+7. Utility keys should use one central action-slug-to-glyph map and one renderer so spacing fixes propagate everywhere.
+8. Resolution/mode labels must use compact forms such as `1080P`, `1440P`, `4K`, or a short fallback.
+9. Unsupported hardware shows `N/A` or `?`, never a believable fake zero.
+10. Bundled profile generation must preserve `ShowTitle: false`; it may not reintroduce host title overlays.
+11. Long explanations belong in the tooltip or Property Inspector.
 
 ## Geometry baseline
 

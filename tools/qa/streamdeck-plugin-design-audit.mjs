@@ -76,6 +76,12 @@ if(manifest.PropertyInspectorPath){
 const profileEntries=Array.isArray(manifest.Profiles)?manifest.Profiles:[];
 if(profileEntries.length){
   const types=new Set(profileEntries.map((p)=>Number(p.DeviceType)));
+  for(const profile of profileEntries){
+    const name=String(profile?.Name??"Bundled profile");
+    if(profile.AutoInstall!==true)errors.push(name+": AutoInstall must be true");
+    if(profile.DontAutoSwitchWhenInstalled!==true)errors.push(name+": DontAutoSwitchWhenInstalled must be true");
+    if(profile.Readonly!==false)errors.push(name+": Readonly must be false");
+  }
   for(const [type,label] of [[0,"standard / MK.2"],[2,"XL"],[7,"Plus"],[9,"Neo"]]){
     if(!types.has(type))warnings.push("Bundled profiles do not cover "+label+" (DeviceType "+type+")");
   }

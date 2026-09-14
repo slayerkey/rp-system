@@ -38,6 +38,22 @@ For rendered data cards, use this baseline before product-specific adjustments:
 
 If the key needs four layers of tiny information, simplify the key. Physical readability wins over information density.
 
+### Proven utility-key renderer baseline
+
+Monitor Manager Pro is the PackRat reference for compact utility controls. The pattern that survived real MK.2 testing is:
+
+- one central renderer module owns background, glyph, state/value text, and text fitting
+- semantic glyph lives in the upper portion of a 144 x 144 source canvas
+- one-line text is rendered near y=131
+- two-line text uses roughly y=112 and y=136
+- text size adapts to the longest line instead of letting the host squeeze or clip it
+- a useful starting scale is about 24 px for <=5 characters, 20 px for <=8, and 17 px for longer compact labels
+- no host title is rendered on top of this image
+
+These numbers are a proven starting point, not a reason to force every plugin into the exact same typography. The invariant is stronger: the renderer owns the collision-free geometry.
+
+Centralize semantic glyphs in one obvious map keyed by the stable action slug. Do not scatter one-off SVG strings across action handlers.
+
 ## 3. Short labels and equal hierarchy
 
 Use short semantic labels such as `SPEED`, `SUMMARY`, `LATENCY`, `OUTAGE`, and `BRIGHTNESS`.
@@ -49,6 +65,20 @@ When two values are equally important, give them equal visual weight. Examples:
 - CPU and GPU values when the action promises both equally
 
 Do not make one value large and push the other into a tiny footer just because the generic card template only has one primary slot. Use a dedicated layout.
+
+### Preset versus live-state rule
+
+A preset key answers "what will this set?" and must keep showing its configured target.
+
+Examples:
+
+- a 25% brightness preset keeps showing 25%
+- a 65% brightness preset keeps showing 65%
+- a 240 Hz preset keeps showing 240HZ
+
+Do not repaint every preset key with one shared current hardware value; that makes distinct buttons visually identical.
+
+Live values belong on actions whose job is status/monitoring, and on encoder feedback. If the same action supports both Keypad and Encoder, the Keypad may show the configured preset while the Encoder shows the live value.
 
 ## 4. Accent and semantic state colors
 
@@ -68,6 +98,16 @@ Rules:
 3. Use the accent consistently on one or two stable visual anchors such as the left rail, graph, active glyph, or secondary value.
 4. Changing the accent in the Property Inspector must save, persist after reopening, and force the key to rerender.
 5. Do not hardcode a second "healthy green" in one action while the rest use the user accent.
+
+Implementation convention for new plugins:
+
+- setting key: `accent`
+- default constant: `DEFAULT_ACCENT = "#2BE86A"`
+- one shared `normalizeAccent(...)` helper
+- pass the normalized accent into the renderer instead of reading settings inside every glyph/action
+- keep warning/error colors semantic and independent of the accent
+
+This naming convention makes the accent path easy to find during later maintenance.
 
 ## 5. Telemetry and graphs
 
@@ -145,6 +185,33 @@ Default manifest settings:
 
 Profiles must preserve `ShowTitle: false` and use the same action UUIDs as the manifest. Do not hand-maintain four independent profile archives.
 
+### Page architecture
+
+A profile is allowed to have multiple pages. For products with many useful actions, prefer 3-5 clear workflow pages over cramming everything onto one surface.
+
+Monitor Manager Pro is the reference pattern:
+
+- primary/overview controls
+- saved profiles or modes
+- deeper system/display controls
+- preset/value controls
+
+Name pages by user intent, not implementation details. Keep the highest-frequency controls on page one. The shared `tools/streamdeck/profile-builder.mjs` supports both legacy one-page specs and deterministic multi-page specs.
+
+### Rat Dev profile review loop
+
+If a validated Stream Deck plugin contains bundled profiles, `rat dev <slug>` opens a profile for import by default after linking the development plugin.
+
+Selection order:
+
+1. explicit `dev_profile` override
+2. DeviceType 0 standard/MK.2 profile from the manifest
+3. first bundled profile as a fallback
+
+A product may explicitly set `open_profile_on_dev: false` only when automatically opening the profile would be actively unhelpful. Absence of that field is not an opt-out.
+
+This makes profile review part of normal development instead of a step that can be forgotten.
+
 Run:
 
 `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin> --require-major-profiles`
@@ -176,7 +243,10 @@ Automation is the floor. Before `READY_TO_SHIP`, visually sensitive plugins must
 ### Profiles
 
 - expected major-model profile appears after install
+- `rat dev` opens the standard/MK.2 development profile when bundled profiles exist
+- multi-page navigation is coherent and the first page contains the highest-frequency controls
 - profile actions resolve to installed plugin actions
+- profile preserves `ShowTitle: false`
 - profile does not force-switch the user's active profile
 
 When hardware finds a repeatable defect, add a regression test or shared QA rule before calling the fix complete.
@@ -194,6 +264,11 @@ When hardware finds a repeatable defect, add a regression test or shared QA rule
 | Two equally important values were cramped | Give them a dedicated layout with equal visual hierarchy |
 | Existing dev install kept an outdated default | Version/migrate global defaults during pre-release development instead of assuming empty settings |
 | Profile bundle was forgotten | Use the shared profile builder, manifest `Profiles`, package tests, and the major-profile audit flag |
+| Profile existed but Rat Dev did not open it | Rat Dev now defaults to importing a bundled profile, preferring DeviceType 0 / standard-MK.2 |
+| Bottom-aligned host title still overlapped the icon | Disable the host title entirely; render glyph + text in one image with an explicit text band |
+| Every preset key changed to the same live value | Keep preset keys on configured targets; reserve live values for status actions and encoder feedback |
+| Raw resolution text ran off the key | Map common modes to compact labels such as 1080P, 1440P, or 4K and use a short fallback |
+| Too many useful actions were crammed onto one page | Generate a small multi-page profile organized by user workflow |
 
 ## 10. Definition of done
 
@@ -209,5 +284,7 @@ It is done when:
 - live displays update at an intentional cadence
 - visual graphs use an intentional short window
 - promised major-model profiles are generated and package-tested
+- Rat Dev opens the standard/MK.2 profile automatically for the local visual pass
+- complex products use a coherent multi-page profile instead of a crowded single page
 - Elgato validate/package passes
 - a real-device smoke test confirms the final interaction

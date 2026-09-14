@@ -90,6 +90,25 @@ try {
     Assert-Equal $proShared.SourceRoot "plugins\text-expander" "Shared Pro source root mismatch."
     Assert-Equal $liteShared.Config.plugin_dir "dist/com.packrat.textexpanderlite.sdPlugin" "Shared Lite plugin_dir mismatch."
     Assert-Equal $proShared.Config.plugin_dir "dist/com.packrat.textexpanderpro.sdPlugin" "Shared Pro plugin_dir mismatch."
+    if ($null -ne $liteShared.Config.open_profile_on_dev) {
+        throw "Missing open_profile_on_dev metadata must remain null so Rat Dev can apply the bundled-profile default."
+    }
+
+    $manifestWithProfiles = [PSCustomObject]@{
+        Profiles = @(
+            [PSCustomObject]@{ Name = "profiles/tool-xl"; DeviceType = 2 },
+            [PSCustomObject]@{ Name = "profiles/tool-standard"; DeviceType = 0 }
+        )
+    }
+    $defaultProfile = Resolve-RatDevProfilePreference -Manifest $manifestWithProfiles -Config ([PSCustomObject]@{})
+    Assert-Equal $defaultProfile.Open $true "Bundled profiles should open by default."
+    Assert-Equal $defaultProfile.Profile "profiles/tool-standard.streamDeckProfile" "Rat Dev should prefer DeviceType 0 for development review."
+
+    $optOutProfile = Resolve-RatDevProfilePreference -Manifest $manifestWithProfiles -Config ([PSCustomObject]@{ open_profile_on_dev = $false })
+    Assert-Equal $optOutProfile.Open $false "Explicit profile auto-open opt-out must be respected."
+
+    $overrideProfile = Resolve-RatDevProfilePreference -Manifest $manifestWithProfiles -Config ([PSCustomObject]@{ dev_profile = "profiles/custom.streamDeckProfile" })
+    Assert-Equal $overrideProfile.Profile "profiles/custom.streamDeckProfile" "Explicit dev_profile must override the DeviceType 0 default."
 
     $resolvedLiteDir = Resolve-RatDevPluginDirectory -PluginRoot $sharedRoot -Config $liteShared.Config
     $resolvedProDir = Resolve-RatDevPluginDirectory -PluginRoot $sharedRoot -Config $proShared.Config

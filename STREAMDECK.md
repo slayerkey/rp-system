@@ -62,7 +62,9 @@ Dashboard-style plugins that promise the default major-model bundle must run:
 
 `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin> --require-major-profiles`
 
-The default major-model bundle is standard/MK.2, XL, Plus, and Neo (DeviceTypes 0, 2, 7, and 9) unless the product records a deliberate exception. Use `tools/streamdeck/profile-builder.mjs` for deterministic generation instead of hand-maintaining multiple archives.
+The default major-model bundle is standard/MK.2, XL, Plus, and Neo (DeviceTypes 0, 2, 7, and 9) unless the product records a deliberate exception. Use `tools/streamdeck/profile-builder.mjs` for deterministic generation instead of hand-maintaining multiple archives. The shared builder supports multi-page layouts for feature-rich products.
+
+When bundled profiles exist, Rat Dev should make them impossible to forget: `rat dev <slug>` opens the DeviceType 0 standard/MK.2 profile by default after a validated link, unless the product explicitly opts out. Use `dev_profile` only to override which bundled profile is opened.
 
 The automated audit is only a floor. Also review actual keys at 72 x 72 and a reduced 36 x 36 preview. Dynamic keys must be reviewed using representative rendered states, not only their manifest fallback image.
 

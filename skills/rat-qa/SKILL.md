@@ -13,7 +13,7 @@ For plugins, include unit or fixture tests, vendor manifest validation, and the 
 
 The visual gate is not satisfied by correct image dimensions alone. Every PackRat Keypad state must explicitly use `ShowTitle: false`; state/value text belongs inside the rendered key image. Review keys at 72 x 72 and 36 x 36. Reject clipped text, text crossing the main glyph, tiny low-contrast subjects, dense generic device illustrations behind labels, unrelated actions that all look the same, preset buttons that all collapse to one current value, and raw resolution strings that run off the key. Dynamic state must be readable without requiring the user to remember what the button means.
 
-For profiles, include ZIP structure, page structure, action IDs, required plugins, device variants, icons, platform encoding, and the same key-face visual standard. Generated profile labels must not undo the plugin's visual hierarchy.
+For profiles, include ZIP structure, page structure, action IDs, required plugins, device variants, icons, platform encoding, and the same key-face visual standard. Generated profile labels must not undo the plugin's visual hierarchy. For complex plugins, verify page grouping and navigation instead of only checking archive validity. Rat Dev should open the standard/MK.2 profile automatically when bundled profiles exist.
 
 For XENEON/iCUE widgets, include inline build, structure, browser layout, behavior, deterministic capture, art checks, official CORSAIR validation and packaging, exact package integrity/extraction, lexical iCUE property binding regression when controls are declared, Corsair Labs Windows runner smoke, and StreamSpell packaged verification where applicable.
 

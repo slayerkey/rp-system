@@ -11,7 +11,7 @@ Dispatch by product type.
 
 ## Profile
 
-Use the shared deterministic builder in `tools/streamdeck/profile-builder.mjs` for new profile bundles and generate the required variants from one canonical layout definition. Preserve one press, one action, required plugin declarations, platform key encoding, and device specific layout rules. Run structural validation after generation.
+Use the shared deterministic builder in `tools/streamdeck/profile-builder.mjs` for new profile bundles and generate the required variants from one canonical layout definition. The builder supports one-page and multi-page profiles; use a small number of workflow pages when a single surface would be crowded. Preserve one press, one action, required plugin declarations, platform key encoding, and device specific layout rules. Run structural validation after generation.
 
 Generated profile key faces are product UI, not filler. Keep labels short, keep text out of the primary glyph area, and inherit the plugin's semantic action art instead of placing long titles over generic backgrounds.
 
@@ -29,6 +29,8 @@ For PackRat Keypad actions, host-managed Stream Deck title overlays are not the 
 
 Do not use one generic device silhouette as the background for unrelated actions when a specific symbol can communicate the action. Brightness should look like brightness, contrast like contrast, volume like volume, power like power, and so on.
 
+For utility-style plugins, centralize the semantic glyph map and key renderer. Preset keys show their configured target; status keys and dials may show live state. Use compact semantic mode labels instead of raw strings that can run off the key.
+
 For Keypad plugins, run `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>` as part of QA when the product layout permits. New Node SDK plugins should also run `node tools/qa/streamdeck-plugin-design-audit.mjs <plugin-source-root>` so action identity and Property Inspector transport regressions fail before hardware QA. Dashboard-style plugins that promise the standard PackRat profile bundle must add `--require-major-profiles` and cover DeviceTypes 0, 2, 7, and 9.
 
 Before hardware QA, enforce the PackRat plugin design contract:
@@ -43,7 +45,7 @@ Before hardware QA, enforce the PackRat plugin design contract:
 - Property Inspector settings must survive close/reopen and every command button must show feedback and execute
 - shared polling engines are preferred over per-key pollers
 
-Review representative keys at 72 x 72 and 36 x 36 before asking the user to find visual clipping on hardware.
+Review representative keys at 72 x 72 and 36 x 36 before asking the user to find visual clipping on hardware. When the plugin bundles profiles, the normal Rat Dev pass should open the standard/MK.2 profile automatically so the profile itself is part of the same hardware review.
 
 ## Widget
 

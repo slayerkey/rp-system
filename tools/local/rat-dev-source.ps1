@@ -86,7 +86,7 @@ function Resolve-RatDevProductMetadataSource {
         type = "streamdeck-plugin"
         plugin_dir = if ($metadata.ship_plugin_dir) { [string]$metadata.ship_plugin_dir } else { $null }
         plugin_uuid = if ($metadata.plugin_uuid) { [string]$metadata.plugin_uuid } else { $null }
-        open_profile_on_dev = [bool]($metadata.open_profile_on_dev)
+        open_profile_on_dev = if ($metadata.PSObject.Properties.Name -contains "open_profile_on_dev") { [bool]$metadata.open_profile_on_dev } else { $null }
         dev_profile = if ($metadata.dev_profile) { [string]$metadata.dev_profile } else { $null }
     }
 
@@ -96,6 +96,41 @@ function Resolve-RatDevProductMetadataSource {
         Config = $config
         SourceRoot = $sourcePath.Replace("/", "\")
         Display = "$Ref via products/$Slug.json"
+    }
+}
+
+
+function Resolve-RatDevProfilePreference {
+    param(
+        [object]$Manifest,
+        [object]$Config
+    )
+
+    $profiles = @()
+    if ($Manifest -and $Manifest.Profiles) {
+        $profiles = @($Manifest.Profiles)
+    }
+
+    $explicitOpen = $false
+    if ($Config -and ($Config.PSObject.Properties.Name -contains "open_profile_on_dev") -and $null -ne $Config.open_profile_on_dev) {
+        $explicitOpen = $true
+    }
+    $open = if ($explicitOpen) { [bool]$Config.open_profile_on_dev } else { $profiles.Count -gt 0 }
+
+    $profile = if ($Config -and $Config.dev_profile) { ([string]$Config.dev_profile).Trim() } else { "" }
+    if ([string]::IsNullOrWhiteSpace($profile) -and $profiles.Count) {
+        $standard = $profiles | Where-Object { [int]$_.DeviceType -eq 0 } | Select-Object -First 1
+        $selected = if ($standard) { $standard } else { $profiles[0] }
+        $profile = ([string]$selected.Name).Trim()
+        if ($profile -and -not $profile.EndsWith(".streamDeckProfile", [System.StringComparison]::OrdinalIgnoreCase)) {
+            $profile += ".streamDeckProfile"
+        }
+    }
+
+    return [PSCustomObject]@{
+        Open = [bool]$open
+        Profile = if ([string]::IsNullOrWhiteSpace($profile)) { $null } else { $profile }
+        Explicit = $explicitOpen
     }
 }
 

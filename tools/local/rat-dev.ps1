@@ -404,6 +404,8 @@ function Build-And-TestPlugin {
     Write-Host "Validating with the official Stream Deck CLI..." -ForegroundColor Cyan
     Invoke-Checked -Command "streamdeck" -Arguments @("validate", $pluginDir) -Failure "Stream Deck validation failed"
 
+    $profilePreference = Resolve-RatDevProfilePreference -Manifest $manifest -Config $config
+
     return [PSCustomObject]@{
         Root = $PluginRoot
         PluginDir = $pluginDir
@@ -411,8 +413,8 @@ function Build-And-TestPlugin {
         Version = [string]$manifest.Version
         OpenUrl = if ($config -and $config.open_url) { [string]$config.open_url } else { $null }
         OpenDevFolder = [bool]($config -and $config.open_dev_folder)
-        OpenProfileOnDev = [bool]($config -and $config.open_profile_on_dev)
-        DevProfile = if ($config -and $config.dev_profile) { [string]$config.dev_profile } else { $null }
+        OpenProfileOnDev = [bool]$profilePreference.Open
+        DevProfile = $profilePreference.Profile
     }
 }
 

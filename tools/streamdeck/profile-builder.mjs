@@ -120,22 +120,37 @@ function zip(entries) {
 
 export function buildProfile(spec) {
   const rootUuid = deterministicUuid(`profile-root:${spec.file}`);
-  const pageUuid = deterministicUuid(`profile-page:${spec.file}`);
-  const folder = pageFolderId(pageUuid);
   const rootPath = `${rootUuid}.sdProfile`;
+
+  // Preserve legacy one-page UUIDs byte-for-byte for existing consumers.
+  const pages = Array.isArray(spec.pages) && spec.pages.length
+    ? spec.pages
+    : [{ label: "MAIN", keypad: spec.keypad || {}, encoder: spec.encoder }];
+
+  const pageUuids = pages.map((page, index) => {
+    if (!Array.isArray(spec.pages) || !spec.pages.length) {
+      return deterministicUuid(`profile-page:${spec.file}`);
+    }
+    return deterministicUuid(`profile-page:${spec.file}:${index}:${page.label || ""}`);
+  });
+
   const bundle = {
     Name: spec.name,
-    Pages: { Current: pageUuid, Pages: [pageUuid] },
+    Pages: { Current: pageUuids[0], Pages: pageUuids },
     Version: "2.0",
   };
-  const controllers = [{ Actions: spec.keypad || {}, Type: "Keypad" }];
-  if (spec.encoder) controllers.push({ Actions: spec.encoder, Type: "Encoder" });
-  const page = { Controllers: controllers };
 
-  return zip([
-    [`${rootPath}/manifest.json`, JSON.stringify(bundle, null, 2)],
-    [`${rootPath}/Profiles/${folder}/manifest.json`, JSON.stringify(page, null, 2)],
-  ]);
+  const entries = [[`${rootPath}/manifest.json`, JSON.stringify(bundle, null, 2)]];
+  pages.forEach((page, index) => {
+    const controllers = [{ Actions: page.keypad || {}, Type: "Keypad" }];
+    if (page.encoder) controllers.push({ Actions: page.encoder, Type: "Encoder" });
+    entries.push([
+      `${rootPath}/Profiles/${pageFolderId(pageUuids[index])}/manifest.json`,
+      JSON.stringify({ Controllers: controllers }, null, 2),
+    ]);
+  });
+
+  return zip(entries);
 }
 
 export async function writeProfiles(profileDir, specs) {
