@@ -14,10 +14,11 @@ GitHub remains the source of truth. Do not rebuild the Stream Deck process from 
 2. `STREAMDECK.md`
 3. `skills/rat-build/SKILL.md`
 4. the matching platform/product-type guidance
-5. `standards/streamdeck-key-visuals-v1.md`
-6. `skills/rat-art/SKILL.md`
-7. `skills/rat-ship/SKILL.md`
-8. `products/index.json`
+5. `standards/streamdeck-plugin-design-system-v1.md`
+6. `standards/streamdeck-key-visuals-v1.md`
+7. `skills/rat-art/SKILL.md`
+8. `skills/rat-ship/SKILL.md`
+9. `products/index.json`
 
 Read product-specific source and QA only after the product slug and type are known.
 
@@ -45,17 +46,23 @@ Use the Stream Deck SDK and canonical plugin build/test/package path.
 
 Validate manifest structure, built code paths, property inspectors, actions, assets, settings, cache/API behavior, error states, and Elgato CLI validation/package.
 
-Key-face visual quality is part of plugin correctness. Read `standards/streamdeck-key-visuals-v1.md` before designing action art or bundled profiles. A key must be obvious at real 72 x 72 Stream Deck scale, with the action or live value upfront. PackRat Keypad UI owns the full rendered key face: disable the Stream Deck title overlay with `ShowTitle: false` and render any state/value text into the image with an explicit text band. Do not cover a generic device illustration with host-managed title text.
+Key-face visual quality and Property Inspector behavior are part of plugin correctness. Read `standards/streamdeck-plugin-design-system-v1.md` and `standards/streamdeck-key-visuals-v1.md` before designing action art, settings UI, live telemetry, or bundled profiles. A key must be obvious at real 72 x 72 Stream Deck scale, with the action or live value upfront. PackRat Keypad UI owns the full rendered key face: disable the Stream Deck title overlay with `ShowTitle: false` and render any state/value text into the image with an explicit text band. Do not cover a generic device illustration with host-managed title text.
 
 Every plugin with Keypad actions must run the shared key-face audit when practical:
 
 `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>`
 
+Dashboard-style plugins that promise the default major-model bundle must run:
+
+`node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin> --require-major-profiles`
+
+The default major-model bundle is standard/MK.2, XL, Plus, and Neo (DeviceTypes 0, 2, 7, and 9) unless the product records a deliberate exception. Use `tools/streamdeck/profile-builder.mjs` for deterministic generation instead of hand-maintaining multiple archives.
+
 The automated audit is only a floor. Also review actual keys at 72 x 72 and a reduced 36 x 36 preview. Dynamic keys must be reviewed using representative rendered states, not only their manifest fallback image.
 
 Use GitHub Actions for clean Node builds and vendor CLI work.
 
-Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures.
+Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures. The hardware pass must explicitly cover readable 72 x 72 key faces, accent/state behavior, Property Inspector save/reopen persistence, PI command buttons, live update cadence, and bundled profile appearance when profiles are promised.
 
 ### Profile
 
@@ -65,7 +72,7 @@ Validate profile archive structure, pages, navigation, action UUIDs, plugin depe
 
 Bundled profile titles and action images must follow `standards/streamdeck-key-visuals-v1.md`. Profile generation is not allowed to reintroduce long labels over icon art that the plugin manifest avoided.
 
-Generate Windows, Mac, VSD, XL, Plus, or other required variants from canonical definitions rather than hand-editing several independent copies.
+Generate device variants from canonical definitions rather than hand-editing several independent copies. New PackRat profile bundles should prefer the shared deterministic builder in `tools/streamdeck/profile-builder.mjs`.
 
 A local Stream Deck import remains useful as final validation when required.
 
