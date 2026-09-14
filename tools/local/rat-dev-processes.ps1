@@ -44,21 +44,52 @@ function Get-RatDevBuildOwnedProcesses {
         return @()
     }
 
+    try {
+        $rootFull = [System.IO.Path]::GetFullPath($PluginRoot).TrimEnd("\", "/")
+    }
+    catch {
+        return @()
+    }
+
+    # Stream Deck JavaScript plugins run under a system node.exe. Its executable
+    # path is outside the plugin root, but its command line references the linked
+    # .sdPlugin files. Capture those command lines so Rat Dev can still identify
+    # and release the exact development plugin process after a partial build.
+    $commandLines = @{}
+    try {
+        foreach ($entry in @(Get-CimInstance Win32_Process -ErrorAction Stop)) {
+            if ($null -ne $entry.ProcessId -and -not [string]::IsNullOrWhiteSpace([string]$entry.CommandLine)) {
+                $commandLines[[int]$entry.ProcessId] = [string]$entry.CommandLine
+            }
+        }
+    }
+    catch {
+        # Native helper executable-path detection below still works if CIM is
+        # unavailable. Command-line matching is a Windows recovery enhancement.
+    }
+
     $matches = @()
     foreach ($process in @(Get-Process -ErrorAction SilentlyContinue)) {
+        $owned = $false
         $path = $null
         try {
             $path = [string]$process.Path
         }
-        catch {
-            continue
+        catch { }
+
+        if (-not [string]::IsNullOrWhiteSpace($path) -and
+            (Test-RatDevPathInsideRoot -Root $PluginRoot -Candidate $path)) {
+            $owned = $true
         }
 
-        if ([string]::IsNullOrWhiteSpace($path)) {
-            continue
+        if (-not $owned -and $commandLines.ContainsKey([int]$process.Id)) {
+            $commandLine = [string]$commandLines[[int]$process.Id]
+            if ($commandLine.IndexOf($rootFull, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
+                $owned = $true
+            }
         }
 
-        if (Test-RatDevPathInsideRoot -Root $PluginRoot -Candidate $path) {
+        if ($owned) {
             $matches += $process
         }
     }
