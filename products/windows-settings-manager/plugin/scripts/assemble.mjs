@@ -24,38 +24,38 @@ const DEVICES = [
 
 const ACTIONS = {
   lite: {
-    lock: "com.packrat.windows-settings-manager-lite.lock",
-    sleep: "com.packrat.windows-settings-manager-lite.sleep",
-    power: "com.packrat.windows-settings-manager-lite.power",
-    awake: "com.packrat.windows-settings-manager-lite.awake",
-    desktopPrev: "com.packrat.windows-settings-manager-lite.desktop-previous",
-    desktopNext: "com.packrat.windows-settings-manager-lite.desktop-next"
+    lock: "com.packrat.windows-settings-manager-lite2.lock",
+    sleep: "com.packrat.windows-settings-manager-lite2.sleep",
+    power: "com.packrat.windows-settings-manager-lite2.power",
+    awake: "com.packrat.windows-settings-manager-lite2.awake",
+    desktopPrev: "com.packrat.windows-settings-manager-lite2.desktop-previous",
+    desktopNext: "com.packrat.windows-settings-manager-lite2.desktop-next"
   },
   pro: {
-    lock: "com.packrat.windows-settings-manager-pro.lock",
-    sleep: "com.packrat.windows-settings-manager-pro.sleep",
-    hibernate: "com.packrat.windows-settings-manager-pro.hibernate",
-    restart: "com.packrat.windows-settings-manager-pro.restart",
-    shutdown: "com.packrat.windows-settings-manager-pro.shutdown",
-    wifi: "com.packrat.windows-settings-manager-pro.wifi",
-    bluetooth: "com.packrat.windows-settings-manager-pro.bluetooth",
-    power: "com.packrat.windows-settings-manager-pro.power",
-    awake: "com.packrat.windows-settings-manager-pro.awake",
-    theme: "com.packrat.windows-settings-manager-pro.theme",
-    desktopPrev: "com.packrat.windows-settings-manager-pro.desktop-previous",
-    desktopNext: "com.packrat.windows-settings-manager-pro.desktop-next",
-    desktopNew: "com.packrat.windows-settings-manager-pro.desktop-new",
-    desktopClose: "com.packrat.windows-settings-manager-pro.desktop-close",
-    desktopCurrent: "com.packrat.windows-settings-manager-pro.desktop-current",
-    status: "com.packrat.windows-settings-manager-pro.status",
-    hdr: "com.packrat.windows-settings-manager-pro.hdr",
-    display: "com.packrat.windows-settings-manager-pro.display",
-    timeout: "com.packrat.windows-settings-manager-pro.timeout",
-    apply: "com.packrat.windows-settings-manager-pro.apply-mode",
-    cycle: "com.packrat.windows-settings-manager-pro.cycle-mode",
-    current: "com.packrat.windows-settings-manager-pro.current-mode",
-    save: "com.packrat.windows-settings-manager-pro.save-mode",
-    page: "com.packrat.windows-settings-manager-pro.profile-page"
+    lock: "com.packrat.windows-settings-manager-pro2.lock",
+    sleep: "com.packrat.windows-settings-manager-pro2.sleep",
+    hibernate: "com.packrat.windows-settings-manager-pro2.hibernate",
+    restart: "com.packrat.windows-settings-manager-pro2.restart",
+    shutdown: "com.packrat.windows-settings-manager-pro2.shutdown",
+    wifi: "com.packrat.windows-settings-manager-pro2.wifi",
+    bluetooth: "com.packrat.windows-settings-manager-pro2.bluetooth",
+    power: "com.packrat.windows-settings-manager-pro2.power",
+    awake: "com.packrat.windows-settings-manager-pro2.awake",
+    theme: "com.packrat.windows-settings-manager-pro2.theme",
+    desktopPrev: "com.packrat.windows-settings-manager-pro2.desktop-previous",
+    desktopNext: "com.packrat.windows-settings-manager-pro2.desktop-next",
+    desktopNew: "com.packrat.windows-settings-manager-pro2.desktop-new",
+    desktopClose: "com.packrat.windows-settings-manager-pro2.desktop-close",
+    desktopCurrent: "com.packrat.windows-settings-manager-pro2.desktop-current",
+    status: "com.packrat.windows-settings-manager-pro2.status",
+    hdr: "com.packrat.windows-settings-manager-pro2.hdr",
+    display: "com.packrat.windows-settings-manager-pro2.display",
+    timeout: "com.packrat.windows-settings-manager-pro2.timeout",
+    apply: "com.packrat.windows-settings-manager-pro2.apply-mode",
+    cycle: "com.packrat.windows-settings-manager-pro2.cycle-mode",
+    current: "com.packrat.windows-settings-manager-pro2.current-mode",
+    save: "com.packrat.windows-settings-manager-pro2.save-mode",
+    page: "com.packrat.windows-settings-manager-pro2.profile-page"
   }
 };
 
@@ -66,7 +66,7 @@ for (const flavor of ["lite", "pro"]) {
 }
 
 async function assemble(flavor) {
-  const uuid = `com.packrat.windows-settings-manager-${flavor}`;
+  const uuid = `com.packrat.windows-settings-manager-${flavor}2`;
   const plugin = path.join(OUT, `${uuid}.sdPlugin`);
   await mkdir(path.join(plugin, "bin"), { recursive: true });
   await mkdir(path.join(plugin, "imgs", "plugin"), { recursive: true });
@@ -129,7 +129,7 @@ async function resolveProMarketplaceUrl() {
 function manifest(flavor, profiles) {
   const pro = flavor === "pro";
   const name = pro ? "Windows Settings Manager Pro" : "Windows Settings Manager Lite";
-  const uuid = `com.packrat.windows-settings-manager-${flavor}`;
+  const uuid = `com.packrat.windows-settings-manager-${flavor}2`;
 
   const actions = pro
     ? [
