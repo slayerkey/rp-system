@@ -8,6 +8,7 @@ import streamDeck, {
 } from "@elgato/streamdeck";
 
 import { applyMode, captureModeSettings, hasConfiguredSettings, modeMatchesSnapshot } from "./modes.js";
+import { renderKeyImage, type KeyVisualKind, type KeyVisualTone } from "./key-visuals.js";
 import {
   awakeTitle,
   bluetoothTitle,
@@ -54,6 +55,8 @@ abstract class LiveTitleAction<S extends Record<string, any>> extends SingletonA
     runtime.state.subscribe(() => void this.paintAll());
   }
 
+  protected abstract readonly visual: KeyVisualKind;
+  protected readonly tone: KeyVisualTone = "brand";
   protected abstract title(settings: S): Promise<string> | string;
 
   override async onWillAppear(ev: WillAppearEvent<S>): Promise<void> {
@@ -76,11 +79,12 @@ abstract class LiveTitleAction<S extends Record<string, any>> extends SingletonA
   }
 
   protected async paint(key: KeyAction<S>, settings: S): Promise<void> {
-    await key.setTitle(await this.title(settings));
+    await key.setImage(renderKeyImage(this.visual, await this.title(settings), this.tone));
   }
 }
 
 class StatusBase extends LiveTitleAction<Record<string, never>> {
+  protected readonly visual = "status" as const;
   protected title(): string { return statusTitle(runtime.state.getSnapshot()); }
 
   override async onKeyDown(ev: KeyDownEvent<Record<string, never>>): Promise<void> {
@@ -91,6 +95,7 @@ class StatusBase extends LiveTitleAction<Record<string, never>> {
 }
 
 class HdrBase extends LiveTitleAction<HdrSettings> {
+  protected readonly visual = "hdr" as const;
   protected title(): string { return hdrTitle(runtime.state.getSnapshot()); }
 
   override async onKeyDown(ev: KeyDownEvent<HdrSettings>): Promise<void> {
@@ -108,6 +113,7 @@ class HdrBase extends LiveTitleAction<HdrSettings> {
 }
 
 class PowerBase extends LiveTitleAction<PowerSettings> {
+  protected readonly visual = "power" as const;
   protected title(): string { return powerTitle(runtime.state.getSnapshot()); }
 
   override async onKeyDown(ev: KeyDownEvent<PowerSettings>): Promise<void> {
@@ -135,6 +141,7 @@ class PowerBase extends LiveTitleAction<PowerSettings> {
 }
 
 class TopologyBase extends LiveTitleAction<TopologySettings> {
+  protected readonly visual = "display" as const;
   protected title(): string { return topologyTitle(runtime.state.getSnapshot()); }
 
   override async onKeyDown(ev: KeyDownEvent<TopologySettings>): Promise<void> {
@@ -159,6 +166,7 @@ class TopologyBase extends LiveTitleAction<TopologySettings> {
 }
 
 class TimeoutBase extends LiveTitleAction<TimeoutSettings> {
+  protected readonly visual = "timeout" as const;
   protected title(): string { return timeoutTitle(runtime.state.getSnapshot()); }
 
   override async onKeyDown(ev: KeyDownEvent<TimeoutSettings>): Promise<void> {
@@ -189,6 +197,7 @@ class TimeoutBase extends LiveTitleAction<TimeoutSettings> {
 }
 
 class AwakeBase extends LiveTitleAction<ToggleSettings> {
+  protected readonly visual = "awake" as const;
   protected title(): string { return awakeTitle(runtime.state.getSnapshot()); }
 
   override async onKeyDown(ev: KeyDownEvent<ToggleSettings>): Promise<void> {
@@ -205,6 +214,7 @@ class AwakeBase extends LiveTitleAction<ToggleSettings> {
 abstract class RadioBase extends LiveTitleAction<ToggleSettings> {
   protected abstract readonly radioKind: "wifi" | "bluetooth";
   protected abstract readonly backendKind: "WiFi" | "Bluetooth";
+  protected abstract readonly visual: KeyVisualKind;
 
   protected title(): string {
     const snapshot = runtime.state.getSnapshot();
@@ -234,14 +244,17 @@ abstract class RadioBase extends LiveTitleAction<ToggleSettings> {
 class WifiBase extends RadioBase {
   protected readonly radioKind = "wifi" as const;
   protected readonly backendKind = "WiFi" as const;
+  protected readonly visual = "wifi" as const;
 }
 
 class BluetoothBase extends RadioBase {
   protected readonly radioKind = "bluetooth" as const;
   protected readonly backendKind = "Bluetooth" as const;
+  protected readonly visual = "bluetooth" as const;
 }
 
 class ThemeBase extends LiveTitleAction<ThemeSettings> {
+  protected readonly visual = "theme" as const;
   protected title(): string { return themeTitle(runtime.state.getSnapshot()); }
 
   override async onKeyDown(ev: KeyDownEvent<ThemeSettings>): Promise<void> {
@@ -272,7 +285,7 @@ class ThemeBase extends LiveTitleAction<ThemeSettings> {
 
 class LockBase extends SingletonAction<Record<string, never>> {
   override async onWillAppear(ev: WillAppearEvent<Record<string, never>>): Promise<void> {
-    if (ev.action.isKey()) await ev.action.setTitle("LOCK\nPC");
+    if (ev.action.isKey()) await ev.action.setImage(renderKeyImage("lock", "LOCK\nPC"));
   }
   override async onKeyDown(ev: KeyDownEvent<Record<string, never>>): Promise<void> {
     const reply = await runtime.state.execute<any>("lock", {});
@@ -282,10 +295,11 @@ class LockBase extends SingletonAction<Record<string, never>> {
 
 abstract class ImmediatePowerBase extends SingletonAction<Record<string, never>> {
   protected abstract readonly command: "sleep" | "hibernate";
+  protected abstract readonly visual: KeyVisualKind;
   protected abstract title(snapshot: SystemSnapshot): string;
 
   override async onWillAppear(ev: WillAppearEvent<Record<string, never>>): Promise<void> {
-    if (ev.action.isKey()) await ev.action.setTitle(this.title(runtime.state.getSnapshot()));
+    if (ev.action.isKey()) await ev.action.setImage(renderKeyImage(this.visual, this.title(runtime.state.getSnapshot())));
   }
 
   override async onKeyDown(ev: KeyDownEvent<Record<string, never>>): Promise<void> {
@@ -299,11 +313,13 @@ abstract class ImmediatePowerBase extends SingletonAction<Record<string, never>>
 
 class SleepBase extends ImmediatePowerBase {
   protected readonly command = "sleep" as const;
+  protected readonly visual = "sleep" as const;
   protected title(): string { return "SLEEP\nPC"; }
 }
 
 class HibernateBase extends ImmediatePowerBase {
   protected readonly command = "hibernate" as const;
+  protected readonly visual = "hibernate" as const;
   protected title(snapshot: SystemSnapshot): string {
     if (!snapshot.backendOnline) return "HIBER\nOFFLINE";
     return snapshot.hibernateAvailable ? "HIBERNATE" : "HIBER\nN/A";
@@ -313,10 +329,11 @@ class HibernateBase extends ImmediatePowerBase {
 abstract class ConfirmedPowerBase extends SingletonAction<ConfirmSettings> {
   protected abstract readonly command: "restart" | "shutdown";
   protected abstract readonly baseTitle: string;
+  protected abstract readonly visual: KeyVisualKind;
   private armed = new WeakMap<object, NodeJS.Timeout>();
 
   override async onWillAppear(ev: WillAppearEvent<ConfirmSettings>): Promise<void> {
-    if (ev.action.isKey()) await ev.action.setTitle(this.baseTitle);
+    if (ev.action.isKey()) await ev.action.setImage(renderKeyImage(this.visual, this.baseTitle, "danger"));
   }
 
   override async onKeyDown(ev: KeyDownEvent<ConfirmSettings>): Promise<void> {
@@ -325,10 +342,10 @@ abstract class ConfirmedPowerBase extends SingletonAction<ConfirmSettings> {
     if ((settings.confirmation ?? "double") !== "none") {
       const existing = this.armed.get(actionKey);
       if (!existing) {
-        await ev.action.setTitle("PRESS\nAGAIN");
+        await ev.action.setImage(renderKeyImage(this.visual, "PRESS\nAGAIN", "danger"));
         const timer = setTimeout(() => {
           this.armed.delete(actionKey);
-          void ev.action.setTitle(this.baseTitle).catch(() => {});
+          void ev.action.setImage(renderKeyImage(this.visual, this.baseTitle, "danger")).catch(() => {});
         }, 3000);
         timer.unref();
         this.armed.set(actionKey, timer);
@@ -340,7 +357,7 @@ abstract class ConfirmedPowerBase extends SingletonAction<ConfirmSettings> {
 
     const reply = await runtime.state.execute<any>("powerTransition", { command: this.command });
     if (!reply.ok || reply.result?.status !== "COMPLETE") {
-      await ev.action.setTitle(this.baseTitle);
+      await ev.action.setImage(renderKeyImage(this.visual, this.baseTitle, "danger"));
       await ev.action.showAlert();
     }
   }
@@ -349,19 +366,23 @@ abstract class ConfirmedPowerBase extends SingletonAction<ConfirmSettings> {
 class RestartBase extends ConfirmedPowerBase {
   protected readonly command = "restart" as const;
   protected readonly baseTitle = "RESTART";
+  protected readonly visual = "restart" as const;
 }
 
 class ShutdownBase extends ConfirmedPowerBase {
   protected readonly command = "shutdown" as const;
   protected readonly baseTitle = "SHUTDOWN";
+  protected readonly visual = "shutdown" as const;
 }
 
 abstract class DesktopCommandBase extends SingletonAction<Record<string, never>> {
   protected abstract readonly command: "previous" | "next" | "new" | "close";
   protected abstract readonly baseTitle: string;
+  protected abstract readonly visual: KeyVisualKind;
+  protected readonly tone: KeyVisualTone = "brand";
 
   override async onWillAppear(ev: WillAppearEvent<Record<string, never>>): Promise<void> {
-    if (ev.action.isKey()) await ev.action.setTitle(this.baseTitle);
+    if (ev.action.isKey()) await ev.action.setImage(renderKeyImage(this.visual, this.baseTitle, this.tone));
   }
 
   override async onKeyDown(ev: KeyDownEvent<Record<string, never>>): Promise<void> {
@@ -376,24 +397,31 @@ abstract class DesktopCommandBase extends SingletonAction<Record<string, never>>
 class DesktopPreviousBase extends DesktopCommandBase {
   protected readonly command = "previous" as const;
   protected readonly baseTitle = "DESK\nPREV";
+  protected readonly visual = "desktop-previous" as const;
 }
 class DesktopNextBase extends DesktopCommandBase {
   protected readonly command = "next" as const;
   protected readonly baseTitle = "DESK\nNEXT";
+  protected readonly visual = "desktop-next" as const;
 }
 class DesktopNewBase extends DesktopCommandBase {
   protected readonly command = "new" as const;
   protected readonly baseTitle = "DESK\nNEW";
+  protected readonly visual = "desktop-new" as const;
 }
 class DesktopCloseBase extends DesktopCommandBase {
   protected readonly command = "close" as const;
   protected readonly baseTitle = "DESK\nCLOSE";
+  protected readonly visual = "desktop-close" as const;
+  protected readonly tone = "danger" as const;
 }
 class DesktopCurrentBase extends LiveTitleAction<Record<string, never>> {
+  protected readonly visual = "desktop-current" as const;
   protected title(): string { return desktopTitle(runtime.state.getSnapshot()); }
 }
 
 class ApplyModeBase extends LiveTitleAction<ModeActionSettings> {
+  protected readonly visual = "mode" as const;
   protected async title(settings: ModeActionSettings): Promise<string> {
     const mode = await runtime.store.getMode(settings.modeId || "gaming");
     return !mode || !hasConfiguredSettings(mode)
@@ -409,7 +437,7 @@ class ApplyModeBase extends LiveTitleAction<ModeActionSettings> {
     }
 
     const result = await applyMode(mode, (op, args) => runtime.state.execute(op, args));
-    await ev.action.setTitle(resultTitle(result));
+    await ev.action.setImage(renderKeyImage("mode", resultTitle(result), result.status === "FAILED" ? "danger" : "brand"));
     if (result.status === "COMPLETE") await ev.action.showOk();
     else await ev.action.showAlert();
     setTimeout(() => {
@@ -421,6 +449,7 @@ class ApplyModeBase extends LiveTitleAction<ModeActionSettings> {
 }
 
 class CycleModeBase extends LiveTitleAction<Record<string, never>> {
+  protected readonly visual = "mode" as const;
   private cursorId = "";
   private advancePastFailedAttempt = false;
 
@@ -452,6 +481,7 @@ class CycleModeBase extends LiveTitleAction<Record<string, never>> {
 }
 
 class CurrentModeBase extends LiveTitleAction<Record<string, never>> {
+  protected readonly visual = "mode" as const;
   protected async title(): Promise<string> {
     const all = await runtime.store.load();
     return currentModeTitle(all.modes, runtime.state.getSnapshot(), modeMatchesSnapshot);
@@ -459,6 +489,7 @@ class CurrentModeBase extends LiveTitleAction<Record<string, never>> {
 }
 
 class SaveModeBase extends LiveTitleAction<ModeActionSettings> {
+  protected readonly visual = "save" as const;
   protected async title(settings: ModeActionSettings): Promise<string> {
     const mode = await runtime.store.getMode(settings.modeId || "gaming");
     return `SAVE\n${modeTitle(mode)}`;
@@ -481,7 +512,7 @@ class ProfilePageBase extends SingletonAction<PageSettings> {
   override async onWillAppear(ev: WillAppearEvent<PageSettings>): Promise<void> {
     if (ev.action.isKey()) {
       const page = Number(ev.payload.settings?.page ?? 0);
-      await ev.action.setTitle(page === 0 ? "CONTROL" : "ADVANCED");
+      await ev.action.setImage(renderKeyImage("profile", page === 0 ? "CONTROL" : "ADVANCED"));
     }
   }
 
