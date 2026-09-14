@@ -18,7 +18,8 @@
     "pack": "npm run pack:lite && npm run pack:pro",
     "host:audit": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-audit.ps1",
     "host:audit:static": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-audit.ps1 -StaticOnly",
-    "verify:windows": "npm run build && npm test && npm run host:audit && npm run validate && npm run pack"
+    "verify:windows": "npm run build && npm test && npm run host:audit && npm run validate && npm run pack",
+    "host:probe": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-probe.ps1"
   },
   "dependencies": {
     "@elgato/streamdeck": "^2.1.0"

@@ -1,6 +1,7 @@
 import streamDeck from "@elgato/streamdeck";
 import { DeviceCatalog, parseGroupNames, resolveSelectedDeviceId, shouldApplySnapshot, type Device } from "./model.js";
 import { control, snapshot } from "./bridge.js";
+import { diag, diagError } from "./diagnostics.js";
 
 type GlobalSettings = {
   liteDeviceId?: string;
@@ -18,6 +19,11 @@ export class WirelessRuntime {
   private globalCache: GlobalSettings | null = null;
   private globalLoad: Promise<GlobalSettings> | null = null;
   private globalWrite: Promise<void> = Promise.resolve();
+  private started = false;
+  private refreshCount = 0;
+  private lastRefreshAt: string | null = null;
+  private lastRefreshDurationMs = 0;
+  private lastSnapshotDeviceCount = 0;
   adapterAvailable = true;
   hidAvailable = true;
   lastError: string | null = null;
@@ -39,8 +45,13 @@ export class WirelessRuntime {
   }
 
   async handleInspectorCommand(payload: any): Promise<void> {
+    diag("runtime-inspector-command", {
+      edition: this.edition,
+      type: String(payload?.type ?? ""),
+      actionContext: String(payload?.actionContext ?? "")
+    });
     if (payload?.type === "refresh-wireless" || payload?.type === "get-wireless-snapshot") {
-      await this.refresh();
+      await this.refresh("property-inspector");
       return;
     }
     const deviceId = typeof payload?.deviceId === "string" ? payload.deviceId : "";
@@ -68,10 +79,26 @@ export class WirelessRuntime {
   }
 
   async start(): Promise<void> {
-    await this.refresh();
+    diag("runtime-start", { edition: this.edition });
+    await this.refresh("startup");
+    this.started = true;
     void this.warmGlobals();
-    this.timer = setInterval(() => void this.refresh(), 5000);
+    this.timer = setInterval(() => void this.refresh("timer"), 5000);
     this.timer.unref();
+    diag("runtime-ready", { edition: this.edition, ...this.diagnostics() });
+  }
+
+  diagnostics(): Record<string, unknown> {
+    return {
+      runtimeStarted: this.started,
+      refreshCount: this.refreshCount,
+      lastRefreshAt: this.lastRefreshAt,
+      lastRefreshDurationMs: this.lastRefreshDurationMs,
+      lastSnapshotDeviceCount: this.lastSnapshotDeviceCount,
+      adapterAvailable: this.adapterAvailable,
+      hidAvailable: this.hidAvailable,
+      lastError: this.lastError
+    };
   }
 
   subscribe(listener: () => void): () => void {
@@ -91,9 +118,12 @@ export class WirelessRuntime {
     return this.catalog.get(id);
   }
 
-  async refresh(): Promise<void> {
-    if (this.refreshTask) return this.refreshTask;
-    this.refreshTask = this.refreshOnce();
+  async refresh(reason = "runtime"): Promise<void> {
+    if (this.refreshTask) {
+      diag("refresh-coalesced", { edition: this.edition, reason });
+      return this.refreshTask;
+    }
+    this.refreshTask = this.refreshOnce(reason);
     try {
       await this.refreshTask;
     } finally {
@@ -101,18 +131,43 @@ export class WirelessRuntime {
     }
   }
 
-  private async refreshOnce(): Promise<void> {
-    const result = await snapshot();
-    this.adapterAvailable = result.adapterAvailable;
-    this.hidAvailable = result.hidAvailable;
-    this.lastError = result.ok ? null : (result.error ?? "Wireless device scan unavailable");
-    if (shouldApplySnapshot(result.ok, result.adapterAvailable, result.hidAvailable)) {
-      this.catalog.ingest(result.devices, Date.now(), {
-        bluetooth: result.adapterAvailable,
-        hid: result.hidAvailable
+  private async refreshOnce(reason: string): Promise<void> {
+    const startedAt = Date.now();
+    diag("bridge-snapshot-start", { edition: this.edition, reason });
+    try {
+      const result = await snapshot();
+      this.adapterAvailable = result.adapterAvailable;
+      this.hidAvailable = result.hidAvailable;
+      this.lastError = result.ok ? null : (result.error ?? "Wireless device scan unavailable");
+      this.lastSnapshotDeviceCount = Array.isArray(result.devices) ? result.devices.length : 0;
+      if (shouldApplySnapshot(result.ok, result.adapterAvailable, result.hidAvailable)) {
+        this.catalog.ingest(result.devices, Date.now(), {
+          bluetooth: result.adapterAvailable,
+          hid: result.hidAvailable
+        });
+      }
+      this.refreshCount += 1;
+      this.lastRefreshAt = new Date().toISOString();
+      diag("bridge-snapshot-result", {
+        edition: this.edition,
+        reason,
+        ok: result.ok,
+        adapterAvailable: result.adapterAvailable,
+        hidAvailable: result.hidAvailable,
+        devices: this.lastSnapshotDeviceCount,
+        error: result.error ?? null
       });
+      this.notify();
+    } catch (error) {
+      this.lastError = error instanceof Error ? error.message : String(error);
+      this.refreshCount += 1;
+      this.lastRefreshAt = new Date().toISOString();
+      diagError("bridge-snapshot-exception", error, { edition: this.edition, reason });
+      this.notify();
+      throw error;
+    } finally {
+      this.lastRefreshDurationMs = Date.now() - startedAt;
     }
-    this.notify();
   }
 
   async perform(id: string, operation: "connect" | "disconnect"): Promise<{ ok: boolean; error?: string }> {
@@ -243,7 +298,13 @@ export class WirelessRuntime {
       favorites: globals.favorites ?? [],
       groups: globals.groups ?? {},
       thresholds: globals.thresholds ?? {},
-      slots: globals.slots ?? {}
+      slots: globals.slots ?? {},
+      diagnostics: {
+        ...this.diagnostics(),
+        pid: process.pid,
+        node: process.version,
+        arch: process.arch
+      }
     };
   }
 }
