@@ -11,6 +11,29 @@ Create the release candidate from canonical source and generated artifacts. Incl
 
 Final evidence must match the exact source commit and package being submitted. If product behavior, feature scope, or release boundary changed after an earlier green QA run, invalidate that earlier final evidence and regenerate the package/art/QA record before Rat Ship can proceed.
 
+
+## Canonical registration and diverged product branches
+
+`rat ship <slug>` resolves the release control plane from canonical `main`. Before shipping, require:
+
+- `products/<slug>.json` on `main`
+- submission metadata at the canonical path referenced by that product record
+- a `products/index.json` entry
+- truthful workflow state
+
+Do not merge a heavily diverged/long-lived product branch wholesale into `main` merely to satisfy registration.
+
+When the product is developed on a separate branch, prefer canonical metadata on `main` that pins Rat Ship to an immutable, already-green release artifact:
+
+- exact repository
+- exact source commit
+- exact Actions run/artifact
+- exact package path
+- exact package SHA-256
+- exact media paths when the artifact owns immutable media
+
+Registration and readiness are separate concepts. Adding the canonical record fixes "not registered" but must not silently change `TESTING` to `READY_TO_SHIP`. Promote readiness only when the remaining gate is intentionally accepted/closed.
+
 ## Marketplace rejection versioning
 
 Treat a rejected Marketplace submission as a correction to the same release, not as a new product update. When fixing a rejected submission for resubmission, preserve the exact version that was rejected unless the marketplace explicitly requires otherwise. Code changes made only to satisfy rejection feedback do not by themselves justify a version bump.
@@ -97,6 +120,8 @@ Hardware-dependent products need an honest review-evidence boundary. When curren
 ## Release notes
 
 Marketplace release notes are concise bullets, not a prose announcement.
+
+Use actual newline characters between bullets. Literal `\n` text serialized into one giant release-note line is a metadata bug and should fail preflight.
 
 Default to three to six bullets describing the user-visible changes. Do not add headings or preambles such as `Initial release`, `What's new`, or `Version 1.0.0`. Do not submit one long paragraph when the information can be scanned as separate changes.
 
