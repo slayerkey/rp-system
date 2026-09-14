@@ -162,7 +162,22 @@ function renderActionSettings() {
   } else {
     has = false;
   }
-  document.getElementById("noActionSettings").classList.toggle("hidden", has);
+
+  const noAction = document.getElementById("noActionSettings");
+  noAction.classList.toggle("hidden", has);
+  if (!has) {
+    noAction.textContent = suffix === "awake"
+      ? "SLEEP NORMAL means Windows can use its normal idle screen-off and sleep behavior. STAY AWAKE prevents idle screen-off and sleep while the plugin backend is active; it does not hibernate or shut down the PC."
+      : suffix === "status"
+        ? "Press to refresh all live Windows state. A successful refresh shows the Stream Deck OK check."
+        : suffix === "lock"
+          ? "Pressing this key immediately locks the current Windows workstation."
+          : suffix === "current-mode"
+            ? "Read-only. This key shows the configured PC Mode that matches the live Windows state."
+            : suffix === "cycle-mode"
+              ? "Cycles only through configured PC Modes. Empty modes are skipped."
+              : "This key has no extra settings. Its title follows the live Windows state.";
+  }
   renderDynamicSelects();
 }
 
