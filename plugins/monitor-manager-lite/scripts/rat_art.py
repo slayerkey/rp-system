@@ -1,5 +1,5 @@
 from __future__ import annotations
-import argparse, os, hashlib
+import argparse, os, hashlib, json
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -125,6 +125,21 @@ def compatibility(path):
         x+=600
     footer(im); save(im,path)
 
+def write_key_fixtures(out):
+    values = [
+        ["10%"], ["25%"], ["40%"], ["50%"], ["65%"],
+        ["75%"], ["85%"], ["100%"], ["BRIGHT","+"], ["BRIGHT","-"],
+        ["20%"], ["30%"], ["60%"], ["80%"], ["90%"],
+    ]
+    keys = [
+        {"action_uuid":"com.packrat.monitormanagerlite.brightness","lines":lines}
+        for lines in values
+    ]
+    (out/"rat-art-key-fixtures.json").write_text(
+        json.dumps({"schema_version":1,"keys":keys},indent=2)+"\n",
+        encoding="utf-8",
+    )
+
 def validate_outputs(out):
     if not RAT.is_file():
         raise SystemExit("RAT ART FAIL: PackRat logo asset missing: "+str(RAT))
@@ -153,6 +168,7 @@ def main():
     p=argparse.ArgumentParser(); p.add_argument("--out",required=True); args=p.parse_args(); out=Path(args.out).resolve(); out.mkdir(parents=True,exist_ok=True)
     if not RAT.is_file(): raise SystemExit("RAT ART FAIL: PackRat logo asset missing: "+str(RAT))
     search_icon(out/"01_search_icon.png"); hero(out/"02_cover.png"); controls(out/"03_gallery_01.png"); capabilities(out/"04_gallery_02.png"); profiles(out/"05_gallery_03.png"); plus(out/"06_gallery_04.png")
+    write_key_fixtures(out)
     validate_outputs(out)
     print("RAT ART PASS:",out)
 
