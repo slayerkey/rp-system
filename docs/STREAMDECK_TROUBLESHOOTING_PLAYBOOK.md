@@ -28,6 +28,7 @@ Read the stage that failed before activation. Rat Dev intentionally leaves the e
 - required native dependency is missing from the editable source
 - the official Elgato validator rejected the candidate
 - Windows still owns a native helper file lock
+- the linked Stream Deck Node process still references/uses the old `.sdPlugin` directory even though `node.exe` itself lives outside that directory
 
 ### Fix
 
