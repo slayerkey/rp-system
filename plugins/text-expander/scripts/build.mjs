@@ -207,8 +207,75 @@ async function writeIconPair(base,width,height,kind,{key=false,pro=false}={}){
   await write(base+".png",makePng(width,height,d=>drawIcon(d,kind,{key,pro})));
   await write(base+"@2x.png",makePng(width*2,height*2,d=>drawIcon(d,kind,{key,pro})));
 }
-function profileKeyImage(kind,pro=false){
-  return makePng(288,288,d=>drawIcon(d,kind||"text",{key:true,pro}));
+const FONT_5X7={
+  "A":["01110","10001","10001","11111","10001","10001","10001"],
+  "B":["11110","10001","10001","11110","10001","10001","11110"],
+  "C":["01111","10000","10000","10000","10000","10000","01111"],
+  "D":["11110","10001","10001","10001","10001","10001","11110"],
+  "E":["11111","10000","10000","11110","10000","10000","11111"],
+  "F":["11111","10000","10000","11110","10000","10000","10000"],
+  "G":["01111","10000","10000","10111","10001","10001","01111"],
+  "H":["10001","10001","10001","11111","10001","10001","10001"],
+  "I":["11111","00100","00100","00100","00100","00100","11111"],
+  "J":["00111","00010","00010","00010","10010","10010","01100"],
+  "K":["10001","10010","10100","11000","10100","10010","10001"],
+  "L":["10000","10000","10000","10000","10000","10000","11111"],
+  "M":["10001","11011","10101","10101","10001","10001","10001"],
+  "N":["10001","11001","10101","10011","10001","10001","10001"],
+  "O":["01110","10001","10001","10001","10001","10001","01110"],
+  "P":["11110","10001","10001","11110","10000","10000","10000"],
+  "Q":["01110","10001","10001","10001","10101","10010","01101"],
+  "R":["11110","10001","10001","11110","10100","10010","10001"],
+  "S":["01111","10000","10000","01110","00001","00001","11110"],
+  "T":["11111","00100","00100","00100","00100","00100","00100"],
+  "U":["10001","10001","10001","10001","10001","10001","01110"],
+  "V":["10001","10001","10001","10001","10001","01010","00100"],
+  "W":["10001","10001","10001","10101","10101","10101","01010"],
+  "X":["10001","10001","01010","00100","01010","10001","10001"],
+  "Y":["10001","10001","01010","00100","00100","00100","00100"],
+  "Z":["11111","00001","00010","00100","01000","10000","11111"],
+  "0":["01110","10001","10011","10101","11001","10001","01110"],
+  "1":["00100","01100","00100","00100","00100","00100","01110"],
+  "2":["01110","10001","00001","00010","00100","01000","11111"],
+  "3":["11110","00001","00001","01110","00001","00001","11110"],
+  "4":["00010","00110","01010","10010","11111","00010","00010"],
+  "5":["11111","10000","10000","11110","00001","00001","11110"],
+  "6":["01110","10000","10000","11110","10001","10001","01110"],
+  "7":["11111","00001","00010","00100","01000","01000","01000"],
+  "8":["01110","10001","10001","01110","10001","10001","01110"],
+  "9":["01110","10001","10001","01111","00001","00001","01110"],
+  "+":["00000","00100","00100","11111","00100","00100","00000"],
+  "-":["00000","00000","00000","11111","00000","00000","00000"],
+  " ":["00000","00000","00000","00000","00000","00000","00000"]
+};
+function drawProfileLabel({rect,width,height},rawLabel){
+  const label=String(rawLabel||"").toUpperCase().replace(/[^A-Z0-9+ -]/g,"").slice(0,12);
+  if(!label)return;
+  const chars=[...label];
+  const units=chars.length*5+Math.max(0,chars.length-1);
+  const maxWidth=width*.84;
+  const scale=Math.max(2,Math.min(5,Math.floor(maxWidth/Math.max(1,units))));
+  const pixel=scale;
+  const totalWidth=units*pixel;
+  const x0=Math.round((width-totalWidth)/2);
+  const y0=Math.round(height-height*.07-7*pixel);
+  const white=[255,255,255,255];
+  let x=x0;
+  for(const ch of chars){
+    const glyph=FONT_5X7[ch]||FONT_5X7[" "];
+    glyph.forEach((row,gy)=>{
+      [...row].forEach((bit,gx)=>{
+        if(bit==="1")rect(x+gx*pixel,y0+gy*pixel,pixel,pixel,white);
+      });
+    });
+    x+=6*pixel;
+  }
+}
+function profileKeyImage(kind,label,pro=false){
+  return makePng(288,288,d=>{
+    drawIcon(d,kind||"text",{key:true,pro});
+    drawProfileLabel(d,label);
+  });
 }
 function actionObject(actionUuid,keyDef,seed){
   return {
@@ -218,7 +285,7 @@ function actionObject(actionUuid,keyDef,seed){
     UUID:actionUuid,
     Settings:{snippetId:keyDef.snippetId,insertionMode:"auto",afterInsert:"none"},
     State:0,
-    States:[{Image:"state0.png",Title:keyDef.label,TitleAlignment:"bottom",ShowTitle:true,TitleColor:"#FFFFFF"}]
+    States:[{Image:"state0.png",Title:keyDef.label,TitleAlignment:"bottom",ShowTitle:false,TitleColor:"#FFFFFF"}]
   };
 }
 function profileArchive(recipe,edition,actionUuid,deviceKey,columns){
@@ -237,7 +304,7 @@ function profileArchive(recipe,edition,actionUuid,deviceKey,columns){
       actions[`${col},${row}`]=actionObject(actionUuid,key,`${edition}-${deviceKey}-${page.name}-${i}-${key.snippetId}`);
       entries.push({
         name:`${prefix}/Profiles/${pageFolder}/${col},${row}/CustomImages/state0.png`,
-        data:profileKeyImage(key.icon||"text",edition==="pro")
+        data:profileKeyImage(key.icon||"text",key.label,edition==="pro")
       });
     });
     entries.push({
