@@ -187,6 +187,14 @@ try {
         throw "Missing Rat Dev JSON object should return null."
     }
 
+    $ratDevScript = Get-Content (Join-Path $RepoRoot "tools\local\rat-dev.ps1") -Raw
+    if ($ratDevScript -notmatch "Opening Stream Deck profile for import") {
+        throw "Rat Dev should open an explicitly configured .streamDeckProfile after a successful dev link."
+    }
+    if ($ratDevScript -notmatch "escapes plugin directory") {
+        throw "Rat Dev profile import must keep the configured profile inside the built plugin directory."
+    }
+
     Write-Host "PASS: Rat Dev family product branch resolution" -ForegroundColor Green
 }
 finally {
