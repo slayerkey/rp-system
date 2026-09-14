@@ -16,7 +16,7 @@ concurrency:
 
 env:
   VCS_REPOSITORY: slayerkey/vcs
-  VCS_REF: e4a45791627d985fe196bfbbc6ae01fefbf4b763
+  VCS_REF: e339b1924fd60cd124aa46f9d081df0352125137
   SOURCE_ROOT: vcs/streamdeck/workspace-manager-pro/0.1.0.0/source
   PLUGIN_DIR: com.packrat.workspacemanagerpro.sdPlugin
 
