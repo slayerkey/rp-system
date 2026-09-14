@@ -1,0 +1,33 @@
+{
+  "id": "monitor-manager-pro",
+  "name": "Monitor Manager Pro",
+  "type": "plugin",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "price_usd": 9.99,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/monitor-manager-pro",
+  "plugin_uuid": "com.packrat.monitormanagerpro",
+  "automated_feasibility": "PASS",
+  "release_gate": [
+    "Rendered 72x72 keypad visual ownership with Stream Deck title overlays disabled: REQUIRED",
+    "Windows helper compile and scan smoke: REQUIRED",
+    "unit and capability parser fixtures: REQUIRED",
+    "four deterministic V2 bundled profiles with MONITORS / PROFILES / DISPLAY MODES / BRIGHTNESS surfaces: REQUIRED",
+    "official Stream Deck CLI validation and packaging: REQUIRED",
+    "deterministic Rat Art dimension gate: REQUIRED",
+    "60 / 120 / 144 / 165 / 240 Hz real-host matrix where hardware supports each mode: REQUIRED",
+    "one / two / three / four-monitor physical topology matrix: REQUIRED",
+    "external DDC/CI supported and unsupported monitor matrix: REQUIRED",
+    "monitor input supported and unsupported matrix: REQUIRED",
+    "sleep / wake, unplug / replug, restart, scaling and primary-display physical QA: REQUIRED",
+    "Monitor Profile COMPLETE / PARTIAL / FAILED and rollback physical QA: REQUIRED",
+    "Windows 11 24H2 HDR toggle real-host smoke: PASSED Sep 14; supported / unsupported matrix remains release QA"
+  ],
+  "notes": "Price target $9.99. Commercial differentiation is the unified Windows + DDC/CI layer and saved whole-setup Monitor Profiles, not isolated brightness or projection-mode buttons. Exact HDR uses the dedicated Windows 11 24H2+ DisplayConfig HDR packets and fails closed on older ambiguous Advanced Color APIs. Real-host Sep 14 toggle smoke passed: repeated presses turned HDR on and back off successfully. Night Light is excluded from v1 rather than using undocumented toggles. Physical hardware QA was accepted complete by the user on Sep 14, including the real-host visual/profile pass and HDR toggle behavior.",
+  "blocker": null,
+  "final_boundary": "READY_TO_SHIP. Physical hardware QA has been accepted complete by the user; automated Windows CI, fixtures, helper smoke, official Elgato validation/package, Rat Art, canonical Rat Ship kit, and release-candidate artifact are passing. Next step: publish Monitor Manager Pro, then enable the Lite upsell when the real Marketplace URL exists.",
+  "open_profile_on_dev": true,
+  "dev_profile": "profiles/monitor-manager-pro-standard.streamDeckProfile"
+}

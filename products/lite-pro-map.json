@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-01",
+  "updated_at": "2026-09-14",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -193,6 +193,19 @@
       "notes": "Lite is the coherent free essentials edition for the broad use case of controlling Windows without opening Settings or leaving the current task: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, and Next Desktop. Pro expands the same use case into the complete 15-key Windows Control Center with Hibernate, protected Restart/Shutdown, Wi-Fi, Bluetooth, Light/Dark theme, New/Close/Current Desktop, plus advanced Windows controls. Both editions passed build/tests/validation/package/media gates and physical Stream Deck visual review. Release order remains Pro first. Lite may be generated/uploaded as a draft, but final public Lite submission requires the exact verified Pro and Lite Marketplace URLs/IDs and a passing strict shipping audit.",
       "upsell_surface": "Lite Property Inspector",
       "url_injection": "Build reads pro_marketplace_url from this map. The Lite upgrade CTA remains hidden until a verified direct Pro Marketplace product URL exists."
+    },
+    {
+      "lite_id": "monitor-manager-lite",
+      "pro_id": "monitor-manager-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "plugins/monitor-manager-lite",
+        "plugins/monitor-manager-pro",
+        "plugins/_shared/monitor-manager"
+      ],
+      "source_status": "source_built_marketplace_pending",
+      "notes": "Lite is the brightness-only free edition. Pro is the full display-control edition. Direct Marketplace URLs and product IDs stay absent until public listings exist; Lite keeps its Pro CTA hidden until the exact verified public Pro URL is committed."
     }
   ],
   "standalone_free": [

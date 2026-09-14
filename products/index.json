@@ -440,6 +440,14 @@
       "version": "1.0.0.0"
     },
     {
+      "id": "monitor-manager-pro",
+      "name": "Monitor Manager Pro",
+      "type": "plugin",
+      "status": "qa_passed",
+      "price_usd": 9.99,
+      "version": "1.0.0.0"
+    },
+    {
       "id": "nascar-tracker",
       "name": "NASCAR Tracker",
       "type": "plugin",
@@ -816,6 +824,22 @@
       "version": "1.0.0"
     },
     {
+      "id": "windows-settings-manager-lite",
+      "name": "Windows Settings Manager Lite",
+      "type": "plugin",
+      "status": "qa_passed",
+      "price_usd": 0,
+      "version": "0.1.0.0"
+    },
+    {
+      "id": "windows-settings-manager-pro",
+      "name": "Windows Settings Manager Pro",
+      "type": "plugin",
+      "status": "qa_passed",
+      "price_usd": 7.99,
+      "version": "0.1.0.0"
+    },
+    {
       "id": "work-session-tracker",
       "name": "Work Session Tracker Lite",
       "type": "widget",
@@ -870,22 +894,6 @@
       "status": "qa_passed",
       "price_usd": 34.99,
       "version": "1.0.0"
-    },
-    {
-      "id": "windows-settings-manager-lite",
-      "name": "Windows Settings Manager Lite",
-      "type": "plugin",
-      "status": "qa_passed",
-      "price_usd": 0,
-      "version": "0.1.0.0"
-    },
-    {
-      "id": "windows-settings-manager-pro",
-      "name": "Windows Settings Manager Pro",
-      "type": "plugin",
-      "status": "qa_passed",
-      "price_usd": 7.99,
-      "version": "0.1.0.0"
     }
   ]
 }

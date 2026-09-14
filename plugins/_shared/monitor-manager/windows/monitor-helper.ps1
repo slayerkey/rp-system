@@ -18,6 +18,7 @@ public static class MonitorNative {
     const int DISP_CHANGE_SUCCESSFUL = 0;
     const uint MONITORINFOF_PRIMARY = 1;
     const uint QDC_ONLY_ACTIVE_PATHS = 0x00000002;
+    const uint QDC_DATABASE_CURRENT = 0x00000004;
     const uint SDC_APPLY = 0x00000080;
     const uint SDC_TOPOLOGY_INTERNAL = 0x00000001;
     const uint SDC_TOPOLOGY_CLONE = 0x00000002;
@@ -280,6 +281,14 @@ public static class MonitorNative {
             if (!seen.Add(key)) continue;
             modes.Add(new ModeRecord { width=dm.dmPelsWidth, height=dm.dmPelsHeight, frequency=dm.dmDisplayFrequency, orientation=dm.dmDisplayOrientation });
         }
+        // Some GPU/DSC paths omit the active high-refresh mode from indexed enumeration.
+        // Always preserve the actual current mode so a live 480 Hz path can never disappear
+        // from the plugin merely because EnumDisplaySettingsEx skipped it in the numbered list.
+        var current = GetCurrentMode(deviceName);
+        if (current != null) {
+            var currentKey = current.width + "x" + current.height + "@" + current.frequency + "/" + current.orientation;
+            if (seen.Add(currentKey)) modes.Add(current);
+        }
         return modes;
     }
 
@@ -510,11 +519,36 @@ public static class MonitorNative {
         if(!EnumDisplaySettingsEx(deviceName,ENUM_CURRENT_SETTINGS,ref dm,0)) return false;
         dm.dmPelsWidth=width; dm.dmPelsHeight=height; dm.dmDisplayFrequency=frequency; dm.dmDisplayOrientation=orientation;
         dm.dmFields |= 0x00080000 | 0x00100000 | 0x00400000 | 0x00000080;
+        if (primary) {
+            dm.dmPositionX=0; dm.dmPositionY=0;
+            dm.dmFields |= 0x00000020;
+        }
         uint flags=CDS_TEST;
         int test=ChangeDisplaySettingsEx(deviceName,ref dm,IntPtr.Zero,flags,IntPtr.Zero);
         if(test!=DISP_CHANGE_SUCCESSFUL) return false;
         flags=(uint)(CDS_UPDATEREGISTRY | (primary ? CDS_SET_PRIMARY : 0));
         return ChangeDisplaySettingsEx(deviceName,ref dm,IntPtr.Zero,flags,IntPtr.Zero)==DISP_CHANGE_SUCCESSFUL;
+    }
+
+    public static string GetTopology() {
+        uint pathCount, modeCount;
+        if (GetDisplayConfigBufferSizes(QDC_DATABASE_CURRENT, out pathCount, out modeCount) != 0) return "unknown";
+        var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
+        var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
+        IntPtr topology = Marshal.AllocHGlobal(4);
+        try {
+            Marshal.WriteInt32(topology, 0);
+            if (QueryDisplayConfig(QDC_DATABASE_CURRENT, ref pathCount, paths, ref modeCount, modes, topology) != 0) return "unknown";
+            switch (Marshal.ReadInt32(topology)) {
+                case 1: return "internal";
+                case 2: return "duplicate";
+                case 4: return "extend";
+                case 8: return "external";
+                default: return "unknown";
+            }
+        } finally {
+            Marshal.FreeHGlobal(topology);
+        }
     }
 
     public static bool SetTopology(string mode) {
@@ -582,7 +616,7 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
             "scan" {
                 $records = @([MonitorNative]::Scan())
                 $internal = Get-InternalBrightness
-                Write-Reply $id $true @{ monitors = $records; internalBrightness = $internal }
+                Write-Reply $id $true @{ monitors = $records; internalBrightness = $internal; topology = [MonitorNative]::GetTopology() }
             }
             "set-brightness" {
                 if ($p.kind -eq "internal") {

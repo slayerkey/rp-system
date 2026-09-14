@@ -1,0 +1,27 @@
+{
+  "slug": "monitor-manager-pro",
+  "name": "Monitor Manager Pro",
+  "type": "plugin",
+  "price_usd": 9.99,
+  "version": "1.0.0.0",
+  "marketplace_category": [
+    "Utilities"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows"
+  ],
+  "marketplace_tags": [
+    "Windows",
+    "Monitor",
+    "Display",
+    "Utilities",
+    "Productivity"
+  ],
+  "marketplace_auto_publish": true,
+  "headline": "Control Your Whole Monitor Setup From Stream Deck",
+  "description": "Monitor Manager Pro is a Windows monitor manager and display manager built around one goal: control your whole monitor setup from Stream Deck.\n\nWhat’s Inside:\nUnlimited supported monitors, monitor brightness, contrast, monitor volume, monitor power, HDMI / DisplayPort / USB-C input switching where the monitor advertises those inputs through DDC/CI, refresh rate / Hz, resolution, Windows HDR, display topology, primary display, orientation, live display status, and saved Monitor Profiles.\n\nMONITOR PROFILES are the centerpiece. Save your current supported setup as PC, CONSOLE, WORK LAPTOP, NIGHT, or any name you want, then restore it with one Stream Deck key. A profile can combine display input, Extend / Duplicate / PC Screen Only / Second Screen Only, resolution, refresh rate, HDR, brightness, contrast, volume, primary display and other supported state. Profile apply reports COMPLETE, PARTIAL or FAILED and uses best-effort rollback if a real write fails mid-transaction.\n\nMonitor hardware is not standardized in practice. Pro queries DDC/CI capabilities and reports SUPPORTED, NOT SUPPORTED or UNKNOWN. It does not send arbitrary VCP writes. Input selection only offers values the selected monitor advertises. Windows display modes are checked against the selected screen, and Windows itself test-validates mode changes before they are committed.\n\nStream Deck+ gets native dials for brightness, contrast and monitor volume. Discrete choices such as HDMI input selection stay on keys where they are clearer and safer.\n\nBundled profiles are included for Standard / MK.2, XL, Stream Deck+, and Virtual Stream Deck with MONITORS, PROFILES, DISPLAY MODES, and BRIGHTNESS control surfaces.\n\nWindows 10 or newer. DDC/CI features depend on monitor firmware, OSD settings, cable path, docks, KVMs and adapters. Exact Windows HDR detection/control requires Windows 11 24H2+; older Windows is reported as UNKNOWN instead of treating generic Advanced Color as HDR. Display modes depend on Windows, GPU and driver support.\n\nPart of the PackRat ecosystem.",
+  "release_notes": "Initial release. Whole-setup Windows monitor control with unlimited supported displays, capability-aware DDC/CI input, power and volume, brightness and contrast, Windows Hz, resolution, capability-gated HDR, topology, primary display and orientation, transactional Monitor Profiles with COMPLETE / PARTIAL / FAILED reporting, Stream Deck+ brightness / contrast / volume dials, and bundled Standard / MK.2, XL, Plus and Virtual profiles."
+}

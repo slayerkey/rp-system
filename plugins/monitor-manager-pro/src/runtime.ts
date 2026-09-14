@@ -1,0 +1,639 @@
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+
+import { MonitorLiteRuntime, type MonitorSettings } from "../../monitor-manager-lite/src/runtime.js";
+import { compactResolutionLabel } from "./key-visuals.js";
+import { boundedPercent, classifyProfileResult, matchSavedMonitor, modeSupported, SAFE_VCP, SUPPORT, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
+
+export type ProSettings = MonitorSettings & {
+  contrast?: number;
+  volume?: number;
+  inputValue?: number;
+  width?: number;
+  height?: number;
+  frequency?: number;
+  orientation?: number;
+  modePreset?: "best" | "1080p-best";
+  hdr?: "toggle" | "on" | "off";
+  topology?: "internal" | "duplicate" | "extend" | "external";
+  profileName?: string;
+};
+
+type ProfileMonitor = {
+  monitorKey: string;
+  description: string;
+  deviceName: string;
+  mode?: { width:number; height:number; frequency:number; orientation:number };
+  primary?: boolean;
+  hdr?: boolean;
+  brightness?: number;
+  contrast?: number;
+  input?: number;
+  volume?: number;
+};
+
+type MonitorProfile = {
+  name: string;
+  savedAt: string;
+  topology?: string;
+  internalBrightness?: number;
+  monitors: ProfileMonitor[];
+};
+
+type Step = { item:string; status:"COMPLETE"|"SKIPPED"|"FAILED"; message?:string };
+
+const INPUT_LABELS = new Map([
+  [0x0f,"DP 1"], [0x10,"DP 2"],
+  [0x11,"HDMI 1"], [0x12,"HDMI 2"], [0x1b,"USB-C"]
+]);
+
+function percent(min:number,current:number,max:number): number {
+  return Math.round(((current-min)/Math.max(1,max-min))*100);
+}
+function nativePercent(min:number,max:number,value:number): number {
+  return Math.round(min+(Math.max(0,Math.min(100,value))/100)*Math.max(1,max-min));
+}
+function validStoredPercent(value:unknown): boolean {
+  return value===undefined||(typeof value==="number"&&Number.isFinite(value)&&value>=0&&value<=100);
+}
+function validStoredMode(mode:unknown): boolean {
+  if(mode===undefined) return true;
+  const value=mode as any;
+  return Boolean(value)&&[value.width,value.height,value.frequency,value.orientation].every(Number.isFinite)&&
+    value.width>0&&value.height>0&&value.frequency>0&&[0,1,2,3].includes(value.orientation);
+}
+function validStoredMonitor(monitor:unknown): boolean {
+  const value=monitor as any;
+  return Boolean(value)&&typeof value.monitorKey==="string"&&typeof value.description==="string"&&typeof value.deviceName==="string"&&
+    validStoredMode(value.mode)&&
+    (value.primary===undefined||typeof value.primary==="boolean")&&
+    (value.hdr===undefined||typeof value.hdr==="boolean")&&
+    validStoredPercent(value.brightness)&&validStoredPercent(value.contrast)&&validStoredPercent(value.volume)&&
+    (value.input===undefined||(Number.isInteger(value.input)&&value.input>=0&&value.input<=0xffff));
+}
+
+export class MonitorProRuntime extends MonitorLiteRuntime {
+  private profileMutationQueue: Promise<unknown> = Promise.resolve();
+
+  private profilePath(): string {
+    const appData=process.env.APPDATA || path.join(os.homedir(),"AppData","Roaming");
+    return path.join(appData,"PackRat","Monitor Manager","profiles.json");
+  }
+
+  inputLabel(value:number): string {
+    return INPUT_LABELS.get(value) ?? ("INPUT 0x"+value.toString(16).toUpperCase().padStart(2,"0"));
+  }
+
+  async currentModeState(settings:ProSettings):Promise<{width:number;height:number;frequency:number;orientation:number}|null>{
+    const {monitor}=await this.selected(settings);
+    const mode=monitor.currentMode;
+    return mode?{width:Number(mode.width),height:Number(mode.height),frequency:Number(mode.frequency),orientation:Number(mode.orientation??0)}:null;
+  }
+
+  async setModeState(settings:ProSettings,mode:{width:number;height:number;frequency:number;orientation:number}):Promise<{width:number;height:number;frequency:number;orientation:number}>{
+    await this.setExactMode({...settings,...mode,modePreset:undefined});
+    return mode;
+  }
+
+  async currentTopology():Promise<string>{
+    const snapshot:any=await this.scan(true);
+    return String(snapshot.topology??"unknown");
+  }
+
+  async powerState(settings:ProSettings):Promise<"ON"|"OFF"|null>{
+    const {monitor}=await this.selected(settings);
+    const support=vcpSupport(monitor.capabilities,SAFE_VCP.POWER_MODE);
+    if(support.state!==SUPPORT.SUPPORTED)return null;
+    const current=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.POWER_MODE});
+    const value=Number(current.current);
+    if(value===1)return "ON";
+    if(support.values.includes(value))return "OFF";
+    return null;
+  }
+
+  async hdrDisplayState(settings:ProSettings):Promise<"ON"|"OFF"|"UNSUPPORTED"|"UNKNOWN">{
+    const {monitor}=await this.selected(settings);
+    if(monitor.hdrState===SUPPORT.SUPPORTED)return monitor.hdrEnabled?"ON":"OFF";
+    if(monitor.hdrState===SUPPORT.NOT_SUPPORTED)return "UNSUPPORTED";
+    return "UNKNOWN";
+  }
+
+  async setRefreshRate(settings:ProSettings):Promise<number>{
+    const requested=Math.round(Number(settings.refreshRate??60));
+    if(requested>0)return super.setRefreshRate(settings);
+    const {monitor}=await this.selected(settings);
+    const current=monitor.currentMode;
+    if(!current)throw new Error("Current Windows display mode is unavailable.");
+    const orientation=Number(current.orientation??0);
+    const rates=(monitor.modes??[])
+      .filter((m:any)=>Number(m.width)===Number(current.width)&&Number(m.height)===Number(current.height)&&Number(m.orientation??0)===orientation)
+      .map((m:any)=>Number(m.frequency))
+      .filter((v:number)=>Number.isFinite(v)&&v>=60);
+    if(!rates.length)throw new Error("No 60 Hz or higher mode is available at the current resolution.");
+    const rate=Math.max(...rates);
+    return super.setRefreshRate({...settings,refreshRate:rate});
+  }
+
+  async contrastPercent(settings: ProSettings): Promise<number|null> {
+    const { monitor }=await this.selected(settings);
+    if(!monitor.ddcContrast) return null;
+    return percent(Number(monitor.contrastMin??0),Number(monitor.contrast??0),Number(monitor.contrastMax??100));
+  }
+
+  async setContrastPercent(settings: ProSettings, requested:number): Promise<number> {
+    const { monitor }=await this.selected(settings);
+    if(!monitor.ddcContrast) throw new Error("Contrast is not supported by this monitor.");
+    const value=boundedPercent(requested,"Contrast");
+    const native=nativePercent(Number(monitor.contrastMin??0),Number(monitor.contrastMax??100),value);
+    await this.bridge.request("set-contrast",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
+    this.invalidate();
+    return value;
+  }
+
+  async adjustContrast(settings: ProSettings, delta:number): Promise<number> {
+    const current=await this.contrastPercent(settings);
+    if(current===null) throw new Error("Contrast is not supported by this monitor.");
+    return this.setContrastPercent(settings,current+delta);
+  }
+
+  async volumePercent(settings: ProSettings): Promise<number|null> {
+    const { monitor }=await this.selected(settings);
+    const support=vcpSupport(monitor.capabilities,SAFE_VCP.AUDIO_VOLUME);
+    if(support.state!==SUPPORT.SUPPORTED) return null;
+    const value=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME});
+    if(Number(value.maximum)<=0) return null;
+    return Math.round((Number(value.current)/Number(value.maximum))*100);
+  }
+
+  async setVolumePercent(settings: ProSettings, requested:number): Promise<number> {
+    const { monitor }=await this.selected(settings);
+    const support=vcpSupport(monitor.capabilities,SAFE_VCP.AUDIO_VOLUME);
+    if(support.state!==SUPPORT.SUPPORTED) throw new Error("Monitor volume is not advertised by DDC/CI.");
+    const current=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME});
+    const max=Number(current.maximum);
+    if(!Number.isFinite(max)||max<=0) throw new Error("Monitor volume range is unknown.");
+    const value=boundedPercent(requested,"Monitor volume");
+    const native=Math.round((value/100)*max);
+    await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME,value:native});
+    this.invalidate();
+    return value;
+  }
+
+  async adjustVolume(settings: ProSettings, delta:number): Promise<number> {
+    const current=await this.volumePercent(settings);
+    if(current===null) throw new Error("Monitor volume is not supported by this monitor.");
+    return this.setVolumePercent(settings,current+delta);
+  }
+
+  async setInput(settings: ProSettings): Promise<string> {
+    const { monitor }=await this.selected(settings);
+    const support=vcpSupport(monitor.capabilities,SAFE_VCP.INPUT_SOURCE);
+    if(support.state!==SUPPORT.SUPPORTED) throw new Error("Input switching is not advertised by DDC/CI.");
+    const value=Number(settings.inputValue);
+    if(!Number.isInteger(value)||!support.values.includes(value)) throw new Error("Requested input is not advertised by this monitor.");
+    await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.INPUT_SOURCE,value});
+    this.invalidate();
+    return this.inputLabel(value);
+  }
+
+  async setHdr(settings: ProSettings): Promise<boolean> {
+    const { monitor }=await this.selected(settings);
+    if(monitor.hdrState!==SUPPORT.SUPPORTED) throw new Error("Windows HDR is not supported on this active display.");
+    const requested=settings.hdr??"toggle";
+    if(!["toggle","on","off"].includes(requested)) throw new Error("Invalid HDR behavior.");
+    const enabled=requested==="on"||(requested==="toggle"&&!Boolean(monitor.hdrEnabled));
+    await this.bridge.request("set-hdr",{deviceName:monitor.deviceName,enabled});
+    this.invalidate();
+    return enabled;
+  }
+
+  async setTopology(settings: ProSettings): Promise<string> {
+    const topology=settings.topology??"extend";
+    if(!["internal","duplicate","extend","external"].includes(topology)) throw new Error("Invalid display topology.");
+    await this.bridge.request("set-topology",{mode:topology},12000);
+    this.invalidate();
+    return topology;
+  }
+
+  async setPrimary(settings: ProSettings): Promise<void> {
+    const { monitor }=await this.selected(settings);
+    const mode=monitor.currentMode;
+    if(!mode) throw new Error("Current display mode is unavailable.");
+    await this.bridge.request("set-mode",{
+      deviceName:monitor.deviceName,width:mode.width,height:mode.height,frequency:mode.frequency,
+      orientation:mode.orientation??0,primary:true
+    },12000);
+    this.invalidate();
+  }
+
+  async setOrientation(settings: ProSettings): Promise<number> {
+    const { monitor }=await this.selected(settings);
+    const current=monitor.currentMode;
+    if(!current) throw new Error("Current display mode is unavailable.");
+    const wanted=Number(settings.orientation??0);
+    if(![0,1,2,3].includes(wanted)) throw new Error("Invalid orientation.");
+    const currentPortrait=[1,3].includes(Number(current.orientation??0));
+    const wantedPortrait=[1,3].includes(wanted);
+    const width=currentPortrait===wantedPortrait?Number(current.width):Number(current.height);
+    const height=currentPortrait===wantedPortrait?Number(current.height):Number(current.width);
+    const area=Number(current.width)*Number(current.height);
+    const fallbackRates=(monitor.modes??[])
+      .filter((mode:any)=>Number(mode.width)*Number(mode.height)===area)
+      .map((mode:any)=>Number(mode.frequency))
+      .filter((rate:number)=>Number.isFinite(rate)&&rate>0)
+      .sort((a:number,b:number)=>b-a);
+    const rates=[...new Set([Number(current.frequency),...fallbackRates])];
+    let lastError:unknown=null;
+    for(const frequency of rates){
+      try{
+        await this.bridge.request("set-mode",{deviceName:monitor.deviceName,width,height,frequency,orientation:wanted,primary:false},12000);
+        this.invalidate();
+        return wanted;
+      }catch(error){lastError=error;}
+    }
+    const detail=lastError instanceof Error?(" "+lastError.message):"";
+    throw new Error("Requested orientation is unavailable at the current resolution and reported refresh rates."+detail);
+  }
+
+  async status(settings:ProSettings):Promise<string>{
+    const {monitor}=await this.selected(settings);
+    const mode=monitor.currentMode;
+    if(!mode)return "HZ ?\nRES ?";
+    const hz=Number(mode.frequency)>0?String(Math.round(Number(mode.frequency)))+"HZ":"HZ ?";
+    return hz+"\n"+compactResolutionLabel(mode.width,mode.height);
+  }
+
+  async setExactMode(settings: ProSettings): Promise<string> {
+    const { monitor }=await this.selected(settings);
+    const current=monitor.currentMode;
+    let request:{width:number;height:number;frequency:number;orientation:number};
+    if(settings.modePreset){
+      const orientation=Number(current?.orientation??0);
+      let candidates=(monitor.modes??[]).filter((m:any)=>Number(m.orientation??0)===orientation);
+      if(!candidates.length)candidates=monitor.modes??[];
+      if(settings.modePreset==="1080p-best")candidates=candidates.filter((m:any)=>Number(m.width)===1920&&Number(m.height)===1080);
+      candidates=[...candidates].sort((a:any,b:any)=>
+        (Number(b.width)*Number(b.height)-Number(a.width)*Number(a.height))||
+        (Number(b.frequency)-Number(a.frequency))||
+        (Number(b.width)-Number(a.width))
+      );
+      const best=candidates[0];
+      if(!best)throw new Error(settings.modePreset==="1080p-best"?"No 1920x1080 mode is available.":"No display mode is available.");
+      request={width:Number(best.width),height:Number(best.height),frequency:Number(best.frequency),orientation:Number(best.orientation??orientation)};
+    }else{
+      request={
+        width:Number(settings.width??current?.width),
+        height:Number(settings.height??current?.height),
+        frequency:Number(settings.frequency??settings.refreshRate??current?.frequency),
+        orientation:Number(settings.orientation??current?.orientation??0)
+      };
+    }
+    if(!modeSupported(monitor.modes,request)) throw new Error("Requested resolution / Hz / orientation combination is not available.");
+    await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...request,primary:false},12000);
+    this.invalidate();
+    return request.width+"x"+request.height+" @ "+request.frequency+" Hz";
+  }
+
+  private async readStore(): Promise<{schemaVersion:number;profiles:MonitorProfile[]}> {
+    const file=this.profilePath();
+    try {
+      const raw=await readFile(file,"utf8");
+      const parsed=JSON.parse(raw);
+      const validProfiles=Array.isArray(parsed?.profiles)&&parsed.profiles.every((profile:any)=>
+        profile&&typeof profile.name==="string"&&profile.name.trim().length>0&&profile.name.length<=48&&
+        typeof profile.savedAt==="string"&&Array.isArray(profile.monitors)&&profile.monitors.every(validStoredMonitor)&&
+        (profile.topology===undefined||["unknown","internal","duplicate","extend","external"].includes(profile.topology))&&
+        validStoredPercent(profile.internalBrightness)
+      );
+      if(parsed?.schemaVersion!==1||!validProfiles) throw new Error("invalid schema");
+      return parsed;
+    } catch(error:any) {
+      if(error?.code==="ENOENT") return {schemaVersion:1,profiles:[]};
+      throw new Error("Saved Monitor Profiles file is corrupt or incompatible. It was not overwritten.");
+    }
+  }
+
+  private async writeStore(store:{schemaVersion:number;profiles:MonitorProfile[]}): Promise<void> {
+    const file=this.profilePath();
+    const temp=file+".tmp-"+process.pid;
+    await mkdir(path.dirname(file),{recursive:true});
+    try {
+      await writeFile(temp,JSON.stringify(store,null,2)+"\n","utf8");
+      await rename(temp,file);
+    } catch(error) {
+      await rm(temp,{force:true}).catch(()=>{});
+      throw error;
+    }
+  }
+
+  async listProfiles(): Promise<string[]> {
+    const store=await this.readStore();
+    return store.profiles.map(p=>p.name).sort((a,b)=>a.localeCompare(b));
+  }
+
+  async resetProfileStore():Promise<string|null>{
+    const operation=this.profileMutationQueue.then(async()=>{
+      const file=this.profilePath();
+      let backup:string|null=null;
+      try{
+        const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+        backup=file+".backup-"+stamp+"-"+process.pid;
+        await rename(file,backup);
+      }catch(error:any){
+        if(error?.code!=="ENOENT")throw error;
+        backup=null;
+      }
+      await this.writeStore({schemaVersion:1,profiles:[]});
+      return backup;
+    });
+    this.profileMutationQueue=operation.then(()=>undefined,()=>undefined);
+    return operation;
+  }
+
+  private async capture(name:string): Promise<MonitorProfile> {
+    const snapshot:any=await this.scan(true);
+    const monitors:ProfileMonitor[]=[];
+    for(const monitor of snapshot.monitors??[]) {
+      const item:ProfileMonitor={
+        monitorKey:monitor.monitorKey,
+        description:String(monitor.description??monitor.deviceName),
+        deviceName:String(monitor.deviceName),
+        mode:monitor.currentMode?{
+          width:Number(monitor.currentMode.width),height:Number(monitor.currentMode.height),
+          frequency:Number(monitor.currentMode.frequency),orientation:Number(monitor.currentMode.orientation??0)
+        }:undefined,
+        primary:Boolean(monitor.primary)
+      };
+      if(monitor.hdrState===SUPPORT.SUPPORTED) item.hdr=Boolean(monitor.hdrEnabled);
+      if(monitor.ddcBrightness) item.brightness=percent(Number(monitor.brightnessMin??0),Number(monitor.brightness??0),Number(monitor.brightnessMax??100));
+      if(monitor.ddcContrast) item.contrast=percent(Number(monitor.contrastMin??0),Number(monitor.contrast??0),Number(monitor.contrastMax??100));
+      for(const [field,code] of [["volume",SAFE_VCP.AUDIO_VOLUME],["input",SAFE_VCP.INPUT_SOURCE]] as const) {
+        const support=vcpSupport(monitor.capabilities,code);
+        if(support.state!==SUPPORT.SUPPORTED) continue;
+        try {
+          const v=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code});
+          if(field==="volume"&&Number(v.maximum)>0) {
+            item.volume=Math.round((Number(v.current)/Number(v.maximum))*100);
+          } else if(field==="input") {
+            const current=Number(v.current);
+            if(support.values.length&&support.values.includes(current)) item.input=current;
+          }
+        } catch {}
+      }
+      monitors.push(item);
+    }
+    return {
+      name,
+      savedAt:new Date().toISOString(),
+      topology:String(snapshot.topology??"unknown"),
+      internalBrightness:snapshot.internalBrightness?.available?Number(snapshot.internalBrightness.current):undefined,
+      monitors
+    };
+  }
+
+  async saveProfile(name:string): Promise<MonitorProfile> {
+    const clean=name.trim().slice(0,48);
+    if(!clean) throw new Error("Profile name is required.");
+    const operation=this.profileMutationQueue.then(async()=>{
+      const profile=await this.capture(clean);
+      const store=await this.readStore();
+      const index=store.profiles.findIndex(p=>p.name.toLowerCase()===clean.toLowerCase());
+      if(index>=0) store.profiles[index]=profile; else store.profiles.push(profile);
+      await this.writeStore(store);
+      return profile;
+    });
+    this.profileMutationQueue=operation.then(()=>undefined,()=>undefined);
+    return operation;
+  }
+
+  private async restoreSnapshot(profile:MonitorProfile): Promise<string[]> {
+    const errors:string[]=[];
+    try {
+      if(profile.topology&&profile.topology!=="unknown") await this.bridge.request("set-topology",{mode:profile.topology},12000);
+    } catch(e:any) { errors.push("topology: "+e.message); }
+    this.invalidate();
+
+    const pendingInputs:ProfileMonitor[]=[];
+    const current:any=await this.scan(true);
+    for(const saved of profile.monitors) {
+      const monitor=matchSavedMonitor(saved,current.monitors??[]);
+      if(!monitor) continue;
+      try {
+        if(saved.mode&&modeSupported(monitor.modes,saved.mode)) await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...saved.mode,primary:false},12000);
+      } catch(e:any) { errors.push(saved.description+" mode: "+e.message); }
+      try {
+        if(saved.hdr!==undefined&&monitor.hdrState===SUPPORT.SUPPORTED) await this.bridge.request("set-hdr",{deviceName:monitor.deviceName,enabled:saved.hdr});
+      } catch(e:any) { errors.push(saved.description+" hdr: "+e.message); }
+      try {
+        if(saved.brightness!==undefined&&monitor.ddcBrightness) {
+          const native=nativePercent(Number(monitor.brightnessMin??0),Number(monitor.brightnessMax??100),saved.brightness);
+          await this.bridge.request("set-brightness",{kind:"ddc",deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
+        }
+      } catch(e:any) { errors.push(saved.description+" brightness: "+e.message); }
+      try {
+        if(saved.contrast!==undefined&&monitor.ddcContrast) {
+          const native=nativePercent(Number(monitor.contrastMin??0),Number(monitor.contrastMax??100),saved.contrast);
+          await this.bridge.request("set-contrast",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
+        }
+      } catch(e:any) { errors.push(saved.description+" contrast: "+e.message); }
+      if(saved.volume!==undefined) {
+        try {
+          const support=vcpSupport(monitor.capabilities,SAFE_VCP.AUDIO_VOLUME);
+          if(support.state===SUPPORT.SUPPORTED) {
+            const currentV=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME});
+            if(Number(currentV.maximum)>0) {
+              const native=Math.round((Number(saved.volume)/100)*Number(currentV.maximum));
+              await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME,value:native});
+            }
+          }
+        } catch(e:any) { errors.push(saved.description+" volume: "+e.message); }
+      }
+      if(saved.input!==undefined) pendingInputs.push(saved);
+    }
+
+    const savedPrimary=profile.monitors.find((item)=>item.primary);
+    if(savedPrimary) {
+      try {
+        this.invalidate();
+        const live:any=await this.scan(true);
+        const monitor=matchSavedMonitor(savedPrimary,live.monitors??[]);
+        if(monitor?.currentMode) {
+          await this.bridge.request("set-mode",{
+            deviceName:monitor.deviceName,
+            width:Number(monitor.currentMode.width),
+            height:Number(monitor.currentMode.height),
+            frequency:Number(monitor.currentMode.frequency),
+            orientation:Number(monitor.currentMode.orientation??0),
+            primary:true
+          },12000);
+        }
+      } catch(e:any) { errors.push("primary display: "+e.message); }
+    }
+
+    if(profile.internalBrightness!==undefined) {
+      try { await this.bridge.request("set-brightness",{kind:"internal",value:profile.internalBrightness}); }
+      catch(e:any) { errors.push("internal brightness: "+e.message); }
+    }
+
+    // Inputs are restored last because changing a monitor away from the PC can
+    // remove that display/DDC path and invalidate work still pending elsewhere.
+    for(const saved of pendingInputs) {
+      try {
+        this.invalidate();
+        const live:any=await this.scan(true);
+        const monitor=matchSavedMonitor(saved,live.monitors??[]);
+        if(!monitor) continue;
+        const support=vcpSupport(monitor.capabilities,SAFE_VCP.INPUT_SOURCE);
+        const native=Number(saved.input);
+        if(support.state!==SUPPORT.SUPPORTED) continue;
+        if(!support.values.length||!support.values.includes(native)) continue;
+        await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.INPUT_SOURCE,value:native});
+      } catch(e:any) { errors.push(saved.description+" input: "+e.message); }
+    }
+
+    this.invalidate();
+    return errors;
+  }
+
+  async applyProfile(name:string): Promise<{status:string;steps:Step[];rollbackErrors:string[]}> {
+    const store=await this.readStore();
+    const profile=store.profiles.find(p=>p.name.toLowerCase()===name.trim().toLowerCase());
+    if(!profile) throw new Error("Monitor Profile not found: "+name);
+    const before=await this.capture("__rollback__");
+    const steps:Step[]=[];
+    const pendingInputs:ProfileMonitor[]=[];
+
+    try {
+      if(profile.topology&&profile.topology!=="unknown") {
+        await this.bridge.request("set-topology",{mode:profile.topology},12000);
+        steps.push({item:"Display topology",status:"COMPLETE"});
+        this.invalidate();
+      }
+
+      const snapshot:any=await this.scan(true);
+      for(const saved of profile.monitors) {
+        const monitor=matchSavedMonitor(saved,snapshot.monitors??[]);
+        if(!monitor) {
+          steps.push({item:saved.description,status:"SKIPPED",message:"Monitor is not present or matching is ambiguous."});
+          continue;
+        }
+
+        if(saved.mode) {
+          if(modeSupported(monitor.modes,saved.mode)) {
+            await this.bridge.request("set-mode",{deviceName:monitor.deviceName,...saved.mode,primary:false},12000);
+            steps.push({item:saved.description+" display mode",status:"COMPLETE"});
+          } else {
+            steps.push({item:saved.description+" display mode",status:"SKIPPED",message:"Saved resolution / Hz / orientation is unavailable."});
+          }
+        }
+
+        if(saved.hdr!==undefined) {
+          if(monitor.hdrState===SUPPORT.SUPPORTED) {
+            await this.bridge.request("set-hdr",{deviceName:monitor.deviceName,enabled:saved.hdr});
+            steps.push({item:saved.description+" HDR",status:"COMPLETE"});
+          } else {
+            steps.push({item:saved.description+" HDR",status:"SKIPPED",message:"True HDR support is not proven on the current Windows display path."});
+          }
+        }
+
+        if(saved.brightness!==undefined) {
+          if(monitor.ddcBrightness) {
+            const native=nativePercent(Number(monitor.brightnessMin??0),Number(monitor.brightnessMax??100),saved.brightness);
+            await this.bridge.request("set-brightness",{kind:"ddc",deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
+            steps.push({item:saved.description+" brightness",status:"COMPLETE"});
+          } else {
+            steps.push({item:saved.description+" brightness",status:"SKIPPED",message:"DDC brightness unavailable."});
+          }
+        }
+
+        if(saved.contrast!==undefined) {
+          if(monitor.ddcContrast) {
+            const native=nativePercent(Number(monitor.contrastMin??0),Number(monitor.contrastMax??100),saved.contrast);
+            await this.bridge.request("set-contrast",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,value:native});
+            steps.push({item:saved.description+" contrast",status:"COMPLETE"});
+          } else {
+            steps.push({item:saved.description+" contrast",status:"SKIPPED",message:"DDC contrast unavailable."});
+          }
+        }
+
+        if(saved.volume!==undefined) {
+          const support=vcpSupport(monitor.capabilities,SAFE_VCP.AUDIO_VOLUME);
+          if(support.state!==SUPPORT.SUPPORTED) {
+            steps.push({item:saved.description+" volume",status:"SKIPPED",message:"VCP volume is not advertised."});
+          } else {
+            const v=await this.bridge.request("get-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME});
+            if(Number(v.maximum)<=0) {
+              steps.push({item:saved.description+" volume",status:"SKIPPED",message:"Volume range unknown."});
+            } else {
+              const native=Math.round((Number(saved.volume)/100)*Number(v.maximum));
+              await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.AUDIO_VOLUME,value:native});
+              steps.push({item:saved.description+" volume",status:"COMPLETE"});
+            }
+          }
+        }
+
+        if(saved.input!==undefined) pendingInputs.push(saved);
+      }
+
+      const savedPrimary=profile.monitors.find((item)=>item.primary);
+      if(savedPrimary) {
+        this.invalidate();
+        const live:any=await this.scan(true);
+        const monitor=matchSavedMonitor(savedPrimary,live.monitors??[]);
+        if(monitor?.currentMode) {
+          await this.bridge.request("set-mode",{
+            deviceName:monitor.deviceName,
+            width:Number(monitor.currentMode.width),
+            height:Number(monitor.currentMode.height),
+            frequency:Number(monitor.currentMode.frequency),
+            orientation:Number(monitor.currentMode.orientation??0),
+            primary:true
+          },12000);
+          steps.push({item:savedPrimary.description+" primary display",status:"COMPLETE"});
+        } else {
+          steps.push({item:savedPrimary.description+" primary display",status:"SKIPPED",message:"Saved primary display is not currently available."});
+        }
+      }
+
+      if(profile.internalBrightness!==undefined&&snapshot.internalBrightness?.available) {
+        await this.bridge.request("set-brightness",{kind:"internal",value:profile.internalBrightness});
+        steps.push({item:"Internal panel brightness",status:"COMPLETE"});
+      } else if(profile.internalBrightness!==undefined) {
+        steps.push({item:"Internal panel brightness",status:"SKIPPED",message:"No internal brightness device is active."});
+      }
+
+      // Input changes are intentionally the final transaction phase.
+      for(const saved of pendingInputs) {
+        this.invalidate();
+        const live:any=await this.scan(true);
+        const monitor=matchSavedMonitor(saved,live.monitors??[]);
+        if(!monitor) {
+          steps.push({item:saved.description+" input",status:"SKIPPED",message:"Monitor disappeared before the final input-switch phase."});
+          continue;
+        }
+        const support=vcpSupport(monitor.capabilities,SAFE_VCP.INPUT_SOURCE);
+        const native=Number(saved.input);
+        if(support.state!==SUPPORT.SUPPORTED) {
+          steps.push({item:saved.description+" input",status:"SKIPPED",message:"Input switching is not advertised."});
+          continue;
+        }
+        if(!support.values.length||!support.values.includes(native)) {
+          steps.push({item:saved.description+" input",status:"SKIPPED",message:"Saved input is not an advertised value on the current monitor."});
+          continue;
+        }
+        await this.bridge.request("set-vcp",{deviceName:monitor.deviceName,physicalIndex:monitor.physicalIndex,code:SAFE_VCP.INPUT_SOURCE,value:native});
+        steps.push({item:saved.description+" input",status:"COMPLETE"});
+      }
+
+      this.invalidate();
+      return {status:classifyProfileResult(steps),steps,rollbackErrors:[]};
+    } catch(error:any) {
+      steps.push({item:"Profile transaction",status:"FAILED",message:error?.message??String(error)});
+      const rollbackErrors=await this.restoreSnapshot(before);
+      return {status:"FAILED",steps,rollbackErrors};
+    }
+  }
+}
+
+export const runtime=new MonitorProRuntime();
