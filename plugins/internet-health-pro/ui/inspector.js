@@ -5,7 +5,7 @@
     targetMethod: "auto", targetPort: 443, family: "auto", expectedDownloadMbps: 0,
     expectedUploadMbps: 0, lowSpeedPercent: 70, accent: "#2BE86A"
   };
-  const DEFAULT_GLOBAL = { intervalSeconds: 10, diagnosticSeconds: 30, httpSeconds: 60, targetSeconds: 30, historyHours: 24 };
+  const DEFAULT_GLOBAL = { intervalSeconds: 5, diagnosticSeconds: 30, httpSeconds: 60, targetSeconds: 30, historyHours: 24, cadenceVersion: 1 };
   const ID_TO_KIND = {
     "com.packrat.internet-health-pro.health": "health",
     "com.packrat.internet-health-pro.latency": "latency",
@@ -65,7 +65,7 @@
   }
   function save() {
     settings = collectAction();
-    globals = { ...globals, intervalSeconds: number("intervalSeconds", 10) };
+    globals = { ...globals, intervalSeconds: number("intervalSeconds", 5), cadenceVersion: 1 };
     $("accentValue").textContent = settings.accent;
     const actionSent = send({ event: "setSettings", action: actionUuid, context: uiUuid, payload: settings });
     const globalSent = send({ event: "setGlobalSettings", context: uiUuid, payload: globals });
@@ -92,7 +92,7 @@
   function applyGlobal(next) {
     globals = { ...DEFAULT_GLOBAL, ...(next || {}) };
     const allowed = [5,10,15,30,60];
-    $("intervalSeconds").value = allowed.includes(Number(globals.intervalSeconds)) ? Number(globals.intervalSeconds) : 10;
+    $("intervalSeconds").value = allowed.includes(Number(globals.intervalSeconds)) ? Number(globals.intervalSeconds) : 5;
   }
   function filterFields() {
     for (const node of document.querySelectorAll("[data-kinds]")) {

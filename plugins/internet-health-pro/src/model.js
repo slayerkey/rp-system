@@ -1,5 +1,5 @@
 export const DEFAULT_GLOBAL_SETTINGS = Object.freeze({
-  intervalSeconds: 10,
+  intervalSeconds: 5,
   diagnosticSeconds: 30,
   httpSeconds: 60,
   targetSeconds: 30,

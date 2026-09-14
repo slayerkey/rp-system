@@ -75,6 +75,23 @@ function baseSvg({ label, primary, secondary = "", status = "CHECK", accent = "#
   </svg>`);
 }
 
+function speedResultSvg(speed, settings, low) {
+  const color = low ? "#FF5D6C" : settings.accent;
+  const down = "↓" + Math.round(Number(speed.downloadMbps) || 0);
+  const up = "↑" + Math.round(Number(speed.uploadMbps) || 0);
+  const downSize = fitFont(down, 36, 33, 29);
+  const upSize = fitFont(up, 36, 33, 29);
+  return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
+    <rect width="144" height="144" rx="18" fill="#07090D"/>
+    <rect x="0" y="0" width="5" height="144" rx="2.5" fill="${color}"/>
+    <text x="14" y="22" fill="#C9CED6" font-family="Arial,sans-serif" font-size="16.5" font-weight="800">SPEED</text>
+    ${low ? `<text x="128" y="22" text-anchor="end" fill="#FF5D6C" font-family="Arial,sans-serif" font-size="13" font-weight="800">LOW</text>` : ""}
+    <text x="14" y="61" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="${downSize}" font-weight="800">${escapeXml(down)}</text>
+    <text x="14" y="103" fill="${color}" font-family="Arial,sans-serif" font-size="${upSize}" font-weight="800">${escapeXml(up)}</text>
+    <text x="14" y="132" fill="#AAB1BC" font-family="Arial,sans-serif" font-size="14" font-weight="700">Mbps</text>
+  </svg>`);
+}
+
 function metricForWindow(snapshot, minutes) {
   if (minutes === 5) return snapshot.metrics5 || computeMetrics(snapshot.samples, 5);
   if (minutes === 120) return snapshot.metrics120 || computeMetrics(snapshot.samples, 120);
@@ -212,16 +229,7 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
       const lowDownload = settings.expectedDownloadMbps > 0 && Number(speed.downloadMbps) < settings.expectedDownloadMbps * factor;
       const lowUpload = settings.expectedUploadMbps > 0 && Number(speed.uploadMbps) < settings.expectedUploadMbps * factor;
       const low = lowDownload || lowUpload;
-      return baseSvg({
-        label: "SPEED",
-        primary: low ? "LOW" : "↓" + Math.round(speed.downloadMbps),
-        secondary: "↑" + Math.round(speed.uploadMbps) + " Mbps",
-        status: low ? "BAD" : "GOOD",
-        accent: settings.accent,
-        footer: (settings.expectedDownloadMbps > 0 || settings.expectedUploadMbps > 0)
-          ? (low ? "BELOW " + settings.lowSpeedPercent + "% EXPECTED" : "WITHIN EXPECTED RANGE")
-          : "PRESS TO RETEST"
-      });
+      return speedResultSvg(speed, settings, low);
     }
     return baseSvg({
       label: "SPEED",

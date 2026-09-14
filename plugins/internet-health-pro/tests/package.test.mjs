@@ -89,3 +89,20 @@ test("physical key graphs use a dedicated 30 second visual window", () => {
   assert.match(renderSource, /graphPath\(samples, KEY_GRAPH_SECONDS, 116, hasFooter \? 29 : 40, 14, 94\)/);
   assert.doesNotMatch(renderSource, /graphPath\(samples, minutes/);
 });
+
+
+test("pre-release monitoring cadence migrates to five seconds", () => {
+  assert.match(pluginSource, /intervalSeconds: 5, cadenceVersion: 1/);
+  assert.match(pluginSource, /setGlobalSettings\(migrated\)/);
+  assert.match(inspectorSource, /intervalSeconds: 5/);
+  assert.match(inspectorSource, /number\("intervalSeconds", 5\)/);
+});
+
+test("speed key gives download and upload equal visual hierarchy", () => {
+  assert.match(renderSource, /function speedResultSvg/);
+  assert.match(renderSource, /const downSize = fitFont\(down, 36, 33, 29\)/);
+  assert.match(renderSource, /const upSize = fitFont\(up, 36, 33, 29\)/);
+  assert.match(renderSource, /font-size="\$\{downSize\}"/);
+  assert.match(renderSource, /font-size="\$\{upSize\}"/);
+  assert.doesNotMatch(renderSource, /PRESS TO RETEST/);
+});
