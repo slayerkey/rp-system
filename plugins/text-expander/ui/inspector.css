@@ -66,6 +66,24 @@ body>*{position:relative;z-index:1}
   outline:none;
 }
 .packrat-logo{width:18px;height:18px;object-fit:contain;display:block}
+.packrat-upgrade-link{
+  width:auto;
+  min-height:auto;
+  padding:4px 7px;
+  border:0;
+  background:transparent;
+  color:var(--packrat-accent);
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.packrat-upgrade-link:hover,.packrat-upgrade-link:focus-visible{
+  background:var(--packrat-accent-soft);
+  color:var(--packrat-accent-hover);
+  text-decoration:underline;
+  text-underline-offset:3px;
+  box-shadow:0 0 14px var(--packrat-accent-glow);
+}
 .shell{display:grid;gap:10px}
 .section,.upsell{
   background:linear-gradient(145deg,#151920,#0D1015);
