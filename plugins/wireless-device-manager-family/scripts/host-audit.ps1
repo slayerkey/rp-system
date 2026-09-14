@@ -14,19 +14,29 @@ foreach($plugin in @($lite,$pro)){
 Write-Host "Wireless Device Manager static host audit PASS."
 if($StaticOnly){return}
 $bridge=Join-Path $lite "bin\wireless-device-bridge-x64.exe"
-$json=& $bridge snapshot
-if($LASTEXITCODE -notin @(0,2)){throw "Wireless bridge snapshot failed: $json"}
-$result=$json|ConvertFrom-Json
-Write-Host ("Bluetooth adapter available: {0}" -f $result.adapterAvailable)
-Write-Host ("USB/HID scan available: {0}" -f $result.hidAvailable)
-Write-Host ("Detected wireless devices: {0}" -f @($result.devices).Count)
-foreach($d in @($result.devices)){
-  $caps=@()
-  $caps+="STATUS"
-  if($null -ne $d.batteryPercent){$caps+="BATTERY"}
-  if($null -ne $d.charging){$caps+="CHARGING"}
-  if($d.control.connect){$caps+="CONNECT"}
-  if($d.control.disconnect){$caps+="DISCONNECT"}
-  Write-Host ("- {0}: transport={1}, kind={2}, connected={3}, present={4}, battery={5}, charging={6}, caps={7}" -f $d.name,$d.transport,$d.kind,$d.connected,$d.present,$d.batteryPercent,$d.charging,($caps -join ","))
+Write-Host "Live wireless battery samples (fresh bridge reads):"
+for($sampleIndex=1;$sampleIndex -le 3;$sampleIndex++){
+  $json=& $bridge snapshot
+  if($LASTEXITCODE -notin @(0,2)){throw "Wireless bridge snapshot failed: $json"}
+  $result=$json|ConvertFrom-Json
+  if($sampleIndex -eq 1){
+    Write-Host ("Bluetooth adapter available: {0}" -f $result.adapterAvailable)
+    Write-Host ("USB/HID scan available: {0}" -f $result.hidAvailable)
+    Write-Host ("Detected wireless devices: {0}" -f @($result.devices).Count)
+  }
+  foreach($d in @($result.devices)){
+    $caps=@()
+    $caps+="STATUS"
+    if($null -ne $d.batteryPercent){$caps+="BATTERY"}
+    if($null -ne $d.charging){$caps+="CHARGING"}
+    if($d.control.connect){$caps+="CONNECT"}
+    if($d.control.disconnect){$caps+="DISCONNECT"}
+    $observed=if($null -ne $d.batteryObservedAt){
+      [DateTimeOffset]::FromUnixTimeMilliseconds([long]$d.batteryObservedAt).ToLocalTime().ToString("HH:mm:ss.fff")
+    }else{"n/a"}
+    Write-Host ("Sample {0} - {1}: transport={2}, kind={3}, battery={4}, charging={5}, source={6}, observed={7}, caps={8}" -f $sampleIndex,$d.name,$d.transport,$d.kind,$d.batteryPercent,$d.charging,$d.batterySource,$observed,($caps -join ","))
+  }
+  if($sampleIndex -lt 3){Start-Sleep -Seconds 2}
 }
+Write-Host "Each sample above is a new hardware bridge request; identical values mean the device reported the same value again."
 Write-Host "Read-only wireless host probe PASS. Run QA.md physical control steps manually before READY_TO_SHIP."
