@@ -12,7 +12,7 @@
   let editingId="";
   let editorOpen=false;
   let saveTimer=null;
-  let proUrl=BUILD_VERIFIED_PRO_URL==="__PACKRAT_VERIFIED_PRO_URL__"?"":BUILD_VERIFIED_PRO_URL;
+  let proUrl=BUILD_VERIFIED_PRO_URL.startsWith("__PACKRAT_")?"":BUILD_VERIFIED_PRO_URL;
 
   const $=(id)=>document.getElementById(id);
   const isManage=()=>actionUuid.endsWith(".manage");
