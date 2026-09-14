@@ -142,6 +142,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       recording,
       playback: playback ? { actionId: playback.actionId, macroName: playback.macro?.name || "" } : null,
       hasLatestMacro: Boolean(latestMacro?.events?.length),
+      latestMacroId: String(latestMacro?.id || ""),
       recentSaved: currentSavedFeedback(),
       macro,
       library: pro ? library.list() : [],
@@ -158,6 +159,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       recording,
       playback: playback ? { actionId: playback.actionId, macroName: playback.macro?.name || "" } : null,
       hasLatestMacro: Boolean(latestMacro?.events?.length),
+      latestMacroId: String(latestMacro?.id || ""),
       recentSaved: currentSavedFeedback(),
       lastError,
     };
