@@ -185,13 +185,13 @@ def runtime_key(im,x,y,kind,lines,size=150,tone="brand"):
 
     clean=[str(value).strip().upper() for value in lines if str(value).strip()][:2] or ["?"]
     max_len=max(len(value) for value in clean)
-    fs=int(size*(0.15 if max_len<=5 else 0.12))
+    fs=int(size*(0.167 if max_len<=5 else 0.139 if max_len<=8 else 0.118))
     f=font(max(14,fs),True)
     if len(clean)==1:
-        d.text((x+size/2,y+size*.76),clean[0],font=f,fill=(*WHITE,255),anchor="mm")
+        d.text((x+size/2,y+size*.84),clean[0],font=f,fill=(*WHITE,255),anchor="mm")
     else:
-        d.text((x+size/2,y+size*.70),clean[0],font=f,fill=(*WHITE,255),anchor="mm")
-        d.text((x+size/2,y+size*.84),clean[1],font=f,fill=(*WHITE,255),anchor="mm")
+        d.text((x+size/2,y+size*.71),clean[0],font=f,fill=(*WHITE,255),anchor="mm")
+        d.text((x+size/2,y+size*.88),clean[1],font=f,fill=(*WHITE,255),anchor="mm")
 
 def arrow(d,x1,y,x2):
     d.line((x1,y,x2,y),fill=(*ACCENT,255),width=10)
@@ -330,15 +330,15 @@ def capabilities(path,faces):
     proof=[faces[4],faces[5],faces[7],faces[0]]
     labels=["INPUT","REFRESH","HDR","BRIGHTNESS"]
     for i,(face,label) in enumerate(zip(proof,labels)):
-        x=625+i*260
-        paste_face(im,face,x,375,185)
-        d.text((x+92,590),label,font=font(18),fill=(*MUTED,255),anchor="mm")
+        x=615+i*240
+        paste_face(im,face,x,365,180)
+        d.text((x+90,570),label,font=font(18),fill=(*MUTED,255),anchor="mm")
 
-    d.text((1690,390),"SAVED SETUPS",font=font(18),fill=(*MUTED,255),anchor="mm")
+    d.text((1090,612),"SAVED SETUPS",font=font(17),fill=(*MUTED,255),anchor="mm")
     for i,name in enumerate(["GAMING","CONSOLE","NIGHT"]):
-        y=435+i*82
-        d.rounded_rectangle((1565,y,1780,y+56),radius=16,fill=(13,18,25,235),outline=(75,85,99,230),width=2)
-        d.text((1672,y+28),name,font=font(19),fill=(*WHITE,255),anchor="mm")
+        x=650+i*300
+        d.rounded_rectangle((x,635,x+250,690),radius=16,fill=(13,18,25,235),outline=(75,85,99,230),width=2)
+        d.text((x+125,662),name,font=font(18),fill=(*WHITE,255),anchor="mm")
     footer(im); save(im,path)
 
 
@@ -349,10 +349,10 @@ def profiles(path,faces):
     im=bg()
     header(im,"Stop opening Windows Display Settings.","This is what Monitor Manager Pro actually looks like on your deck.")
     d=ImageDraw.Draw(im)
-    glass_panel(im,(110,300,1810,735),radius=36,fill=(7,11,18,210),border_alpha=205,glow_alpha=34,border_width=2)
+    glass_panel(im,(110,300,1810,760),radius=36,fill=(7,11,18,210),border_alpha=205,glow_alpha=34,border_width=2)
 
-    device=device_from_faces(faces,(1120,520))
-    im.alpha_composite(device,(165,340))
+    device=device_from_faces(faces,(1060,400))
+    im.alpha_composite(device,(165,350))
 
     d.text((1325,370),"REAL PRODUCT PROOF",font=font(21),fill=(*MUTED,255))
     d.text((1325,415),"REAL KEYS.",font=font(40),fill=(*WHITE,255))
