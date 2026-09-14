@@ -35,7 +35,7 @@ function folder(id){
  return chunks.map(x=>parseInt(x,16).toString(32).padStart(4,"0")).join("").slice(0,26).toUpperCase().replace(/V/g,"W").replace(/U/g,"V")+"Z";
 }
 function action(seed,id,name,title,settings={}){
- return {ActionID:uuid("pro-action:"+seed),LinkedTitle:true,Name:name,UUID:id,Settings:settings,State:0,States:[{Title:title,ShowTitle:true,TitleAlignment:"bottom",TitleColor:"#FFFFFF",FontFamily:"Arial",FontSize:11,FontStyle:"Regular",FontUnderline:false}]};
+ return {ActionID:uuid("pro-action:"+seed),LinkedTitle:true,Name:name,UUID:id,Settings:settings,State:0,States:[{Title:"",ShowTitle:false,TitleAlignment:"bottom",TitleColor:"#FFFFFF",FontFamily:"Arial",FontSize:11,FontStyle:"Regular",FontUnderline:false}]};
 }
 function profileKeyName(name){
  const value=String(name).trim().toUpperCase();

@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { MonitorLiteRuntime, type MonitorSettings } from "../../monitor-manager-lite/src/runtime.js";
+import { compactResolutionLabel } from "./key-visuals.js";
 import { boundedPercent, classifyProfileResult, matchSavedMonitor, modeSupported, SAFE_VCP, SUPPORT, vcpSupport } from "../../_shared/monitor-manager/monitor-utils.mjs";
 
 export type ProSettings = MonitorSettings & {
@@ -236,13 +237,31 @@ export class MonitorProRuntime extends MonitorLiteRuntime {
     const wantedPortrait=[1,3].includes(wanted);
     const width=currentPortrait===wantedPortrait?Number(current.width):Number(current.height);
     const height=currentPortrait===wantedPortrait?Number(current.height):Number(current.width);
-    const request={width,height,frequency:Number(current.frequency),orientation:wanted};
-    if(!modeSupported(monitor.modes,request)) throw new Error("Requested orientation is not available at the current refresh rate.");
-    await this.bridge.request("set-mode",{
-      deviceName:monitor.deviceName,...request,primary:false
-    },12000);
-    this.invalidate();
-    return wanted;
+    const area=Number(current.width)*Number(current.height);
+    const fallbackRates=(monitor.modes??[])
+      .filter((mode:any)=>Number(mode.width)*Number(mode.height)===area)
+      .map((mode:any)=>Number(mode.frequency))
+      .filter((rate:number)=>Number.isFinite(rate)&&rate>0)
+      .sort((a:number,b:number)=>b-a);
+    const rates=[...new Set([Number(current.frequency),...fallbackRates])];
+    let lastError:unknown=null;
+    for(const frequency of rates){
+      try{
+        await this.bridge.request("set-mode",{deviceName:monitor.deviceName,width,height,frequency,orientation:wanted,primary:false},12000);
+        this.invalidate();
+        return wanted;
+      }catch(error){lastError=error;}
+    }
+    const detail=lastError instanceof Error?(" "+lastError.message):"";
+    throw new Error("Requested orientation is unavailable at the current resolution and reported refresh rates."+detail);
+  }
+
+  async status(settings:ProSettings):Promise<string>{
+    const {monitor}=await this.selected(settings);
+    const mode=monitor.currentMode;
+    if(!mode)return "HZ ?\nRES ?";
+    const hz=Number(mode.frequency)>0?String(Math.round(Number(mode.frequency)))+"HZ":"HZ ?";
+    return hz+"\n"+compactResolutionLabel(mode.width,mode.height);
   }
 
   async setExactMode(settings: ProSettings): Promise<string> {

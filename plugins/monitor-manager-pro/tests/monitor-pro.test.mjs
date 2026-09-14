@@ -176,10 +176,13 @@ test("stable target paths and internal-panel detection are present in the bundle
   assert.match(helper,/IsInternalDisplay/);
 });
 
-test("orientation swaps dimensions and is preflighted against enumerated Windows modes", async () => {
+test("orientation swaps dimensions and retries reported refresh rates through the real Windows CDS test path", async () => {
   const source=await readFile("src/runtime.ts","utf8");
   assert.match(source,/currentPortrait===wantedPortrait\?Number\(current\.width\):Number\(current\.height\)/);
-  assert.match(source,/if\(!modeSupported\(monitor\.modes,request\)\) throw new Error\("Requested orientation is not available/);
+  assert.match(source,/const fallbackRates=/);
+  assert.match(source,/for\(const frequency of rates\)/);
+  assert.match(source,/await this\.bridge\.request\("set-mode"/);
+  assert.doesNotMatch(source,/Requested orientation is not available at the current refresh rate/);
 });
 
 test("saved-profile datalist writes profileName through the profile input", async () => {
@@ -313,11 +316,12 @@ test("Pro generated profile coordinates fit Standard XL and Plus hardware", asyn
 });
 
 
-test("physical-test UX keeps continuous preset titles compact and repeat-restorable", async () => {
+test("physical-test UX keeps continuous keypad presets stable while dials show live values", async () => {
   const source=await readFile("src/actions/continuous.ts","utf8");
   assert.match(source,/private previous=new Map<string,number>/);
-  assert.match(source,/Math\.abs\(current-target\)<=1/);
-  assert.match(source,/setTitle\(String\(value\)\+"%"\)/);
+  assert.match(source,/Math\.abs\(current-preset\)<=1/);
+  assert.match(source,/setKey\(ev\.action,this\.kind,\[String\(preset\)\+"%"\]\)/);
+  assert.match(source,/value:current===null\?"N\/A":String\(current\)\+"%"/);
 });
 test("status HDR and power repaint from live state after settings changes", async () => {
   const hardware=await readFile("src/actions/hardware.ts","utf8");const windows=await readFile("src/actions/windows.ts","utf8");
@@ -340,21 +344,19 @@ test("native mode list always retains the actual current mode for high-refresh D
 });
 
 
-test("all Monitor Manager Pro keypad actions use dedicated key art with a safe title band", async () => {
+test("all Monitor Manager Pro keypad actions own the full rendered key face", async () => {
   const manifest=JSON.parse(await readFile("com.packrat.monitormanagerpro.sdPlugin/manifest.json","utf8"));
   const keypad=manifest.Actions.filter((a)=>a.Controllers?.includes("Keypad"));
   assert.equal(keypad.length,14);
   for(const action of keypad){
     assert.doesNotMatch(action.States?.[0]?.Image??"",/\/common\//,action.Name+" must not use generic common key art");
-    assert.equal(action.States?.[0]?.ShowTitle,true,action.Name+" should explicitly opt into its compact live title");
-    assert.equal(action.States?.[0]?.TitleAlignment,"bottom",action.Name+" should reserve the lower title band");
+    assert.equal(action.States?.[0]?.ShowTitle,false,action.Name+" must disable Stream Deck title overlay");
   }
   assert.equal(new Set(keypad.map((a)=>a.States[0].Image)).size,keypad.length,"every keypad action should have dedicated semantic key art");
 });
 
-test("bundled Monitor Manager profile key titles stay compact at physical key scale", async () => {
+test("bundled Monitor Manager profiles never reintroduce Stream Deck title overlays", async () => {
   const root=path.resolve("com.packrat.monitormanagerpro.sdPlugin","profiles");
-  const forbidden=new Set(["MONITORS","DUPLICATE","PC SCREEN","SECOND SCREEN","LANDSCAPE","PORTRAIT"]);
   for(const name of ["monitor-manager-pro-standard","monitor-manager-pro-xl","monitor-manager-pro-plus","monitor-manager-pro-virtual"]){
     const data=await readFile(path.join(root,name+".streamDeckProfile"));
     const docs=zipJsonDocuments(data);
@@ -362,15 +364,35 @@ test("bundled Monitor Manager profile key titles stay compact at physical key sc
       for(const controller of doc.json.Controllers??[]){
         if(controller.Type!=="Keypad")continue;
         for(const action of Object.values(controller.Actions??{})){
-          const title=String(action.States?.[0]?.Title??"");
-          assert.equal(forbidden.has(title),false,name+" still contains an overlong keypad title: "+title);
-          const lines=title.split(/\r?\n/);
-          assert.ok(lines.length<=2,name+" keypad title uses more than two lines: "+JSON.stringify(title));
-          for(const line of lines)assert.ok(line.length<=10,name+" keypad title line is too long: "+JSON.stringify(line));
+          assert.equal(action.States?.[0]?.ShowTitle,false,name+" must keep title overlay disabled");
+          assert.equal(String(action.States?.[0]?.Title??""),"",name+" must not carry hidden legacy key titles");
         }
       }
     }
   }
-  const source=await readFile("scripts/build-profiles.mjs","utf8");
-  assert.match(source,/profileKeyName/);
+});
+
+
+test("rendered key faces reserve their own bottom text band instead of Stream Deck overlays", async () => {
+  const source=await readFile("src/key-visuals.ts","utf8");
+  assert.match(source,/y="131"/);
+  assert.match(source,/index===0\?112:136/);
+  assert.match(source,/target\.setTitle\("")/);
+  assert.match(source,/target\.setImage\(keyImage\(kind,lines\)\)/);
+});
+
+test("resolution feedback is compact and never paints raw 1920x1080-style strings over the icon", async () => {
+  const visuals=await readFile("src/key-visuals.ts","utf8");
+  const windows=await readFile("src/actions/windows.ts","utf8");
+  const runtimeSource=await readFile("src/runtime.ts","utf8");
+  assert.match(visuals,/1920x1080","1080P"/);
+  assert.match(windows,/compactResolutionLabel/);
+  assert.match(runtimeSource,/return hz\+"\\n"\+compactResolutionLabel/);
+});
+
+test("Monitor Profile inspector explicitly explains the saved snapshot contents", async () => {
+  const html=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/config.html","utf8");
+  assert.match(html,/brightness, contrast, supported monitor volume, and supported input source/);
+  assert.match(html,/Monitor power is intentionally not saved/);
+  assert.match(html,/If you lower brightness before pressing Save/);
 });

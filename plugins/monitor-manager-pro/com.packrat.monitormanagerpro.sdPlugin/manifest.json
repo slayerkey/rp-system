@@ -72,10 +72,7 @@
       "States": [
         {
           "Image": "imgs/actions/brightness/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -98,10 +95,7 @@
       "States": [
         {
           "Image": "imgs/actions/contrast/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -124,10 +118,7 @@
       "States": [
         {
           "Image": "imgs/actions/volume/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -143,10 +134,7 @@
       "States": [
         {
           "Image": "imgs/actions/power/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -162,10 +150,7 @@
       "States": [
         {
           "Image": "imgs/actions/input/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -181,10 +166,7 @@
       "States": [
         {
           "Image": "imgs/actions/refresh-rate/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -200,10 +182,7 @@
       "States": [
         {
           "Image": "imgs/actions/resolution/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -219,10 +198,7 @@
       "States": [
         {
           "Image": "imgs/actions/hdr/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -238,10 +214,7 @@
       "States": [
         {
           "Image": "imgs/actions/topology/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -257,10 +230,7 @@
       "States": [
         {
           "Image": "imgs/actions/primary/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -276,10 +246,7 @@
       "States": [
         {
           "Image": "imgs/actions/orientation/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -287,7 +254,7 @@
       "Name": "Save Monitor Profile",
       "UUID": "com.packrat.monitormanagerpro.save-profile",
       "Icon": "imgs/actions/save-profile/key",
-      "Tooltip": "Save the current supported monitor setup as a reusable profile.",
+      "Tooltip": "Save current topology, mode, primary display, HDR, brightness, contrast, supported monitor volume and input. Monitor power is not saved.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
         "Keypad"
@@ -295,10 +262,7 @@
       "States": [
         {
           "Image": "imgs/actions/save-profile/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -314,10 +278,7 @@
       "States": [
         {
           "Image": "imgs/actions/apply-profile/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     },
@@ -333,10 +294,7 @@
       "States": [
         {
           "Image": "imgs/actions/status/key",
-          "TitleAlignment": "bottom",
-          "ShowTitle": true,
-          "TitleColor": "#FFFFFF",
-          "FontSize": 11
+          "ShowTitle": false
         }
       ]
     }
