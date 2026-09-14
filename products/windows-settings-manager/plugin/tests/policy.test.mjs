@@ -85,15 +85,16 @@ test("Lite exposes curated live Windows controls only", async () => {
   assert.equal(value.Profiles.length, 7);
   const names = value.Actions.map((item) => item.Name);
   assert.deepEqual(names, [
-    "System Status",
-    "HDR",
+    "Lock PC",
+    "Sleep",
     "Power Plan",
-    "Display Topology",
-    "Screen & Sleep",
     "Keep Awake",
-    "Lock PC"
+    "Previous Desktop",
+    "Next Desktop"
   ]);
   assert.ok(!JSON.stringify(value).includes("apply-mode"));
+  assert.ok(!JSON.stringify(value).includes("wifi"));
+  assert.ok(!JSON.stringify(value).includes("bluetooth"));
 });
 
 test("manifest targets Stream Deck 7.3 for current profile navigation and device coverage", async () => {
@@ -120,13 +121,19 @@ test("Lite and Pro have collision-free catalog, plugin and action identities", a
   assert.deepEqual(liteActions.filter((uuid) => proActions.includes(uuid)), []);
 });
 
-test("Pro owns the PC Mode layer without inventing optimization actions", async () => {
+test("Pro exposes the 15-key Windows Control Center and keeps PC Modes secondary", async () => {
   const value = await manifest("pro");
   const names = value.Actions.map((item) => item.Name);
+  const core = [
+    "Lock PC", "Sleep", "Hibernate", "Restart", "Shutdown",
+    "Wi-Fi", "Bluetooth", "Power Plan", "Keep Awake", "Light / Dark Theme",
+    "Previous Desktop", "Next Desktop", "New Desktop", "Close Desktop", "Current Desktop"
+  ];
+  assert.deepEqual(names.slice(0, 15), core);
   for (const expected of ["Apply PC Mode", "Cycle PC Mode", "Current PC Mode", "Save Current Mode"]) {
-    assert.ok(names.includes(expected), `missing ${expected}`);
+    assert.ok(names.includes(expected), `missing advanced ${expected}`);
   }
-  assert.ok(!JSON.stringify(value).match(/registry|cloudstore|sendkeys|quick settings/i));
+  assert.ok(!JSON.stringify(value).match(/cloudstore|sendkeys|quick settings/i));
 });
 
 test("Marketplace cover key grids fail closed instead of clipping outside the safe frame", async () => {
@@ -197,7 +204,7 @@ test("every bundled profile page references only registered actions and valid na
 
       const rootManifest = JSON.parse(rootEntry.data.toString("utf8"));
       const pageEntries = entries.filter((entry) => /\/Profiles\/[^/]+\/manifest\.json$/.test(entry.name));
-      const expectedPages = flavor === "pro" ? 2 : 1;
+      const expectedPages = 1;
       assert.equal(pageEntries.length, expectedPages, `${stem} page count mismatch`);
       assert.equal(rootManifest.Pages.Pages.length, expectedPages, `${stem} root page list mismatch`);
       assert.equal(rootManifest.Pages.Current, rootManifest.Pages.Pages[0], `${stem} current page must be first page`);
@@ -234,7 +241,7 @@ test("every bundled profile page references only registered actions and valid na
         }
       }
 
-      assert.equal(navigationCount, flavor === "pro" ? 2 : 0, `${stem} navigation-key count mismatch`);
+      assert.equal(navigationCount, 0, `${stem} should not require profile navigation for the primary control surface`);
     }
   }
 });
