@@ -1,8 +1,13 @@
 import streamDeck, { SingletonAction } from "@elgato/streamdeck";
+import { spawn } from "node:child_process";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { renderKey, makeView } from "./render.js";
 import { TelemetryService } from "./telemetry.js";
 
 const BUILD_VERSION = "1.0.0.0";
+const PLUGIN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const FPS_SETUP_SCRIPT = resolve(PLUGIN_ROOT, "setup", "enable-fps-access.ps1");
 const ACTIONS = {
   graph: "com.packrat.performance-grapher.graph",
   fps: "com.packrat.performance-grapher.fps",
@@ -56,12 +61,13 @@ const telemetry = new TelemetryService({ log: logger });
 const visible = new Map();
 let renderTimer = null;
 let inspectorTimer = null;
+let fpsSetup = { state: "idle", detail: null };
 
 function renderInterval(record) {
   if (record.kind === "fps") return 250;
   if (record.kind === "session") return 500;
   if (record.kind === "graph" && ["game.fps", "game.frametime"].includes(record.settings.metricId)) return 250;
-  return 1000;
+  return 500;
 }
 
 function scheduleRender(delay = 25) {
@@ -99,8 +105,52 @@ async function sendInspector(record = inspectorRecord()) {
       buildVersion: BUILD_VERSION,
       settings: record.settings,
       snapshot: telemetry.snapshot(),
+      fpsSetup,
     });
   } catch {}
+}
+
+
+function runFpsSetup() {
+  if (fpsSetup.state === "working") return Promise.resolve(false);
+  fpsSetup = { state: "working", detail: "Waiting for Windows approval." };
+  scheduleInspector();
+
+  return new Promise((resolveSetup) => {
+    const child = spawn(
+      "powershell.exe",
+      ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", FPS_SETUP_SCRIPT],
+      { windowsHide: true, stdio: ["ignore", "ignore", "pipe"] },
+    );
+    let stderr = "";
+    child.stderr?.on("data", (chunk) => {
+      stderr = (stderr + String(chunk || "")).slice(-4000);
+    });
+    child.once("error", (error) => {
+      fpsSetup = { state: "error", detail: error?.message || String(error) };
+      scheduleInspector();
+      resolveSetup(false);
+    });
+    child.once("close", (code) => {
+      if (code === 0) {
+        fpsSetup = {
+          state: "sign_out_required",
+          detail: "FPS access is enabled. Sign out of Windows and back in once to finish.",
+        };
+        resolveSetup(true);
+      } else if (code === 1223) {
+        fpsSetup = { state: "cancelled", detail: "Windows approval was cancelled." };
+        resolveSetup(false);
+      } else {
+        fpsSetup = {
+          state: "error",
+          detail: (stderr || ("Windows FPS setup exited with code " + code)).trim().slice(0, 500),
+        };
+        resolveSetup(false);
+      }
+      scheduleInspector();
+    });
+  });
 }
 
 async function renderRecord(record, force = false) {
@@ -178,6 +228,9 @@ class PerformanceAction extends SingletonAction {
     if (payload.type !== "performanceGrapher.command") return;
     if (payload.command === "restart-fps") telemetry.restartFps();
     else if (payload.command === "reset-session") telemetry.resetSession();
+    else if (payload.command === "enable-fps-access") {
+      await runFpsSetup();
+    }
     else if (payload.command === "open-presentmon-help") {
       await streamDeck.system.openUrl("https://github.com/GameTechDev/PresentMon/blob/v2.5.1/README-ConsoleApplication.md");
     }
