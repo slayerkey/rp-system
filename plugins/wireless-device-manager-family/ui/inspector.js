@@ -1,40 +1,96 @@
-let ws, uiUuid="", actionUuid="", actionContext="", actionInfo={}, settings={}, snapshot=null, responseTimer=null;
+let ws, uiUuid="", actionUuid="", actionContext="", actionInfo={}, settings={}, snapshot=null, responseTimer=null, requestSequence=0, lastRequestId="";
 const $=id=>document.getElementById(id);
 
+function piLog(stage,details={}){
+  const entry={stage,actionUuid,actionContext,uiUuid,...details};
+  try{console.info("[Wireless PI]",entry);}catch{}
+  if(ws?.readyState===WebSocket.OPEN){
+    try{ws.send(JSON.stringify({event:"logMessage",payload:{message:"[Wireless PI] "+JSON.stringify(entry)}}));}catch{}
+  }
+}
+function showStatus(text,bad=false,detail=""){
+  const node=$("status"), detailNode=$("status-detail");
+  if(node){node.textContent=text;node.className=bad?"status bad":"status";}
+  if(detailNode)detailNode.textContent=detail||"";
+}
+function renderSafe(){
+  try{render();}
+  catch(error){
+    const message=error instanceof Error?error.message:String(error);
+    piLog("render-exception",{message,stack:error?.stack||""});
+    showStatus("Property Inspector render failed",true,message);
+  }
+}
+
+window.addEventListener("error",event=>{
+  piLog("window-error",{message:String(event.message||event.error||"unknown")});
+});
+window.addEventListener("unhandledrejection",event=>{
+  piLog("unhandled-rejection",{message:String(event.reason?.message||event.reason||"unknown")});
+});
+
 window.connectElgatoStreamDeckSocket=(port,inUUID,event,info,rawActionInfo)=>{
-  uiUuid=inUUID; actionInfo=JSON.parse(rawActionInfo||"{}"); actionUuid=String(actionInfo.action||""); actionContext=String(actionInfo.context||""); settings=actionInfo.payload?.settings||{};
+  uiUuid=inUUID;
+  actionInfo=JSON.parse(rawActionInfo||"{}");
+  actionUuid=String(actionInfo.action||"");
+  actionContext=String(actionInfo.context||"");
+  settings=actionInfo.payload?.settings||{};
   ws=new WebSocket(`ws://127.0.0.1:${port}`);
   ws.onopen=()=>{
     ws.send(JSON.stringify({event,uuid:uiUuid}));
-    render();
+    piLog("websocket-registered",{port,registerEvent:event});
+    showStatus("Property Inspector connected",false,"Requesting live wireless state...");
+    renderSafe();
     requestSnapshot();
   };
-  ws.onclose=()=>{
+  ws.onclose=event=>{
     clearTimeout(responseTimer);
     responseTimer=null;
+    piLog("websocket-closed",{code:event.code,reason:event.reason||""});
+    showStatus("Stream Deck Property Inspector connection closed",true,`WebSocket code ${event.code}`);
   };
+  ws.onerror=()=>piLog("websocket-error");
   ws.onmessage=e=>{
-    const msg=JSON.parse(e.data);
-    if(msg.event==="didReceiveSettings"){settings=msg.payload?.settings||{}; render();}
+    let msg;
+    try{msg=JSON.parse(e.data);}
+    catch(error){piLog("message-json-error",{raw:String(e.data).slice(0,240)});return;}
+    piLog("message-received",{event:msg.event,payloadType:String(msg.payload?.type||""),requestId:String(msg.payload?.requestId||"")});
+    if(msg.event==="didReceiveSettings"){
+      settings=msg.payload?.settings||{};
+      renderSafe();
+    }
     if(msg.event==="sendToPropertyInspector" && msg.payload?.type==="wireless-snapshot"){
       snapshot=msg.payload;
-      const productTitle=$("product-title");
-      if(productTitle) productTitle.textContent=snapshot.edition==="pro"?"Wireless Device Manager Pro":"Wireless Device Manager";
       clearTimeout(responseTimer);
       responseTimer=null;
-      render();
+      const productTitle=$("product-title");
+      if(productTitle)productTitle.textContent=snapshot.edition==="pro"?"Wireless Device Manager Pro":"Wireless Device Manager";
+      const d=snapshot.diagnostics||{};
+      piLog("snapshot-received",{
+        devices:Array.isArray(snapshot.devices)?snapshot.devices.length:0,
+        error:snapshot.error??null,
+        refreshCount:d.refreshCount??0,
+        runtimeStarted:d.runtimeStarted??false,
+        responseRequestId:msg.payload?.requestId??null
+      });
+      renderSafe();
     }
     if(msg.event==="sendToPropertyInspector" && msg.payload?.type==="wireless-error"){
       clearTimeout(responseTimer);
       responseTimer=null;
-      $("status").textContent=String(msg.payload?.message||"Wireless plugin error");
-      $("status").className="status bad";
+      const message=String(msg.payload?.message||"Wireless plugin error");
+      piLog("plugin-error",{message});
+      showStatus("Wireless plugin error",true,message);
     }
   };
 };
 
 function sendPlugin(payload){
-  if(ws?.readyState!==WebSocket.OPEN)return false;
+  if(ws?.readyState!==WebSocket.OPEN){
+    piLog("command-not-sent",{reason:"websocket-not-open",type:String(payload?.type||"")});
+    return false;
+  }
+  piLog("command-sent",{type:String(payload?.type||""),requestId:String(payload?.requestId||"")});
   ws.send(JSON.stringify({
     event:"sendToPlugin",
     action:actionUuid,
@@ -44,24 +100,29 @@ function sendPlugin(payload){
   return true;
 }
 function requestSnapshot(){
-  $("status").textContent="Scanning wireless devices…";
-  $("status").className="status";
+  lastRequestId=`wireless-${Date.now()}-${++requestSequence}`;
+  snapshot=null;
+  showStatus("Refreshing wireless devices...",false,`Request ${lastRequestId}`);
   clearTimeout(responseTimer);
   responseTimer=null;
-  if(!sendPlugin({type:"refresh-wireless"})){
-    $("status").textContent="Stream Deck connection unavailable";
-    $("status").className="status bad";
+  if(!sendPlugin({type:"refresh-wireless",requestId:lastRequestId})){
+    showStatus("Stream Deck connection unavailable",true,"The Property Inspector websocket is not open.");
     return;
   }
   responseTimer=setTimeout(()=>{
     responseTimer=null;
     if(snapshot)return;
-    $("status").textContent="Wireless plugin is not responding";
-    $("status").className="status bad";
+    piLog("snapshot-timeout",{requestId:lastRequestId});
+    showStatus(
+      "Plugin process did not reply",
+      true,
+      `Request ${lastRequestId} reached the Stream Deck websocket but no Wireless snapshot returned within 4 seconds.`
+    );
   },4000);
 }
 function save(patch){
   settings={...settings,...patch};
+  piLog("settings-save",{keys:Object.keys(patch)});
   ws?.send(JSON.stringify({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings}));
 }
 function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
@@ -80,31 +141,33 @@ function groupsFor(id){
 function render(){
   const action=actionInfo.action||"";
   const isDevice=action.endsWith(".device"), isDashboard=action.endsWith(".dashboard"), isCycle=action.endsWith(".cycle");
-  $("device-fields").hidden=!isDevice; $("dashboard-fields").hidden=!isDashboard; $("cycle-fields").hidden=!isCycle;
+  $("device-fields").hidden=!isDevice;
+  $("dashboard-fields").hidden=!isDashboard;
+  $("cycle-fields").hidden=!isCycle;
   $("lite-upsell").hidden=snapshot?.edition!=="lite";
   const proLink=$("pro-link");
   const proUrl=String(window.WIRELESS_PRO_MARKETPLACE_URL||"");
   const directProUrl=/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9][a-z0-9-]*-[0-9a-f-]{36}\/?$/i.test(proUrl);
   proLink.hidden=!(snapshot?.edition==="lite" && directProUrl);
-  if(!proLink.hidden) proLink.href=proUrl;
+  if(!proLink.hidden)proLink.href=proUrl;
+
   if(snapshot){
     const devices=snapshot.devices||[];
     const bluetooth=snapshot.adapterAvailable===true;
     const hid=snapshot.hidAvailable===true;
+    const d=snapshot.diagnostics||{};
+    const diagnostic=`Plugin alive · refresh #${d.refreshCount??0} · bridge ${d.lastRefreshDurationMs??0} ms`;
     if(snapshot.error){
-      $("status").textContent=snapshot.error;
-      $("status").className="status bad";
+      showStatus("Wireless scan failed",true,`${snapshot.error} · ${diagnostic}`);
     }else if(devices.length){
-      $("status").textContent=`${devices.length} wireless device(s) visible${bluetooth?"":" · Bluetooth unavailable"}`;
-      $("status").className="status";
+      showStatus(`${devices.length} wireless device(s) visible${bluetooth?"":" · Bluetooth unavailable"}`,false,diagnostic);
     }else if(!bluetooth && hid){
-      $("status").textContent="No supported USB wireless devices found · Bluetooth unavailable";
-      $("status").className="status bad";
+      showStatus("No supported USB wireless devices found",true,`Bluetooth unavailable · ${diagnostic}`);
     }else{
-      $("status").textContent="No supported wireless devices found";
-      $("status").className="status bad";
+      showStatus("No supported wireless devices found",true,diagnostic);
     }
   }
+
   if(isDevice){
     const select=$("deviceId");
     const devices=snapshot?.devices||[];
@@ -131,11 +194,11 @@ function render(){
     const d=devices.find(x=>x.stableId===selectedId);
     $("caps").innerHTML=d?["STATUS","CONNECT","DISCONNECT","BATTERY","CHARGING"].map(c=>`<span class="cap ${d.capabilities?.[c]?"":"off"}">${c}</span>`).join(""):"";
   }
-  if(isDashboard) $("dashboardGroup").value=settings.groupName||"";
+  if(isDashboard)$("dashboardGroup").value=settings.groupName||"";
 }
 
 ["deviceId","view","label","threshold","favorite","groupName","dashboardGroup"].forEach(id=>{
-  const el=$(id); if(!el)return;
+  const el=$(id);if(!el)return;
   el.addEventListener("change",()=>{
     if(id==="deviceId"){
       const deviceId=el.value;
@@ -154,15 +217,15 @@ function render(){
       const value=Number(el.value||20);
       save({lowBatteryThreshold:value});
       const deviceId=selectedDeviceId();
-      if(deviceId && snapshot?.edition==="pro") sendPlugin({type:"set-threshold",deviceId,value});
+      if(deviceId && snapshot?.edition==="pro")sendPlugin({type:"set-threshold",deviceId,value});
     }else if(id==="favorite"){
       save({favorite:el.checked});
       const deviceId=selectedDeviceId();
-      if(deviceId && snapshot?.edition==="pro") sendPlugin({type:"set-favorite",deviceId,value:el.checked});
+      if(deviceId && snapshot?.edition==="pro")sendPlugin({type:"set-favorite",deviceId,value:el.checked});
     }else if(id==="groupName"){
       save({groupName:el.value});
       const deviceId=selectedDeviceId();
-      if(deviceId && snapshot?.edition==="pro") sendPlugin({type:"set-groups",deviceId,value:el.value});
+      if(deviceId && snapshot?.edition==="pro")sendPlugin({type:"set-groups",deviceId,value:el.value});
     }else if(id==="dashboardGroup"){
       save({groupName:el.value});
     }else{
@@ -170,8 +233,9 @@ function render(){
     }
   });
 });
-render();
 
+$("refresh")?.addEventListener("click",requestSnapshot);
+renderSafe();
 
 const packratBrand=$("packrat-brand");
 packratBrand?.addEventListener("click",e=>{

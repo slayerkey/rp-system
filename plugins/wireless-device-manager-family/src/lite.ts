@@ -11,18 +11,19 @@ diag("module-loaded", { edition: "lite", ...processDetails });
 process.on("uncaughtExceptionMonitor", (error) => diagError("uncaught-exception", error, { edition: "lite" }));
 process.on("exit", (code) => diag("process-exit", { edition: "lite", code }));
 
-async function sendInspectorData(reason: string): Promise<void> {
-  const payload = runtime.inspectorPayload();
+async function sendInspectorData(reason: string, requestId = ""): Promise<void> {
+  const payload = { ...runtime.inspectorPayload(), requestId: requestId || null };
   diag("pi-send-attempt", {
     edition: "lite",
     reason,
     devices: Array.isArray(payload.devices) ? payload.devices.length : 0,
     error: payload.error ?? null,
-    refreshCount: payload.diagnostics?.refreshCount ?? 0
+    refreshCount: payload.diagnostics?.refreshCount ?? 0,
+    requestId: requestId || null
   });
   try {
     await streamDeck.ui.sendToPropertyInspector(payload);
-    diag("pi-send-complete", { edition: "lite", reason });
+    diag("pi-send-complete", { edition: "lite", reason, requestId: requestId || null });
   } catch (error) {
     diagError("pi-send-failed", error, { edition: "lite", reason });
   }
@@ -37,8 +38,9 @@ streamDeck.ui.onSendToPlugin((ev) => {
   diag("pi-command-received", { edition: "lite", ...inspectorEventDetails(ev) });
   void (async () => {
     try {
-      await runtime.handleInspectorCommand((ev as any)?.payload ?? {});
-      await sendInspectorData("command");
+      const commandPayload = (ev as any)?.payload ?? {};
+      await runtime.handleInspectorCommand(commandPayload);
+      await sendInspectorData("command", String(commandPayload?.requestId ?? ""));
     } catch (error) {
       diagError("pi-command-failed", error, { edition: "lite", ...inspectorEventDetails(ev) });
       try {
