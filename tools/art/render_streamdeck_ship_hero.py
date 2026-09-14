@@ -180,8 +180,8 @@ def fallback_face(name: str, icon_path: Path | None = None, product_name: str = 
     if icon_path:
         try:
             icon = Image.open(icon_path).convert("RGBA")
-            icon.thumbnail((126, 126), Image.Resampling.LANCZOS)
-            image.alpha_composite(icon, ((W - icon.width) // 2, 55))
+            icon.thumbnail((150, 150), Image.Resampling.LANCZOS)
+            image.alpha_composite(icon, ((W - icon.width) // 2, 43))
         except Exception:
             icon_path = None
 
