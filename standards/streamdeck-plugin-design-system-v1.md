@@ -1,7 +1,5 @@
 # PackRat Stream Deck Plugin Design System v1
 
-> **Visual theme candidate:** the current dark + cheddar PackRat premium UI proposal is documented in `standards/streamdeck-packrat-premium-theme-candidate-v1.md`. It is available for Rat Dev review and recent-product rollout, but it does not replace the canonical global defaults until final visual approval.
-
 
 This is the canonical implementation contract for new PackRat Stream Deck plugins. It captures the hardware, Property Inspector, profile, and visual lessons that repeatedly caused rework when they were left implicit.
 
@@ -83,34 +81,165 @@ Do not repaint every preset key with one shared current hardware value; that mak
 
 Live values belong on actions whose job is status/monitoring, and on encoder feedback. If the same action supports both Keypad and Encoder, the Keypad may show the configured preset while the Encoder shows the live value.
 
-## 4. Accent and semantic state colors
+## 4. Canonical PackRat visual system
 
-Default PackRat healthy/active accent is `#2BE86A`.
+This is the global PackRat Stream Deck visual contract. New plugins and deliberate refreshes of recent plugins should reference this section instead of restating colors, branding, button rules, or Property Inspector styling in product-specific prompts.
 
-Recommended semantic colors:
+The target look is dark, premium, compact, and consistent:
 
-- healthy / active: user accent, default `#2BE86A`
-- warning / degraded: `#FFB34D`
-- bad / offline / destructive: `#FF5D6C`
-- neutral / unknown: `#8B93A1`
+- very dark charcoal canvas
+- slightly lighter charcoal cards
+- clean white primary text
+- muted cool-gray secondary text
+- bright cheddar orange-yellow as the PackRat brand/interaction accent
+- subtle orange glow rather than brown/gold fills
+- simple geometric key art
+- semantic red for destructive/error states
+- semantic green only when the product literally means healthy/success/connected
+- real PackRat brand mark with a clickable `PackRat ↗` link in Property Inspectors
 
-Rules:
+Do not create alternate PackRat visual themes inside individual plugin specs unless a product has an explicit, documented exception.
 
-1. Normalize user accents to a six-digit hex value.
-2. The user accent controls healthy/active styling, not warning/error meaning.
-3. Use the accent consistently on one or two stable visual anchors such as the left rail, graph, active glyph, or secondary value.
-4. Changing the accent in the Property Inspector must save, persist after reopening, and force the key to rerender.
-5. Do not hardcode a second "healthy green" in one action while the rest use the user accent.
+### Canonical tokens
 
-Implementation convention for new plugins:
+Use these values by default:
+
+- canvas/background: `#14171B`
+- panel/card: `#1B1F24`
+- input/status surface: `#15191E`
+- neutral button: `#181C21`
+- neutral button hover: `#22272E`
+- border: `#303640`
+- primary text: `#F5F7FB`
+- muted text: `#9AA2AF`
+- PackRat accent: `#FFB21E`
+- accent hover/highlight: `#FFC44D`
+- accent soft: `rgba(255,178,30,.16)`
+- accent glow: `rgba(255,178,30,.28)`
+- destructive/error: `#FF5D6C`
+- healthy/success when semantically meaningful: `#2BE86A`
+- neutral/unknown status: `#8B93A1`
+
+Orange-yellow is the brand and interaction accent. Do not use muddy golden-brown fills as the normal button/card language.
+
+### Property Inspector surfaces
+
+Use the darkest surface for the body, slightly lighter charcoal for cards, near-black charcoal for inputs/status boxes, and cool neutral borders.
+
+Recommended baseline:
+
+```css
+:root {
+  --packrat-bg: #14171B;
+  --packrat-card: #1B1F24;
+  --packrat-input: #15191E;
+  --packrat-button: #181C21;
+  --packrat-button-hover: #22272E;
+  --packrat-border: #303640;
+  --packrat-text: #F5F7FB;
+  --packrat-muted: #9AA2AF;
+  --packrat-accent: #FFB21E;
+  --packrat-accent-hover: #FFC44D;
+  --packrat-accent-soft: rgba(255,178,30,.16);
+  --packrat-accent-glow: rgba(255,178,30,.28);
+}
+```
+
+Normal secondary buttons such as New, Rename, Duplicate, Refresh, or similar actions use charcoal at rest. On hover/focus they may use the PackRat accent for border/glow, but they do not become brown/gold blocks.
+
+Primary CTA buttons use the solid PackRat accent with dark text and the brighter accent on hover.
+
+Destructive actions remain red. Never recolor destructive meaning to orange.
+
+### Ambient corner glow
+
+Property Inspectors use one subtle premium orange glow in the top-right:
+
+```css
+body::before {
+  content: "";
+  position: fixed;
+  top: -130px;
+  right: -110px;
+  width: 330px;
+  height: 330px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255,178,30,.12) 0%,
+    rgba(255,178,30,.055) 34%,
+    rgba(255,178,30,0) 72%
+  );
+}
+```
+
+It is atmosphere only. It must not reduce text contrast or look like a visible orange circle.
+
+### PackRat Property Inspector brand link
+
+Property Inspectors use the small brand treatment:
+
+`[PackRat icon] PackRat ↗`
+
+Canonical behavior:
+
+- use the real PackRat transparent logo asset from the shared RatPack art assets
+- bundle the logo locally inside the plugin package
+- render it as a normal local `<img>`; do not depend on CSS masks or data-URI tricks when a local packaged image is available
+- label text uses the PackRat accent
+- hover may underline and add a subtle accent glow
+- clicking uses Stream Deck `openUrl`
+- destination: `https://marketplace.elgato.com/maker/packrat`
+- keep the mark small and secondary to the product title
+- do not substitute emoji or generated replacement logos
+
+### Key-face style
+
+Recent PackRat keys use:
+
+- dark rounded key background
+- simple geometric white line art
+- PackRat orange-yellow accent stroke/highlight
+- minimal text
+- strong readability at 72 x 72 hardware scale
+- no busy gradients or generated-looking lettermarks
+
+Preserve monochrome white action-list/category icons where required by Elgato presentation rules. The hardware accent and Property Inspector accent should feel like the same system.
+
+### User-adjustable accents and semantic state
+
+A product may expose a user accent setting when that capability is genuinely useful. If it does:
+
+1. normalize the user accent to a six-digit hex value
+2. persist and rerender it correctly
+3. do not let it overwrite warning/error/destructive semantics
+4. keep literal health/success telemetry green only when green conveys product meaning
+5. keep PackRat branding itself on the canonical orange-yellow unless the product has a documented exception
+
+Implementation convention when an accent setting exists:
 
 - setting key: `accent`
-- default constant: `DEFAULT_ACCENT = "#2BE86A"`
 - one shared `normalizeAccent(...)` helper
-- pass the normalized accent into the renderer instead of reading settings inside every glyph/action
-- keep warning/error colors semantic and independent of the accent
+- pass the normalized accent into the renderer instead of reading settings independently in each action
+- semantic warning/error colors remain independent
 
-This naming convention makes the accent path easy to find during later maintenance.
+### Visual rollout rule
+
+Applying the canonical theme is a visual-only operation unless a separate product bug is explicitly authorized.
+
+Do not change:
+
+- action UUIDs
+- plugin UUIDs
+- settings semantics
+- feature scope
+- profiles
+- release state
+- pricing
+- Marketplace product IDs
+- Lite/Pro relationships
+
+When refreshing an existing product, preserve behavior exactly and add lightweight regression checks for the canonical tokens, local PackRat logo, maker URL, neutral button surfaces, ambient glow, and semantic destructive color.
 
 ## 5. Telemetry and graphs
 
