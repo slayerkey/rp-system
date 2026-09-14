@@ -154,6 +154,25 @@ Primary CTA buttons use the solid PackRat accent with dark text and the brighter
 
 Destructive actions remain red. Never recolor destructive meaning to orange.
 
+### Stateful manager Property Inspector pattern
+
+For manager-style products that create/select/rename/duplicate/delete saved objects, prefer the proven compact Window Manager Lite structure rather than inventing a product-specific hero/grid layout.
+
+Reference shape:
+
+- PackRat brand chrome stays outside the product cards
+- compact product/title card
+- selector + editable name/value rows in a normal settings card
+- one full-width primary action for the highest-frequency operation such as Capture/Apply/Save
+- secondary management actions in a compact two-column grid when width allows
+- destructive action remains semantic red
+- immediate command/status feedback sits directly below the controls that triggered it
+- captured/current-state summary is a separate compact card
+- advanced restore/options/status content comes after the primary workflow
+- use the available Property Inspector width efficiently; avoid oversized hero sections that push the real controls below the fold
+
+Window Manager Lite is the reference for density, row spacing, button proportions, and management-control hierarchy. Reuse its structure and canonical tokens; do not copy Lite-specific upgrade messaging into unrelated Pro products.
+
 ### Ambient corner glow
 
 Property Inspectors use one subtle premium orange glow in the top-right:
