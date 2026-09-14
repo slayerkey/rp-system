@@ -36,3 +36,7 @@ Use approved deterministic icon sources and generators. Existing house rules pre
 Action-list/category icons and hardware key faces are separate surfaces: action-list/sidebar icons stay monochrome white where Elgato presentation requires it; hardware key faces use the PackRat dark/white/orange system and must remain readable at 72 × 72.
 
 Large product media libraries should not be copied into the system repository merely to make context portable.
+
+## Troubleshooting
+
+Use `docs/STREAMDECK_TROUBLESHOOTING_PLAYBOOK.md` as the shared symptom → diagnosis → fix index. Do not create product-local troubleshooting rules for a failure already covered globally.
