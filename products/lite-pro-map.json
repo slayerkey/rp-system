@@ -187,8 +187,8 @@
       "source_paths": [
         "plugins/wireless-device-manager-family"
       ],
-      "source_status": "build_candidate_hardware_smoke_required",
-      "notes": "Lite supports one shared selected Bluetooth device and includes a truthful in-plugin/text upsell with no fabricated Marketplace link. Pro adds multiple linked device slots, favorites, groups, low-battery alerts, dashboard and Cycle Device. Both editions include Standard, Mini, XL, Plus and Neo profiles. Battery, charging, connect and disconnect remain capability-gated per device. Add verified public Marketplace URLs only after real listings exist."
+      "source_status": "pro_ready_to_ship_lite_waiting_for_public_pro_url",
+      "notes": "Wireless Device Manager Pro is READY_TO_SHIP with an explicit owner waiver for the unverified Bluetooth A2DP/HFP physical matrix. Maya X USB/2.4 GHz telemetry and Stream Deck runtime QA passed. Lite is code-complete but remains blocked from READY_TO_SHIP until the real public Pro Marketplace URL/product ID exists and is injected into its upgrade CTAs."
     }
   ],
   "standalone_free": [

@@ -10,11 +10,11 @@
   "source": "plugins/wireless-device-manager-family",
   "plugin_uuid": "com.packrat.wireless-device-manager",
   "automated_feasibility": "GO",
-  "hardware_smoke": "MAYA_X_PASS_BLUETOOTH_AUDIO_CONTROL_PENDING",
+  "hardware_smoke": "MAYA_X_PASS_BLUETOOTH_AUDIO_CONTROL_WAIVED",
   "notes": "Free Lite edition. One selected device with sole-visible auto-selection. Battery/charging/control are capability-gated and battery percentages remain device-reported.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json",
-  "blocker": "Maya X receiver/wired telemetry and live Stream Deck behavior passed physical QA. Final READY_TO_SHIP still requires the real Bluetooth audio hardware matrix; Lite also remains blocked from final shipping until Pro has a verified public Marketplace product URL for the upgrade CTA.",
+  "blocker": "Bluetooth hardware QA is waived for this release. Lite is code-complete, but final READY_TO_SHIP remains blocked only by the canonical Lite→Pro requirement: publish Pro first, record its exact public Marketplace product URL, rebuild Lite, and verify both upgrade CTAs resolve directly to Pro.",
   "release_gate": [
     "locked dependency install and npm audit with 0 vulnerabilities",
     "64 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
@@ -25,20 +25,20 @@
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media generation",
     "PackRat Lite Pro Portfolio Audit and Rat Ship Marketplace Routing CI",
-    "real Windows Bluetooth audio-control hardware matrix before final READY_TO_SHIP"
+    "Bluetooth audio-control physical matrix explicitly waived by product owner for initial release"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "c7faedf73e54de2896ea9ec2678ad2d2f2b47484",
-    "github_actions_run": 34901568905,
-    "windows_job": 104168498060,
+    "candidate_commit": "ce134b6a8a1489645796ec3ff08521908a4fddbe",
+    "github_actions_run": 34902034110,
+    "windows_job": 104169985238,
     "status": "PASSED",
     "test_cases": 64,
     "test_failures": 0,
     "structural_key_visual_audit": "PASSED_0_WARNINGS",
-    "artifact_id": 10371152083,
-    "artifact_digest": "sha256:2d1e55a775840be77be7efff8c2988f3a935b184d65b9ffa21598c304792624d",
-    "package_sha256": "45E79BDAB53C2DEF44F2B0A9DC9F6904D2A2B22717EB2F5AF5D157778C1742FE",
-    "package_size_bytes": 70967730
+    "artifact_id": 10371077912,
+    "artifact_digest": "sha256:5a5159b2ebc5ad8a800c47fe02d7e40261c6f647a176590165f2c636177a7338",
+    "package_sha256": "B95BA4810F7F285F2AF33F308F81B2AE614A1B9EE4EF441DF828146FA9B5D55F",
+    "package_size_bytes": 70967724
   },
   "catalog_audit": {
     "profiles": {
@@ -68,5 +68,5 @@
       "behavior": "Text upsell is visible now; clickable Marketplace link is generated only after a verified direct Pro URL exists in the canonical Lite/Pro map."
     }
   },
-  "final_boundary": "Maya X physical telemetry QA is complete. Before READY_TO_SHIP, verify the remaining Bluetooth A2DP/HFP hardware path. Publish Pro first, record its exact public Marketplace URL, rebuild Lite, and verify both Lite upgrade CTAs resolve directly to Pro."
+  "final_boundary": "Bluetooth physical QA is waived. Publish Wireless Device Manager Pro first; once its exact public Marketplace URL is recorded in products/lite-pro-map.json, rebuild Lite and verify both direct upgrade CTAs, then set Lite READY_TO_SHIP."
 }

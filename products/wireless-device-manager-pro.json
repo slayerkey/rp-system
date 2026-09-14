@@ -3,18 +3,18 @@
   "name": "Wireless Device Manager Pro",
   "type": "plugin",
   "status": "qa_passed",
-  "workflow_state": "READY_FOR_HARDWARE_QA",
+  "workflow_state": "READY_TO_SHIP",
   "price_usd": 7.99,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
   "source": "plugins/wireless-device-manager-family",
   "plugin_uuid": "com.packrat.wireless-device-manager-pro",
   "automated_feasibility": "GO",
-  "hardware_smoke": "MAYA_X_PASS_BLUETOOTH_AUDIO_CONTROL_PENDING",
+  "hardware_smoke": "MAYA_X_PASS_BLUETOOTH_AUDIO_CONTROL_WAIVED",
   "notes": "Paid Pro edition. Multiple devices, favorites, groups, low-battery alerts, dashboard, Cycle Device and capability-gated control. Sole visible hardware defaults automatically; battery values remain device-reported.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager-pro.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-pro.json",
-  "blocker": "Maya X receiver/wired telemetry and live Stream Deck behavior passed physical QA. Final READY_TO_SHIP still requires real Bluetooth audio hardware to verify A2DP/HFP connect/disconnect behavior.",
+  "blocker": null,
   "release_gate": [
     "locked dependency install and npm audit with 0 vulnerabilities",
     "64 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
@@ -26,20 +26,20 @@
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media generation",
     "PackRat Lite Pro Portfolio Audit and Rat Ship Marketplace Routing CI",
-    "real Windows Bluetooth audio-control hardware matrix before final READY_TO_SHIP"
+    "Bluetooth audio-control physical matrix explicitly waived by product owner for initial release"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "c7faedf73e54de2896ea9ec2678ad2d2f2b47484",
-    "github_actions_run": 34901568905,
-    "windows_job": 104168498060,
+    "candidate_commit": "ce134b6a8a1489645796ec3ff08521908a4fddbe",
+    "github_actions_run": 34902034110,
+    "windows_job": 104169985238,
     "status": "PASSED",
     "test_cases": 64,
     "test_failures": 0,
     "structural_key_visual_audit": "PASSED_0_WARNINGS",
-    "artifact_id": 10371152083,
-    "artifact_digest": "sha256:2d1e55a775840be77be7efff8c2988f3a935b184d65b9ffa21598c304792624d",
-    "package_sha256": "F871E723FA5AE24600DD182E0478DC8B620FD2FE8903359C575BF375CB4D7B1C",
-    "package_size_bytes": 70972221
+    "artifact_id": 10371077912,
+    "artifact_digest": "sha256:5a5159b2ebc5ad8a800c47fe02d7e40261c6f647a176590165f2c636177a7338",
+    "package_sha256": "EEADA6F472416444A6EBFCB4CE96F67768EAB89048F94253EB184EF022293069",
+    "package_size_bytes": 70972215
   },
   "catalog_audit": {
     "profiles": {
@@ -68,5 +68,16 @@
       "note": "Publish Pro first so Lite can rebuild against the exact verified direct Pro Marketplace URL. Do not invent or guess the destination."
     }
   },
-  "final_boundary": "Maya X physical telemetry QA is complete. Before READY_TO_SHIP, verify the remaining Bluetooth A2DP/HFP connect/disconnect path on real Bluetooth audio hardware. Do not invent success from fixtures."
+  "final_boundary": "READY_TO_SHIP with an explicit product-owner waiver for unverified Bluetooth A2DP/HFP physical connect/disconnect. Maya X USB/2.4 GHz telemetry, Stream Deck runtime, Property Inspector, profiles, visual audits, Elgato validation and packaging are release-cleared.",
+  "risk_acceptance": {
+    "accepted_on": "2026-09-14",
+    "accepted_scope": "Bluetooth A2DP/HFP physical connect/disconnect hardware matrix",
+    "accepted_by": "product owner",
+    "rationale": "No Bluetooth adapter is available on the current QA host. Automated capability-boundary tests, native bridge tests, Elgato validation, packaging, and real Maya X USB/2.4 GHz telemetry QA are clean. Ship is explicitly allowed with this Bluetooth hardware path unverified and subject to a later fix if needed.",
+    "does_not_claim_verified": true
+  },
+  "known_release_risks": [
+    "Bluetooth A2DP/HFP connect/disconnect has not been physically exercised on real Bluetooth audio hardware.",
+    "Device-reported battery percentages may remain coarse or plateau, as observed with the Maya X receiver; PackRat intentionally does not smooth or invent battery values."
+  ]
 }

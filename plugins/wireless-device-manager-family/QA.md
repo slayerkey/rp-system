@@ -2,7 +2,7 @@
 
 ## Current state
 
-**READY_FOR_HARDWARE_QA — automated gates clean; Maya X physical telemetry path passed; Bluetooth audio-control hardware remains unverified.**
+**PRO READY_TO_SHIP — Bluetooth audio-control physical QA explicitly waived by the product owner. Lite remains publication-order blocked only on the real public Pro Marketplace URL.**
 
 The runtime/profile investigation is complete through validated code commit `c7faedf73e54de2896ea9ec2678ad2d2f2b47484`. Lite and Pro build from the same family and both pass the current Windows release gate. The LAMZU Maya X path has also been physically exercised on the user's real Stream Deck host.
 
@@ -12,7 +12,7 @@ The investigation found two concrete host-side regressions that matched the phys
 
 The Property Inspector now traces websocket registration, command send/receive, bridge refresh, device count, response send/receive, and render failure with correlated request IDs. `scripts/host-probe.ps1` provides one-shot real-machine evidence if the physical run still disagrees with CI.
 
-The hardware-free source/model/profile/media gates and GitHub-hosted Windows release gate have passed. USB/HID receiver telemetry is no longer a release blocker. The remaining final READY_TO_SHIP blocker is the separate real Bluetooth audio-control matrix on hardware with a Bluetooth adapter.
+The hardware-free source/model/profile/media gates and GitHub-hosted Windows release gate have passed. USB/HID receiver telemetry is release-cleared. The product owner explicitly waived the remaining real Bluetooth audio-control hardware matrix for the initial Pro release; this waiver does not claim that A2DP/HFP connect/disconnect was physically verified.
 
 ## Hardware-free evidence completed
 
@@ -129,6 +129,18 @@ Hosted/self-hosted attempts that receive no runner, execute zero steps, and prod
 - [x] runtime key faces render live Maya X status/battery data on the physical Stream Deck
 
 The receiver may remain at 100% for a while because PackRat displays the percentage reported by the Maya X receiver protocol. PackRat does not invent or smooth a different battery percentage. A repeatedly fresh `hid-feature-report` observation is considered valid device-reported telemetry.
+
+## Explicit initial-release hardware waiver
+
+On 2026-09-14, the product owner accepted the release risk of shipping Wireless Device Manager Pro without a physical Bluetooth A2DP/HFP connect/disconnect test because the available QA machine has no Bluetooth adapter.
+
+This is a **waiver, not a pass**. The following remain unverified on real Bluetooth audio hardware:
+- Bluetooth headset/headphones connect
+- Bluetooth headset/headphones disconnect
+- A2DP/HFP service transitions
+- Bluetooth adapter/service lifecycle behavior
+
+If customer or reviewer evidence exposes a regression in those paths, narrow or fix the affected capability in the next release. Do not reinterpret this waiver as proof that the paths were tested.
 
 ## Required real Windows wireless-device smoke before READY_TO_SHIP
 
