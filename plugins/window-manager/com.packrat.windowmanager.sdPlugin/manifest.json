@@ -1,7 +1,7 @@
 {
   "Name": "Window Manager Lite",
-  "Version": "1.0.0.3",
-  "Author": "Packrat",
+  "Version": "1.0.0.4",
+  "Author": "PackRat",
   "Actions": [
     {
       "Name": "Snap Window",

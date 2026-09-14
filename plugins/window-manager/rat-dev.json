@@ -1,0 +1,6 @@
+{
+  "type": "streamdeck-plugin",
+  "plugin_dir": "com.packrat.windowmanager.sdPlugin",
+  "plugin_uuid": "com.packrat.windowmanager",
+  "open_profile_on_dev": false
+}
