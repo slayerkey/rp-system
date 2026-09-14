@@ -271,7 +271,8 @@ test("wireless inspector does not block USB devices when Bluetooth is unavailabl
   const html=await readFile("ui/inspector.html","utf8");
   const inspector=await readFile("ui/inspector.js","utf8");
   const runtime=await readFile("src/runtime.ts","utf8");
-  assert.match(html,/Scanning wireless devices/);
+  assert.match(html,/Plugin starting/);
+  assert.match(inspector,/Refreshing wireless devices/);
   assert.match(html,/Supported USB receivers can work without Bluetooth/);
   assert.match(inspector,/No supported USB wireless devices found/);
   assert.match(runtime,/hidAvailable/);
