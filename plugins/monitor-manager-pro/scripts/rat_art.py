@@ -4,6 +4,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT=Path(__file__).resolve().parents[3]
+sys.dont_write_bytecode=True
 sys.path.insert(0,str(ROOT/"tools"/"art"))
 from marketplace_text import draw_fitted_text
 RAT=ROOT/"tools"/"art"/"assets"/"ratpack-icon-transparent.png"
