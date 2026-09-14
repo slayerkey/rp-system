@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/"tools"/"art"))
 from marketplace_text import draw_fitted_text
 RAT=ROOT/"tools"/"art"/"assets"/"ratpack-icon-transparent.png"
 W,H=1920,960
-BG=(7,10,14); PANEL=(16,20,26); BORDER=(43,50,61); WHITE=(247,249,251); MUTED=(169,179,192); ACCENT=(255,178,30); WARN=(255,196,77)
+BG=(7,10,14); PANEL=(16,20,26); BORDER=(43,50,61); WHITE=(247,249,251); MUTED=(169,179,192); ACCENT=(255,178,30); WARN=(255,196,77); GREEN=(43,232,106)
 
 def font(size,bold=True):
     candidates=[]
