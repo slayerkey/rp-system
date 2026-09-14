@@ -11,6 +11,7 @@ $Worktree = Join-Path $WorktreeRoot $Slug
 . (Join-Path $PSScriptRoot "rat-dev-dependencies.ps1")
 . (Join-Path $PSScriptRoot "rat-dev-source.ps1")
 . (Join-Path $PSScriptRoot "rat-dev-processes.ps1")
+. (Join-Path $PSScriptRoot "rat-dev-profiles.ps1")
 
 function Require-Command {
     param([string]$Name, [string]$Hint)
@@ -474,9 +475,31 @@ function Install-DevPlugin {
         }
 
         if ($profileToOpen) {
-            Start-Sleep -Milliseconds 900
-            Write-Host "Opening bundled Stream Deck profile for import: $profileToOpen" -ForegroundColor Cyan
-            Start-Process $profileToOpen
+            $profileDecision = Get-RatDevProfileOpenDecision -ProfilePath $profileToOpen -StateRoot $DevRoot -Slug $Slug
+
+            if ($profileDecision.Adopt) {
+                Write-RatDevProfileState -StateRoot $DevRoot -Slug $Slug -ProfilePath $profileToOpen -Fingerprint $profileDecision.Fingerprint -ProfileName $profileDecision.ProfileName
+                Write-Host "Bundled profile already exists in Stream Deck; skipping duplicate import." -ForegroundColor DarkGray
+                if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor DarkGray }
+            }
+            elseif (-not $profileDecision.Open) {
+                Write-Host "Bundled profile is unchanged and already installed; skipping duplicate import." -ForegroundColor DarkGray
+                if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor DarkGray }
+            }
+            else {
+                Start-Sleep -Milliseconds 900
+                if ($profileDecision.Reason -eq "profile-changed") {
+                    Write-Host "Bundled profile changed since the last Rat Dev run. Opening the newest profile once..." -ForegroundColor Cyan
+                }
+                elseif ($profileDecision.Reason -eq "installed-profile-missing") {
+                    Write-Host "Bundled profile is no longer installed. Opening it again..." -ForegroundColor Cyan
+                }
+                else {
+                    Write-Host "Opening bundled Stream Deck profile for first import: $profileToOpen" -ForegroundColor Cyan
+                }
+                Start-Process $profileToOpen
+                Write-RatDevProfileState -StateRoot $DevRoot -Slug $Slug -ProfilePath $profileToOpen -Fingerprint $profileDecision.Fingerprint -ProfileName $profileDecision.ProfileName
+            }
         }
     }
 

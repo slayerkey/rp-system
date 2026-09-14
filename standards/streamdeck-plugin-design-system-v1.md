@@ -200,7 +200,7 @@ Name pages by user intent, not implementation details. Keep the highest-frequenc
 
 ### Rat Dev profile review loop
 
-If a validated Stream Deck plugin contains bundled profiles, `rat dev <slug>` opens a profile for import by default after linking the development plugin.
+If a validated Stream Deck plugin contains bundled profiles, `rat dev <slug>` keeps the development profile current without blindly importing it on every run. Rat Dev fingerprints the bundled profile and checks the installed profile list first. An unchanged installed profile is not reopened, which prevents Stream Deck from creating repeated `copy` profiles. A changed bundle opens the newest profile once; a missing/deleted profile is opened again.
 
 Selection order:
 
