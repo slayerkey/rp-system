@@ -1,12 +1,12 @@
-let ws, uuid, actionInfo={}, settings={}, snapshot=null, inspectTimer=null, responseTimer=null;
+let ws, uiUuid="", actionUuid="", actionContext="", actionInfo={}, settings={}, snapshot=null, inspectTimer=null, responseTimer=null;
 const $=id=>document.getElementById(id);
 
 window.connectElgatoStreamDeckSocket=(port,inUUID,event,info,rawActionInfo)=>{
-  uuid=inUUID; actionInfo=JSON.parse(rawActionInfo||"{}"); settings=actionInfo.payload?.settings||{};
+  uiUuid=inUUID; actionInfo=JSON.parse(rawActionInfo||"{}"); actionUuid=String(actionInfo.action||""); actionContext=String(actionInfo.context||""); settings=actionInfo.payload?.settings||{};
   ws=new WebSocket(`ws://127.0.0.1:${port}`);
   ws.onopen=()=>{
-    ws.send(JSON.stringify({event,uuid}));
-    ws.send(JSON.stringify({event:"getSettings",action:actionInfo.action,context:actionInfo.context}));
+    ws.send(JSON.stringify({event,uuid:uiUuid}));
+    ws.send(JSON.stringify({event:"getSettings",action:actionUuid,context:uiUuid}));
     requestSnapshot();
     setTimeout(requestSnapshot,250);
     clearInterval(inspectTimer);
@@ -33,9 +33,9 @@ function sendPlugin(payload){
   if(ws?.readyState!==WebSocket.OPEN)return false;
   ws.send(JSON.stringify({
     event:"sendToPlugin",
-    action:actionInfo.action,
-    context:actionInfo.context,
-    payload
+    action:actionUuid,
+    context:uiUuid,
+    payload:{...payload,actionContext}
   }));
   return true;
 }
@@ -52,7 +52,7 @@ function requestSnapshot(){
 }
 function save(patch){
   settings={...settings,...patch};
-  ws?.send(JSON.stringify({event:"setSettings",context:actionInfo.context,payload:settings}));
+  ws?.send(JSON.stringify({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings}));
 }
 function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function selectedDeviceId(){
