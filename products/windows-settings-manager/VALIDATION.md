@@ -1,111 +1,98 @@
 # Windows Settings Manager Validation
 
-## GO criteria met
+## Current direction
 
-- Product job is PC mode switching, not a generic Windows toolbox.
-- Lite provides a small set of stateful individual controls.
-- Pro adds a saved multi-setting transaction layer.
-- No unsupported Night Light, DND, theme, Bluetooth, or Wi-Fi claim is made.
-- No coordinate/UI automation path exists.
-- Mode defaults contain names only and do not impose configuration.
-- Writes are followed by Windows readback.
-- External Windows changes are polled.
-- Partial mode results are surfaced explicitly.
+The product has been pivoted from a PC-Modes-first concept to a premium **Windows Control Center**.
 
-## Technical surfaces
+Primary Pro value is the exact 15-key standard profile:
 
-- Display topology: QueryDisplayConfig / SetDisplayConfig
-- HDR: DisplayConfigGetDeviceInfo / DisplayConfigSetDeviceInfo through the RtlGetVersion-gated Windows 11 24H2 separated HDR path only; older ambiguous Advanced Color writes are intentionally not used
-- Power and timeout: powercfg.exe
-- Keep Awake: SetThreadExecutionState
+- Lock
+- Sleep
+- Hibernate
+- Restart
+- Shutdown
+- Wi-Fi
+- Bluetooth
+- Power Plan
+- Keep Awake
+- Light / Dark Theme
+- Previous Desktop
+- Next Desktop
+- New Desktop
+- Close Desktop
+- Current Desktop
+
+Lite is a six-action starter set.
+
+PC Modes remain optional advanced functionality only.
+
+## Technical principles
+
+- live state is read from Windows where available
+- writes are followed by readback where Windows exposes a readable result
+- uncertainty fails closed
+- no coordinate clicking
+- no Quick Settings automation
+- destructive actions are protected by default
+- another PackRat product keeps ownership when it already provides the deeper specialist workflow
+
+## Current technical surfaces
+
 - Lock: LockWorkStation
+- Sleep / Hibernate: SetSuspendState
+- Restart / Shutdown: Windows shutdown executable behind default two-press confirmation
+- Wi-Fi / Bluetooth: Windows.Devices.Radios Radio API with RequestAccessAsync / SetStateAsync and readback
+- Power Plan: powercfg.exe
+- Keep Awake: SetThreadExecutionState
+- Theme: current-user Personalize values with settings-change broadcast and readback
+- Virtual desktops: Windows shell virtual-desktop commands plus independent registry-state confirmation
+- Existing advanced HDR: RtlGetVersion-gated Windows 11 24H2 DisplayConfig HDR packets
+- Existing advanced display topology: QueryDisplayConfig / SetDisplayConfig
+- Existing advanced timeout controls: powercfg.exe
 
-## Supplemental local static evidence
+The virtual-desktop registry surface is explicitly treated as compatibility-sensitive. It is isolated behind capability checks and must pass real Windows physical QA before release.
 
-These checks were executed in an isolated local harness and are useful regression evidence, but they do **not** replace the canonical locked dependency build, Elgato validator, Windows backend smoke, or physical QA:
+## Fresh automation status
 
-- JavaScript-side Property Inspector, profile assembler, validator, and policy-test syntax checks were run during branch hardening and passed at the snapshots tested.
-- A strict TypeScript source-shape harness with minimal Node / Stream Deck declarations passed on an earlier hardened branch snapshot. Later edits remain subject to the canonical locked-dependency typecheck.
-- Pure PC Mode logic checks passed for HDR matching, prerequisite skips, and COMPLETE / PARTIAL / FAILED aggregation at the snapshots tested.
-- ModeStore sanitization checks passed for defaults, valid timeouts, name cleanup, and rejection of blank/null/boolean/fractional/out-of-range timeout values at the snapshots tested.
+**PENDING on the current Windows Control Center implementation head.**
 
-## Automated execution status
+Do not reuse the prior PC-Modes-oriented automated evidence as release evidence for this pivot. Older passing runs remain useful baseline history only.
 
-Canonical automated gates pass on implementation/artifact commit `8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939`. Commits after that point only update validation/catalog evidence and do not change plugin runtime, profile generation, Marketplace art, packaging, or shipping behavior.
+Required fresh evidence:
 
-### Current-main sync
+- Windows Settings Manager CI
+- Windows Settings Manager Portable CI
+- RatPack Lightweight CI
+- Lite Pro Portfolio Audit
+- Rat Ship Marketplace Routing CI
+- official Elgato validation/package
+- dependency audit
+- deterministic Rat Art
 
-- Canonical main synchronized through: `65b24e824642c0465e6f3638a8fbc5d961a21a5e`
-- Pre-evidence branch head after the clean merge: `25449a53bfc2af6467888d5b4cd7a56e695e5cb8`
-- Compare result before this evidence-only update: 0 commits behind `main`
-- The incoming main changes were Rat Dev source-resolution/tooling changes and did not overlap the Windows Settings Manager product implementation paths.
-- This validation-only update intentionally re-triggers the product-scoped hosted, portable, and self-hosted workflows without changing plugin behavior.
+Once those runs complete, record exact current-head run/job/artifact IDs here.
 
-### Hosted Windows evidence
+## Physical validation boundary
 
-- Workflow: Windows Settings Manager CI
-- Run: `34785418162`
-- Job: `103799897210`
-- Result: PASS
-- Locked dependency install: PASS
-- Strict TypeScript build / Lite + Pro assembly: PASS
-- Policy suite: PASS
-- Native Windows backend smoke: PASS
-- Official Elgato CLI validation: PASS for Lite and Pro
-- Production dependency audit: PASS, 0 vulnerabilities
-- Official Lite package: PASS
-- Official Pro package: PASS
-- Uploaded package artifact: `10325769771`
-- Artifact digest: `sha256:4db9c02a66c1c3dd40f8c3bf5c8b98e2e2b2322c45ae5781365936890e86480a`
+Even after hosted CI passes, both products remain BLOCKED until real Windows + Stream Deck testing covers:
 
-The backend smoke executes under Windows and covers embedded C# compilation, JSON transport, ping, snapshot, Windows build/HDR API selection, power-plan read, and Keep Awake on/off.
+- Sleep / Hibernate
+- protected Restart / Shutdown
+- Wi-Fi radio state/control and permission failures
+- Bluetooth radio state/control and unavailable hardware
+- external power-plan changes
+- Keep Awake lifecycle
+- Light / Dark theme and external changes
+- virtual desktop Previous / Next / New / Close / Current behavior
+- Windows reboot and Stream Deck restart
+- profile installation
+- physical title readability / no overflow
+- backend-offline behavior
+- Rat Dev rebuild of a currently linked development plugin
 
-### Portable release evidence
+Existing advanced HDR/display/timeout/PC-Mode safety behavior also remains subject to its prior physical matrix where applicable.
 
-- Workflow: Windows Settings Manager Portable CI
-- Run: `34785418201`
-- Job: `103799896918`
-- Result: PASS
-- Locked dependency install: PASS
-- Strict TypeScript build / Lite + Pro assembly: PASS
-- Policy suite: PASS
-- Official Elgato CLI validation: PASS for Lite and Pro
-- Production dependency audit: PASS, 0 vulnerabilities
-- Official Lite + Pro packaging: PASS
-- Lite + Pro deterministic Rat Art: PASS
-- Marketplace media dimension verification: PASS
-- Uploaded release-evidence artifact: `10326347964`
-- Artifact digest: `sha256:b39fa27e0d92877d1a63a7181c6c1a7f4352ea6b2ed0cf1c46d05f74c600d7f8`
+## Release state
 
-### Human Marketplace media review
+Lite and Pro stay `workflow_state: BLOCKED`.
 
-PASS on the current portable artifact.
-
-- Lite icon, cover, and four gallery images reviewed.
-- Pro icon, cover, and four gallery images reviewed.
-- An earlier Pro cover exposed a real clipped third key row.
-- The cover renderer was changed to fit the key grid inside explicit safe bounds and fail closed if geometry exceeds them.
-- The regenerated current-head Pro cover was reopened at full 1920x960 resolution and visually confirmed with all three rows fully inside frame.
-- Current Lite/Pro galleries are readable, internally consistent, and free of visible clipping.
-
-### Repository / commercial release gates
-
-All relevant repository-level gates also pass on `8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939`:
-
-- Lite Pro Portfolio Audit: PASS
-  - Run: `34785417411`
-  - Job: `103799893940`
-- Rat Ship Marketplace Routing CI: PASS
-  - Run: `34785417400`
-  - Job: `103799893701`
-- RatPack Lightweight CI: PASS
-  - Run: `34785417398`
-  - Job: `103799893665`
-
-The separate PackRat self-hosted Windows gate remains optional additional confidence. It is not required to establish an executable Windows backend signal because the hosted Windows gate successfully compiles and exercises the backend.
-
-## Remaining validation boundary
-
-Automated build, test, native Windows smoke, official Elgato validation/package, dependency audit, bundled-profile structural checks, and deterministic Marketplace media generation are complete.
-
-The release remains blocked only on the physical QA boundary: real HDR-capable/unsupported/multi-monitor hardware, laptop AC/battery behavior, sleep/resume/reboot, outside-Windows changes, and physical Stream Deck profile install/page navigation. Lite also remains commercially blocked until Pro is published and the verified direct Lite/Pro Marketplace URLs/IDs pass the strict routing audit.
+Pro publishes first after physical QA. Lite remains blocked until exact verified direct Marketplace URLs/IDs are recorded and strict Lite-to-Pro shipping audit passes.
