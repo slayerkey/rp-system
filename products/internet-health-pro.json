@@ -25,30 +25,33 @@
     "official .streamDeckPlugin packaging",
     "deterministic Rat Art and marketplace kit preflight"
   ],
-  "final_boundary": "Re-run Rat Dev on physical Stream Deck and verify the larger key typography, 30-second rolling graph visibility, live Property Inspector status, one warmed adaptive speed test, and disconnect/reconnect recovery before Marketplace submission.",
-  "qa_note": "Hardware-QA fixes passed automation on candidate 8e5a3ac82d7a90970a52889a03f62e9825e5d738. Physical QA had found small on-key text, a ~10 MB cold-start speed sample that materially under-read fast links, and a Property Inspector that could remain on 'Starting monitor…'. Fixes now enlarge the key hierarchy, use a warmed adaptive Cloudflare speed test capped at about 80 MB, re-request inspector state while the panel is open, and improve Rat Dev bundle/profile visibility. Automated Windows/macOS tests, builds, live smoke, official Elgato validation/package, Rat Art, package/media verification, Rat Ship routing, Lite/Pro audit, and lightweight PowerShell checks all passed. Fresh physical Stream Deck retest is still required. Follow-up physical feedback found the visible latency graph was still tied to the long metric-history window, making recent movement collapse into a small strip. The key graph is now decoupled from analytics history and uses a fixed 30-second visual window with a taller plot area so recent spikes remain obvious.",
+  "final_boundary": "Re-run Rat Dev on physical Stream Deck and verify: Property Inspector live status replaces Starting monitor, settings persist after closing/reopening, Probe Now and Run Speed Test buttons visibly execute, the larger key typography is readable at normal distance, the 30-second graph remains useful, and the longer multi-stream speed test is credible against a known connection.",
+  "qa_note": "Latest physical QA found a real Property Inspector transport bug: Internet Health used actionInfo.context for setSettings/sendToPlugin while the already-fixed Monitor Manager Pro uses the Property Inspector UUID. That mismatch explains stale 'Starting monitor…', dead PI buttons, and settings that did not persist. This candidate switches all PI action messages to the PI UUID, adds save/button feedback, substantially enlarges and simplifies physical-key typography, preserves the 30-second graph, and lengthens the manual Cloudflare multi-stream speed measurement to a bounded ~300 MB maximum for fast links. Automation must pass again, then physical hardware QA is required.",
   "automated_release_evidence": {
-    "candidate_commit": "8e5a3ac82d7a90970a52889a03f62e9825e5d738",
-    "github_actions_run": 34787335325,
-    "status": "PASSED_AWAITING_HARDWARE_QA",
-    "windows_job": 103805077114,
-    "macos_job": 103805076929,
-    "package_job": 103805222925,
-    "artifact_id": 10327072137,
-    "artifact_digest": "sha256:b521f2e0862b9f8f6002990b143a894eedd2814290ff0d9a715ac134550a624e",
-    "package_sha256": "CCA20DD769E749BC4AD64D4993CEDAF900BE5D2664009E903802159FAC48C2C6",
-    "previous_passed_main_evidence": {
-      "candidate_commit": "81b3fd24f53aafaabda0211c856913a3058cd454",
-      "github_actions_run": 34775143252,
-      "status": "PASSED",
-      "windows_job": 103771789559,
-      "macos_job": 103771789657,
-      "package_job": 103772217662,
-      "artifact_id": 10323805400,
-      "artifact_digest": "sha256:935d5f42d08b547b72f414707c1c9921609308bf1bad40392a0d11fbcf7bc51d",
-      "package_sha256": "C87FA3F1A194F2578A6D183A3CCC214AF72D666D9033C8D6D5554201754E7E7F",
-      "lite_pro_audit_run": 34775143226,
-      "rat_ship_routing_run": 34775143224
+    "status": "PENDING_PI_CONTEXT_AND_READABILITY_QA",
+    "previous": {
+      "candidate_commit": "8e5a3ac82d7a90970a52889a03f62e9825e5d738",
+      "github_actions_run": 34787335325,
+      "status": "PASSED_AWAITING_HARDWARE_QA",
+      "windows_job": 103805077114,
+      "macos_job": 103805076929,
+      "package_job": 103805222925,
+      "artifact_id": 10327072137,
+      "artifact_digest": "sha256:b521f2e0862b9f8f6002990b143a894eedd2814290ff0d9a715ac134550a624e",
+      "package_sha256": "CCA20DD769E749BC4AD64D4993CEDAF900BE5D2664009E903802159FAC48C2C6",
+      "previous_passed_main_evidence": {
+        "candidate_commit": "81b3fd24f53aafaabda0211c856913a3058cd454",
+        "github_actions_run": 34775143252,
+        "status": "PASSED",
+        "windows_job": 103771789559,
+        "macos_job": 103771789657,
+        "package_job": 103772217662,
+        "artifact_id": 10323805400,
+        "artifact_digest": "sha256:935d5f42d08b547b72f414707c1c9921609308bf1bad40392a0d11fbcf7bc51d",
+        "package_sha256": "C87FA3F1A194F2578A6D183A3CCC214AF72D666D9033C8D6D5554201754E7E7F",
+        "lite_pro_audit_run": 34775143226,
+        "rat_ship_routing_run": 34775143224
+      }
     }
   },
   "catalog_audit": {
