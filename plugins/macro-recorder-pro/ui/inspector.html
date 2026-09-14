@@ -29,7 +29,7 @@
   <section class="group" data-kind="stop">
     <h3>Emergency Stop</h3>
     <p class="hint">Stops any active recording or playback. Keyboard fallback: <strong>Ctrl + Shift + F12</strong>.</p>
-    <button id="stopPlayback" class="danger" type="button">Stop now</button>
+    <button id="stopPlayback" class="danger" type="button">Emergency Stop now</button>
   </section>
 
   <section class="group" data-kind="replay">
@@ -42,8 +42,9 @@
     </div>
 
     <div class="pro-only playback-settings">
-      <label for="playbackSpeed">Speed</label>
+      <label for="playbackSpeed">Playback speed</label>
       <select id="playbackSpeed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4">4×</option></select>
+      <p class="hint">1× follows the timing you originally recorded.</p>
       <label for="coordinateMode">Mouse position</label>
       <select id="coordinateMode"><option value="absolute">Use recorded screen position</option><option value="active-window">Relative to active window</option></select>
       <label for="playbackMode">Repeat</label>
@@ -54,7 +55,7 @@
     <div class="pro-only library-block">
       <label for="macroSelect">Macro Library</label>
       <select id="macroSelect"><option value="">Choose a macro</option></select>
-      <p class="hint">New recordings are automatically assigned to an empty Play key. The library is for reusing recordings across other Play keys.</p>
+      <p class="hint">New recordings are added here immediately and assigned to an empty Play key. Built-in examples such as Rapid Left Click are always available.</p>
       <div class="button-row">
         <button id="renameMacro" type="button" class="secondary">Rename</button>
         <button id="duplicateMacro" type="button" class="secondary">Duplicate</button>
