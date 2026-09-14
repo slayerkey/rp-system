@@ -377,7 +377,7 @@ test("rendered key faces reserve their own bottom text band instead of Stream De
   const source=await readFile("src/key-visuals.ts","utf8");
   assert.match(source,/y="131"/);
   assert.match(source,/index===0\?112:136/);
-  assert.match(source,/target\.setTitle\("")/);
+  assert.ok(source.includes('target.setTitle("")'));
   assert.match(source,/target\.setImage\(keyImage\(kind,lines\)\)/);
 });
 
