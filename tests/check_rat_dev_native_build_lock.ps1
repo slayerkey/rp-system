@@ -42,8 +42,12 @@ if ($externalSyncAt -lt 0 -or $ratpackSyncAt -lt 0 -or
     $releaseAt -gt $externalSyncAt -or $releaseAt -gt $ratpackSyncAt) {
     throw "Rat Dev must release native helper locks before resetting or cleaning a reusable development checkout."
 }
-if ($ratDev -notmatch 'Unlink failed\. Try again\?') {
-    throw "Rat Dev is missing the documented Git unlink-loop regression guard."
+$releaseFunctionAt = $ratDev.IndexOf('function Release-RatDevBuildLocks')
+$stopInsideReleaseAt = $ratDev.IndexOf('Invoke-StreamDeckBestEffort -Arguments @("stop", $PreviousUuid)', $releaseFunctionAt)
+$ownedQueryInsideReleaseAt = $ratDev.IndexOf('Get-RatDevBuildOwnedProcesses -PluginRoot $PluginRoot', $releaseFunctionAt)
+if ($releaseFunctionAt -lt 0 -or $stopInsideReleaseAt -lt 0 -or $ownedQueryInsideReleaseAt -lt 0 -or
+    $stopInsideReleaseAt -gt $ownedQueryInsideReleaseAt) {
+    throw "Rat Dev must pause the linked Stream Deck plugin before querying/killing build-owned helpers."
 }
 
 $preflight = Get-Content (Join-Path $repoRoot "tools\local\rat-dev-preflight.ps1") -Raw
