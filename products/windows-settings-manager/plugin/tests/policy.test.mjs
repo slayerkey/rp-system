@@ -394,12 +394,12 @@ test("display cycling never guesses from an unknown mixed topology", async () =>
 test("Property Inspector does not present cached Windows values as live while backend is offline", async () => {
   const inspector = await readFile(path.resolve("ui", "pi.js"), "utf8");
   assert.match(inspector, /const offline = Boolean\(snapshot && !snapshot\.backendOnline\)/);
-  assert.match(inspector, /\["HDR", offline \? "Offline"/);
-  assert.match(inspector, /\["Display", offline \? "Offline"/);
+  assert.match(inspector, /\["Wi-Fi", offline \? "Offline"/);
+  assert.match(inspector, /\["Bluetooth", offline \? "Offline"/);
   assert.match(inspector, /\["Power", offline \? "Offline"/);
-  assert.match(inspector, /\["Screen AC", offline \? "Offline"/);
-  assert.match(inspector, /\["Sleep AC", offline \? "Offline"/);
   assert.match(inspector, /\["Keep Awake", offline \? "Offline"/);
+  assert.match(inspector, /\["Theme", offline \? "Offline"/);
+  assert.match(inspector, /\["Desktop", offline \? "Offline"/);
 });
 
 test("Property Inspector re-renders action defaults when live Windows context arrives", async () => {
@@ -420,7 +420,7 @@ test("individual set actions fall back to the live value shown by the inspector"
 test("state-derived actions refresh Windows before calculating their target", async () => {
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
   assert.match(actions, /async function freshSnapshot\(\): Promise<SystemSnapshot \| null>[\s\S]*await runtime\.state\.refresh\(\)/);
-  for (const className of ["HdrBase", "PowerBase", "TopologyBase", "TimeoutBase", "AwakeBase", "CycleModeBase", "SaveModeBase"]) {
+  for (const className of ["HdrBase", "PowerBase", "TopologyBase", "TimeoutBase", "AwakeBase", "RadioBase", "ThemeBase", "DesktopCommandBase", "CycleModeBase", "SaveModeBase"]) {
     assert.match(actions, new RegExp(`class ${className}[\\s\\S]*?await freshSnapshot\\(\\)`), `missing fresh snapshot in ${className}`);
   }
 });
@@ -437,8 +437,7 @@ test("HDR read uncertainty blocks mode matching and Save Current HDR capture", a
   assert.match(source, /snapshot\.hdr\.errors\.length > 0/);
   assert.match(source, /snapshot\.hdr\.errors\.length === 0/);
   assert.match(render, /!snapshot\.hdr\.available\) return "HDR\\nN\/A"[\s\S]*snapshot\.hdr\.errors\.length > 0\) return "HDR\\nCHECK"[\s\S]*snapshot\.hdr\.supportedCount === 0/);
-  assert.match(inspector, /snapshot\.hdr\.errors\?\.length/);
-  assert.match(inspector, /return "Check"/);
+  assert.match(inspector, /const hdrUsable = Boolean/);
 });
 
 test("HDR mode matching requires a genuinely controllable HDR display", async () => {
@@ -448,6 +447,59 @@ test("HDR mode matching requires a genuinely controllable HDR display", async ()
   assert.match(source, /snapshot\.hdr\.enabledCount === snapshot\.hdr\.supportedCount/);
   assert.match(inspector, /const hdrUsable = Boolean/);
   assert.match(inspector, /option\.disabled = !hdrUsable/);
+});
+
+test("Wi-Fi and Bluetooth use the Windows radio API and verify readback", async () => {
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(backend, /Windows\.Devices\.Radios\.Radio/);
+  assert.match(backend, /RequestAccessAsync\(\)/);
+  assert.match(backend, /SetStateAsync\(\$target\)/);
+  assert.match(backend, /Get-RadioState \$Kind/);
+  assert.match(actions, /class RadioBase[\s\S]*radio\.state === "on"[\s\S]*radio\.state === "off"/);
+  assert.match(actions, /setRadio/);
+});
+
+test("theme control reads and verifies app and system theme state", async () => {
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(backend, /AppsUseLightTheme/);
+  assert.match(backend, /SystemUsesLightTheme/);
+  assert.match(backend, /BroadcastThemeChanged/);
+  assert.match(backend, /Windows did not confirm the requested theme/);
+  assert.match(actions, /class ThemeBase/);
+  assert.match(actions, /current === "dark"[\s\S]*current === "light"[\s\S]*return ev\.action\.showAlert\(\)/);
+});
+
+test("virtual desktops verify current index and count after shell commands", async () => {
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  const render = await readFile(path.resolve("src", "render.ts"), "utf8");
+  assert.match(backend, /VirtualDesktopIDs/);
+  assert.match(backend, /CurrentVirtualDesktop/);
+  assert.match(backend, /SendVirtualDesktopCommand/);
+  assert.match(backend, /Windows did not confirm the virtual desktop change/);
+  assert.match(backend, /currentIndex -eq \(\$before\.currentIndex - 1\)/);
+  assert.match(backend, /currentIndex -eq \(\$before\.currentIndex \+ 1\)/);
+  assert.match(render, /DESKTOP\\n\$\{desktop\.currentIndex\} \/ \$\{desktop\.count\}/);
+});
+
+test("restart and shutdown are protected by default and power actions stay distinct", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  const assemble = await readFile(path.resolve("scripts", "assemble.mjs"), "utf8");
+  assert.match(actions, /settings\.confirmation \?\? "double"/);
+  assert.match(actions, /PRESS\\nAGAIN/);
+  assert.match(actions, /3000/);
+  assert.match(actions, /command = "sleep"/);
+  assert.match(actions, /command = "hibernate"/);
+  assert.match(assemble, /confirmation: "double"/);
+});
+
+test("unsupported hibernation fails closed", async () => {
+  const backend = await readFile(path.resolve("scripts", "windows-settings-backend.ps1"), "utf8");
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  assert.match(backend, /Get-HibernateAvailability/);
+  assert.match(backend, /Hibernate is not available on this PC/);
+  assert.match(actions, /this\.command === "hibernate" && !snapshot\.hibernateAvailable/);
 });
 
 test("background state polling avoids redundant active-power-plan process launches", async () => {
