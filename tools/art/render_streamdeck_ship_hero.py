@@ -268,8 +268,9 @@ def main() -> None:
     parser.add_argument("--plugin-dir", required=True, type=Path)
     parser.add_argument("--submission", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--keys-dir", type=Path)
     args = parser.parse_args()
-    render_ship_hero(args.product, args.plugin_dir, args.submission, args.out)
+    render_ship_hero(args.product, args.plugin_dir, args.submission, args.out, args.keys_dir)
     print(f"STREAM DECK RAT SHIP HERO PASS: {args.product} -> {args.out}")
 
 
