@@ -1,5 +1,5 @@
 import streamDeck from "@elgato/streamdeck";
-import { DeviceCatalog, parseGroupNames, resolveSelectedDeviceId, shouldApplySnapshot, type Device } from "./model.js";
+import { DeviceCatalog, parseGroupNames, resolveSelectedDeviceId, shouldApplySnapshot, soleVisibleDeviceId, type Device } from "./model.js";
 import { control, snapshot } from "./bridge.js";
 import { diag, diagError } from "./diagnostics.js";
 
@@ -216,11 +216,7 @@ export class WirelessRuntime {
     const configured = resolveSelectedDeviceId(this.edition, globals.liteDeviceId, localDeviceId, slotDeviceId);
     if (configured) return configured;
 
-    const visible = this.devices().filter(device =>
-      device.paired !== false &&
-      device.present !== false
-    );
-    return visible.length === 1 ? visible[0].stableId : null;
+    return soleVisibleDeviceId(this.devices());
   }
 
   async setSlotDevice(slot: string, id: string): Promise<void> {
