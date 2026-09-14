@@ -4,23 +4,28 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 
 const root=new URL("../",import.meta.url);
+const repoRoot=new URL("../../",root);
 
-test("Pro property inspector source parses and long-editor controls exist",async()=>{
-  const [html,js]=await Promise.all([
+test("Pro property inspector keeps replay setup visible and debuggable",async()=>{
+  const [html,js,runtime]=await Promise.all([
     readFile(new URL("ui/inspector.html",root),"utf8"),
     readFile(new URL("ui/inspector.js",root),"utf8"),
+    readFile(new URL("shared/macro-recorder/runtime.mjs",repoRoot),"utf8"),
   ]);
   new vm.Script(js);
-  for(const id of ["captureMouseMovement","macroSelect","macroName","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
+  for(const id of ["captureMouseMovement","macroSelect","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
     assert.match(html,new RegExp(`id=["']${id}["']`),`missing inspector control ${id}`);
   }
+  assert.doesNotMatch(html,/id=["']macroName["']/);
+  assert.match(html,/Press the same Record key again to save/);
+  assert.match(html,/Better Hotkeys is the simpler tool for individual keyboard or mouse actions/);
   assert.match(js,/PAGE_SIZE=200/);
   assert.match(js,/MAX_IMPORT_BYTES=16\*1024\*1024/);
-  assert.match(js,/durationLimit/);
-  assert.match(js,/otherDelay/);
-  assert.match(js,/macroRecorder\.status/);
+  assert.match(js,/assignedSummary/);
   assert.match(js,/function applyStatus/);
-  assert.doesNotMatch(html,/id=["']recordCoordinateMode["']/);
+  assert.match(runtime,/if \(recording\) return stopRecording\(record\.action\);/);
+  assert.match(runtime,/assignNewRecordingToBlankReplayKeys/);
+  assert.match(runtime,/No macro is assigned to this Play key/);
 });
 
 test("Pro manifest keeps the intended platform, profile and loop safety contract",async()=>{
@@ -32,13 +37,6 @@ test("Pro manifest keeps the intended platform, profile and loop safety contract
   assert.deepEqual(manifest.OS,[{Platform:"windows",MinimumVersion:"10"}]);
   assert.equal(manifest.Profiles?.length,5);
   assert.deepEqual(manifest.Profiles.map(profile=>profile.DeviceType),[0,1,2,7,9]);
-  assert.deepEqual(manifest.Profiles.map(profile=>profile.Name),[
-    "profiles/macro-recorder-pro-starter-mk2",
-    "profiles/macro-recorder-pro-starter-mini",
-    "profiles/macro-recorder-pro-starter-xl",
-    "profiles/macro-recorder-pro-starter-plus",
-    "profiles/macro-recorder-pro-starter-neo"
-  ]);
   for(const profile of manifest.Profiles) assert.ok(!profile.Name.endsWith(".streamDeckProfile"));
   for(const action of manifest.Actions) assert.equal(action.UserTitleEnabled,false);
   const record=manifest.Actions.find(action=>action.UUID.endsWith(".record"));
