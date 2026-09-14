@@ -110,5 +110,6 @@
   "automated_release_evidence": {
     "state": "PENDING_FRESH_EXACT_HEAD",
     "note": "Previous PC Modes-oriented release evidence is retained separately as baseline only. The Windows Control Center pivot requires fresh exact-head automation before any release claim."
-  }
+  },
+  "open_profile_on_dev": true
 }
