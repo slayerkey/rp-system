@@ -26,4 +26,14 @@ if ($source -notmatch 'rat-art-keys' -or $source -notmatch '--keys-dir') {
     throw "Rat Ship does not hand product Rat Art key faces to the canonical hero."
 }
 
+if ($source -notmatch 'playwright@1\.62\.1' -or $source -notmatch 'Add-RatSharedNodeModulesJunction') {
+    throw "Rat Ship does not provision/cache the canonical SVG key renderer."
+}
+
+$rendererPath = Join-Path $repo "tools\art\render_streamdeck_ship_hero.py"
+$renderer = Get-Content $rendererPath -Raw
+if ($renderer -notmatch 'render_svg_icon\.mjs' -or $renderer -notmatch 'text-fallback') {
+    throw "Global Stream Deck hero does not enforce real icon sources for fallback keys."
+}
+
 Write-Host "RAT SHIP STREAM DECK HERO ROUTING TEST PASS"
