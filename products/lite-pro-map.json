@@ -178,6 +178,17 @@
       ],
       "source_status": "free_catalog_only_source_unavailable_pro_qa_passed",
       "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
+    },
+    {
+      "lite_id": "text-expander",
+      "pro_id": "text-expander-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "plugins/text-expander"
+      ],
+      "source_status": "automated_qa_passed_hardware_smoke_pending",
+      "notes": "Automated Windows build/test, official Elgato validation/package, five-device profile QA, dependency audit, and deterministic art are PASS. Published PackRat Lite→Pro pairs use direct verified Pro Marketplace URLs, so Text Expander intentionally records no Pro URL/product ID until the real listing exists. Ship/stage Pro first, capture the direct Pro listing URL, then add that verified URL to Lite and rerun Lite QA before claiming the in-plugin upgrade button is live."
     }
   ],
   "standalone_free": [

@@ -1,0 +1,20 @@
+{
+  "name": "Text Expander Lite Starter",
+  "pages": [
+    {
+      "name": "STARTER",
+      "keys": [
+        {
+          "label": "EMAIL +",
+          "snippetId": "lite-email",
+          "icon": "email-plus"
+        },
+        {
+          "label": "CLIP +",
+          "snippetId": "lite-clipboard",
+          "icon": "clipboard-plus"
+        }
+      ]
+    }
+  ]
+}

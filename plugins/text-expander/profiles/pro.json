@@ -1,0 +1,120 @@
+{
+  "name": "Text Expander Pro Starter",
+  "pages": [
+    {
+      "name": "QUICK",
+      "keys": [
+        {
+          "label": "EMAIL +",
+          "snippetId": "pro-quick-email",
+          "icon": "email-plus"
+        },
+        {
+          "label": "CLIP +",
+          "snippetId": "pro-quick-clipboard",
+          "icon": "clipboard-plus"
+        },
+        {
+          "label": "TIME",
+          "snippetId": "pro-quick-time",
+          "icon": "time"
+        },
+        {
+          "label": "DATE",
+          "snippetId": "pro-quick-date",
+          "icon": "date"
+        },
+        {
+          "label": "ADDRESS",
+          "snippetId": "pro-quick-address",
+          "icon": "address"
+        },
+        {
+          "label": "LINK",
+          "snippetId": "pro-quick-link",
+          "icon": "link"
+        }
+      ]
+    },
+    {
+      "name": "EMAIL",
+      "keys": [
+        {
+          "label": "REPLY",
+          "snippetId": "pro-email-reply",
+          "icon": "email"
+        },
+        {
+          "label": "FOLLOW-UP",
+          "snippetId": "pro-follow-up",
+          "icon": "email"
+        },
+        {
+          "label": "MEETING",
+          "snippetId": "pro-meeting-link",
+          "icon": "link"
+        }
+      ]
+    },
+    {
+      "name": "SUPPORT",
+      "keys": [
+        {
+          "label": "RESPONSE",
+          "snippetId": "pro-support-response",
+          "icon": "text"
+        },
+        {
+          "label": "BUG INFO",
+          "snippetId": "pro-bug-request",
+          "icon": "clipboard"
+        }
+      ]
+    },
+    {
+      "name": "CREATOR",
+      "keys": [
+        {
+          "label": "YOUTUBE",
+          "snippetId": "pro-youtube",
+          "icon": "video"
+        },
+        {
+          "label": "DISCORD",
+          "snippetId": "pro-discord",
+          "icon": "chat"
+        }
+      ]
+    },
+    {
+      "name": "DEVELOPMENT",
+      "keys": [
+        {
+          "label": "CODE",
+          "snippetId": "pro-code",
+          "icon": "code"
+        },
+        {
+          "label": "STAMP",
+          "snippetId": "pro-timestamp",
+          "icon": "time"
+        }
+      ]
+    },
+    {
+      "name": "PERSONAL",
+      "keys": [
+        {
+          "label": "MEETING",
+          "snippetId": "pro-personal-meeting",
+          "icon": "link"
+        },
+        {
+          "label": "ADDRESS",
+          "snippetId": "pro-address",
+          "icon": "address"
+        }
+      ]
+    }
+  ]
+}

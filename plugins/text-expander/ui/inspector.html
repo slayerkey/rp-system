@@ -1,0 +1,159 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font:12px system-ui;color:#ddd;margin:0;padding:12px;background:transparent}
+label{display:block;margin:0 0 12px}.label{display:block;color:#aaa;margin-bottom:5px}
+select,input,textarea,button{width:100%;box-sizing:border-box;background:#2a2a2a;color:#fff;border:1px solid #4a4a4a;border-radius:5px;padding:7px;font:inherit}
+textarea{min-height:112px;resize:vertical;font-family:ui-monospace,Consolas,monospace;line-height:1.35}
+button{cursor:pointer;font-weight:600}.primary{background:#f1f1f1;color:#111}.danger{color:#ffb7b7}
+.note{color:#999;line-height:1.4;margin:6px 0 12px}.status{min-height:17px;color:#bbb;line-height:1.35}
+.row{display:flex;gap:7px}.row button{flex:1}.section{border-top:1px solid #444;margin-top:12px;padding-top:12px}
+.sectionTitle{font-weight:700;margin:0 0 10px}.hidden{display:none}.upgrade{margin-top:12px;border-top:1px solid #444;padding-top:10px}
+</style></head><body>
+<div id="insertSettings">
+  <label><span class="label">Snippet</span><select id="snippet"></select></label>
+  <button id="editToggle">Create / edit snippets</button>
+  <label style="margin-top:12px"><span class="label">Insert method</span>
+    <select id="mode">
+      <option value="auto">Smart (recommended)</option>
+      <option value="unicode">Type text</option>
+      <option value="clipboard">Paste with clipboard</option>
+    </select>
+  </label>
+  <p class="note" id="modeHelp">Smart uses normal typing for most snippets and clipboard paste for very long text.</p>
+  <label id="afterWrap"><span class="label">After insertion</span><select id="after"><option value="none">Nothing</option><option value="tab">Tab</option><option value="enter">Enter</option></select></label>
+</div>
+
+<div id="editor" class="section hidden">
+  <p class="sectionTitle">Snippet library</p>
+  <label><span class="label">Name</span><input id="editName" maxlength="120" placeholder="Example: Work email"></label>
+  <label id="folderWrap"><span class="label">Folder / category</span><input id="editFolder" maxlength="80" placeholder="QUICK"></label>
+  <label><span class="label">Text</span><textarea id="editContent" spellcheck="false" placeholder="Type the text you want this key to insert."></textarea></label>
+  <p class="note" id="variableHelp"></p>
+  <div class="row"><button id="newSnippet">New</button><button class="primary" id="saveSnippet">Save</button><button class="danger" id="deleteSnippet">Delete</button></div>
+  <p class="status" id="editorStatus"></p>
+</div>
+
+<div id="upgrade" class="upgrade hidden"><strong>Need more?</strong><p class="note" id="reasons"></p><button id="upgradeButton" class="hidden">Open Text Expander Pro</button></div>
+
+<script>
+let ws,ctx="",action="",settings={},edition="lite",snippets=[],editingId="",editorOpen=false;
+const $=id=>document.getElementById(id);
+const isManage=()=>action.endsWith(".manage");
+function send(value){if(ws&&ws.readyState===1)ws.send(JSON.stringify(value))}
+function setStatus(text){$("editorStatus").textContent=text||""}
+function saveSettings(){
+  if(isManage())return;
+  settings={...settings,snippetId:$("snippet").value,insertionMode:$("mode").value,afterInsert:edition==="pro"?$("after").value:"none"};
+  if(ctx&&action)send({event:"setSettings",action,context:ctx,payload:settings});
+}
+function currentSnippet(){return snippets.find(s=>s.id===editingId)||null}
+function fillEditor(snippet){
+  editingId=snippet?.id||"";
+  $("editName").value=snippet?.name||"";
+  $("editFolder").value=snippet?.folder||(edition==="pro"?"QUICK":"STARTER");
+  $("editContent").value=snippet?.content||"";
+  $("deleteSnippet").disabled=!editingId;
+  setStatus("");
+}
+function showEditor(force){
+  editorOpen=force===undefined?!editorOpen:!!force;
+  $("editor").classList.toggle("hidden",!editorOpen);
+  $("editToggle").textContent=editorOpen?"Close snippet editor":"Create / edit snippets";
+  if(editorOpen&&!editingId){
+    const selected=snippets.find(s=>s.id===$("snippet").value)||snippets[0]||null;
+    fillEditor(selected);
+  }
+}
+function renderList(data){
+  edition=data.edition||edition;
+  snippets=Array.isArray(data.snippets)?data.snippets:[];
+  const select=$("snippet"),before=data.selectedId||settings.snippetId||select.value||"";
+  select.innerHTML="";
+  for(const s of snippets){
+    const o=document.createElement("option");o.value=s.id;
+    o.textContent=(edition==="pro"&&s.folder?s.folder+" · ":"")+s.name;
+    select.appendChild(o);
+  }
+  const chosen=snippets.some(s=>s.id===before)?before:(snippets[0]?.id||"");
+  if(chosen)select.value=chosen;
+  if(!isManage()&&chosen&&settings.snippetId!==chosen){
+    settings={...settings,snippetId:chosen};
+    send({event:"setSettings",action,context:ctx,payload:settings});
+  }
+
+  $("afterWrap").style.display=edition==="pro"?"block":"none";
+  $("folderWrap").style.display=edition==="pro"?"block":"none";
+  $("mode").value=settings.insertionMode||"auto";
+  $("after").value=edition==="pro"?(settings.afterInsert||"none"):"none";
+  $("variableHelp").textContent=edition==="pro"
+    ?"Variables include {date}, {time}, {datetime}, {clipboard}, {username}, {computer}, {app}, {counter:name}, {cursor}, plus fill-in fields like {name}."
+    :"You can use {clipboard}, {date}, and {time} inside Lite snippets.";
+
+  if(data.selectedId){
+    fillEditor(snippets.find(s=>s.id===data.selectedId)||null);
+    showEditor(true);
+  }else if(editingId){
+    fillEditor(snippets.find(s=>s.id===editingId)||snippets.find(s=>s.id===chosen)||null);
+  }else if(editorOpen){
+    fillEditor(snippets.find(s=>s.id===chosen)||null);
+  }
+  if(data.status)setStatus(data.status);
+
+  if(edition==="lite"){
+    $("upgrade").classList.remove("hidden");
+    $("reasons").textContent=(data.upgradeReasons||[]).join(" · ");
+    window.proUrl=data.verifiedProUrl||"";
+    $("upgradeButton").classList.toggle("hidden",!window.proUrl);
+  }else{
+    $("upgrade").classList.add("hidden");
+  }
+}
+$("snippet").addEventListener("change",()=>{saveSettings();if(editorOpen)fillEditor(snippets.find(s=>s.id===$("snippet").value)||null)});
+$("mode").addEventListener("change",()=>{saveSettings();$("modeHelp").textContent=$("mode").value==="clipboard"
+  ?"Paste with clipboard temporarily uses your clipboard, then restores what was there before when Windows allows."
+  :$("mode").value==="unicode"
+    ?"Type text sends the snippet directly as text without replacing your clipboard."
+    :"Smart uses normal typing for most snippets and clipboard paste for very long text."});
+$("after").addEventListener("change",saveSettings);
+$("editToggle").addEventListener("click",()=>showEditor());
+$("newSnippet").addEventListener("click",()=>{fillEditor(null);showEditor(true);$("editName").focus()});
+$("saveSnippet").addEventListener("click",()=>{
+  setStatus("Saving…");
+  send({event:"sendToPlugin",action,context:ctx,payload:{type:"saveSnippet",snippet:{
+    id:editingId,
+    name:$("editName").value,
+    folder:$("editFolder").value,
+    content:$("editContent").value
+  }}});
+});
+$("deleteSnippet").addEventListener("click",()=>{
+  if(!editingId)return;
+  setStatus("Deleting…");
+  send({event:"sendToPlugin",action,context:ctx,payload:{type:"deleteSnippet",snippetId:editingId}});
+});
+$("upgradeButton").addEventListener("click",()=>{if(window.proUrl)send({event:"openUrl",payload:{url:window.proUrl}})});
+
+window.connectElgatoStreamDeckSocket=function(port,uuid,registerEvent,info,actionInfo){
+  const parsed=JSON.parse(actionInfo||"{}");
+  ctx=parsed.context||"";action=parsed.action||"";settings=parsed.payload?.settings||{};
+  ws=new WebSocket("ws://127.0.0.1:"+port);
+  ws.onopen=()=>{
+    send({event:registerEvent,uuid});
+    if(ctx&&action){
+      send({event:"getSettings",action,context:ctx});
+      send({event:"sendToPlugin",action,context:ctx,payload:{type:"listSnippets"}});
+    }
+  };
+  ws.onmessage=e=>{
+    const m=JSON.parse(e.data);
+    if(m.event==="didReceiveSettings")settings=m.payload?.settings||settings;
+    if(m.event==="sendToPropertyInspector"&&m.payload?.type==="snippetList")renderList(m.payload);
+    if(m.event==="sendToPropertyInspector"&&m.payload?.type==="snippetError")setStatus(m.payload.message||"Could not update snippets.");
+  };
+  if(isManage()){
+    $("insertSettings").style.display="none";
+    showEditor(true);
+  }
+};
+</script></body></html>
