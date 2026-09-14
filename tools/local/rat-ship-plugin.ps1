@@ -5,7 +5,9 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Destination,
 
-    [switch]$IsolatedBuild
+    [switch]$IsolatedBuild,
+
+    [string]$DependencyToolsRoot
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,11 +24,12 @@ if (-not $IsolatedBuild) {
     . $worktreeTools
 
     $canonicalRoot = $RepoRoot
+    $sharedTools = Join-Path $canonicalRoot "tools"
     $worktree = New-RatDisposableWorktree -RepoRoot $canonicalRoot -Label "ship-plugin-$PluginSlug"
     try {
         $helper = Join-Path $worktree "tools\local\rat-ship-plugin.ps1"
         if (-not (Test-Path $helper)) { throw "Isolated Stream Deck ship helper missing: $helper" }
-        & $helper -PluginSlug $PluginSlug -Destination $Destination -IsolatedBuild
+        & $helper -PluginSlug $PluginSlug -Destination $Destination -IsolatedBuild -DependencyToolsRoot $sharedTools
         if ($LASTEXITCODE -ne 0) {
             throw "Isolated Stream Deck Rat Ship failed with exit code $LASTEXITCODE."
         }
@@ -37,6 +40,12 @@ if (-not $IsolatedBuild) {
     }
     return
 }
+
+$ToolsRoot = Join-Path $RepoRoot "tools"
+if (-not $DependencyToolsRoot) { $DependencyToolsRoot = $ToolsRoot }
+$PlaywrightModule = Join-Path $DependencyToolsRoot "node_modules\playwright"
+$PlaywrightBinName = if ($env:OS -eq "Windows_NT") { "playwright.cmd" } else { "playwright" }
+$PlaywrightCmd = Join-Path $DependencyToolsRoot ("node_modules\.bin\" + $PlaywrightBinName)
 
 function Require-Command {
     param([string]$Name, [string]$Hint)
@@ -81,14 +90,49 @@ function Invoke-RatArtUtf8Safe {
 
 function Ensure-StreamDeckHeroRuntime {
     Require-Command "python" "Install Python 3.11 or newer for canonical Stream Deck marketplace art."
+    Require-Command "node" "Install Node.js 24 or newer for canonical Stream Deck SVG key rendering."
+    Require-Command "npm" "Install Node.js 24 or newer for canonical Stream Deck SVG key rendering."
 
-    & python -c "import PIL" *> $null
+    & python -c "import PIL,sys; sys.exit(0 if PIL.__version__ == '12.3.0' else 1)" *> $null
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Installing the canonical Rat Art Pillow runtime once..." -ForegroundColor Cyan
         & python -m pip install --disable-pip-version-check "Pillow==12.3.0" | Out-Host
         if ($LASTEXITCODE -ne 0) {
-            throw "Could not install Pillow for canonical Stream Deck marketplace art."
+            throw "Could not install Pillow 12.3.0 for canonical Stream Deck marketplace art."
         }
+    }
+
+    if (-not (Test-Path $PlaywrightModule) -or -not (Test-Path $PlaywrightCmd)) {
+        Write-Host "Installing the canonical Stream Deck SVG renderer once..." -ForegroundColor Cyan
+        & npm install --prefix $DependencyToolsRoot --no-save --package-lock=false --no-fund --no-audit "playwright@1.62.1" | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not install Playwright for canonical Stream Deck SVG key rendering."
+        }
+    }
+
+    Push-Location $DependencyToolsRoot
+    try {
+        & node -e "import('playwright').then(({chromium})=>process.exit(require('fs').existsSync(chromium.executablePath())?0:2)).catch(()=>process.exit(3))" *> $null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Installing the canonical Chromium runtime once..." -ForegroundColor Cyan
+            & $PlaywrightCmd install chromium | Out-Host
+            if ($LASTEXITCODE -ne 0) {
+                throw "Could not install Chromium for canonical Stream Deck SVG key rendering."
+            }
+        }
+    }
+    finally {
+        Pop-Location
+    }
+
+    if ((Resolve-Path $DependencyToolsRoot).Path -ne (Resolve-Path $ToolsRoot).Path) {
+        $sharedNodeModules = Join-Path $DependencyToolsRoot "node_modules"
+        if (-not (Test-Path $sharedNodeModules)) {
+            throw "Shared Rat Ship node_modules cache is missing after Stream Deck hero preflight: $sharedNodeModules"
+        }
+        $worktreeTools = Join-Path $PSScriptRoot "rat-worktree.ps1"
+        . $worktreeTools
+        Add-RatSharedNodeModulesJunction -WorktreeRoot $RepoRoot -SharedNodeModules $sharedNodeModules | Out-Null
     }
 }
 
