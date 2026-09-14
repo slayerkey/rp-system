@@ -43,6 +43,7 @@ try {
                 Actions = [PSCustomObject]@{
                     "0,0" = [PSCustomObject]@{
                         UUID = "com.packrat.test.action"
+                        ActionID = "11111111-2222-4333-8444-555555555555"
                         Settings = [PSCustomObject]@{ revision = 1 }
                     }
                 }
@@ -53,6 +54,24 @@ try {
 
     $profilePath = Join-Path $TempRoot "rat-dev-test.streamDeckProfile"
     Compress-Archive -Path $bundleRoot -DestinationPath $profilePath
+
+    if (-not (Assert-RatDevBundledProfileActionIdsUnique -ProfilePaths @($profilePath))) {
+        throw "A single bundled profile should pass ActionID uniqueness validation."
+    }
+
+    $duplicateProfilePath = Join-Path $TempRoot "rat-dev-test-duplicate.streamDeckProfile"
+    Copy-Item -LiteralPath $profilePath -Destination $duplicateProfilePath -Force
+    $duplicateRejected = $false
+    try {
+        [void](Assert-RatDevBundledProfileActionIdsUnique -ProfilePaths @($profilePath,$duplicateProfilePath))
+    }
+    catch {
+        $duplicateRejected = $_.Exception.Message -match "Generated action instance IDs must be unique across all device variants"
+    }
+    if (-not $duplicateRejected) {
+        throw "Duplicate bundled profile ActionIDs must fail the Rat Dev pre-activation guard."
+    }
+    Remove-Item $duplicateProfilePath -Force
 
     $installed = Join-Path $InstalledRoot "AAAAAAAA-BBBB-4CCC-8DDD-EEEEEEEEEEEE.sdProfile"
     New-Item -ItemType Directory -Force -Path $installed | Out-Null
