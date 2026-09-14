@@ -352,10 +352,25 @@ test("all Monitor Manager Pro keypad actions use dedicated key art with a safe t
   assert.equal(new Set(keypad.map((a)=>a.States[0].Image)).size,keypad.length,"every keypad action should have dedicated semantic key art");
 });
 
-test("bundled Monitor Manager profile labels stay compact for physical key scale", async () => {
-  const source=await readFile("scripts/build-profiles.mjs","utf8");
-  for(const legacy of ["MONITORS","DUPLICATE","PC SCREEN","SECOND SCREEN","LANDSCAPE","PORTRAIT"]){
-    assert.equal(source.includes('"'+legacy+'"'),false,"legacy long key label should be removed: "+legacy);
+test("bundled Monitor Manager profile key titles stay compact at physical key scale", async () => {
+  const root=path.resolve("com.packrat.monitormanagerpro.sdPlugin","profiles");
+  const forbidden=new Set(["MONITORS","DUPLICATE","PC SCREEN","SECOND SCREEN","LANDSCAPE","PORTRAIT"]);
+  for(const name of ["monitor-manager-pro-standard","monitor-manager-pro-xl","monitor-manager-pro-plus","monitor-manager-pro-virtual"]){
+    const data=await readFile(path.join(root,name+".streamDeckProfile"));
+    const docs=zipJsonDocuments(data);
+    for(const doc of docs){
+      for(const controller of doc.json.Controllers??[]){
+        if(controller.Type!=="Keypad")continue;
+        for(const action of Object.values(controller.Actions??{})){
+          const title=String(action.States?.[0]?.Title??"");
+          assert.equal(forbidden.has(title),false,name+" still contains an overlong keypad title: "+title);
+          const lines=title.split(/\r?\n/);
+          assert.ok(lines.length<=2,name+" keypad title uses more than two lines: "+JSON.stringify(title));
+          for(const line of lines)assert.ok(line.length<=10,name+" keypad title line is too long: "+JSON.stringify(line));
+        }
+      }
+    }
   }
+  const source=await readFile("scripts/build-profiles.mjs","utf8");
   assert.match(source,/profileKeyName/);
 });

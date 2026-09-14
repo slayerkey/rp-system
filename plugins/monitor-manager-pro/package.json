@@ -9,8 +9,9 @@
     "build:profiles": "node scripts/build-profiles.mjs",
     "typecheck": "tsc --noEmit",
     "build": "npm run copy:helper && npm run build:assets && npm run typecheck && npm run build:profiles && rollup -c",
-    "test": "npm run copy:helper && npm run build:profiles && node --test tests/*.test.mjs",
-    "watch": "npm run copy:helper && npm run build:assets && npm run build:profiles && rollup -c -w"
+    "test": "npm run copy:helper && npm run build:assets && npm run build:profiles && npm run visual:audit && node --test tests/*.test.mjs",
+    "watch": "npm run copy:helper && npm run build:assets && npm run build:profiles && rollup -c -w",
+    "visual:audit": "node ../../tools/qa/streamdeck-key-visual-audit.mjs com.packrat.monitormanagerpro.sdPlugin"
   },
   "dependencies": {
     "@elgato/streamdeck": "^2.1.0"
