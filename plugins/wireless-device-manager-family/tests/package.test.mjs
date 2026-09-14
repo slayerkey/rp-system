@@ -168,7 +168,7 @@ test("wireless inspector does not block USB devices when Bluetooth is unavailabl
 });
 
 
-test("Property Inspector mirrors Monitor Manager explicit request/response transport",async()=>{
+test("Property Inspector registers with UI UUID but routes commands to the action context",async()=>{
   const runtime=await readFile("src/runtime.ts","utf8");
   const lite=await readFile("src/lite.ts","utf8");
   const pro=await readFile("src/pro.ts","utf8");
@@ -180,9 +180,14 @@ test("Property Inspector mirrors Monitor Manager explicit request/response trans
   assert.match(lite,/sendToPropertyInspector\(runtime\.inspectorPayload\(\)\)/);
   assert.match(pro,/sendToPropertyInspector\(runtime\.inspectorPayload\(\)\)/);
   assert.match(runtime,/payload\?\.type === "refresh-wireless"/);
+  assert.match(inspector,/uiUuid=inUUID/);
+  assert.match(inspector,/actionContext=String\(actionInfo\.context\|\|""\)/);
+  assert.match(inspector,/event,uuid:uiUuid/);
+  assert.match(inspector,/event:"sendToPlugin"[\s\S]*context:actionContext[\s\S]*payload/);
+  assert.match(inspector,/event:"setSettings",action:actionUuid,context:actionContext/);
+  assert.doesNotMatch(inspector,/event:"sendToPlugin"[\s\S]*context:uiUuid/);
   assert.match(inspector,/sendPlugin\(\{type:"refresh-wireless"\}\)/);
   assert.doesNotMatch(inspector,/setInterval\(requestSnapshot/);
-  assert.doesNotMatch(inspector,/setTimeout\(requestSnapshot,250\)/);
   assert.match(inspector,/Wireless plugin is not responding/);
 });
 
