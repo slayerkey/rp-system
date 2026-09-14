@@ -180,6 +180,18 @@ export function renderSnippet(content, {
   return { text: restoreEscapedBraces(text), cursorBack };
 }
 
+export function resolveSnippetSelection(snippets, settings = {}) {
+  const items = Array.isArray(snippets) ? snippets : [];
+  const requested = String(settings?.snippetId || "");
+  const snippet = items.find(item => item?.id === requested) || items[0] || null;
+  if (!snippet || snippet.id === requested) return { snippet, settings, changed:false };
+  return {
+    snippet,
+    settings:{ ...settings, snippetId:snippet.id },
+    changed:true
+  };
+}
+
 export function chooseInsertionMode(requestedMode, text) {
   if (requestedMode === "unicode" || requestedMode === "clipboard") return requestedMode;
   const value = String(text);
