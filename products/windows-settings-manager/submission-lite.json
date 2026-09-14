@@ -15,16 +15,16 @@
   ],
   "marketplace_tags": [
     "Windows",
-    "Settings",
     "PC",
     "System",
-    "Power",
+    "Lock",
     "Sleep",
+    "Power",
     "Virtual Desktop",
     "Productivity",
     "Stream Deck"
   ],
   "marketplace_auto_publish": false,
-  "description": "Put six useful Windows controls on Stream Deck without turning your profile into a giant toolbox.\n\nWindows Settings Manager Lite includes Lock PC, Sleep, live Power Plan, Keep Awake, Previous Desktop, and Next Desktop. The stateful keys re-read Windows instead of assuming PackRat was the last thing to touch the setting.\n\nKeep Awake clearly distinguishes STAY AWAKE from normal Windows sleep behavior. Power Plan can cycle installed plans or target an exact discovered plan. Virtual desktop navigation verifies the resulting Windows desktop state where the operating system exposes it instead of reporting blind hotkey success.\n\nThere is no coordinate clicking, hidden mouse movement, or Quick Settings automation. If Windows state cannot be read reliably, PackRat fails closed rather than inventing a state.\n\nIncludes editable profiles for Stream Deck, Stream Deck Mini, Stream Deck XL, Stream Deck +, Stream Deck Neo, Galleon 100 SD, and Stream Deck + XL. Pro adds the complete 15-key Windows Control Center with Wi-Fi, Bluetooth, Hibernate, protected Restart and Shutdown, Light/Dark theme, and full virtual desktop controls.\n\nRequires Windows and Stream Deck 7.3 or later.\n\nPart of the PackRat ecosystem.",
-  "release_notes": "- Lock PC and Sleep on Stream Deck.\n- Live Power Plan plus clear Stay Awake / Sleep Normal control.\n- Previous and Next Windows virtual desktop navigation with state verification where available.\n- Editable profiles for seven current Stream Deck device families."
+  "description": "Windows Settings Manager Lite gives you the everyday Windows controls that are most useful on a physical Stream Deck: control your PC without opening Windows Settings or leaving what you are doing.\n\nLite includes six focused actions: Lock PC, Sleep, live Power Plan, Keep Awake, Previous Desktop, and Next Desktop. It is intentionally small, useful on its own, and easy to understand at a glance.\n\nThe stateful controls read Windows instead of assuming the last PackRat command is still active. Keep Awake clearly shows STAY AWAKE or SLEEP NORMAL, Power Plan shows the active plan, and virtual desktop navigation verifies the resulting Windows desktop state where Windows exposes it.\n\nIf you want the complete Windows control surface, Windows Settings Manager Pro expands the same use case with Hibernate, protected Restart and Shutdown, Wi-Fi, Bluetooth, Light/Dark theme, New/Close/Current Desktop, and additional advanced Windows controls.\n\nNo coordinate clicking, hidden mouse movement, or fake state. If Windows cannot expose a capability reliably, PackRat fails closed instead of pretending.\n\nIncludes editable profiles for Stream Deck, Stream Deck Mini, Stream Deck XL, Stream Deck +, Stream Deck Neo, Galleon 100 SD, and Stream Deck + XL.\n\nRequires Windows and Stream Deck 7.3 or later.\n\nPart of the PackRat ecosystem.",
+  "release_notes": "- Six focused everyday Windows controls: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, and Next Desktop.\n- Live Windows state for the controls that expose it.\n- Verified virtual desktop navigation instead of blind hotkey success.\n- Editable profiles for seven current Stream Deck device families."
 }
