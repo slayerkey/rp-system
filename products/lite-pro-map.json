@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "updated_at": "2026-09-14",
-  "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
+  "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below must be exact verified public Elgato Marketplace product URLs; no search, creator, generic, or placeholder URLs are accepted. For Stream Deck Lite→Pro Property Inspector UX, the canonical pattern lives in standards/streamdeck-plugin-design-system-v1.md and Window Manager Lite is the approved reference implementation.",
   "pairs": [
     {
       "lite_id": "better-hotkeys",
@@ -11,7 +11,7 @@
       "lite_marketplace_url": "https://marketplace.elgato.com/product/better-hotkeys-mouse-72b719b0-d0ce-4c0d-9d0e-a2a49cce735d",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/better-hotkeys-mouse-pro-d1c3b3f3-1589-4884-b729-6d5eaa457c24",
       "source_status": "catalog_only_in_ratpack",
-      "notes": "Published pair. Existing Lite upsell is the reference UX, but exact public URLs still need capture into RatPack metadata.",
+      "notes": "Published pair. exact public URLs still need capture into RatPack metadata.",
       "lite_marketplace_product_id": "72b719b0-d0ce-4c0d-9d0e-a2a49cce735d",
       "pro_marketplace_product_id": "d1c3b3f3-1589-4884-b729-6d5eaa457c24"
     },
@@ -33,9 +33,14 @@
       "classification": "lite_to_pro",
       "lite_marketplace_url": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/window-manager-pro-f3ed6217-0282-419d-a71d-4b1548147b11",
-      "source_status": "private_source_verified_vcs",
+      "source_status": "lite_source_rp_system_pro_private_vcs_verified",
       "lite_marketplace_product_id": "a7693b4c-4afd-4dce-925a-262fd23b1f23",
-      "pro_marketplace_product_id": "f3ed6217-0282-419d-a71d-4b1548147b11"
+      "pro_marketplace_product_id": "f3ed6217-0282-419d-a71d-4b1548147b11",
+      "source_paths": [
+        "plugins/window-manager",
+        "slayerkey/vcs:streamdeck/window-manager-pro/1.2.0.0/source"
+      ],
+      "notes": "Published pair and approved reference implementation for the canonical Stream Deck Lite→Pro Property Inspector pattern: top PackRat/Upgrade-to-Pro bar plus bottom feature-rich Pro card."
     },
     {
       "lite_id": "workflow-automation",
