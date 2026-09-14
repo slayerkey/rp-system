@@ -54,7 +54,8 @@ body:not(.ready) main {
 
 .notice button,
 .simple-block button,
-.diagnostics button {
+.diagnostics button,
+.subaction-row button {
   border: 1px solid #5a5a5a;
   border-radius: 4px;
   background: #454545;
@@ -136,3 +137,20 @@ body:not(.ready) main {
 .dot.ready { background: #2be86a; }
 .dot.warn { background: #ffb34d; }
 .dot.error { background: #ff5d6c; }
+
+
+.subaction-row {
+  margin: -4px 12px 10px 107px;
+}
+
+.subaction-row button {
+  margin-top: 0;
+  min-height: 24px;
+  font-size: 11px;
+  color: #d8dde5;
+  background: #3b3b3b;
+}
+
+.subaction-row button:hover {
+  background: #484848;
+}
