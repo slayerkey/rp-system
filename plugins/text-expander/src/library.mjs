@@ -5,7 +5,7 @@ import {
   LITE_LIMIT, PRO_LIMIT, LITE_SEEDS, PRO_SEEDS, DEFAULT_PRO_VARIABLES, validateVariableName
 } from "./core.mjs";
 
-const CURRENT_SCHEMA_VERSION = 2;
+const CURRENT_SCHEMA_VERSION = 3;
 const LEGACY_LITE_DEFAULTS = [
   { id:"lite-email", name:"EMAIL", folder:"STARTER", content:"Hi there,\n\nThanks for your message.\n\nBest,\nREPLACE ME" },
   { id:"lite-date", name:"DATE", folder:"STARTER", content:"{date}" },
@@ -21,24 +21,50 @@ function clone(value) {
 function sameSnippet(a,b) {
   return a?.id===b?.id && a?.name===b?.name && a?.folder===b?.folder && a?.content===b?.content;
 }
+function ensureSeeds(snippets,seeds,limit) {
+  const current=Array.isArray(snippets)?snippets:[];
+  const seedIds=new Set(seeds.map(seed=>seed.id));
+  const existingById=new Map(current.map(item=>[String(item?.id||""),item]));
+  const custom=current.filter(item=>!seedIds.has(String(item?.id||"")));
+  const room=Math.max(0,limit-custom.length);
+  const seeded=seeds
+    .map(seed=>existingById.get(seed.id)||clone(seed))
+    .slice(0,room);
+  return [...seeded,...custom].slice(0,limit);
+}
 function migrateLibrary(raw, edition) {
   if (!raw || typeof raw !== "object") return raw;
-  if (Number(raw.schemaVersion || 1) >= CURRENT_SCHEMA_VERSION) return raw;
+  const version=Number(raw.schemaVersion || 1);
+  if (version >= CURRENT_SCHEMA_VERSION) return raw;
 
-  const next = clone(raw);
-  next.schemaVersion = CURRENT_SCHEMA_VERSION;
-  if (!Array.isArray(next.snippets)) return next;
+  const next=clone(raw);
+  if (!Array.isArray(next.snippets)) {
+    next.schemaVersion=CURRENT_SCHEMA_VERSION;
+    return next;
+  }
 
-  if (edition === "lite") {
+  // Preserve the original v1 -> v2 behavior first so untouched legacy Lite
+  // installs still collapse to the intended simple starter set.
+  if (version < 2 && edition === "lite") {
     const pristineLegacy = next.snippets.length === LEGACY_LITE_DEFAULTS.length
       && LEGACY_LITE_DEFAULTS.every((expected,index) => sameSnippet(next.snippets[index], expected));
     if (pristineLegacy) next.snippets = clone(LITE_SEEDS);
-  } else {
+  } else if (version < 2 && edition === "pro") {
     const existing = new Set(next.snippets.map(item => String(item?.id || "")));
     const available = Math.max(0, PRO_LIMIT - next.snippets.length);
     const quick = PRO_SEEDS.filter(item => item.folder === "QUICK" && !existing.has(item.id)).slice(0, available);
     next.snippets = [...clone(quick), ...next.snippets];
   }
+
+  // Schema v3 makes the complete built-in starter library authoritative during
+  // pre-release development. Existing snippets with the same IDs keep user
+  // edits; only missing built-ins are restored. Custom snippets are never
+  // deleted merely to make room for a seed, and limits are still respected.
+  next.snippets = edition === "pro"
+    ? ensureSeeds(next.snippets,PRO_SEEDS,PRO_LIMIT)
+    : ensureSeeds(next.snippets,LITE_SEEDS,LITE_LIMIT);
+
+  next.schemaVersion=CURRENT_SCHEMA_VERSION;
   return next;
 }
 function safeId(value) {
