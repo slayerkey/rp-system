@@ -3,8 +3,8 @@
   "name": "Workspace Manager Pro",
   "type": "plugin",
   "status": "qa_passed",
-  "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Physical Rat Dev verification on the user's actual Stream Deck remains before any release decision. Marketplace submission and shipping are not authorized.",
+  "workflow_state": "READY_TO_SHIP",
+  "blocker": null,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows + macOS",
   "source_repository": "https://github.com/slayerkey/vcs.git",
@@ -37,12 +37,13 @@
     "Private-source QA bridge run 34899571644: PASS on Windows + macOS at exact source commit dfc05adab8a2bec15899fb53d542ac69cf82f298",
     "Hardware-reported PI races covered: pending workspace selection survives stale state; rename draft survives render/focus churn; plugin state acknowledgement clears Saving…; future workspace names are unique; duplicate legacy names are disambiguated in the selector",
     "Windows final revalidation: regression tests, build, canonical design audit, key visual audit, native Win32 ABI enumeration, official Elgato validation/package, standalone identity audit, and repeated-restore smoke: PASS",
-    "macOS final revalidation: regression tests, build, canonical design audit, key visual audit, AppKit monitor enumeration, platform isolation, official Elgato validation/package, and standalone identity audit: PASS"
+    "macOS final revalidation: regression tests, build, canonical design audit, key visual audit, AppKit monitor enumeration, platform isolation, official Elgato validation/package, and standalone identity audit: PASS",
+    "Physical hardware QA accepted: capture/restore works on the real Stream Deck, rename persists, legacy duplicate workspaces can be selected/deleted, workspace selection persists, and Retry 8→5 remains 5 after leaving/reopening the Property Inspector"
   ],
-  "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host. Re-test switching among existing 0-window/6-window workspaces, rename one to Test, confirm Saving… becomes Saved, and confirm the dropdown keeps the selected workspace. Existing duplicate test workspaces are preserved but shown with # ordinals/window counts so they can be deleted intentionally. Do not submit/ship until that hardware QA is explicitly accepted.",
+  "final_boundary": "READY_TO_SHIP. Run rat ship workspace-manager-pro to build the pinned validated release kit. Do not submit to Marketplace until the standalone Marketplace identity/listing step is intentionally executed.",
   "notes": "Standalone Pro-only product with no Lite edition. This is a new future Marketplace identity and must never reuse Window Manager Pro Marketplace/product/action identifiers. Window Manager Pro source and control-plane metadata are not modified by this product registration.",
   "automated_release_evidence": {
-    "status": "PASSED_AWAITING_PHYSICAL_RAT_DEV_QA",
+    "status": "PASSED_READY_TO_SHIP",
     "source_commit": "dfc05adab8a2bec15899fb53d542ac69cf82f298",
     "private_source_qa_bridge_run": 34899571644,
     "windows": {
