@@ -561,6 +561,13 @@ if ($source.Kind -eq "xeneon") {
 
 Ensure-StreamDeckCli
 $oldUuid = Get-ExistingPluginUuid $source
+$pluginRoot = Get-PluginRoot $source
+
+# Native helpers from the currently linked development build can keep files inside
+# the reusable worktree locked. Release those processes before git reset/clean,
+# otherwise Git for Windows can enter an interactive "Unlink failed. Try again?"
+# loop before Rat Dev ever reaches its normal pre-build lock-release step.
+[void](Release-RatDevBuildLocks -PluginRoot $pluginRoot -PreviousUuid $oldUuid)
 
 if ($source.Kind -eq "external") {
     Sync-ExternalCheckout $source
@@ -569,7 +576,5 @@ else {
     Sync-RatPackWorktree ([string]$source.Ref)
 }
 
-$pluginRoot = Get-PluginRoot $source
-[void](Release-RatDevBuildLocks -PluginRoot $pluginRoot -PreviousUuid $oldUuid)
 $plugin = Build-And-TestPlugin -PluginRoot $pluginRoot -RegistrationConfig $source.Config
 Install-DevPlugin -Plugin $plugin -PreviousUuid $oldUuid
