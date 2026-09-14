@@ -513,17 +513,17 @@ function Install-DevPlugin {
         if ($profileToOpen) {
             $profileDecision = Get-RatDevProfileOpenDecision -ProfilePath $profileToOpen -StateRoot $DevRoot -Slug $Slug
 
-            if (-not $profileDecision.Open) {
-                if ($profileDecision.ManualRefresh) {
-                    Write-Host "Bundled profile changed or is unverified, but the same named profile is already installed." -ForegroundColor Yellow
-                    if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor Yellow }
-                    Write-Host "Rat Dev will not edit Stream Deck's profile store or import a duplicate automatically." -ForegroundColor DarkGray
-                    Write-Host "For profile visual QA: delete the existing profile in Stream Deck, then rerun: rat dev $Slug" -ForegroundColor Cyan
-                }
-                else {
-                    Write-Host "Bundled profile is unchanged and already installed; skipping duplicate import." -ForegroundColor DarkGray
-                    if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor DarkGray }
-                }
+            if ($profileDecision.Replace) {
+                Write-Host "Refreshing the existing installed Stream Deck profile in place..." -ForegroundColor Cyan
+                if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor DarkGray }
+                $replacement = Replace-RatDevInstalledProfile -ProfilePath $profileToOpen -InstalledPath $profileDecision.InstalledPath -StateRoot $DevRoot -Slug $Slug -ExpectedName $profileDecision.ProfileName
+                Write-RatDevProfileState -StateRoot $DevRoot -Slug $Slug -ProfilePath $profileToOpen -Fingerprint $profileDecision.Fingerprint -ProfileName $profileDecision.ProfileName
+                Write-Host "Profile refreshed seamlessly at the existing Stream Deck profile path." -ForegroundColor Green
+                Write-Host "Backup: $($replacement.BackupPath)" -ForegroundColor DarkGray
+            }
+            elseif (-not $profileDecision.Open) {
+                Write-Host "Bundled profile is unchanged and already installed; skipping profile refresh." -ForegroundColor DarkGray
+                if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor DarkGray }
             }
             else {
                 Start-Sleep -Milliseconds 900
