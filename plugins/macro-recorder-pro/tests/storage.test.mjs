@@ -247,3 +247,29 @@ test("Macro Library atomically reuses the same deterministic starter macro", asy
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("Macro Library deep diagnostic is non-destructive and verifies disk consistency", async () => {
+  const dir=await mkdtemp(join(tmpdir(),"packrat-macro-"));
+  const file=join(dir,"library.json");
+  try {
+    const library=await new MacroLibrary(file).load();
+    const added=await library.add({name:"Diagnostic",events:[
+      {type:"keyDown",vk:65,delayMs:1},
+      {type:"keyUp",vk:65,delayMs:1}
+    ]});
+    const before=JSON.stringify(library.get(added.id));
+    const report=await library.diagnose();
+    assert.equal(report.inMemoryCount,1);
+    assert.equal(report.disk.exists,true);
+    assert.equal(report.disk.readable,true);
+    assert.equal(report.disk.parseable,true);
+    assert.equal(report.disk.macroCount,1);
+    assert.equal(report.disk.matchesMemory,true);
+    assert.equal(report.writeProbe.ok,true);
+    assert.equal(JSON.stringify(library.get(added.id)),before);
+    const names=await readdir(dir);
+    assert.equal(names.some(name=>name.includes(".diagnostic-")),false);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
