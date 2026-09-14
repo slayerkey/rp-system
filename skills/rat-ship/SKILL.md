@@ -55,6 +55,40 @@ For normal in-repository Stream Deck plugins, Rat Ship owns the Marketplace cove
 
 This is the default for future Stream Deck plugins. Do not reimplement the hero product by product.
 
+### Stream Deck cover key-source contract
+
+A canonical photographed hero is only correct if the LCD faces are correct.
+
+Rat Ship resolves hero key visuals in this order:
+
+1. exact product-authored `rat-art-keys/`
+2. representative `rat-art-key-fixtures.json` plus the plugin's real icons
+3. real manifest action/state art, including deterministic SVG rasterization
+
+Rat Ship must not silently fall back to text-only action-name cards when real visual art is missing.
+
+For SVG assets:
+
+- rasterize through the shared deterministic renderer
+- cache by content hash, not filename/basename
+- preserve separate action glyphs even when every directory contains a file called `icon.svg`
+
+A hero that passes dimensions but repeats one icon across unrelated actions is a failed release artifact.
+
+### Final Stream Deck cover review gate
+
+For visually sensitive Stream Deck products, CI should preserve the final Rat Ship ship-kit after the global cover overwrite.
+
+Before authenticated Maker Console submission:
+
+- inspect the exact final `02_cover.png`
+- confirm key-source provenance is real product art, representative runtime fixtures, or real manifest art
+- confirm the cover represents what customers will actually see on Stream Deck
+- do not treat product-local Rat Art or gallery output as proof of the final cover
+- do not ask the user to repeatedly run Rat Ship merely to expose deterministic cover defects that can be reviewed from CI
+
+If the final ship-kit cover is wrong, fix the global/product Rat Art pipeline first and regenerate the candidate.
+
 ## Stream Deck canonical UI preflight
 
 Before packaging a Stream Deck plugin that uses the PackRat canonical Property Inspector, Rat Ship should require the shared design audit against the actual shipping source:
