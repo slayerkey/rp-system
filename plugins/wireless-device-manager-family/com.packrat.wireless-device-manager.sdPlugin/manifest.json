@@ -19,8 +19,7 @@
     }
   ],
   "Nodejs": {
-    "Version": "20",
-    "Debug": "disabled"
+    "Version": "20"
   },
   "UUID": "com.packrat.wireless-device-manager",
   "Profiles": [
