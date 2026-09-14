@@ -4,12 +4,18 @@ import argparse
 import json
 import os
 import shutil
+import sys
 import zipfile
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[4]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+from tools.art.marketplace_text import draw_fitted_text
 W, H = 1920, 960
 
 
@@ -37,13 +43,19 @@ def canvas():
 
 
 def title(draw, top, accent, subtitle=None):
-    f1 = font(84, True)
-    f2 = font(92, True)
-    fs = font(30, False)
-    draw.text((96, 80), top, font=f1, fill=(244, 247, 250))
-    draw.text((96, 168), accent, font=f2, fill=(205, 214, 225))
+    draw_fitted_text(
+        draw, (96, 72, 1824, 148), top, font,
+        fill=(244, 247, 250), max_size=84, min_size=58, bold=True, max_lines=1
+    )
+    draw_fitted_text(
+        draw, (96, 156, 1824, 246), accent, font,
+        fill=(205, 214, 225), max_size=92, min_size=64, bold=True, max_lines=1
+    )
     if subtitle:
-        draw.text((101, 272), subtitle, font=fs, fill=(152, 163, 178))
+        draw_fitted_text(
+            draw, (101, 265, 1824, 315), subtitle, font,
+            fill=(152, 163, 178), max_size=32, min_size=24, max_lines=1
+        )
 
 
 def profile_actions(flavor: str):
@@ -83,22 +95,28 @@ def key_grid(im, labels, columns=5):
     if oy + total_h > available_bottom:
         raise SystemExit("Marketplace key grid exceeds safe cover bounds")
 
-    text_size = 28 if key >= 200 else 23
-    text_y = int(key * 0.35)
-    text_gap = max(30, int(key * 0.18))
-    small = font(text_size, True)
+    text_size = 30 if key >= 200 else 25
 
     for i, label in enumerate(labels):
         c, r = i % columns, i // columns
         x, y = ox + c * (key + gap), oy + r * (key + gap)
         radius = 22 if key >= 200 else 18
         d.rounded_rectangle((x, y, x + key, y + key), radius=radius, fill=(17, 22, 30), outline=(76, 87, 102), width=3)
-        words = label.upper().replace(" PC ", " ").split()
-        lines = [" ".join(words[: max(1, len(words)//2)]), " ".join(words[max(1, len(words)//2):])]
-        lines = [line for line in lines if line]
-        for j, line in enumerate(lines[:2]):
-            box = d.textbbox((0, 0), line, font=small)
-            d.text((x + (key - (box[2]-box[0]))/2, y + text_y + j*text_gap), line, font=small, fill=(238, 242, 247))
+        safe_label = label.upper().replace(" PC ", " ")
+        draw_fitted_text(
+            d,
+            (x + 18, y + int(key * 0.27), x + key - 18, y + int(key * 0.76)),
+            safe_label,
+            font,
+            fill=(238, 242, 247),
+            max_size=text_size,
+            min_size=max(17, text_size - 8),
+            bold=True,
+            spacing=5,
+            max_lines=2,
+            align="center",
+            valign="middle",
+        )
 
 
 def save(im, output, name):
@@ -110,13 +128,18 @@ def text_frame(headline, accent, bullets, output, name):
     im = canvas()
     d = ImageDraw.Draw(im)
     title(d, headline, accent)
-    fb = font(42, True)
-    fs = font(29, False)
-    y = 390
+    y = 365
+    row_h = 150 if len(bullets) >= 4 else 178
     for head, body in bullets:
-        d.text((122, y), head, font=fb, fill=(238, 242, 247))
-        d.text((128, y + 59), body, font=fs, fill=(157, 169, 184))
-        y += 142
+        draw_fitted_text(
+            d, (122, y, 1795, y + 52), head, font,
+            fill=(238, 242, 247), max_size=44, min_size=32, bold=True, max_lines=1
+        )
+        draw_fitted_text(
+            d, (128, y + 60, 1795, y + row_h - 18), body, font,
+            fill=(157, 169, 184), max_size=31, min_size=23, spacing=6, max_lines=2
+        )
+        y += row_h
     save(im, output, name)
 
 
