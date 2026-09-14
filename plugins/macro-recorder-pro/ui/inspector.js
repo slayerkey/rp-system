@@ -1,19 +1,19 @@
 (() => {
   const edition=document.body.dataset.edition;
   const pro=edition==="pro";
-  let socket=null,uiUuid="",actionUuid="",kind="",settings={},state=null,stateConnected=false,stateRetryTimer=null,stateRetries=0;
+  let socket=null,uiUuid="",actionContext="",actionUuid="",kind="",settings={},state=null,stateConnected=false,stateRetryTimer=null,stateRetries=0,diagnostic=null;
   const PAGE_SIZE=200;
   const MAX_IMPORT_BYTES=16*1024*1024;
   let timelinePage=0,timelineMacroId="";
   const $=id=>document.getElementById(id);
   const send=msg=>{if(socket?.readyState===WebSocket.OPEN){socket.send(JSON.stringify(msg));return true;}return false;};
-  const command=(command,extra={})=>send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"macroRecorder.command",command,...extra}});
+  const command=(command,extra={})=>send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"macroRecorder.command",actionContext,command,...extra}});
   const saveSettings=next=>{settings={...settings,...next};if(state)state={...state,settings:{...(state.settings||{}),...next}};send({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings});};
 
   function requestState(reset=false){
     if(reset){stateConnected=false;stateRetries=0;}
     if(stateRetryTimer){clearTimeout(stateRetryTimer);stateRetryTimer=null;}
-    send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"macroRecorder.inspect"}});
+    send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"macroRecorder.inspect",actionContext}});
     if(!stateConnected&&stateRetries<5){
       stateRetries+=1;
       stateRetryTimer=setTimeout(()=>requestState(false),500);
@@ -28,6 +28,70 @@
     if(!el)return;
     if(stateConnected)el.textContent=`Macro Library connected · ${state?.library?.length??0} macros`;
     else el.textContent="Connecting to Macro Library…";
+  }
+
+  function diagnosticText(report){
+    if(!report)return "No diagnostic has been run yet.";
+    const lines=[
+      `Macro Recorder Pro diagnostic · ${report.timestamp||""}`,
+      `Summary: ${report.summary||""}`,
+      "",
+      "CHECKS",
+      ...(report.checks||[]).map(item=>`${item.ok?"PASS":"FAIL"} · ${item.name}${item.detail?" · "+item.detail:""}`),
+      "",
+      "TRANSPORT",
+      JSON.stringify(report.transport||{},null,2),
+      "",
+      "CLIENT",
+      JSON.stringify(report.client||{},null,2),
+      "",
+      "SELECTED ACTION",
+      JSON.stringify(report.selectedAction||null,null,2),
+      "",
+      "RUNTIME",
+      JSON.stringify(report.runtime||{},null,2),
+      "",
+      "LIBRARY",
+      JSON.stringify(report.library||null,null,2),
+    ];
+    return lines.join("\n");
+  }
+
+  function showDiagnostic(report){
+    diagnostic=report;
+    const output=$("diagnosticReport");
+    if(output)output.textContent=diagnosticText(report);
+    const status=$("diagnosticStatus");
+    if(status)status.textContent=report?.summary||"Diagnostic complete.";
+    const copy=$("copyDiagnostic");
+    if(copy)copy.disabled=!report;
+  }
+
+  function runDiagnostic(){
+    const status=$("diagnosticStatus");
+    if(status)status.textContent="Running end-to-end diagnostic…";
+    const output=$("diagnosticReport");
+    if(output)output.textContent="Waiting for plugin response…";
+    send({
+      event:"sendToPlugin",
+      action:actionUuid,
+      context:uiUuid,
+      payload:{
+        type:"macroRecorder.diagnostic",
+        actionContext,
+        client:{
+          uiUuid,
+          actionContext,
+          actionUuid,
+          kind,
+          stateConnected,
+          stateRetries,
+          localSettings:settings,
+          lastLibraryCount:state?.library?.length??null,
+          selectedMacroId:state?.settings?.macroId??settings.macroId??"",
+        }
+      }
+    });
   }
 
   function detectKind(){if(actionUuid.endsWith(".record"))return"record";if(actionUuid.endsWith(".stop"))return"stop";return"replay";}
@@ -100,7 +164,7 @@
   function applyState(next){stateConnected=true;if(stateRetryTimer){clearTimeout(stateRetryTimer);stateRetryTimer=null;}const nextMacroId=String(next?.macro?.id||"");if(nextMacroId!==timelineMacroId){timelineMacroId=nextMacroId;timelinePage=0;}state=next||state;if(!state)return;if(next?.settings)applySettings(next.settings);updateStateConnection();updateStatus();populateLibrary();renderTimeline();}
   function applySettings(next){settings={...(next||{})};if(pro){$("captureMouseMovement").checked=settings.captureMouseMovement!==false;const speed=Number(settings.playbackSpeed);$("playbackSpeed").value=["0.25","0.5","1","1.5","2","4"].includes(String(speed))?String(speed):"1";$("playbackMode").value=["once","count","while-held","toggle"].includes(settings.playbackMode)?settings.playbackMode:"once";$("repeatCount").value=Number.isFinite(Number(settings.repeatCount))?Number(settings.repeatCount):2;$("coordinateMode").value=settings.coordinateMode==="active-window"?"active-window":"absolute";$("repeatRow").hidden=$("playbackMode").value!=="count";}}
 
-  window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{uiUuid=uuid;const ai=JSON.parse(rawActionInfo||"{}");actionUuid=String(ai.action||"");kind=detectKind();applySettings(ai.payload?.settings||{});filterKind();updateStateConnection();socket=new WebSocket(`ws://127.0.0.1:${port}`);socket.onopen=()=>{send({event:registerEvent,uuid:uiUuid});send({event:"getSettings",action:actionUuid,context:uiUuid});requestState(true);};socket.onmessage=event=>{let m;try{m=JSON.parse(event.data);}catch{return;}if(m.event==="didReceiveSettings"){applySettings(m.payload?.settings||{});if(!stateConnected)requestState(false);}if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.state")applyState(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.status")applyStatus(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.export"){const blob=new Blob([JSON.stringify(m.payload.data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=m.payload.filename||"macro.packrat-macro.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}};};
+  window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{uiUuid=uuid;const ai=JSON.parse(rawActionInfo||"{}");actionContext=String(ai.context||"");actionUuid=String(ai.action||"");kind=detectKind();applySettings(ai.payload?.settings||{});filterKind();updateStateConnection();socket=new WebSocket(`ws://127.0.0.1:${port}`);socket.onopen=()=>{send({event:registerEvent,uuid:uiUuid});send({event:"getSettings",action:actionUuid,context:uiUuid});requestState(true);};socket.onmessage=event=>{let m;try{m=JSON.parse(event.data);}catch{return;}if(m.event==="didReceiveSettings"){applySettings(m.payload?.settings||{});if(!stateConnected)requestState(false);}if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.state")applyState(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.status")applyStatus(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.diagnostic")showDiagnostic(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.export"){const blob=new Blob([JSON.stringify(m.payload.data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=m.payload.filename||"macro.packrat-macro.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}};};
 
   $("cancelRecording").addEventListener("click",()=>command("cancelRecording"));
   $("stopPlayback").addEventListener("click",()=>command("stopPlayback"));
@@ -108,6 +172,21 @@
   $("timelinePrev").addEventListener("click",()=>{if(timelinePage>0){timelinePage-=1;renderTimeline();}});
   $("timelineNext").addEventListener("click",()=>{timelinePage+=1;renderTimeline();});
   $("refreshLibrary").addEventListener("click",()=>requestState(true));
+  $("runDiagnostic").addEventListener("click",runDiagnostic);
+  $("copyDiagnostic").addEventListener("click",async()=>{
+    if(!diagnostic)return;
+    const value=diagnosticText(diagnostic);
+    try{
+      await navigator.clipboard.writeText(value);
+      $("diagnosticStatus").textContent="Diagnostic copied to clipboard.";
+    }catch{
+      const area=$("diagnosticReport");
+      area?.focus?.();
+      const selection=window.getSelection?.();
+      if(selection&&area){selection.removeAllRanges();const range=document.createRange();range.selectNodeContents(area);selection.addRange(range);}
+      $("diagnosticStatus").textContent="Clipboard access was blocked. The report is selected for manual copy.";
+    }
+  });
   $("packratLink").addEventListener("click",event=>{
     event.preventDefault();
     send({event:"openUrl",payload:{url:"https://marketplace.elgato.com/maker/packrat"}});
