@@ -46,7 +46,7 @@ foreach ($file in $required) {
         $expectedWidth = if ($file -eq "01_search_icon.png") { 288 } else { 1920 }
         $expectedHeight = if ($file -eq "01_search_icon.png") { 288 } else { 960 }
         if ($image.Width -ne $expectedWidth -or $image.Height -ne $expectedHeight) {
-            throw "Windows Settings Manager Rat Art wrong dimensions for $file: $($image.Width)x$($image.Height)"
+            throw "Windows Settings Manager Rat Art wrong dimensions for ${file}: $($image.Width)x$($image.Height)"
         }
     }
     finally {
