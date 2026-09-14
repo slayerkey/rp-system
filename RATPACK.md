@@ -26,6 +26,8 @@ During migration, the existing local `ratpack-projects` and `_shared` directorie
 
 ## Natural task language
 
+When the user says phrases like **"check the global files"**, **"refer to the global stuff"**, **"look at our troubleshooting files"**, **"use the global Stream Deck setup"**, or equivalent shorthand while working on a Stream Deck product, treat that as an instruction to load the canonical Stream Deck context from `STREAMDECK.md` and follow its complete read order. The user should not need to name individual standards, skills, playbooks, or QA scripts.
+
 When the user says "Rat validate this", follow `skills/rat-validate/SKILL.md`.
 
 When the user says "Build it", follow `skills/rat-build/SKILL.md` and dispatch by product type.
