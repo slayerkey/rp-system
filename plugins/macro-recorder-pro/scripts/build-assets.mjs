@@ -21,7 +21,7 @@ function crc32(b){let crc=0xffffffff;for(const x of b){crc^=x;for(let i=0;i<8;i+
 function chunk(type,data){const n=Buffer.from(type),body=Buffer.concat([n,data]),o=Buffer.alloc(12+data.length);o.writeUInt32BE(data.length,0);n.copy(o,4);data.copy(o,8);o.writeUInt32BE(crc32(body),8+data.length);return o;}
 function encode(size,p){const raw=Buffer.alloc((size*4+1)*size);for(let y=0;y<size;y++){const row=y*(size*4+1);raw[row]=0;p.copy(raw,row+1,y*size*4,(y+1)*size*4);}const ih=Buffer.alloc(13);ih.writeUInt32BE(size,0);ih.writeUInt32BE(size,4);ih[8]=8;ih[9]=6;return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk("IHDR",ih),chunk("IDAT",deflateSync(raw,{level:9})),chunk("IEND",Buffer.alloc(0))]);}
 function draw(size,kind,mode){
- const p=Buffer.alloc(size*size*4),dark=[20,23,27,255],white=[255,255,255,255],accent=[255,178,30,255];
+ const p=Buffer.alloc(size*size*4),dark=[8,10,14,255],white=[255,255,255,255],accent=[255,178,30,255];
  if(mode!=="list")for(let i=0;i<p.length;i+=4)p.set(dark,i);
  const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x<0||y<0||x>=size||y>=size)return;p.set(c,(y*size+x)*4);};
  const rect=(x0,y0,x1,y1,c)=>{for(let y=Math.round(y0);y<=Math.round(y1);y++)for(let x=Math.round(x0);x<=Math.round(x1);x++)set(x,y,c);};
