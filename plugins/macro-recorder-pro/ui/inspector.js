@@ -40,7 +40,7 @@
     if(!pro)return;
     const select=$("macroSelect"),chosen=String(settings.macroId||"");
     select.replaceChildren(new Option("Choose a macro",""));
-    for(const item of state?.library||[]){const fresh=state?.recentSaved?.macroId===item.id?"NEW · ":"";select.appendChild(new Option(`${fresh}${item.name} · ${item.eventCount} events`,item.id));}
+    for(const item of state?.library||[]){const fresh=state?.recentSaved?.macroId===item.id?"NEW · ":state?.latestMacroId===item.id?"LATEST · ":"";select.appendChild(new Option(`${fresh}${item.name} · ${item.eventCount} events`,item.id));}
     select.value=(state?.library||[]).some(x=>x.id===chosen)?chosen:"";
     const hasMacro=Boolean(state?.macro);
     $("renameMacro").disabled=!hasMacro;
