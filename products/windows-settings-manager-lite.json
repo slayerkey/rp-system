@@ -114,8 +114,55 @@
     "official_pro_package_sha256": "148063a3bbe8cd41a3a97351695fb879078649d838c1c3093bccd67b27a3372f"
   },
   "automated_release_evidence": {
-    "state": "PENDING_FRESH_EXACT_HEAD",
-    "note": "Previous PC Modes-oriented release evidence is retained separately as baseline only. The Windows Control Center pivot requires fresh exact-head automation before any release claim."
+    "candidate_commit": "f1fade4db8ea8b11e2e359c914b38e30a2b626f7",
+    "status": "PASSED_AWAITING_PHYSICAL_QA",
+    "windows_ci_run": 34866699986,
+    "windows_ci_job": 104052669806,
+    "windows_package_artifact": {
+      "id": 10357755664,
+      "digest_sha256": "d8bbddd8c35d2f039de2f62bdb3e2d1c530357abc1c656f47d66e28743766e7d"
+    },
+    "portable_ci_run": 34866700149,
+    "portable_ci_job": 104052366202,
+    "portable_release_artifact": {
+      "id": 10357795262,
+      "digest_sha256": "9f28b772a76dd56612134899d7faf17eb46fd5eb51201d6fdaf6fab4d171f3c5"
+    },
+    "ratpack_lightweight_ci": {
+      "run": 34866700093,
+      "job": 104052208632,
+      "status": "pass"
+    },
+    "lite_pro_portfolio_audit": {
+      "run": 34866700037,
+      "job": 104052207846,
+      "status": "pass"
+    },
+    "rat_ship_marketplace_routing_ci": {
+      "run": 34866700002,
+      "job": 104052209306,
+      "status": "pass"
+    },
+    "locked_dependency_install": "pass",
+    "strict_typescript_build": "pass",
+    "policy_tests": "pass_48_of_48",
+    "native_windows_backend_smoke": "pass_windows_build_26100",
+    "native_windows_smoke_observations": {
+      "hdr_api": "hdr-state",
+      "wifi": "unknown_on_hosted_runner",
+      "bluetooth": "unknown_on_hosted_runner",
+      "theme": "light",
+      "virtual_desktop_available": false
+    },
+    "official_elgato_validation": "pass_lite_and_pro",
+    "production_dependency_audit": "pass_0_high_or_higher_vulnerabilities",
+    "official_lite_package": "pass",
+    "official_pro_package": "pass",
+    "deterministic_lite_rat_art": "pass",
+    "deterministic_pro_rat_art": "pass",
+    "marketplace_media_dimensions": "pass",
+    "human_marketplace_media_review": "pending_for_control_center_art",
+    "physical_windows_streamdeck_qa": "required"
   },
   "open_profile_on_dev": true
 }
