@@ -88,7 +88,10 @@ for(const [edition,root,prefix] of roots){
           const [col,row]=position.split(",").map(Number);
           assert.ok(col>=0 && col<bounds.cols,`${edition} ${suffix} column out of bounds: ${position}`);
           assert.ok(row>=0 && row<bounds.rows,`${edition} ${suffix} row out of bounds: ${position}`);
-          for(const state of action.States??[]) assert.equal(state.ShowTitle,false,`${edition} ${suffix} must keep host titles disabled`);
+          for(const state of action.States??[]){
+            assert.equal(state.ShowTitle,false,`${edition} ${suffix} must keep host titles disabled`);
+            assert.equal(state.Title,"",`${edition} ${suffix} must not ship an overlay title`);
+          }
         }
       }
     });
@@ -162,6 +165,9 @@ test("Wireless renderer keeps long labels inside the canonical text hierarchy an
   assert.match(svgs.get("charging"),/fill="#FFB21E" stroke="none"/);
   assert.match(svgs.get("cycle"),/M21 9l3\.2 6\.5/,"Cycle should include a favorite star");
   assert.match(svgs.get("cycle"),/M34 23h25/,"Cycle should include a next arrow");
+  assert.match(svgs.get("group"),/M10 15h18l6 6h28v25H10Z/,"Group should read as a folder, not a node triangle");
+  assert.match(svgs.get("control"),/M14 36L58 6/,"Unavailable control should use a disabled-link slash");
+  assert.doesNotMatch(svgs.get("control"),/M18 12v12M27 12v12/,"Control must not regress to the old plug glyph");
   assert.doesNotMatch(svgs.get("cycle"),/a21|A21/,"Cycle must not regress to a circular refresh glyph");
   assert.equal(wirelessTextSize(["HEADPHONES"]),17);
   assert.equal(wirelessTextSize(["CONTROLLER"]),17);
@@ -348,18 +354,16 @@ test("settings reads are side-effect free and global writes are explicit",async(
 });
 
 
-test("bundled Pro headset status and control keys share one logical slot",async()=>{
+test("bundled Pro profiles use neutral logical slots without pretending a device type",async()=>{
   for(const suffix of ["standard","mini","xl","plus","neo"]){
     const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
     const bundle=readProfileBundle(data);
     const devices=bundle.allActions.filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.device");
-    const headset=devices.find(action=>action.Settings?.label==="HEADPHONES");
-    const control=devices.find(action=>action.Settings?.view==="control");
-    assert.equal(headset?.Settings?.slot,"HEADPHONES");
-    assert.equal(control?.Settings?.slot,"HEADPHONES");
-    assert.equal(control?.Settings?.favorite,headset?.Settings?.favorite);
-    assert.equal(control?.Settings?.groupName,headset?.Settings?.groupName);
-    assert.equal(control?.Settings?.lowBatteryThreshold,headset?.Settings?.lowBatteryThreshold);
+    const device1=devices.filter(action=>action.Settings?.slot==="DEVICE_1");
+    assert.ok(device1.some(action=>action.Settings?.view==="status"));
+    assert.ok(device1.some(action=>action.Settings?.view==="control"));
+    assert.ok(device1.every(action=>action.Settings?.groupName===""));
+    assert.ok(devices.every(action=>!["HEADPHONES","MOUSE","KEYBOARD","CONTROLLER"].includes(String(action.Settings?.label||""))));
   }
 });
 

@@ -12,13 +12,13 @@ function liteDevice(seed,label,view){
   return profileAction(seed,U.liteDevice,"Wireless Device",{label,view});
 }
 
-function proDevice(seed,label,view,slot,groupName){
+function proDevice(seed,view,slot,label=""){
   return profileAction(seed,U.proDevice,"Wireless Device",{
     label,
     view,
     lowBatteryThreshold:20,
     favorite:true,
-    groupName,
+    groupName:"",
     slot
   });
 }
@@ -35,13 +35,14 @@ function fullDevicePage(prefix){
   return {
     label:"DEVICES",
     keypad:{
-      "0,0":proDevice(prefix+":headphones","HEADPHONES","status","HEADPHONES","GAMING, TRAVEL"),
-      "1,0":proDevice(prefix+":mouse","MOUSE","battery","MOUSE","GAMING, TRAVEL"),
-      "2,0":proDevice(prefix+":keyboard","KEYBOARD","battery","KEYBOARD","WORK"),
-      "3,0":proDevice(prefix+":controller","CONTROLLER","status","CONTROLLER","GAMING"),
+      "0,0":proDevice(prefix+":device1-status","status","DEVICE_1"),
+      "1,0":proDevice(prefix+":device1-battery","battery","DEVICE_1","BATTERY"),
+      "2,0":proDevice(prefix+":device2-status","status","DEVICE_2"),
+      "3,0":proDevice(prefix+":device2-battery","battery","DEVICE_2","BATTERY"),
       "4,0":dashboard(prefix+":all"),
-      "0,1":proDevice(prefix+":headphones-control","CONNECT","control","HEADPHONES","GAMING, TRAVEL"),
-      "1,1":cycle(prefix+":cycle")
+      "0,1":proDevice(prefix+":device1-control","control","DEVICE_1"),
+      "1,1":proDevice(prefix+":device2-control","control","DEVICE_2"),
+      "2,1":cycle(prefix+":cycle")
     }
   };
 }
@@ -50,13 +51,14 @@ function compactDevicePage(prefix){
   return {
     label:"DEVICES",
     keypad:{
-      "0,0":proDevice(prefix+":headphones","HEADPHONES","status","HEADPHONES","GAMING, TRAVEL"),
-      "1,0":proDevice(prefix+":mouse","MOUSE","battery","MOUSE","GAMING, TRAVEL"),
-      "2,0":proDevice(prefix+":keyboard","KEYBOARD","battery","KEYBOARD","WORK"),
-      "3,0":proDevice(prefix+":controller","CONTROLLER","status","CONTROLLER","GAMING"),
-      "0,1":proDevice(prefix+":headphones-control","CONNECT","control","HEADPHONES","GAMING, TRAVEL"),
-      "1,1":cycle(prefix+":cycle"),
-      "2,1":dashboard(prefix+":all")
+      "0,0":proDevice(prefix+":device1-status","status","DEVICE_1"),
+      "1,0":proDevice(prefix+":device1-battery","battery","DEVICE_1","BATTERY"),
+      "2,0":proDevice(prefix+":device2-status","status","DEVICE_2"),
+      "3,0":proDevice(prefix+":device2-battery","battery","DEVICE_2","BATTERY"),
+      "0,1":proDevice(prefix+":device1-control","control","DEVICE_1"),
+      "1,1":proDevice(prefix+":device2-control","control","DEVICE_2"),
+      "2,1":cycle(prefix+":cycle"),
+      "3,1":dashboard(prefix+":all")
     }
   };
 }
@@ -65,12 +67,12 @@ function miniDevicePage(prefix){
   return {
     label:"DEVICES",
     keypad:{
-      "0,0":proDevice(prefix+":headphones","HEADPHONES","status","HEADPHONES","GAMING, TRAVEL"),
-      "1,0":proDevice(prefix+":mouse","MOUSE","battery","MOUSE","GAMING, TRAVEL"),
+      "0,0":proDevice(prefix+":device1-status","status","DEVICE_1"),
+      "1,0":proDevice(prefix+":device1-battery","battery","DEVICE_1","BATTERY"),
       "2,0":dashboard(prefix+":all"),
-      "0,1":proDevice(prefix+":headphones-control","CONNECT","control","HEADPHONES","GAMING, TRAVEL"),
+      "0,1":proDevice(prefix+":device1-control","control","DEVICE_1"),
       "1,1":cycle(prefix+":cycle"),
-      "2,1":proDevice(prefix+":keyboard","KEYBOARD","battery","KEYBOARD","WORK")
+      "2,1":proDevice(prefix+":device2-status","status","DEVICE_2")
     }
   };
 }

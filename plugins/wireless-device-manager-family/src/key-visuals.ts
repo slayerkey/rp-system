@@ -26,23 +26,28 @@ const GLYPHS: Record<WirelessKeyKind,string> = {
     '<path d="M54 19h5v10h-5"/>'+
     '<path d="M37 14l-9 13h8l-4 11 12-16h-8Z" fill="#FFB21E" stroke="none"/>',
   connect:
-    '<path d="M18 12v12M27 12v12M15 24h15v5c0 7 5 12 12 12"/>'+
-    '<path d="M42 20h16M51 13l7 7-7 7"/>',
+    '<path d="M30 30h-7a9 9 0 0 1 0-18h10a9 9 0 0 1 7 3"/>'+
+    '<path d="M42 12h7a9 9 0 0 1 0 18H39a9 9 0 0 1-7-3"/>'+
+    '<path d="M27 21h18"/>'+
+    '<path d="M54 5v10M49 10h10" stroke="#FFB21E"/>',
   disconnect:
-    '<path d="M18 12v12M27 12v12M15 24h15v5c0 7 5 12 12 12"/>'+
-    '<path d="M58 20H42M49 13l-7 7 7 7"/>',
+    '<path d="M30 30h-7a9 9 0 0 1 0-18h10a9 9 0 0 1 7 3"/>'+
+    '<path d="M42 12h7a9 9 0 0 1 0 18H39a9 9 0 0 1-7-3"/>'+
+    '<path d="M12 38L60 4" stroke="#FFB21E"/>',
   control:
-    '<path d="M18 12v12M27 12v12M15 24h15v5c0 7 5 12 12 12"/>'+
-    '<path d="M46 13l12 12M58 13L46 25"/>',
+    '<path d="M30 30h-7a9 9 0 0 1 0-18h10a9 9 0 0 1 7 3"/>'+
+    '<path d="M42 12h7a9 9 0 0 1 0 18H39a9 9 0 0 1-7-3"/>'+
+    '<path d="M14 36L58 6" stroke="#FFB21E"/>',
   dashboard:
     '<circle cx="17" cy="13" r="3" fill="#FFB21E" stroke="none"/>'+
     '<circle cx="17" cy="24" r="3"/>'+
     '<circle cx="17" cy="35" r="3"/>'+
     '<path d="M26 13h31M26 24h31M26 35h31"/>',
   group:
-    '<circle cx="36" cy="12" r="6"/><circle cx="18" cy="34" r="6"/><circle cx="54" cy="34" r="6"/>'+
-    '<path d="M32 18L22 29M40 18l10 11M24 34h24"/>'+
-    '<circle cx="36" cy="25" r="3" fill="#FFB21E" stroke="none"/>',
+    '<path d="M10 15h18l6 6h28v25H10Z"/>'+
+    '<circle cx="24" cy="33" r="3" fill="#FFB21E" stroke="none"/>'+
+    '<circle cx="36" cy="33" r="3"/>'+
+    '<circle cx="48" cy="33" r="3"/>',
   cycle:
     '<path d="M21 9l3.2 6.5 7.2 1-5.2 5.1 1.2 7.1L21 25.3l-6.4 3.4 1.2-7.1-5.2-5.1 7.2-1Z" fill="#FFB21E" stroke="none"/>'+
     '<path d="M34 23h25M51 15l8 8-8 8"/>'
