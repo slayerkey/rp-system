@@ -1,0 +1,8 @@
+{
+  "type": "streamdeck-plugin",
+  "repository": "https://github.com/slayerkey/vcs.git",
+  "ref": "product/workspace-manager-pro",
+  "source_root": "streamdeck/workspace-manager-pro/0.1.0.0/source",
+  "plugin_dir": "com.packrat.workspacemanagerpro.sdPlugin",
+  "plugin_uuid": "com.packrat.workspacemanagerpro"
+}

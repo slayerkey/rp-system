@@ -1,0 +1,29 @@
+{
+  "id": "workspace-manager-pro",
+  "name": "Workspace Manager Pro",
+  "type": "plugin",
+  "status": "development",
+  "workflow_state": "TESTING",
+  "blocker": "GitHub-hosted runners for the private source repository are currently failing before runner allocation on both Windows and macOS (run 34877151560, runner_id 0, zero executed steps). Re-run hosted validation when runner execution is available, then complete physical rat dev host QA.",
+  "version": "0.1.0.0",
+  "platform": "Elgato Stream Deck / Windows + macOS",
+  "source_repository": "https://github.com/slayerkey/vcs.git",
+  "source_ref": "refs/heads/product/workspace-manager-pro",
+  "source_commit": "d4f222f2f13018b1285298f9541c2a34da873900",
+  "plugin_uuid": "com.packrat.workspacemanagerpro",
+  "marketplace_identity": "NEW_STANDALONE_SKU_PENDING",
+  "lite_product_id": null,
+  "release_gate": [
+    "Standalone Pro-only product source created under streamdeck/workspace-manager-pro/0.1.0.0/source",
+    "Plugin UUID com.packrat.workspacemanagerpro and action UUID com.packrat.workspacemanagerpro.workspace are distinct from all published Window Manager Pro identifiers",
+    "Validated Window Manager Pro 1.2 workspace/model/native engine reused from source commit 577e9ff0c69b0c5d062a77745e481e8669728cf1",
+    "Named shared workspace create/capture/rename/duplicate/delete flow preserved",
+    "Entire-desktop restore, optimal one-to-one matching, same-app multi-window handling, monitor remapping, window state handling, safe missing-app launch, duplicate-launch prevention, retry, partial-failure and progress/results logic preserved",
+    "Windows/macOS model/native/workspace regression tests copied into the standalone source and new identity/design tests added",
+    "Canonical PackRat Stream Deck design applied locally; standards/streamdeck-plugin-design-system-v1.md remains read-only",
+    "Rat Dev external registration added for rat dev workspace-manager-pro",
+    "Hosted Windows/macOS build-test-validate: PENDING because GitHub failed before runner allocation; no product test step executed"
+  ],
+  "final_boundary": "Run rat dev workspace-manager-pro for local physical Stream Deck QA. Re-run private Windows/macOS CI when GitHub runners allocate normally. Keep workflow_state fail-closed until both automated validation and physical host QA pass. Do not submit or ship.",
+  "notes": "Standalone Pro-only product with no Lite edition. This is a new future Marketplace identity and must never reuse Window Manager Pro Marketplace/product/action identifiers. Window Manager Pro source and control-plane metadata are not modified by this product registration."
+}
