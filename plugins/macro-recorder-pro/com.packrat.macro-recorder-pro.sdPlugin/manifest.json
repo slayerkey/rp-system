@@ -4,7 +4,7 @@
     {
       "UUID": "com.packrat.macro-recorder-pro.record",
       "Name": "Record Macro",
-      "Tooltip": "Start recording keyboard and mouse input.",
+      "Tooltip": "Press once to start recording, then press the same key again to save.",
       "Icon": "imgs/actions/record/icon",
       "Controllers": [
         "Keypad"
@@ -23,8 +23,8 @@
     },
     {
       "UUID": "com.packrat.macro-recorder-pro.stop",
-      "Name": "Stop Recording / Playback",
-      "Tooltip": "Stop the active recording or immediately cancel playback.",
+      "Name": "Emergency Stop",
+      "Tooltip": "Immediately stop any active recording or playback.",
       "Icon": "imgs/actions/stop/icon",
       "Controllers": [
         "Keypad"
@@ -43,8 +43,8 @@
     },
     {
       "UUID": "com.packrat.macro-recorder-pro.replay",
-      "Name": "Replay Macro",
-      "Tooltip": "Replay a saved Macro Library item with optional speed and loop controls.",
+      "Name": "Play Macro",
+      "Tooltip": "Play the assigned Macro Library item with optional speed and repeat controls.",
       "Icon": "imgs/actions/replay/icon",
       "Controllers": [
         "Keypad"
