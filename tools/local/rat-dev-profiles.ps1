@@ -322,6 +322,99 @@ function Replace-RatDevInstalledProfile {
     }
 }
 
+
+function ConvertTo-RatDevCanonicalValue {
+    param($Value)
+
+    if ($null -eq $Value) { return $null }
+
+    if ($Value -is [string] -or $Value -is [ValueType]) {
+        return $Value
+    }
+
+    if ($Value -is [System.Collections.IDictionary]) {
+        $ordered = [ordered]@{}
+        foreach ($key in @($Value.Keys | ForEach-Object { [string]$_ } | Sort-Object)) {
+            $ordered[$key] = ConvertTo-RatDevCanonicalValue -Value $Value[$key]
+        }
+        return $ordered
+    }
+
+    if ($Value -is [System.Collections.IEnumerable] -and -not ($Value -is [string])) {
+        $items = @()
+        foreach ($item in $Value) {
+            $items += ,(ConvertTo-RatDevCanonicalValue -Value $item)
+        }
+        return $items
+    }
+
+    $properties = @($Value.PSObject.Properties | Where-Object { $_.MemberType -in @("NoteProperty","Property") } | Sort-Object Name)
+    if ($properties.Count) {
+        $ordered = [ordered]@{}
+        foreach ($property in $properties) {
+            $ordered[$property.Name] = ConvertTo-RatDevCanonicalValue -Value $property.Value
+        }
+        return $ordered
+    }
+
+    return [string]$Value
+}
+
+function Get-RatDevProfileSemanticSignature {
+    param([Parameter(Mandatory = $true)][string]$ProfileRoot)
+
+    $rootFull = [System.IO.Path]::GetFullPath($ProfileRoot).TrimEnd("\","/")
+    $entries = @()
+
+    foreach ($manifestPath in @(Get-ChildItem -Path $ProfileRoot -Recurse -File -Filter "manifest.json" -ErrorAction Stop)) {
+        $relative = [System.IO.Path]::GetRelativePath($rootFull, $manifestPath.FullName).Replace("\","/")
+        $manifest = Get-Content $manifestPath.FullName -Raw | ConvertFrom-Json
+
+        if ($relative -eq "manifest.json") {
+            foreach ($hostOwned in @("Device","AppIdentifier")) {
+                if ($manifest.PSObject.Properties.Name -contains $hostOwned) {
+                    $manifest.PSObject.Properties.Remove($hostOwned)
+                }
+            }
+            if ($manifest.Pages -and ($manifest.Pages.PSObject.Properties.Name -contains "Current")) {
+                $manifest.Pages.PSObject.Properties.Remove("Current")
+            }
+        }
+
+        $canonical = ConvertTo-RatDevCanonicalValue -Value $manifest
+        $json = $canonical | ConvertTo-Json -Depth 100 -Compress
+        $entries += ($relative + "|" + $json)
+    }
+
+    return (@($entries | Sort-Object) -join [Environment]::NewLine)
+}
+
+function Test-RatDevInstalledProfileMatchesBundle {
+    param(
+        [Parameter(Mandatory = $true)][string]$ProfilePath,
+        [Parameter(Mandatory = $true)][string]$InstalledPath,
+        [Parameter(Mandatory = $true)][string]$StateRoot,
+        [Parameter(Mandatory = $true)][string]$Slug
+    )
+
+    if (-not (Test-Path $InstalledPath -PathType Container)) { return $false }
+
+    $compareRoot = Join-Path $StateRoot ("profile-compare\" + $Slug + "-" + [guid]::NewGuid().ToString("N"))
+    try {
+        $sourceRoot = Expand-RatDevProfileBundle -ProfilePath $ProfilePath -Destination $compareRoot
+        $sourceSignature = Get-RatDevProfileSemanticSignature -ProfileRoot $sourceRoot
+        $installedSignature = Get-RatDevProfileSemanticSignature -ProfileRoot $InstalledPath
+        return $sourceSignature -eq $installedSignature
+    }
+    catch {
+        return $false
+    }
+    finally {
+        Remove-Item -LiteralPath $compareRoot -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+
 function Get-RatDevProfileOpenDecision {
     param(
         [Parameter(Mandatory = $true)][string]$ProfilePath,
@@ -350,7 +443,11 @@ function Get-RatDevProfileOpenDecision {
     }
 
     if ($state -and [string]$state.sha256 -eq $fingerprint -and $installed.Found) {
-        return [PSCustomObject]@{ Open=$false; Replace=$false; Adopt=$false; Reason="unchanged-installed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        $installedMatches = Test-RatDevInstalledProfileMatchesBundle -ProfilePath $ProfilePath -InstalledPath $installed.Path -StateRoot $StateRoot -Slug $Slug
+        if ($installedMatches) {
+            return [PSCustomObject]@{ Open=$false; Replace=$false; Adopt=$false; Reason="unchanged-installed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        }
+        return [PSCustomObject]@{ Open=$false; Replace=$true; Adopt=$false; Reason="installed-profile-drift"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
     }
 
     if ($state -and [string]$state.sha256 -eq $fingerprint -and -not $installed.Found) {
