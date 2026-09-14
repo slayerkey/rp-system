@@ -104,6 +104,7 @@ function Write-RatDevProfileState {
     $path = Get-RatDevProfileStatePath -StateRoot $StateRoot -Slug $Slug
     New-Item -ItemType Directory -Force -Path (Split-Path $path -Parent) | Out-Null
     [PSCustomObject]@{
+        state_version = 2
         slug = $Slug
         profile_path = $ProfilePath
         profile_name = $ProfileName
@@ -130,12 +131,20 @@ function Get-RatDevProfileOpenDecision {
         [PSCustomObject]@{ Found = $false; Name = $null; Path = $null }
     }
 
-    if ($state -and [string]$state.sha256 -eq $fingerprint -and $installed.Found) {
-        return [PSCustomObject]@{ Open=$false; Adopt=$false; Reason="unchanged-installed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+    # Never silently adopt an already-installed profile when Rat Dev cannot prove
+    # that it came from this exact bundle revision. Opening the bundle lets Stream
+    # Deck offer its normal Replace/Update flow instead of leaving stale buttons.
+    if (-not $state -and $installed.Found) {
+        return [PSCustomObject]@{ Open=$true; Adopt=$false; Reason="existing-installed-untracked"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
     }
 
-    if (-not $state -and $installed.Found) {
-        return [PSCustomObject]@{ Open=$false; Adopt=$true; Reason="existing-installed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+    $stateVersion = if ($state -and $state.state_version) { [int]$state.state_version } else { 0 }
+    if ($state -and $stateVersion -lt 2 -and $installed.Found) {
+        return [PSCustomObject]@{ Open=$true; Adopt=$false; Reason="profile-state-upgrade"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+    }
+
+    if ($state -and [string]$state.sha256 -eq $fingerprint -and $installed.Found) {
+        return [PSCustomObject]@{ Open=$false; Adopt=$false; Reason="unchanged-installed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
     }
 
     if ($state -and [string]$state.sha256 -eq $fingerprint -and -not $installed.Found) {

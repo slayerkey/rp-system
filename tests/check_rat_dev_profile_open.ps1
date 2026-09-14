@@ -32,8 +32,23 @@ try {
     [PSCustomObject]@{ Name = "Rat Dev Test Profile" } | ConvertTo-Json | Set-Content (Join-Path $installed "manifest.json") -Encoding UTF8
 
     $existing = Get-RatDevProfileOpenDecision -ProfilePath $profilePath -StateRoot $StateRoot -Slug "test-plugin" -InstalledRoots @($InstalledRoot)
-    Assert-Equal $existing.Open $false "Existing installed profile should not be imported again."
-    Assert-Equal $existing.Adopt $true "Existing installed profile should seed Rat Dev state."
+    Assert-Equal $existing.Open $true "An installed profile with no Rat Dev provenance should reopen for Replace/Update."
+    Assert-Equal $existing.Adopt $false "Rat Dev must not silently adopt an unverified installed profile."
+    Assert-Equal $existing.Reason "existing-installed-untracked" "Unexpected untracked installed profile decision."
+
+    # Simulate a legacy state written by the old adoption behavior.
+    $legacyStatePath = Get-RatDevProfileStatePath -StateRoot $StateRoot -Slug "test-plugin"
+    [PSCustomObject]@{
+        slug = "test-plugin"
+        profile_path = $profilePath
+        profile_name = $existing.ProfileName
+        sha256 = $existing.Fingerprint
+        updated_utc = [DateTime]::UtcNow.ToString("o")
+    } | ConvertTo-Json | Set-Content -Path $legacyStatePath -Encoding UTF8
+
+    $legacy = Get-RatDevProfileOpenDecision -ProfilePath $profilePath -StateRoot $StateRoot -Slug "test-plugin" -InstalledRoots @($InstalledRoot)
+    Assert-Equal $legacy.Open $true "Legacy adopted profile state should reopen once for Replace/Update."
+    Assert-Equal $legacy.Reason "profile-state-upgrade" "Unexpected legacy profile state decision."
 
     Write-RatDevProfileState -StateRoot $StateRoot -Slug "test-plugin" -ProfilePath $profilePath -Fingerprint $existing.Fingerprint -ProfileName $existing.ProfileName
 
