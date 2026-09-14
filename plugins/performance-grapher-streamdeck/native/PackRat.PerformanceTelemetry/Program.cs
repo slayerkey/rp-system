@@ -183,7 +183,7 @@ internal static class Program
                 try
                 {
                     computer.Accept(visitor);
-                    if (iteration == 0 || iteration % 30 == 0)
+                    if (iteration == 0 || iteration % 60 == 0)
                     {
                         var (catalog, sensors) = ReadCatalog(computer);
                         sensorBindings = sensors;
@@ -210,7 +210,7 @@ internal static class Program
 
                 iteration++;
                 if (probe) break;
-                await Task.Delay(1000);
+                await Task.Delay(500);
             }
 
             return 0;
