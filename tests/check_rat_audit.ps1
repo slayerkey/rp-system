@@ -17,6 +17,13 @@ $ExternalScripts = Join-Path $ExternalProductRoot "scripts"
 $StateRoot = Join-Path $RepoRoot "out\dev\state"
 $ExternalStatePath = Join-Path $StateRoot "$ExternalSlug.json"
 
+$FamilySlug = "rat-audit-family-pro"
+$FamilyWorktree = Join-Path $RepoRoot "out\dev\worktrees\$FamilySlug"
+$FamilyProductRoot = Join-Path $FamilyWorktree "plugins\rat-audit-family"
+$FamilyScripts = Join-Path $FamilyProductRoot "scripts"
+$FamilyOtherScripts = Join-Path $FamilyWorktree "plugins\unrelated-product\scripts"
+$FamilyProducts = Join-Path $FamilyWorktree "products"
+
 try {
     if (Test-Path $Worktree) { Remove-Item $Worktree -Recurse -Force }
     New-Item -ItemType Directory -Force -Path $Scripts | Out-Null
@@ -32,6 +39,36 @@ exit 0
     }
     if ($output -notmatch "AUDIT_FIXTURE_PASS") {
         throw "Rat Audit did not execute the internal product host audit.`n$output"
+    }
+
+    if (Test-Path $FamilyWorktree) { Remove-Item $FamilyWorktree -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path $FamilyScripts, $FamilyOtherScripts, $FamilyProducts | Out-Null
+
+    @{
+        id = $FamilySlug
+        type = "plugin"
+        source = "plugins/rat-audit-family"
+    } | ConvertTo-Json | Set-Content (Join-Path $FamilyProducts "$FamilySlug.json") -Encoding UTF8
+
+    @'
+Write-Output "FAMILY_AUDIT_FIXTURE_PASS"
+exit 0
+'@ | Set-Content (Join-Path $FamilyScripts "host-audit.ps1") -Encoding UTF8
+
+    @'
+Write-Output "WRONG_UNRELATED_AUDIT"
+exit 0
+'@ | Set-Content (Join-Path $FamilyOtherScripts "host-audit.ps1") -Encoding UTF8
+
+    $familyOutput = (& $AuditHelper $FamilySlug 2>&1 | Out-String)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Shared-family Rat Audit fixture returned exit code $LASTEXITCODE.`n$familyOutput"
+    }
+    if ($familyOutput -notmatch "FAMILY_AUDIT_FIXTURE_PASS") {
+        throw "Rat Audit did not execute the product-metadata source host audit.`n$familyOutput"
+    }
+    if ($familyOutput -match "WRONG_UNRELATED_AUDIT") {
+        throw "Rat Audit scanned an unrelated plugin despite canonical product metadata.`n$familyOutput"
     }
 
     if (Test-Path $ExternalRegistrationRoot) { Remove-Item $ExternalRegistrationRoot -Recurse -Force }
@@ -107,6 +144,7 @@ exit 0
 }
 finally {
     if (Test-Path $Worktree) { Remove-Item $Worktree -Recurse -Force }
+    if (Test-Path $FamilyWorktree) { Remove-Item $FamilyWorktree -Recurse -Force }
     if (Test-Path $ExternalRegistrationRoot) { Remove-Item $ExternalRegistrationRoot -Recurse -Force }
     if (Test-Path $ExternalBuildBase) { Remove-Item $ExternalBuildBase -Recurse -Force }
     if (Test-Path $ExternalStatePath) { Remove-Item $ExternalStatePath -Force }
