@@ -28,7 +28,7 @@ function draw(size,kind,mode){
  const s=size/144;
  const color=mode==="list"?white:(kind==="record"?red:kind==="replay"?green:kind==="stop"?amber:white);
  if(kind==="record")circle(72*s,72*s,(mode==="list"?29:30)*s,color);
- else if(kind==="stop")rect(47*s,47*s,97*s,97*s,color);
+ else if(kind==="stop"){if(mode==="list")rect(47*s,47*s,97*s,97*s,color);else rect(48*s,30*s,96*s,78*s,color);}
  else if(kind==="replay")triangleRight(75*s,72*s,60*s,72*s,color);
  else{circle(72*s,72*s,46*s,white,10*s);triangleRight(76*s,72*s,44*s,52*s,white);}
  return encode(size,p);
