@@ -26,10 +26,19 @@ function ensureSeeds(snippets,seeds,limit) {
   const seedIds=new Set(seeds.map(seed=>seed.id));
   const existingById=new Map(current.map(item=>[String(item?.id||""),item]));
   const custom=current.filter(item=>!seedIds.has(String(item?.id||"")));
-  const room=Math.max(0,limit-custom.length);
-  const seeded=seeds
-    .map(seed=>existingById.get(seed.id)||clone(seed))
-    .slice(0,room);
+  const capacityForSeeds=Math.max(0,limit-custom.length);
+  const existingSeedCount=seeds.reduce((count,seed)=>count+(existingById.has(seed.id)?1:0),0);
+  let missingCapacity=Math.max(0,capacityForSeeds-existingSeedCount);
+  const seeded=[];
+  for(const seed of seeds){
+    const existing=existingById.get(seed.id);
+    if(existing){
+      seeded.push(existing);
+    }else if(missingCapacity>0){
+      seeded.push(clone(seed));
+      missingCapacity--;
+    }
+  }
   return [...seeded,...custom].slice(0,limit);
 }
 function migrateLibrary(raw, edition) {
