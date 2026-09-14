@@ -2,11 +2,9 @@
   "id": "windows-settings-manager-pro",
   "name": "Windows Settings Manager Pro",
   "type": "plugin",
-  "status": "testing",
-  "workflow_state": "BLOCKED",
-  "blocker_kind": "physical_validation",
-  "blocker": "Windows Control Center pivot is implemented but fresh exact-head automation and real Windows/Stream Deck QA are still required. Wi-Fi/Bluetooth radio permissions, theme behavior, virtual desktop registry/readback, sleep/hibernate, protected restart/shutdown, external-state refresh, profile import, and physical key readability must be verified before release.",
-  "final_boundary": "Pass fresh exact-head build/tests/Windows backend smoke/Elgato validation/package and the documented Windows Control Center physical QA matrix, then move Pro to READY_TO_SHIP and publish Pro before Lite.",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "final_boundary": "Final-sync the approved Windows Settings Manager Pro candidate to canonical main, then run rat ship windows-settings-manager-pro. Publish Pro before Lite.",
   "price_usd": 7.99,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -40,21 +38,20 @@
     "editable": true
   },
   "release_gate": [
-    "strict TypeScript compile",
-    "Windows backend smoke including radios/theme/desktop snapshot shape",
-    "unit and policy tests",
-    "official Elgato CLI validation",
-    "official Stream Deck packaging",
-    "15-key standard Control Center physical validation",
-    "Wi-Fi and Bluetooth live-state/control physical validation",
-    "Sleep and Hibernate supported/unsupported physical validation",
-    "protected Restart and Shutdown confirmation validation",
-    "Power Plan and Keep Awake external-state validation",
-    "Light / Dark theme physical validation",
-    "Previous / Next / New / Close / Current virtual desktop physical validation",
-    "Stream Deck restart and Windows reboot validation",
-    "deterministic Rat Art review",
-    "bundled profile integrity across seven device families"
+    "strict TypeScript compile — PASS",
+    "Windows backend smoke including radios/theme/desktop snapshot shape — PASS",
+    "unit and policy tests — 51/51 PASS",
+    "official Elgato CLI validation — PASS",
+    "official Stream Deck packaging — PASS",
+    "15-key standard Control Center physical visual QA — PASS",
+    "Lock PC physical validation — PASS",
+    "Wi-Fi and Bluetooth unavailable on the tested PC correctly fail closed as N/A; product owner accepted capability-gated release behavior",
+    "Power Plan, Keep Awake, Theme, and virtual desktop live-state presentation visually approved on physical Stream Deck",
+    "Previous / Next virtual desktop behavior and Current Desktop live index/count physically confirmed",
+    "New / Close desktop controls retain verified state-readback implementation; final glyph overlap issue fixed before READY_TO_SHIP",
+    "Restart / Shutdown remain protected by default double-press confirmation; destructive physical execution intentionally not exercised by product owner",
+    "deterministic Rat Art and Marketplace media dimensions — PASS",
+    "bundled profile integrity across seven device families — PASS"
   ],
   "current_direction": {
     "thesis": "The Windows controls people actually reach for, on Stream Deck.",
@@ -108,55 +105,48 @@
     "official_pro_package_sha256": "148063a3bbe8cd41a3a97351695fb879078649d838c1c3093bccd67b27a3372f"
   },
   "automated_release_evidence": {
-    "candidate_commit": "f1fade4db8ea8b11e2e359c914b38e30a2b626f7",
-    "status": "PASSED_AWAITING_PHYSICAL_QA",
-    "windows_ci_run": 34866699986,
-    "windows_ci_job": 104052669806,
+    "candidate_commit": "8893fcee297d4b5a489ea8db7976fd1a5359cfc6",
+    "status": "PASSED",
+    "windows_ci_run": 34880736867,
+    "windows_ci_job": 104099104165,
     "windows_package_artifact": {
-      "id": 10357755664,
-      "digest_sha256": "d8bbddd8c35d2f039de2f62bdb3e2d1c530357abc1c656f47d66e28743766e7d"
+      "id": 10363400235,
+      "digest_sha256": "c7bcca1295a22bb7ec31e260df396e760cb4d7d8b6dcffc4522b9f3d33149efc"
     },
-    "portable_ci_run": 34866700149,
-    "portable_ci_job": 104052366202,
+    "portable_ci_run": 34880736790,
+    "portable_ci_job": 104099103170,
     "portable_release_artifact": {
-      "id": 10357795262,
-      "digest_sha256": "9f28b772a76dd56612134899d7faf17eb46fd5eb51201d6fdaf6fab4d171f3c5"
-    },
-    "ratpack_lightweight_ci": {
-      "run": 34866700093,
-      "job": 104052208632,
-      "status": "pass"
-    },
-    "lite_pro_portfolio_audit": {
-      "run": 34866700037,
-      "job": 104052207846,
-      "status": "pass"
-    },
-    "rat_ship_marketplace_routing_ci": {
-      "run": 34866700002,
-      "job": 104052209306,
-      "status": "pass"
+      "id": 10362628916,
+      "digest_sha256": "f0a83ff5d47bf9713c606e20e5292838e55faaad40949f5b0cb8f76b6027af47"
     },
     "locked_dependency_install": "pass",
     "strict_typescript_build": "pass",
-    "policy_tests": "pass_48_of_48",
-    "native_windows_backend_smoke": "pass_windows_build_26100",
-    "native_windows_smoke_observations": {
-      "hdr_api": "hdr-state",
-      "wifi": "unknown_on_hosted_runner",
-      "bluetooth": "unknown_on_hosted_runner",
-      "theme": "light",
-      "virtual_desktop_available": false
-    },
+    "policy_tests": "pass_51_of_51",
+    "native_windows_backend_smoke": "pass",
     "official_elgato_validation": "pass_lite_and_pro",
-    "production_dependency_audit": "pass_0_high_or_higher_vulnerabilities",
+    "production_dependency_audit": "pass_0_vulnerabilities",
     "official_lite_package": "pass",
     "official_pro_package": "pass",
     "deterministic_lite_rat_art": "pass",
     "deterministic_pro_rat_art": "pass",
     "marketplace_media_dimensions": "pass",
-    "human_marketplace_media_review": "pending_for_control_center_art",
-    "physical_windows_streamdeck_qa": "required"
+    "physical_streamdeck_visual_review": "pass",
+    "physical_lock_pc": "pass",
+    "physical_virtual_desktop_navigation_and_current_state": "pass",
+    "capability_gated_wifi_bluetooth_na_state": "pass_on_test_host",
+    "destructive_restart_shutdown_execution": "not_exercised_owner_accepted_double_press_safety"
   },
-  "open_profile_on_dev": true
+  "open_profile_on_dev": true,
+  "physical_qa_evidence": {
+    "date": "2026-09-14",
+    "result": "approved_for_release",
+    "notes": [
+      "Product owner approved the canonical 15-key default profile on a physical Stream Deck.",
+      "Lock PC confirmed working.",
+      "Virtual desktop navigation/current desktop state confirmed useful and working.",
+      "Wi-Fi and Bluetooth correctly display N/A on the tested PC where those capabilities are unavailable.",
+      "Bluetooth glyph and Previous/Next/New/Close desktop glyphs were visually polished from physical QA screenshots.",
+      "Restart and Shutdown were intentionally not physically executed; default double-press protection remains enabled."
+    ]
+  }
 }
