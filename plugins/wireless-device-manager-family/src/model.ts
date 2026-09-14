@@ -50,6 +50,14 @@ export function resolveSelectedDeviceId(
     : (slotDeviceId ?? localDeviceId ?? null);
 }
 
+export function soleVisibleDeviceId(devices: Device[]): string | null {
+  const visible = devices.filter(device =>
+    device.paired !== false &&
+    device.present !== false
+  );
+  return visible.length === 1 ? visible[0].stableId : null;
+}
+
 export function parseGroupNames(value: string): string[] {
   return [...new Set(
     value
