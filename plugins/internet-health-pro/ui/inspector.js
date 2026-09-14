@@ -91,7 +91,7 @@
   }
   function applyGlobal(next) {
     globals = { ...DEFAULT_GLOBAL, ...(next || {}) };
-    const allowed = [5,10,15,30,60];
+    const allowed = [1,5,10,15,30,60];
     $("intervalSeconds").value = allowed.includes(Number(globals.intervalSeconds)) ? Number(globals.intervalSeconds) : 5;
   }
   function filterFields() {
