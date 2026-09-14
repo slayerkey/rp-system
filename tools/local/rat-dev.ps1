@@ -514,12 +514,32 @@ function Install-DevPlugin {
             $profileDecision = Get-RatDevProfileOpenDecision -ProfilePath $profileToOpen -StateRoot $DevRoot -Slug $Slug
 
             if ($profileDecision.Replace) {
+                $installedPaths = @($profileDecision.InstalledPaths)
+                if (-not $installedPaths.Count -and $profileDecision.InstalledPath) {
+                    $installedPaths = @([string]$profileDecision.InstalledPath)
+                }
                 Write-Host "Refreshing the existing installed Stream Deck profile in place..." -ForegroundColor Cyan
                 if ($profileDecision.ProfileName) { Write-Host "Profile: $($profileDecision.ProfileName)" -ForegroundColor DarkGray }
-                $replacement = Replace-RatDevInstalledProfile -ProfilePath $profileToOpen -InstalledPath $profileDecision.InstalledPath -StateRoot $DevRoot -Slug $Slug -ExpectedName $profileDecision.ProfileName
+                if ($installedPaths.Count -gt 1) {
+                    Write-Host ("Found {0} same-named installed copies; refreshing all of them so no stale duplicate can remain active." -f $installedPaths.Count) -ForegroundColor Yellow
+                }
+
+                $profileHostState = Stop-RatDevStreamDeckForProfileSwap
+                $replacements = @()
+                try {
+                    foreach ($installedPath in $installedPaths) {
+                        $replacements += Replace-RatDevInstalledProfile -ProfilePath $profileToOpen -InstalledPath $installedPath -StateRoot $DevRoot -Slug $Slug -ExpectedName $profileDecision.ProfileName -SkipStreamDeckProcessControl
+                    }
+                }
+                finally {
+                    Start-RatDevStreamDeckAfterProfileSwap -HostState $profileHostState
+                }
+
                 Write-RatDevProfileState -StateRoot $DevRoot -Slug $Slug -ProfilePath $profileToOpen -Fingerprint $profileDecision.Fingerprint -ProfileName $profileDecision.ProfileName
-                Write-Host "Profile refreshed seamlessly at the existing Stream Deck profile path." -ForegroundColor Green
-                Write-Host "Backup: $($replacement.BackupPath)" -ForegroundColor DarkGray
+                Write-Host ("Profile refreshed seamlessly at {0} installed Stream Deck profile path(s)." -f $replacements.Count) -ForegroundColor Green
+                foreach ($replacement in $replacements) {
+                    Write-Host "Backup: $($replacement.BackupPath)" -ForegroundColor DarkGray
+                }
             }
             elseif (-not $profileDecision.Open) {
                 Write-Host "Bundled profile is unchanged and already installed; skipping profile refresh." -ForegroundColor DarkGray
