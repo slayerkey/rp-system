@@ -84,11 +84,11 @@ public static class PackRatTextInput {
             char c = value[i];
             if (c == '\r') {
                 if (i + 1 < value.Length && value[i + 1] == '\n') i++;
-                Press(VK_RETURN);
+                UnicodeChar('\r');
             } else if (c == '\n') {
-                Press(VK_RETURN);
+                UnicodeChar('\r');
             } else if (c == '\t') {
-                Press(VK_TAB);
+                UnicodeChar('\t');
             } else {
                 UnicodeChar(c);
             }
@@ -96,8 +96,11 @@ public static class PackRatTextInput {
     }
     public static void Paste() {
         VirtualKey(VK_CONTROL, false);
-        Press(VK_V);
-        VirtualKey(VK_CONTROL, true);
+        try {
+            Press(VK_V);
+        } finally {
+            VirtualKey(VK_CONTROL, true);
+        }
     }
     public static void CursorLeft(int count) {
         for (int i = 0; i < count; i++) Press(VK_LEFT);
@@ -148,6 +151,22 @@ function DecodeText($value) {
   if ($null -eq $value) { return "" }
   return [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String([string]$value))
 }
+function Invoke-ClipboardRetry {
+  param(
+    [Parameter(Mandatory=$true)][scriptblock]$Operation,
+    [int]$Attempts = 8,
+    [int]$DelayMs = 40
+  )
+  for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
+    try {
+      return & $Operation
+    }
+    catch {
+      if ($attempt -ge $Attempts) { throw }
+      Start-Sleep -Milliseconds $DelayMs
+    }
+  }
+}
 
 switch ($Mode) {
   "context" {
@@ -162,8 +181,9 @@ switch ($Mode) {
   }
   "clipboard" {
     $text = ""
-    if ([System.Windows.Forms.Clipboard]::ContainsText([System.Windows.Forms.TextDataFormat]::UnicodeText)) {
-      $text = [System.Windows.Forms.Clipboard]::GetText([System.Windows.Forms.TextDataFormat]::UnicodeText)
+    $containsText = Invoke-ClipboardRetry { [System.Windows.Forms.Clipboard]::ContainsText([System.Windows.Forms.TextDataFormat]::UnicodeText) }
+    if ($containsText) {
+      $text = Invoke-ClipboardRetry { [System.Windows.Forms.Clipboard]::GetText([System.Windows.Forms.TextDataFormat]::UnicodeText) }
     }
     Emit @{ ok=$true; text=$text }
   }
@@ -185,20 +205,23 @@ switch ($Mode) {
     $original = $null
     $hadOriginal = $false
     try {
-      $original = [System.Windows.Forms.Clipboard]::GetDataObject()
+      $original = Invoke-ClipboardRetry { [System.Windows.Forms.Clipboard]::GetDataObject() }
       $hadOriginal = $null -ne $original
     } catch {}
     $restored = $true
     try {
-      [System.Windows.Forms.Clipboard]::SetText($text, [System.Windows.Forms.TextDataFormat]::UnicodeText)
+      Invoke-ClipboardRetry { [System.Windows.Forms.Clipboard]::SetText($text, [System.Windows.Forms.TextDataFormat]::UnicodeText) } | Out-Null
       [PackRatTextInput]::Paste()
-      Start-Sleep -Milliseconds 140
+      # Clipboard paste is asynchronous in many applications. Give large/multiline
+      # payloads enough time to be consumed before restoring the previous clipboard.
+      $pasteDelayMs = [Math]::Min(1200, [Math]::Max(180, 180 + [Math]::Ceiling($text.Length / 50.0)))
+      Start-Sleep -Milliseconds ([int]$pasteDelayMs)
     } finally {
       try {
         if ($hadOriginal) {
-          [System.Windows.Forms.Clipboard]::SetDataObject($original, $true)
+          Invoke-ClipboardRetry { [System.Windows.Forms.Clipboard]::SetDataObject($original, $true) } | Out-Null
         } else {
-          [System.Windows.Forms.Clipboard]::Clear()
+          Invoke-ClipboardRetry { [System.Windows.Forms.Clipboard]::Clear() } | Out-Null
         }
       } catch {
         $restored = $false
