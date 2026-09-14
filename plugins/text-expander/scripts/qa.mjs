@@ -273,8 +273,8 @@ if(!windowsSource.includes("Windows bridge timed out while running")||!windowsSo
 }
 
 const smoke=await fs.readFile(path.join(root,"scripts","hardware-smoke.ps1"),"utf8");
-if(!smoke.includes("Get-PackagedDirectoryDigest")||!smoke.includes(".sdignore")){
-  fail("Hardware smoke must compare the package-equivalent content view instead of the raw build directory.");
+if(!smoke.includes("Get-OfficialPackagedContentDigest")||!smoke.includes("streamDeckPlugin")||!smoke.includes("Expand-Archive")){
+  fail("Hardware smoke must hash the exact file set produced by the official Elgato packer, not approximate the raw build directory.");
 }
 if(!smoke.includes("lite_unpacked_content_sha256")||!smoke.includes("pro_unpacked_content_sha256")){
   fail("Hardware smoke must require exact unpacked-package digests for both editions.");
