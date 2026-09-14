@@ -235,6 +235,8 @@ if(!inspectorJs.includes('document.createElement("optgroup")'))fail("Pro snippet
 if(!inspectorJs.includes('type:"getSnippet"')||!inspectorJs.includes('"Loading snippet…"'))fail("Property Inspector must lazy-load only the selected snippet body.");
 if(!inspectorJs.includes('type:"openManager"'))fail("Pro Property Inspector must wire the reusable-variable/full-library manager.");
 if(!inspectorJs.includes('BUILD_VERIFIED_PRO_URL')||!inspectorJs.includes('__PACKRAT_VERIFIED_PRO_URL__'))fail("Source Property Inspector must reserve the verified Pro URL for build-time injection.");
+if(!inspectorJs.includes('BUILD_VERIFIED_PRO_URL.startsWith("__PACKRAT_")'))fail("Property Inspector placeholder detection must survive replacement with a real Pro URL.");
+if(inspectorJs.includes('BUILD_VERIFIED_PRO_URL==="__PACKRAT_VERIFIED_PRO_URL__"'))fail("Property Inspector must not compare against the full replaceable Pro URL placeholder.");
 if(!inspectorJs.includes('const topUpgrade=$("topUpgrade")')||!inspectorJs.includes('topUpgrade.classList.remove("hidden")'))fail("Lite top Pro CTA must activate only through verified Pro URL state.");
 if(!inspectorJs.includes('topUpgrade.classList.add("hidden")'))fail("Lite top Pro CTA must stay hidden without a verified Pro URL.");
 if(!inspectorJs.includes("multiline, tabbed, or very long text"))fail("Smart insertion help must describe its structured-text clipboard fallback.");
