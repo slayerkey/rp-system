@@ -47,6 +47,28 @@ function Find-AuditScript {
     throw "'$Slug' does not expose scripts/host-audit.ps1 in its active Rat Dev source. This product does not support 'rat audit' yet."
 }
 
+function Resolve-InternalProductRoot {
+    $metadataPath = Join-Path $Worktree "products\$Slug.json"
+    $metadata = Read-JsonFile $metadataPath
+    if (-not $metadata -or [string]$metadata.type -ne "plugin" -or -not $metadata.source) {
+        return $null
+    }
+
+    $relativeSource = ([string]$metadata.source).Replace("/", "\")
+    $candidate = Join-Path $Worktree $relativeSource
+    if (-not (Test-Path $candidate -PathType Container)) {
+        throw "Rat Audit product metadata for '$Slug' points to a missing source directory: $relativeSource"
+    }
+
+    $resolvedWorktree = (Resolve-Path $Worktree).Path.TrimEnd("\")
+    $resolvedCandidate = (Resolve-Path $candidate).Path
+    if (-not $resolvedCandidate.StartsWith($resolvedWorktree + "\", [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Rat Audit refused source outside the active worktree for '$Slug': $resolvedCandidate"
+    }
+
+    return $resolvedCandidate
+}
+
 function Get-InternalGitValue {
     param([string[]]$Arguments)
     $gitMarker = Join-Path $Worktree ".git"
@@ -92,9 +114,20 @@ function Resolve-AuditTarget {
     if (-not (Test-Path $Worktree -PathType Container)) {
         throw "No Rat Dev worktree exists for '$Slug'. Run 'rat dev $Slug' first, then rerun 'rat audit $Slug'."
     }
-    $preferredRoot = Join-Path $Worktree "plugins\$Slug"
-    $auditPath = Find-AuditScript -SearchRoot $Worktree -PreferredRoot $preferredRoot
-    $productRoot = Split-Path (Split-Path $auditPath -Parent) -Parent
+    $metadataRoot = Resolve-InternalProductRoot
+    if ($metadataRoot) {
+        # Shared product families can intentionally use a source directory that
+        # differs from the product slug. Once canonical product metadata names
+        # that root, audit only inside it rather than scanning unrelated plugins.
+        $preferredRoot = $metadataRoot
+        $auditPath = Find-AuditScript -SearchRoot $metadataRoot -PreferredRoot $metadataRoot
+        $productRoot = $metadataRoot
+    }
+    else {
+        $preferredRoot = Join-Path $Worktree "plugins\$Slug"
+        $auditPath = Find-AuditScript -SearchRoot $Worktree -PreferredRoot $preferredRoot
+        $productRoot = Split-Path (Split-Path $auditPath -Parent) -Parent
+    }
     $commit = Get-InternalGitValue @("rev-parse", "HEAD")
     $branch = Get-InternalGitValue @("branch", "--show-current")
     if ($branch -eq "unknown" -or [string]::IsNullOrWhiteSpace($branch)) { $branch = "detached" }
