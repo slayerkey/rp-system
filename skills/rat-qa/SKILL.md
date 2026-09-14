@@ -11,7 +11,13 @@ At minimum cover metadata, package structure, assets, copy rules, required varia
 
 For plugins, include unit or fixture tests, vendor manifest validation, and the Stream Deck key-face visual gate from `standards/streamdeck-key-visuals-v1.md`. Run `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>` when applicable.
 
+For canonical PackRat Stream Deck UI work, also run `node tools/qa/streamdeck-plugin-design-audit.mjs <plugin-source-root> --require-canonical-pi`. For a Lite/free plugin with a direct Pro counterpart, add `--require-lite-pro-upsell`; both the top `Upgrade to Pro ↗` CTA and bottom explanatory Pro card are required.
+
+The design audit must inspect the real per-action Property Inspector paths declared in the manifest, not assume one shared inspector file. A passing check against the wrong file is not evidence.
+
 The visual gate is not satisfied by correct image dimensions alone. Every PackRat Keypad state must explicitly use `ShowTitle: false`; state/value text belongs inside the rendered key image. Review keys at 72 x 72 and 36 x 36. Reject clipped text, text crossing the main glyph, tiny low-contrast subjects, dense generic device illustrations behind labels, unrelated actions that all look the same, preset buttons that all collapse to one current value, and raw resolution strings that run off the key. Dynamic state must be readable without requiring the user to remember what the button means.
+
+Reject ambiguous extensionless assets as well: a manifest path such as `imgs/actions/foo/key` must not have competing SVG/PNG/@2x candidates. Review representative runtime-generated states in addition to static manifest art, because runtime rendering is the shipping UI.
 
 For profiles, include ZIP structure, page structure, action IDs, required plugins, device variants, icons, platform encoding, and the same key-face visual standard. Generated profile labels must not undo the plugin's visual hierarchy. For complex plugins, verify page grouping and navigation instead of only checking archive validity. Rat Dev should open the standard/MK.2 profile automatically when bundled profiles exist.
 
@@ -24,5 +30,9 @@ For art, include dimensions, expected file count, font identity, required source
 Do not mark the whole workflow local because a final device check remains.
 
 Do not preserve a stale `qa_passed` state after Marketplace or real-host evidence demonstrates a failure. Route the product back to blocked/recovery status until the rejected behavior is covered by an automated regression and that regression passes against the exact package intended for resubmission.
+
+The same invalidation rule applies when product scope or behavior changes after QA. A feature rollback, product-boundary reset, UUID/settings migration, or removal/addition of app-launch/profile/workspace behavior invalidates earlier final release evidence even when the old tests were green. Re-run deterministic tests, native smoke, vendor validation/package, relevant art, and exact-package evidence against the new exact source commit.
+
+For paid/private-source products, distinguish infrastructure failure from product failure. A private Actions run that fails before meaningful checkout/test steps because runner allocation is unavailable is not code evidence. Use the established public control-plane/private-source QA bridge when configured, pin the exact private SHA, keep paid source/packages out of public artifacts, and record the actual Windows/macOS job evidence.
 
 Report automated pass, warnings, blockers, and the smallest exact hardware or host test still required.
