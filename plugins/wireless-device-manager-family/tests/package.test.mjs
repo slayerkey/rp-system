@@ -262,7 +262,7 @@ test("Lite upsell is catalog-driven and never hardcodes a placeholder Marketplac
   assert.match(html,/Wireless Device Manager Pro/);
   assert.match(html,/favorites/i);
   assert.match(html,/low-battery alerts/i);
-  assert.match(html,/id="pro-link" hidden/);
+  assert.match(html,/id="pro-link"[^>]*hidden/);
   assert.match(submission.description,/Upgrade to Wireless Device Manager Pro/);
   assert.doesNotMatch(html,/marketplace\.elgato\.com\/product\/wireless-device-manager-pro/i);
   assert.equal(config,`window.WIRELESS_PRO_MARKETPLACE_URL = ${JSON.stringify(pair?.pro_marketplace_url??"")};`);
