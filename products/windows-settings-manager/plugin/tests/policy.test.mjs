@@ -225,7 +225,7 @@ test("Pro exposes the 15-key Windows Control Center and keeps PC Modes secondary
 
 test("Marketplace art shows the real Control Center instead of text-only placeholder frames", async () => {
   const art = await readFile(path.resolve("scripts", "rat-art.py"), "utf8");
-  assert.match(art, /from tools\.art\.streamdeck_photo import alpha_crop_device, compose_device/);
+  assert.match(art, /from streamdeck_photo import alpha_crop_device, compose_device/);
   assert.match(art, /rat-art-keys/);
   assert.match(art, /PRO_KEYS = \[/);
   assert.match(art, /LITE_KEYS = \[/);
