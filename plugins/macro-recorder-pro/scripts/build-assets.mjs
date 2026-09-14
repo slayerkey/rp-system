@@ -21,14 +21,14 @@ function crc32(b){let crc=0xffffffff;for(const x of b){crc^=x;for(let i=0;i<8;i+
 function chunk(type,data){const n=Buffer.from(type),body=Buffer.concat([n,data]),o=Buffer.alloc(12+data.length);o.writeUInt32BE(data.length,0);n.copy(o,4);data.copy(o,8);o.writeUInt32BE(crc32(body),8+data.length);return o;}
 function encode(size,p){const raw=Buffer.alloc((size*4+1)*size);for(let y=0;y<size;y++){const row=y*(size*4+1);raw[row]=0;p.copy(raw,row+1,y*size*4,(y+1)*size*4);}const ih=Buffer.alloc(13);ih.writeUInt32BE(size,0);ih.writeUInt32BE(size,4);ih[8]=8;ih[9]=6;return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk("IHDR",ih),chunk("IDAT",deflateSync(raw,{level:9})),chunk("IEND",Buffer.alloc(0))]);}
 function draw(size,kind,mode){
- const p=Buffer.alloc(size*size*4),dark=[8,10,14,255],white=[255,255,255,255],accent=[255,178,30,255];
+ const p=Buffer.alloc(size*size*4),dark=[8,10,14,255],white=[255,255,255,255],accent=[255,178,30,255],recordRed=[255,93,108,255],playGreen=[43,232,106,255];
  if(mode!=="list")for(let i=0;i<p.length;i+=4)p.set(dark,i);
  const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x<0||y<0||x>=size||y>=size)return;p.set(c,(y*size+x)*4);};
  const rect=(x0,y0,x1,y1,c)=>{for(let y=Math.round(y0);y<=Math.round(y1);y++)for(let x=Math.round(x0);x<=Math.round(x1);x++)set(x,y,c);};
  const circle=(cx,cy,r,c,stroke=0)=>{for(let y=Math.floor(cy-r);y<=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x<=Math.ceil(cx+r);x++){const d=(x-cx)**2+(y-cy)**2;if(d<=r*r&&(!stroke||d>=(r-stroke)**2))set(x,y,c);}};
  const triangleRight=(cx,cy,w,h,c)=>{const left=cx-w/2,right=cx+w/2;for(let x=Math.floor(left);x<=Math.ceil(right);x++){const t=(x-left)/w;const half=(h/2)*Math.max(0,Math.min(1,1-t));for(let y=Math.ceil(cy-half);y<=Math.floor(cy+half);y++)set(x,y,c);}};
  const s=size/144;
- const glyph=white;
+ const glyph=mode==="list"?white:(kind==="record"?recordRed:kind==="replay"?playGreen:white);
  if(mode!=="list")rect(5*s,18*s,10*s,126*s,accent);
  if(kind==="record")circle(76*s,60*s,26*s,glyph,7*s);
  else if(kind==="stop")rect(51*s,35*s,101*s,85*s,glyph);
@@ -40,4 +40,4 @@ async function savePair(dir,kind,size,mode){await mkdir(dir,{recursive:true});aw
 await savePair(resolve(plugin,"imgs","plugin"),"plugin",256,"key");
 await savePair(resolve(plugin,"imgs","category"),"category",28,"list");
 for(const kind of ["record","stop","replay"]){const dir=resolve(plugin,"imgs","actions",kind);await mkdir(dir,{recursive:true});await writeFile(resolve(dir,"icon.png"),draw(20,kind,"list"));await writeFile(resolve(dir,"icon@2x.png"),draw(40,kind,"list"));await writeFile(resolve(dir,"key.png"),draw(72,kind,"key"));await writeFile(resolve(dir,"key@2x.png"),draw(144,kind,"key"));}
-console.log("Built canonical PackRat white/orange key art, monochrome action-list icons, UI, local input host, and third-party notices.");
+console.log("Built canonical PackRat key art with red Record, green Play, white Stop, monochrome action-list icons, UI, local input host, and third-party notices.");
