@@ -43,10 +43,28 @@ foreach ($path in @($PluginJs, $Bridge)) {
     }
 }
 
-Section "Direct Pro bridge snapshot"
+Section "Direct Pro bridge battery samples"
 if (Test-Path $Bridge -PathType Leaf) {
-    $bridgeJson = & $Bridge snapshot 2>&1
-    Write-Host ($bridgeJson | Out-String)
+    for ($sampleIndex = 1; $sampleIndex -le 3; $sampleIndex++) {
+        $bridgeJson = (& $Bridge snapshot 2>&1 | Out-String).Trim()
+        Write-Host ("Sample {0}: {1}" -f $sampleIndex,$bridgeJson)
+        try {
+            $parsed = $bridgeJson | ConvertFrom-Json
+            foreach ($device in @($parsed.devices)) {
+                Write-Host ("  {0}: kind={1}, battery={2}, charging={3}, source={4}, observedAt={5}" -f
+                    $device.name,
+                    $device.kind,
+                    $device.batteryPercent,
+                    $device.charging,
+                    $device.batterySource,
+                    $device.batteryObservedAt)
+            }
+        }
+        catch {
+            Write-Host "  Could not parse bridge sample JSON." -ForegroundColor Yellow
+        }
+        if ($sampleIndex -lt 3) { Start-Sleep -Seconds 2 }
+    }
 } else {
     Write-Host "Pro bridge executable missing." -ForegroundColor Red
 }
