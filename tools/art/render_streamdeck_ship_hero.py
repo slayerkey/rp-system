@@ -170,7 +170,13 @@ def action_face(plugin_dir: Path, action: dict) -> tuple[Image.Image, str]:
     return fallback_face(str(action.get("Name") or "Action"), icon_path), "fallback"
 
 
-def render_ship_hero(product: str, plugin_dir: Path, submission_path: Path, out: Path) -> dict:
+def render_ship_hero(
+    product: str,
+    plugin_dir: Path,
+    submission_path: Path,
+    out: Path,
+    keys_dir: Path | None = None,
+) -> dict:
     manifest_path = plugin_dir / "manifest.json"
     if not manifest_path.is_file():
         fail(f"Stream Deck hero manifest missing: {manifest_path}")
@@ -191,19 +197,32 @@ def render_ship_hero(product: str, plugin_dir: Path, submission_path: Path, out:
 
     sources: list[str] = []
     faces: list[Image.Image] = []
-    for action in actions[:15]:
-        if not isinstance(action, dict):
-            continue
-        face, source = action_face(plugin_dir, action)
-        faces.append(face)
-        sources.append(source)
 
-    if not faces:
-        fail("Stream Deck hero could not derive any action faces")
+    if keys_dir is not None:
+        paths = sorted(keys_dir.glob("*.png"))
+        if len(paths) != 15:
+            fail(f"Product Rat Art keys directory must contain exactly 15 PNGs: {keys_dir} (found {len(paths)})")
+        for path in paths:
+            try:
+                face = normalize_face(Image.open(path))
+            except Exception as exc:
+                fail(f"Could not load product Rat Art key face {path}: {exc}")
+            faces.append(face)
+            sources.append(f"product-rat-art:{path.name}")
+    else:
+        for action in actions[:15]:
+            if not isinstance(action, dict):
+                continue
+            face, source = action_face(plugin_dir, action)
+            faces.append(face)
+            sources.append(source)
 
-    while len(faces) < 15:
-        faces.append(blank_face())
-        sources.append("blank")
+        if not faces:
+            fail("Stream Deck hero could not derive any action faces")
+
+        while len(faces) < 15:
+            faces.append(blank_face())
+            sources.append("blank")
 
     for index, face in enumerate(faces[:15]):
         face.save(key_root / f"{index:02d}.png", "PNG", optimize=True)
@@ -230,6 +249,7 @@ def render_ship_hero(product: str, plugin_dir: Path, submission_path: Path, out:
         "submission": str(submission_path),
         "action_count": len(actions),
         "key_sources": sources[:15],
+        "product_rat_art_keys": str(keys_dir) if keys_dir is not None else None,
         "cover": str(out),
         "only_marketplace_slot_replaced": "02_cover.png",
         "image_generation": "disabled",
