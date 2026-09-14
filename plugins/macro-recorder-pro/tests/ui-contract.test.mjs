@@ -15,7 +15,7 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
     readFile(new URL("scripts/build-assets.mjs",root),"utf8"),
   ]);
   new vm.Script(js);
-  for(const id of ["packratLink","captureMouseMovement","macroSelect","stateConnection","refreshLibrary","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
+  for(const id of ["packratLink","captureMouseMovement","macroSelect","stateConnection","refreshLibrary","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","runDiagnostic","copyDiagnostic","diagnosticStatus","diagnosticReport","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
     assert.match(html,new RegExp(`id=["']${id}["']`),`missing inspector control ${id}`);
   }
   assert.doesNotMatch(html,/id=["']macroName["']/);
@@ -40,11 +40,23 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(runtime,/Date\.now\(\) \+ 15000/);
   assert.match(runtime,/settings: record \? \{ \.\.\.record\.settings/);
   assert.match(runtime,/autoLatest: pro \? source\.autoLatest !== false : false/);
+  assert.match(runtime,/streamDeck\.ui\.onSendToPlugin/);
+  assert.match(runtime,/streamDeck\.ui\.sendToPropertyInspector/);
+  assert.match(runtime,/requestedActionContext/);
+  assert.match(runtime,/buildDiagnostic/);
+  assert.match(runtime,/library\.diagnose\(\)/);
+  assert.match(runtime,/PI request reached plugin/);
+  assert.match(runtime,/Library directory writable/);
   assert.match(js,/autoLatest:false/);
   assert.doesNotMatch(runtime,/record\.kind === "record"[\s\S]{0,180}else if \(saved\) title = "SAVED"/);
   assert.match(js,/context:uiUuid/);
-  assert.doesNotMatch(js,/actionContext/);
-  assert.match(js,/sendToPlugin"[\s\S]{0,120}context:uiUuid/);
+  assert.match(js,/actionContext/);
+  assert.match(js,/sendToPlugin"[\s\S]{0,160}context:uiUuid/);
+  assert.match(js,/payload:\{type:"macroRecorder\.inspect",actionContext\}/);
+  assert.match(js,/type:"macroRecorder\.diagnostic"/);
+  assert.match(js,/function runDiagnostic/);
+  assert.match(js,/function diagnosticText/);
+  assert.match(html,/Copy report/);
   assert.match(js,/function requestState/);
   assert.match(js,/stateRetries<5/);
   assert.match(js,/Macro Library connected/);
@@ -66,6 +78,10 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(js,/https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
   assert.match(assets,/ratpack-icon-transparent\.png/);
   assert.match(assets,/accent=\[255,178,30,255\]/);
+  assert.match(assets,/recordRed=\[255,93,108,255\]/);
+  assert.match(assets,/playGreen=\[43,232,106,255\]/);
+  assert.match(runtime,/#FF5D6C/);
+  assert.match(runtime,/#2BE86A/);
   assert.match(runtime,/function packRatKeyImage/);
   assert.match(runtime,/setImage\(packRatKeyImage\(record\.kind, title\)\)/);
   assert.match(runtime,/#080A0E/);
