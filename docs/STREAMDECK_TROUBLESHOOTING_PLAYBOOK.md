@@ -107,9 +107,37 @@ For stateful plugins with a library/editor, add a temporary or collapsible **Dee
 
 A diagnostic that can itself fail silently is not a diagnostic.
 
-### Stale-state variant
+### Stale-state / save-race variant
 
-If the plugin successfully changes state but the PI still renders the old selection, merge the authoritative state/settings returned by the plugin into PI-local state **before render**. Keep one selected-ID source of truth. Do not render from stale startup settings after the plugin has already acknowledged a new value.
+If the plugin successfully changes state but the PI still renders the old selection, do not treat every incoming message as safe to render verbatim. A PI can receive a stale startup/state response while a newer local edit is still waiting for `setSettings` acknowledgement.
+
+Use this race-hardening pattern:
+
+- keep pending local setting edits in a `pendingPatch` (or equivalent) until the backend echoes the same values
+- reconcile **every** incoming settings-bearing message against that pending patch before render; this includes normal `didReceiveSettings` responses **and** plugin `sendToPropertyInspector` state payloads
+- render from immutable item IDs, not display labels, counts, or array positions
+- use the plugin's authoritative state response as a valid save acknowledgement when it contains the persisted settings; `Saving…` must reliably become `Saved`
+- flush pending settings before sending a command that depends on them
+- flush the debounce on `pagehide` / `beforeunload` so a fast click-away cannot lose the last edit
+- keep mutable text used by command buttons (rename/name/path/etc.) in a local draft; do not let a background render overwrite that draft while it is dirty
+- after a successful create/rename/capture/etc., clear the draft-dirty state only when the authoritative result returns
+- disable rename/delete/duplicate-style commands when the selected ID is no longer valid
+- use a short command watchdog so `Saving…`, `Renaming…`, `Capturing…`, etc. cannot remain stuck forever if no backend response arrives
+
+For selectors whose items can share a human name, preserve stable IDs and disambiguate labels for the user (for example with an ordinal, type, or count). Do not auto-delete ambiguous old data just to make the dropdown look cleaner.
+
+### Required regression sequence for stateful Property Inspectors
+
+Before hardware QA, cover this sequence in deterministic tests where practical:
+
+1. change a selector or numeric setting
+2. inject/receive a stale state response before the setting acknowledgement
+3. confirm the local selection/value does not jump backward
+4. confirm an authoritative response containing the new value clears `Saving…`
+5. type a rename/name draft, trigger a render/focus transition, then press the command
+6. confirm the exact typed draft reaches the backend
+7. switch to another key/action and back; confirm the saved value and selected immutable ID persist
+8. if duplicate display names exist, confirm each row remains independently selectable by ID
 
 ### Feedback rule
 
