@@ -1,5 +1,8 @@
 # PackRat Stream Deck Plugin Design System v1
 
+> **Visual theme candidate:** the current dark + cheddar PackRat premium UI proposal is documented in `standards/streamdeck-packrat-premium-theme-candidate-v1.md`. It is available for Rat Dev review and recent-product rollout, but it does not replace the canonical global defaults until final visual approval.
+
+
 This is the canonical implementation contract for new PackRat Stream Deck plugins. It captures the hardware, Property Inspector, profile, and visual lessons that repeatedly caused rework when they were left implicit.
 
 The target is not "looks correct in source." The target is "obvious, readable, persistent, and responsive on a real Stream Deck."
