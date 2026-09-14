@@ -208,6 +208,8 @@ export class DeviceCatalog {
         controlId: null,
         batteryPercent: null,
         charging: null,
+        batteryObservedAt: null,
+        batterySource: null,
         control: { connect: false, disconnect: false },
         capabilities: {
           STATUS: true,
