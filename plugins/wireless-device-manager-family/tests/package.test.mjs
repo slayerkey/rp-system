@@ -152,9 +152,17 @@ test("wireless inspector does not block USB devices when Bluetooth is unavailabl
 });
 
 
-test("Property Inspector snapshot requests receive an immediate response",async()=>{
+test("Property Inspector state is sent through the concrete action context",async()=>{
   const actions=await readFile("src/actions.ts","utf8");
-  assert.match(actions,/payload\.type === "get-wireless-snapshot"[\s\S]*await this\.runtime\.sendInspector\(\);[\s\S]*return;/);
+  const runtime=await readFile("src/runtime.ts","utf8");
+  const inspector=await readFile("ui/inspector.js","utf8");
+  assert.match(actions,/onPropertyInspectorDidAppear/);
+  assert.match(actions,/ev\.action\.sendToPropertyInspector\(await this\.runtime\.inspectorPayload\(\)\)/);
+  assert.match(actions,/payload\.type === "get-wireless-snapshot"[\s\S]*sendToPropertyInspector/);
+  assert.match(runtime,/inspectorPayload\(\)/);
+  assert.doesNotMatch(runtime,/streamDeck\.ui\.sendToPropertyInspector/);
+  assert.match(inspector,/setInterval\(requestSnapshot,1500\)/);
+  assert.match(inspector,/Wireless plugin is not responding/);
 });
 
 test("settings reads are side-effect free and global writes are explicit",async()=>{
