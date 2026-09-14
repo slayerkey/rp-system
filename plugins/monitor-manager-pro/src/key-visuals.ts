@@ -4,8 +4,11 @@ export type KeyKind =
   | "orientation" | "save-profile" | "apply-profile" | "status";
 
 export const PRIMARY_ACCENT="#FFB21E";
-export const ACCENT_HOVER="#FFC94A";
-export const ACCENT_DEEP="#C97A00";
+export const ACCENT_HOVER="#FFC44D";
+export const ACCENT_SOFT="rgba(255,178,30,.16)";
+export const ACCENT_GLOW="rgba(255,178,30,.28)";
+
+const ACCENT_RAIL='<rect x="8" y="12" width="5" height="32" rx="2.5" fill="'+PRIMARY_ACCENT+'"/>';
 
 const GLYPHS:Record<KeyKind,string>={
   brightness:'<circle cx="36" cy="21" r="8"/><path d="M36 7v5M36 30v5M22 21h5M45 21h5M26 11l4 4M42 27l4 4M46 11l-4 4M30 27l-4 4"/>',
@@ -61,6 +64,7 @@ export function keyImage(kind:KeyKind,rawLines:string[]):string{
   return "data:image/svg+xml;base64,"+Buffer.from(
     '<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">'+
     '<rect width="144" height="144" rx="24" fill="#05070A"/>'+
+    ACCENT_RAIL+
     '<g transform="translate(21 4) scale(1.42)" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">'+GLYPHS[kind]+'</g>'+
     text+'</svg>',
     "utf8"

@@ -398,18 +398,42 @@ test("Monitor Profile inspector explicitly explains the saved snapshot contents"
 });
 
 
-test("Monitor Manager keeps utility keys neutral while branding uses the orange-yellow accent", async () => {
-  const visuals=await readFile("src/key-visuals.ts","utf8");
+test("Monitor Manager consumes the canonical PackRat Property Inspector design system", async () => {
   const css=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.css","utf8");
   const html=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/config.html","utf8");
+  const pi=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/pi.js","utf8");
+  const logo=await readFile("com.packrat.monitormanagerpro.sdPlugin/ui/ratpack-icon-transparent.png");
+
+  for(const token of [
+    "#080A0E","#151920","#0D1015","#15191E","#181C21","#22272E",
+    "#303640","#F5F7FB","#9AA2AF","#FFB21E","#FFC44D","#FF5D6C"
+  ]) assert.match(css,new RegExp(token.replace("#","\\#"),"i"),"missing canonical token "+token);
+
+  assert.match(css,/rgba\(255,178,30,\.16\)/);
+  assert.match(css,/rgba\(255,178,30,\.28\)/);
+  assert.match(css,/body::before/);
+  assert.match(css,/radial-gradient/);
+  assert.match(css,/\.packrat-brand/);
+  assert.match(css,/background:var\(--packrat-button\)/);
+  assert.match(css,/button\.danger/);
+  assert.ok(logo.length>1000,"real PackRat transparent logo asset must be bundled locally");
+  assert.match(html,/ratpack-icon-transparent\.png/);
+  assert.match(html,/PackRat ↗/);
+  assert.match(pi,/marketplace\.elgato\.com\/maker\/packrat/);
+  assert.match(pi,/event:"openUrl"/);
+});
+
+test("Monitor Manager key faces use canonical white geometry plus PackRat accent highlight", async () => {
+  const visuals=await readFile("src/key-visuals.ts","utf8");
+  const manifest=JSON.parse(await readFile("com.packrat.monitormanagerpro.sdPlugin/manifest.json","utf8"));
+  assert.match(visuals,/PRIMARY_ACCENT="#FFB21E"/);
+  assert.match(visuals,/ACCENT_HOVER="#FFC44D"/);
   assert.match(visuals,/stroke="#fff"/);
-  assert.match(visuals,/fill="#fff" stroke="none"/);
-  assert.doesNotMatch(visuals,/stroke="#FFB21E"/);
-  assert.match(css,/#ffb21e/i);
-  assert.match(css,/#ffc94a/i);
-  assert.match(css,/#c97a00/i);
-  assert.match(css,/rgba\(255,178,30,\.35\)/);
-  assert.doesNotMatch(css,/#2be86a/i);
-  assert.match(html,/https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
-  assert.match(html,/PACKRAT ↗/);
+  assert.match(visuals,/ACCENT_RAIL/);
+  for(const action of manifest.Actions.filter((a)=>a.Controllers?.includes("Keypad"))){
+    const file=path.resolve("com.packrat.monitormanagerpro.sdPlugin",action.States[0].Image+".svg");
+    const svg=await readFile(file,"utf8");
+    assert.match(svg,/#fff/i,action.Name+" must keep white semantic geometry");
+    assert.match(svg,/#FFB21E/i,action.Name+" must include the canonical PackRat accent highlight");
+  }
 });
