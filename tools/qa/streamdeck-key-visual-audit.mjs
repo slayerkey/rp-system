@@ -33,7 +33,14 @@ function assetCandidates(base){
     resolve(pluginDir,base+"@2x.png")
   ];
 }
-function firstAsset(base){return assetCandidates(base).find(existsSync)??null;}
+function existingAssets(base){return assetCandidates(base).filter(existsSync);}
+function firstAsset(base,name="asset"){
+  const matches=existingAssets(base);
+  if(matches.length>1){
+    errors.push(name+": extensionless asset path is ambiguous; keep exactly one canonical target ("+matches.join(", ")+")");
+  }
+  return matches[0]??null;
+}
 function inspectSvg(file,name){
   const text=readFileSync(file,"utf8");
   const view=text.match(/viewBox=["']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)["']/i);
@@ -61,14 +68,24 @@ function inspectPng(file,name){
 for(const action of keypad){
   const name=action.Name??action.UUID??"Unnamed action";
   if(!action.Icon)errors.push(name+": missing action-list Icon");
-  else if(!firstAsset(action.Icon))errors.push(name+": action-list Icon asset is missing: "+action.Icon);
+  else{
+    const iconFile=firstAsset(action.Icon,name+" action-list icon");
+    if(!iconFile)errors.push(name+": action-list Icon asset is missing: "+action.Icon);
+    else if(iconFile.endsWith(".svg")){
+      const iconText=readFileSync(iconFile,"utf8");
+      const colors=[...iconText.matchAll(/(?:fill|stroke)=["'](#[0-9a-f]{3,8}|[a-z]+)["']/gi)]
+        .map(m=>m[1].toLowerCase())
+        .filter(v=>!["none","white","#fff","#ffffff","currentcolor"].includes(v));
+      if(colors.length)warnings.push(name+": action-list SVG uses non-white color(s) ("+[...new Set(colors)].join(", ")+"). Keep sidebar/action-list icons monochrome white unless a documented exception requires color.");
+    }
+  }
 
   const states=Array.isArray(action.States)?action.States:[];
   if(!states.length){errors.push(name+": no key States declared");continue;}
   for(const [index,state] of states.entries()){
     const stateName=name+" state "+index;
     if(!state.Image){errors.push(stateName+": missing key Image");continue;}
-    const file=firstAsset(state.Image);
+    const file=firstAsset(state.Image,stateName+" key image");
     if(!file)errors.push(stateName+": key Image asset is missing: "+state.Image);
     else{
       const list=reused.get(state.Image)??[];
@@ -129,7 +146,7 @@ console.log("Keypad actions: "+keypad.length);
 console.log("Bundled profiles: "+profiles.length+(requireMajorProfiles?" (major-model coverage required)":""));
 for(const warning of warnings)console.log("WARN: "+warning);
 for(const error of errors)console.error("ERROR: "+error);
-console.log("Manual gate still required: review representative runtime-rendered keys at 72 x 72 and 36 x 36. This script prevents host title overlays but cannot prove internal rendered layout quality.");
+console.log("Manual gate still required: review representative runtime-rendered keys at 72 x 72 and 36 x 36, including longest labels, two-line labels, error/N-A states, presets, and live values. This script prevents host title overlays and ambiguous extensionless assets but cannot prove internal rendered layout quality.");
 
 if(errors.length){
   console.error("FAIL: "+errors.length+" key visual error(s), "+warnings.length+" warning(s)");
