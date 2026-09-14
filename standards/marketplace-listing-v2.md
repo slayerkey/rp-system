@@ -225,6 +225,10 @@ Differentiate editions with a restrained badge or label and the real feature/sta
 
 Do not use a more cinematic device, brighter fake UI, or unrelated background solely to make Pro appear premium.
 
+For Stream Deck Lite/free plugins with a verified direct Pro counterpart, the in-product conversion UI follows `standards/streamdeck-plugin-design-system-v1.md`: persistent top `Upgrade to Pro ↗` plus a bottom feature-rich Pro card. Marketplace/listing work must not invent a different conversion pattern.
+
+Any Lite→Pro link shown in product UI or release metadata must use the exact verified public Pro Marketplace `/product/` URL. Do not substitute maker/search/generic routes and do not expose the CTA before the Pro listing is public.
+
 ## XENEON-specific rule
 
 For XENEON Edge, the captured widget remains the source of truth and is composited into the calibrated XENEON device plate.
