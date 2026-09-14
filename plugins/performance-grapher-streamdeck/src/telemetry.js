@@ -11,11 +11,11 @@ import { PresentMonProvider } from "./presentmon.js";
 import { SessionTracker } from "./session.js";
 
 const CANONICAL = new Set([
-  "cpu.load", "ram.load", "cpu.temperature", "gpu.temperature", "gpu.load", "gpu.power", "cpu.power",
+  "cpu.load", "ram.load", "cpu.temperature", "gpu.temperature", "gpu.fan", "gpu.load", "gpu.power", "cpu.power",
 ]);
 
 const HARDWARE_ALIASES = new Set([
-  "cpu.temperature", "gpu.temperature", "gpu.load", "gpu.power", "cpu.power",
+  "cpu.temperature", "gpu.temperature", "gpu.fan", "gpu.load", "gpu.power", "cpu.power",
 ]);
 
 function finite(value) {
@@ -46,6 +46,12 @@ function descriptorScore(sensor, target) {
     if (name.includes("core max")) return 90;
     if (name.includes("core")) return 70;
     return 50;
+  }
+  if (target === "gpu.fan" && isGpu && type === "fan") {
+    if (name.includes("gpu fan")) return 110;
+    if (name === "fan 1" || name.includes("fan #1")) return 100;
+    if (name.includes("fan")) return 85;
+    return 60;
   }
   if (target === "gpu.load" && isGpu && type === "load") {
     if (name === "gpu core" || name.includes("gpu core")) return 100;
@@ -452,6 +458,7 @@ export class TelemetryService extends EventEmitter {
           id: alias,
           name: alias === "gpu.temperature" ? "GPU Temperature" :
             alias === "cpu.temperature" ? "CPU Temperature" :
+            alias === "gpu.fan" ? "GPU Fan Speed" :
             alias === "gpu.load" ? "GPU Load" :
             alias === "gpu.power" ? "GPU Power" : "CPU Power",
           unit: source?.unit || "",
@@ -534,7 +541,7 @@ export class TelemetryService extends EventEmitter {
 
     this.activeGpuKey = selectedKey;
     const selectedGpu = selectedKey === null ? [] : gpuGroups.get(selectedKey) || [];
-    for (const target of ["gpu.temperature", "gpu.load", "gpu.power"]) {
+    for (const target of ["gpu.temperature", "gpu.fan", "gpu.load", "gpu.power"]) {
       const best = this._bestAliasSensor(target, selectedGpu);
       if (best?.id) this.aliases.set(target, best.id);
     }
