@@ -58,6 +58,9 @@ Internet Health Pro is the reference for this pattern.
 9. Unsupported hardware shows `N/A` or `?`, never a believable fake zero.
 10. Bundled profile generation must preserve `ShowTitle: false`; it may not reintroduce host title overlays.
 11. Long explanations belong in the tooltip or Property Inspector.
+12. An extensionless manifest asset path must resolve to exactly one canonical file. Do not ship competing `.svg`, `.png`, or `@2x` variants for the same path.
+13. Action-list/category icons and key faces are different jobs. Keep action-list/sidebar icons monochrome white when required by Elgato presentation; use PackRat orange/white on the hardware key face.
+14. Runtime-generated key images are authoritative. A correct fallback SVG does not excuse stale runtime colors, tiny runtime text, or a different runtime layout.
 
 ## Geometry baseline
 
@@ -69,6 +72,8 @@ For a 144 x 144 rendered source:
 - for data cards, start around 15-17 px for the label, 29-38 px for the primary value, and 13-16 px for secondary values
 - footer text is optional; never hide essential information in micro-copy
 - if two values are equally important, use a dedicated equal-weight layout instead of shrinking one into a footer
+- size text from the longest real label/state you actually ship; use the largest readable size that fits the reserved safe region instead of a fixed tiny font
+- if the longest label forces unreadably small type, shorten the customer-facing label or split it into at most two intentional lines rather than allowing overflow
 - for live graphs, use a dedicated 10-30 second visual window rather than compressing long analytical history into the key
 
 ## References
@@ -84,8 +89,10 @@ For each new or materially changed Stream Deck plugin:
 
 1. Build exact shipping assets.
 2. Run `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>`.
+   The shared audit also rejects ambiguous extensionless key/icon assets so Stream Deck cannot silently choose an outdated PNG over the intended SVG.
 3. The audit must fail if a Keypad state does not explicitly set `ShowTitle: false`.
 4. Review representative runtime-rendered states at 72 x 72 and 36 x 36.
+   Include the longest label, two-line state, error/N-A state, configured preset, and at least one live/dynamic state when those exist.
 5. Review bundled profile output separately. For dashboard-style plugins that promise major-model profiles, use `--require-major-profiles`.
 6. Verify user accents render consistently in healthy/active states while warning/error colors keep semantic meaning.
 7. Reject keys with collisions, tiny subjects, ambiguous presets, raw overlong resolution strings, unequal treatment of paired values, or generic shared artwork.
