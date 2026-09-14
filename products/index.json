@@ -811,7 +811,7 @@
       "id": "windows-settings-manager-pro",
       "name": "Windows Settings Manager Pro",
       "type": "plugin",
-      "status": "testing",
+      "status": "qa_passed",
       "price_usd": 7.99,
       "version": "0.1.0.0"
     },
