@@ -50,6 +50,7 @@ function Find-RatDevInstalledProfile {
         [string[]]$InstalledRoots
     )
 
+    $matches = @()
     foreach ($root in @(Get-RatDevInstalledProfileRoots -OverrideRoots $InstalledRoots)) {
         if (-not (Test-Path $root -PathType Container)) { continue }
 
@@ -59,8 +60,7 @@ function Find-RatDevInstalledProfile {
             try {
                 $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
                 if ([string]$manifest.Name -eq $ProfileName) {
-                    return [PSCustomObject]@{
-                        Found = $true
+                    $matches += [PSCustomObject]@{
                         Name = [string]$manifest.Name
                         Path = $dir.FullName
                     }
@@ -70,7 +70,17 @@ function Find-RatDevInstalledProfile {
         }
     }
 
-    return [PSCustomObject]@{ Found = $false; Name = $ProfileName; Path = $null }
+    if ($matches.Count) {
+        return [PSCustomObject]@{
+            Found = $true
+            Name = $ProfileName
+            Path = [string]$matches[0].Path
+            Paths = @($matches | ForEach-Object { [string]$_.Path })
+            Count = $matches.Count
+        }
+    }
+
+    return [PSCustomObject]@{ Found = $false; Name = $ProfileName; Path = $null; Paths = @(); Count = 0 }
 }
 
 function Get-RatDevProfileStatePath {
@@ -430,24 +440,30 @@ function Get-RatDevProfileOpenDecision {
         Find-RatDevInstalledProfile -ProfileName $profileName -InstalledRoots $InstalledRoots
     }
     else {
-        [PSCustomObject]@{ Found = $false; Name = $null; Path = $null }
+        [PSCustomObject]@{ Found = $false; Name = $null; Path = $null; Paths = @(); Count = 0 }
     }
 
     if (-not $state -and $installed.Found) {
-        return [PSCustomObject]@{ Open=$false; Replace=$true; Adopt=$false; Reason="existing-installed-untracked"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        return [PSCustomObject]@{ Open=$false; Replace=$true; Adopt=$false; Reason="existing-installed-untracked"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path; InstalledPaths=@($installed.Paths) }
     }
 
     $stateVersion = if ($state -and $state.state_version) { [int]$state.state_version } else { 0 }
     if ($state -and $stateVersion -lt 3 -and $installed.Found) {
-        return [PSCustomObject]@{ Open=$false; Replace=$true; Adopt=$false; Reason="profile-state-upgrade"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        return [PSCustomObject]@{ Open=$false; Replace=$true; Adopt=$false; Reason="profile-state-upgrade"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path; InstalledPaths=@($installed.Paths) }
     }
 
     if ($state -and [string]$state.sha256 -eq $fingerprint -and $installed.Found) {
-        $installedMatches = Test-RatDevInstalledProfileMatchesBundle -ProfilePath $ProfilePath -InstalledPath $installed.Path -StateRoot $StateRoot -Slug $Slug
-        if ($installedMatches) {
-            return [PSCustomObject]@{ Open=$false; Replace=$false; Adopt=$false; Reason="unchanged-installed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        $installedMatches = $true
+        foreach ($installedPath in @($installed.Paths)) {
+            if (-not (Test-RatDevInstalledProfileMatchesBundle -ProfilePath $ProfilePath -InstalledPath $installedPath -StateRoot $StateRoot -Slug $Slug)) {
+                $installedMatches = $false
+                break
+            }
         }
-        return [PSCustomObject]@{ Open=$false; Replace=$true; Adopt=$false; Reason="installed-profile-drift"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        if ($installedMatches) {
+            return [PSCustomObject]@{ Open=$false; Replace=$false; Adopt=$false; Reason="unchanged-installed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path; InstalledPaths=@($installed.Paths) }
+        }
+        return [PSCustomObject]@{ Open=$false; Replace=$true; Adopt=$false; Reason="installed-profile-drift"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path; InstalledPaths=@($installed.Paths) }
     }
 
     if ($state -and [string]$state.sha256 -eq $fingerprint -and -not $installed.Found) {
@@ -455,7 +471,7 @@ function Get-RatDevProfileOpenDecision {
     }
 
     if ($state -and [string]$state.sha256 -ne $fingerprint -and $installed.Found) {
-        return [PSCustomObject]@{ Open=$false; Replace=$true; Adopt=$false; Reason="profile-changed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path }
+        return [PSCustomObject]@{ Open=$false; Replace=$true; Adopt=$false; Reason="profile-changed"; Fingerprint=$fingerprint; ProfileName=$profileName; InstalledPath=$installed.Path; InstalledPaths=@($installed.Paths) }
     }
 
     if ($state -and [string]$state.sha256 -ne $fingerprint) {
