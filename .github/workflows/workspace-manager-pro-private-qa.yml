@@ -1,0 +1,215 @@
+name: Workspace Manager Pro Private QA Bridge
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/workspace-manager-pro-private-qa.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workspace-manager-pro-private-qa
+  cancel-in-progress: true
+
+env:
+  VCS_REPOSITORY: slayerkey/vcs
+  VCS_REF: d4f222f2f13018b1285298f9541c2a34da873900
+  SOURCE_ROOT: vcs/streamdeck/workspace-manager-pro/0.1.0.0/source
+  PLUGIN_DIR: com.packrat.workspacemanagerpro.sdPlugin
+
+jobs:
+  windows:
+    name: Windows private-source QA
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout public QA control plane
+        uses: actions/checkout@v4
+        with:
+          path: rp-system
+
+      - name: Verify private-source deploy key exists
+        shell: powershell
+        env:
+          VCS_DEPLOY_KEY: ${{ secrets.VCS_DEPLOY_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:VCS_DEPLOY_KEY)) {
+            throw 'Missing repository secret VCS_DEPLOY_KEY.'
+          }
+
+      - name: Checkout exact private Workspace Manager Pro candidate
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.VCS_REPOSITORY }}
+          ref: ${{ env.VCS_REF }}
+          ssh-key: ${{ secrets.VCS_DEPLOY_KEY }}
+          path: vcs
+          persist-credentials: false
+
+      - name: Verify frozen private commit
+        shell: powershell
+        run: |
+          $actual=(git -C vcs rev-parse HEAD).Trim()
+          if($actual -ne $env:VCS_REF){throw "Private checkout mismatch: $actual != $env:VCS_REF"}
+          Write-Host "PRIVATE SOURCE COMMIT: $actual"
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install exact dependencies
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm ci
+
+      - name: Dependency identity
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: powershell
+        run: |
+          node -e "const p=require('./node_modules/koffi/package.json'); if(p.version!=='3.1.6') throw new Error('Unexpected Koffi '+p.version)"
+          node -e "const p=require('./node_modules/@elgato/streamdeck/package.json'); if(p.version!=='2.1.2') throw new Error('Unexpected SDK '+p.version)"
+
+      - name: Deterministic and regression tests
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm test
+
+      - name: Build paid runtime
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run build
+
+      - name: Native Win32 ABI enumeration
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: powershell
+        run: node -e "import('./src/win32.js').then(async m=>{m.assertNativeLayout();console.log('monitors='+JSON.stringify(await m.monitors()));console.log('windows='+String((await m.listWindows()).length))})"
+
+      - name: Official Elgato validation
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run validate
+
+      - name: Official Elgato package
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run pack
+
+      - name: Standalone identity audit
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: powershell
+        run: |
+          $manifest=Get-Content -Raw "$env:PLUGIN_DIR/manifest.json" | ConvertFrom-Json
+          if($manifest.UUID -ne 'com.packrat.workspacemanagerpro'){throw 'Unexpected Workspace Manager plugin UUID.'}
+          if($manifest.Version -ne '0.1.0.0'){throw 'Unexpected Workspace Manager version.'}
+          if(@($manifest.Actions).Count -ne 1){throw 'Workspace Manager Pro must expose exactly one standalone Workspace action in 0.1.'}
+          if($manifest.Actions[0].UUID -ne 'com.packrat.workspacemanagerpro.workspace'){throw 'Unexpected Workspace action UUID.'}
+          if(($manifest | ConvertTo-Json -Depth 20) -match 'com\.packrat\.windowmanagerpro'){throw 'Published Window Manager identifier leaked into Workspace Manager manifest.'}
+          if($null -ne $manifest.Profiles){throw 'Profiles are not part of the 0.1 standalone product yet.'}
+          Write-Host 'STANDALONE IDENTITY AUDIT PASS'
+
+      - name: Physical repeated-restore smoke
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: node scripts/windows-smoke.mjs
+
+      - name: Privacy guard
+        run: echo 'No private source or paid package is uploaded as a public Actions artifact.'
+
+  macos:
+    name: macOS private-source QA
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout public QA control plane
+        uses: actions/checkout@v4
+        with:
+          path: rp-system
+
+      - name: Verify private-source deploy key exists
+        shell: bash
+        env:
+          VCS_DEPLOY_KEY: ${{ secrets.VCS_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$VCS_DEPLOY_KEY" || { echo 'Missing repository secret VCS_DEPLOY_KEY.' >&2; exit 1; }
+
+      - name: Checkout exact private Workspace Manager Pro candidate
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.VCS_REPOSITORY }}
+          ref: ${{ env.VCS_REF }}
+          ssh-key: ${{ secrets.VCS_DEPLOY_KEY }}
+          path: vcs
+          persist-credentials: false
+
+      - name: Verify frozen private commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git -C vcs rev-parse HEAD)"
+          test "$actual" = "$VCS_REF"
+          echo "PRIVATE SOURCE COMMIT: $actual"
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install exact dependencies
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm ci
+
+      - name: Dependency identity
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: |
+          node -e "const p=require('./node_modules/koffi/package.json'); if(p.version!=='3.1.6') throw new Error('Unexpected Koffi '+p.version)"
+          node -e "const p=require('./node_modules/@elgato/streamdeck/package.json'); if(p.version!=='2.1.2') throw new Error('Unexpected SDK '+p.version)"
+
+      - name: Deterministic and regression tests
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm test
+
+      - name: Build paid runtime
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run build
+
+      - name: macOS AppKit monitor enumeration
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: node -e "import('./src/darwin.js').then(async m=>console.log('monitors='+JSON.stringify(await m.monitors())))"
+
+      - name: Verify platform bundle isolation
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "$PLUGIN_DIR/bin/plugin.js"
+          test -d "$PLUGIN_DIR/bin/chunks"
+          if grep -R -l -E 'user32|EnumWindows|koffi' "$PLUGIN_DIR/bin/chunks" | grep -v -E 'win32'; then
+            echo 'Win32/Koffi code leaked outside the Win32 platform chunk.'
+            exit 1
+          fi
+
+      - name: Official Elgato validation
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run validate
+
+      - name: Official Elgato package
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run pack
+
+      - name: Standalone identity audit
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const m=JSON.parse(fs.readFileSync(process.env.PLUGIN_DIR+'/manifest.json','utf8'));
+          if(m.UUID!=='com.packrat.workspacemanagerpro') throw new Error('Unexpected plugin UUID');
+          if(m.Version!=='0.1.0.0') throw new Error('Unexpected version');
+          if(!Array.isArray(m.Actions)||m.Actions.length!==1) throw new Error('Expected exactly one action');
+          if(m.Actions[0].UUID!=='com.packrat.workspacemanagerpro.workspace') throw new Error('Unexpected action UUID');
+          if(JSON.stringify(m).includes('com.packrat.windowmanagerpro')) throw new Error('Window Manager UUID leaked');
+          NODE
+          echo 'STANDALONE IDENTITY AUDIT PASS'
+
+      - name: Privacy guard
+        run: echo 'No private source or paid package is uploaded as a public Actions artifact.'
