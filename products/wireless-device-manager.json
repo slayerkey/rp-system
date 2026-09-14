@@ -14,10 +14,10 @@
   "notes": "Free Lite edition. One selected device. Battery/charging/control are capability-gated and never claimed universally.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json",
-  "blocker": "Physical Bluetooth hardware QA is still required. The hosted Windows runner proves compile, tests, startup, validation and packaging but has no paired Bluetooth hardware.",
+  "blocker": "Physical Stream Deck / wireless-device QA is still required. The hosted Windows runner proves compile, tests, Node plugin build, bridge smoke, structural key visuals, validation and packaging but cannot prove the user's Maya X appears in the real Property Inspector.",
   "release_gate": [
     "locked dependency install and npm audit with 0 vulnerabilities",
-    "51 deterministic model/package/profile/catalog/source regressions",
+    "62 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
     "ten generated profiles across Lite/Pro: Standard, Mini, XL, Plus and Neo",
     "x64 and ARM64 self-contained native Windows Bluetooth bridge publish",
     "one-shot bridge snapshot and persistent stdio protocol smoke",
@@ -28,17 +28,17 @@
     "real Windows Bluetooth hardware matrix before release"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "95ce3902bd6a49f4b5d2b196fd5fd7d26334a30a",
-    "github_actions_run": 34785291188,
-    "windows_job": 103799541037,
+    "candidate_commit": "a3e08aed08e968f755b95e3e36365dde4a6d2d30",
+    "github_actions_run": 34884032706,
+    "windows_job": 104110084732,
     "status": "PASSED",
-    "artifact_id": 10326163681,
-    "artifact_digest": "sha256:202939d672004dd10934634e9c7cb07c014524d5314c84c01f059d2bd308ecfd",
-    "package_sha256": "AE8BB54B95E2FBF31DE45A61E7E44C51DF27E5DC5D9584CA4A152C67FE8F1053",
-    "package_size_bytes": 70949723,
-    "lite_pro_audit_run": 34785293330,
-    "rat_ship_routing_run": 34785293337,
-    "lightweight_ci_run": 34785293383
+    "test_cases": 62,
+    "test_failures": 0,
+    "structural_key_visual_audit": "PASSED_0_WARNINGS",
+    "artifact_id": 10364232442,
+    "artifact_digest": "sha256:de8455327bfb4bd7be37469bbda3a898fd3b1fc58a22393470a44225babfb63f",
+    "package_sha256": "0329CE77CC724C300391813B068BEC85327D3D0FC1E6A99A5D2F842527FE5D16",
+    "package_size_bytes": 70966820
   },
   "catalog_audit": {
     "profiles": {
@@ -68,5 +68,5 @@
       "behavior": "Text upsell is visible now; clickable Marketplace link is generated only after a verified direct Pro URL exists in the canonical Lite/Pro map."
     }
   },
-  "final_boundary": "Run the QA.md physical matrix on real headphones/headset, keyboard, mouse and controller; verify real A2DP/HFP connect/disconnect reliability; publish Pro first; record its verified direct Marketplace URL; rebuild Lite with the catalog-injected exact Pro link; then submit Lite."
+  "final_boundary": "Run rat dev wireless-device-manager-pro on the real Stream Deck host after removing any stale same-named profile when Rat Dev requests it. Confirm the Node plugin responds, Maya X appears in the Property Inspector, runtime-rendered keys replace fallbacks, and the physical capability matrix passes. Publish Pro first only after that hardware proof."
 }
