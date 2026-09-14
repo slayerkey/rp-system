@@ -128,8 +128,8 @@ Use these values by default. These match the current proven PackRat Property Ins
 - deep card edge: `#0D1015`
 - raised card start: `#151920`
 - input surface: `#090C10`
-- neutral button: `#181C21`
-- neutral button hover: `#22272E`
+- neutral button: `#0D1116`
+- neutral button hover: `#151920`
 - card border: `#272D36`
 - input/focus border: `#303744`
 - primary text: `#F5F7F9`
@@ -148,7 +148,7 @@ Orange-yellow is the PackRat brand and interaction accent. Do not use muddy gold
 
 ### Property Inspector surfaces
 
-Use the darkest surface for the body, slightly lighter charcoal for cards, near-black charcoal for inputs/status boxes, and cool neutral borders.
+Use Monitor Manager Pro's proven darkness hierarchy: `#080A0E` for the body, `linear-gradient(145deg,#151920,#0D1015)` for cards, `#090C10` for inputs/status boxes, and `#272D36` for borders. This exact hierarchy is the canonical PackRat baseline.
 
 Recommended baseline:
 
@@ -158,8 +158,8 @@ Recommended baseline:
   --packrat-card-deep: #0D1015;
   --packrat-card: #151920;
   --packrat-input: #090C10;
-  --packrat-button: #181C21;
-  --packrat-button-hover: #22272E;
+  --packrat-button: #0D1116;
+  --packrat-button-hover: #151920;
   --packrat-border: #272D36;
   --packrat-input-border: #303744;
   --packrat-text: #F5F7F9;
@@ -476,8 +476,8 @@ body::before {
   pointer-events: none;
   background: radial-gradient(
     circle,
-    rgba(255,178,30,.12) 0%,
-    rgba(255,178,30,.055) 34%,
+    rgba(255,178,30,.14) 0%,
+    rgba(255,178,30,.06) 34%,
     rgba(255,178,30,0) 72%
   );
 }
