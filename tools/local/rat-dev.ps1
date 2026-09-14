@@ -10,6 +10,7 @@ $WorktreeRoot = Join-Path $DevRoot "worktrees"
 $Worktree = Join-Path $WorktreeRoot $Slug
 . (Join-Path $PSScriptRoot "rat-dev-dependencies.ps1")
 . (Join-Path $PSScriptRoot "rat-dev-source.ps1")
+. (Join-Path $PSScriptRoot "rat-dev-processes.ps1")
 
 function Require-Command {
     param([string]$Name, [string]$Hint)
@@ -272,6 +273,59 @@ function Get-ExistingPluginUuid {
     }
 }
 
+function Invoke-StreamDeckBestEffort {
+    param([string[]]$Arguments)
+
+    $previous = $ErrorActionPreference
+    $previousExitCode = $global:LASTEXITCODE
+    $ErrorActionPreference = "Continue"
+    try {
+        & streamdeck @Arguments *> $null
+        return $LASTEXITCODE -eq 0
+    }
+    catch {
+        return $false
+    }
+    finally {
+        $ErrorActionPreference = $previous
+        $global:LASTEXITCODE = $previousExitCode
+    }
+}
+
+function Release-RatDevBuildLocks {
+    param(
+        [string]$PluginRoot,
+        [string]$PreviousUuid
+    )
+
+    if ($env:OS -ne "Windows_NT" -or -not (Test-Path $PluginRoot -PathType Container)) {
+        return $false
+    }
+
+    $owned = @(Get-RatDevBuildOwnedProcesses -PluginRoot $PluginRoot)
+    if (-not $owned.Count) {
+        return $false
+    }
+
+    $names = ($owned | ForEach-Object { "$($_.ProcessName) ($($_.Id))" }) -join ", "
+    Write-Host "Current development build has native helper processes open: $names" -ForegroundColor Yellow
+    Write-Host "Pausing this plugin briefly so Windows can replace its build-owned executables..." -ForegroundColor DarkGray
+
+    if ($PreviousUuid) {
+        [void](Invoke-StreamDeckBestEffort -Arguments @("stop", $PreviousUuid))
+        Start-Sleep -Milliseconds 500
+    }
+
+    $remaining = @(Stop-RatDevBuildOwnedProcesses -PluginRoot $PluginRoot)
+    if ($remaining.Count) {
+        $remainingNames = ($remaining | ForEach-Object { "$($_.ProcessName) ($($_.Id))" }) -join ", "
+        throw "Could not release native helper process(es) for '$Slug': $remainingNames. Close Stream Deck once, then retry: rat dev $Slug"
+    }
+
+    Write-Host "Native helper build lock released." -ForegroundColor DarkGray
+    return $true
+}
+
 function Build-And-TestPlugin {
     param(
         [string]$PluginRoot,
@@ -366,9 +420,9 @@ function Install-DevPlugin {
     Write-Host "Enabling Stream Deck developer mode..." -ForegroundColor DarkGray
     & streamdeck dev *> $null
 
-    # Keep the currently linked plugin alive while source sync, build, tests, and validation run.
-    # Only switch the link after the replacement has passed every local gate. This prevents a
-    # failed Rat Dev update from turning an existing profile into unresolved question-mark keys.
+    # Most plugins can stay live through source sync/build. Native-helper plugins may be paused
+    # just before build so Windows releases executable file locks. The final link switch still
+    # happens only after the replacement passes local build, tests, and validation.
     Write-Host "Switching $($Plugin.Uuid) to the validated development build..." -ForegroundColor Cyan
     if ($PreviousUuid -and $PreviousUuid -ne $Plugin.Uuid) {
         & streamdeck stop $PreviousUuid *> $null
@@ -491,5 +545,6 @@ else {
 }
 
 $pluginRoot = Get-PluginRoot $source
+[void](Release-RatDevBuildLocks -PluginRoot $pluginRoot -PreviousUuid $oldUuid)
 $plugin = Build-And-TestPlugin -PluginRoot $pluginRoot -RegistrationConfig $source.Config
 Install-DevPlugin -Plugin $plugin -PreviousUuid $oldUuid
