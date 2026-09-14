@@ -8,7 +8,7 @@ on:
       - '.github/workflows/window-manager-lite-rehydrate.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   VCS_REPOSITORY: slayerkey/vcs
@@ -88,6 +88,47 @@ jobs:
           Get-ChildItem (Join-Path $plugin 'ui') -File | Select-Object Name,Length
           Write-Host "CURRENT PRO FOOTER"
           Get-Content -Raw (Join-Path $plugin 'ui/pro-footer.js')
+
+      - name: Materialize editable Lite product branch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = 'rp-system'
+          $destination = Join-Path $repo 'plugins/window-manager'
+
+          git -C $repo checkout -B product/window-manager-lite origin/main
+
+          if (Test-Path $destination) { Remove-Item -Recurse -Force $destination }
+          New-Item -ItemType Directory -Force $destination | Out-Null
+          Copy-Item -Recurse -Force 'window-manager-lite-source/com.packrat.windowmanager.sdPlugin' $destination
+
+          @'
+          # Window Manager Lite
+
+          Canonical editable source for the free Stream Deck product.
+
+          Rehydrated from the exact private 1.0.0.3 baseline plus the pinned native-icon overlay.
+
+          Product boundary:
+          - Snap Window
+          - Cycle Windows
+          - existing hidden XENEON service
+          - existing Window Manager Pro Marketplace upsell
+
+          Do not expand the Lite action surface during visual/upsell refresh work.
+          '@ | Set-Content -Encoding UTF8 (Join-Path $destination 'README.md')
+
+          git -C $repo config user.name "github-actions[bot]"
+          git -C $repo config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C $repo add plugins/window-manager
+
+          if (git -C $repo diff --cached --quiet) {
+            Write-Host 'Editable Lite source already matches.'
+          } else {
+            git -C $repo commit -m "window-manager-lite: restore editable canonical source"
+          }
+
+          git -C $repo push --force-with-lease origin HEAD:product/window-manager-lite
 
       - name: Upload reconstructed Lite source
         uses: actions/upload-artifact@v4
