@@ -82,6 +82,21 @@ try {
     Assert-Equal $unchanged.Replace $false "Unchanged installed profile should not be replaced."
     Assert-Equal $unchanged.Reason "unchanged-installed" "Unexpected unchanged profile decision."
 
+    $installedPagePath = Join-Path $installed "Profiles\PAGEONE\manifest.json"
+    $installedPage = Get-Content $installedPagePath -Raw | ConvertFrom-Json
+    $installedPage.Controllers[0].Actions.'0,0'.Settings.revision = 999
+    $installedPage | ConvertTo-Json -Depth 20 | Set-Content $installedPagePath -Encoding UTF8
+
+    $drift = Get-RatDevProfileOpenDecision -ProfilePath $profilePath -StateRoot $StateRoot -Slug "test-plugin" -InstalledRoots @($InstalledRoot)
+    Assert-Equal $drift.Open $false "Drifted installed profile should not import a duplicate."
+    Assert-Equal $drift.Replace $true "Drifted installed profile should be replaced even when the bundle SHA is unchanged."
+    Assert-Equal $drift.Reason "installed-profile-drift" "Unexpected installed profile drift decision."
+
+    [void](Replace-RatDevInstalledProfile -ProfilePath $profilePath -InstalledPath $installed -StateRoot $StateRoot -Slug "test-plugin" -ExpectedName $existing.ProfileName -SkipStreamDeckProcessControl)
+    $healed = Get-RatDevProfileOpenDecision -ProfilePath $profilePath -StateRoot $StateRoot -Slug "test-plugin" -InstalledRoots @($InstalledRoot)
+    Assert-Equal $healed.Replace $false "Replaced installed profile should match the bundle again."
+    Assert-Equal $healed.Reason "unchanged-installed" "Unexpected healed profile decision."
+
     Remove-Item $profilePath -Force
     Set-Content (Join-Path $bundleRoot "revision-two.txt") "changed"
     Compress-Archive -Path $bundleRoot -DestinationPath $profilePath
