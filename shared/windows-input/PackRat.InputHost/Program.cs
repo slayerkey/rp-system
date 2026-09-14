@@ -557,18 +557,22 @@ internal sealed class Engine : IDisposable
     {
         string reason = "completed";
         string? error = null;
+        var highResolutionTimer = Native.BeginHighResolutionTimer();
 
         try
         {
             var iteration = 0;
             while (!token.IsCancellationRequested && (repeatCount == 0 || iteration < repeatCount))
             {
+                var clock = Stopwatch.StartNew();
+                double targetMs = 0;
+
                 foreach (var ev in events.EnumerateArray())
                 {
                     token.ThrowIfCancellationRequested();
                     var delay = ev.TryGetProperty("delayMs", out var delayEl) && delayEl.TryGetInt32(out var delayMs) ? delayMs : 0;
-                    var scaled = Math.Max(0, (int)Math.Round(delay / speed));
-                    if (scaled > 0) await Task.Delay(scaled, token);
+                    targetMs += Math.Max(0, delay) / speed;
+                    await WaitUntilAsync(clock, targetMs, token);
                     SendEvent(ev, coordinateMode);
                 }
                 iteration++;
@@ -585,6 +589,8 @@ internal sealed class Engine : IDisposable
         }
         finally
         {
+            if (highResolutionTimer) Native.EndHighResolutionTimer();
+
             try
             {
                 ReleasePressed();
@@ -606,6 +612,25 @@ internal sealed class Engine : IDisposable
 
             ReleaseFamilySession();
             Program.Emit(new { @event = "playbackStopped", reason, error });
+        }
+    }
+
+    private static async Task WaitUntilAsync(Stopwatch clock, double targetMs, CancellationToken token)
+    {
+        while (true)
+        {
+            token.ThrowIfCancellationRequested();
+            var remaining = targetMs - clock.Elapsed.TotalMilliseconds;
+            if (remaining <= 0) return;
+
+            if (remaining > 2.5)
+            {
+                var sleepMs = Math.Max(1, (int)Math.Floor(remaining - 1.0));
+                await Task.Delay(sleepMs, token);
+                continue;
+            }
+
+            Thread.SpinWait(128);
         }
     }
 
@@ -1189,6 +1214,11 @@ internal static class Native
     [DllImport("user32.dll")] internal static extern IntPtr DispatchMessage(ref MSG msg);
     [DllImport("user32.dll")] internal static extern short GetAsyncKeyState(int vKey);
     [DllImport("user32.dll", SetLastError = true)] internal static extern uint SendInput(uint count, INPUT[] inputs, int size);
+    [DllImport("winmm.dll")] private static extern uint timeBeginPeriod(uint period);
+    [DllImport("winmm.dll")] private static extern uint timeEndPeriod(uint period);
+
+    internal static bool BeginHighResolutionTimer() => timeBeginPeriod(1) == 0;
+    internal static void EndHighResolutionTimer() => timeEndPeriod(1);
     [DllImport("user32.dll")] internal static extern int GetSystemMetrics(int index);
     [DllImport("user32.dll")] internal static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] internal static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
