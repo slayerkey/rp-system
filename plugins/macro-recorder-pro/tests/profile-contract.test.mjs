@@ -9,10 +9,14 @@ test("Pro starter profile stays focused on recorded workflows",async()=>{
   assert.ok(source.includes('label:"MACROS"'));
   assert.equal(source.includes('label:"GAMING"'),false);
   assert.equal(source.includes('label:"PRODUCTIVITY"'),false);
-  assert.ok(source.includes('act("p-play","replay","Play")'));
-  assert.ok(source.includes('Rapid Left Click'));
-  assert.ok(source.includes('Double Click'));
-  assert.ok(source.includes('Scroll Burst'));
+  assert.ok(source.includes('act("p-play","replay","Play",{autoLatest:true})'));
+  assert.ok(source.includes('act("p-stop","stop","Stop")'));
+  assert.ok(source.includes('materializeProfilePages'));
+  assert.ok(source.includes('actionId:a.ActionID'));
+  assert.ok(source.includes('action:${fileSeed}:${pageIndex}:${position}:${action.UUID}'));
+  assert.equal(source.includes('replay("p-rapid-click"'),false);
+  assert.equal(source.includes('replay("p-double-click"'),false);
+  assert.equal(source.includes('replay("p-scroll-burst"'),false);
   assert.equal(source.includes('Find in App'),false);
   assert.equal(source.includes('starter-save'),false);
   assert.ok(source.includes('LinkedTitle:false'));
