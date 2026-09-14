@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs && rollup -c",
-    "test": "node --test tests/*.test.mjs",
-    "check": "npm run test && npm run build",
+    "build": "node scripts/build.mjs && node scripts/build-profiles.mjs && rollup -c",
+    "test": "node scripts/build-profiles.mjs && node --test tests/*.test.mjs",
+    "check": "npm run test && npm run build && npm run visual:audit",
     "validate": "streamdeck validate com.packrat.internet-health-pro.sdPlugin --no-update-check",
-    "pack": "streamdeck pack com.packrat.internet-health-pro.sdPlugin --no-update-check --force --output dist"
+    "pack": "streamdeck pack com.packrat.internet-health-pro.sdPlugin --no-update-check --force --output dist",
+    "visual:audit": "node ../../tools/qa/streamdeck-key-visual-audit.mjs com.packrat.internet-health-pro.sdPlugin --require-major-profiles"
   },
   "dependencies": {
     "@elgato/streamdeck": "2.1.2"
