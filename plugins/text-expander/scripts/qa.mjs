@@ -215,6 +215,9 @@ if(!inspector.includes('class="packrat-topbar"'))fail("Property Inspector PackRa
 if(!inspector.includes('src="../imgs/plugin/packrat-logo.png"'))fail("Property Inspector must use the packaged PackRat logo asset.");
 if(!inspector.includes("Loading snippets…"))fail("Property Inspector must show a clear snippet-loading state instead of a blank selector.");
 if(!inspector.includes("Open snippet library"))fail("Property Inspector must expose a clear snippet-library control.");
+if(!inspector.includes('id="topUpgrade"')||!inspector.includes("Upgrade to Pro ↗"))fail("Lite Property Inspector must include the canonical hidden top Pro conversion surface.");
+if(!inspector.includes('class="upsell hidden"')||!inspector.includes("Open Text Expander Pro ↗"))fail("Lite Property Inspector must include the canonical bottom Pro feature card.");
+if(!inspector.includes("multiline, tabbed, or very long text"))fail("Initial Smart insertion help must match the hardened structured-text fallback behavior.");
 if(!inspector.includes("Dynamic text"))fail("Pro Property Inspector must explain available dynamic text.");
 if(!inspector.includes("Open reusable variables & full library"))fail("Pro Property Inspector must expose reusable/global variables without requiring the hidden legacy action.");
 if(!inspector.includes("{{name}}")||!inspector.includes("literal braces"))fail("Pro Property Inspector must explain how code/text can escape fill-in braces.");
@@ -231,6 +234,8 @@ if(!inspectorJs.includes("Saving…")||!inspectorJs.includes("Saved"))fail("Prop
 if(!inspectorJs.includes('document.createElement("optgroup")'))fail("Pro snippet selector must group the built-in library by folder.");
 if(!inspectorJs.includes('type:"getSnippet"')||!inspectorJs.includes('"Loading snippet…"'))fail("Property Inspector must lazy-load only the selected snippet body.");
 if(!inspectorJs.includes('type:"openManager"'))fail("Pro Property Inspector must wire the reusable-variable/full-library manager.");
+if(!inspectorJs.includes('const topUpgrade=$("topUpgrade")')||!inspectorJs.includes('topUpgrade.classList.remove("hidden")'))fail("Lite top Pro CTA must activate only through verified Pro URL state.");
+if(!inspectorJs.includes('topUpgrade.classList.add("hidden")'))fail("Lite top Pro CTA must stay hidden without a verified Pro URL.");
 if(!inspectorJs.includes("multiline, tabbed, or very long text"))fail("Smart insertion help must describe its structured-text clipboard fallback.");
 
 for(const token of ["#080A0E","#151920","#0D1015","#FFB21E","#181C21","#FF5D6C"]){
