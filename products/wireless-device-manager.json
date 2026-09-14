@@ -2,22 +2,22 @@
   "id": "wireless-device-manager",
   "name": "Wireless Device Manager",
   "type": "plugin",
-  "status": "build_candidate",
-  "workflow_state": "TESTING",
+  "status": "qa_passed",
+  "workflow_state": "READY_FOR_HARDWARE_QA",
   "price_usd": 0,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
   "source": "plugins/wireless-device-manager-family",
   "plugin_uuid": "com.packrat.wireless-device-manager",
   "automated_feasibility": "GO",
-  "hardware_smoke": "REQUIRED_BEFORE_READY_TO_SHIP",
-  "notes": "Free Lite edition. One selected device. Battery/charging/control are capability-gated and never claimed universally.",
+  "hardware_smoke": "MAYA_X_PASS_BLUETOOTH_AUDIO_CONTROL_PENDING",
+  "notes": "Free Lite edition. One selected device with sole-visible auto-selection. Battery/charging/control are capability-gated and battery percentages remain device-reported.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json",
-  "blocker": "Physical Stream Deck / wireless-device QA is still required. The hosted Windows runner proves compile, tests, Node plugin build, bridge smoke, structural key visuals, validation and packaging but cannot prove the user's Maya X appears in the real Property Inspector.",
+  "blocker": "Maya X receiver/wired telemetry and live Stream Deck behavior passed physical QA. Final READY_TO_SHIP still requires the real Bluetooth audio hardware matrix; Lite also remains blocked from final shipping until Pro has a verified public Marketplace product URL for the upgrade CTA.",
   "release_gate": [
     "locked dependency install and npm audit with 0 vulnerabilities",
-    "62 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
+    "64 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
     "ten generated profiles across Lite/Pro: Standard, Mini, XL, Plus and Neo",
     "x64 and ARM64 self-contained native Windows Bluetooth bridge publish",
     "one-shot bridge snapshot and persistent stdio protocol smoke",
@@ -25,20 +25,20 @@
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media generation",
     "PackRat Lite Pro Portfolio Audit and Rat Ship Marketplace Routing CI",
-    "real Windows Bluetooth hardware matrix before release"
+    "real Windows Bluetooth audio-control hardware matrix before final READY_TO_SHIP"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "a3e08aed08e968f755b95e3e36365dde4a6d2d30",
-    "github_actions_run": 34884032706,
-    "windows_job": 104110084732,
+    "candidate_commit": "c7faedf73e54de2896ea9ec2678ad2d2f2b47484",
+    "github_actions_run": 34901568905,
+    "windows_job": 104168498060,
     "status": "PASSED",
-    "test_cases": 62,
+    "test_cases": 64,
     "test_failures": 0,
     "structural_key_visual_audit": "PASSED_0_WARNINGS",
-    "artifact_id": 10364232442,
-    "artifact_digest": "sha256:de8455327bfb4bd7be37469bbda3a898fd3b1fc58a22393470a44225babfb63f",
-    "package_sha256": "0329CE77CC724C300391813B068BEC85327D3D0FC1E6A99A5D2F842527FE5D16",
-    "package_size_bytes": 70966820
+    "artifact_id": 10371152083,
+    "artifact_digest": "sha256:2d1e55a775840be77be7efff8c2988f3a935b184d65b9ffa21598c304792624d",
+    "package_sha256": "45E79BDAB53C2DEF44F2B0A9DC9F6904D2A2B22717EB2F5AF5D157778C1742FE",
+    "package_size_bytes": 70967730
   },
   "catalog_audit": {
     "profiles": {
@@ -58,7 +58,7 @@
         "Stream Deck Neo"
       ],
       "decision": "intentional",
-      "note": "Lite bundles MY DEVICE, BATTERY and CONNECT keys around one shared selected Bluetooth device. Plus/Neo remain key-only with no fake Encoder action."
+      "note": "Lite bundles MY DEVICE, BATTERY and CONTROL around one shared selected wireless device, with sole-visible auto-selection. Plus/Neo remain key-only with no fake Encoder action."
     },
     "upsell": {
       "classification": "lite_to_pro",
@@ -68,5 +68,5 @@
       "behavior": "Text upsell is visible now; clickable Marketplace link is generated only after a verified direct Pro URL exists in the canonical Lite/Pro map."
     }
   },
-  "final_boundary": "Run rat dev wireless-device-manager-pro on the real Stream Deck host after removing any stale same-named profile when Rat Dev requests it. Confirm the Node plugin responds, Maya X appears in the Property Inspector, runtime-rendered keys replace fallbacks, and the physical capability matrix passes. Publish Pro first only after that hardware proof."
+  "final_boundary": "Maya X physical telemetry QA is complete. Before READY_TO_SHIP, verify the remaining Bluetooth A2DP/HFP hardware path. Publish Pro first, record its exact public Marketplace URL, rebuild Lite, and verify both Lite upgrade CTAs resolve directly to Pro."
 }

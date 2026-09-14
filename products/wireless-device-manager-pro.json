@@ -2,44 +2,44 @@
   "id": "wireless-device-manager-pro",
   "name": "Wireless Device Manager Pro",
   "type": "plugin",
-  "status": "build_candidate",
-  "workflow_state": "TESTING",
+  "status": "qa_passed",
+  "workflow_state": "READY_FOR_HARDWARE_QA",
   "price_usd": 7.99,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
   "source": "plugins/wireless-device-manager-family",
   "plugin_uuid": "com.packrat.wireless-device-manager-pro",
   "automated_feasibility": "GO",
-  "hardware_smoke": "REQUIRED_BEFORE_READY_TO_SHIP",
-  "notes": "Paid Pro edition. Multiple devices, favorites, groups, low-battery alerts, dashboard, Cycle Device and capability-gated control. Groups do not auto-connect devices.",
+  "hardware_smoke": "MAYA_X_PASS_BLUETOOTH_AUDIO_CONTROL_PENDING",
+  "notes": "Paid Pro edition. Multiple devices, favorites, groups, low-battery alerts, dashboard, Cycle Device and capability-gated control. Sole visible hardware defaults automatically; battery values remain device-reported.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager-pro.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-pro.json",
-  "blocker": "Physical Stream Deck / wireless-device QA is still required. The hosted Windows runner proves compile, tests, Node plugin build, bridge smoke, structural key visuals, validation and packaging but cannot prove the user's Maya X appears in the real Property Inspector or real A2DP/HFP control behavior.",
+  "blocker": "Maya X receiver/wired telemetry and live Stream Deck behavior passed physical QA. Final READY_TO_SHIP still requires real Bluetooth audio hardware to verify A2DP/HFP connect/disconnect behavior.",
   "release_gate": [
     "locked dependency install and npm audit with 0 vulnerabilities",
-    "62 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
+    "64 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
     "five Pro profiles: Standard, Mini, XL, Plus and Neo",
-    "linked HEADPHONES status/control slot on every bundled Pro profile",
+    "device-neutral bundled Pro controls and group workflow pages",
     "x64 and ARM64 self-contained native Windows Bluetooth bridge publish",
     "one-shot bridge snapshot and persistent stdio protocol smoke",
     "official Elgato Stream Deck CLI validation",
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media generation",
     "PackRat Lite Pro Portfolio Audit and Rat Ship Marketplace Routing CI",
-    "real Windows Bluetooth hardware matrix before release"
+    "real Windows Bluetooth audio-control hardware matrix before final READY_TO_SHIP"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "a3e08aed08e968f755b95e3e36365dde4a6d2d30",
-    "github_actions_run": 34884032706,
-    "windows_job": 104110084732,
+    "candidate_commit": "c7faedf73e54de2896ea9ec2678ad2d2f2b47484",
+    "github_actions_run": 34901568905,
+    "windows_job": 104168498060,
     "status": "PASSED",
-    "test_cases": 62,
+    "test_cases": 64,
     "test_failures": 0,
     "structural_key_visual_audit": "PASSED_0_WARNINGS",
-    "artifact_id": 10364232442,
-    "artifact_digest": "sha256:de8455327bfb4bd7be37469bbda3a898fd3b1fc58a22393470a44225babfb63f",
-    "package_sha256": "4637C1B8B074BC7660EF053565A4E81DF8E9E1359CC1BACDDF163C69336C2C28",
-    "package_size_bytes": 70971587
+    "artifact_id": 10371152083,
+    "artifact_digest": "sha256:2d1e55a775840be77be7efff8c2988f3a935b184d65b9ffa21598c304792624d",
+    "package_sha256": "F871E723FA5AE24600DD182E0478DC8B620FD2FE8903359C575BF375CB4D7B1C",
+    "package_size_bytes": 70972221
   },
   "catalog_audit": {
     "profiles": {
@@ -59,7 +59,7 @@
         "Stream Deck Neo"
       ],
       "decision": "intentional",
-      "note": "Pro profiles expose dedicated device slots, linked headset control, dashboard/group views and Cycle Device. Plus/Neo prioritize ALL DEVICES, CONNECT, CYCLE and GAMING in the 4x2 layout."
+      "note": "Pro bundles device-neutral DEVICE_1 / DEVICE_2 controls, dashboard and Cycle Device on the primary workflow plus separate group dashboard pages. Plus/Neo remain key-only."
     },
     "upsell": {
       "classification": "pro_counterpart",
@@ -68,5 +68,5 @@
       "note": "Publish Pro first so Lite can rebuild against the exact verified direct Pro Marketplace URL. Do not invent or guess the destination."
     }
   },
-  "final_boundary": "Run rat dev wireless-device-manager-pro on the real Stream Deck host. Confirm plugin startup, PI response, Maya X visibility, runtime key rendering, and the QA.md physical capability matrix. If the PI still fails, run the product host probe and use its launch/link/transport/bridge evidence before changing architecture. Do not move to READY_TO_SHIP until the physical matrix passes."
+  "final_boundary": "Maya X physical telemetry QA is complete. Before READY_TO_SHIP, verify the remaining Bluetooth A2DP/HFP connect/disconnect path on real Bluetooth audio hardware. Do not invent success from fixtures."
 }
