@@ -367,7 +367,7 @@ function Get-RatDevProfileSemanticSignature {
     $entries = @()
 
     foreach ($manifestPath in @(Get-ChildItem -Path $ProfileRoot -Recurse -File -Filter "manifest.json" -ErrorAction Stop)) {
-        $relative = [System.IO.Path]::GetRelativePath($rootFull, $manifestPath.FullName).Replace("\","/")
+        $relative = $manifestPath.FullName.Substring($rootFull.Length).TrimStart("\","/").Replace("\","/")
         $manifest = Get-Content $manifestPath.FullName -Raw | ConvertFrom-Json
 
         if ($relative -eq "manifest.json") {
