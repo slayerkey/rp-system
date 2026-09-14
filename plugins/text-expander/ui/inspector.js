@@ -241,6 +241,15 @@
   $("upgradeButton").addEventListener("click",()=>{
     if(proUrl)send({event:"openUrl",payload:{url:proUrl}});
   });
+  $("openManager").addEventListener("click",()=>{
+    const ok=send({
+      event:"sendToPlugin",
+      action:actionUuid,
+      context:uiUuid,
+      payload:{type:"openManager",actionContext}
+    });
+    if(!ok)setStatus("Stream Deck connection unavailable.");
+  });
 
   window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{
     uiUuid=uuid;
