@@ -73,6 +73,28 @@ def main() -> None:
         assert canonical["scene"] == "warm-studio-v1"
         assert canonical["output"]["size"] == [1920, 960]
 
+        product_keys = root / "rat-art-keys"
+        product_keys.mkdir()
+        for index in range(15):
+            face = Image.new("RGBA", (288, 288), (8 + index, 10, 14, 255))
+            face.save(product_keys / f"{index:02d}.png", "PNG")
+
+        product_out = root / "02_cover-product-keys.png"
+        product_report = render_ship_hero(
+            "test-control-pro",
+            plugin,
+            submission,
+            product_out,
+            product_keys,
+        )
+        assert product_out.is_file()
+        assert product_report["product_rat_art_keys"] == str(product_keys)
+        assert product_report["key_sources"] == [
+            f"product-rat-art:{index:02d}.png" for index in range(15)
+        ]
+        assert product_report["canonical_report"]["detected_key_count"] == 15
+        assert product_report["canonical_report"]["uncovered_lcd_pixels"] == 0
+
     print("STREAM DECK RAT SHIP HERO TEST PASS")
 
 
