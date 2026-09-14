@@ -178,6 +178,21 @@
       ],
       "source_status": "free_catalog_only_source_unavailable_pro_qa_passed",
       "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
+    },
+    {
+      "lite_id": "windows-settings-manager-lite",
+      "pro_id": "windows-settings-manager-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "products/windows-settings-manager/plugin",
+        "products/windows-settings-manager-lite.json",
+        "products/windows-settings-manager-pro.json"
+      ],
+      "source_status": "lite_and_pro_qa_passed_ready_to_ship_pro_first_marketplace_linking_pending",
+      "notes": "Lite is the coherent free essentials edition for the broad use case of controlling Windows without opening Settings or leaving the current task: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, and Next Desktop. Pro expands the same use case into the complete 15-key Windows Control Center with Hibernate, protected Restart/Shutdown, Wi-Fi, Bluetooth, Light/Dark theme, New/Close/Current Desktop, plus advanced Windows controls. Both editions passed build/tests/validation/package/media gates and physical Stream Deck visual review. Release order remains Pro first. Lite may be generated/uploaded as a draft, but final public Lite submission requires the exact verified Pro and Lite Marketplace URLs/IDs and a passing strict shipping audit.",
+      "upsell_surface": "Lite Property Inspector",
+      "url_injection": "Build reads pro_marketplace_url from this map. The Lite upgrade CTA remains hidden until a verified direct Pro Marketplace product URL exists."
     }
   ],
   "standalone_free": [
