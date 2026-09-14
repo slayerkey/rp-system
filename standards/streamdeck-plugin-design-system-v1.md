@@ -104,8 +104,8 @@ Do not create alternate PackRat visual themes inside individual plugin specs unl
 
 Use these values by default:
 
-- canvas/background: `#14171B`
-- panel/card: `#1B1F24`
+- canvas/background: `#080A0E`
+- panel/card: `linear-gradient(145deg,#151920,#0D1015)`
 - input/status surface: `#15191E`
 - neutral button: `#181C21`
 - neutral button hover: `#22272E`
@@ -124,14 +124,17 @@ Orange-yellow is the brand and interaction accent. Do not use muddy golden-brown
 
 ### Property Inspector surfaces
 
+Only the page background and card/box background use the darker Monitor Manager Pro treatment. All other canonical accent, glow, button, hover, spacing, and semantic-color behavior remains unchanged unless the global design itself is explicitly being revised.
+
 Use the darkest surface for the body, slightly lighter charcoal for cards, near-black charcoal for inputs/status boxes, and cool neutral borders.
 
 Recommended baseline:
 
 ```css
 :root {
-  --packrat-bg: #14171B;
-  --packrat-card: #1B1F24;
+  --packrat-bg: #080A0E;
+  --packrat-card-start: #151920;
+  --packrat-card-end: #0D1015;
   --packrat-input: #15191E;
   --packrat-button: #181C21;
   --packrat-button-hover: #22272E;
@@ -224,6 +227,8 @@ Implementation convention when an accent setting exists:
 - semantic warning/error colors remain independent
 
 ### Visual rollout rule
+
+**Consumer rule:** product-specific build, QA, and rollout tasks must treat this file as read-only. They consume this design system; they do not rewrite it to match their local implementation. Only an explicit global design-system task may edit this file.
 
 Applying the canonical theme is a visual-only operation unless a separate product bug is explicitly authorized.
 
