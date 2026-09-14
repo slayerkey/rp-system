@@ -118,18 +118,18 @@ function manifest(flavor, profiles) {
   const name = pro ? "Windows Settings Manager Pro" : "Windows Settings Manager Lite";
   const uuid = `com.packrat.windows-settings-manager-${flavor}`;
   const actions = [
-    actionDef(name, "System Status", ACTIONS[flavor].status, "See current Windows system state and refresh it."),
+    actionDef(name, "System Status", ACTIONS[flavor].status, "Refresh the Windows state used by every key. A successful press shows the Stream Deck OK check."),
     actionDef(name, "HDR", ACTIONS[flavor].hdr, "Show real HDR state and toggle or set HDR where supported."),
     actionDef(name, "Power Plan", ACTIONS[flavor].power, "Show the active Windows power plan and cycle or choose a plan."),
-    actionDef(name, "Display Topology", ACTIONS[flavor].display, "Show and change Windows display topology: PC screen, duplicate, extend, or second screen."),
-    actionDef(name, "Screen & Sleep", ACTIONS[flavor].timeout, "Show screen timeout and cycle or set screen and sleep timeouts."),
-    actionDef(name, "Keep Awake", ACTIONS[flavor].awake, "Prevent idle display-off and sleep while this plugin backend is active."),
+    actionDef(name, "Display Topology", ACTIONS[flavor].display, "Show and change PC screen, duplicate, extend, or second-screen topology. Changing topology can move or temporarily blank displays."),
+    actionDef(name, "Screen & Sleep", ACTIONS[flavor].timeout, "Show the screen-off timeout. By default, pressing cycles 5, 15, 30, 60 minutes, then Never; exact screen and sleep values are optional."),
+    actionDef(name, "Keep Awake", ACTIONS[flavor].awake, "Toggle Stay Awake. When enabled, Windows idle screen-off and sleep are prevented while the plugin backend is active; this does not hibernate or shut down the PC."),
     actionDef(name, "Lock PC", ACTIONS[flavor].lock, "Lock the current Windows workstation.")
   ];
 
   if (pro) {
     actions.push(
-      actionDef(name, "Apply PC Mode", ACTIONS.pro.apply, "Apply only the Windows settings saved in the selected PC Mode."),
+      actionDef(name, "Apply PC Mode", ACTIONS.pro.apply, "Apply only the Windows settings saved in the selected PC Mode. Empty slots show SETUP and make no changes."),
       actionDef(name, "Cycle PC Mode", ACTIONS.pro.cycle, "Cycle through configured PC Modes and apply the next one."),
       actionDef(name, "Current PC Mode", ACTIONS.pro.current, "Show which saved PC Mode matches the live Windows state."),
       actionDef(name, "Save Current Mode", ACTIONS.pro.save, "Capture the currently readable Windows settings into a PC Mode."),
@@ -170,6 +170,7 @@ function actionDef(category, name, uuid, tooltip) {
     States: [{
       Image: "imgs/actions/common/key",
       TitleAlignment: "middle",
+      FontSize: 14,
       ShowTitle: true
     }]
   };
@@ -247,13 +248,13 @@ function proModesPage(device, profileName) {
 function proSettingsPage(device, profileName) {
   const capacity = device.columns * device.rows;
   const controls = [
+    ["status", "System Status"],
     ["hdr", "HDR"],
     ["power", "Power Plan"],
-    ["display", "Display Topology"],
     ["timeout", "Screen & Sleep"],
     ["awake", "Keep Awake"],
     ["lock", "Lock PC"],
-    ["status", "System Status"]
+    ["display", "Display Topology"]
   ];
 
   const defs = controls
@@ -289,7 +290,7 @@ function pluginAction(flavor, kind, name, settings, seed) {
     UUID: ACTIONS[flavor][kind],
     Settings: settings,
     State: 0,
-    States: [{ Title: "", ShowTitle: true, TitleAlignment: "middle" }]
+    States: [{ Title: "", ShowTitle: true, TitleAlignment: "middle", FontSize: 14 }]
   };
 }
 
@@ -409,5 +410,14 @@ function iconSvg() {
 }
 
 function keySvg() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144"><rect width="144" height="144" rx="24" fill="#0f1218"/><g fill="#eef1f5"><rect x="33" y="32" width="34" height="34" rx="4"/><rect x="77" y="32" width="34" height="34" rx="4"/><rect x="33" y="76" width="34" height="34" rx="4"/><rect x="77" y="76" width="34" height="34" rx="4"/></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+    <rect width="144" height="144" rx="24" fill="#0f1218"/>
+    <rect x="4" y="4" width="136" height="136" rx="21" fill="none" stroke="#2c333d" stroke-width="3"/>
+    <g fill="#7f8997" opacity=".32">
+      <rect x="112" y="112" width="8" height="8" rx="1"/>
+      <rect x="123" y="112" width="8" height="8" rx="1"/>
+      <rect x="112" y="123" width="8" height="8" rx="1"/>
+      <rect x="123" y="123" width="8" height="8" rx="1"/>
+    </g>
+  </svg>`;
 }
