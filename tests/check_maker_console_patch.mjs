@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v7.mjs';
+import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v8.mjs';
 
 const core = readFileSync(resolve('tools/ship/maker_console_core.mjs'), 'utf8').replace(/\r\n?/g, '\n');
 
@@ -27,7 +27,11 @@ function check(label, source) {
     "state.uploaded = [];",
     "required app icon upload did not stick",
     "Maker Console still requires an app icon after upload",
-    "288\\s*[x×]\\s*288"
+    "288\\s*[x×]\\s*288",
+    "async function uploadThroughNamedMediaSection(target, headingPattern, filePath, stopHeadingPattern = null)",
+    "thumbnail-section-filechooser",
+    "single-unlabeled-image-input",
+    "media-section-candidates.json"
   ];
 
   for (const needle of required) {
