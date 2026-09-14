@@ -113,6 +113,9 @@ if(piPaths.length){
     if(/sendToPlugin/.test(inspectorSource)&&!/context\s*:\s*uiUuid/.test(inspectorSource)){
       errors.push("Property Inspector sends plugin messages but does not use the PI UUID as websocket context.");
     }
+    if(/sendToPlugin/.test(inspectorSource)&&!/actionContext/.test(inspectorSource)){
+      errors.push("Property Inspector sends plugin commands but does not carry the selected action separately as actionContext.");
+    }
     if(/setSettings/.test(inspectorSource)&&!/context\s*:\s*uiUuid/.test(inspectorSource)){
       errors.push("Property Inspector saves settings but does not use the PI UUID as websocket context.");
     }
@@ -124,6 +127,9 @@ if(piPaths.length){
   if(pluginSource){
     if(/sendToPlugin/.test(inspectorSource)&&!/streamDeck\.ui\.onSendToPlugin/.test(pluginSource)){
       errors.push("Plugin does not use global streamDeck.ui.onSendToPlugin for Property Inspector commands.");
+    }
+    if(/sendToPlugin/.test(inspectorSource)&&!/actionContext/.test(pluginSource)){
+      errors.push("Plugin global PI handler does not appear to resolve the actionContext carried by the Property Inspector.");
     }
     if(/sendToPropertyInspector/.test(pluginSource)&&!/streamDeck\.ui\.sendToPropertyInspector/.test(pluginSource)){
       errors.push("Plugin sends Property Inspector state without the global streamDeck.ui channel.");
