@@ -72,7 +72,10 @@
       "States": [
         {
           "Image": "imgs/actions/brightness/key",
-          "TitleAlignment": "bottom"
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
@@ -95,7 +98,10 @@
       "States": [
         {
           "Image": "imgs/actions/contrast/key",
-          "TitleAlignment": "bottom"
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
@@ -118,7 +124,10 @@
       "States": [
         {
           "Image": "imgs/actions/volume/key",
-          "TitleAlignment": "bottom"
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
@@ -134,14 +143,17 @@
       "States": [
         {
           "Image": "imgs/actions/power/key",
-          "TitleAlignment": "bottom"
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
     {
       "Name": "Input Source",
       "UUID": "com.packrat.monitormanagerpro.input",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/input/key",
       "Tooltip": "Switch HDMI, DisplayPort, USB-C or another input only when the monitor advertises that VCP value.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -149,15 +161,18 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "bottom"
+          "Image": "imgs/actions/input/key",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
     {
       "Name": "Refresh Rate",
       "UUID": "com.packrat.monitormanagerpro.refresh-rate",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/refresh-rate/key",
       "Tooltip": "Switch Hz using Windows-reported modes for the selected monitor.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -165,15 +180,18 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "bottom"
+          "Image": "imgs/actions/refresh-rate/key",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
     {
       "Name": "Resolution",
       "UUID": "com.packrat.monitormanagerpro.resolution",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/resolution/key",
       "Tooltip": "Switch resolution and Hz to an exact Windows-reported display mode.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -181,8 +199,11 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "bottom"
+          "Image": "imgs/actions/resolution/key",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
@@ -198,14 +219,17 @@
       "States": [
         {
           "Image": "imgs/actions/hdr/key",
-          "TitleAlignment": "bottom"
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
     {
       "Name": "Display Mode",
       "UUID": "com.packrat.monitormanagerpro.topology",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/topology/key",
       "Tooltip": "Switch Windows display topology: Extend, Duplicate, PC Screen Only or Second Screen Only.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -213,15 +237,18 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "bottom"
+          "Image": "imgs/actions/topology/key",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
     {
       "Name": "Set Primary Display",
       "UUID": "com.packrat.monitormanagerpro.primary",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/primary/key",
       "Tooltip": "Make the selected monitor the Windows primary display.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -229,15 +256,18 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "bottom"
+          "Image": "imgs/actions/primary/key",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
     {
       "Name": "Orientation",
       "UUID": "com.packrat.monitormanagerpro.orientation",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/orientation/key",
       "Tooltip": "Set landscape, portrait or flipped orientation through Windows display APIs.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -245,15 +275,18 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "bottom"
+          "Image": "imgs/actions/orientation/key",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
     {
       "Name": "Save Monitor Profile",
       "UUID": "com.packrat.monitormanagerpro.save-profile",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/save-profile/key",
       "Tooltip": "Save the current supported monitor setup as a reusable profile.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -261,15 +294,18 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "bottom"
+          "Image": "imgs/actions/save-profile/key",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
     {
       "Name": "Apply Monitor Profile",
       "UUID": "com.packrat.monitormanagerpro.apply-profile",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/apply-profile/key",
       "Tooltip": "Restore a saved monitor setup and report COMPLETE, PARTIAL or FAILED.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -277,15 +313,18 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "bottom"
+          "Image": "imgs/actions/apply-profile/key",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     },
     {
       "Name": "Current Display Status",
       "UUID": "com.packrat.monitormanagerpro.status",
-      "Icon": "imgs/actions/common/icon",
+      "Icon": "imgs/actions/status/key",
       "Tooltip": "Show current refresh rate and resolution for the selected monitor.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -293,8 +332,11 @@
       ],
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "bottom"
+          "Image": "imgs/actions/status/key",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true,
+          "TitleColor": "#FFFFFF",
+          "FontSize": 11
         }
       ]
     }

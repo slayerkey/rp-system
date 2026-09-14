@@ -338,3 +338,24 @@ test("native mode list always retains the actual current mode for high-refresh D
   const helper=await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin","helper","monitor-helper.ps1"),"utf8");
   assert.match(helper,/Always preserve the actual current mode/);assert.match(helper,/var current = GetCurrentMode\(deviceName\)/);assert.match(helper,/if \(seen\.Add\(currentKey\)\) modes\.Add\(current\)/);
 });
+
+
+test("all Monitor Manager Pro keypad actions use dedicated key art with a safe title band", async () => {
+  const manifest=JSON.parse(await readFile("com.packrat.monitormanagerpro.sdPlugin/manifest.json","utf8"));
+  const keypad=manifest.Actions.filter((a)=>a.Controllers?.includes("Keypad"));
+  assert.equal(keypad.length,14);
+  for(const action of keypad){
+    assert.doesNotMatch(action.States?.[0]?.Image??"",/\/common\//,action.Name+" must not use generic common key art");
+    assert.equal(action.States?.[0]?.ShowTitle,true,action.Name+" should explicitly opt into its compact live title");
+    assert.equal(action.States?.[0]?.TitleAlignment,"bottom",action.Name+" should reserve the lower title band");
+  }
+  assert.equal(new Set(keypad.map((a)=>a.States[0].Image)).size,keypad.length,"every keypad action should have dedicated semantic key art");
+});
+
+test("bundled Monitor Manager profile labels stay compact for physical key scale", async () => {
+  const source=await readFile("scripts/build-profiles.mjs","utf8");
+  for(const legacy of ["MONITORS","DUPLICATE","PC SCREEN","SECOND SCREEN","LANDSCAPE","PORTRAIT"]){
+    assert.equal(source.includes('"'+legacy+'"'),false,"legacy long key label should be removed: "+legacy);
+  }
+  assert.match(source,/profileKeyName/);
+});

@@ -42,7 +42,7 @@ function p(seed,name,apply=false){return action(seed,apply?U.apply:U.save,apply?
 function standardPages(prefix){
  return [
   {label:"MONITORS",keypad:{
-    "0,0":action(prefix+":status",U.status,"Current Display Status","MONITORS",{}),
+    "0,0":action(prefix+":status",U.status,"Current Display Status","STATUS",{}),
     "1,0":action(prefix+":primary",U.primary,"Set Primary Display","PRIMARY",{}),
     "2,0":action(prefix+":dp",U.input,"Input Source","DP",{inputValue:0x0f}),
     "3,0":action(prefix+":hdmi",U.input,"Input Source","HDMI",{inputValue:0x11}),
@@ -60,19 +60,19 @@ function standardPages(prefix){
   }},
   {label:"DISPLAY MODES",keypad:{
     "0,0":action(prefix+":extend",U.topology,"Display Mode","EXTEND",{topology:"extend"}),
-    "1,0":action(prefix+":dup",U.topology,"Display Mode","DUPLICATE",{topology:"duplicate"}),
-    "2,0":action(prefix+":internal",U.topology,"Display Mode","PC SCREEN",{topology:"internal"}),
-    "3,0":action(prefix+":external",U.topology,"Display Mode","SECOND SCREEN",{topology:"external"}),
+    "1,0":action(prefix+":dup",U.topology,"Display Mode","DUP",{topology:"duplicate"}),
+    "2,0":action(prefix+":internal",U.topology,"Display Mode","PC ONLY",{topology:"internal"}),
+    "3,0":action(prefix+":external",U.topology,"Display Mode","2ND ONLY",{topology:"external"}),
     "4,0":action(prefix+":hdr2",U.hdr,"Windows HDR","HDR",{hdr:"toggle"}),
     "0,1":action(prefix+":maxhz",U.refresh,"Refresh Rate","MAX HZ",{refreshRate:0}),
     "1,1":action(prefix+":60",U.refresh,"Refresh Rate","60 HZ",{refreshRate:60}),
     "2,1":action(prefix+":144",U.refresh,"Refresh Rate","144 HZ",{refreshRate:144}),
     "3,1":action(prefix+":165",U.refresh,"Refresh Rate","165 HZ",{refreshRate:165}),
     "4,1":action(prefix+":240",U.refresh,"Refresh Rate","240 HZ",{refreshRate:240}),
-    "0,2":action(prefix+":best",U.resolution,"Resolution","MAX MODE",{modePreset:"best"}),
-    "1,2":action(prefix+":1080best",U.resolution,"Resolution","1080P MAX",{modePreset:"1080p-best"}),
-    "2,2":action(prefix+":landscape",U.orientation,"Orientation","LANDSCAPE",{orientation:0}),
-    "3,2":action(prefix+":portrait",U.orientation,"Orientation","PORTRAIT",{orientation:1})
+    "0,2":action(prefix+":best",U.resolution,"Resolution","MAX",{modePreset:"best"}),
+    "1,2":action(prefix+":1080best",U.resolution,"Resolution","1080 MAX",{modePreset:"1080p-best"}),
+    "2,2":action(prefix+":landscape",U.orientation,"Orientation","LAND",{orientation:0}),
+    "3,2":action(prefix+":portrait",U.orientation,"Orientation","PORT",{orientation:1})
   }},
   {label:"BRIGHTNESS",keypad:{
     "0,0":action(prefix+":25",U.brightness,"Monitor Brightness","25%",{value:25}),
