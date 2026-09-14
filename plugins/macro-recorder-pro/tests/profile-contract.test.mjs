@@ -26,4 +26,17 @@ test("Pro starter profile stays focused on recorded workflows",async()=>{
   assert.ok(source.includes("compactPages(basePages,3,2)"));
   assert.ok(source.includes("compactPages(basePages,4)"));
   assert.equal(/anti[- ]?afk|cheat|farm/i.test(source),false);
+
+  const suffixes=["mk2","mini","xl","plus","neo"];
+  const actionIds=[];
+  for(const suffix of suffixes){
+    const map=JSON.parse(await readFile(new URL(`../../artifacts/profile-maps/macro-recorder-pro-starter-${suffix}.profile-map.json`,root),"utf8"));
+    const actions=map.pages.flatMap(page=>page.actions);
+    assert.equal(actions.length,3,`${suffix} starter profile should contain only Record / Play / Stop`);
+    for(const action of actions){
+      assert.ok(action.actionId,`${suffix} ${action.name} is missing an auditable ActionID`);
+      actionIds.push(action.actionId);
+    }
+  }
+  assert.equal(new Set(actionIds).size,actionIds.length,"starter profile ActionIDs must be unique across every bundled device profile");
 });
