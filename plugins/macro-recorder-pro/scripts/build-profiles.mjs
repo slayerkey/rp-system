@@ -29,7 +29,7 @@ const examples={
 
 function proPages(){return [{label:"MACROS",actions:{
  "0,0":act("p-rec","record","Record"),
- "1,0":act("p-play","replay","Play",{followLatest:true}),
+ "1,0":act("p-play","replay","Play"),
  "2,0":act("p-stop","stop","Emergency Stop"),
  "3,0":replay("p-rapid-click","Rapid Left Click",examples.rapidClick,{coordinateMode:"active-window"}),
  "4,0":replay("p-double-click","Double Click",examples.doubleClick,{coordinateMode:"active-window"}),
