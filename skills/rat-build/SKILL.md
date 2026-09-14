@@ -33,6 +33,10 @@ For utility-style plugins, centralize the semantic glyph map and key renderer. P
 
 For Keypad plugins, run `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>` as part of QA when the product layout permits. New Node SDK plugins should also run `node tools/qa/streamdeck-plugin-design-audit.mjs <plugin-source-root>` so action identity and Property Inspector transport regressions fail before hardware QA. Dashboard-style plugins that promise the standard PackRat profile bundle must add `--require-major-profiles` and cover DeviceTypes 0, 2, 7, and 9.
 
+When the product uses the canonical PackRat Property Inspector, add `--require-canonical-pi`. When a Lite/free product has a direct Pro counterpart, also add `--require-lite-pro-upsell`; do not hand-redesign the top PackRat/Pro bar or bottom Pro feature card product by product.
+
+The canonical Stream Deck design files are read-only during normal product builds. If a product appears not to match the standard, fix the product. Only an explicit global-system task may revise the standard.
+
 Before hardware QA, enforce the PackRat plugin design contract:
 
 - stable semantic action slugs across UUIDs, source maps, icons, profiles, and tests
