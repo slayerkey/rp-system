@@ -2,9 +2,9 @@
   "id": "workspace-manager-pro",
   "name": "Workspace Manager Pro",
   "type": "plugin",
-  "status": "built",
-  "workflow_state": "TESTING",
-  "blocker": "Final exact-commit revalidation is running after strengthening the static fallback key stroke to clear the shared key-visual warning. Physical Rat Dev hardware QA remains the release boundary. Marketplace submission and shipping are not authorized.",
+  "status": "qa_passed",
+  "workflow_state": "READY_FOR_HARDWARE_QA",
+  "blocker": "Physical Rat Dev visual/hardware QA on the user's actual Stream Deck remains before any release decision. Marketplace submission and shipping are not authorized.",
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows + macOS",
   "source_repository": "https://github.com/slayerkey/vcs.git",
@@ -30,13 +30,51 @@
     "Canonical real PackRat PNG asset copied from the validated Window Manager Lite implementation; substitute PI SVG removed",
     "Public QA bridge now runs the shared streamdeck-plugin-design-audit with --require-canonical-pi and streamdeck-key-visual-audit on both Windows and macOS",
     "Static fallback Workspace key border increased from 3 px to 4 px so the shared key visual audit has no thin-stroke warning at 144 px source scale",
-    "Private-source revalidation requested for exact source commit 39d7188afb9cd4eaf74d65dd2a85885b45099346"
+    "Private-source QA bridge run 34891065572: PASS on Windows + macOS at exact source commit 39d7188afb9cd4eaf74d65dd2a85885b45099346",
+    "Canonical streamdeck-plugin-design-audit --require-canonical-pi: PASS with 0 errors and 0 warnings on Windows + macOS",
+    "Canonical streamdeck-key-visual-audit: PASS with 0 structural errors and 0 warnings on Windows + macOS",
+    "Windows final revalidation: regression tests, build, canonical audits, native Win32 ABI enumeration, official Elgato validation/package, standalone identity audit, and repeated-restore/closed-app smoke: PASS",
+    "macOS final revalidation: regression tests, build, canonical audits, AppKit monitor enumeration, platform bundle isolation, official Elgato validation/package, and standalone identity audit: PASS"
   ],
-  "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host. Verify Retry persists after close/reopen, New/Capture show in-inspector progress + completion feedback, captured window/app summary updates, and multiple Workspace keys keep independent selected workspace IDs. Keep this product out of Marketplace submission/ship until that hardware QA is explicitly accepted.",
+  "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host. Verify Retry persists after close/reopen, New/Capture/Rename/Duplicate/Delete show immediate and completion feedback, empty/stale workspaces fail clearly, captured window/app summary updates, and multiple Workspace keys retain independent selections. Review representative runtime keys at real 72 x 72 hardware scale. Keep this product out of Marketplace submission/ship until that hardware QA is explicitly accepted.",
   "notes": "Standalone Pro-only product with no Lite edition. This is a new future Marketplace identity and must never reuse Window Manager Pro Marketplace/product/action identifiers. Window Manager Pro source and control-plane metadata are not modified by this product registration.",
   "automated_release_evidence": {
-    "status": "REVALIDATION_REQUIRED",
+    "status": "PASSED_AWAITING_PHYSICAL_RAT_DEV_QA",
     "source_commit": "39d7188afb9cd4eaf74d65dd2a85885b45099346",
-    "previous_private_source_qa_bridge_run": 34890855035
+    "private_source_qa_bridge_run": 34891065572,
+    "shared_design_audit": {
+      "status": "PASSED",
+      "errors": 0,
+      "warnings": 0
+    },
+    "shared_key_visual_audit": {
+      "status": "PASSED",
+      "errors": 0,
+      "warnings": 0
+    },
+    "windows": {
+      "status": "PASSED",
+      "tests": "PASSED",
+      "build": "PASSED",
+      "canonical_design_audit": "PASSED",
+      "key_visual_audit": "PASSED",
+      "native_win32_enumeration": "PASSED",
+      "elgato_validate": "PASSED",
+      "elgato_package": "PASSED",
+      "standalone_identity_audit": "PASSED",
+      "repeated_restore_smoke": "PASSED"
+    },
+    "macos": {
+      "status": "PASSED",
+      "tests": "PASSED",
+      "build": "PASSED",
+      "canonical_design_audit": "PASSED",
+      "key_visual_audit": "PASSED",
+      "appkit_monitor_enumeration": "PASSED",
+      "platform_bundle_isolation": "PASSED",
+      "elgato_validate": "PASSED",
+      "elgato_package": "PASSED",
+      "standalone_identity_audit": "PASSED"
+    }
   }
 }
