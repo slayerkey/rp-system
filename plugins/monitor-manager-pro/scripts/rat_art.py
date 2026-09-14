@@ -23,9 +23,19 @@ def bg():
     d.ellipse((760,80,1950,1120),fill=(*ACCENT,24)); d.ellipse((-400,-350,700,520),fill=(44,78,122,24))
     return Image.alpha_composite(base,glow.filter(ImageFilter.GaussianBlur(170)))
 
+def fit_font(draw,text,max_width,max_size,min_size=12,bold=True):
+    text=str(text or "")
+    for size in range(max_size,min_size-1,-1):
+        f=font(size,bold)
+        box=draw.textbbox((0,0),text,font=f)
+        if box[2]-box[0] <= max_width:
+            return f
+    return font(min_size,bold)
+
 def header(im,title,sub):
     d=ImageDraw.Draw(im); d.text((110,85),"MONITOR MANAGER PRO",font=font(23),fill=(*ACCENT,255))
-    d.text((110,130),title,font=font(62),fill=(*WHITE,255)); d.text((112,220),sub,font=font(25,False),fill=(*MUTED,255))
+    d.text((110,130),title,font=fit_font(d,title,W-220,62,34),fill=(*WHITE,255))
+    d.text((112,220),sub,font=fit_font(d,sub,W-225,25,18,False),fill=(*MUTED,255))
 
 def footer(im):
     d=ImageDraw.Draw(im); d.line((0,824,W,824),fill=(*ACCENT,68),width=1)
@@ -39,8 +49,12 @@ def card(d,b): d.rounded_rectangle(b,radius=26,fill=(*PANEL,245),outline=(*BORDE
 
 def key(im,x,y,label,sub="",accent=ACCENT,size=142):
     d=ImageDraw.Draw(im); card(d,(x,y,x+size,y+size))
-    d.text((x+15,y+44),label,font=font(19),fill=(*WHITE,255))
-    if sub:d.text((x+15,y+82),sub,font=font(13,False),fill=(*accent,255))
+    inner=size-28
+    label_font=fit_font(d,label,inner,19,12,True)
+    d.text((x+size/2,y+58),label,font=label_font,fill=(*WHITE,255),anchor="mm")
+    if sub:
+        sub_font=fit_font(d,sub,inner,13,10,False)
+        d.text((x+size/2,y+94),sub,font=sub_font,fill=(*accent,255),anchor="mm")
 
 def deck(im,labels,x=785,y=320):
     d=ImageDraw.Draw(im); keysize=142; gap=17; pad=28; cols=5; rows=3
