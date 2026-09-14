@@ -186,19 +186,21 @@ test("SEO copy is truthful and contains requested discovery language",async()=>{
 });
 
 
-test("Pro bundled profiles seed favorites and example multi-group memberships",async()=>{
+test("Pro bundled profiles seed favorites without silently assigning example groups",async()=>{
   for(const suffix of ["standard","mini","xl","plus","neo"]){
     const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
     const bundle=readProfileBundle(data);
     const deviceSettings=bundle.allActions
       .filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.device")
       .map(action=>action.Settings);
-    assert.ok(deviceSettings.length>=4);
+    assert.ok(deviceSettings.length>=3);
     assert.ok(deviceSettings.every(settings=>settings.favorite===true));
-    const groups=deviceSettings.flatMap(settings=>String(settings.groupName||"").split(",").map(name=>name.trim()).filter(Boolean));
-    assert.ok(groups.includes("GAMING"));
-    assert.ok(groups.includes("TRAVEL"));
-    assert.ok(groups.includes("WORK"));
+    assert.ok(deviceSettings.every(settings=>String(settings.groupName||"")===""),`${suffix} should not auto-assign a selected device to an example group`);
+    const dashboards=bundle.allActions.filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.dashboard");
+    const names=dashboards.map(action=>String(action.Settings?.groupName||""));
+    assert.ok(names.includes("GAMING"));
+    assert.ok(names.includes("WORK"));
+    assert.ok(names.includes("TRAVEL"));
   }
 });
 

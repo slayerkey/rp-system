@@ -41,8 +41,7 @@ function fullDevicePage(prefix){
       "3,0":proDevice(prefix+":device2-battery","battery","DEVICE_2","BATTERY"),
       "4,0":dashboard(prefix+":all"),
       "0,1":proDevice(prefix+":device1-control","control","DEVICE_1"),
-      "1,1":proDevice(prefix+":device2-control","control","DEVICE_2"),
-      "2,1":cycle(prefix+":cycle")
+      "1,1":cycle(prefix+":cycle")
     }
   };
 }
@@ -56,9 +55,8 @@ function compactDevicePage(prefix){
       "2,0":proDevice(prefix+":device2-status","status","DEVICE_2"),
       "3,0":proDevice(prefix+":device2-battery","battery","DEVICE_2","BATTERY"),
       "0,1":proDevice(prefix+":device1-control","control","DEVICE_1"),
-      "1,1":proDevice(prefix+":device2-control","control","DEVICE_2"),
-      "2,1":cycle(prefix+":cycle"),
-      "3,1":dashboard(prefix+":all")
+      "1,1":cycle(prefix+":cycle"),
+      "2,1":dashboard(prefix+":all")
     }
   };
 }
