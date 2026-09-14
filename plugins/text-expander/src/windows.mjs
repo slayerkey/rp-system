@@ -14,20 +14,33 @@ function run(mode, payload = {}) {
     ], { windowsHide:true, stdio:["pipe","pipe","pipe"] });
     let stdout = "";
     let stderr = "";
+    let settled = false;
+    let timeout = null;
+    const finish = (fn, value) => {
+      if (settled) return;
+      settled = true;
+      if (timeout) clearTimeout(timeout);
+      fn(value);
+    };
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", chunk => stdout += chunk);
     child.stderr.on("data", chunk => stderr += chunk);
-    child.on("error", reject);
+    child.on("error", error => finish(reject, error));
     child.on("close", code => {
-      if (code !== 0) return reject(new Error(stderr.trim() || `Windows bridge failed (${code}).`));
+      if (settled) return;
+      if (code !== 0) return finish(reject, new Error(stderr.trim() || `Windows bridge failed (${code}).`));
       try {
         const lines = stdout.trim().split(/\r?\n/).filter(Boolean);
-        resolve(lines.length ? JSON.parse(lines.at(-1)) : { ok:true });
+        finish(resolve, lines.length ? JSON.parse(lines.at(-1)) : { ok:true });
       } catch (error) {
-        reject(new Error(`Windows bridge returned invalid JSON: ${error.message}`));
+        finish(reject, new Error(`Windows bridge returned invalid JSON: ${error.message}`));
       }
     });
+    timeout = setTimeout(() => {
+      try { child.kill(); } catch {}
+      finish(reject, new Error(`Windows bridge timed out while running ${mode}.`));
+    }, 15000);
     child.stdin.end(JSON.stringify(payload));
   });
 }
