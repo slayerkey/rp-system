@@ -43,6 +43,38 @@ export function awakeTitle(snapshot: SystemSnapshot): string {
   return snapshot.keepAwake ? "STAY\nAWAKE" : "SLEEP\nNORMAL";
 }
 
+export function wifiTitle(snapshot: SystemSnapshot): string {
+  if (!snapshot.backendOnline) return "WI-FI\nOFFLINE";
+  if (!snapshot.wifi.available) return "WI-FI\nN/A";
+  return `WI-FI\n${binaryLabel(snapshot.wifi.state)}`;
+}
+
+export function bluetoothTitle(snapshot: SystemSnapshot): string {
+  if (!snapshot.backendOnline) return "BT\nOFFLINE";
+  if (!snapshot.bluetooth.available) return "BT\nN/A";
+  return `BT\n${binaryLabel(snapshot.bluetooth.state)}`;
+}
+
+export function themeTitle(snapshot: SystemSnapshot): string {
+  if (!snapshot.backendOnline) return "THEME\nOFFLINE";
+  if (!snapshot.theme.available) return "THEME\nN/A";
+  const value = snapshot.theme.combined === "dark"
+    ? "DARK"
+    : snapshot.theme.combined === "light"
+      ? "LIGHT"
+      : snapshot.theme.combined === "mixed"
+        ? "MIXED"
+        : "N/A";
+  return `THEME\n${value}`;
+}
+
+export function desktopTitle(snapshot: SystemSnapshot): string {
+  if (!snapshot.backendOnline) return "DESKTOP\nOFFLINE";
+  const desktop = snapshot.virtualDesktop;
+  if (!desktop.available || !desktop.currentIndex || desktop.count < 1) return "DESKTOP\nN/A";
+  return `DESKTOP\n${desktop.currentIndex} / ${desktop.count}`;
+}
+
 export function currentModeTitle(
   modes: ModeDefinition[],
   snapshot: SystemSnapshot,
@@ -63,6 +95,14 @@ export function modeTitle(mode?: ModeDefinition): string {
 
 export function resultTitle(result: ApplyResult): string {
   return `${result.status}\n${short(result.modeName, 9)}`;
+}
+
+function binaryLabel(value: string): string {
+  if (value === "on") return "ON";
+  if (value === "off") return "OFF";
+  if (value === "disabled") return "DISABLED";
+  if (value === "mixed") return "MIXED";
+  return "N/A";
 }
 
 function powerPlanShort(value: string): string {
