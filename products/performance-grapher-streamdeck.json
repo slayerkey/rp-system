@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "building",
   "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Physical Property Inspector persistence retest, real Windows game/GPU matrix, physical Stream Deck smoke, and real-game A/B frametime-overhead comparison remain required before READY_TO_SHIP.",
+  "blocker": "Physical retest of bounded key labels, Common-first sensor picker, one-click Game FPS setup, 2 Hz hardware refresh, real Windows game/GPU matrix, physical Stream Deck smoke, and real-game A/B frametime-overhead comparison remain required before READY_TO_SHIP.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -24,6 +24,9 @@
     "deterministic Marketplace media",
     "Marketplace Listing V2 hero thumbnail review at 480x240, 320x160, and 240x120",
     "physical Property Inspector metric/window/accent persistence and live-state retest",
+    "physical Common-first sensor picker and bounded key-label retest",
+    "one-click Windows Game FPS permission setup with UAC and sign-out recovery",
+    "2 Hz hardware sensor refresh physical smoothness/overhead retest",
     "real Windows game capture with PresentMon permissions documented",
     "NVIDIA, AMD, and Intel GPU coverage where available",
     "physical Stream Deck Mini/MK.2/XL/+ smoke",
@@ -184,7 +187,12 @@
       "release_candidate_package_sha256": "3fca20ff283c80209cf5128471026290912b2d1db3c4315c8327b3fe6a07c073",
       "release_candidate_package_bytes": 33116191,
       "property_inspector_settings_transport": "PASS_WINDOWS_CI_VENDORED_SDPI_COMPONENTS_4_0_1_PENDING_PHYSICAL_RETEST",
-      "property_inspector_metric_catalog": "PASS_WINDOWS_CI_LIVE_PLUGIN_SNAPSHOT_PATH_PENDING_PHYSICAL_RETEST"
+      "property_inspector_metric_catalog": "PASS_WINDOWS_CI_LIVE_PLUGIN_SNAPSHOT_PATH_PENDING_PHYSICAL_RETEST",
+      "common_metric_picker": "IMPLEMENTED_COMMON_FIRST_WITH_ADVANCED_RAW_SENSORS_PENDING_WINDOWS_CI_AND_PHYSICAL_RETEST",
+      "gpu_fan_canonical_metric": "IMPLEMENTED_PENDING_WINDOWS_CI_AND_PHYSICAL_RETEST",
+      "key_text_bounds": "SHORT_COMMON_LABELS_DYNAMIC_FONT_AND_SVG_CLIP_PENDING_WINDOWS_CI_AND_PHYSICAL_RETEST",
+      "game_fps_permission_setup": "ONE_CLICK_UAC_GROUP_SETUP_IMPLEMENTED_PENDING_WINDOWS_CI_AND_PHYSICAL_RETEST",
+      "hardware_sensor_refresh": "2_HZ_IMPLEMENTED_PENDING_WINDOWS_CI_AND_PHYSICAL_OVERHEAD_RETEST"
     },
     "contracts": {
       "action_manifest_uuid_routing": "PASS_EXACT_SOURCE",
@@ -244,5 +252,5 @@
     }
   },
   "physical_release_evidence": null,
-  "final_boundary": "Run rat dev performance-grapher-streamdeck on the real Windows gaming host, verify Property Inspector persistence/live-state behavior, complete REAL_WINDOWS_SMOKE.md including physical profile/device checks and game A/B performance, then promote to READY_TO_SHIP only if those pass."
+  "final_boundary": "Run rat dev performance-grapher-streamdeck on the real Windows gaming host, verify Common-first metrics, bounded key labels, one-click Game FPS setup, 2 Hz hardware refresh, Property Inspector persistence/live-state behavior, complete REAL_WINDOWS_SMOKE.md including physical profile/device checks and game A/B performance, then promote to READY_TO_SHIP only if those pass."
 }
