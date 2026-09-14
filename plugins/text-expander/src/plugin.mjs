@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import streamDeck, { action, SingletonAction } from "@elgato/streamdeck";
 import { TextExpanderLibrary } from "./library.mjs";
 import {
-  analyzeTemplateFields, counterNames, renderSnippet, chooseInsertionMode
+  analyzeTemplateFields, counterNames, renderSnippet, chooseInsertionMode, resolveSnippetSelection
 } from "./core.mjs";
 import { renderSnippetKey, renderFallbackKeySvg, BUILTIN_SNIPPET_IDS } from "./key-visuals.mjs";
 import { LocalUiServer } from "./server.mjs";
@@ -72,23 +72,14 @@ async function performInsert({ snippet, settings, fields = {}, captured }) {
   });
 }
 
-async function resolveSnippetSelection(settings = {}) {
+async function loadSnippetSelection(settings = {}) {
   const current = await library.load();
-  const requested = String(settings.snippetId || "");
-  const snippet = current.snippets.find(item => item.id === requested) || current.snippets[0] || null;
-  if (!snippet || snippet.id === requested) {
-    return { snippet, settings, changed:false };
-  }
-  return {
-    snippet,
-    settings:{ ...settings, snippetId:snippet.id },
-    changed:true
-  };
+  return resolveSnippetSelection(current.snippets, settings);
 }
 
 async function renderInsertRecord(record) {
   if (!record?.action?.isKey?.()) return;
-  const selection = await resolveSnippetSelection(record.settings);
+  const selection = await loadSnippetSelection(record.settings);
   if (selection.changed) {
     record.settings = selection.settings;
     await record.action.setSettings(selection.settings).catch(error => {
@@ -121,7 +112,7 @@ async function insertAction(ev) {
     ? ev.payload.settings
     : await ev.action.getSettings();
 
-  const selection = await resolveSnippetSelection(settings);
+  const selection = await loadSnippetSelection(settings);
   const snippet = selection.snippet;
   if (!snippet) {
     await ev.action.showAlert();
