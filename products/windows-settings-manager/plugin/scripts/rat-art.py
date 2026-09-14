@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = Path(__file__).resolve().parents[4]
+# Reuse the same deterministic photo compositor and bounded-text helpers as global Rat Ship.
 ART_TOOLS = REPO / "tools" / "art"
 if str(ART_TOOLS) not in sys.path:
     sys.path.insert(0, str(ART_TOOLS))
