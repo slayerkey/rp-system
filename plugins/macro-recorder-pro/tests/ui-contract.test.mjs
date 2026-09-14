@@ -34,6 +34,8 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(html,/1× follows the timing you originally recorded/);
   assert.match(html,/Emergency Stop now/);
   assert.match(js,/NEW · /);
+  assert.match(js,/LATEST · /);
+  assert.match(runtime,/latestMacroId/);
   assert.match(assets,/red=\[244,76,86,255\]/);
   assert.match(assets,/green=\[53,230,126,255\]/);
   assert.match(assets,/mode==="list"\?white/);
