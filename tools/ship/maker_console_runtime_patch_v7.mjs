@@ -104,7 +104,7 @@ async function editorLooksLikeDetails(target) {`,
       state.galleryProof = null;
       save();
 
-      await step('2-file',`Upload ${packageExtension}`,async() => {
+      await step('2-file','Upload ' + packageExtension,async() => {
         page = await livePage();
         const input = page.locator('input[type="file"]').first();
         await input.setInputFiles(join(KIT,packages[0]));
@@ -116,7 +116,7 @@ async function editorLooksLikeDetails(target) {`,
         const readonlyName = page.locator('input[readonly][maxlength]').first();
         await readonlyName.waitFor({state:'visible',timeout:10000});
         const name = (await readonlyName.inputValue()).trim();
-        if (name !== prod.name) throw new Error(`manifest name mismatch: ${name}`);
+        if (name !== prod.name) throw new Error('manifest name mismatch: ' + name);
         const desc = page.locator('#description').or(page.locator('div[role="textbox"]')).or(page.locator('[contenteditable="true"]')).first();
         await proseMirror(page,desc,readFileSync(join(KIT,'PASTE_description.txt'),'utf8').trim());
         await click(page,/^create product$/i);
