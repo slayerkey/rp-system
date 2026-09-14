@@ -86,7 +86,17 @@ function Read-OriginMainRegistration {
 
 function Resolve-Source {
     Write-Host "Fetching canonical RatPack source..." -ForegroundColor Cyan
-    Invoke-Checked -Command "git" -Arguments @("-C", $RepoRoot, "fetch", "--prune", "origin") -Failure "Git fetch failed"
+    # Do not rely on remote.origin.fetch here. Some local PackRat clones were
+    # created with a main-only fetch refspec, which leaves previously discovered
+    # origin/product/* refs stale even though 'git fetch origin' reports success.
+    # Rat Dev resolves canonical work from origin/main plus product family branches,
+    # so refresh those refs explicitly every run.
+    Invoke-Checked -Command "git" -Arguments @(
+        "-C", $RepoRoot,
+        "fetch", "--prune", "origin",
+        "+refs/heads/main:refs/remotes/origin/main",
+        "+refs/heads/product/*:refs/remotes/origin/product/*"
+    ) -Failure "Git fetch failed"
 
     # An explicit external registration on origin/main is authoritative. Resolve
     # it before scanning product branches so private products cannot be shadowed
