@@ -6,6 +6,7 @@
     expectedUploadMbps: 0, lowSpeedPercent: 70, accent: "#2BE86A"
   };
   const DEFAULT_GLOBAL = { intervalSeconds: 1, diagnosticSeconds: 30, httpSeconds: 60, targetSeconds: 30, historyHours: 24, cadenceVersion: 2 };
+  const PACKRAT_MAKER_URL = "https://marketplace.elgato.com/maker/packrat";
   const ID_TO_KIND = {
     "com.packrat.internet-health-pro.health": "health",
     "com.packrat.internet-health-pro.latency": "latency",
@@ -174,6 +175,9 @@
   for (const id of ["historyWindow","latencyWarn","latencyBad","jitterWarn","jitterBad","lossWarn","lossBad","metric","outageMode","target","targetMethod","targetPort","family","expectedDownloadMbps","expectedUploadMbps","lowSpeedPercent","accent","intervalSeconds"]) {
     $(id).addEventListener(id === "target" || id === "accent" ? "input" : "change", queueSave);
   }
+  $("packratLink").addEventListener("click", () => {
+    send({ event: "openUrl", payload: { url: PACKRAT_MAKER_URL } });
+  });
   $("refresh").addEventListener("click", () => {
     $("refresh").disabled = true;
     $("refresh").textContent = "Probing…";

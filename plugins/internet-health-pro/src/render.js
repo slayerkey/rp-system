@@ -12,7 +12,8 @@ function dataUri(svg) {
 
 function stateColor(state, accent) {
   if (state === "GOOD" || state === "UP") return accent;
-  if (state === "DEGRADED" || state === "CHECK") return "#FFB34D";
+  if (state === "CHECK") return "#FFB21E";
+  if (state === "DEGRADED") return "#FFB34D";
   if (state === "BAD" || state === "OFFLINE" || state === "DOWN") return "#FF5D6C";
   return "#8B93A1";
 }
@@ -64,14 +65,15 @@ function baseSvg({ label, primary, secondary = "", status = "CHECK", accent = "#
   const secondarySize = fitFont(secondary, 16, 14.5, 13);
   const footerSize = fitFont(footer, 12.5, 11.5, 10.5);
   return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
-    <rect width="144" height="144" rx="18" fill="#07090D"/>
+    <rect width="144" height="144" rx="18" fill="#080A0E"/>
     <rect x="0" y="0" width="5" height="144" rx="2.5" fill="${color}"/>
-    <text x="14" y="23" fill="#C9CED6" font-family="Arial,sans-serif" font-size="16.5" font-weight="800" letter-spacing=".15">${escapeXml(label)}</text>
-    <text x="14" y="61" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="${primarySize}" font-weight="800">${escapeXml(primary)}</text>
+    <rect x="121" y="10" width="9" height="3" rx="1.5" fill="#FFB21E"/>
+    <text x="14" y="23" fill="#9AA2AF" font-family="Arial,sans-serif" font-size="16.5" font-weight="800" letter-spacing=".15">${escapeXml(label)}</text>
+    <text x="14" y="61" fill="#F5F7FB" font-family="Arial,sans-serif" font-size="${primarySize}" font-weight="800">${escapeXml(primary)}</text>
     <text x="14" y="84" fill="${color}" font-family="Arial,sans-serif" font-size="${secondarySize}" font-weight="800">${escapeXml(secondary)}</text>
-    <line x1="14" y1="91" x2="130" y2="91" stroke="#252A32" stroke-width="1"/>
+    <line x1="14" y1="91" x2="130" y2="91" stroke="#303640" stroke-width="1"/>
     ${path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
-    ${hasFooter ? `<text x="14" y="139" fill="#AAB1BC" font-family="Arial,sans-serif" font-size="${footerSize}" font-weight="700">${escapeXml(footer)}</text>` : ""}
+    ${hasFooter ? `<text x="14" y="139" fill="#9AA2AF" font-family="Arial,sans-serif" font-size="${footerSize}" font-weight="700">${escapeXml(footer)}</text>` : ""}
   </svg>`);
 }
 
@@ -81,12 +83,13 @@ function outageSvg(primary, secondary, state, accent, samples = []) {
   const secondarySize = fitFont(secondary, 14, 12.5, 11);
   const path = graphPath(samples, KEY_GRAPH_SECONDS, 116, 40, 14, 94);
   return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
-    <rect width="144" height="144" rx="18" fill="#07090D"/>
+    <rect width="144" height="144" rx="18" fill="#080A0E"/>
     <rect x="0" y="0" width="5" height="144" rx="2.5" fill="${color}"/>
-    <text x="14" y="23" fill="#C9CED6" font-family="Arial,sans-serif" font-size="15.5" font-weight="800">OUTAGE</text>
-    <text x="14" y="61" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="${primarySize}" font-weight="800">${escapeXml(primary)}</text>
+    <rect x="121" y="10" width="9" height="3" rx="1.5" fill="#FFB21E"/>
+    <text x="14" y="23" fill="#9AA2AF" font-family="Arial,sans-serif" font-size="15.5" font-weight="800">OUTAGE</text>
+    <text x="14" y="61" fill="#F5F7FB" font-family="Arial,sans-serif" font-size="${primarySize}" font-weight="800">${escapeXml(primary)}</text>
     <text x="14" y="84" fill="${color}" font-family="Arial,sans-serif" font-size="${secondarySize}" font-weight="800">${escapeXml(secondary)}</text>
-    <line x1="14" y1="91" x2="130" y2="91" stroke="#252A32" stroke-width="1"/>
+    <line x1="14" y1="91" x2="130" y2="91" stroke="#303640" stroke-width="1"/>
     ${path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
   </svg>`);
 }
@@ -98,13 +101,14 @@ function speedResultSvg(speed, settings, low) {
   const downSize = fitFont(down, 36, 33, 29);
   const upSize = fitFont(up, 36, 33, 29);
   return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
-    <rect width="144" height="144" rx="18" fill="#07090D"/>
+    <rect width="144" height="144" rx="18" fill="#080A0E"/>
     <rect x="0" y="0" width="5" height="144" rx="2.5" fill="${color}"/>
-    <text x="14" y="22" fill="#C9CED6" font-family="Arial,sans-serif" font-size="16.5" font-weight="800">SPEED</text>
+    <rect x="121" y="10" width="9" height="3" rx="1.5" fill="#FFB21E"/>
+    <text x="14" y="22" fill="#9AA2AF" font-family="Arial,sans-serif" font-size="16.5" font-weight="800">SPEED</text>
     ${low ? `<text x="128" y="22" text-anchor="end" fill="#FF5D6C" font-family="Arial,sans-serif" font-size="13" font-weight="800">LOW</text>` : ""}
-    <text x="14" y="61" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="${downSize}" font-weight="800">${escapeXml(down)}</text>
+    <text x="14" y="61" fill="#F5F7FB" font-family="Arial,sans-serif" font-size="${downSize}" font-weight="800">${escapeXml(down)}</text>
     <text x="14" y="103" fill="${color}" font-family="Arial,sans-serif" font-size="${upSize}" font-weight="800">${escapeXml(up)}</text>
-    <text x="14" y="132" fill="#AAB1BC" font-family="Arial,sans-serif" font-size="14" font-weight="700">Mbps</text>
+    <text x="14" y="132" fill="#9AA2AF" font-family="Arial,sans-serif" font-size="14" font-weight="700">Mbps</text>
   </svg>`);
 }
 
@@ -251,13 +255,14 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
   const summary = outageSummary(snapshot.outages, Date.now(), snapshot.onlineSince);
   const color = stateColor(health.state, settings.accent);
   return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
-    <rect width="144" height="144" rx="18" fill="#07090D"/>
+    <rect width="144" height="144" rx="18" fill="#080A0E"/>
     <rect x="0" y="0" width="4" height="144" rx="2" fill="${color}"/>
-    <text x="14" y="23" fill="#C9CED6" font-family="Arial,sans-serif" font-size="16.5" font-weight="800">SUMMARY</text>
+    <rect x="121" y="10" width="9" height="3" rx="1.5" fill="#FFB21E"/>
+    <text x="14" y="23" fill="#9AA2AF" font-family="Arial,sans-serif" font-size="16.5" font-weight="800">SUMMARY</text>
     <text x="14" y="52" fill="${color}" font-family="Arial,sans-serif" font-size="27" font-weight="800">${escapeXml(health.state)}</text>
-    <text x="14" y="76" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">LAT ${Number.isFinite(metrics.current) ? Math.round(metrics.current) + " ms" : "--"}</text>
-    <text x="14" y="97" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">JIT ${Number.isFinite(metrics.jitter) ? metrics.jitter.toFixed(1) + " ms" : "--"}</text>
-    <text x="14" y="118" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">LOSS ${Number.isFinite(metrics.loss) ? metrics.loss.toFixed(1) + "%" : "--"}</text>
-    <text x="14" y="139" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">${summary.current ? "DOWN " + formatDuration(summary.currentDurationMs) : "UP " + formatDuration(summary.uptimeMs)}</text>
+    <text x="14" y="76" fill="#F5F7FB" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">LAT ${Number.isFinite(metrics.current) ? Math.round(metrics.current) + " ms" : "--"}</text>
+    <text x="14" y="97" fill="#F5F7FB" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">JIT ${Number.isFinite(metrics.jitter) ? metrics.jitter.toFixed(1) + " ms" : "--"}</text>
+    <text x="14" y="118" fill="#F5F7FB" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">LOSS ${Number.isFinite(metrics.loss) ? metrics.loss.toFixed(1) + "%" : "--"}</text>
+    <text x="14" y="139" fill="#F5F7FB" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">${summary.current ? "DOWN " + formatDuration(summary.currentDurationMs) : "UP " + formatDuration(summary.uptimeMs)}</text>
   </svg>`);
 }
