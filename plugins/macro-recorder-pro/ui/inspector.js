@@ -1,7 +1,7 @@
 (() => {
   const edition=document.body.dataset.edition;
   const pro=edition==="pro";
-  let socket=null,uiUuid="",actionContext="",actionUuid="",kind="",settings={},state=null,stateConnected=false,stateRetryTimer=null,stateRetries=0,diagnostic=null,diagnosticTimer=null;
+  let socket=null,uiUuid="",actionContext="",actionUuid="",kind="",settings={},state=null,stateConnected=false,stateRetryTimer=null,stateRetries=0,diagnostic=null,diagnosticTimer=null,manualRefreshPending=false,refreshFeedbackTimer=null,libraryFeedbackTimer=null;
   const PAGE_SIZE=200;
   const MAX_IMPORT_BYTES=16*1024*1024;
   let timelinePage=0,timelineMacroId="";
@@ -10,16 +10,37 @@
   const command=(command,extra={})=>send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"macroRecorder.command",actionContext,command,...extra}});
   const saveSettings=next=>{settings={...settings,...next};if(state)state={...state,settings:{...(state.settings||{}),...next}};send({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings});};
 
-  function requestState(reset=false){
+  function showLibraryFeedback(message,type="success",duration=3500){
+    const el=$("libraryFeedback");
+    if(!el)return;
+    if(libraryFeedbackTimer){clearTimeout(libraryFeedbackTimer);libraryFeedbackTimer=null;}
+    el.textContent=message;
+    el.className=`hint library-feedback ${type}`;
+    el.hidden=false;
+    if(duration>0)libraryFeedbackTimer=setTimeout(()=>{el.hidden=true;el.textContent="";el.className="hint library-feedback";},duration);
+  }
+
+  function requestState(reset=false,manual=false){
     if(reset){stateConnected=false;stateRetries=0;}
+    if(manual){
+      manualRefreshPending=true;
+      const button=$("refreshLibrary");
+      if(button){button.disabled=true;button.textContent="Refreshing…";}
+    }
     if(stateRetryTimer){clearTimeout(stateRetryTimer);stateRetryTimer=null;}
     send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"macroRecorder.inspect",actionContext}});
     if(!stateConnected&&stateRetries<5){
       stateRetries+=1;
-      stateRetryTimer=setTimeout(()=>requestState(false),500);
+      stateRetryTimer=setTimeout(()=>requestState(false,manualRefreshPending),500);
     }else if(!stateConnected){
       const el=$("stateConnection");
       if(el)el.textContent="Macro Library connection failed. Playback settings still save, but library/editor state is unavailable.";
+      if(manualRefreshPending){
+        manualRefreshPending=false;
+        const button=$("refreshLibrary");
+        if(button){button.disabled=false;button.textContent="Refresh";}
+        showLibraryFeedback("Refresh failed · Macro Library did not respond.","error",5000);
+      }
     }
   }
 
@@ -171,11 +192,12 @@
   }
   function saveTimeline(macro){if(!macro)return;if(pro)command("saveMacro",{macroId:macro.id,macro});else command("saveLiteMacro",{macro});}
   function renderTimeline(){
-    const timeline=$("timeline"),pager=$("timelinePager"),warning=$("timelineWarning");
+    const timeline=$("timeline"),pager=$("timelinePager"),warning=$("timelineWarning"),details=$("recordedStepsDetails");
     timeline.replaceChildren();
     const macro=state?.macro;
-    if(!macro?.events?.length){timeline.textContent=macro?"This macro has no events.":"Record something first, or choose a macro from the library.";$("macroMeta").textContent="";pager.hidden=true;warning.hidden=true;timelinePage=0;return;}
-    $("macroMeta").textContent=`${macro.events.length} events · ${(macro.durationMs/1000).toFixed(2)}s`;
+    if(!macro?.events?.length){$("macroMeta").textContent=macro?"No playable events":"No macro selected";timeline.textContent=macro?"This macro has no events.":"Record something first, or choose a macro from the library.";pager.hidden=true;warning.hidden=true;timelinePage=0;return;}
+    $("macroMeta").textContent=`${macro.events.length.toLocaleString()} events · ${(macro.durationMs/1000).toFixed(2)}s`;
+    if(details&&!details.open){pager.hidden=true;warning.hidden=true;return;}
     const pageCount=Math.max(1,Math.ceil(macro.events.length/PAGE_SIZE));timelinePage=Math.max(0,Math.min(pageCount-1,timelinePage));const first=timelinePage*PAGE_SIZE;const last=Math.min(macro.events.length,first+PAGE_SIZE);pager.hidden=pageCount<=1;$("timelinePageLabel").textContent=`${first+1}–${last} of ${macro.events.length}`;$("timelinePrev").disabled=timelinePage<=0;$("timelineNext").disabled=timelinePage>=pageCount-1;
     macro.events.slice(first,last).forEach((ev,offset)=>{
       const index=first+offset,row=document.createElement("div");row.className="event";const main=document.createElement("div");main.className="event-main";const title=document.createElement("div");title.className="event-title";title.textContent=eventLabel(ev);main.appendChild(title);
@@ -186,17 +208,41 @@
   }
 
   function applyStatus(next){state={...(state||{}),...(next||{})};if(!state)return;updateStatus();}
-  function applyState(next){stateConnected=true;if(stateRetryTimer){clearTimeout(stateRetryTimer);stateRetryTimer=null;}const nextMacroId=String(next?.macro?.id||"");if(nextMacroId!==timelineMacroId){timelineMacroId=nextMacroId;timelinePage=0;}state=next||state;if(!state)return;if(next?.settings)applySettings(next.settings);updateStateConnection();updateStatus();populateLibrary();renderTimeline();}
+  function applyState(next){
+    stateConnected=true;
+    if(stateRetryTimer){clearTimeout(stateRetryTimer);stateRetryTimer=null;}
+    const nextMacroId=String(next?.macro?.id||"");
+    if(nextMacroId!==timelineMacroId){timelineMacroId=nextMacroId;timelinePage=0;}
+    state=next||state;
+    if(!state)return;
+    if(next?.settings)applySettings(next.settings);
+    updateStateConnection();
+    updateStatus();
+    populateLibrary();
+    renderTimeline();
+    if(manualRefreshPending){
+      manualRefreshPending=false;
+      const button=$("refreshLibrary");
+      if(button){
+        button.disabled=false;
+        button.textContent="Refreshed ✓";
+        if(refreshFeedbackTimer)clearTimeout(refreshFeedbackTimer);
+        refreshFeedbackTimer=setTimeout(()=>{button.textContent="Refresh";refreshFeedbackTimer=null;},1800);
+      }
+      showLibraryFeedback(`Refreshed · ${state?.library?.length??0} macros`,"success",3000);
+    }
+  }
   function applySettings(next){settings={...(next||{})};if(pro){$("captureMouseMovement").checked=settings.captureMouseMovement!==false;const speed=Number(settings.playbackSpeed);$("playbackSpeed").value=["0.25","0.5","1","1.5","2","4"].includes(String(speed))?String(speed):"1";$("playbackMode").value=["once","count","while-held","toggle"].includes(settings.playbackMode)?settings.playbackMode:"once";$("repeatCount").value=Number.isFinite(Number(settings.repeatCount))?Number(settings.repeatCount):2;$("coordinateMode").value=settings.coordinateMode==="active-window"?"active-window":"absolute";$("repeatRow").hidden=$("playbackMode").value!=="count";}}
 
-  window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{uiUuid=uuid;const ai=JSON.parse(rawActionInfo||"{}");actionContext=String(ai.context||"");actionUuid=String(ai.action||"");kind=detectKind();applySettings(ai.payload?.settings||{});filterKind();updateStateConnection();socket=new WebSocket(`ws://127.0.0.1:${port}`);socket.onopen=()=>{send({event:registerEvent,uuid:uiUuid});send({event:"getSettings",action:actionUuid,context:uiUuid});requestState(true);};socket.onmessage=event=>{let m;try{m=JSON.parse(event.data);}catch{return;}if(m.event==="didReceiveSettings"){applySettings(m.payload?.settings||{});if(!stateConnected)requestState(false);}if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.state")applyState(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.status")applyStatus(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.diagnostic")showDiagnostic(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.export"){const blob=new Blob([JSON.stringify(m.payload.data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=m.payload.filename||"macro.packrat-macro.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}};};
+  window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{uiUuid=uuid;const ai=JSON.parse(rawActionInfo||"{}");actionContext=String(ai.context||"");actionUuid=String(ai.action||"");kind=detectKind();applySettings(ai.payload?.settings||{});filterKind();updateStateConnection();socket=new WebSocket(`ws://127.0.0.1:${port}`);socket.onopen=()=>{send({event:registerEvent,uuid:uiUuid});send({event:"getSettings",action:actionUuid,context:uiUuid});requestState(true);};socket.onmessage=event=>{let m;try{m=JSON.parse(event.data);}catch{return;}if(m.event==="didReceiveSettings"){applySettings(m.payload?.settings||{});if(!stateConnected)requestState(false);}if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.state")applyState(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.status")applyStatus(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.diagnostic")showDiagnostic(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.export"){const blob=new Blob([JSON.stringify(m.payload.data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=m.payload.filename||"macro.packrat-macro.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.exportSaved"){showLibraryFeedback(`Exported · ${m.payload.path||m.payload.filename||"saved"}`,"success",7000);}};};
 
   $("cancelRecording").addEventListener("click",()=>command("cancelRecording"));
   $("stopPlayback").addEventListener("click",()=>command("stopPlayback"));
   $("assignLatest").addEventListener("click",()=>command("assignLatest"));
   $("timelinePrev").addEventListener("click",()=>{if(timelinePage>0){timelinePage-=1;renderTimeline();}});
   $("timelineNext").addEventListener("click",()=>{timelinePage+=1;renderTimeline();});
-  $("refreshLibrary").addEventListener("click",()=>requestState(true));
+  $("refreshLibrary").addEventListener("click",()=>requestState(true,true));
+  $("recordedStepsDetails").addEventListener("toggle",()=>{if($("recordedStepsDetails").open)renderTimeline();});
   $("runDiagnostic").addEventListener("click",runDiagnostic);
   $("copyDiagnostic").addEventListener("click",async()=>{
     if(!diagnostic)return;
