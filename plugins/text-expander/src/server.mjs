@@ -63,9 +63,10 @@ document.getElementById("cancel").addEventListener("click",async()=>{await fetch
 }
 
 export class LocalUiServer {
-  constructor({ edition, library } = {}) {
+  constructor({ edition, library, onLibraryChanged } = {}) {
     this.edition = edition;
     this.library = library;
+    this.onLibraryChanged = typeof onLibraryChanged === "function" ? onLibraryChanged : null;
     this.token = crypto.randomBytes(24).toString("base64url");
     this.jobs = new Map();
     this.server = null;
@@ -117,6 +118,7 @@ export class LocalUiServer {
     if (req.method === "POST" && url.pathname === "/api/library") {
       const incoming = await bodyJson(req);
       const library = await this.library.replace(incoming.library);
+      await this.onLibraryChanged?.(library);
       return json(res,200,{ok:true,library});
     }
     if (req.method === "GET" && url.pathname === "/template") {
