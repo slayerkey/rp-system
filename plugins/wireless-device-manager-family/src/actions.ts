@@ -1,4 +1,4 @@
-import {
+import streamDeck, {
   action,
   type DidReceiveSettingsEvent,
   type KeyAction,
@@ -60,13 +60,13 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
   }
 
   override async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<DeviceSettings>): Promise<void> {
-    await ev.action.sendToPropertyInspector(await this.runtime.inspectorPayload());
+    await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
   }
 
   override async onSendToPlugin(ev: SendToPluginEvent<any, DeviceSettings>): Promise<void> {
     const payload = ev.payload ?? {};
     if (payload.type === "get-wireless-snapshot") {
-      await ev.action.sendToPropertyInspector(await this.runtime.inspectorPayload());
+      await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
       return;
     }
     const deviceId = typeof payload.deviceId === "string" ? payload.deviceId : "";
@@ -93,7 +93,7 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
     }
 
     this.runtime.notify();
-    await ev.action.sendToPropertyInspector(await this.runtime.inspectorPayload());
+    await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
   }
 
   override async onKeyDown(ev: KeyDownEvent<DeviceSettings>): Promise<void> {
@@ -160,12 +160,12 @@ export class DashboardAction extends SingletonAction<DashboardSettings> {
   }
 
   override async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<DashboardSettings>): Promise<void> {
-    await ev.action.sendToPropertyInspector(await this.runtime.inspectorPayload());
+    await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
   }
 
   override async onSendToPlugin(ev: SendToPluginEvent<any, DashboardSettings>): Promise<void> {
     if ((ev.payload as any)?.type === "get-wireless-snapshot") {
-      await ev.action.sendToPropertyInspector(await this.runtime.inspectorPayload());
+      await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
     }
   }
 
@@ -224,12 +224,12 @@ export class CycleDeviceAction extends SingletonAction<CycleSettings> {
   }
 
   override async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<CycleSettings>): Promise<void> {
-    await ev.action.sendToPropertyInspector(await this.runtime.inspectorPayload());
+    await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
   }
 
   override async onSendToPlugin(ev: SendToPluginEvent<any, CycleSettings>): Promise<void> {
     if ((ev.payload as any)?.type === "get-wireless-snapshot") {
-      await ev.action.sendToPropertyInspector(await this.runtime.inspectorPayload());
+      await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
     }
   }
 
