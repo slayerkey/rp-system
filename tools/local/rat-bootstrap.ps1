@@ -42,6 +42,26 @@ function Get-GitText {
     return (($output -join "`n").Trim())
 }
 
+
+function Assert-RatCommandLayerSyntax {
+    $failures = @()
+    foreach ($script in @(Get-ChildItem -Path (Join-Path $RepoRoot "tools\local") -Filter "*.ps1" -File -ErrorAction Stop)) {
+        $tokens = $null
+        $errors = $null
+        [System.Management.Automation.Language.Parser]::ParseFile($script.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+        if ($errors.Count) {
+            foreach ($error in @($errors)) {
+                Write-Host ("{0}:{1} {2}" -f $script.FullName, $error.Extent.StartLineNumber, $error.Message) -ForegroundColor Red
+            }
+            $failures += $script.FullName
+        }
+    }
+    if ($failures.Count) {
+        throw "RatPack command-layer PowerShell syntax validation failed: $($failures -join ', ')"
+    }
+}
+
+
 function Remove-KnownGeneratedArtifacts {
     $widgetsRoot = Join-Path $RepoRoot "widgets"
     if (-not (Test-Path $widgetsRoot)) { return }
@@ -127,12 +147,26 @@ $branch = Get-GitText -Arguments @("branch", "--show-current")
 if ($branch -ne "main") {
     Invoke-Git -Arguments @("switch", "main")
 }
+
+$previousMainCommit = Get-GitText -Arguments @("rev-parse", "HEAD")
 Invoke-Git -Arguments @("merge", "--ff-only", "refs/remotes/origin/main")
 
 $localCommit = Get-GitText -Arguments @("rev-parse", "HEAD")
 $remoteCommit = Get-GitText -Arguments @("rev-parse", "refs/remotes/origin/main")
 if ($localCommit -ne $remoteCommit) {
     throw "RatPack bootstrap did not land on canonical origin/main. Local: $localCommit Remote: $remoteCommit"
+}
+
+try {
+    Assert-RatCommandLayerSyntax
+}
+catch {
+    $failedCommit = Get-GitText -Arguments @("rev-parse", "HEAD")
+    if ($previousMainCommit -and $failedCommit -ne $previousMainCommit) {
+        Write-Host "The refreshed RatPack command layer is invalid. Restoring the previous working main checkout..." -ForegroundColor Yellow
+        Invoke-Git -Arguments @("reset", "--hard", $previousMainCommit)
+    }
+    throw "RatPack refused command-layer update $failedCommit because its local PowerShell does not parse. The previous working command layer was restored. Retry after canonical main is repaired. $($_.Exception.Message)"
 }
 
 $commit = Get-GitText -Arguments @("log", "-1", "--pretty=format:%h")
