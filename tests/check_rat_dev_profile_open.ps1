@@ -38,6 +38,7 @@ try {
 
     # Simulate a legacy state written by the old adoption behavior.
     $legacyStatePath = Get-RatDevProfileStatePath -StateRoot $StateRoot -Slug "test-plugin"
+    New-Item -ItemType Directory -Force -Path (Split-Path $legacyStatePath -Parent) | Out-Null
     [PSCustomObject]@{
         slug = "test-plugin"
         profile_path = $profilePath
