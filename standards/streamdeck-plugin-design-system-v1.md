@@ -1,9 +1,27 @@
-# PackRat Stream Deck Plugin Design System v1
+# PackRat Stream Deck Plugin Design System v1 — Canonical RatPack Standard
 
+This is the canonical implementation and visual contract for PackRat Stream Deck plugins. It captures the hardware, Property Inspector, profile, interaction, and visual lessons that repeatedly caused rework when they were left implicit.
 
-This is the canonical implementation contract for new PackRat Stream Deck plugins. It captures the hardware, Property Inspector, profile, and visual lessons that repeatedly caused rework when they were left implicit.
+The target is not "looks correct in source." The target is "obvious, readable, persistent, responsive, and recognizably PackRat on a real Stream Deck."
 
-The target is not "looks correct in source." The target is "obvious, readable, persistent, and responsive on a real Stream Deck."
+## Authority and inheritance
+
+This file is the single source of truth for the PackRat Stream Deck product experience.
+
+- new Stream Deck plugins inherit this standard automatically
+- product prompts should say **"use the canonical PackRat Stream Deck design system"** instead of restating colors, card geometry, buttons, glow, logo, or Property Inspector styling
+- do not create a second product-specific "requirements/design/branding" document that copies these rules
+- if a product genuinely needs an exception, document only the exception and the reason; everything else still inherits from this file
+- when the global PackRat look changes, update this file first, then roll the change out to products
+- implementation references are allowed; duplicated design contracts are not
+
+Precedence for visual/interaction decisions:
+
+1. this canonical standard
+2. a documented product-specific exception
+3. product implementation details
+
+A product implementation that accidentally differs from this file is not a new standard.
 
 ## 1. Stable action identity
 
@@ -83,7 +101,9 @@ Live values belong on actions whose job is status/monitoring, and on encoder fee
 
 ## 4. Canonical PackRat visual system
 
-This is the global PackRat Stream Deck visual contract. New plugins and deliberate refreshes of recent plugins should reference this section instead of restating colors, branding, button rules, or Property Inspector styling in product-specific prompts.
+This section is the global PackRat Stream Deck visual contract. New plugins and deliberate refreshes of recent plugins reference this section instead of restating colors, branding, button rules, glow, spacing, or Property Inspector styling in product-specific prompts.
+
+**Reference implementation:** Monitor Manager Pro is the current visual baseline for a clean PackRat Property Inspector. It is a reference implementation, not a competing source of truth. If the implementation and this document disagree, update this document deliberately rather than silently treating implementation drift as canonical.
 
 The target look is dark, premium, compact, and consistent:
 
@@ -102,25 +122,29 @@ Do not create alternate PackRat visual themes inside individual plugin specs unl
 
 ### Canonical tokens
 
-Use these values by default:
+Use these values by default. These match the current proven PackRat Property Inspector treatment rather than a generic dark theme:
 
-- canvas/background: `#14171B`
-- panel/card: `#1B1F24`
-- input/status surface: `#15191E`
+- body/canvas: `#080A0E`
+- deep card edge: `#0D1015`
+- raised card start: `#151920`
+- input surface: `#090C10`
 - neutral button: `#181C21`
 - neutral button hover: `#22272E`
-- border: `#303640`
-- primary text: `#F5F7FB`
-- muted text: `#9AA2AF`
+- card border: `#272D36`
+- input/focus border: `#303744`
+- primary text: `#F5F7F9`
+- label text: `#CBD1D9`
+- muted text: `#AAB2BD`
+- tertiary/help text: `#87919F`
 - PackRat accent: `#FFB21E`
-- accent hover/highlight: `#FFC44D`
-- accent soft: `rgba(255,178,30,.16)`
-- accent glow: `rgba(255,178,30,.28)`
+- accent hover/highlight: `#FFC94A`
+- accent soft: `rgba(255,178,30,.14)`
+- accent focus/glow: `rgba(255,178,30,.35)`
 - destructive/error: `#FF5D6C`
 - healthy/success when semantically meaningful: `#2BE86A`
 - neutral/unknown status: `#8B93A1`
 
-Orange-yellow is the brand and interaction accent. Do not use muddy golden-brown fills as the normal button/card language.
+Orange-yellow is the PackRat brand and interaction accent. Do not use muddy golden-brown fills as the normal button/card language. Do not make every button orange: orange communicates primary interaction and focus; neutral utility actions remain charcoal.
 
 ### Property Inspector surfaces
 
@@ -130,30 +154,97 @@ Recommended baseline:
 
 ```css
 :root {
-  --packrat-bg: #14171B;
-  --packrat-card: #1B1F24;
-  --packrat-input: #15191E;
+  --packrat-bg: #080A0E;
+  --packrat-card-deep: #0D1015;
+  --packrat-card: #151920;
+  --packrat-input: #090C10;
   --packrat-button: #181C21;
   --packrat-button-hover: #22272E;
-  --packrat-border: #303640;
-  --packrat-text: #F5F7FB;
-  --packrat-muted: #9AA2AF;
+  --packrat-border: #272D36;
+  --packrat-input-border: #303744;
+  --packrat-text: #F5F7F9;
+  --packrat-label: #CBD1D9;
+  --packrat-muted: #AAB2BD;
+  --packrat-help: #87919F;
   --packrat-accent: #FFB21E;
-  --packrat-accent-hover: #FFC44D;
-  --packrat-accent-soft: rgba(255,178,30,.16);
-  --packrat-accent-glow: rgba(255,178,30,.28);
+  --packrat-accent-hover: #FFC94A;
+  --packrat-accent-soft: rgba(255,178,30,.14);
+  --packrat-accent-glow: rgba(255,178,30,.35);
+  --packrat-danger: #FF5D6C;
+  --packrat-success: #2BE86A;
+}
+
+body {
+  margin: 0;
+  background: var(--packrat-bg);
+  color: var(--packrat-text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+main {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.hero,
+.card,
+.group,
+.privacy {
+  border: 1px solid var(--packrat-border);
+  background: linear-gradient(145deg, var(--packrat-card), var(--packrat-card-deep));
+  border-radius: 14px;
+  padding: 15px;
+}
+
+input,
+select {
+  width: 100%;
+  border: 1px solid var(--packrat-input-border);
+  border-radius: 9px;
+  background: var(--packrat-input);
+  color: var(--packrat-text);
+  padding: 9px 10px;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--packrat-accent);
+  box-shadow: 0 0 0 2px var(--packrat-accent-glow);
+  outline: none;
 }
 ```
 
+### Canonical component geometry
+
+Use these defaults unless the product has a real usability reason to vary them:
+
+- outer PI padding: 14 px
+- vertical card gap: 12 px
+- card radius: 14 px
+- card padding: 15 px
+- input/select radius: 9 px
+- input/select vertical padding: about 9 px
+- product heading: about 20 px
+- card heading: about 13 px
+- normal explanatory text: about 12 px
+- field labels: about 11 px, semibold/bold
+- tertiary capability/help copy: about 10 px
+- compact button radius: about 9 px
+- keep rows visually aligned; numbers, dropdowns, and buttons should look deliberately measured rather than browser-default
+
 Normal secondary buttons such as New, Rename, Duplicate, Refresh, or similar actions use charcoal at rest. On hover/focus they may use the PackRat accent for border/glow, but they do not become brown/gold blocks.
 
-Primary CTA buttons use the solid PackRat accent with dark text and the brighter accent on hover.
+Primary CTA buttons use the solid PackRat accent with dark text and the brighter accent on hover. Use primary CTA treatment sparingly; a panel full of equally loud orange buttons is not canonical PackRat.
 
 Destructive actions remain red. Never recolor destructive meaning to orange.
 
+Status colors are semantic, not decorative. Green means healthy/success/connected; red means failure/destructive; neutral states stay gray. Do not paint arbitrary controls green because they are "active."
+
 ### Ambient corner glow
 
-Property Inspectors use one subtle premium orange glow in the top-right:
+Property Inspectors use one subtle premium orange glow in the top-right. This is part of the canonical PackRat composition, not an optional per-product flourish:
 
 ```css
 body::before {
@@ -222,6 +313,23 @@ Implementation convention when an accent setting exists:
 - one shared `normalizeAccent(...)` helper
 - pass the normalized accent into the renderer instead of reading settings independently in each action
 - semantic warning/error colors remain independent
+
+### Canonical inheritance rule
+
+A new product should not need a long visual requirements prompt. The normal instruction is:
+
+> Use the canonical PackRat Stream Deck design system from `standards/streamdeck-plugin-design-system-v1.md`.
+
+That instruction means the product inherits the tokens, card treatment, button hierarchy, top-right glow, PackRat maker link, typography hierarchy, focus treatment, semantic status colors, and hardware key-face principles above.
+
+A product-specific brief should describe only:
+
+- product-specific information hierarchy
+- genuinely unique controls or layouts
+- semantic exceptions
+- product-specific hardware states
+
+If a prompt has to restate all PackRat colors, button geometry, glow, or logo placement, this standard is incomplete and should be updated here instead.
 
 ### Visual rollout rule
 
@@ -405,6 +513,15 @@ When hardware finds a repeatable defect, add a regression test or shared QA rule
 ## 10. Definition of done
 
 A Stream Deck plugin is not visually done because the manifest validates.
+
+For visual consistency, the final review should be able to answer **yes** to all of these without consulting a product-specific branding document:
+
+- does the PI immediately look like the current PackRat family?
+- are surface colors, spacing, controls, glow, and button hierarchy inherited from this file?
+- is the real PackRat maker mark/link present where appropriate?
+- are only semantic success/error states green/red?
+- are action-list icons compliant with Elgato while hardware key art remains product-readable?
+- did the product avoid inventing a local theme that competes with the global one?
 
 It is done when:
 
