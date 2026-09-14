@@ -2,6 +2,8 @@
 
 This is the canonical PackRat standard for Stream Deck action faces and bundled profile keys.
 
+For the full plugin interaction contract, including Property Inspector transport, accents, telemetry cadence, major-model profile coverage, and hardware QA, also read `standards/streamdeck-plugin-design-system-v1.md`.
+
 A design that is readable in source art but overlaps or becomes ambiguous on a physical key is a failed UI. The real product is the 72 x 72 key.
 
 ## Non-negotiable rule: own the full key face
@@ -58,11 +60,13 @@ Internet Health Pro is the reference for this pattern.
 
 For a 144 x 144 rendered source:
 
-- keep the main glyph in roughly the upper 70-85 px
-- reserve roughly the lower 40-50 px for one/two text lines
 - keep essential content at least 10-12 px from edges
 - use simple bold geometry and high contrast
 - avoid decorative detail that disappears at 72 x 72
+- for data cards, start around 15-17 px for the label, 29-38 px for the primary value, and 13-16 px for secondary values
+- footer text is optional; never hide essential information in micro-copy
+- if two values are equally important, use a dedicated equal-weight layout instead of shrinking one into a footer
+- for live graphs, use a dedicated 10-30 second visual window rather than compressing long analytical history into the key
 
 ## References
 
@@ -79,7 +83,8 @@ For each new or materially changed Stream Deck plugin:
 2. Run `node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>`.
 3. The audit must fail if a Keypad state does not explicitly set `ShowTitle: false`.
 4. Review representative runtime-rendered states at 72 x 72 and 36 x 36.
-5. Review bundled profile output separately.
-6. Reject keys with collisions, tiny subjects, ambiguous presets, raw overlong resolution strings, or generic shared artwork.
+5. Review bundled profile output separately. For dashboard-style plugins that promise major-model profiles, use `--require-major-profiles`.
+6. Verify user accents render consistently in healthy/active states while warning/error colors keep semantic meaning.
+7. Reject keys with collisions, tiny subjects, ambiguous presets, raw overlong resolution strings, unequal treatment of paired values, or generic shared artwork.
 
 When hardware review finds a recurring visual defect, convert it into a repository rule or regression test.
