@@ -316,19 +316,29 @@ function Release-RatDevBuildLocks {
         return $false
     }
 
+    # Stream Deck's Node runtime can keep the linked .sdPlugin directory as its
+    # working directory even though node.exe itself lives outside PluginRoot.
+    # Process-path-only detection therefore misses ordinary JavaScript plugins
+    # and builds that replace dist can fail with EBUSY while removing the old
+    # .sdPlugin directory. Pause the currently linked development plugin before
+    # reset/build; Install-DevPlugin restarts it only after build/test/validation.
+    $pausedPlugin = $false
+    if ($PreviousUuid) {
+        $pausedPlugin = Invoke-StreamDeckBestEffort -Arguments @("stop", $PreviousUuid)
+        if ($pausedPlugin) {
+            Write-Host "Pausing the current development plugin so Windows can replace its linked build..." -ForegroundColor DarkGray
+            Start-Sleep -Milliseconds 650
+        }
+    }
+
     $owned = @(Get-RatDevBuildOwnedProcesses -PluginRoot $PluginRoot)
     if (-not $owned.Count) {
-        return $false
+        return $pausedPlugin
     }
 
     $names = ($owned | ForEach-Object { "$($_.ProcessName) ($($_.Id))" }) -join ", "
-    Write-Host "Current development build has native helper processes open: $names" -ForegroundColor Yellow
-    Write-Host "Pausing this plugin briefly so Windows can replace its build-owned executables..." -ForegroundColor DarkGray
-
-    if ($PreviousUuid) {
-        [void](Invoke-StreamDeckBestEffort -Arguments @("stop", $PreviousUuid))
-        Start-Sleep -Milliseconds 500
-    }
+    Write-Host "Current development build still has native helper processes open: $names" -ForegroundColor Yellow
+    Write-Host "Stopping build-owned helpers so Windows can replace their executables..." -ForegroundColor DarkGray
 
     $remaining = @(Stop-RatDevBuildOwnedProcesses -PluginRoot $PluginRoot)
     if ($remaining.Count) {
@@ -336,7 +346,7 @@ function Release-RatDevBuildLocks {
         throw "Could not release native helper process(es) for '$Slug': $remainingNames. Close Stream Deck once, then retry: rat dev $Slug"
     }
 
-    Write-Host "Native helper build lock released." -ForegroundColor DarkGray
+    Write-Host "Development build locks released." -ForegroundColor DarkGray
     return $true
 }
 
@@ -604,10 +614,9 @@ Ensure-StreamDeckCli
 $oldUuid = Get-ExistingPluginUuid $source
 $pluginRoot = Get-PluginRoot $source
 
-# Native helpers from the currently linked development build can keep files inside
-# the reusable worktree locked. Release those processes before git reset/clean,
-# otherwise Git for Windows can enter an interactive "Unlink failed. Try again?"
-# loop before Rat Dev ever reaches its normal pre-build lock-release step.
+# The currently linked development plugin can keep its .sdPlugin directory locked
+# on Windows (including ordinary Node plugins whose node.exe lives outside the
+# worktree). Pause it and release any build-owned helpers before reset/clean/build.
 [void](Release-RatDevBuildLocks -PluginRoot $pluginRoot -PreviousUuid $oldUuid)
 
 if ($source.Kind -eq "external") {
