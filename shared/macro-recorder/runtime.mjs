@@ -14,6 +14,27 @@ function shortTitle(text, max = 16) {
   return value.length <= max ? value : value.slice(0, max - 1) + "…";
 }
 
+function keyXml(value) {
+  return String(value || "").replace(/[&<>"']/g, (ch) => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&apos;"
+  })[ch]);
+}
+
+function packRatKeyImage(kind, title = "") {
+  const fallback = kind === "record" ? "RECORD" : kind === "stop" ? "STOP" : "PLAY";
+  const lines = String(title || fallback).split("\n").filter(Boolean).slice(0, 2);
+  const glyph = kind === "record"
+    ? '<circle cx="78" cy="58" r="24" fill="none" stroke="#F5F7FB" stroke-width="7"/>'
+    : kind === "stop"
+      ? '<rect x="54" y="34" width="48" height="48" rx="4" fill="#F5F7FB"/>'
+      : '<path d="M58 29 L108 58 L58 87 Z" fill="#F5F7FB"/>';
+  const text = lines.length > 1
+    ? `<text x="78" y="112" text-anchor="middle" fill="#F5F7FB" font-family="Arial,Segoe UI,sans-serif" font-size="16" font-weight="700">${keyXml(lines[0])}</text><text x="78" y="133" text-anchor="middle" fill="#9AA2AF" font-family="Arial,Segoe UI,sans-serif" font-size="15" font-weight="700">${keyXml(lines[1])}</text>`
+    : `<text x="78" y="128" text-anchor="middle" fill="#F5F7FB" font-family="Arial,Segoe UI,sans-serif" font-size="${lines[0]?.length > 8 ? 15 : 18}" font-weight="700">${keyXml(lines[0] || fallback)}</text>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144"><rect width="144" height="144" rx="20" fill="#14171B"/><rect x="5" y="18" width="5" height="108" rx="2.5" fill="#FFB21E"/>${glyph}${text}</svg>`;
+  return "data:image/svg+xml;base64," + Buffer.from(svg).toString("base64");
+}
+
 function proStarterMacros() {
   const clickPair = (delay = 65) => [
     { type:"mouseDown", delayMs:delay, button:"left", x:960, y:540, relX:.5, relY:.5 },
@@ -124,7 +145,12 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       else if (saved && macro?.id === saved.macroId) title = "SAVED";
       else if (macro && record.settings.seedMacro) title = shortTitle(macro.name, 12);
     }
-    await record.action.setTitle(title).catch(() => {});
+    if (pro) {
+      await record.action.setImage(packRatKeyImage(record.kind, title)).catch(() => {});
+      await record.action.setTitle("").catch(() => {});
+    } else {
+      await record.action.setTitle(title).catch(() => {});
+    }
   }
 
   async function renderAll() {
