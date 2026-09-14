@@ -272,6 +272,8 @@ test("native bridge supports LAMZU Maya X battery telemetry over USB HID",async(
   assert.match(source,/HidD_GetFeature/);
   assert.match(source,/response\[7\]\s*==\s*1/);
   assert.match(source,/response\[8\]/);
+  assert.match(source,/batteryObservedAt\s*=\s*DateTimeOffset\.UtcNow\.ToUnixTimeMilliseconds\(\)/);
+  assert.match(source,/batterySource\s*=\s*"hid-feature-report"/);
   assert.match(source,/transport\s*=\s*"usb-hid"/);
 });
 
@@ -283,6 +285,10 @@ test("wireless inspector does not block USB devices when Bluetooth is unavailabl
   assert.match(inspector,/Refreshing wireless devices/);
   assert.match(html,/Supported USB receivers can work without Bluetooth/);
   assert.match(inspector,/No supported USB wireless devices found/);
+  assert.match(inspector,/soleVisibleDevice/);
+  assert.match(inspector,/direct HID read/);
+  assert.match(inspector,/2\.4 GHz receiver/);
+  assert.match(runtime,/soleVisibleDeviceId\(this\.devices\(\)\)/);
   assert.match(runtime,/hidAvailable/);
   assert.match(runtime,/bluetooth:\s*result\.adapterAvailable/);
   assert.match(runtime,/hid:\s*result\.hidAvailable/);
