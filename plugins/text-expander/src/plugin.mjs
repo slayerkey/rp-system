@@ -254,8 +254,13 @@ async function deleteSnippetFromInspector(payload) {
 
 async function handlePropertyMessage(ev) {
   const payload = ev?.payload || {};
+  const actionContext = String(payload.actionContext || "");
+  const selectedRecord = actionContext ? visible.get(actionContext) : null;
   try {
-    if (payload.type === "listSnippets") return sendSnippetList({ selectedId:String(payload.selectedId || "") });
+    if (payload.type === "listSnippets") {
+      const selectedId = String(payload.selectedId || selectedRecord?.settings?.snippetId || "");
+      return sendSnippetList({ selectedId });
+    }
     if (payload.type === "getSnippet") return sendSnippetDetail(payload.snippetId);
     if (payload.type === "saveSnippet") return saveSnippetFromInspector(payload);
     if (payload.type === "deleteSnippet") return deleteSnippetFromInspector(payload);
