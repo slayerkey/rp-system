@@ -239,11 +239,11 @@ test("Marketplace art shows the real Control Center instead of text-only placeho
 
 test("Rat Art exports exactly 15 hero key fixtures with honest representative states", async () => {
   const art = await readFile(path.resolve("scripts", "rat-art.py"), "utf8");
-  assert.match(art, /\("wifi", "WI-FI\\\\nN\/A"/);
-  assert.match(art, /\("bluetooth", "BT\\\\nN\/A"/);
-  assert.match(art, /\("power", "POWER\\\\nPERFORM"/);
-  assert.match(art, /\("theme", "THEME\\\\nDARK"/);
-  assert.match(art, /\("desktop-current", "DESKTOP\\\\n2 \/ 3"/);
+  assert.match(art, /\("wifi", "WI-FI\\nN\/A"/);
+  assert.match(art, /\("bluetooth", "BT\\nN\/A"/);
+  assert.match(art, /\("power", "POWER\\nPERFORM"/);
+  assert.match(art, /\("theme", "THEME\\nDARK"/);
+  assert.match(art, /\("desktop-current", "DESKTOP\\n2 \/ 3"/);
   assert.match(art, /while len\(faces\) < 15:/);
   assert.match(art, /expected 15 product key faces/);
 });
