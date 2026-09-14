@@ -188,11 +188,15 @@
     if(data.status)setStatus(data.status);
 
     const upgrade=$("upgrade");
+    const topUpgrade=$("topUpgrade");
     if(edition==="lite"&&proUrl){
       upgrade.classList.remove("hidden");
       $("upgradeButton").classList.remove("hidden");
+      topUpgrade.classList.remove("hidden");
     }else{
       upgrade.classList.add("hidden");
+      $("upgradeButton").classList.add("hidden");
+      topUpgrade.classList.add("hidden");
     }
   }
 
@@ -261,6 +265,9 @@
     send({event:"openUrl",payload:{url:PACKRAT_MAKER_URL}});
   });
   $("upgradeButton").addEventListener("click",()=>{
+    if(proUrl)send({event:"openUrl",payload:{url:proUrl}});
+  });
+  $("topUpgrade").addEventListener("click",()=>{
     if(proUrl)send({event:"openUrl",payload:{url:proUrl}});
   });
   $("openManager").addEventListener("click",()=>{
