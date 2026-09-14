@@ -63,3 +63,38 @@ Internal Lite/Pro product families may share one source root while producing sep
 For each requested slug, `products/<slug>.json` supplies the shared `source` and the exact `ship_plugin_dir`. This allows a family branch such as `product/text-expander` to serve both `rat dev text-expander` and `rat dev text-expander-pro` while linking the correct UUID/build output for each SKU.
 
 If no explicit plugin directory is configured, Rat Dev only accepts a single unambiguous top-level `.sdPlugin` directory. Multiple candidates fail closed and require product metadata or `rat-dev.json` configuration.
+
+
+## Source ownership and branch ambiguity
+
+Rat Dev must never guess which product branch owns a slug.
+
+Resolution order:
+
+1. explicit external registration on canonical `origin/main` is authoritative for private/external products
+2. exact `product/<slug>` branch is authoritative when it contains newer/divergent work
+3. canonical product metadata may route Lite/Pro SKUs to one shared family source
+4. ambiguous copies on multiple unrelated product branches fail closed
+
+Do not “fix” branch ambiguity by duplicating the same product source onto more branches. Establish one owning source/ref and register it canonically.
+
+A local clone with a restricted fetch refspec is not trusted to have fresh `origin/product/*` refs. Rat Dev explicitly fetches `main` and all product branches every run before source resolution.
+
+## Candidate must pass before activation
+
+A failing build/test/design audit must not activate a partially updated plugin merely because the source files look visually correct.
+
+When a visual change intentionally changes a token or layout, update the matching regression test in the same candidate. A stale assertion should fail the candidate, be corrected, and then rerun; never bypass the test just to inspect the new build.
+
+Rat Dev's goal is that the user's first local pass answers **“does this feel right on my hardware?”**, not **“does this source compile?”**
+
+## Product-boundary changes
+
+Rat Dev is not release evidence across a product-scope reset.
+
+If a product is split, rolled back to an earlier behavior boundary, or has major features removed/moved elsewhere:
+
+- freeze the pre-change exact state first so useful work is recoverable
+- reset the shipping candidate deliberately
+- invalidate old final QA/package/media evidence
+- run fresh exact-commit QA before treating the new candidate as release-ready
