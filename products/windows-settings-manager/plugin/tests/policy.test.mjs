@@ -50,6 +50,7 @@ test("both editions assemble complete Stream Deck package trees", async () => {
     "ui/config.html",
     "ui/pi.css",
     "ui/pi.js",
+    "ui/packrat-icon.png",
     "imgs/plugin/marketplace.png",
     "imgs/plugin/marketplace@2x.png",
     "imgs/plugin/category-icon.svg",
@@ -95,6 +96,92 @@ test("Lite exposes curated live Windows controls only", async () => {
   assert.ok(!JSON.stringify(value).includes("apply-mode"));
   assert.ok(!JSON.stringify(value).includes("wifi"));
   assert.ok(!JSON.stringify(value).includes("bluetooth"));
+});
+
+test("canonical PackRat key ownership disables host title overlays", async () => {
+  for (const flavor of ["lite", "pro"]) {
+    const value = await manifest(flavor);
+    for (const action of value.Actions) {
+      for (const state of action.States ?? []) {
+        assert.equal(state.ShowTitle, false, `${flavor} ${action.UUID} must disable host title rendering`);
+      }
+    }
+
+    for (const registration of value.Profiles) {
+      const stem = registration.Name.replace(/^profiles\//, "");
+      const data = await readFile(
+        path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`, "profiles", `${stem}.streamDeckProfile`)
+      );
+      const entries = storedZipEntries(data);
+      for (const entry of entries.filter((item) => /\/Profiles\/[^/]+\/manifest\.json$/.test(item.name))) {
+        const page = JSON.parse(entry.data.toString("utf8"));
+        for (const item of Object.values(page.Controllers?.[0]?.Actions ?? {})) {
+          for (const state of item.States ?? []) {
+            assert.equal(state.ShowTitle, false, `${stem} profile action must disable host title rendering`);
+          }
+        }
+      }
+    }
+  }
+});
+
+test("canonical PackRat inspector tokens, glow, logo and maker link are bundled", async () => {
+  const css = await readFile(path.resolve("ui", "pi.css"), "utf8");
+  const html = await readFile(path.resolve("ui", "config.html"), "utf8");
+  const js = await readFile(path.resolve("ui", "pi.js"), "utf8");
+
+  for (const token of [
+    "#080A0E",
+    "#151920",
+    "#0D1015",
+    "#15191E",
+    "#181C21",
+    "#22272E",
+    "#303640",
+    "#F5F7FB",
+    "#9AA2AF",
+    "#FFB21E",
+    "#FFC44D",
+    "rgba(255,178,30,.16)",
+    "rgba(255,178,30,.28)",
+    "#FF5D6C",
+    "#2BE86A",
+    "#8B93A1"
+  ]) {
+    assert.ok(css.includes(token), `missing canonical PackRat token ${token}`);
+  }
+
+  assert.match(css, /body::before[\s\S]*top: -130px[\s\S]*right: -110px[\s\S]*width: 330px[\s\S]*height: 330px/);
+  assert.match(css, /rgba\(255,178,30,\.12\)[\s\S]*rgba\(255,178,30,\.055\)[\s\S]*rgba\(255,178,30,0\)/);
+  assert.match(html, /id="packratMaker"[\s\S]*src="packrat-icon\.png"[\s\S]*PackRat ↗/);
+  assert.match(js, /https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
+
+  for (const flavor of ["lite", "pro"]) {
+    await assert.doesNotReject(() =>
+      readFile(path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`, "ui", "packrat-icon.png"))
+    );
+  }
+});
+
+test("canonical PackRat key visuals are rendered by one image renderer", async () => {
+  const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  const visuals = await readFile(path.resolve("src", "key-visuals.ts"), "utf8");
+  const assemble = await readFile(path.resolve("scripts", "assemble.mjs"), "utf8");
+
+  assert.match(actions, /renderKeyImage/);
+  assert.match(actions, /\.setImage\(/);
+  assert.doesNotMatch(actions, /\.setTitle\(/);
+  assert.match(visuals, /const GLYPHS: Record<KeyVisualKind, string>/);
+  assert.match(visuals, /bg: "#080A0E"/);
+  assert.match(visuals, /border: "#303640"/);
+  assert.match(visuals, /text: "#F5F7FB"/);
+  assert.match(visuals, /accent: "#FFB21E"/);
+  assert.match(visuals, /danger: "#FF5D6C"/);
+  assert.match(visuals, /success: "#2BE86A"/);
+  assert.match(visuals, /neutral: "#8B93A1"/);
+  assert.match(visuals, /font-size="\$\{size\}"/);
+  assert.match(assemble, /ShowTitle: false/);
+  assert.match(assemble, /stroke="#FFB21E"/);
 });
 
 test("manifest targets Stream Deck 7.3 for current profile navigation and device coverage", async () => {
@@ -634,14 +721,18 @@ test("backend loss clears Keep Awake and stateful keys stop showing stale values
   assert.match(render, /awakeTitle[\s\S]*!snapshot\.backendOnline\) return "SLEEP\\nOFFLINE"/);
 });
 
-test("hardware keys keep the live-title area clear and explain safe states", async () => {
+test("hardware keys own the full visual face and explain safe states", async () => {
   const assemble = await readFile(path.resolve("scripts", "assemble.mjs"), "utf8");
   const render = await readFile(path.resolve("src", "render.ts"), "utf8");
   const actions = await readFile(path.resolve("src", "actions.ts"), "utf8");
+  const visuals = await readFile(path.resolve("src", "key-visuals.ts"), "utf8");
   const inspector = await readFile(path.resolve("ui", "config.html"), "utf8");
 
-  assert.doesNotMatch(assemble, /x="33" y="32" width="34"/);
-  assert.match(assemble, /opacity="\.32"/);
+  assert.match(assemble, /ShowTitle: false/);
+  assert.match(assemble, /fill="#080A0E"/);
+  assert.match(assemble, /stroke="#303640"/);
+  assert.match(assemble, /stroke="#FFB21E"/);
+  assert.match(visuals, /one-line|data:image\/svg\+xml;base64|Buffer\.from/);
   assert.match(render, /statusTitle[\s\S]*"PC\\nREADY"/);
   assert.match(render, /awakeTitle[\s\S]*"STAY\\nAWAKE"[\s\S]*"SLEEP\\nNORMAL"/);
   assert.match(actions, /SETUP\\n\$\{modeTitle\(mode\)\}/);
