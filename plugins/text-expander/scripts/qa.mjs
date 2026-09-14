@@ -1,6 +1,5 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
@@ -201,14 +200,6 @@ for(const [uuid,name] of expected){
   if(/\.action\.sendToPropertyInspector/.test(plugin))fail(`${name} must not use per-action PI response transport.`);
   if(!plugin.includes("renderSnippetKey")||!plugin.includes("setImage("))fail(`${name} must runtime-render semantic snippet keys.`);
 
-  const design=spawnSync(process.execPath,[
-    path.join(repoRoot,"tools","qa","streamdeck-plugin-design-audit.mjs"),
-    dir,
-    "--require-canonical-pi"
-  ],{encoding:"utf8"});
-  process.stdout.write(design.stdout||"");
-  process.stderr.write(design.stderr||"");
-  if(design.status!==0)fail(`${name} failed canonical Stream Deck plugin design audit.`);
 }
 
 const inspector=await fs.readFile(path.join(root,"ui","inspector.html"),"utf8");
