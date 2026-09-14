@@ -97,6 +97,26 @@ try {
     Assert-Equal $healed.Replace $false "Replaced installed profile should match the bundle again."
     Assert-Equal $healed.Reason "unchanged-installed" "Unexpected healed profile decision."
 
+    $duplicate = Join-Path $InstalledRoot "FFFFFFFF-EEEE-4DDD-8CCC-BBBBBBBBBBBB.sdProfile"
+    Copy-Item -LiteralPath $installed -Destination $duplicate -Recurse -Force
+    $duplicatePagePath = Join-Path $duplicate "Profiles\PAGEONE\manifest.json"
+    $duplicatePage = Get-Content $duplicatePagePath -Raw | ConvertFrom-Json
+    $duplicatePage.Controllers[0].Actions.'0,0'.Settings.revision = 777
+    $duplicatePage | ConvertTo-Json -Depth 20 | Set-Content $duplicatePagePath -Encoding UTF8
+
+    $duplicateDrift = Get-RatDevProfileOpenDecision -ProfilePath $profilePath -StateRoot $StateRoot -Slug "test-plugin" -InstalledRoots @($InstalledRoot)
+    Assert-Equal $duplicateDrift.Replace $true "A stale same-name duplicate should force an in-place refresh."
+    Assert-Equal $duplicateDrift.Reason "installed-profile-drift" "Unexpected duplicate drift decision."
+    Assert-Equal @($duplicateDrift.InstalledPaths).Count 2 "Rat Dev should discover every same-name installed profile copy."
+
+    foreach ($installedCopy in @($duplicateDrift.InstalledPaths)) {
+        [void](Replace-RatDevInstalledProfile -ProfilePath $profilePath -InstalledPath $installedCopy -StateRoot $StateRoot -Slug "test-plugin" -ExpectedName $existing.ProfileName -SkipStreamDeckProcessControl)
+    }
+    $duplicatesHealed = Get-RatDevProfileOpenDecision -ProfilePath $profilePath -StateRoot $StateRoot -Slug "test-plugin" -InstalledRoots @($InstalledRoot)
+    Assert-Equal $duplicatesHealed.Replace $false "All same-name profile copies should match after refresh."
+    Assert-Equal @($duplicatesHealed.InstalledPaths).Count 2 "Both installed copies should remain tracked after refresh."
+
+    Remove-Item $duplicate -Recurse -Force
     Remove-Item $profilePath -Force
     Set-Content (Join-Path $bundleRoot "revision-two.txt") "changed"
     Compress-Archive -Path $bundleRoot -DestinationPath $profilePath
