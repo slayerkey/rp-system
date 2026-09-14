@@ -54,10 +54,11 @@ def header(im,title,sub):
     d=ImageDraw.Draw(im)
     d.text((105,70),"MONITOR MANAGER PRO",font=font(22),fill=(*ACCENT,255))
     d.text((105,112),title,font=fit_font(d,title,1710,60,38),fill=(*WHITE,255))
-    draw_fitted_text(
-        d,(107,196,W-105,266),sub,font,
-        fill=(*MUTED,255),max_size=27,min_size=19,bold=False,max_lines=2,spacing=5
-    )
+    if str(sub or "").strip():
+        draw_fitted_text(
+            d,(107,198,W-105,246),sub,font,
+            fill=(*MUTED,255),max_size=31,min_size=25,bold=False,max_lines=1,spacing=4
+        )
 
 
 def footer(im):
@@ -222,7 +223,7 @@ def hero(path):
 
 def controls(path,faces):
     im=bg()
-    header(im,"Stop reaching behind your monitor.","Input, brightness and display mode move from tiny monitor menus to physical Stream Deck controls.")
+    header(im,"Stop reaching behind your monitor.","Input, brightness and display mode—without the monitor OSD.")
     d=ImageDraw.Draw(im)
     d.rounded_rectangle((105,305,840,715),radius=35,fill=(10,14,19,235),outline=(58,66,78,255),width=3)
     d.rounded_rectangle((165,348,780,625),radius=22,fill=(3,5,8,255),outline=(35,42,52,255),width=2)
@@ -241,18 +242,15 @@ def controls(path,faces):
 
     d.text((1480,365),"ON YOUR",font=font(28),fill=(*ACCENT,255))
     d.text((1480,410),"STREAM DECK",font=font(39),fill=(*WHITE,255))
-    draw_fitted_text(
-        d,(1480,478,1800,600),
-        "Input, brightness, display mode and refresh rate stay where your hand already is.",
-        font,fill=(*MUTED,255),max_size=23,min_size=18,bold=False,max_lines=4,spacing=6
-    )
+    d.text((1480,485),"INPUT • BRIGHTNESS",font=font(21),fill=(*MUTED,255))
+    d.text((1480,525),"HZ • DISPLAY MODE",font=font(21),fill=(*MUTED,255))
     footer(im); save(im,path)
 
 
 
 def capabilities(path,faces):
     im=bg()
-    header(im,"One press. Your setup comes back.","Saved Monitor Profiles restore the supported state you use for gaming, console, work or night.")
+    header(im,"One press. Your setup comes back.","Restore Gaming, Console or Night monitor setups instantly.")
     d=ImageDraw.Draw(im)
     paste_face(im,faces[12],150,340,220)
     d.text((260,600),"PRESS ONCE",font=font(26),fill=(*ACCENT,255),anchor="mm")
@@ -276,9 +274,9 @@ def capabilities(path,faces):
 
 def profiles(path,faces):
     im=bg()
-    header(im,"Stop opening Windows Display Settings.","The same semantic key faces and representative states used by the canonical Rat Ship cover.")
+    header(im,"Stop opening Windows Display Settings.","Real keys. Real values. Real states.")
     d=ImageDraw.Draw(im)
-    x0,y0=205,290; keysize=140; gap=15; pad=28
+    x0,y0=150,280; keysize=150; gap=10; pad=24
     width=pad*2+5*keysize+4*gap; height=pad*2+3*keysize+2*gap
     d.rounded_rectangle((x0,y0,x0+width,y0+height),radius=42,fill=(4,6,9,255),outline=(63,72,86,255),width=4)
     d.rounded_rectangle((x0+16,y0+16,x0+width-16,y0+height-16),radius=32,outline=(*ACCENT,60),width=2)
@@ -287,34 +285,28 @@ def profiles(path,faces):
         y=y0+pad+(i//5)*(keysize+gap)
         paste_face(im,face,x,y,keysize)
 
-    d.text((1195,355),"REAL",font=font(27),fill=(*ACCENT,255))
-    d.text((1195,402),"KEY STATES",font=font(42),fill=(*WHITE,255))
-    draw_fitted_text(
-        d,(1195,462,1750,535),
-        "Inputs, profiles, Windows display modes and live status are visible at a glance.",
-        font,fill=(*MUTED,255),max_size=24,min_size=18,bold=False,max_lines=3,spacing=5
-    )
+    d.text((1065,350),"REAL",font=font(30),fill=(*ACCENT,255))
+    d.text((1065,400),"KEY STATES",font=font(46),fill=(*WHITE,255))
     for i,label in enumerate(["INPUTS","HDR","PROFILES","LIVE STATUS"]):
-        y=565+i*58
-        d.rounded_rectangle((1195,y,1585,y+43),radius=13,fill=(*PANEL,235),outline=(*BORDER,255),width=2)
-        d.text((1220,y+22),label,font=font(19),fill=(*WHITE,255),anchor="lm")
+        y=490+i*64
+        d.rounded_rectangle((1065,y,1515,y+48),radius=14,fill=(*PANEL,235),outline=(*BORDER,255),width=2)
+        d.text((1095,y+24),label,font=font(21),fill=(*WHITE,255),anchor="lm")
     footer(im); save(im,path)
 
 
 
 def plus(path,faces):
     im=bg()
-    header(im,"Turn the controls you tweak all day.","Stream Deck+ gives brightness, contrast and monitor volume native continuous dial feedback.")
+    header(im,"Turn the controls you tweak all day.","Brightness, contrast and monitor volume on native Stream Deck+ dials.")
     d=ImageDraw.Draw(im)
-    for face,x in zip([faces[0],faces[1],faces[2]],[145,365,585]):
-        paste_face(im,face,x,350,190)
-    d.text((460,585),"KEY PRESETS",font=font(24),fill=(*MUTED,255),anchor="mm")
+    for face,x in zip([faces[0],faces[1],faces[2]],[120,345,570]):
+        paste_face(im,face,x,345,200)
+    d.text((445,585),"KEY PRESETS",font=font(25),fill=(*MUTED,255),anchor="mm")
 
-    dial_strip(im,900,300,825,"BRIGHTNESS",65)
-    dial_strip(im,900,445,825,"CONTRAST",50)
-    dial_strip(im,900,590,825,"VOLUME",50)
-    d.text((145,675),"Rotate to adjust.",font=font(31),fill=(*WHITE,255))
-    d.text((145,722),"Press a key for an exact preset.",font=font(22,False),fill=(*MUTED,255))
+    dial_strip(im,880,295,850,"BRIGHTNESS",65)
+    dial_strip(im,880,440,850,"CONTRAST",50)
+    dial_strip(im,880,585,850,"VOLUME",50)
+    d.text((120,680),"Rotate to adjust.",font=font(34),fill=(*WHITE,255))
     footer(im); save(im,path)
 
 
