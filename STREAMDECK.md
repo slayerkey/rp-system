@@ -157,6 +157,20 @@ Depending on product type, this can include:
 
 Use real product screenshots, generated keys, device plates, approved assets, and canonical composition tooling.
 
+### Canonical Stream Deck hardware hero
+
+The shared MK.2 photo compositor lives at `tools/art/streamdeck_photo.py`.
+
+The approved hardware plate is `tools/art/assets/streamdeck-mk2-straight.png` and its 15-button calibration is `tools/art/streamdeck-mk2-straight.apertures.json`.
+
+The hardware plate contains real transparent LCD windows. Product key art must be rendered on an underlay **behind** those windows, then the untouched photographed hardware plate must be composited on top. Never draw key art over the physical button bezel, glass rim, chassis, or lighting.
+
+The source PNG alpha channel is authoritative. The calibration stores coarse physical button bounds and cached expected LCD bounds, but the compositor must detect each real LCD hole as an internal connected alpha component at render time. Every detected LCD pixel must receive a fully opaque screen underlay, with a small under-bezel safety bleed, before product art is added. A successful render requires exactly 15 detected LCDs and zero uncovered LCD pixels.
+
+Transparent key assets must be alpha-trimmed before fitting so invisible canvas padding cannot make the visible artwork undersized. Their transparency reveals the intentional screen background, never the marketplace scene. Opaque key-face screenshots fill the detected LCD area. The compositor must reject bad calibration that does not match the plate's real alpha holes.
+
+Stream Deck hero titles use the same deterministic font resolver, warm-studio scene, white/orange hierarchy, and source PackRat mark as the approved XENEON hero system.
+
 ## Shipping
 
 Rat Ship should prepare the complete marketplace candidate from canonical source and validated artifacts.
