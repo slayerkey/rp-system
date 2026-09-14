@@ -106,3 +106,26 @@ test("speed key gives download and upload equal visual hierarchy", () => {
   assert.match(renderSource, /font-size="\$\{upSize\}"/);
   assert.doesNotMatch(renderSource, /PRESS TO RETEST/);
 });
+
+
+test("bundled major-model profiles are declared, generated and deterministic archives", () => {
+  const expected = [
+    ["internet-health-dashboard-mk2.streamDeckProfile", 0],
+    ["internet-health-dashboard-xl.streamDeckProfile", 2],
+    ["internet-health-dashboard-plus.streamDeckProfile", 7],
+    ["internet-health-dashboard-neo.streamDeckProfile", 9],
+  ];
+  assert.equal(manifest.Profiles.length, expected.length);
+  for (const [file, deviceType] of expected) {
+    const entry = manifest.Profiles.find((profile) => profile.DeviceType === deviceType);
+    assert.ok(entry, "missing DeviceType " + deviceType);
+    assert.equal(entry.AutoInstall, true);
+    assert.equal(entry.DontAutoSwitchWhenInstalled, true);
+    assert.equal(entry.Readonly, false);
+    const full = "com.packrat.internet-health-pro.sdPlugin/" + entry.Name + ".streamDeckProfile";
+    assert.equal(fs.existsSync(full), true, "missing profile " + full);
+    const buffer = fs.readFileSync(full);
+    assert.equal(buffer.subarray(0, 2).toString("ascii"), "PK");
+    assert.equal(file, entry.Name.split("/").pop() + ".streamDeckProfile");
+  }
+});
