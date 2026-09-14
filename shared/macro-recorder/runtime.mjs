@@ -73,7 +73,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       macroId: macro.id,
       name: macro.name,
       assignedToPlay: assignedCount > 0,
-      until: Date.now() + 4000,
+      until: Date.now() + 15000,
     };
     savedFeedbackTimer = setTimeout(() => {
       savedFeedback = null;
@@ -91,13 +91,19 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       };
     }
     if (kind === "replay") {
+      const macroId = pro ? String(source.macroId || "") : "";
+      const seedMacro = pro && source.seedMacro ? normalizeMacro(source.seedMacro, { pro:true, limits }) : null;
+      const rawSpeed = Number(source.playbackSpeed);
+      const rawRepeat = Number(source.repeatCount);
+      const hasFollowLatest = Object.prototype.hasOwnProperty.call(source, "followLatest");
       return {
         macro: !pro && source.macro ? normalizeMacro(source.macro, { pro: false, limits }) : null,
-        macroId: pro ? String(source.macroId || "") : "",
-        seedMacro: pro && source.seedMacro ? normalizeMacro(source.seedMacro, { pro:true, limits }) : null,
-        playbackSpeed: pro ? Number(source.playbackSpeed || 1) : 1,
+        macroId,
+        seedMacro,
+        followLatest: pro ? (hasFollowLatest ? source.followLatest !== false : !seedMacro && !macroId.startsWith("starter-")) : false,
+        playbackSpeed: pro && Number.isFinite(rawSpeed) ? rawSpeed : 1,
         playbackMode: pro ? String(source.playbackMode || "once") : "once",
-        repeatCount: pro ? Number(source.repeatCount || 2) : 1,
+        repeatCount: pro && Number.isFinite(rawRepeat) ? rawRepeat : 2,
         coordinateMode: pro && source.coordinateMode === "active-window" ? "active-window" : "absolute",
       };
     }
@@ -115,13 +121,12 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     let title = "";
     if (record.kind === "record") {
       if (recording) title = `REC\n${Math.max(0, Math.round(Number(recording.elapsedMs || 0) / 100) / 10).toFixed(1)}s`;
-      else if (saved) title = "SAVED";
     } else if (record.kind === "stop") {
       title = recording || playback ? "STOP\nNOW" : "EMERGENCY\nSTOP";
     } else if (record.kind === "replay") {
       const macro = macroFor(record);
       if (playback?.actionId === record.id) title = "PLAYING";
-      else if (saved && macro?.id === saved.macroId) title = "SAVED\nREADY";
+      else if (saved && macro?.id === saved.macroId && record.settings.followLatest) title = "SAVED";
       else if (macro && record.settings.seedMacro) title = shortTitle(macro.name, 12);
     }
     await record.action.setTitle(title).catch(() => {});
@@ -144,6 +149,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       hasLatestMacro: Boolean(latestMacro?.events?.length),
       latestMacroId: String(latestMacro?.id || ""),
       recentSaved: currentSavedFeedback(),
+      settings: record ? { ...record.settings, seedMacro: undefined } : {},
       macro,
       library: pro ? library.list() : [],
       libraryWarning: pro ? library.warning : "",
@@ -181,16 +187,16 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       .map((record) => record.action.sendToPropertyInspector(status).catch(() => {})));
   }
 
-  async function assignNewRecordingToBlankReplayKeys(macro) {
+  async function assignNewRecordingToLatestReplayKeys(macro) {
     if (!pro || !macro?.id) return 0;
-    const blankReplayKeys = [...visible.values()].filter((item) => item.kind === "replay" && !item.settings.macroId && !item.settings.seedMacro);
-    await Promise.all(blankReplayKeys.map(async (item) => {
-      const next = { ...item.settings, macroId: macro.id };
+    const latestReplayKeys = [...visible.values()].filter((item) => item.kind === "replay" && item.settings.followLatest);
+    await Promise.all(latestReplayKeys.map(async (item) => {
+      const next = { ...item.settings, macroId: macro.id, followLatest: true };
       delete next.seedMacro;
       await item.action.setSettings(next);
       item.settings = settingsFor("replay", next);
     }));
-    return blankReplayKeys.length;
+    return latestReplayKeys.length;
   }
 
   async function finalizeCapture(raw) {
@@ -209,7 +215,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
     if (pro) macro = await library.add(macro);
     latestMacro = macro;
-    const assignedCount = await assignNewRecordingToBlankReplayKeys(macro);
+    const assignedCount = await assignNewRecordingToLatestReplayKeys(macro);
     setSavedFeedback(macro, assignedCount);
     lastError = "";
     await renderAll();
@@ -416,7 +422,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
         if (pro && this.kind === "replay" && !record.settings.macroId && record.settings.seedMacro) {
           const seed = record.settings.seedMacro;
           const stored = await library.ensure(seed);
-          const next = { ...record.settings, macroId: stored.id };
+          const next = { ...record.settings, macroId: stored.id, followLatest: false };
           delete next.seedMacro;
           await ev.action.setSettings(next);
           record.settings = settingsFor(this.kind, next);
@@ -475,7 +481,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
           await record.action.setSettings(next);
           record.settings = settingsFor("replay", next);
         } else if (command === "selectMacro" && pro) {
-          const next = { ...record.settings, macroId: String(payload.macroId || "") };
+          const next = { ...record.settings, macroId: String(payload.macroId || ""), followLatest: false };
           await record.action.setSettings(next);
           record.settings = settingsFor("replay", next);
         } else if (command === "saveMacro" && pro) {
