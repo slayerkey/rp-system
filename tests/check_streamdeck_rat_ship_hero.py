@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import sys
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -94,6 +95,22 @@ def main() -> None:
         ]
         assert product_report["canonical_report"]["detected_key_count"] == 15
         assert product_report["canonical_report"]["uncovered_lcd_pixels"] == 0
+
+        cli_out = root / "02_cover-cli.png"
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "tools" / "art" / "render_streamdeck_ship_hero.py"),
+                "--product", "test-control-pro",
+                "--plugin-dir", str(plugin),
+                "--submission", str(submission),
+                "--out", str(cli_out),
+                "--keys-dir", str(product_keys),
+            ],
+            check=True,
+            cwd=ROOT,
+        )
+        assert cli_out.is_file()
 
     print("STREAM DECK RAT SHIP HERO TEST PASS")
 
