@@ -438,3 +438,16 @@ test("Monitor Manager key faces use canonical white geometry plus PackRat accent
     assert.match(svg,/#FFB21E/i,action.Name+" must include the canonical PackRat accent highlight");
   }
 });
+
+
+test("Monitor Manager Pro action-list icons are transparent white SVGs, never hardware key art", async () => {
+  const manifest=JSON.parse(await readFile("com.packrat.monitormanagerpro.sdPlugin/manifest.json","utf8"));
+  for(const action of manifest.Actions){
+    assert.notEqual(action.Icon,action.States?.[0]?.Image,action.Name+" must not reuse the hardware key face as its action-list icon");
+    assert.match(action.Icon,/\/icon$/,action.Name+" must use a dedicated sidebar icon");
+    const svg=await readFile(path.resolve("com.packrat.monitormanagerpro.sdPlugin",action.Icon+".svg"),"utf8");
+    assert.match(svg,/#fff|#FFFFFF/i,action.Name+" sidebar icon must be white");
+    assert.doesNotMatch(svg,/#FFB21E/i,action.Name+" sidebar icon must not use PackRat orange");
+    assert.doesNotMatch(svg,/#05070A/i,action.Name+" sidebar icon must not draw a key background");
+  }
+});

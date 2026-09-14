@@ -56,7 +56,7 @@
     {
       "Name": "Monitor Brightness",
       "UUID": "com.packrat.monitormanagerpro.brightness",
-      "Icon": "imgs/actions/brightness/key",
+      "Icon": "imgs/actions/brightness/icon",
       "Tooltip": "Set or dial brightness on the selected monitor.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -79,7 +79,7 @@
     {
       "Name": "Monitor Contrast",
       "UUID": "com.packrat.monitormanagerpro.contrast",
-      "Icon": "imgs/actions/contrast/key",
+      "Icon": "imgs/actions/contrast/icon",
       "Tooltip": "Set or dial contrast when the selected monitor supports it.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -102,7 +102,7 @@
     {
       "Name": "Monitor Volume",
       "UUID": "com.packrat.monitormanagerpro.volume",
-      "Icon": "imgs/actions/volume/key",
+      "Icon": "imgs/actions/volume/icon",
       "Tooltip": "Set or dial monitor speaker volume when DDC/CI advertises it.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -125,7 +125,7 @@
     {
       "Name": "Monitor Power",
       "UUID": "com.packrat.monitormanagerpro.power",
-      "Icon": "imgs/actions/power/key",
+      "Icon": "imgs/actions/power/icon",
       "Tooltip": "Safely toggle or set the selected monitor's advertised DDC/CI power state. This does not shut down Windows or cut AC power.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -141,7 +141,7 @@
     {
       "Name": "Input Source",
       "UUID": "com.packrat.monitormanagerpro.input",
-      "Icon": "imgs/actions/input/key",
+      "Icon": "imgs/actions/input/icon",
       "Tooltip": "Switch HDMI, DisplayPort, USB-C or another input only when the monitor advertises that VCP value.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -157,7 +157,7 @@
     {
       "Name": "Refresh Rate",
       "UUID": "com.packrat.monitormanagerpro.refresh-rate",
-      "Icon": "imgs/actions/refresh-rate/key",
+      "Icon": "imgs/actions/refresh-rate/icon",
       "Tooltip": "Switch Hz using Windows-reported modes for the selected monitor.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -173,7 +173,7 @@
     {
       "Name": "Resolution",
       "UUID": "com.packrat.monitormanagerpro.resolution",
-      "Icon": "imgs/actions/resolution/key",
+      "Icon": "imgs/actions/resolution/icon",
       "Tooltip": "Switch resolution and Hz to an exact Windows-reported display mode.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -189,7 +189,7 @@
     {
       "Name": "Windows HDR",
       "UUID": "com.packrat.monitormanagerpro.hdr",
-      "Icon": "imgs/actions/hdr/key",
+      "Icon": "imgs/actions/hdr/icon",
       "Tooltip": "Toggle or set true Windows HDR when Windows 11 24H2+ reports HDR support for the selected active display.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -205,7 +205,7 @@
     {
       "Name": "Display Mode",
       "UUID": "com.packrat.monitormanagerpro.topology",
-      "Icon": "imgs/actions/topology/key",
+      "Icon": "imgs/actions/topology/icon",
       "Tooltip": "Switch Windows display topology: Extend, Duplicate, PC Screen Only or Second Screen Only.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -221,7 +221,7 @@
     {
       "Name": "Set Primary Display",
       "UUID": "com.packrat.monitormanagerpro.primary",
-      "Icon": "imgs/actions/primary/key",
+      "Icon": "imgs/actions/primary/icon",
       "Tooltip": "Make the selected monitor the Windows primary display.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -237,7 +237,7 @@
     {
       "Name": "Orientation",
       "UUID": "com.packrat.monitormanagerpro.orientation",
-      "Icon": "imgs/actions/orientation/key",
+      "Icon": "imgs/actions/orientation/icon",
       "Tooltip": "Set landscape, portrait or flipped orientation through Windows display APIs.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -253,7 +253,7 @@
     {
       "Name": "Save Monitor Profile",
       "UUID": "com.packrat.monitormanagerpro.save-profile",
-      "Icon": "imgs/actions/save-profile/key",
+      "Icon": "imgs/actions/save-profile/icon",
       "Tooltip": "Save current topology, mode, primary display, HDR, brightness, contrast, supported monitor volume and input. Monitor power is not saved.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -269,7 +269,7 @@
     {
       "Name": "Apply Monitor Profile",
       "UUID": "com.packrat.monitormanagerpro.apply-profile",
-      "Icon": "imgs/actions/apply-profile/key",
+      "Icon": "imgs/actions/apply-profile/icon",
       "Tooltip": "Restore a saved monitor setup and report COMPLETE, PARTIAL or FAILED.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
@@ -285,7 +285,7 @@
     {
       "Name": "Current Display Status",
       "UUID": "com.packrat.monitormanagerpro.status",
-      "Icon": "imgs/actions/status/key",
+      "Icon": "imgs/actions/status/icon",
       "Tooltip": "Show current refresh rate and resolution for the selected monitor.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
