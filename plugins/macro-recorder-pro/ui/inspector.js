@@ -21,6 +21,7 @@
     if(state?.recording){$("statusTitle").textContent="Recording";$("statusDetail").textContent=`${state.recording.eventCount||0} events · ${Math.round((state.recording.elapsedMs||0)/100)/10}s · press Record again to save`;}
     else if(state?.playback){$("statusTitle").textContent="Playing";$("statusDetail").textContent=state.playback.macroName||"Macro playback active";}
     else if(state?.lastError){$("statusTitle").textContent="Needs attention";$("statusDetail").textContent="See the message below.";}
+    else if(state?.recentSaved){dot.classList.add("saved");$("statusTitle").textContent="Macro saved";$("statusDetail").textContent=state.recentSaved.assignedToPlay?`${state.recentSaved.name} · added to Macro Library and ready on Play`:`${state.recentSaved.name} · added to Macro Library`;}
     else{$("statusTitle").textContent="Macro Recorder ready";$("statusDetail").textContent="Record a workflow once, then replay it from Stream Deck.";}
     $("recordLimit").textContent=state?.limits?`Limit: ${Math.round(state.limits.maxDurationMs/1000)} seconds · ${state.limits.maxEvents.toLocaleString()} events`:"";
     $("cancelRecording").disabled=!state?.recording;
@@ -39,7 +40,7 @@
     if(!pro)return;
     const select=$("macroSelect"),chosen=String(settings.macroId||"");
     select.replaceChildren(new Option("Choose a macro",""));
-    for(const item of state?.library||[])select.appendChild(new Option(`${item.name} · ${item.eventCount} events`,item.id));
+    for(const item of state?.library||[]){const fresh=state?.recentSaved?.macroId===item.id?"NEW · ":"";select.appendChild(new Option(`${fresh}${item.name} · ${item.eventCount} events`,item.id));}
     select.value=(state?.library||[]).some(x=>x.id===chosen)?chosen:"";
     const hasMacro=Boolean(state?.macro);
     $("renameMacro").disabled=!hasMacro;
