@@ -41,8 +41,7 @@ function fullDevicePage(prefix){
       "3,0":proDevice(prefix+":controller","CONTROLLER","status","CONTROLLER","GAMING"),
       "4,0":dashboard(prefix+":all"),
       "0,1":proDevice(prefix+":headphones-control","CONNECT","control","HEADPHONES","GAMING, TRAVEL"),
-      "1,1":cycle(prefix+":cycle"),
-      "2,1":proDevice(prefix+":keyboard","KEYBOARD","battery","KEYBOARD","WORK")
+      "1,1":cycle(prefix+":cycle")
     }
   };
 }
@@ -70,7 +69,8 @@ function miniDevicePage(prefix){
       "1,0":proDevice(prefix+":mouse","MOUSE","battery","MOUSE","GAMING, TRAVEL"),
       "2,0":dashboard(prefix+":all"),
       "0,1":proDevice(prefix+":headphones-control","CONNECT","control","HEADPHONES","GAMING, TRAVEL"),
-      "1,1":cycle(prefix+":cycle")
+      "1,1":cycle(prefix+":cycle"),
+      "2,1":proDevice(prefix+":keyboard","KEYBOARD","battery","KEYBOARD","WORK")
     }
   };
 }
