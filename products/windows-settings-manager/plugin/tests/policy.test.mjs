@@ -6,7 +6,7 @@ import test from "node:test";
 const root = path.resolve("out");
 
 async function manifest(flavor) {
-  const file = path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`, "manifest.json");
+  const file = path.join(root, `com.packrat.windows-settings-manager-${flavor}2.sdPlugin`, "manifest.json");
   return JSON.parse(await readFile(file, "utf8"));
 }
 
@@ -63,7 +63,7 @@ test("both editions assemble complete Stream Deck package trees", async () => {
   const deviceStems = ["standard", "mini", "xl", "plus", "neo", "galleon", "plus-xl"];
 
   for (const flavor of ["lite", "pro"]) {
-    const pluginRoot = path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`);
+    const pluginRoot = path.join(root, `com.packrat.windows-settings-manager-${flavor}2.sdPlugin`);
     for (const relative of sharedRequired) {
       await assert.doesNotReject(
         () => readFile(path.join(pluginRoot, relative)),
@@ -82,7 +82,7 @@ test("both editions assemble complete Stream Deck package trees", async () => {
 test("Lite exposes curated live Windows controls only", async () => {
   const value = await manifest("lite");
   assert.equal(value.Name, "Windows Settings Manager Lite");
-  assert.equal(value.UUID, "com.packrat.windows-settings-manager-lite");
+  assert.equal(value.UUID, "com.packrat.windows-settings-manager-lite2");
   assert.equal(value.Profiles.length, 7);
   const names = value.Actions.map((item) => item.Name);
   assert.deepEqual(names, [
@@ -110,7 +110,7 @@ test("canonical PackRat key ownership disables host title overlays", async () =>
     for (const registration of value.Profiles) {
       const stem = registration.Name.replace(/^profiles\//, "");
       const data = await readFile(
-        path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`, "profiles", `${stem}.streamDeckProfile`)
+        path.join(root, `com.packrat.windows-settings-manager-${flavor}2.sdPlugin`, "profiles", `${stem}.streamDeckProfile`)
       );
       const entries = storedZipEntries(data);
       for (const entry of entries.filter((item) => /\/Profiles\/[^/]+\/manifest\.json$/.test(item.name))) {
@@ -158,7 +158,7 @@ test("canonical PackRat inspector tokens, glow, logo and maker link are bundled"
 
   for (const flavor of ["lite", "pro"]) {
     await assert.doesNotReject(() =>
-      readFile(path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`, "ui", "packrat-icon.png"))
+      readFile(path.join(root, `com.packrat.windows-settings-manager-${flavor}2.sdPlugin`, "ui", "packrat-icon.png"))
     );
   }
 });
@@ -282,7 +282,7 @@ test("all seven current bundled profile device families are generated", async ()
     assert.deepEqual(value.Profiles.map((item) => item.DeviceType).sort((a, b) => a - b), [0, 1, 2, 7, 9, 12, 13]);
     for (const profile of value.Profiles) {
       const stem = profile.Name.replace(/^profiles\//, "");
-      const data = await readFile(path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`, "profiles", `${stem}.streamDeckProfile`));
+      const data = await readFile(path.join(root, `com.packrat.windows-settings-manager-${flavor}2.sdPlugin`, "profiles", `${stem}.streamDeckProfile`));
       assert.equal(data.readUInt32LE(0), 0x04034b50);
       const text = data.toString("utf8");
       assert.match(text, /\.sdProfile\/manifest\.json/);
@@ -304,7 +304,7 @@ test("every bundled profile page references only registered actions and valid na
       const [columns, rows] = grid;
       const stem = registration.Name.replace(/^profiles\//, "");
       const data = await readFile(
-        path.join(root, `com.packrat.windows-settings-manager-${flavor}.sdPlugin`, "profiles", `${stem}.streamDeckProfile`)
+        path.join(root, `com.packrat.windows-settings-manager-${flavor}2.sdPlugin`, "profiles", `${stem}.streamDeckProfile`)
       );
       const entries = storedZipEntries(data);
       const rootEntry = entries.find((entry) =>
@@ -332,7 +332,7 @@ test("every bundled profile page references only registered actions and valid na
           assert.ok(Number.isInteger(y) && y >= 0 && y < rows, `${stem} invalid y coordinate ${coordinate}`);
           assert.ok(registeredActions.has(item.UUID), `${stem} references unregistered action ${item.UUID}`);
           assert.ok(
-            item.UUID.startsWith(`com.packrat.windows-settings-manager-${flavor}.`),
+            item.UUID.startsWith(`com.packrat.windows-settings-manager-${flavor}2.`),
             `${stem} leaks an action from another edition`
           );
           assert.ok(item.ActionID && !actionIds.has(item.ActionID), `${stem} duplicate or missing ActionID`);
@@ -361,7 +361,7 @@ test("Lite upsell is injected only from a verified direct Pro Marketplace URL", 
   const html = await readFile(path.resolve("ui", "config.html"), "utf8");
   const assembler = await readFile(path.resolve("scripts", "assemble.mjs"), "utf8");
   const builtPi = await readFile(
-    path.join(root, "com.packrat.windows-settings-manager-lite.sdPlugin", "ui", "pi.js"),
+    path.join(root, "com.packrat.windows-settings-manager-lite2.sdPlugin", "ui", "pi.js"),
     "utf8"
   );
   const relationship = JSON.parse(
@@ -387,7 +387,7 @@ test("Lite upsell is injected only from a verified direct Pro Marketplace URL", 
 });
 
 test("standard Pro profile is the exact 15-key Windows Control Center", async () => {
-  const profileDir = path.join(root, "com.packrat.windows-settings-manager-pro.sdPlugin", "profiles");
+  const profileDir = path.join(root, "com.packrat.windows-settings-manager-pro2.sdPlugin", "profiles");
   const standard = (await readFile(path.join(profileDir, "windows-settings-pro-standard.streamDeckProfile"))).toString("utf8");
   const expected = [
     ".lock", ".sleep", ".hibernate", ".restart", ".shutdown",
@@ -395,9 +395,9 @@ test("standard Pro profile is the exact 15-key Windows Control Center", async ()
     ".desktop-previous", ".desktop-next", ".desktop-new", ".desktop-close", ".desktop-current"
   ];
   for (const suffix of expected) {
-    assert.ok(standard.includes(`com.packrat.windows-settings-manager-pro${suffix}`), `standard profile missing ${suffix}`);
+    assert.ok(standard.includes(`com.packrat.windows-settings-manager-pro2${suffix}`), `standard profile missing ${suffix}`);
   }
-  assert.equal((standard.match(/com\.packrat\.windows-settings-manager-pro\./g) ?? []).length, 15);
+  assert.equal((standard.match(/com\.packrat\.windows-settings-manager-pro2\./g) ?? []).length, 15);
   assert.doesNotMatch(standard, /"modeId":/);
 });
 
@@ -407,7 +407,7 @@ test("PC Modes remain empty optional advanced slots instead of the default profi
     assert.match(modes, new RegExp(`id: "${id}".*settings: \\\{\\\}`));
   }
 
-  const profileDir = path.join(root, "com.packrat.windows-settings-manager-pro.sdPlugin", "profiles");
+  const profileDir = path.join(root, "com.packrat.windows-settings-manager-pro2.sdPlugin", "profiles");
   const xl = (await readFile(path.join(profileDir, "windows-settings-pro-xl.streamDeckProfile"))).toString("utf8");
   assert.match(xl, /"modeId": "gaming"/);
 });
