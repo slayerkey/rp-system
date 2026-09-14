@@ -408,6 +408,8 @@ function Build-And-TestPlugin {
         Version = [string]$manifest.Version
         OpenUrl = if ($config -and $config.open_url) { [string]$config.open_url } else { $null }
         OpenDevFolder = [bool]($config -and $config.open_dev_folder)
+        OpenProfileOnDev = [bool]($config -and $config.open_profile_on_dev)
+        DevProfile = if ($config -and $config.dev_profile) { [string]$config.dev_profile } else { $null }
     }
 }
 
@@ -448,6 +450,29 @@ function Install-DevPlugin {
     }
     else {
         Write-Host "Profiles: none bundled" -ForegroundColor DarkGray
+    }
+
+    if ($Plugin.OpenProfileOnDev) {
+        $profileToOpen = $null
+        if ($Plugin.DevProfile) {
+            $relative = ([string]$Plugin.DevProfile).Replace("/", [System.IO.Path]::DirectorySeparatorChar)
+            $candidate = Join-Path $Plugin.PluginDir $relative
+            if (Test-Path $candidate -PathType Leaf) {
+                $profileToOpen = (Resolve-Path $candidate).Path
+            }
+            else {
+                Write-Host "Configured development profile was not found: $candidate" -ForegroundColor Yellow
+            }
+        }
+        elseif ($profiles.Count) {
+            $profileToOpen = $profiles[0].FullName
+        }
+
+        if ($profileToOpen) {
+            Start-Sleep -Milliseconds 900
+            Write-Host "Opening bundled Stream Deck profile for import: $profileToOpen" -ForegroundColor Cyan
+            Start-Process $profileToOpen
+        }
     }
 
     if ($Plugin.OpenDevFolder) {

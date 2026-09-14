@@ -75,15 +75,8 @@ for(const action of keypad){
       if(file.endsWith(".png"))inspectPng(file,stateName);
     }
 
-    if(state.ShowTitle===true){
-      const alignment=String(state.TitleAlignment??"middle").toLowerCase();
-      if(alignment==="middle")errors.push(stateName+": ShowTitle is enabled with middle alignment over key art");
-      if(!["top","bottom"].includes(alignment))warnings.push(stateName+": title alignment is "+alignment+"; use a dedicated top or bottom text band");
-      if(typeof state.Title==="string"){
-        const lines=state.Title.split(/\r?\n/);
-        if(lines.length>2)errors.push(stateName+": static title uses more than two lines");
-        if(lines.some(line=>line.length>10))warnings.push(stateName+": static title has a line longer than 10 characters");
-      }
+    if(state.ShowTitle!==false){
+      errors.push(stateName+": PackRat Keypad actions must explicitly set ShowTitle=false and render any text into the key image");
     }
   }
 }
@@ -100,7 +93,7 @@ console.log("Plugin: "+pluginDir);
 console.log("Keypad actions: "+keypad.length);
 for(const warning of warnings)console.log("WARN: "+warning);
 for(const error of errors)console.error("ERROR: "+error);
-console.log("Manual gate still required: review representative keys at 72 x 72 and 36 x 36. This script cannot prove visual hierarchy or text/image collision inside rendered art.");
+console.log("Manual gate still required: review representative runtime-rendered keys at 72 x 72 and 36 x 36. This script prevents host title overlays but cannot prove internal rendered layout quality.");
 
 if(errors.length){
   console.error("FAIL: "+errors.length+" key visual error(s), "+warnings.length+" warning(s)");
