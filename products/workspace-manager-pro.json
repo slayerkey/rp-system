@@ -4,12 +4,12 @@
   "type": "plugin",
   "status": "built",
   "workflow_state": "TESTING",
-  "blocker": "Revalidating the hardware-reported Property Inspector race fixes: workspace selection persistence, rename draft protection, save acknowledgement, and unique workspace naming. Physical Rat Dev hardware QA remains the release boundary. Marketplace submission and shipping are not authorized.",
+  "blocker": "Revalidating the hardware-reported Workspace Manager PI race fixes after aligning their regression assertions. Physical Rat Dev hardware QA remains the release boundary. Marketplace submission and shipping are not authorized.",
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows + macOS",
   "source_repository": "https://github.com/slayerkey/vcs.git",
   "source_ref": "refs/heads/product/workspace-manager-pro",
-  "source_commit": "892f5560d62a259ab9400e5c1e2f120066f5ed29",
+  "source_commit": "dfc05adab8a2bec15899fb53d542ac69cf82f298",
   "plugin_uuid": "com.packrat.workspacemanagerpro",
   "marketplace_identity": "NEW_STANDALONE_SKU_PENDING",
   "lite_product_id": null,
@@ -34,13 +34,13 @@
     "Canonical streamdeck-key-visual-audit: PASS with 0 structural errors and 0 warnings on Windows + macOS",
     "Hardware-reported PI races fixed: pending workspace selection can no longer be overwritten by stale state; rename uses a local draft that survives state refresh; authoritative plugin state now clears Saving… once persisted",
     "Future workspace names are unique by default; duplicate existing names are disambiguated in the dropdown with ordinals and window counts",
-    "Private-source revalidation requested for exact source commit 892f5560d62a259ab9400e5c1e2f120066f5ed29"
+    "Private-source revalidation requested for exact source commit dfc05adab8a2bec15899fb53d542ac69cf82f298"
   ],
   "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host. Verify Retry persists after close/reopen, New/Capture/Rename/Duplicate/Delete show immediate and completion feedback, empty/stale workspaces fail clearly, captured window/app summary updates, and multiple Workspace keys retain independent selections. Review representative runtime keys at real 72 x 72 hardware scale. Keep this product out of Marketplace submission/ship until that hardware QA is explicitly accepted.",
   "notes": "Standalone Pro-only product with no Lite edition. This is a new future Marketplace identity and must never reuse Window Manager Pro Marketplace/product/action identifiers. Window Manager Pro source and control-plane metadata are not modified by this product registration.",
   "automated_release_evidence": {
     "status": "REVALIDATION_REQUIRED",
-    "source_commit": "892f5560d62a259ab9400e5c1e2f120066f5ed29",
+    "source_commit": "dfc05adab8a2bec15899fb53d542ac69cf82f298",
     "previous_private_source_qa_bridge_run": 34891065572
   }
 }
