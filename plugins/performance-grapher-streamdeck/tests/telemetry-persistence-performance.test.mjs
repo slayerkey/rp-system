@@ -570,3 +570,16 @@ test("restore ignores histories outside canonical metrics and the retained watch
   assert.equal(telemetry.histories.has("lhm.sensor.79"), true);
   assert.equal(telemetry.histories.has("cpu.load"), true);
 });
+
+
+test("hardware sensor helper and visible hardware keys target a 2 Hz cadence", async () => {
+  const root = resolve(import.meta.dirname, "..");
+  const [nativeSource, pluginSource] = await Promise.all([
+    readFile(resolve(root, "native", "PackRat.PerformanceTelemetry", "Program.cs"), "utf8"),
+    readFile(resolve(root, "src", "plugin.js"), "utf8"),
+  ]);
+
+  assert.match(nativeSource, /Task\.Delay\(500\)/);
+  assert.match(nativeSource, /iteration % 60 == 0/);
+  assert.match(pluginSource, /return 500;/);
+});
