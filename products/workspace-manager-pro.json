@@ -2,9 +2,9 @@
   "id": "workspace-manager-pro",
   "name": "Workspace Manager Pro",
   "type": "plugin",
-  "status": "built",
-  "workflow_state": "TESTING",
-  "blocker": "Revalidating the hardware-reported Workspace Manager PI race fixes after aligning their regression assertions. Physical Rat Dev hardware QA remains the release boundary. Marketplace submission and shipping are not authorized.",
+  "status": "qa_passed",
+  "workflow_state": "READY_FOR_HARDWARE_QA",
+  "blocker": "Physical Rat Dev verification on the user's actual Stream Deck remains before any release decision. Marketplace submission and shipping are not authorized.",
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows + macOS",
   "source_repository": "https://github.com/slayerkey/vcs.git",
@@ -34,13 +34,40 @@
     "Canonical streamdeck-key-visual-audit: PASS with 0 structural errors and 0 warnings on Windows + macOS",
     "Hardware-reported PI races fixed: pending workspace selection can no longer be overwritten by stale state; rename uses a local draft that survives state refresh; authoritative plugin state now clears Saving… once persisted",
     "Future workspace names are unique by default; duplicate existing names are disambiguated in the dropdown with ordinals and window counts",
-    "Private-source revalidation requested for exact source commit dfc05adab8a2bec15899fb53d542ac69cf82f298"
+    "Private-source QA bridge run 34899571644: PASS on Windows + macOS at exact source commit dfc05adab8a2bec15899fb53d542ac69cf82f298",
+    "Hardware-reported PI races covered: pending workspace selection survives stale state; rename draft survives render/focus churn; plugin state acknowledgement clears Saving…; future workspace names are unique; duplicate legacy names are disambiguated in the selector",
+    "Windows final revalidation: regression tests, build, canonical design audit, key visual audit, native Win32 ABI enumeration, official Elgato validation/package, standalone identity audit, and repeated-restore smoke: PASS",
+    "macOS final revalidation: regression tests, build, canonical design audit, key visual audit, AppKit monitor enumeration, platform isolation, official Elgato validation/package, and standalone identity audit: PASS"
   ],
-  "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host. Verify Retry persists after close/reopen, New/Capture/Rename/Duplicate/Delete show immediate and completion feedback, empty/stale workspaces fail clearly, captured window/app summary updates, and multiple Workspace keys retain independent selections. Review representative runtime keys at real 72 x 72 hardware scale. Keep this product out of Marketplace submission/ship until that hardware QA is explicitly accepted.",
+  "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host. Re-test switching among existing 0-window/6-window workspaces, rename one to Test, confirm Saving… becomes Saved, and confirm the dropdown keeps the selected workspace. Existing duplicate test workspaces are preserved but shown with # ordinals/window counts so they can be deleted intentionally. Do not submit/ship until that hardware QA is explicitly accepted.",
   "notes": "Standalone Pro-only product with no Lite edition. This is a new future Marketplace identity and must never reuse Window Manager Pro Marketplace/product/action identifiers. Window Manager Pro source and control-plane metadata are not modified by this product registration.",
   "automated_release_evidence": {
-    "status": "REVALIDATION_REQUIRED",
+    "status": "PASSED_AWAITING_PHYSICAL_RAT_DEV_QA",
     "source_commit": "dfc05adab8a2bec15899fb53d542ac69cf82f298",
-    "previous_private_source_qa_bridge_run": 34891065572
+    "private_source_qa_bridge_run": 34899571644,
+    "windows": {
+      "status": "PASSED",
+      "tests": "PASSED",
+      "build": "PASSED",
+      "canonical_design_audit": "PASSED",
+      "key_visual_audit": "PASSED",
+      "native_win32_enumeration": "PASSED",
+      "elgato_validate": "PASSED",
+      "elgato_package": "PASSED",
+      "standalone_identity_audit": "PASSED",
+      "repeated_restore_smoke": "PASSED"
+    },
+    "macos": {
+      "status": "PASSED",
+      "tests": "PASSED",
+      "build": "PASSED",
+      "canonical_design_audit": "PASSED",
+      "key_visual_audit": "PASSED",
+      "appkit_monitor_enumeration": "PASSED",
+      "platform_bundle_isolation": "PASSED",
+      "elgato_validate": "PASSED",
+      "elgato_package": "PASSED",
+      "standalone_identity_audit": "PASSED"
+    }
   }
 }
