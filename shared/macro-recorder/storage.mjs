@@ -1,4 +1,4 @@
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
 import { normalizeMacro } from "./model.mjs";
@@ -171,6 +171,64 @@ export class MacroLibrary {
       this.macros = this.macros.filter((macro) => macro.id !== target);
       return true;
     });
+  }
+
+  async diagnose() {
+    const memoryIds = this.macros.map((macro) => macro.id).sort();
+    const report = {
+      file: this.file,
+      warning: this.warning,
+      inMemoryCount: this.macros.length,
+      inMemoryIds: memoryIds,
+      disk: {
+        exists: false,
+        readable: false,
+        parseable: false,
+        size: 0,
+        modifiedAt: "",
+        macroCount: 0,
+        ids: [],
+        matchesMemory: false,
+        error: "",
+      },
+      writeProbe: {
+        ok: false,
+        error: "",
+      },
+    };
+
+    try {
+      const info = await stat(this.file);
+      report.disk.exists = true;
+      report.disk.size = Number(info.size || 0);
+      report.disk.modifiedAt = info.mtime?.toISOString?.() || "";
+      const raw = await readFile(this.file, "utf8");
+      report.disk.readable = true;
+      const parsed = parseLibrary(raw);
+      report.disk.parseable = true;
+      report.disk.macroCount = parsed.length;
+      report.disk.ids = parsed.map((macro) => macro.id).sort();
+      report.disk.matchesMemory = JSON.stringify(report.disk.ids) === JSON.stringify(memoryIds);
+    } catch (error) {
+      report.disk.error = String(error?.code || error?.message || error || "");
+      if (error?.code === "ENOENT") report.disk.error = "ENOENT";
+    }
+
+    const probe = `${this.file}.diagnostic-${process.pid}-${Date.now()}.tmp`;
+    try {
+      await mkdir(dirname(this.file), { recursive: true });
+      const marker = `packrat-macro-diagnostic:${Date.now()}`;
+      await writeFile(probe, marker, "utf8");
+      const echoed = await readFile(probe, "utf8");
+      report.writeProbe.ok = echoed === marker;
+      if (!report.writeProbe.ok) report.writeProbe.error = "Write/read marker mismatch.";
+    } catch (error) {
+      report.writeProbe.error = String(error?.code || error?.message || error || "");
+    } finally {
+      try { await unlink(probe); } catch {}
+    }
+
+    return report;
   }
 
   async save() {
