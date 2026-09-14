@@ -433,6 +433,7 @@ test("Monitor Manager key faces use canonical white geometry plus PackRat accent
   for(const action of manifest.Actions.filter((a)=>a.Controllers?.includes("Keypad"))){
     const file=path.resolve("com.packrat.monitormanagerpro.sdPlugin",action.States[0].Image+".svg");
     const svg=await readFile(file,"utf8");
+    assert.match(svg,/#05070A/i,action.Name+" must include the canonical dark key background");
     assert.match(svg,/#fff/i,action.Name+" must keep white semantic geometry");
     assert.match(svg,/#FFB21E/i,action.Name+" must include the canonical PackRat accent highlight");
   }
