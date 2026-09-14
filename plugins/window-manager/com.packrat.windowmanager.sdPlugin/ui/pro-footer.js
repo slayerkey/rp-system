@@ -1,4 +1,4 @@
-/** Shared Window Manager Lite footer: PackRat brand, XENEON setup, and Pro upgrade card. */
+/** Shared Window Manager Lite chrome: PackRat brand, top Pro CTA, and XENEON setup. */
 
 const PRO_URL =
   "https://marketplace.elgato.com/product/window-manager-pro-f3ed6217-0282-419d-a71d-4b1548147b11";
@@ -26,6 +26,26 @@ function buildPackRatBrand() {
     '<img class="packrat-logo" src="../imgs/plugin/packrat-logo.png" alt="" aria-hidden="true"><span>PackRat ↗</span>';
   brand.addEventListener("click", () => openUrl(PACKRAT_MAKER_URL));
   document.body.prepend(brand);
+}
+
+function buildProCallout() {
+  if (document.querySelector(".pro-callout")) return;
+
+  const callout = document.createElement("div");
+  callout.className = "pro-callout";
+  callout.innerHTML = `
+    <div class="pro-callout-copy">Unlock More Features</div>
+    <button type="button" class="primary pro-callout-button" id="openWindowManagerPro">Upgrade to Pro ↗</button>
+  `;
+
+  const brand = document.querySelector(".packrat-brand");
+  if (brand) {
+    brand.insertAdjacentElement("afterend", callout);
+  } else {
+    document.body.prepend(callout);
+  }
+
+  document.getElementById("openWindowManagerPro").addEventListener("click", () => openUrl(PRO_URL));
 }
 
 function buildXeneonSetup() {
@@ -80,25 +100,8 @@ function buildXeneonSetup() {
   requestSettings();
 }
 
-function buildProFooter() {
-  const footer = document.createElement("div");
-  footer.className = "upsell";
-  footer.innerHTML = `
-    <div class="upsell-eyebrow">WINDOW MANAGER PRO</div>
-    <h3>Save layouts. Nudge precisely.</h3>
-    <p>Lite gives you Snap + Cycle. Pro adds the two controls that turn it into a fuller window-management setup.</p>
-    <ul class="upsell-list">
-      <li><strong>Window Layout</strong> — hold to save a complete arrangement, then press once to restore it.</li>
-      <li><strong>Nudge Window</strong> — move or resize in small steps, including Stream Deck + dial control.</li>
-    </ul>
-    <button type="button" class="primary pro-button" id="openWindowManagerPro">View Window Manager Pro ↗</button>
-  `;
-  document.body.append(footer);
-  document.getElementById("openWindowManagerPro").addEventListener("click", () => openUrl(PRO_URL));
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   buildPackRatBrand();
+  buildProCallout();
   buildXeneonSetup();
-  buildProFooter();
 });
