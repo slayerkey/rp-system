@@ -16,7 +16,7 @@ concurrency:
 
 env:
   VCS_REPOSITORY: slayerkey/vcs
-  VCS_REF: c1041c259345c0d4bc27b88848dd5667d50bc246
+  VCS_REF: 577e9ff0c69b0c5d062a77745e481e8669728cf1
   SOURCE_ROOT: vcs/streamdeck/window-manager-pro/1.2.0.0/source
 
 jobs:
