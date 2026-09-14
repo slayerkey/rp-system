@@ -141,7 +141,7 @@ test("Wireless keys use canonical PackRat full-key visuals",async()=>{
   assert.match(visuals,/#FFB21E/);
   assert.match(visuals,/fill="#05070A"/);
   assert.match(visuals,/stroke="#F5F7FB"/);
-  assert.match(visuals,/width="5"[\s\S]*WIRELESS_ACCENT/);
+  assert.doesNotMatch(visuals,/ACCENT_RAIL|x="8" y="12" width="5" height="32"/);
   assert.match(actions,/setWirelessKey/);
   for(const manifest of [lite,pro]){
     for(const action of manifest.Actions){
