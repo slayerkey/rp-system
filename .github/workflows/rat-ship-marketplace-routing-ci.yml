@@ -11,6 +11,7 @@ on:
       - 'tools/local/rat-marketplace.ps1'
       - 'tools/local/rat-dev.ps1'
       - 'tools/local/rat-dev-source.ps1'
+      - 'tools/local/rat-dev-profiles.ps1'
       - 'tools/local/rat-dev-source.tests.ps1'
       - 'tools/local/rat-maker-console.ps1'
       - 'tools/local/rat-ship-plugin.ps1'
@@ -31,6 +32,7 @@ on:
       - 'tools/local/rat-marketplace.ps1'
       - 'tools/local/rat-dev.ps1'
       - 'tools/local/rat-dev-source.ps1'
+      - 'tools/local/rat-dev-profiles.ps1'
       - 'tools/local/rat-dev-source.tests.ps1'
       - 'tools/local/rat-maker-console.ps1'
       - 'tools/local/rat-ship-plugin.ps1'
@@ -68,6 +70,7 @@ jobs:
             'tools/local/rat-marketplace.ps1',
             'tools/local/rat-dev.ps1',
             'tools/local/rat-dev-source.ps1',
+            'tools/local/rat-dev-profiles.ps1',
             'tools/local/rat-dev-source.tests.ps1',
             'tools/local/rat-maker-console.ps1',
             'tools/local/rat-ship-plugin.ps1',
@@ -111,7 +114,8 @@ jobs:
           foreach ($required in @(
             'Resolve-RatDevProfilePreference',
             'streamDeckProfile',
-            'Opening bundled Stream Deck profile for import',
+            'Get-RatDevProfileOpenDecision',
+            'skipping duplicate import',
             'Start-Process $profileToOpen'
           )) {
             if ($devRaw -notmatch [regex]::Escape($required)) {
