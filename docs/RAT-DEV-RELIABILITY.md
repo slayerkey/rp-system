@@ -22,6 +22,28 @@ Windows can keep a Stream Deck plugin directory locked while the plugin process 
 
 This is not limited to native helper executables. Ordinary JavaScript plugins run under a system `node.exe` outside the plugin directory, but the process command line/current working context can still reference the linked `.sdPlugin` tree and keep files/directories busy on Windows. Rat Dev therefore pauses the currently linked plugin before reset/clean/build and then releases any remaining build-owned helpers.
 
+
+### Windows unlink-loop symptom
+
+If Git asks repeatedly:
+
+```text
+Unlink of file '<plugin>/helpers/<native-helper>.exe' failed. Should I try again? (y/n)
+```
+
+do not keep answering `y`. The linked plugin is usually respawning the native helper.
+
+The required order is:
+
+1. identify the currently linked plugin/UUID
+2. pause/stop and unlink that development plugin
+3. terminate remaining build-owned helper processes
+4. only then run `git reset --hard` / clean / worktree refresh
+5. build and validate
+6. relink/restart only after the candidate passes
+
+The shared Rat Dev regression must enforce lock release **before** any reusable-worktree reset/clean operation.
+
 External Rat Dev therefore uses the checkout under `out/dev/worktrees/<slug>` only as a Git controller. Candidate code runs from a separate detached worktree. A successful candidate becomes the development link only after validation.
 
 This means a failed fetch, build, test, profile generation, product QA, or Elgato validation cannot destroy the last working Stream Deck build.
@@ -81,6 +103,18 @@ Resolution order:
 Do not “fix” branch ambiguity by duplicating the same product source onto more branches. Establish one owning source/ref and register it canonically.
 
 A local clone with a restricted fetch refspec is not trusted to have fresh `origin/product/*` refs. Rat Dev explicitly fetches `main` and all product branches every run before source resolution.
+
+
+### Stale-product-ref symptom
+
+If Rat Dev prints a product-branch HEAD older than the branch head visible on GitHub, do not debug the product test failure yet. First verify the fetch step explicitly refreshes:
+
+```text
++refs/heads/main:refs/remotes/origin/main
++refs/heads/product/*:refs/remotes/origin/product/*
+```
+
+A plain `git fetch origin` is insufficient because older/local clones may have a main-only `remote.origin.fetch` refspec. A successful fetch message does not prove product refs were updated.
 
 ## Candidate must pass before activation
 
