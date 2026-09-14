@@ -37,7 +37,12 @@ function folder(id){
 function action(seed,id,name,title,settings={}){
  return {ActionID:uuid("pro-action:"+seed),LinkedTitle:true,Name:name,UUID:id,Settings:settings,State:0,States:[{Title:title,ShowTitle:true,TitleAlignment:"bottom",TitleColor:"#FFFFFF",FontFamily:"Arial",FontSize:11,FontStyle:"Regular",FontUnderline:false}]};
 }
-function p(seed,name,apply=false){return action(seed,apply?U.apply:U.save,apply?"Apply Monitor Profile":"Save Monitor Profile",(apply?"APPLY\n":"SAVE\n")+name,{profileName:name});}
+function profileKeyName(name){
+ const value=String(name).trim().toUpperCase();
+ if(value==="WORK LAPTOP")return "WORK";
+ return value.length<=8?value:value.slice(0,8);
+}
+function p(seed,name,apply=false){return action(seed,apply?U.apply:U.save,apply?"Apply Monitor Profile":"Save Monitor Profile",(apply?"APPLY\n":"SAVE\n")+profileKeyName(name),{profileName:name});}
 
 function standardPages(prefix){
  return [
