@@ -242,6 +242,225 @@ Destructive actions remain red. Never recolor destructive meaning to orange.
 
 Status colors are semantic, not decorative. Green means healthy/success/connected; red means failure/destructive; neutral states stay gray. Do not paint arbitrary controls green because they are "active."
 
+
+### Canonical component recipe
+
+This section is the implementation reference for the current PackRat Property Inspector look. Product prompts should say **"use the canonical PackRat Stream Deck design system"** instead of restating visual requirements.
+
+If a product-specific prompt repeats different colors, spacing, radii, button treatment, number styling, or glow behavior by accident, this document wins. A deliberate exception must be named and justified in the product plan.
+
+Use this baseline:
+
+- body padding: 12 px
+- primary section gap: 10-12 px
+- card radius: 10 px
+- input/button radius: 7 px
+- card border: 1 px solid `var(--packrat-border)`
+- card padding: 12 px
+- control minimum height: 34 px
+- body copy: 12 px
+- helper copy: 11 px
+- section heading: 13-14 px, semibold/bold
+- large status/value number: 24-30 px, bold
+- compact secondary number: 15-18 px, semibold
+- numeric readouts use `font-variant-numeric: tabular-nums`
+- keep one clear visual hierarchy per card: heading -> value/control -> helper text
+
+Canonical CSS starting point:
+
+```css
+:root {
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--packrat-bg);
+  color: var(--packrat-text);
+  font-size: 12px;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.card,
+.group,
+.status-card {
+  border: 1px solid var(--packrat-border);
+  border-radius: 10px;
+  background: var(--packrat-card);
+  padding: 12px;
+}
+
+h1, h2, h3,
+.section-title {
+  margin: 0;
+  color: var(--packrat-text);
+  font-weight: 700;
+}
+
+.eyebrow,
+.kicker {
+  color: var(--packrat-accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.metric-value,
+.status-value,
+.big-number {
+  color: var(--packrat-text);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.muted,
+.hint,
+.help {
+  color: var(--packrat-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid var(--packrat-border);
+  border-radius: 7px;
+  background: var(--packrat-input);
+  color: var(--packrat-text);
+  padding: 6px 8px;
+}
+
+button {
+  min-height: 34px;
+  border: 1px solid var(--packrat-border);
+  border-radius: 7px;
+  background: var(--packrat-button);
+  color: var(--packrat-text);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+
+button:hover,
+button:focus-visible {
+  border-color: var(--packrat-accent);
+  background: var(--packrat-button-hover);
+  box-shadow: 0 0 0 2px var(--packrat-accent-soft),
+              0 0 18px var(--packrat-accent-glow);
+  outline: none;
+}
+
+button.primary {
+  border-color: var(--packrat-accent);
+  background: var(--packrat-accent);
+  color: #16110A;
+}
+
+button.primary:hover,
+button.primary:focus-visible {
+  background: var(--packrat-accent-hover);
+}
+
+button.danger {
+  border-color: var(--packrat-danger, #FF5D6C);
+  color: #FFF;
+}
+```
+
+The exact component count is product-specific. The visual language is not.
+
+### Number and status hierarchy
+
+The clean PackRat look depends heavily on readable values and restrained supporting text.
+
+- Put the important number/state first.
+- Give important numeric values room; do not shrink them to fit unnecessary prose.
+- Use tabular numbers for latency, percentages, temperatures, FPS, bandwidth, timers, and other changing values.
+- A unit such as `ms`, `%`, `°C`, `Mbps`, or `Hz` should be visibly secondary to the number but still readable.
+- Do not use giant numbers everywhere. Large numeric hierarchy is for the one value the card is about.
+- Avoid four tiny metrics in one row when two clear rows would read better.
+- Use labels such as `ONLINE`, `DEGRADED`, `OFFLINE`, `ON`, `OFF`, `AUTO`, or `N/A` only when they describe real state.
+- Unknown/unavailable state is neutral gray, not green.
+- Orange is the brand/interaction accent, not a fake healthy state.
+- Green is reserved for literal success/healthy/connected meaning.
+
+### Button hierarchy
+
+Buttons must look clickable without turning the inspector into a wall of orange.
+
+- neutral utility actions are charcoal by default
+- hover/focus may introduce orange border/glow
+- exactly one obvious primary CTA may use solid orange when the screen genuinely has a primary action
+- destructive actions are red
+- disabled actions reduce opacity and keep the cursor/default state obvious
+- do not use bright green as the generic PackRat button color
+- do not use muddy gold/brown button fills
+- icon-only controls still need an accessible label or tooltip
+- repeated button rows use equal height and spacing
+
+### Layout discipline
+
+The canonical design is compact, not cramped.
+
+- Prefer one-column flow in narrow Property Inspectors.
+- Use two-column grids only for naturally paired values or settings.
+- Do not create dense 3-4 column mini dashboards inside the inspector.
+- Cards are grouped by user task, not by implementation module.
+- Status belongs near the top.
+- Advanced or dangerous controls belong lower and should be visually quieter until needed.
+- Helper copy explains consequences, not obvious labels.
+- Avoid decorative separators when card boundaries already create hierarchy.
+- Avoid arbitrary per-product radii, shadows, and gradients.
+- Use one top-right ambient glow. Do not add a second glow, colored blobs, or background decoration that competes with controls.
+
+### Canonical brand header
+
+When a Property Inspector needs a product header, use a compact hierarchy:
+
+1. small PackRat eyebrow or local PackRat brand link
+2. product/action title
+3. one short explanatory line only when it adds real context
+
+Do not spend the top third of the inspector on oversized branding.
+
+The PackRat maker link and logo remain secondary UI. They should never compete with the active action's settings.
+
+### Single-source-of-truth rule
+
+This file is the branding and interaction source of truth for PackRat Stream Deck plugins.
+
+Product-specific specs should not maintain their own parallel list of:
+
+- PackRat colors
+- generic button colors
+- border radii
+- card styling
+- top-right glow values
+- brand-link treatment
+- normal typography hierarchy
+- standard key-face visual language
+
+Instead, they should reference this file and document only real product exceptions.
+
+When a better global visual pattern is approved during physical QA, update this standard first, then roll it into products. Do not leave the improvement trapped in one plugin.
+
+
 ### Ambient corner glow
 
 Property Inspectors use one subtle premium orange glow in the top-right. This is part of the canonical PackRat composition, not an optional per-product flourish:
