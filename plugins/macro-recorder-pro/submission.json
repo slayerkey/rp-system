@@ -25,7 +25,7 @@
   "marketplace_auto_publish": false,
   "headline": "RECORD -> DO IT -> REPLAY",
   "description": "Record keyboard and mouse macros by performing them once. Macro Recorder Pro captures keystrokes, mouse buttons, movement, drag, scroll and timing on Windows, then lets you replay from Stream Deck with speed controls, repeat count, repeat while held, toggle repeat, a reusable Macro Library, timeline editing and PackRat macro import/export. No scripting language and no macro upload.",
-  "release_notes": "- Record keyboard, mouse buttons, movement, drag, wheel and timing.\n- Edit reusable macros in a local Macro Library with speed and loop controls.\n- Import and export PackRat macro files and use absolute or active-window-relative mouse positioning.\n- Includes five starter pages for macros, gaming menus, productivity, mouse, and loops across standard Stream Deck, Mini, XL, Plus, and Neo.",
+  "release_notes": "- Record keyboard, mouse buttons, movement, drag, wheel and timing.\\n- Replay macros with 0.25x-4x speed, repeat count, while-held and toggle modes.\\n- Manage reusable local macros with rename, duplicate, timeline editing, refresh, import/export and deep troubleshooting.\\n- Includes minimal Record / Play / Stop starter profiles for Stream Deck, Mini, XL, Plus and Neo.",
   "hero": "RECORD -> DO IT -> REPLAY",
   "tagline": "Record keyboard + mouse workflows once. Replay them from Stream Deck.",
   "keywords": [
