@@ -1,21 +1,123 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Text Expander</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Text Expander Library</title>
 <style>
-:root{color-scheme:dark}body{font:14px system-ui;background:#0f0f10;color:#f5f5f5;margin:0}.wrap{max-width:1120px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;align-items:end;gap:16px}.muted{color:#a9a9ae}.grid{display:grid;grid-template-columns:320px 1fr;gap:18px;margin-top:22px}.panel{background:#19191b;border:1px solid #303034;border-radius:14px;padding:16px}.list{max-height:70vh;overflow:auto}.item{padding:10px;border-radius:8px;cursor:pointer}.item:hover,.item.active{background:#29292d}.item small{display:block;color:#92929a}label{display:block;margin:12px 0}label span{display:block;font-weight:650;margin-bottom:6px}input,textarea{width:100%;box-sizing:border-box;background:#0e0e10;color:#fff;border:1px solid #3c3c42;border-radius:7px;padding:9px}textarea{min-height:300px;resize:vertical;font-family:ui-monospace,monospace}.row{display:flex;gap:8px;flex-wrap:wrap}button{background:#2b2b30;color:#fff;border:1px solid #43434a;border-radius:8px;padding:9px 13px;font-weight:650;cursor:pointer}.primary{background:#f4f4f4;color:#111}.danger{margin-left:auto}.vars{margin-top:22px}.vars textarea{min-height:130px}.status{min-height:20px}.pill{display:inline-block;border:1px solid #3b3b40;border-radius:999px;padding:4px 8px;margin:2px;color:#bbb}@media(max-width:760px){.grid{grid-template-columns:1fr}.list{max-height:260px}}
-</style></head><body><div class="wrap"><header><div><h1 id="title">Text Expander</h1><div class="muted" id="meta"></div></div><button id="new">New snippet</button></header>
-<div class="grid"><section class="panel list" id="list"></section><section class="panel"><label><span>Name</span><input id="name"></label><label id="folderWrap"><span>Folder / category</span><input id="folder"></label><label><span>Text</span><textarea id="content" spellcheck="false"></textarea></label><div class="row"><button class="primary" id="save">Save library</button><button class="danger" id="delete">Delete snippet</button></div><p class="status muted" id="status"></p>
-<div class="vars" id="varsWrap"><h3>Reusable variables</h3><p class="muted">One per line: <code>name=value</code>. Use it as <code>{name}</code> in any snippet.</p><textarea id="vars" spellcheck="false"></textarea></div>
-<h3>Variables</h3><div id="help"></div></section></div></div>
+:root{color-scheme:dark;--bg:#080A0E;--card1:#151920;--card2:#0D1015;--input:#15191E;--button:#181C21;--hover:#22272E;--border:#303640;--text:#F5F7FB;--muted:#9AA2AF;--accent:#FFB21E;--accent2:#FFC44D;--danger:#FF5D6C}
+*{box-sizing:border-box}body{font:14px Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);margin:0;min-height:100vh;position:relative}body:before{content:"";position:fixed;top:-170px;right:-120px;width:430px;height:430px;pointer-events:none;background:radial-gradient(circle,rgba(255,178,30,.13),rgba(255,178,30,.05) 36%,rgba(255,178,30,0) 72%)}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:auto;padding:28px}.top{display:flex;justify-content:space-between;gap:18px;align-items:end}.eyebrow{color:var(--accent);font-size:11px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}h1{margin:0;font-size:26px}h2{font-size:12px;color:var(--accent2);letter-spacing:.08em;text-transform:uppercase;margin:0 0 11px}.muted{color:var(--muted);line-height:1.5}.grid{display:grid;grid-template-columns:340px 1fr;gap:18px;margin-top:22px}.panel{background:linear-gradient(145deg,var(--card1),var(--card2));border:1px solid var(--border);border-radius:12px;padding:16px}.listPanel{padding:10px;max-height:78vh;overflow:auto}.group{padding:12px 8px 5px;color:var(--accent);font-size:10px;font-weight:850;letter-spacing:.09em}.item{padding:10px;border-radius:8px;cursor:pointer;border:1px solid transparent}.item:hover{background:var(--hover);border-color:#3b414b}.item.active{background:rgba(255,178,30,.10);border-color:rgba(255,178,30,.5)}.item b{display:block}.item small{display:block;color:var(--muted);margin-top:3px}label{display:block;margin:12px 0}label span{display:block;font-weight:700;margin-bottom:6px;color:#D5DAE2}input,textarea{width:100%;background:var(--input);color:var(--text);border:1px solid #454B57;border-radius:7px;padding:9px;outline:none}input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 14px rgba(255,178,30,.22)}textarea{min-height:270px;resize:vertical;font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;line-height:1.45}.vars textarea{min-height:130px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button{background:var(--button);color:var(--text);border:1px solid #454B57;border-radius:7px;padding:9px 13px;font-weight:750;cursor:pointer}button:hover,button:focus-visible{background:var(--hover);border-color:var(--accent);outline:none;box-shadow:0 0 14px rgba(255,178,30,.16)}button.primary{background:var(--accent);border-color:var(--accent2);color:#17120A}button.primary:hover{background:var(--accent2)}button.danger{margin-left:auto;color:var(--danger);background:transparent;border-color:rgba(255,93,108,.5)}button.danger:hover{border-color:var(--danger);background:rgba(255,93,108,.09)}.status{min-height:21px;margin:10px 0 0}.divider{height:1px;background:#2B3038;margin:18px 0}.pill{display:inline-block;border:1px solid #343A44;background:#11151A;border-radius:6px;padding:6px 8px;margin:3px;color:#DCE1E9;font-family:ui-monospace,Consolas,monospace;font-size:11px}.notice{border:1px solid rgba(255,178,30,.28);background:rgba(255,178,30,.06);border-radius:8px;padding:10px;margin-top:10px}.empty{padding:18px;color:var(--muted);text-align:center}@media(max-width:780px){.grid{grid-template-columns:1fr}.listPanel{max-height:300px}.top{align-items:start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div><div class="eyebrow">PackRat · Local library</div><h1 id="title">Text Expander</h1><div class="muted" id="meta">Loading…</div></div>
+  <button id="new" type="button">New snippet</button>
+</header>
+<div class="grid">
+  <section class="panel listPanel" id="list"></section>
+  <section class="panel">
+    <h2>Selected snippet</h2>
+    <p class="muted">Edits stay local on this PC. Changes are applied to every Stream Deck key using this snippet after you save the library.</p>
+    <label><span>Name</span><input id="name" maxlength="120"></label>
+    <label id="folderWrap"><span>Folder / category</span><input id="folder" maxlength="80"></label>
+    <label><span>Text</span><textarea id="content" spellcheck="false"></textarea></label>
+    <div class="row"><button class="primary" id="save" type="button">Save library</button><button class="danger" id="delete" type="button">Delete snippet</button></div>
+    <p class="status muted" id="status"></p>
+
+    <div class="vars" id="varsWrap">
+      <div class="divider"></div>
+      <h2>Reusable variables</h2>
+      <p class="muted">Shared values for every Pro snippet. One per line: <code>name=value</code>. Example: <code>signature=Thanks, Key</code>.</p>
+      <textarea id="vars" spellcheck="false"></textarea>
+    </div>
+
+    <div class="divider"></div>
+    <h2>Dynamic text reference</h2>
+    <div id="help"></div>
+    <div class="notice muted" id="braceHelp">In Pro, unknown simple tokens like <code>{name}</code> become fill-in fields. To insert literal braces, write <code>{{name}}</code> and Text Expander inserts <code>{name}</code>.</div>
+  </section>
+</div>
+</div>
 <script>
-const token=new URLSearchParams(location.search).get("token"),$=id=>document.getElementById(id);let model=null,selected=null;
+const token=new URLSearchParams(location.search).get("token"),$=id=>document.getElementById(id);
+let model=null,selected=null,dirty=false;
 const api=path=>path+"?token="+encodeURIComponent(token);
-async function load(){const r=await fetch(api("/api/library"));model=await r.json();if(!model.ok)throw new Error(model.error);$("title").textContent=model.edition==="pro"?"Text Expander Pro":"Text Expander Lite";$("meta").textContent=model.library.snippets.length+" / "+model.limit+" snippets · stored locally on this PC";$("folderWrap").style.display=model.edition==="pro"?"block":"none";$("varsWrap").style.display=model.edition==="pro"?"block":"none";$("help").innerHTML=(model.edition==="pro"?["{date}","{time}","{datetime}","{clipboard}","{username}","{computer}","{app}","{counter:name}","{cursor}","{date:YYYY-MM-DD}","unknown {fields} prompt before insertion"]:["{date}","{time}","{clipboard}"]).map(x=>"<span class=pill>"+x.replaceAll("<","&lt;")+"</span>").join("");$("vars").value=Object.entries(model.library.variables||{}).map(([k,v])=>k+"="+v).join("\n");selected=model.library.snippets[0]?.id||null;render()}
-function render(){const list=$("list");list.innerHTML="";for(const s of model.library.snippets){const d=document.createElement("div");d.className="item"+(s.id===selected?" active":"");const b=document.createElement("b");b.textContent=s.name;d.appendChild(b);if(model.edition==="pro"){const sm=document.createElement("small");sm.textContent=s.folder||"Unfiled";d.appendChild(sm)}d.onclick=()=>{selected=s.id;render()};list.appendChild(d)}const s=model.library.snippets.find(x=>x.id===selected);$("name").value=s?.name||"";$("folder").value=s?.folder||"";$("content").value=s?.content||"";$("meta").textContent=model.library.snippets.length+" / "+model.limit+" snippets · stored locally on this PC"}
-$("new").onclick=()=>{if(model.library.snippets.length>=model.limit)return status("Snippet limit reached.");const id="snippet-"+Date.now().toString(36);model.library.snippets.push({id,name:"New snippet",folder:model.edition==="pro"?"UNFILED":"STARTER",content:""});selected=id;render()};
-$("delete").onclick=()=>{if(!selected)return;model.library.snippets=model.library.snippets.filter(x=>x.id!==selected);selected=model.library.snippets[0]?.id||null;render()};
-function syncEditor(){const s=model.library.snippets.find(x=>x.id===selected);if(!s)return;s.name=$("name").value.trim()||"Untitled";s.folder=$("folder").value.trim();s.content=$("content").value}
+function status(text){$("status").textContent=text||""}
+function markDirty(){dirty=true;status("Unsaved changes")}
+function groupSnippets(snippets){
+  const groups=new Map();
+  for(const snippet of snippets){const folder=snippet.folder||"UNFILED";if(!groups.has(folder))groups.set(folder,[]);groups.get(folder).push(snippet)}
+  return groups;
+}
+async function load(){
+  const r=await fetch(api("/api/library"));model=await r.json();if(!model.ok)throw new Error(model.error);
+  $("title").textContent=model.edition==="pro"?"Text Expander Pro":"Text Expander Lite";
+  $("folderWrap").style.display=model.edition==="pro"?"block":"none";
+  $("varsWrap").style.display=model.edition==="pro"?"block":"none";
+  $("braceHelp").style.display=model.edition==="pro"?"block":"none";
+  const tokens=model.edition==="pro"
+    ?["{date}","{time}","{datetime}","{clipboard}","{username}","{computer}","{app}","{counter:name}","{cursor}","{date:YYYY-MM-DD}"]
+    :["{date}","{time}","{clipboard}"];
+  $("help").innerHTML=tokens.map(x=>"<span class=pill>"+x.replaceAll("<","&lt;")+"</span>").join("");
+  $("vars").value=Object.entries(model.library.variables||{}).map(([k,v])=>k+"="+v).join("\n");
+  selected=model.library.snippets[0]?.id||null;dirty=false;render();status("");
+}
+function render(){
+  const list=$("list");list.innerHTML="";
+  if(!model.library.snippets.length){list.innerHTML='<div class="empty">No snippets yet. Create one to get started.</div>'}
+  for(const [folder,items] of groupSnippets(model.library.snippets)){
+    if(model.edition==="pro"){const g=document.createElement("div");g.className="group";g.textContent=folder;list.appendChild(g)}
+    for(const s of items){
+      const d=document.createElement("div");d.className="item"+(s.id===selected?" active":"");
+      const b=document.createElement("b");b.textContent=s.name;d.appendChild(b);
+      const sm=document.createElement("small");sm.textContent=model.edition==="pro"?(s.folder||"UNFILED"):"STARTER";d.appendChild(sm);
+      d.onclick=()=>{selected=s.id;render()};list.appendChild(d);
+    }
+  }
+  const s=model.library.snippets.find(x=>x.id===selected);
+  $("name").value=s?.name||"";$("folder").value=s?.folder||"";$("content").value=s?.content||"";
+  $("delete").disabled=!s;
+  $("meta").textContent=model.library.snippets.length+" / "+model.limit+" snippets · stored locally on this PC";
+}
+$("new").onclick=()=>{
+  if(model.library.snippets.length>=model.limit)return status("Snippet limit reached.");
+  const id="snippet-"+(globalThis.crypto?.randomUUID?.()||Date.now().toString(36));
+  model.library.snippets.push({id,name:"New snippet",folder:model.edition==="pro"?"UNFILED":"STARTER",content:""});
+  selected=id;render();markDirty();$("name").focus();
+};
+$("delete").onclick=()=>{
+  if(!selected)return;
+  model.library.snippets=model.library.snippets.filter(x=>x.id!==selected);
+  selected=model.library.snippets[0]?.id||null;render();markDirty();
+};
+function syncEditor(){
+  const s=model.library.snippets.find(x=>x.id===selected);if(!s)return;
+  s.name=$("name").value.trim()||"Untitled";s.folder=$("folder").value.trim();s.content=$("content").value;markDirty();
+}
 ["name","folder","content"].forEach(id=>$(id).addEventListener("input",syncEditor));
-function status(t){$("status").textContent=t}
-$("save").onclick=async()=>{syncEditor();if(model.edition==="pro"){const vars={};for(const line of $("vars").value.split(/\r?\n/)){if(!line.trim())continue;const i=line.indexOf("=");if(i<1)return status("Reusable variables must use name=value.");vars[line.slice(0,i).trim()]=line.slice(i+1)}model.library.variables=vars}status("Saving…");const r=await fetch(api("/api/library"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({library:model.library})});const data=await r.json();if(!data.ok)return status(data.error||"Could not save.");model.library=data.library;status("Saved locally.");render()};
+$("vars").addEventListener("input",markDirty);
+$("save").onclick=async()=>{
+  syncEditor();
+  if(model.edition==="pro"){
+    const vars={};
+    for(const line of $("vars").value.split(/\r?\n/)){
+      if(!line.trim())continue;const i=line.indexOf("=");if(i<1)return status("Reusable variables must use name=value.");
+      vars[line.slice(0,i).trim()]=line.slice(i+1);
+    }
+    model.library.variables=vars;
+  }
+  status("Saving…");
+  try{
+    const r=await fetch(api("/api/library"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({library:model.library})});
+    const data=await r.json();if(!data.ok)return status(data.error||"Could not save.");
+    model.library=data.library;dirty=false;render();status("Saved locally. Stream Deck keys refreshed.");
+  }catch(error){status(error.message||"Could not save.")}
+};
+window.addEventListener("beforeunload",event=>{if(!dirty)return;event.preventDefault();event.returnValue=""});
 load().catch(e=>status(e.message));
-</script></body></html>
+</script>
+</body>
+</html>
