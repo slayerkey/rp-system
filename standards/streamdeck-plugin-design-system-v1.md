@@ -468,8 +468,14 @@ The proven PackRat pattern is:
 - use `context: uiUuid` for `getSettings`, `setSettings`, `getGlobalSettings`, `setGlobalSettings`, and `sendToPlugin`
 - if the plugin needs the selected key instance, pass `actionInfo.context` separately inside the payload as `actionContext`
 - autosave settings with a short debounce
-- show visible feedback such as `Saving…` then `Saved`
-- button commands show immediate local feedback such as `Probing…` or `Starting…`
+- keep unsatisfied local edits in a pending patch until an authoritative response echoes the same values
+- reconcile every incoming settings-bearing response (including plugin state payloads) with that pending patch **before render** so stale responses cannot roll the UI backward
+- flush pending settings before commands that depend on them, and flush on `pagehide` / `beforeunload`
+- keep command text fields (rename/name/path/etc.) as local drafts while dirty; background renders must not replace the user's draft before the command reads it
+- identify dynamic selectable items by stable immutable IDs; names/counts are presentation only and duplicate labels must be disambiguated for the user
+- show visible feedback such as `Saving…` then `Saved`; authoritative plugin state containing the persisted setting is a valid acknowledgement path
+- button commands show immediate local feedback such as `Probing…` or `Starting…`, then completion/error feedback from a fresh backend state
+- add a bounded command watchdog so pending UI labels cannot remain stuck forever
 
 ### Plugin side
 
@@ -483,17 +489,28 @@ Prefer the global UI channel:
 Required persistence test:
 
 1. change a setting
-2. wait for saved confirmation
-3. select a different key
-4. return to the original key
-5. confirm the value persisted and the rendered key reflects it
+2. allow at least one plugin/state refresh to occur while that save may still be pending
+3. confirm the local value does not jump backward
+4. wait for saved confirmation
+5. select a different key
+6. return to the original key
+7. confirm the value persisted and the rendered key reflects it
+
+Required text-command race test for mutable name/path fields:
+
+1. type a new draft value
+2. trigger a render/focus transition without committing the command yet
+3. press Rename/Create/Apply (or equivalent)
+4. confirm the exact typed draft reaches the backend and remains visible after the authoritative refresh
 
 Required command test:
 
 1. press every PI command button
-2. confirm immediate UI feedback
-3. confirm the backend action occurred
-4. confirm a fresh state response returns
+2. confirm any pending setting edit is flushed before the command if the command depends on it
+3. confirm immediate UI feedback
+4. confirm the backend action occurred
+5. confirm a fresh state response returns and clears the pending UI state
+6. confirm no command label can remain stuck indefinitely
 
 ## 7. Bundled default profiles
 
