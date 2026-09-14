@@ -100,6 +100,22 @@ button:disabled,.file-button:has(input:disabled){opacity:.5;cursor:default}
 .privacy strong,.upsell strong{font-size:12px}
 .upsell{border-color:var(--packrat-accent)}
 #stateConnection{margin:0;align-self:center}
+.diagnostic-block{margin-top:12px;padding-top:11px;border-top:1px solid var(--packrat-border)}
+.diagnostic-block h3{margin-bottom:6px}
+.diagnostic-report{
+  max-height:260px;
+  overflow:auto;
+  margin:8px 0 0;
+  padding:9px;
+  border:1px solid var(--packrat-border);
+  border-radius:6px;
+  background:var(--packrat-input);
+  color:var(--packrat-muted);
+  font:10px/1.45 Consolas,"SFMono-Regular",monospace;
+  white-space:pre-wrap;
+  word-break:break-word;
+  user-select:text;
+}
 .pro-only,.lite-only{display:none}
 body[data-edition=pro] .pro-only{display:block}
 body[data-edition=lite] .lite-only{display:block}
