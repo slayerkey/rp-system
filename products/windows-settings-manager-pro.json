@@ -2,11 +2,11 @@
   "id": "windows-settings-manager-pro",
   "name": "Windows Settings Manager Pro",
   "type": "plugin",
-  "status": "release-candidate",
+  "status": "testing",
   "workflow_state": "BLOCKED",
   "blocker_kind": "physical_validation",
-  "blocker": "Automated build/test/native Windows smoke/Elgato validation/package, repository metadata/routing audits, deterministic media generation, and human Marketplace media review pass for implementation/artifact commit 8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939; subsequent commits are evidence/catalog metadata only. Remaining blockers are physical HDR/multi-monitor/laptop/sleep-resume/reboot/partial-mode-failure/external-state and physical Stream Deck profile QA.",
-  "final_boundary": "Complete products/windows-settings-manager/QA.md on real Windows hardware and physical Stream Deck devices, then move Pro to READY_TO_SHIP and publish Pro before Lite.",
+  "blocker": "Windows Control Center pivot is implemented but fresh exact-head automation and real Windows/Stream Deck QA are still required. Wi-Fi/Bluetooth radio permissions, theme behavior, virtual desktop registry/readback, sleep/hibernate, protected restart/shutdown, external-state refresh, profile import, and physical key readability must be verified before release.",
+  "final_boundary": "Pass fresh exact-head build/tests/Windows backend smoke/Elgato validation/package and the documented Windows Control Center physical QA matrix, then move Pro to READY_TO_SHIP and publish Pro before Lite.",
   "price_usd": 7.99,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -24,8 +24,7 @@
   "release": "products/windows-settings-manager/RELEASE.md",
   "bundled_profiles": {
     "layouts": [
-      "PC Modes",
-      "Settings"
+      "Windows Control Center"
     ],
     "device_types": [
       "Stream Deck",
@@ -42,20 +41,28 @@
   },
   "release_gate": [
     "strict TypeScript compile",
-    "Windows backend smoke",
+    "Windows backend smoke including radios/theme/desktop snapshot shape",
     "unit and policy tests",
     "official Elgato CLI validation",
     "official Stream Deck packaging",
-    "mode COMPLETE / PARTIAL / FAILED physical validation",
-    "real Windows 10/11 host validation",
-    "HDR supported/unsupported and multi-monitor physical validation",
-    "laptop and AC/battery timeout validation",
-    "sleep/resume/reboot and Stream Deck restart validation",
-    "external Windows state change and Current Mode refresh validation",
+    "15-key standard Control Center physical validation",
+    "Wi-Fi and Bluetooth live-state/control physical validation",
+    "Sleep and Hibernate supported/unsupported physical validation",
+    "protected Restart and Shutdown confirmation validation",
+    "Power Plan and Keep Awake external-state validation",
+    "Light / Dark theme physical validation",
+    "Previous / Next / New / Close / Current virtual desktop physical validation",
+    "Stream Deck restart and Windows reboot validation",
     "deterministic Rat Art review",
-    "bundled profile archive/action/navigation integrity across seven device families"
+    "bundled profile integrity across seven device families"
   ],
-  "automated_release_evidence": {
+  "current_direction": {
+    "thesis": "The Windows controls people actually reach for, on Stream Deck.",
+    "primary_surface": "15-key Windows Control Center",
+    "pc_modes": "optional advanced feature, not primary positioning",
+    "state_policy": "read live Windows state where available, verify state-changing controls, fail closed on uncertainty"
+  },
+  "previous_automated_release_evidence": {
     "candidate_commit": "8cf4b0ac38d7383fbc1ecb98a60878a0f20d1939",
     "windows_ci_run": 34785418162,
     "windows_ci_job": 103799897210,
@@ -99,5 +106,9 @@
     "pro_cover_safe_bounds_regression": "pass_and_visually_confirmed",
     "official_lite_package_sha256": "893d49e913b3801ca529e6d8b88be9ed3ea32c0284564176d1883643c6d1677a",
     "official_pro_package_sha256": "148063a3bbe8cd41a3a97351695fb879078649d838c1c3093bccd67b27a3372f"
+  },
+  "automated_release_evidence": {
+    "state": "PENDING_FRESH_EXACT_HEAD",
+    "note": "Previous PC Modes-oriented release evidence is retained separately as baseline only. The Windows Control Center pivot requires fresh exact-head automation before any release claim."
   }
 }
