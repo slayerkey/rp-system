@@ -95,16 +95,14 @@ const GLYPHS: Record<KeyVisualKind, string> = {
     <path d="M102 58h16M118 58l-10-10M118 58l-10 10"/>
   `,
   "desktop-new": `
-    <rect x="42" y="34" width="49" height="34" rx="4"/>
-    <rect x="50" y="42" width="49" height="34" rx="4"/>
-    <circle cx="101" cy="75" r="12"/>
-    <path d="M101 69v12M95 75h12"/>
+    <rect x="39" y="35" width="42" height="31" rx="4"/>
+    <rect x="47" y="43" width="42" height="31" rx="4"/>
+    <path d="M110 47v22M99 58h22"/>
   `,
   "desktop-close": `
-    <rect x="42" y="34" width="49" height="34" rx="4"/>
-    <rect x="50" y="42" width="49" height="34" rx="4"/>
-    <circle cx="101" cy="75" r="12"/>
-    <path d="m96 70 10 10M106 70 96 80"/>
+    <rect x="39" y="35" width="42" height="31" rx="4"/>
+    <rect x="47" y="43" width="42" height="31" rx="4"/>
+    <path d="m101 49 18 18M119 49l-18 18"/>
   `,
   "desktop-current": `
     <rect x="43" y="38" width="44" height="33" rx="4"/>
