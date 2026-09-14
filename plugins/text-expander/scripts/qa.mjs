@@ -129,6 +129,7 @@ for(const [uuid,name] of expected){
           if(!value.Settings?.snippetId)fail(`${name} bundled action has no snippetId setting.`);
           if(value.UUID!==uuid+".insert")fail(`${name} bundled profile references the wrong action UUID.`);
           if(value.States?.[0]?.Image!=="state0.png")fail(`${name} bundled starter key must use its custom state0.png icon.`);
+          if(value.States?.[0]?.ShowTitle!==false)fail(`${name} bundled starter key must disable Stream Deck title overlays and render its label into the image.`);
           const customImage=entries.get(`${profileRoot}/Profiles/${encoded}/${coordinate}/CustomImages/state0.png`);
           if(!customImage)fail(`${name} bundled starter key ${coordinate} is missing CustomImages/state0.png.`);
           const [iconW,iconH]=pngSizeBytes(customImage,`${name} profile icon ${coordinate}`);
