@@ -56,6 +56,8 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(js,/type:"macroRecorder\.diagnostic"/);
   assert.match(js,/function runDiagnostic/);
   assert.match(js,/function diagnosticText/);
+  assert.match(js,/no plugin diagnostic response within 2\.5 seconds/);
+  assert.match(js,/,2500\)/);
   assert.match(html,/Copy report/);
   assert.match(js,/function requestState/);
   assert.match(js,/stateRetries<5/);
