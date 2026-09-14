@@ -14,10 +14,10 @@
   "notes": "Paid Pro edition. Multiple devices, favorites, groups, low-battery alerts, dashboard, Cycle Device and capability-gated control. Groups do not auto-connect devices.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager-pro.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-pro.json",
-  "blocker": "Physical Bluetooth hardware QA is still required, especially real headset A2DP/HFP connect/disconnect and device lifecycle behavior.",
+  "blocker": "Physical Stream Deck / wireless-device QA is still required. The hosted Windows runner proves compile, tests, Node plugin build, bridge smoke, structural key visuals, validation and packaging but cannot prove the user's Maya X appears in the real Property Inspector or real A2DP/HFP control behavior.",
   "release_gate": [
     "locked dependency install and npm audit with 0 vulnerabilities",
-    "51 deterministic model/package/profile/catalog/source regressions",
+    "62 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
     "five Pro profiles: Standard, Mini, XL, Plus and Neo",
     "linked HEADPHONES status/control slot on every bundled Pro profile",
     "x64 and ARM64 self-contained native Windows Bluetooth bridge publish",
@@ -29,17 +29,17 @@
     "real Windows Bluetooth hardware matrix before release"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "95ce3902bd6a49f4b5d2b196fd5fd7d26334a30a",
-    "github_actions_run": 34785291188,
-    "windows_job": 103799541037,
+    "candidate_commit": "a3e08aed08e968f755b95e3e36365dde4a6d2d30",
+    "github_actions_run": 34884032706,
+    "windows_job": 104110084732,
     "status": "PASSED",
-    "artifact_id": 10326163681,
-    "artifact_digest": "sha256:202939d672004dd10934634e9c7cb07c014524d5314c84c01f059d2bd308ecfd",
-    "package_sha256": "ED3231F67576FA1FC6AEE47795FFEC94D195D9B936CB211FE6CEDB4DEA818815",
-    "package_size_bytes": 70951706,
-    "lite_pro_audit_run": 34785293330,
-    "rat_ship_routing_run": 34785293337,
-    "lightweight_ci_run": 34785293383
+    "test_cases": 62,
+    "test_failures": 0,
+    "structural_key_visual_audit": "PASSED_0_WARNINGS",
+    "artifact_id": 10364232442,
+    "artifact_digest": "sha256:de8455327bfb4bd7be37469bbda3a898fd3b1fc58a22393470a44225babfb63f",
+    "package_sha256": "4637C1B8B074BC7660EF053565A4E81DF8E9E1359CC1BACDDF163C69336C2C28",
+    "package_size_bytes": 70971587
   },
   "catalog_audit": {
     "profiles": {
@@ -68,5 +68,5 @@
       "note": "Publish Pro first so Lite can rebuild against the exact verified direct Pro Marketplace URL. Do not invent or guess the destination."
     }
   },
-  "final_boundary": "Pass the QA.md real-device matrix and record exact hardware/capabilities. If audio service control is reliable, move Pro to READY_TO_SHIP and publish it first. If not, narrow or remove the control claim before Marketplace submission."
+  "final_boundary": "Run rat dev wireless-device-manager-pro on the real Stream Deck host. Confirm plugin startup, PI response, Maya X visibility, runtime key rendering, and the QA.md physical capability matrix. If the PI still fails, run the product host probe and use its launch/link/transport/bridge evidence before changing architecture. Do not move to READY_TO_SHIP until the physical matrix passes."
 }
