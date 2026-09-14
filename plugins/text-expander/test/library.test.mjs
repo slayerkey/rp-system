@@ -8,6 +8,16 @@ import { PRO_SEEDS } from "../src/core.mjs";
 
 async function temp(){return fs.mkdtemp(path.join(os.tmpdir(),"packrat-text-expander-"))}
 
+test("Lite and Pro use isolated default local storage roots",()=>{
+  const lite=new TextExpanderLibrary({edition:"lite"});
+  const pro=new TextExpanderLibrary({edition:"pro"});
+  assert.notEqual(lite.rootDir,pro.rootDir);
+  assert.notEqual(lite.libraryPath,pro.libraryPath);
+  assert.notEqual(lite.statePath,pro.statePath);
+  assert.match(lite.rootDir,/TextExpanderLite$/);
+  assert.match(pro.rootDir,/TextExpanderPro$/);
+});
+
 test("Lite seeds only Email and Clipboard by default and enforces a 10 snippet cap",async()=>{
   const root=await temp(),lib=new TextExpanderLibrary({edition:"lite",rootDir:root});
   const seeded=await lib.load();
