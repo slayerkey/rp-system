@@ -50,9 +50,20 @@ const variants=[
  {suffix:"plus",deviceType:7,pages:compactPages(basePages,4),name:"Macro Recorder Pro Starter +"},
  {suffix:"neo",deviceType:9,pages:compactPages(basePages,4),name:"Macro Recorder Pro Starter Neo"}
 ];
+const seenActionIds=new Set();
+function validateMaterializedProfile(pages,file){
+ const actions=pages.flatMap(page=>Object.values(page.actions));
+ if(actions.length!==3)throw new Error(`${file} must contain exactly Record / Play / Stop; found ${actions.length} actions.`);
+ for(const action of actions){
+   if(!action.ActionID)throw new Error(`${file} has an action without ActionID.`);
+   if(seenActionIds.has(action.ActionID))throw new Error(`Duplicate starter profile ActionID: ${action.ActionID}`);
+   seenActionIds.add(action.ActionID);
+ }
+}
 for(const variant of variants){
  const file=`macro-recorder-pro-starter-${variant.suffix}`;
  const pages=materializeProfilePages(variant.pages,file);
+ validateMaterializedProfile(pages,file);
  await writeFile(resolve(profileDir,`${file}.streamDeckProfile`),buildProfile(pages,file,variant.name));
  await writeFile(resolve(profileMapDir,`${file}.profile-map.json`),JSON.stringify({
    deviceType:variant.deviceType,
