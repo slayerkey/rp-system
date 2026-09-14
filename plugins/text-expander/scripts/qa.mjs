@@ -182,6 +182,18 @@ if(!inspector.includes('type:"saveSnippet"')||!inspector.includes('type:"deleteS
 if(!inspector.includes('Type text')||!inspector.includes('Paste with clipboard'))fail("Insert method copy must use plain-language labels.");
 if(inspector.includes('Unicode typing')||inspector.includes('Clipboard paste + restore'))fail("Old technical insertion labels must not return.");
 if(!inspector.includes('$("insertSettings").style.display="none"'))fail("Legacy hidden library action must show the editor instead of insertion controls.");
+for(const token of ["--packrat-bg:#080A0E","--packrat-accent:#FFB21E","--packrat-button:#181C21","--packrat-danger:#FF5D6C"]){
+  if(!inspector.includes(token))fail(`Property Inspector is missing canonical PackRat token ${token}.`);
+}
+if(!inspector.includes("linear-gradient(145deg,var(--packrat-card-start),var(--packrat-card-end))"))fail("Property Inspector must use the canonical PackRat card gradient.");
+if(!inspector.includes("rgba(255,178,30,.12) 0%")||!inspector.includes("top:-130px")||!inspector.includes("right:-110px"))fail("Property Inspector must include the canonical top-right PackRat ambient glow.");
+if(!inspector.includes('src="packrat-icon.png"'))fail("Property Inspector must use the packaged PackRat logo asset.");
+if(!inspector.includes("https://marketplace.elgato.com/maker/packrat"))fail("Property Inspector must link to the PackRat maker page.");
+if(!inspector.includes('$("brandLink").addEventListener("click"'))fail("PackRat maker branding must use Stream Deck openUrl behavior.");
+const buildSource=await fs.readFile(path.join(root,"scripts","build.mjs"),"utf8");
+if(!buildSource.includes('tools","art","assets","ratpack-icon-transparent.png'))fail("Build must package the shared PackRat logo locally.");
+if(!buildSource.includes("const bg=[5,7,10,255],panel=[13,16,21,255]")||!buildSource.includes("accent=[255,178,30,255]"))fail("Key renderer must use the canonical PackRat dark surface and cheddar accent.");
+if(!buildSource.includes("roundRect(0,0,width,height,s*.16,bg)"))fail("Key renderer must own a rounded dark key face.");
 const sourcePlugin=await fs.readFile(path.join(root,"src","plugin.mjs"),"utf8");
 if(!sourcePlugin.includes('afterInsert: EDITION === "pro" ? (settings.afterInsert || "none") : "none"'))fail("Lite runtime must ignore Tab/Enter settings.");
 if(!sourcePlugin.includes('saveSnippetFromInspector')||!sourcePlugin.includes('deleteSnippetFromInspector'))fail("Plugin must implement inline snippet CRUD.");
