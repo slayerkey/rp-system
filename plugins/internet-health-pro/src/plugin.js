@@ -18,6 +18,7 @@ const monitor = new NetworkMonitor();
 const visible = new Map();
 let latest = monitor.snapshot();
 let renderTimer = null;
+let activeInspectorId = "";
 
 function logger(message) {
   try { streamDeck.logger.error(String(message)); } catch {}
@@ -40,7 +41,7 @@ async function sendInspector(record) {
       : latest.metrics30;
   const target = record.kind === "target" ? monitor.targetSnapshot(record.id) : null;
   try {
-    await record.action.sendToPropertyInspector({
+    await streamDeck.ui.sendToPropertyInspector({
       type: "internetHealth.state",
       buildVersion: BUILD_VERSION,
       kind: record.kind,
@@ -65,7 +66,7 @@ async function sendInspector(record) {
       } : null,
       monitoringIntervalSeconds: latest.monitoringIntervalSeconds
     });
-  } catch {}
+  } catch (error) { logger(error?.message || error); }
 }
 
 async function renderRecord(record) {
@@ -79,8 +80,9 @@ async function renderRecord(record) {
 
 async function renderAll() {
   await Promise.allSettled([...visible.values()].map(renderRecord));
-  for (const record of visible.values()) {
-    if (record.inspectorOpen) void sendInspector(record);
+  if (activeInspectorId) {
+    const record = visible.get(activeInspectorId);
+    if (record) void sendInspector(record);
   }
 }
 
@@ -104,8 +106,7 @@ class InternetHealthAction extends SingletonAction {
       kind: this.kind,
       action: ev.action,
       settings: normalizeActionSettings(ev.payload?.settings),
-      lastImage: "",
-      inspectorOpen: false
+      lastImage: ""
     };
     visible.set(id, record);
     registerTarget(record);
@@ -129,39 +130,6 @@ class InternetHealthAction extends SingletonAction {
     await sendInspector(record);
   }
 
-  async onPropertyInspectorDidAppear(ev) {
-    const record = visible.get(String(ev.action?.id || ""));
-    if (!record) return;
-    record.inspectorOpen = true;
-    await sendInspector(record);
-  }
-
-  onPropertyInspectorDidDisappear(ev) {
-    const record = visible.get(String(ev.action?.id || ""));
-    if (record) record.inspectorOpen = false;
-  }
-
-  async onSendToPlugin(ev) {
-    const record = visible.get(String(ev.action?.id || ""));
-    if (!record) return;
-    const payload = ev.payload || {};
-    if (payload.type === "internetHealth.inspect") {
-      await sendInspector(record);
-      return;
-    }
-    if (payload.type !== "internetHealth.command") return;
-
-    const command = String(payload.command || "");
-    if (command === "refresh") {
-      await monitor.refresh();
-    } else if (command === "speedTest") {
-      const result = await monitor.runSpeedTest();
-      if (result?.ok) await record.action.showOk().catch(() => {});
-      else await record.action.showAlert().catch(() => {});
-    }
-    await sendInspector(record);
-  }
-
   async onKeyDown(ev) {
     const record = visible.get(String(ev.action?.id || ""));
     if (!record) return;
@@ -178,6 +146,48 @@ class InternetHealthAction extends SingletonAction {
 for (const [kind, manifestId] of Object.entries(ACTIONS)) {
   streamDeck.actions.registerAction(new InternetHealthAction(manifestId, kind));
 }
+
+function recordForInspectorEvent(ev) {
+  const payload = ev?.payload || {};
+  const explicitId = String(payload.actionContext || "");
+  const eventId = String(ev?.action?.id || "");
+  return visible.get(explicitId) || visible.get(eventId) || null;
+}
+
+async function handleInspectorMessage(ev) {
+  const record = recordForInspectorEvent(ev);
+  if (!record) return;
+  activeInspectorId = record.id;
+  const payload = ev?.payload || {};
+  if (payload.type === "internetHealth.inspect") {
+    await sendInspector(record);
+    return;
+  }
+  if (payload.type !== "internetHealth.command") return;
+
+  const command = String(payload.command || "");
+  if (command === "refresh") {
+    await monitor.refresh();
+  } else if (command === "speedTest") {
+    const result = await monitor.runSpeedTest();
+    if (result?.ok) await record.action.showOk().catch(() => {});
+    else await record.action.showAlert().catch(() => {});
+  }
+  await sendInspector(record);
+}
+
+streamDeck.ui.onDidAppear((ev) => {
+  const record = recordForInspectorEvent(ev);
+  if (!record) return;
+  activeInspectorId = record.id;
+  void sendInspector(record);
+});
+streamDeck.ui.onDidDisappear(() => {
+  activeInspectorId = "";
+});
+streamDeck.ui.onSendToPlugin((ev) => {
+  void handleInspectorMessage(ev);
+});
 
 monitor.on("update", (snapshot) => {
   latest = snapshot;

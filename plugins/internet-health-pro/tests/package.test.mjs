@@ -25,11 +25,11 @@ test("plugin process instantiates one shared NetworkMonitor", () => {
 });
 
 test("speed test stays manual, warmed and transfer-capped in source and marketplace copy", () => {
-  assert.match(probesSource, /64_000_000/);
-  assert.match(probesSource, /4_000_000/);
-  assert.match(probesSource, /warmed-adaptive/);
+  assert.match(probesSource, /256_000_000/);
+  assert.match(probesSource, /16_000_000/);
+  assert.match(probesSource, /warmed-adaptive-multistream/);
   assert.match(submission.description, /manual only/i);
-  assert.match(submission.description, /80 MB/i);
+  assert.match(submission.description, /300 MB/i);
 });
 
 test("marketplace positioning is Internet Health, not a generic speed-test launcher", () => {
@@ -63,22 +63,29 @@ test("manifest asset references use extensionless Elgato paths", () => {
 });
 
 
-test("hardware-key typography uses the larger physical-device hierarchy", () => {
-  assert.match(renderSource, /font-size="12\.5"/);
-  assert.match(renderSource, /fitFont\(primary, 30, 25, 19\)/);
-  assert.match(renderSource, /font-size="13\.5"/);
-  assert.match(renderSource, /UP TO ~80 MB/);
+test("hardware-key typography prioritizes physical readability", () => {
+  assert.match(renderSource, /font-size="16\.5"/);
+  assert.match(renderSource, /fitFont\(primary, 38, 32, 25\)/);
+  assert.match(renderSource, /fitFont\(secondary, 16, 14\.5, 13\)/);
+  assert.match(renderSource, /label: "INTERNET"/);
+  assert.match(renderSource, /label: "SPEED"/);
 });
 
-test("property inspector re-requests live state instead of staying on startup text", () => {
+test("property inspector uses Monitor Manager's proven PI transport pattern", () => {
+  assert.match(inspectorSource, /context: uiUuid/);
+  assert.match(inspectorSource, /actionContext = String\(actionInfo\.context \|\| ""\)/);
+  assert.doesNotMatch(inspectorSource, /context: actionContext/);
   assert.match(inspectorSource, /setInterval\(requestState, 1500\)/);
-  assert.match(inspectorSource, /setTimeout\(requestState, 250\)/);
+  assert.match(inspectorSource, /setSaveStatus\("Saved"\)/);
+  assert.match(pluginSource, /streamDeck\.ui\.onSendToPlugin/);
+  assert.match(pluginSource, /streamDeck\.ui\.sendToPropertyInspector/);
+  assert.doesNotMatch(pluginSource, /record\.action\.sendToPropertyInspector/);
 });
 
 
 test("physical key graphs use a dedicated 30 second visual window", () => {
   assert.match(renderSource, /const KEY_GRAPH_SECONDS = 30/);
   assert.match(renderSource, /const windowMs = seconds \* 1000/);
-  assert.match(renderSource, /graphPath\(samples, KEY_GRAPH_SECONDS, 116, 32, 14, 94\)/);
+  assert.match(renderSource, /graphPath\(samples, KEY_GRAPH_SECONDS, 116, hasFooter \? 29 : 40, 14, 94\)/);
   assert.doesNotMatch(renderSource, /graphPath\(samples, minutes/);
 });

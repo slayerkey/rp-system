@@ -18,8 +18,8 @@
 
   let socket = null;
   let uiUuid = "";
-  let context = "";
   let actionUuid = "";
+  let actionContext = "";
   let kind = "health";
   let settings = { ...DEFAULT_ACTION };
   let globals = { ...DEFAULT_GLOBAL };
@@ -59,12 +59,17 @@
       accent: $("accent").value.toUpperCase()
     };
   }
+  function setSaveStatus(text) {
+    const node = $("saveStatus");
+    if (node) node.textContent = text;
+  }
   function save() {
     settings = collectAction();
     globals = { ...globals, intervalSeconds: number("intervalSeconds", 10) };
     $("accentValue").textContent = settings.accent;
-    send({ event: "setSettings", action: actionUuid, context, payload: settings });
-    send({ event: "setGlobalSettings", context: uiUuid, payload: globals });
+    const actionSent = send({ event: "setSettings", action: actionUuid, context: uiUuid, payload: settings });
+    const globalSent = send({ event: "setGlobalSettings", context: uiUuid, payload: globals });
+    setSaveStatus(actionSent && globalSent ? "Saving…" : "Stream Deck connection unavailable.");
   }
   function queueSave() {
     clearTimeout(saveTimer);
@@ -118,19 +123,21 @@
       : "Primary latency: " + methodName(metrics.method) + ". HTTPS timing is labeled separately.";
     $("speedTest").disabled = Boolean(snapshot?.speedRunning);
     $("speedTest").textContent = snapshot?.speedRunning ? "Testing…" : "Run speed test";
+    $("refresh").disabled = false;
+    $("refresh").textContent = "Probe now";
   }
   function requestState() {
-    return send({ event: "sendToPlugin", action: actionUuid, context, payload: { type: "internetHealth.inspect" } });
+    return send({ event: "sendToPlugin", action: actionUuid, context: uiUuid, payload: { type: "internetHealth.inspect", actionContext } });
   }
   function command(command) {
-    return send({ event: "sendToPlugin", action: actionUuid, context, payload: { type: "internetHealth.command", command } });
+    return send({ event: "sendToPlugin", action: actionUuid, context: uiUuid, payload: { type: "internetHealth.command", command, actionContext } });
   }
 
   window.connectElgatoStreamDeckSocket = (port, uuid, registerEvent, info, rawActionInfo) => {
     uiUuid = uuid;
     const actionInfo = JSON.parse(rawActionInfo || "{}");
-    context = String(actionInfo.context || uuid);
     actionUuid = String(actionInfo.action || "");
+    actionContext = String(actionInfo.context || "");
     kind = ID_TO_KIND[actionUuid] || "health";
     applyAction(actionInfo.payload?.settings || {});
     filterFields();
@@ -138,7 +145,7 @@
     socket = new WebSocket("ws://127.0.0.1:" + port);
     socket.onopen = () => {
       send({ event: registerEvent, uuid: uiUuid });
-      send({ event: "getSettings", action: actionUuid, context });
+      send({ event: "getSettings", action: actionUuid, context: uiUuid });
       send({ event: "getGlobalSettings", context: uiUuid });
       requestState();
       setTimeout(requestState, 250);
@@ -152,7 +159,10 @@
     socket.onmessage = (event) => {
       let message = null;
       try { message = JSON.parse(event.data); } catch { return; }
-      if (message.event === "didReceiveSettings") applyAction(message.payload?.settings || {});
+      if (message.event === "didReceiveSettings") {
+        applyAction(message.payload?.settings || {});
+        setSaveStatus("Saved");
+      }
       if (message.event === "didReceiveGlobalSettings") applyGlobal(message.payload?.settings || message.payload || {});
       if (message.event === "sendToPropertyInspector" && message.payload?.type === "internetHealth.state") {
         snapshot = message.payload;
@@ -164,6 +174,22 @@
   for (const id of ["historyWindow","latencyWarn","latencyBad","jitterWarn","jitterBad","lossWarn","lossBad","metric","outageMode","target","targetMethod","targetPort","family","expectedDownloadMbps","expectedUploadMbps","lowSpeedPercent","accent","intervalSeconds"]) {
     $(id).addEventListener(id === "target" || id === "accent" ? "input" : "change", queueSave);
   }
-  $("refresh").addEventListener("click", () => command("refresh"));
-  $("speedTest").addEventListener("click", () => command("speedTest"));
+  $("refresh").addEventListener("click", () => {
+    $("refresh").disabled = true;
+    $("refresh").textContent = "Probing…";
+    $("methodDetail").textContent = "Running a fresh connectivity probe…";
+    if (!command("refresh")) {
+      $("refresh").disabled = false;
+      $("refresh").textContent = "Probe now";
+      $("methodDetail").textContent = "Stream Deck connection unavailable.";
+    }
+  });
+  $("speedTest").addEventListener("click", () => {
+    $("speedTest").disabled = true;
+    $("speedTest").textContent = "Starting…";
+    if (!command("speedTest")) {
+      $("speedTest").disabled = false;
+      $("speedTest").textContent = "Run speed test";
+    }
+  });
 })();

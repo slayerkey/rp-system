@@ -216,19 +216,18 @@ async function readResponseBytes(response) {
   return buffer.byteLength;
 }
 
-export function chooseMeasuredDownloadBytes(probeMbps, maxBytes = 64_000_000) {
-  const cap = Math.min(64_000_000, Math.max(8_000_000, Number(maxBytes) || 64_000_000));
+export function chooseMeasuredDownloadBytes(probeMbps, maxBytes = 256_000_000) {
+  const cap = Math.min(256_000_000, Math.max(16_000_000, Number(maxBytes) || 256_000_000));
   const speed = Number(probeMbps);
-  let target = 8_000_000;
-  if (Number.isFinite(speed) && speed >= 500) target = 64_000_000;
-  else if (Number.isFinite(speed) && speed >= 250) target = 40_000_000;
-  else if (Number.isFinite(speed) && speed >= 100) target = 24_000_000;
-  else if (Number.isFinite(speed) && speed >= 40) target = 16_000_000;
-  return Math.min(cap, target);
+  if (!Number.isFinite(speed) || speed <= 0) return 16_000_000;
+  // Aim for roughly five seconds of payload at the probe rate so fast links are
+  // not judged from a sub-second transfer. The hard cap keeps the test bounded.
+  const target = Math.round(speed * 625_000);
+  return Math.min(cap, Math.max(16_000_000, target));
 }
 
 async function measureDownload(bytes, signal, parallel = 1) {
-  const count = Math.max(1, Math.min(4, Number(parallel) || 1));
+  const count = Math.max(1, Math.min(8, Number(parallel) || 1));
   const perRequest = Math.max(1, Math.ceil(Number(bytes) / count));
   const started = performance.now();
   const transfers = Array.from({ length: count }, async (_, index) => {
@@ -248,7 +247,7 @@ async function measureDownload(bytes, signal, parallel = 1) {
 }
 
 async function measureUpload(bytes, signal, parallel = 2) {
-  const count = Math.max(1, Math.min(2, Number(parallel) || 1));
+  const count = Math.max(1, Math.min(4, Number(parallel) || 1));
   const perRequest = Math.max(1, Math.ceil(Number(bytes) / count));
   const started = performance.now();
   await Promise.all(Array.from({ length: count }, async () => {
@@ -273,24 +272,24 @@ async function measureUpload(bytes, signal, parallel = 2) {
 }
 
 export async function runCloudflareSpeedTest({
-  downloadBytes = 64_000_000,
-  uploadBytes = 4_000_000,
-  warmupBytes = 1_000_000,
-  probeBytes = 4_000_000,
-  timeoutMs = 45_000
+  downloadBytes = 256_000_000,
+  uploadBytes = 16_000_000,
+  warmupBytes = 2_000_000,
+  probeBytes = 8_000_000,
+  timeoutMs = 60_000
 } = {}) {
-  const safeDownload = Math.min(64_000_000, Math.max(8_000_000, Number(downloadBytes) || 64_000_000));
-  const safeUpload = Math.min(4_000_000, Math.max(1_000_000, Number(uploadBytes) || 4_000_000));
-  const safeWarmup = Math.min(1_000_000, Math.max(250_000, Number(warmupBytes) || 1_000_000));
-  const safeProbe = Math.min(4_000_000, Math.max(1_000_000, Number(probeBytes) || 4_000_000));
+  const safeDownload = Math.min(256_000_000, Math.max(16_000_000, Number(downloadBytes) || 256_000_000));
+  const safeUpload = Math.min(16_000_000, Math.max(2_000_000, Number(uploadBytes) || 16_000_000));
+  const safeWarmup = Math.min(2_000_000, Math.max(500_000, Number(warmupBytes) || 2_000_000));
+  const safeProbe = Math.min(8_000_000, Math.max(2_000_000, Number(probeBytes) || 8_000_000));
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const warmup = await measureDownload(safeWarmup, controller.signal, 1);
     const probe = await measureDownload(safeProbe, controller.signal, 1);
     const measuredBytes = chooseMeasuredDownloadBytes(probe.mbps, safeDownload);
-    const download = await measureDownload(measuredBytes, controller.signal, 4);
-    const upload = await measureUpload(safeUpload, controller.signal, 2);
+    const download = await measureDownload(measuredBytes, controller.signal, 6);
+    const upload = await measureUpload(safeUpload, controller.signal, 4);
     const totalDownloadBytes = warmup.bytes + probe.bytes + download.bytes;
 
     return {
@@ -303,7 +302,7 @@ export async function runCloudflareSpeedTest({
       totalBytes: totalDownloadBytes + upload.bytes,
       completedAt: Date.now(),
       provider: "Cloudflare",
-      mode: "warmed-adaptive"
+      mode: "warmed-adaptive-multistream"
     };
   } catch (error) {
     return {

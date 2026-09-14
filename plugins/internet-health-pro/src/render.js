@@ -58,19 +58,20 @@ function fitFont(value, large, medium, small) {
 
 function baseSvg({ label, primary, secondary = "", status = "CHECK", accent = "#2BE86A", samples = [], minutes = 30, footer = "" }) {
   const color = stateColor(status, accent);
-  const path = graphPath(samples, KEY_GRAPH_SECONDS, 116, 32, 14, 94);
-  const primarySize = fitFont(primary, 30, 25, 19);
-  const secondarySize = fitFont(secondary, 12.5, 11.5, 10.5);
-  const footerSize = fitFont(footer, 11, 10.5, 9.5);
+  const hasFooter = Boolean(String(footer || "").trim());
+  const path = graphPath(samples, KEY_GRAPH_SECONDS, 116, hasFooter ? 29 : 40, 14, 94);
+  const primarySize = fitFont(primary, 38, 32, 25);
+  const secondarySize = fitFont(secondary, 16, 14.5, 13);
+  const footerSize = fitFont(footer, 12.5, 11.5, 10.5);
   return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
     <rect width="144" height="144" rx="18" fill="#07090D"/>
     <rect x="0" y="0" width="5" height="144" rx="2.5" fill="${color}"/>
-    <text x="14" y="24" fill="#B9C0CB" font-family="Arial,sans-serif" font-size="12.5" font-weight="800" letter-spacing=".45">${escapeXml(label)}</text>
+    <text x="14" y="23" fill="#C9CED6" font-family="Arial,sans-serif" font-size="16.5" font-weight="800" letter-spacing=".15">${escapeXml(label)}</text>
     <text x="14" y="61" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="${primarySize}" font-weight="800">${escapeXml(primary)}</text>
-    <text x="14" y="82" fill="${color}" font-family="Arial,sans-serif" font-size="${secondarySize}" font-weight="800">${escapeXml(secondary)}</text>
+    <text x="14" y="84" fill="${color}" font-family="Arial,sans-serif" font-size="${secondarySize}" font-weight="800">${escapeXml(secondary)}</text>
     <line x1="14" y1="91" x2="130" y2="91" stroke="#252A32" stroke-width="1"/>
-    ${path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
-    <text x="14" y="137" fill="#929AA7" font-family="Arial,sans-serif" font-size="${footerSize}" font-weight="700">${escapeXml(footer)}</text>
+    ${path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
+    ${hasFooter ? `<text x="14" y="139" fill="#AAB1BC" font-family="Arial,sans-serif" font-size="${footerSize}" font-weight="700">${escapeXml(footer)}</text>` : ""}
   </svg>`);
 }
 
@@ -98,14 +99,14 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
   if (kind === "health") {
     const latency = Number.isFinite(metrics.current) ? Math.round(metrics.current) + " ms" : health.state === "OFFLINE" ? "NO CONNECTION" : "-- ms";
     return baseSvg({
-      label: "INTERNET HEALTH",
+      label: "INTERNET",
       primary: health.state,
       secondary: latency,
       status: health.state,
       accent: settings.accent,
       samples: snapshot.samples,
       minutes,
-      footer: health.reason
+      footer: ""
     });
   }
 
@@ -120,7 +121,7 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
       accent: settings.accent,
       samples: snapshot.samples,
       minutes,
-      footer
+      footer: ""
     });
   }
 
@@ -141,28 +142,28 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
       accent: settings.accent,
       samples: snapshot.samples,
       minutes,
-      footer
+      footer: ""
     });
   }
 
   if (kind === "outage") {
     const summary = outageSummary(snapshot.outages, Date.now(), snapshot.onlineSince);
     let primary = "UP " + formatDuration(summary.uptimeMs);
-    let secondary = summary.count24h + " OUTAGES / 24H";
+    let secondary = summary.count24h + " / 24H";
     let state = "UP";
     if (summary.current) {
       primary = "DOWN " + formatDuration(summary.currentDurationMs);
-      secondary = "OUTAGE IN PROGRESS";
+      secondary = "IN PROGRESS";
       state = "DOWN";
     } else if (settings.outageMode === "last") {
       primary = summary.last ? formatDuration(summary.last.durationMs) : "NONE";
-      secondary = summary.last ? "LAST OUTAGE" : "NO RECORDED OUTAGE";
+      secondary = summary.last ? "LAST OUTAGE" : "NO OUTAGES";
     } else if (settings.outageMode === "count") {
       primary = String(summary.count24h);
       secondary = "OUTAGES / 24H";
     } else if (settings.outageMode === "current") {
       primary = "ONLINE";
-      secondary = "NO CURRENT OUTAGE";
+      secondary = "NO OUTAGE";
     }
     return baseSvg({
       label: "OUTAGE",
@@ -172,7 +173,7 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
       accent: settings.accent,
       samples: snapshot.samples,
       minutes,
-      footer: "LOCAL HISTORY"
+      footer: ""
     });
   }
 
@@ -183,7 +184,7 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
     const timing = reading?.ok && Number.isFinite(Number(reading.ms)) ? Math.round(reading.ms) + " ms" : state === "DOWN" ? "UNREACHABLE" : "WAITING";
     const host = String(target?.target || settings.target || "TARGET").replace(/^https?:\/\//i, "").split("/")[0].slice(0, 20);
     return baseSvg({
-      label: "TARGET HEALTH",
+      label: "TARGET",
       primary: state,
       secondary: timing + " • " + methodLabel(reading?.method || targetMetrics.method || target?.expectedMethod || target?.configuredMethod),
       status: state,
@@ -198,12 +199,12 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
     const speed = snapshot.latestSpeed;
     if (snapshot.speedRunning) {
       return baseSvg({
-        label: "SPEED TEST",
+        label: "SPEED",
         primary: "TESTING",
-        secondary: "MANUAL TEST RUNNING",
+        secondary: "PLEASE WAIT",
         status: "CHECK",
         accent: settings.accent,
-        footer: "UP TO ~80 MB"
+        footer: "MANUAL TEST"
       });
     }
     if (speed?.ok) {
@@ -212,9 +213,9 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
       const lowUpload = settings.expectedUploadMbps > 0 && Number(speed.uploadMbps) < settings.expectedUploadMbps * factor;
       const low = lowDownload || lowUpload;
       return baseSvg({
-        label: "SPEED TEST",
-        primary: low ? "LOW" : "↓ " + Math.round(speed.downloadMbps),
-        secondary: "↓ " + Math.round(speed.downloadMbps) + "  ↑ " + Math.round(speed.uploadMbps) + " Mbps",
+        label: "SPEED",
+        primary: low ? "LOW" : "↓" + Math.round(speed.downloadMbps),
+        secondary: "↑" + Math.round(speed.uploadMbps) + " Mbps",
         status: low ? "BAD" : "GOOD",
         accent: settings.accent,
         footer: (settings.expectedDownloadMbps > 0 || settings.expectedUploadMbps > 0)
@@ -223,12 +224,12 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
       });
     }
     return baseSvg({
-      label: "SPEED TEST",
+      label: "SPEED",
       primary: "PRESS",
-      secondary: "RUN MANUAL TEST",
+      secondary: "RUN TEST",
       status: "CHECK",
       accent: settings.accent,
-      footer: "UP TO ~80 MB"
+      footer: "MANUAL • Mbps"
     });
   }
 
@@ -237,11 +238,11 @@ export function renderKey(kind, snapshot = {}, rawSettings = {}, target = null) 
   return dataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
     <rect width="144" height="144" rx="18" fill="#07090D"/>
     <rect x="0" y="0" width="4" height="144" rx="2" fill="${color}"/>
-    <text x="14" y="23" fill="#B9C0CB" font-family="Arial,sans-serif" font-size="11.5" font-weight="800">HEALTH SUMMARY</text>
-    <text x="14" y="50" fill="${color}" font-family="Arial,sans-serif" font-size="21" font-weight="800">${escapeXml(health.state)}</text>
-    <text x="14" y="73" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="13.5" font-weight="700">LAT ${Number.isFinite(metrics.current) ? Math.round(metrics.current) + " ms" : "--"}</text>
-    <text x="14" y="94" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="13.5" font-weight="700">JIT ${Number.isFinite(metrics.jitter) ? metrics.jitter.toFixed(1) + " ms" : "--"}</text>
-    <text x="14" y="115" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="13.5" font-weight="700">LOSS ${Number.isFinite(metrics.loss) ? metrics.loss.toFixed(1) + "%" : "--"}</text>
-    <text x="14" y="136" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="13.5" font-weight="700">${summary.current ? "DOWN " + formatDuration(summary.currentDurationMs) : "UP " + formatDuration(summary.uptimeMs)}</text>
+    <text x="14" y="23" fill="#C9CED6" font-family="Arial,sans-serif" font-size="16.5" font-weight="800">SUMMARY</text>
+    <text x="14" y="52" fill="${color}" font-family="Arial,sans-serif" font-size="27" font-weight="800">${escapeXml(health.state)}</text>
+    <text x="14" y="76" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">LAT ${Number.isFinite(metrics.current) ? Math.round(metrics.current) + " ms" : "--"}</text>
+    <text x="14" y="97" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">JIT ${Number.isFinite(metrics.jitter) ? metrics.jitter.toFixed(1) + " ms" : "--"}</text>
+    <text x="14" y="118" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">LOSS ${Number.isFinite(metrics.loss) ? metrics.loss.toFixed(1) + "%" : "--"}</text>
+    <text x="14" y="139" fill="#F7F8FA" font-family="Arial,sans-serif" font-size="15.5" font-weight="700">${summary.current ? "DOWN " + formatDuration(summary.currentDurationMs) : "UP " + formatDuration(summary.uptimeMs)}</text>
   </svg>`);
 }

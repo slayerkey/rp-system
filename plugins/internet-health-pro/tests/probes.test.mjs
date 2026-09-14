@@ -37,10 +37,10 @@ test("auto target method treats HTTPS URLs as HTTPS response timing", async () =
 
 
 test("adaptive speed test chooses a longer measurement for fast links without exceeding the cap", () => {
-  assert.equal(chooseMeasuredDownloadBytes(20), 8_000_000);
-  assert.equal(chooseMeasuredDownloadBytes(80), 16_000_000);
-  assert.equal(chooseMeasuredDownloadBytes(150), 24_000_000);
-  assert.equal(chooseMeasuredDownloadBytes(300), 40_000_000);
-  assert.equal(chooseMeasuredDownloadBytes(900), 64_000_000);
-  assert.equal(chooseMeasuredDownloadBytes(900, 24_000_000), 24_000_000);
+  assert.equal(chooseMeasuredDownloadBytes(20), 16_000_000);
+  assert.equal(chooseMeasuredDownloadBytes(80), 50_000_000);
+  assert.equal(chooseMeasuredDownloadBytes(150), 93_750_000);
+  assert.equal(chooseMeasuredDownloadBytes(300), 187_500_000);
+  assert.equal(chooseMeasuredDownloadBytes(900), 256_000_000);
+  assert.equal(chooseMeasuredDownloadBytes(900, 96_000_000), 96_000_000);
 });

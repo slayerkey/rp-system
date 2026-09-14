@@ -90,18 +90,19 @@
 
     <section class="group" data-kinds="speed-test">
       <strong>Manual speed test</strong>
-      <p class="hint">Never runs in the background. Each run downloads up to 8 MB and uploads up to 2 MB, about 10 MB maximum total transfer.</p>
+      <p class="hint">Never runs in the background. Fast links use a longer multi-stream sample for accuracy, capped at about 300 MB total transfer. Results are shown in Mbps.</p>
       <div class="two">
         <div><label for="expectedDownloadMbps">Expected down (Mbps)</label><input id="expectedDownloadMbps" type="number" min="0" max="100000" step="1" placeholder="Optional" /></div>
         <div><label for="expectedUploadMbps">Expected up (Mbps)</label><input id="expectedUploadMbps" type="number" min="0" max="100000" step="1" placeholder="Optional" /></div>
       </div>
       <label for="lowSpeedPercent">Mark LOW below this % of expected</label>
       <input id="lowSpeedPercent" type="number" min="10" max="100" step="5" />
-      <p class="hint">Leave expected speeds at 0 to show raw results only. The LOW label uses this explicit threshold, not a hidden score.</p>
+      <p class="hint">Leave expected speeds at 0 to show raw results only. The LOW label uses this explicit threshold, not a hidden score. 800 Mbps is about 100 MB/s.</p>
       <button id="speedTest" type="button">Run speed test</button>
     </section>
 
     <section class="group">
+      <p id="saveStatus" class="hint">Settings save automatically.</p>
       <label for="accent">Healthy accent</label>
       <div class="color-row"><input id="accent" type="color" /><code id="accentValue">#2BE86A</code></div>
     </section>
