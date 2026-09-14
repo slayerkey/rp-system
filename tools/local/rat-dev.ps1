@@ -353,6 +353,7 @@ function Build-And-TestPlugin {
         Uuid = [string]$manifest.UUID
         Version = [string]$manifest.Version
         OpenUrl = if ($config -and $config.open_url) { [string]$config.open_url } else { $null }
+        OpenDevProfile = if ($config -and $config.open_dev_profile) { [string]$config.open_dev_profile } else { $null }
         OpenDevFolder = [bool]($config -and $config.open_dev_folder)
     }
 }
@@ -396,7 +397,29 @@ function Install-DevPlugin {
         Write-Host "Profiles: none bundled" -ForegroundColor DarkGray
     }
 
-    if ($Plugin.OpenDevFolder) {
+    $profileToOpen = $null
+    if ($Plugin.OpenDevProfile) {
+        $pluginRootFull = [System.IO.Path]::GetFullPath($Plugin.PluginDir)
+        $candidate = [System.IO.Path]::GetFullPath((Join-Path $pluginRootFull ([string]$Plugin.OpenDevProfile)))
+        $pluginPrefix = $pluginRootFull.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+        if (-not $candidate.StartsWith($pluginPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Configured Rat Dev profile '$($Plugin.OpenDevProfile)' escapes plugin directory '$($Plugin.PluginDir)'."
+        }
+        if (-not (Test-Path $candidate -PathType Leaf)) {
+            throw "Configured Rat Dev profile was not built: $candidate"
+        }
+        if ([System.IO.Path]::GetExtension($candidate) -ne ".streamDeckProfile") {
+            throw "Configured Rat Dev profile must be a .streamDeckProfile file: $candidate"
+        }
+        $profileToOpen = Get-Item $candidate
+    }
+
+    if ($profileToOpen) {
+        Start-Sleep -Milliseconds 700
+        Write-Host "Opening Stream Deck profile for import: $($profileToOpen.FullName)" -ForegroundColor Cyan
+        Start-Process $profileToOpen.FullName
+    }
+    elseif ($Plugin.OpenDevFolder) {
         Start-Sleep -Milliseconds 600
         $openPath = if ($profiles.Count) { $profiles[0].Directory.FullName } else { $Plugin.PluginDir }
         Write-Host "Opening development bundle: $openPath" -ForegroundColor DarkGray
