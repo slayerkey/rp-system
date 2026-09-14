@@ -1,0 +1,86 @@
+name: Text Expander Stream Deck QA
+
+concurrency:
+  group: text-expander-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+on:
+  workflow_dispatch:
+  push:
+    branches: ["product/text-expander"]
+    paths:
+      - "plugins/text-expander/**"
+      - ".github/workflows/text-expander-plugin.yml"
+  pull_request:
+    paths:
+      - "plugins/text-expander/**"
+      - ".github/workflows/text-expander-plugin.yml"
+
+jobs:
+  build-test-package:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: plugins/text-expander/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install deterministic art dependency
+        run: python -m pip install pillow==11.3.0
+      - name: Install family dependencies
+        working-directory: plugins/text-expander
+        run: npm ci
+      - name: Audit runtime dependencies
+        working-directory: plugins/text-expander
+        run: npm run security:audit
+      - name: Build and test
+        working-directory: plugins/text-expander
+        run: npm run qa
+      - name: Audit key-face visuals
+        run: |
+          node tools/qa/streamdeck-key-visual-audit.mjs plugins/text-expander/dist/com.packrat.textexpanderlite.sdPlugin
+          node tools/qa/streamdeck-key-visual-audit.mjs plugins/text-expander/dist/com.packrat.textexpanderpro.sdPlugin
+      - name: Parse hardware smoke helper
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "plugins/text-expander/scripts/hardware-smoke.ps1"),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            throw "hardware-smoke.ps1 contains PowerShell parse errors."
+          }
+      - name: Install current pinned Stream Deck CLI
+        run: npm install --global @elgato/cli@1.9.0
+      - name: Validate Lite
+        run: streamdeck validate plugins/text-expander/dist/com.packrat.textexpanderlite.sdPlugin --no-update-check
+      - name: Validate Pro
+        run: streamdeck validate plugins/text-expander/dist/com.packrat.textexpanderpro.sdPlugin --no-update-check
+      - name: Package both editions
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force plugins/text-expander/release | Out-Null
+          streamdeck pack plugins/text-expander/dist/com.packrat.textexpanderlite.sdPlugin --output plugins/text-expander/release --force --no-update-check --no-file-list
+          streamdeck pack plugins/text-expander/dist/com.packrat.textexpanderpro.sdPlugin --output plugins/text-expander/release --force --no-update-check --no-file-list
+      - name: Render deterministic Rat Art
+        working-directory: plugins/text-expander
+        shell: pwsh
+        run: |
+          .\rat-art.ps1 -Destination release\art-lite -Edition lite
+          .\rat-art.ps1 -Destination release\art-pro -Edition pro
+      - uses: actions/upload-artifact@v4
+        with:
+          name: text-expander-streamdeck-candidates
+          path: |
+            plugins/text-expander/release/*.streamDeckPlugin
+            plugins/text-expander/release/art-lite/*.png
+            plugins/text-expander/release/art-pro/*.png
+            plugins/text-expander/dist/*/manifest.json

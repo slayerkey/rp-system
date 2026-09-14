@@ -862,6 +862,22 @@
       "status": "testing",
       "price_usd": 7.99,
       "version": "1.0.0.0"
+    },
+    {
+      "id": "text-expander",
+      "name": "Text Expander Lite",
+      "type": "plugin",
+      "status": "validated",
+      "price_usd": 0,
+      "version": "1.0.0.0"
+    },
+    {
+      "id": "text-expander-pro",
+      "name": "Text Expander Pro",
+      "type": "plugin",
+      "status": "validated",
+      "price_usd": 7.99,
+      "version": "1.0.0.0"
     }
   ]
 }

@@ -1,0 +1,306 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{
+  color-scheme:dark;
+  --packrat-bg:#080A0E;
+  --packrat-card-start:#151920;
+  --packrat-card-end:#0D1015;
+  --packrat-input:#15191E;
+  --packrat-button:#181C21;
+  --packrat-button-hover:#22272E;
+  --packrat-border:#303640;
+  --packrat-text:#F5F7FB;
+  --packrat-muted:#9AA2AF;
+  --packrat-accent:#FFB21E;
+  --packrat-accent-hover:#FFC44D;
+  --packrat-accent-soft:rgba(255,178,30,.16);
+  --packrat-accent-glow:rgba(255,178,30,.28);
+  --packrat-danger:#FF5D6C;
+}
+*{box-sizing:border-box}
+body{
+  font:12px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--packrat-text);
+  margin:0;
+  padding:14px;
+  background:var(--packrat-bg);
+  min-height:100vh;
+  position:relative;
+}
+body::before{
+  content:"";
+  position:fixed;
+  top:-130px;
+  right:-110px;
+  width:330px;
+  height:330px;
+  pointer-events:none;
+  background:radial-gradient(circle,rgba(255,178,30,.12) 0%,rgba(255,178,30,.055) 34%,rgba(255,178,30,0) 72%);
+}
+.shell{position:relative;z-index:1;display:grid;gap:12px}
+.hero,.card{
+  border:1px solid var(--packrat-border);
+  background:linear-gradient(145deg,var(--packrat-card-start),var(--packrat-card-end));
+  border-radius:14px;
+  padding:14px;
+}
+.hero{
+  background:
+    radial-gradient(circle at 90% 0%,rgba(255,178,30,.14),transparent 42%),
+    linear-gradient(145deg,#171B22,var(--packrat-card-end));
+}
+.brandLink{
+  width:auto;
+  min-height:0;
+  margin:0 0 7px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--packrat-accent);
+  box-shadow:none;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.brandLink:hover,.brandLink:focus{
+  background:transparent;
+  color:var(--packrat-accent-hover);
+  box-shadow:none;
+  text-shadow:0 0 10px var(--packrat-accent-glow);
+  outline:none;
+}
+.brandLink img{width:18px;height:18px;object-fit:contain;display:block}
+h1{font-size:19px;line-height:1.1;margin:0;color:var(--packrat-text)}
+label{display:block;margin:0 0 12px}
+.label{display:block;color:#CBD1D9;margin-bottom:6px;font-size:11px;font-weight:700}
+select,input,textarea,button{
+  width:100%;
+  box-sizing:border-box;
+  border-radius:9px;
+  font:inherit;
+}
+select,input,textarea{
+  background:var(--packrat-input);
+  color:var(--packrat-text);
+  border:1px solid var(--packrat-border);
+  padding:9px 10px;
+  outline:none;
+}
+select:focus,input:focus,textarea:focus{
+  border-color:var(--packrat-accent);
+  box-shadow:0 0 0 2px var(--packrat-accent-glow);
+}
+textarea{
+  min-height:112px;
+  resize:vertical;
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  line-height:1.4;
+}
+button{
+  cursor:pointer;
+  font-weight:750;
+  min-height:34px;
+  border:1px solid var(--packrat-border);
+  background:var(--packrat-button);
+  color:var(--packrat-text);
+  padding:8px 10px;
+  transition:background .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease;
+}
+button:hover,button:focus{
+  background:var(--packrat-button-hover);
+  border-color:var(--packrat-accent);
+  box-shadow:0 0 12px var(--packrat-accent-soft);
+  outline:none;
+}
+button.primary{
+  background:var(--packrat-accent);
+  border-color:var(--packrat-accent);
+  color:#120B00;
+  box-shadow:0 0 14px var(--packrat-accent-glow);
+}
+button.primary:hover,button.primary:focus{
+  background:var(--packrat-accent-hover);
+  border-color:var(--packrat-accent-hover);
+  box-shadow:0 0 18px var(--packrat-accent-glow);
+}
+button.danger{
+  background:transparent;
+  border-color:rgba(255,93,108,.55);
+  color:var(--packrat-danger);
+}
+button.danger:hover,button.danger:focus{
+  background:rgba(255,93,108,.10);
+  border-color:var(--packrat-danger);
+  box-shadow:0 0 12px rgba(255,93,108,.18);
+}
+button:disabled{opacity:.5;cursor:default;box-shadow:none}
+.note{color:var(--packrat-muted);line-height:1.45;margin:7px 0 12px}
+.status{min-height:17px;color:var(--packrat-muted);line-height:1.4;margin:8px 0 0}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.sectionTitle{font-weight:800;margin:0 0 11px;color:var(--packrat-text);font-size:12px}
+.hidden{display:none!important}
+.upgrade strong{display:block;margin-bottom:5px}
+</style></head><body>
+<div class="shell">
+  <section class="hero">
+    <button id="brandLink" class="brandLink" type="button" aria-label="Open PackRat Marketplace page">
+      <img src="packrat-icon.png" alt=""><span>PackRat ↗</span>
+    </button>
+    <h1 id="productTitle">Text Expander</h1>
+  </section>
+
+  <div id="insertSettings" class="card">
+    <label><span class="label">Snippet</span><select id="snippet"></select></label>
+    <button id="editToggle">Create / edit snippets</button>
+    <label style="margin-top:12px"><span class="label">Insert method</span>
+      <select id="mode">
+        <option value="auto">Smart (recommended)</option>
+        <option value="unicode">Type text</option>
+        <option value="clipboard">Paste with clipboard</option>
+      </select>
+    </label>
+    <p class="note" id="modeHelp">Smart uses normal typing for most snippets and clipboard paste for very long text.</p>
+    <label id="afterWrap"><span class="label">After insertion</span><select id="after"><option value="none">Nothing</option><option value="tab">Tab</option><option value="enter">Enter</option></select></label>
+  </div>
+
+  <div id="editor" class="card hidden">
+    <p class="sectionTitle">Snippet library</p>
+    <label><span class="label">Name</span><input id="editName" maxlength="120" placeholder="Example: Work email"></label>
+    <label id="folderWrap"><span class="label">Folder / category</span><input id="editFolder" maxlength="80" placeholder="QUICK"></label>
+    <label><span class="label">Text</span><textarea id="editContent" spellcheck="false" placeholder="Type the text you want this key to insert."></textarea></label>
+    <p class="note" id="variableHelp"></p>
+    <div class="row"><button id="newSnippet">New</button><button class="primary" id="saveSnippet">Save</button><button class="danger" id="deleteSnippet">Delete</button></div>
+    <p class="status" id="editorStatus"></p>
+  </div>
+
+  <div id="upgrade" class="card upgrade hidden"><strong>Need more?</strong><p class="note" id="reasons"></p><button id="upgradeButton" class="primary hidden">Open Text Expander Pro</button></div>
+</div>
+
+<script>
+let ws,ctx="",action="",settings={},edition="lite",snippets=[],editingId="",editorOpen=false;
+const $=id=>document.getElementById(id);
+const isManage=()=>action.endsWith(".manage");
+function send(value){if(ws&&ws.readyState===1)ws.send(JSON.stringify(value))}
+function setStatus(text){$("editorStatus").textContent=text||""}
+function saveSettings(){
+  if(isManage())return;
+  settings={...settings,snippetId:$("snippet").value,insertionMode:$("mode").value,afterInsert:edition==="pro"?$("after").value:"none"};
+  if(ctx&&action)send({event:"setSettings",action,context:ctx,payload:settings});
+}
+function currentSnippet(){return snippets.find(s=>s.id===editingId)||null}
+function fillEditor(snippet){
+  editingId=snippet?.id||"";
+  $("editName").value=snippet?.name||"";
+  $("editFolder").value=snippet?.folder||(edition==="pro"?"QUICK":"STARTER");
+  $("editContent").value=snippet?.content||"";
+  $("deleteSnippet").disabled=!editingId;
+  setStatus("");
+}
+function showEditor(force){
+  editorOpen=force===undefined?!editorOpen:!!force;
+  $("editor").classList.toggle("hidden",!editorOpen);
+  $("editToggle").textContent=editorOpen?"Close snippet editor":"Create / edit snippets";
+  if(editorOpen&&!editingId){
+    const selected=snippets.find(s=>s.id===$("snippet").value)||snippets[0]||null;
+    fillEditor(selected);
+  }
+}
+function renderList(data){
+  edition=data.edition||edition;
+  $("productTitle").textContent=edition==="pro"?"Text Expander Pro":"Text Expander Lite";
+  snippets=Array.isArray(data.snippets)?data.snippets:[];
+  const select=$("snippet"),before=data.selectedId||settings.snippetId||select.value||"";
+  select.innerHTML="";
+  for(const s of snippets){
+    const o=document.createElement("option");o.value=s.id;
+    o.textContent=(edition==="pro"&&s.folder?s.folder+" · ":"")+s.name;
+    select.appendChild(o);
+  }
+  const chosen=snippets.some(s=>s.id===before)?before:(snippets[0]?.id||"");
+  if(chosen)select.value=chosen;
+  if(!isManage()&&chosen&&settings.snippetId!==chosen){
+    settings={...settings,snippetId:chosen};
+    send({event:"setSettings",action,context:ctx,payload:settings});
+  }
+
+  $("afterWrap").style.display=edition==="pro"?"block":"none";
+  $("folderWrap").style.display=edition==="pro"?"block":"none";
+  $("mode").value=settings.insertionMode||"auto";
+  $("after").value=edition==="pro"?(settings.afterInsert||"none"):"none";
+  $("variableHelp").textContent=edition==="pro"
+    ?"Variables include {date}, {time}, {datetime}, {clipboard}, {username}, {computer}, {app}, {counter:name}, {cursor}, plus fill-in fields like {name}."
+    :"You can use {clipboard}, {date}, and {time} inside Lite snippets.";
+
+  if(data.selectedId){
+    fillEditor(snippets.find(s=>s.id===data.selectedId)||null);
+    showEditor(true);
+  }else if(editingId){
+    fillEditor(snippets.find(s=>s.id===editingId)||snippets.find(s=>s.id===chosen)||null);
+  }else if(editorOpen){
+    fillEditor(snippets.find(s=>s.id===chosen)||null);
+  }
+  if(data.status)setStatus(data.status);
+
+  if(edition==="lite"){
+    $("upgrade").classList.remove("hidden");
+    $("reasons").textContent=(data.upgradeReasons||[]).join(" · ");
+    window.proUrl=data.verifiedProUrl||"";
+    $("upgradeButton").classList.toggle("hidden",!window.proUrl);
+  }else{
+    $("upgrade").classList.add("hidden");
+  }
+}
+$("snippet").addEventListener("change",()=>{saveSettings();if(editorOpen)fillEditor(snippets.find(s=>s.id===$("snippet").value)||null)});
+$("mode").addEventListener("change",()=>{saveSettings();$("modeHelp").textContent=$("mode").value==="clipboard"
+  ?"Paste with clipboard temporarily uses your clipboard, then restores what was there before when Windows allows."
+  :$("mode").value==="unicode"
+    ?"Type text sends the snippet directly as text without replacing your clipboard."
+    :"Smart uses normal typing for most snippets and clipboard paste for very long text."});
+$("after").addEventListener("change",saveSettings);
+$("editToggle").addEventListener("click",()=>showEditor());
+$("newSnippet").addEventListener("click",()=>{fillEditor(null);showEditor(true);$("editName").focus()});
+$("saveSnippet").addEventListener("click",()=>{
+  setStatus("Saving…");
+  send({event:"sendToPlugin",action,context:ctx,payload:{type:"saveSnippet",snippet:{
+    id:editingId,
+    name:$("editName").value,
+    folder:$("editFolder").value,
+    content:$("editContent").value
+  }}});
+});
+$("deleteSnippet").addEventListener("click",()=>{
+  if(!editingId)return;
+  setStatus("Deleting…");
+  send({event:"sendToPlugin",action,context:ctx,payload:{type:"deleteSnippet",snippetId:editingId}});
+});
+$("brandLink").addEventListener("click",()=>send({event:"openUrl",payload:{url:"https://marketplace.elgato.com/maker/packrat"}}));
+$("upgradeButton").addEventListener("click",()=>{if(window.proUrl)send({event:"openUrl",payload:{url:window.proUrl}})});
+
+window.connectElgatoStreamDeckSocket=function(port,uuid,registerEvent,info,actionInfo){
+  const parsed=JSON.parse(actionInfo||"{}");
+  ctx=parsed.context||"";action=parsed.action||"";settings=parsed.payload?.settings||{};
+  ws=new WebSocket("ws://127.0.0.1:"+port);
+  ws.onopen=()=>{
+    send({event:registerEvent,uuid});
+    if(ctx&&action){
+      send({event:"getSettings",action,context:ctx});
+      send({event:"sendToPlugin",action,context:ctx,payload:{type:"listSnippets"}});
+    }
+  };
+  ws.onmessage=e=>{
+    const m=JSON.parse(e.data);
+    if(m.event==="didReceiveSettings")settings=m.payload?.settings||settings;
+    if(m.event==="sendToPropertyInspector"&&m.payload?.type==="snippetList")renderList(m.payload);
+    if(m.event==="sendToPropertyInspector"&&m.payload?.type==="snippetError")setStatus(m.payload.message||"Could not update snippets.");
+  };
+  if(isManage()){
+    $("insertSettings").style.display="none";
+    showEditor(true);
+  }
+};
+</script></body></html>

@@ -1,0 +1,22 @@
+{
+  "name": "@packrat/text-expander-family",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs && node scripts/qa.mjs",
+    "qa": "npm run build && npm test",
+    "security:audit": "npm audit --omit=dev --audit-level=high"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "2.1.2"
+  },
+  "overrides": {
+    "ws": "8.21.0"
+  }
+}
