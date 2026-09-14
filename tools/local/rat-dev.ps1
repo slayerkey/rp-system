@@ -438,6 +438,12 @@ function Build-And-TestPlugin {
         throw "Stream Deck manifest is missing UUID."
     }
 
+    $bundledProfiles = @(Get-ChildItem -Path $pluginDir -Recurse -Filter "*.streamDeckProfile" -File -ErrorAction SilentlyContinue)
+    if ($bundledProfiles.Count -gt 1) {
+        Write-Host "Checking bundled profile ActionID uniqueness..." -ForegroundColor Cyan
+        [void](Assert-RatDevBundledProfileActionIdsUnique -ProfilePaths @($bundledProfiles | ForEach-Object { $_.FullName }))
+    }
+
     Write-Host "Validating with the official Stream Deck CLI..." -ForegroundColor Cyan
     Invoke-Checked -Command "streamdeck" -Arguments @("validate", $pluginDir) -Failure "Stream Deck validation failed"
 
