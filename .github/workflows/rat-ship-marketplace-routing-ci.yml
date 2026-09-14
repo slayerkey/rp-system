@@ -115,7 +115,8 @@ jobs:
             'Resolve-RatDevProfilePreference',
             'streamDeckProfile',
             'Get-RatDevProfileOpenDecision',
-            'skipping duplicate import',
+            'Replace-RatDevInstalledProfile',
+            'Profile refreshed seamlessly at the existing Stream Deck profile path.',
             'Start-Process $profileToOpen'
           )) {
             if ($devRaw -notmatch [regex]::Escape($required)) {
