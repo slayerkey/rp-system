@@ -586,6 +586,13 @@ test("hardware keys keep the live-title area clear and explain safe states", asy
   assert.match(inspector, /does not immediately put the PC to sleep/);
 });
 
+test("clean rebuild preserves a live linked plugin root on Windows", async () => {
+  const clean = await readFile(path.resolve("scripts", "clean.mjs"), "utf8");
+  assert.match(clean, /entry\.name\.endsWith\("\\.sdPlugin"\)/);
+  assert.match(clean, /for \(const child of await readdir\(target/);
+  assert.doesNotMatch(clean, /rm\(new URL\("\.\.\/out\//);
+});
+
 test("state refresh polls Windows and the inspector refresh button forces a real read", async () => {
   const state = await readFile(path.resolve("src", "state.ts"), "utf8");
   const plugin = await readFile(path.resolve("src", "plugin.ts"), "utf8");
