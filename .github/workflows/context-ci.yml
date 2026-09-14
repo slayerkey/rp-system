@@ -29,6 +29,19 @@ jobs:
 
       - name: Validate canonical context
         run: python tests/check_context.py
+      - name: Install deterministic art test dependency
+        run: python -m pip install --disable-pip-version-check Pillow==12.3.0
+
+      - name: Validate Stream Deck photo hero compositor
+        run: python tools/art/test_streamdeck_photo.py
+
+      - name: Validate global Rat Ship Stream Deck hero
+        run: python tests/check_streamdeck_rat_ship_hero.py
+
+      - name: Validate Rat Ship Stream Deck hero routing
+        shell: pwsh
+        run: ./tests/check_rat_ship_streamdeck_hero.ps1
+
 
       - name: Validate JSON files
         run: |
