@@ -39,7 +39,7 @@ test("diagnostic buttons have matching plugin commands", async () => {
     readFile(resolve(root, "src", "plugin.js"), "utf8"),
   ]);
 
-  for (const command of ["restart-fps", "reset-session", "open-presentmon-help"]) {
+  for (const command of ["restart-fps", "reset-session", "enable-fps-access", "open-presentmon-help"]) {
     assert.ok(js.includes('command("' + command + '")'), "Inspector missing command: " + command);
     assert.ok(plugin.includes('payload.command === "' + command + '"'), "Plugin missing command handler: " + command);
   }
@@ -109,4 +109,54 @@ test("build packages vendored SDPI Components and its license", async () => {
 test("property inspector sources contain no escaped-newline CSS patch artifacts", async () => {
   const css = await readFile(resolve(root, "ui", "inspector.css"), "utf8");
   assert.equal(css.includes("\\n"), false);
+});
+
+test("metric picker prioritizes common metrics and hides raw hardware behind an explicit advanced toggle", async () => {
+  const [html, js] = await Promise.all([
+    readFile(resolve(root, "ui", "inspector.html"), "utf8"),
+    readFile(resolve(root, "ui", "inspector.js"), "utf8"),
+  ]);
+
+  assert.match(html, /id="advancedMetricsButton"/);
+  assert.match(js, /const COMMON_METRICS = \[/);
+  for (const label of [
+    "GPU Temperature",
+    "CPU Temperature",
+    "GPU Fan Speed",
+    "GPU Load",
+    "CPU Load",
+    "RAM Used",
+    "GPU Power",
+    "CPU Power",
+    "Game FPS",
+    "Frametime",
+  ]) {
+    assert.ok(js.includes(label), "Missing common metric label: " + label);
+  }
+  assert.match(js, /showAdvanced = !showAdvanced/);
+  assert.match(js, /startsWith\("lhm\."\)/);
+  assert.doesNotMatch(html, />Libre Hardware Monitor</);
+});
+
+test("permission-required UX offers one-click FPS enablement without exposing group-management jargon", async () => {
+  const [html, js, plugin] = await Promise.all([
+    readFile(resolve(root, "ui", "inspector.html"), "utf8"),
+    readFile(resolve(root, "ui", "inspector.js"), "utf8"),
+    readFile(resolve(root, "src", "plugin.js"), "utf8"),
+  ]);
+
+  assert.match(js, /Enable Game FPS/);
+  assert.match(js, /command\("enable-fps-access"\)/);
+  assert.match(plugin, /enable-fps-access/);
+  assert.doesNotMatch(html, /Performance Log Users/i);
+  assert.doesNotMatch(js, /Add your Windows account to Performance Log Users/i);
+});
+
+test("build packages the one-click Windows FPS setup helper", async () => {
+  const build = await readFile(resolve(root, "scripts", "build.mjs"), "utf8");
+  const setup = await readFile(resolve(root, "setup", "enable-fps-access.ps1"), "utf8");
+  assert.match(build, /enable-fps-access\.ps1/);
+  assert.match(setup, /S-1-5-32-559/);
+  assert.match(setup, /Start-Process/);
+  assert.match(setup, /Add-LocalGroupMember/);
 });
