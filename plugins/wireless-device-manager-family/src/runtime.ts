@@ -213,7 +213,14 @@ export class WirelessRuntime {
   async selectedDeviceId(localDeviceId?: string | null, slot?: string | null): Promise<string | null> {
     const globals = (this.edition === "lite" || slot) ? this.cachedGlobals() : {};
     const slotDeviceId = slot ? globals.slots?.[slot] ?? null : null;
-    return resolveSelectedDeviceId(this.edition, globals.liteDeviceId, localDeviceId, slotDeviceId);
+    const configured = resolveSelectedDeviceId(this.edition, globals.liteDeviceId, localDeviceId, slotDeviceId);
+    if (configured) return configured;
+
+    const visible = this.devices().filter(device =>
+      device.paired !== false &&
+      device.present !== false
+    );
+    return visible.length === 1 ? visible[0].stableId : null;
   }
 
   async setSlotDevice(slot: string, id: string): Promise<void> {
