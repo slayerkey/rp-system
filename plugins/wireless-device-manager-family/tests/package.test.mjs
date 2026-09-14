@@ -336,7 +336,8 @@ test("Wireless troubleshooting contract captures every real-machine transport st
   assert.match(runtime,/lastSnapshotDeviceCount/);
   assert.equal(packageJson.scripts["host:probe"],"powershell -NoProfile -ExecutionPolicy Bypass -File scripts/host-probe.ps1");
   assert.match(probe,/Matches Rat Dev build/);
-  assert.match(probe,/Direct Pro bridge snapshot/);
+  assert.match(probe,/Direct Pro bridge battery samples/);
+  assert.match(probe,/sampleIndex = 1; \$sampleIndex -le 3/);
   assert.match(probe,/StreamDeck0\.log/);
   assert.match(probe,/127\.0\.0\.1:23654/);
 });
