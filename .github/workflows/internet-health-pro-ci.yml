@@ -8,10 +8,16 @@ on:
       - product/internet-health-pro
     paths:
       - "plugins/internet-health-pro/**"
+      - "tools/streamdeck/**"
+      - "tools/qa/streamdeck-key-visual-audit.mjs"
+      - "tools/qa/streamdeck-plugin-design-audit.mjs"
       - ".github/workflows/internet-health-pro-ci.yml"
   pull_request:
     paths:
       - "plugins/internet-health-pro/**"
+      - "tools/streamdeck/**"
+      - "tools/qa/streamdeck-key-visual-audit.mjs"
+      - "tools/qa/streamdeck-plugin-design-audit.mjs"
       - ".github/workflows/internet-health-pro-ci.yml"
 
 concurrency:

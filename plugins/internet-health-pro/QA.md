@@ -18,23 +18,16 @@ Automated coverage must include:
 - Stream Deck/plugin restart with local history reload
 - simulated 24-hour run with bounded storage growth
 - multiple keys/targets sharing one monitoring engine
-- speed test is manual only and transfer cap stays at 8 MB down + 2 MB up
+- speed test is manual only and remains bounded at the warmed adaptive multi-stream cap
+- Property Inspector live state, save/reopen persistence, accent persistence, and command-button transport
+- physical key typography regression checks and dedicated 30-second visual graph window
+- deterministic major-model profile generation for DeviceTypes 0 / 2 / 7 / 9
+- profile archives are declared in the manifest, auto-install, do not force-switch, and are valid ZIP-style .streamDeckProfile files
 - manifest / action / asset structure
 - Elgato CLI validation and package creation on clean CI
 
-Final confidence boundary: install the exact packaged `.streamDeckPlugin` into Stream Deck and observe a healthy network, a temporary disconnect/reconnect, and one manual speed test. Automated QA should discover ordinary code, package, or manifest failures before that point.
+Final confidence boundary: install the exact packaged `.streamDeckPlugin` into Stream Deck and verify readable keys, the five-second live cadence, the 30-second graph, Property Inspector persistence/buttons/accent behavior, one manual speed test, a temporary disconnect/reconnect, and the expected bundled dashboard for the connected Stream Deck model. Automated QA should discover ordinary code, package, profile, or manifest failures before that point.
 
 ## Current automated gate status
 
-Candidate `dc9a53e7a9dd01ea569facbdc072158414f58c64` passed Internet Health Pro CI run `34770102676` after the repository was made public and GitHub-hosted runners could execute normally.
-
-- Windows job `103758022787`: deterministic tests, build, and live network smoke passed
-- macOS job `103758023052`: deterministic tests, build, and live network smoke passed
-- release job `103758125462`: npm audit/check, official Elgato validation, official package creation, deterministic Rat Art, package/media verification, and artifact upload passed
-- release artifact `10321692257`: `internet-health-pro-release-qa`
-- artifact ZIP digest: `sha256:265f7b80015b060eb14c44a6a4f401f8cf2e6c601077ec4e1da81fdf7d20c1d0`
-- packaged plugin SHA256: `B7E9DEDA74D1316583A05B634E3B778B8B88AE0DCCD0E3F3B51986C219C47039`
-
-During the first real hosted run, CI exposed a deterministic-clock bug: `HistoryStore.flush()` pruned using wall-clock time while monitor tests used an injected clock. That was fixed by passing the monitor clock into history flushes. The corrected candidate then passed on both supported operating systems.
-
-Automated QA is passed. The remaining human confidence boundary is installing the exact packaged `.streamDeckPlugin` in Stream Deck and physically observing healthy rendering, a temporary disconnect/reconnect, and one manual speed test before Marketplace submission.
+The canonical automated evidence is tracked in `products/internet-health-pro.json` and GitHub Actions. This QA file describes the required gate rather than freezing an older candidate hash. A release candidate is not `READY_TO_SHIP` until the current source, bundled profiles, Elgato package, Marketplace media, and final hardware pass all agree.

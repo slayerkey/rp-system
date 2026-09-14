@@ -3,8 +3,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { extname, resolve } from "node:path";
 
 const root=process.argv[2];
+const flags=new Set(process.argv.slice(3));
+const requireMajorProfiles=flags.has("--require-major-profiles");
 if(!root){
-  console.error("Usage: node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>");
+  console.error("Usage: node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin> [--require-major-profiles]");
   process.exit(2);
 }
 
@@ -88,9 +90,43 @@ for(const [image,names] of reused){
 
 if(!keypad.length)warnings.push("No Keypad actions found. Nothing to audit.");
 
+const profiles=Array.isArray(manifest.Profiles)?manifest.Profiles:[];
+const seenDeviceTypes=new Set();
+for(const profile of profiles){
+  const name=String(profile?.Name??"").trim();
+  const deviceType=Number(profile?.DeviceType);
+  if(!name){errors.push("Bundled profile is missing Name");continue;}
+  if(!Number.isInteger(deviceType))errors.push("Bundled profile "+name+" is missing a numeric DeviceType");
+  else if(seenDeviceTypes.has(deviceType))errors.push("Duplicate bundled profile DeviceType "+deviceType);
+  else seenDeviceTypes.add(deviceType);
+
+  const file=resolve(pluginDir,name+".streamDeckProfile");
+  if(!existsSync(file))errors.push("Bundled profile file is missing: "+name+".streamDeckProfile");
+  else{
+    const b=readFileSync(file);
+    if(b.length<4||b.subarray(0,2).toString("ascii")!=="PK")errors.push("Bundled profile is not a valid ZIP-style .streamDeckProfile: "+name);
+  }
+  if(profile.AutoInstall!==true)warnings.push("Bundled profile "+name+" should normally set AutoInstall=true");
+  if(profile.DontAutoSwitchWhenInstalled!==true)warnings.push("Bundled profile "+name+" should normally set DontAutoSwitchWhenInstalled=true");
+  if(profile.Readonly!==false)warnings.push("Bundled profile "+name+" should normally set Readonly=false");
+}
+
+if(requireMajorProfiles){
+  const required=[
+    [0,"standard / MK.2"],
+    [2,"XL"],
+    [7,"Plus"],
+    [9,"Neo"],
+  ];
+  for(const [deviceType,label] of required){
+    if(!seenDeviceTypes.has(deviceType))errors.push("Missing required major-model profile for "+label+" (DeviceType "+deviceType+")");
+  }
+}
+
 console.log("Stream Deck key visual audit");
 console.log("Plugin: "+pluginDir);
 console.log("Keypad actions: "+keypad.length);
+console.log("Bundled profiles: "+profiles.length+(requireMajorProfiles?" (major-model coverage required)":""));
 for(const warning of warnings)console.log("WARN: "+warning);
 for(const error of errors)console.error("ERROR: "+error);
 console.log("Manual gate still required: review representative runtime-rendered keys at 72 x 72 and 36 x 36. This script prevents host title overlays but cannot prove internal rendered layout quality.");
