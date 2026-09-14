@@ -4,8 +4,8 @@ import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 
 const builds = [
-  ["src/plugin-lite.ts", "out/com.packrat.windows-settings-manager-lite.sdPlugin/bin/plugin.js"],
-  ["src/plugin-pro.ts", "out/com.packrat.windows-settings-manager-pro.sdPlugin/bin/plugin.js"]
+  ["src/plugin-lite.ts", "out/com.packrat.windows-settings-manager-lite2.sdPlugin/bin/plugin.js"],
+  ["src/plugin-pro.ts", "out/com.packrat.windows-settings-manager-pro2.sdPlugin/bin/plugin.js"]
 ];
 
 export default builds.map(([input, file]) => ({
