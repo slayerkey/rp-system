@@ -1072,6 +1072,32 @@ function Get-Snapshot {
     try { $timeout = Get-Timeout }
     catch { $errors.Add("Timeout: $($_.Exception.Message)"); $timeout = $null }
 
+    try { $wifi = Get-RadioState "WiFi" }
+    catch {
+        $errors.Add("Wi-Fi: $($_.Exception.Message)")
+        $wifi = [pscustomobject]@{ available = $false; state = "unknown"; count = 0; access = "unknown" }
+    }
+
+    try { $bluetooth = Get-RadioState "Bluetooth" }
+    catch {
+        $errors.Add("Bluetooth: $($_.Exception.Message)")
+        $bluetooth = [pscustomobject]@{ available = $false; state = "unknown"; count = 0; access = "unknown" }
+    }
+
+    try { $theme = Get-ThemeState }
+    catch {
+        $errors.Add("Theme: $($_.Exception.Message)")
+        $theme = [pscustomobject]@{ available = $false; apps = "unknown"; system = "unknown"; combined = "unknown" }
+    }
+
+    try { $desktop = Get-VirtualDesktopState }
+    catch {
+        $errors.Add("Virtual desktop: $($_.Exception.Message)")
+        $desktop = [pscustomobject]@{ available = $false; currentIndex = $null; count = 0; currentId = $null }
+    }
+
+    $hibernateAvailable = Get-HibernateAvailability
+
     [pscustomobject]@{
         backendOnline = $true
         capturedAt = [DateTimeOffset]::UtcNow.ToString("o")
@@ -1083,6 +1109,11 @@ function Get-Snapshot {
         powerPlans = $plans
         timeout = $timeout
         keepAwake = [bool]$script:keepAwake
+        hibernateAvailable = [bool]$hibernateAvailable
+        wifi = $wifi
+        bluetooth = $bluetooth
+        theme = $theme
+        virtualDesktop = $desktop
         errors = @($errors)
     }
 }
@@ -1153,6 +1184,28 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
             "lock" {
                 $ok = [PackRatWindowsNative]::Lock()
                 Write-Reply $id $ok ([pscustomobject]@{ status = $(if ($ok) { "COMPLETE" } else { "FAILED" }) }) $(if ($ok) { $null } else { "LockWorkStation failed." })
+            }
+            "powerTransition" {
+                $command = [string]$requestArgs.command
+                $result = Invoke-PowerTransition $command
+                Write-Reply $id ($result.status -eq "COMPLETE") $result $result.error
+            }
+            "setRadio" {
+                $kind = [string]$requestArgs.kind
+                $enabled = [bool]$requestArgs.enabled
+                $result = Set-RadioState $kind $enabled
+                Write-Reply $id ($result.status -ne "FAILED") $result $result.error
+            }
+            "setTheme" {
+                $themeName = [string]$requestArgs.theme
+                $scope = if ($requestArgs.scope) { [string]$requestArgs.scope } else { "both" }
+                $result = Set-ThemeState $themeName $scope
+                Write-Reply $id ($result.status -eq "COMPLETE") $result $result.error
+            }
+            "virtualDesktop" {
+                $command = [string]$requestArgs.command
+                $result = Invoke-VirtualDesktopAction $command
+                Write-Reply $id ($result.status -eq "COMPLETE") $result $result.error
             }
             default {
                 Write-Reply $id $false $null "Unknown backend operation."
