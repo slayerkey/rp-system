@@ -651,7 +651,7 @@ test("hardware keys keep the live-title area clear and explain safe states", asy
 
 test("clean rebuild preserves a live linked plugin root on Windows", async () => {
   const clean = await readFile(path.resolve("scripts", "clean.mjs"), "utf8");
-  assert.match(clean, /entry\.name\.endsWith\("\\.sdPlugin"\)/);
+  assert.match(clean, /entry\.name\.endsWith\("\.sdPlugin"\)/);
   assert.match(clean, /for \(const child of await readdir\(target/);
   assert.doesNotMatch(clean, /rm\(new URL\("\.\.\/out\//);
 });
