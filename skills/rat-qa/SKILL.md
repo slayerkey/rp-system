@@ -15,11 +15,19 @@ For canonical PackRat Stream Deck UI work, also run `node tools/qa/streamdeck-pl
 
 The design audit must inspect the real per-action Property Inspector paths declared in the manifest, not assume one shared inspector file. A passing check against the wrong file is not evidence.
 
+
+For stateful Property Inspectors, treat "settings persist but plugin-owned library/timeline/live state is blank" as a transport failure signature. Verify the canonical PackRat route end-to-end: PI websocket context = `uiUuid`, selected key = separate `actionContext` payload, plugin receives commands on `streamDeck.ui.onSendToPlugin`, and plugin-owned state returns on `streamDeck.ui.sendToPropertyInspector`. Do not accept a per-action response helper mixed into a global request path.
+
+When a stateful PI has been difficult to diagnose, prefer a non-destructive, copyable deep diagnostic over repeated user guesses. The report should identify transport, selected action resolution, persisted settings, storage path/readability/parseability, disk-vs-memory IDs, writeability probe, selected item resolution, and timeout/no-response state.
+
 The visual gate is not satisfied by correct image dimensions alone. Every PackRat Keypad state must explicitly use `ShowTitle: false`; state/value text belongs inside the rendered key image. Review keys at 72 x 72 and 36 x 36. Reject clipped text, text crossing the main glyph, tiny low-contrast subjects, dense generic device illustrations behind labels, unrelated actions that all look the same, preset buttons that all collapse to one current value, and raw resolution strings that run off the key. Dynamic state must be readable without requiring the user to remember what the button means.
 
 Reject ambiguous extensionless assets as well: a manifest path such as `imgs/actions/foo/key` must not have competing SVG/PNG/@2x candidates. Review representative runtime-generated states in addition to static manifest art, because runtime rendering is the shipping UI.
 
 For profiles, include ZIP structure, page structure, action IDs, required plugins, device variants, icons, platform encoding, and the same key-face visual standard. Generated profile labels must not undo the plugin's visual hierarchy. For complex plugins, verify page grouping and navigation instead of only checking archive validity. Rat Dev should open the standard/MK.2 profile automatically when bundled profiles exist.
+
+
+Generated profile ActionIDs must be unique across **all** bundled device variants, not merely unique within one profile ZIP. If manually dragged actions work but bundled-profile actions do not, ActionID collision is an early diagnostic target. Builders should fail closed on duplicate IDs and expose the IDs in deterministic profile audit output.
 
 For XENEON/iCUE widgets, include inline build, structure, browser layout, behavior, deterministic capture, art checks, official CORSAIR validation and packaging, exact package integrity/extraction, lexical iCUE property binding regression when controls are declared, Corsair Labs Windows runner smoke, and StreamSpell packaged verification where applicable.
 
