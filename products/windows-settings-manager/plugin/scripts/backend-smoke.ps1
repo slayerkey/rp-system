@@ -48,6 +48,21 @@ try {
         throw "Windows 11 24H2+ must use the separated HDR state path."
     }
 
+    foreach ($required in @("wifi", "bluetooth", "theme", "virtualDesktop", "hibernateAvailable")) {
+        if ($null -eq $snapshot.result.PSObject.Properties[$required]) {
+            throw "Backend snapshot is missing Control Center field '$required'."
+        }
+    }
+    if ($snapshot.result.wifi.state -notin @("on","off","disabled","mixed","unknown")) {
+        throw "Unexpected Wi-Fi state '$($snapshot.result.wifi.state)'."
+    }
+    if ($snapshot.result.bluetooth.state -notin @("on","off","disabled","mixed","unknown")) {
+        throw "Unexpected Bluetooth state '$($snapshot.result.bluetooth.state)'."
+    }
+    if ($snapshot.result.theme.combined -notin @("light","dark","mixed","unknown")) {
+        throw "Unexpected theme state '$($snapshot.result.theme.combined)'."
+    }
+
     $awakeOn = Request 3 "setKeepAwake" @{ enabled = $true }
     if (-not $awakeOn.ok -or -not $awakeOn.result.state) {
         throw "Keep Awake enable failed: $($awakeOn.error)"
@@ -63,6 +78,10 @@ try {
     Write-Host "HDR API: $($snapshot.result.hdr.api)"
     Write-Host "Topology: $($snapshot.result.topology)"
     Write-Host "Power plan: $($snapshot.result.powerPlanName)"
+    Write-Host "Wi-Fi: $($snapshot.result.wifi.state)"
+    Write-Host "Bluetooth: $($snapshot.result.bluetooth.state)"
+    Write-Host "Theme: $($snapshot.result.theme.combined)"
+    Write-Host "Virtual desktop available: $($snapshot.result.virtualDesktop.available)"
 }
 finally {
     try { $p.StandardInput.Close() } catch {}
