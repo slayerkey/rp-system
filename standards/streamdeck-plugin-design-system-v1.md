@@ -607,6 +607,9 @@ When hardware finds a repeatable defect, add a regression test or shared QA rule
 | Backend selected/saved a value but the PI still showed the old selection | Treat plugin state as authoritative; merge returned settings/state into PI-local state before rendering and keep one selected-ID source of truth |
 | Neutral controls turned muddy brown/gold | Keep normal controls charcoal; orange is the brand/focus/primary-CTA accent, not the base material |
 | Static key asset looked right but runtime key still used an old color/layout | Audit both manifest assets and runtime-generated representative states; runtime rendering is the actual product |
+| Rat Ship hero used generic text tiles instead of the product's real key visuals | Use exact `rat-art-keys/`, representative `rat-art-key-fixtures.json`, or real manifest art in that order; SVG is a first-class source; fail closed instead of silently shipping text-only placeholders |
+| Every unrelated hero key showed the same SVG glyph | Cache rasterized SVGs by content hash/content identity, never basename such as `icon.svg`; visually inspect the exact final ship-kit cover |
+| Product-local Rat Art looked good but Maker Console cover was still wrong | Remember Rat Ship overwrites `02_cover.png`; approve the final canonical Rat Ship ship-kit artifact, not only intermediate product-local art |
 | Extensionless Stream Deck asset resolved unpredictably | Keep exactly one canonical file for an extensionless asset path; do not ship competing SVG/PNG/@2x targets for the same manifest path |
 | Action-list/sidebar icon inherited colorful key-face art | Keep action-list/category icons monochrome white when Elgato presentation requires it; reserve orange accent for the key face and PI |
 | Long key text fit technically but looked tiny | Use adaptive text fitting against the longest real label, consume available safe space, and simplify copy before shrinking below useful hardware size |
@@ -635,3 +638,6 @@ It is done when:
 - `streamdeck-plugin-design-audit.mjs` passes against the real Property Inspector files; use `--require-canonical-pi` for canonical UI refreshes and `--require-lite-pro-upsell` for Lite products with a direct Pro counterpart
 - every extensionless action/key asset resolves to one unambiguous file
 - final QA evidence points to the exact source commit and package under review; stale evidence from an earlier feature boundary is not reused
+- visually sensitive Stream Deck releases preserve and review the exact final Rat Ship `02_cover.png` after the global hero overwrite
+- final cover key-source provenance resolves to exact product art, representative runtime fixtures, or real manifest art; silent text-only placeholders are not accepted
+- SVG-based hero art uses collision-proof content-addressed raster caching so repeated filenames cannot collapse distinct action glyphs
