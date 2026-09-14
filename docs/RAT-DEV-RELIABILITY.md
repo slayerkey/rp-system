@@ -20,6 +20,8 @@ For registered external Stream Deck plugins, Rat Dev follows a build-before-swit
 
 Windows can keep a Stream Deck plugin directory locked while the plugin process is running. More importantly, mutating a Git working tree that Stream Deck is executing from can silently change the active build before tests finish.
 
+This is not limited to native helper executables. Ordinary JavaScript plugins run under a system `node.exe` outside the plugin directory, but the process command line/current working context can still reference the linked `.sdPlugin` tree and keep files/directories busy on Windows. Rat Dev therefore pauses the currently linked plugin before reset/clean/build and then releases any remaining build-owned helpers.
+
 External Rat Dev therefore uses the checkout under `out/dev/worktrees/<slug>` only as a Git controller. Candidate code runs from a separate detached worktree. A successful candidate becomes the development link only after validation.
 
 This means a failed fetch, build, test, profile generation, product QA, or Elgato validation cannot destroy the last working Stream Deck build.
