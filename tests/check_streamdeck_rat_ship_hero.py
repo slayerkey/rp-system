@@ -94,6 +94,35 @@ def main() -> None:
         assert canonical["scene"] == "warm-studio-v1"
         assert canonical["output"]["size"] == [1920, 960]
 
+        fixture_path = root / "rat-art-key-fixtures.json"
+        fixture_path.write_text(
+            json.dumps({
+                "schema_version": 1,
+                "keys": [
+                    {"action_uuid": "com.packrat.test-control-pro.real", "lines": ["65%"]},
+                    {"action_uuid": "com.packrat.test-control-pro.second", "lines": ["INPUT", "DP"]},
+                    *([None] * 13),
+                ],
+            }),
+            encoding="utf-8",
+        )
+        fixture_out = root / "02_cover-fixtures.png"
+        fixture_report = render_ship_hero(
+            "test-control-pro",
+            plugin,
+            submission,
+            fixture_out,
+            None,
+            fixture_path,
+        )
+        assert fixture_out.is_file()
+        assert fixture_report["product_rat_art_key_fixtures"] == str(fixture_path)
+        assert fixture_report["key_sources"][:2] == [
+            "fixture:com.packrat.test-control-pro.real",
+            "fixture:com.packrat.test-control-pro.second",
+        ]
+        assert fixture_report["key_sources"][2:] == ["fixture-blank"] * 13
+
         product_keys = root / "rat-art-keys"
         product_keys.mkdir()
         for index in range(15):
