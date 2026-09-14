@@ -27,39 +27,26 @@
     "bundled deterministic dashboards for standard/MK.2, XL, Plus, and Neo with AutoInstall and no forced profile switching"
   ],
   "final_boundary": "Final physical pass: verify the five-second live cadence, 30-second graph, equal-size Speed download/upload layout, Property Inspector persistence/buttons, and that the bundled Internet Health dashboard appears for the connected Stream Deck model after Rat Dev. If those pass, mark READY_TO_SHIP.",
-  "qa_note": "Physical QA now confirms the Property Inspector fix is working and the larger typography is materially better. Remaining polish from the final hardware pass: live latency/jitter felt too slow at the old 10-second default, so the default cadence is now 5 seconds with a one-time pre-release migration for existing dev installs; the Speed key now uses a dedicated layout with equally large download/upload values and no cramped retest footer. The 30-second graph and ~300 MB bounded manual speed test are retained. Profile packaging is now part of the release candidate: deterministic default dashboards are generated for DeviceTypes 0/2/7/9 using the shared PackRat Stream Deck profile builder, auto-install enabled, forced profile switching disabled.",
+  "qa_note": "Physical QA now confirms the Property Inspector fix is working and the larger typography is materially better. Remaining polish from the final hardware pass: live latency/jitter felt too slow at the old 10-second default, so the default cadence is now 5 seconds with a one-time pre-release migration for existing dev installs; the Speed key now uses a dedicated layout with equally large download/upload values and no cramped retest footer. The 30-second graph and ~300 MB bounded manual speed test are retained. Profile packaging is now part of the release candidate: deterministic default dashboards are generated for DeviceTypes 0/2/7/9 using the shared PackRat Stream Deck profile builder, auto-install enabled, forced profile switching disabled. The profile/design-system candidate passed Windows/macOS tests, live smoke, shared visual and source design audits, official Elgato validation/package, Rat Art, package/media verification, Lite/Pro audit, routing CI, and lightweight CI. The final .streamDeckPlugin was manually inspected from CI artifact 10357119021 and contains all four declared profile archives.",
   "automated_release_evidence": {
-    "status": "PENDING_PROFILE_AND_GLOBAL_DESIGN_SYSTEM_QA",
-    "previous": {
-      "status": "PENDING_FINAL_HARDWARE_POLISH_AUTOMATION",
-      "previous": {
-        "status": "PENDING_PI_CONTEXT_AND_READABILITY_QA",
-        "previous": {
-          "candidate_commit": "8e5a3ac82d7a90970a52889a03f62e9825e5d738",
-          "github_actions_run": 34787335325,
-          "status": "PASSED_AWAITING_HARDWARE_QA",
-          "windows_job": 103805077114,
-          "macos_job": 103805076929,
-          "package_job": 103805222925,
-          "artifact_id": 10327072137,
-          "artifact_digest": "sha256:b521f2e0862b9f8f6002990b143a894eedd2814290ff0d9a715ac134550a624e",
-          "package_sha256": "CCA20DD769E749BC4AD64D4993CEDAF900BE5D2664009E903802159FAC48C2C6",
-          "previous_passed_main_evidence": {
-            "candidate_commit": "81b3fd24f53aafaabda0211c856913a3058cd454",
-            "github_actions_run": 34775143252,
-            "status": "PASSED",
-            "windows_job": 103771789559,
-            "macos_job": 103771789657,
-            "package_job": 103772217662,
-            "artifact_id": 10323805400,
-            "artifact_digest": "sha256:935d5f42d08b547b72f414707c1c9921609308bf1bad40392a0d11fbcf7bc51d",
-            "package_sha256": "C87FA3F1A194F2578A6D183A3CCC214AF72D666D9033C8D6D5554201754E7E7F",
-            "lite_pro_audit_run": 34775143226,
-            "rat_ship_routing_run": 34775143224
-          }
-        }
-      }
-    }
+    "candidate_commit": "423b325096b1028f74636bf8798cd6caba721e15",
+    "github_actions_run": 34867182849,
+    "status": "PASSED_AWAITING_PROFILE_HARDWARE_QA",
+    "windows_job": 104053837832,
+    "macos_job": 104053838004,
+    "package_job": 104054157049,
+    "artifact_id": 10357119021,
+    "artifact_digest": "sha256:7fadc6093f9e5837ef075c103977b112a0686d86c0bf301e7da47230908d42fc",
+    "package_sha256": "DB085412DA9006FADC9A74E018940D265981D7AFE9FE5D84DC98634F81279BEF",
+    "lite_pro_audit_run": 34867182754,
+    "rat_ship_routing_run": 34867182768,
+    "lightweight_ci_run": 34867182803,
+    "packaged_profiles_verified": [
+      "internet-health-dashboard-mk2.streamDeckProfile",
+      "internet-health-dashboard-xl.streamDeckProfile",
+      "internet-health-dashboard-plus.streamDeckProfile",
+      "internet-health-dashboard-neo.streamDeckProfile"
+    ]
   },
   "catalog_audit": {
     "profiles": {
