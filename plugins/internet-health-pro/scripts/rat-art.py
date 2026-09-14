@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import argparse
+import sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 REPO = Path(__file__).resolve().parents[3]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+from tools.art.marketplace_text import draw_fitted_text
 W, H = 1920, 960
 BG = (6, 8, 12)
 PANEL = (13, 16, 23)
@@ -48,9 +53,15 @@ def signature(img):
 
 def header(img, headline, sub=""):
     d = ImageDraw.Draw(img)
-    d.text((96, 72), headline, font=font(58, True), fill=WHITE)
+    draw_fitted_text(
+        d, (96, 62, 1824, 132), headline, font,
+        fill=WHITE, max_size=58, min_size=44, bold=True, max_lines=1
+    )
     if sub:
-        d.text((99, 150), sub, font=font(23), fill=MUTED)
+        draw_fitted_text(
+            d, (99, 142, 1824, 190), sub, font,
+            fill=MUTED, max_size=24, min_size=20, max_lines=1
+        )
 
 def draw_graph(d, box, values, color=ACCENT):
     x1, y1, x2, y2 = box
@@ -113,17 +124,39 @@ def feature_gallery(out):
     header(img, "See the problem, not just a number", "Clear states explain whether the issue is latency, jitter, probe loss, DNS, a target, or the full connection.")
     d = ImageDraw.Draw(img)
     cards = [
-        ("WHOLE INTERNET", "Multiple independent checks must fail before OFFLINE.", "OFFLINE", BAD),
-        ("DNS FAILURE", "IP connectivity can stay up while name resolution fails.", "DNS FAIL", WARN),
-        ("TARGET ONLY", "One dead host never marks your whole internet down.", "TARGET DOWN", BAD),
-        ("ICMP BLOCKED", "TCP fallback keeps healthy networks from showing fake loss.", "TCP HEALTHY", ACCENT),
+        ("WHOLE INTERNET", "Multiple independent checks must fail before the plugin marks your whole internet offline.", "OFFLINE", BAD),
+        ("DNS FAILURE", "IP connectivity can stay up while name resolution fails, so DNS trouble stays separate.", "DNS FAIL", WARN),
+        ("TARGET ONLY", "One dead host never marks your whole internet down. Target failures stay isolated.", "TARGET DOWN", BAD),
+        ("ICMP BLOCKED", "TCP fallback keeps healthy networks from showing fake packet loss when ICMP is blocked.", "TCP HEALTHY", ACCENT),
     ]
+
+    card_w = 826
+    card_h = 236
+    gap_x = 36
+    gap_y = 28
+    start_x = 116
+    start_y = 248
+
     for i, (title, desc, state, color) in enumerate(cards):
-        x = 96 + i * 448
-        d.rounded_rectangle((x, 285, x + 405, 700), 30, fill=(*PANEL, 242), outline=BORDER, width=2)
-        d.text((x + 34, 330), title, font=font(19, True), fill=WHITE)
-        d.text((x + 34, 395), state, font=font(31, True), fill=color)
-        d.multiline_text((x + 34, 470), desc, font=font(18), fill=MUTED, spacing=7)
+        col = i % 2
+        row = i // 2
+        x = start_x + col * (card_w + gap_x)
+        y = start_y + row * (card_h + gap_y)
+        d.rounded_rectangle((x, y, x + card_w, y + card_h), 30, fill=(*PANEL, 242), outline=BORDER, width=2)
+
+        draw_fitted_text(
+            d, (x + 38, y + 28, x + card_w - 38, y + 62), title, font,
+            fill=WHITE, max_size=25, min_size=21, bold=True, max_lines=1
+        )
+        draw_fitted_text(
+            d, (x + 38, y + 74, x + card_w - 38, y + 124), state, font,
+            fill=color, max_size=42, min_size=32, bold=True, max_lines=1
+        )
+        draw_fitted_text(
+            d, (x + 38, y + 142, x + card_w - 38, y + card_h - 28), desc, font,
+            fill=MUTED, max_size=27, min_size=21, spacing=7, max_lines=3
+        )
+
     signature(img)
     save(img, out / "03_gallery_01.png")
 
@@ -159,9 +192,18 @@ def methods_gallery(out):
         x = 105 + (i % 2) * 890
         y = 270 + (i // 2) * 270
         d.rounded_rectangle((x, y, x + 820, y + 225), 28, fill=(*PANEL, 240), outline=BORDER, width=2)
-        d.text((x + 40, y + 42), name, font=font(21, True), fill=ACCENT if i == 0 else WHITE)
-        d.text((x + 40, y + 93), value, font=font(38, True), fill=WHITE)
-        d.multiline_text((x + 220, y + 89), desc, font=font(18), fill=MUTED, spacing=6)
+        draw_fitted_text(
+            d, (x + 40, y + 34, x + 790, y + 68), name, font,
+            fill=ACCENT if i == 0 else WHITE, max_size=23, min_size=19, bold=True, max_lines=1
+        )
+        draw_fitted_text(
+            d, (x + 40, y + 88, x + 200, y + 142), value, font,
+            fill=WHITE, max_size=40, min_size=32, bold=True, max_lines=1
+        )
+        draw_fitted_text(
+            d, (x + 220, y + 84, x + 780, y + 164), desc, font,
+            fill=MUTED, max_size=22, min_size=18, spacing=6, max_lines=3
+        )
     signature(img)
     save(img, out / "05_gallery_03.png")
 
@@ -181,8 +223,14 @@ def privacy_gallery(out):
         x = 105 + (i % 3) * 590
         y = 280 + (i // 3) * 270
         d.rounded_rectangle((x, y, x + 535, y + 215), 28, fill=(*PANEL, 240), outline=BORDER, width=2)
-        d.text((x + 35, y + 50), big, font=font(39, True), fill=ACCENT)
-        d.text((x + 35, y + 125), small, font=font(18), fill=MUTED)
+        draw_fitted_text(
+            d, (x + 35, y + 42, x + 500, y + 92), big, font,
+            fill=ACCENT, max_size=42, min_size=34, bold=True, max_lines=1
+        )
+        draw_fitted_text(
+            d, (x + 35, y + 120, x + 500, y + 180), small, font,
+            fill=MUTED, max_size=23, min_size=18, spacing=5, max_lines=2
+        )
     signature(img)
     save(img, out / "06_gallery_04.png")
 
@@ -208,6 +256,17 @@ def main():
     history_gallery(out)
     methods_gallery(out)
     privacy_gallery(out)
+
+    required = ["01_search_icon.png", "02_cover.png", "03_gallery_01.png", "04_gallery_02.png", "05_gallery_03.png", "06_gallery_04.png"]
+    for name in required:
+        path = out / name
+        if not path.is_file():
+            raise SystemExit(f"Missing Rat Art output: {name}")
+        with Image.open(path) as check:
+            expected = (288, 288) if name == "01_search_icon.png" else (W, H)
+            if check.size != expected:
+                raise SystemExit(f"Wrong Rat Art size for {name}: {check.size} != {expected}")
+    print(f"Internet Health Pro Rat Art ready: {out}")
 
 if __name__ == "__main__":
     main()
