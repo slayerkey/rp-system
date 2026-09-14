@@ -231,6 +231,12 @@ test("Marketplace cover key grids fail closed instead of clipping outside the sa
   assert.match(art, /if oy \+ total_h > available_bottom:[\s\S]*Marketplace key grid exceeds safe cover bounds/);
 });
 
+test("Rat Art PowerShell wrapper keeps colon-adjacent variables parse-safe", async () => {
+  const wrapper = await readFile(path.resolve("rat-art.ps1"), "utf8");
+  assert.match(wrapper, /wrong dimensions for \$\{file\}:/);
+  assert.doesNotMatch(wrapper, /wrong dimensions for \$file:/);
+});
+
 test("Rat Art resolves the exact Lite or Pro ship destination instead of guessing", async () => {
   const script = await readFile(path.resolve("rat-art.ps1"), "utf8");
   assert.match(script, /"windows-settings-manager-lite" \{ "lite" \}/);
