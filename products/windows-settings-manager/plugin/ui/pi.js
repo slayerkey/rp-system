@@ -71,6 +71,10 @@ function build() {
     }));
   });
 
+  bindSelect("toggleOperation", "operation");
+  bindSelect("themeOperation", "operation");
+  bindSelect("themeScope", "scope");
+  bindSelect("confirmation", "confirmation");
   bindSelect("hdrOperation", "operation");
   bindSelect("powerOperation", "operation");
   bindSelect("powerGuid", "guid");
@@ -119,6 +123,7 @@ function build() {
 function bindSelect(id, key) {
   document.getElementById(id).addEventListener("change", (event) => saveActionSettings({ [key]: event.target.value }));
 }
+
 function bindNumber(id) {
   document.getElementById(id).addEventListener("change", (event) => {
     const raw = event.target.value.trim();
@@ -129,14 +134,42 @@ function bindNumber(id) {
   });
 }
 
+function actionSuffix() {
+  return actionUuid.split(".").pop() || "";
+}
+
 function renderActionSettings() {
-  const suffix = actionUuid.split(".").pop() || "";
-  for (const id of ["hdrFields", "powerFields", "displayFields", "timeoutFields", "modeActionFields"]) {
+  const suffix = actionSuffix();
+  for (const id of [
+    "toggleFields",
+    "themeFields",
+    "confirmFields",
+    "hdrFields",
+    "powerFields",
+    "displayFields",
+    "timeoutFields",
+    "modeActionFields"
+  ]) {
     document.getElementById(id).classList.add("hidden");
   }
 
   let has = true;
-  if (suffix === "hdr") {
+  if (suffix === "wifi" || suffix === "bluetooth" || suffix === "awake") {
+    show("toggleFields");
+    setValue("toggleOperation", settings.operation ?? "toggle");
+    document.getElementById("toggleHelp").textContent = suffix === "wifi"
+      ? "Uses the Windows radio API and re-reads the effective Wi-Fi radio state. If Windows policy or hardware denies control, the key fails closed instead of pretending it changed."
+      : suffix === "bluetooth"
+        ? "Controls the PC's global Bluetooth radio, not an individual headset or peripheral. Individual devices belong in Wireless Device Manager."
+        : "On means STAY AWAKE. Off means SLEEP NORMAL. Turning this off does not immediately put the PC to sleep.";
+  } else if (suffix === "theme") {
+    show("themeFields");
+    setValue("themeOperation", settings.operation ?? "toggle");
+    setValue("themeScope", settings.scope ?? "both");
+  } else if (suffix === "restart" || suffix === "shutdown") {
+    show("confirmFields");
+    setValue("confirmation", settings.confirmation ?? "double");
+  } else if (suffix === "hdr") {
     show("hdrFields");
     setValue("hdrOperation", settings.operation ?? "toggle");
   } else if (suffix === "power") {
@@ -165,28 +198,39 @@ function renderActionSettings() {
 
   const noAction = document.getElementById("noActionSettings");
   noAction.classList.toggle("hidden", has);
-  if (!has) {
-    noAction.textContent = suffix === "awake"
-      ? "SLEEP NORMAL means Windows can use its normal idle screen-off and sleep behavior. STAY AWAKE prevents idle screen-off and sleep while the plugin backend is active; it does not hibernate or shut down the PC."
-      : suffix === "status"
-        ? "Press to refresh all live Windows state. A successful refresh shows the Stream Deck OK check."
-        : suffix === "lock"
-          ? "Pressing this key immediately locks the current Windows workstation."
-          : suffix === "current-mode"
-            ? "Read-only. This key shows the configured PC Mode that matches the live Windows state."
-            : suffix === "cycle-mode"
-              ? "Cycles only through configured PC Modes. Empty modes are skipped."
-              : "This key has no extra settings. Its title follows the live Windows state.";
-  }
+  if (!has) noAction.textContent = noSettingsHelp(suffix);
+
+  const modeRelated = ["apply-mode", "save-mode", "current-mode", "cycle-mode"].includes(suffix);
+  document.getElementById("modeEditor").classList.toggle(
+    "hidden",
+    context.flavor !== "pro" || !modeRelated
+  );
+
   renderDynamicSelects();
+}
+
+function noSettingsHelp(suffix) {
+  const copy = {
+    lock: "Pressing this key immediately locks the current Windows workstation.",
+    sleep: "Pressing this key immediately requests Windows sleep.",
+    hibernate: "Pressing this key requests Windows hibernation only when hibernation is available. Otherwise the key shows N/A and does nothing.",
+    "desktop-previous": "Moves one Windows virtual desktop left. At the first desktop it safely does nothing.",
+    "desktop-next": "Moves one Windows virtual desktop right. At the last desktop it safely does nothing.",
+    "desktop-new": "Creates a new Windows virtual desktop and verifies that the desktop count increased.",
+    "desktop-close": "Closes the current virtual desktop after verification. The only desktop is never closed.",
+    "desktop-current": "Read-only. Shows the current virtual desktop index and total desktop count.",
+    status: "Press to refresh all live Windows state. A successful refresh shows the Stream Deck OK check.",
+    "current-mode": "Advanced read-only action showing which configured PC Mode matches the live Windows state.",
+    "cycle-mode": "Advanced action that cycles only through configured PC Modes. Empty modes are skipped."
+  };
+  return copy[suffix] ?? "This key has no extra settings.";
 }
 
 function renderContext() {
   const snapshot = context.snapshot;
   document.getElementById("edition").textContent = context.flavor === "pro"
-    ? "PC Modes & System Controls for Stream Deck"
-    : "Windows System Controls for Stream Deck";
-  document.getElementById("modeEditor").classList.toggle("hidden", context.flavor !== "pro");
+    ? "Premium Windows Control Center for Stream Deck"
+    : "Six useful Windows controls for Stream Deck";
   document.getElementById("liteUpsell").classList.toggle(
     "hidden",
     context.flavor !== "lite" || !PRO_MARKETPLACE_URL
@@ -197,12 +241,13 @@ function renderContext() {
   const offline = Boolean(snapshot && !snapshot.backendOnline);
   const rows = snapshot ? [
     ["Backend", offline ? "Offline" : "Connected"],
-    ["HDR", offline ? "Offline" : hdrLabel(snapshot.hdr)],
-    ["Display", offline ? "Offline" : String(snapshot.topology || "unknown").toUpperCase()],
+    ["Wi-Fi", offline ? "Offline" : radioLabel(snapshot.wifi)],
+    ["Bluetooth", offline ? "Offline" : radioLabel(snapshot.bluetooth)],
     ["Power", offline ? "Offline" : (snapshot.powerPlanName || "Unknown")],
-    ["Screen AC", offline ? "Offline" : duration(snapshot.timeout?.monitorAcSeconds)],
-    ["Sleep AC", offline ? "Offline" : duration(snapshot.timeout?.sleepAcSeconds)],
     ["Keep Awake", offline ? "Offline" : (snapshot.keepAwake ? "On" : "Off")],
+    ["Theme", offline ? "Offline" : themeLabel(snapshot.theme)],
+    ["Desktop", offline ? "Offline" : desktopLabel(snapshot.virtualDesktop)],
+    ["Hibernate", offline ? "Offline" : (snapshot.hibernateAvailable ? "Available" : "N/A")],
     ["Windows build", snapshot.osBuild || "Unknown"]
   ] : [["Backend", "Waiting"]];
   for (const [label, value] of rows) {
@@ -333,22 +378,32 @@ function addOption(select, value, label) {
   option.textContent = label;
   select.appendChild(option);
 }
+
 function show(id) { document.getElementById(id).classList.remove("hidden"); }
+
 function setValue(id, value) {
   const el = document.getElementById(id);
   if (el && document.activeElement !== el) el.value = value;
 }
-function duration(seconds) {
-  if (seconds === undefined || seconds === null) return "N/A";
-  if (seconds === 0) return "Never";
-  if (seconds % 3600 === 0) return `${seconds / 3600}h`;
-  if (seconds % 60 === 0) return `${seconds / 60}m`;
-  return `${seconds}s`;
+
+function radioLabel(radio) {
+  if (!radio?.available) return "N/A";
+  if (radio.state === "on") return "On";
+  if (radio.state === "off") return "Off";
+  if (radio.state === "disabled") return "Disabled";
+  if (radio.state === "mixed") return "Mixed";
+  return "N/A";
 }
-function hdrLabel(hdr) {
-  if (!hdr?.available) return "N/A";
-  if ((hdr.errors?.length ?? 0) > 0) return "Check";
-  if (hdr.supportedCount === 0) return "N/A";
-  if (hdr.mixed) return "Mixed";
-  return hdr.enabledCount === hdr.supportedCount ? "On" : "Off";
+
+function themeLabel(theme) {
+  if (!theme?.available) return "N/A";
+  if (theme.combined === "dark") return "Dark";
+  if (theme.combined === "light") return "Light";
+  if (theme.combined === "mixed") return "Mixed";
+  return "N/A";
+}
+
+function desktopLabel(desktop) {
+  if (!desktop?.available || !desktop.currentIndex || !desktop.count) return "N/A";
+  return `${desktop.currentIndex} / ${desktop.count}`;
 }
