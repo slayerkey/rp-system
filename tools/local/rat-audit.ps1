@@ -60,9 +60,14 @@ function Resolve-InternalProductRoot {
         throw "Rat Audit product metadata for '$Slug' points to a missing source directory: $relativeSource"
     }
 
-    $resolvedWorktree = (Resolve-Path $Worktree).Path.TrimEnd("\")
+    $trimChars = [char[]]@([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+    $resolvedWorktree = (Resolve-Path $Worktree).Path.TrimEnd($trimChars)
     $resolvedCandidate = (Resolve-Path $candidate).Path
-    if (-not $resolvedCandidate.StartsWith($resolvedWorktree + "\", [System.StringComparison]::OrdinalIgnoreCase)) {
+    $prefix = $resolvedWorktree + [IO.Path]::DirectorySeparatorChar
+    if (
+        $resolvedCandidate -ne $resolvedWorktree -and
+        -not $resolvedCandidate.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)
+    ) {
         throw "Rat Audit refused source outside the active worktree for '$Slug': $resolvedCandidate"
     }
 
