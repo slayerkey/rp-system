@@ -69,7 +69,6 @@ export class WirelessRuntime {
       });
     }
     this.notify();
-    await this.sendInspector();
   }
 
   async perform(id: string, operation: "connect" | "disconnect"): Promise<{ ok: boolean; error?: string }> {
@@ -187,24 +186,20 @@ export class WirelessRuntime {
     return (await this.globals()).groups?.[normalized] ?? [];
   }
 
-  async sendInspector(): Promise<void> {
-    try {
-      const globals = await this.globals();
-      await streamDeck.ui.sendToPropertyInspector({
-        type: "wireless-snapshot",
-        edition: this.edition,
-        adapterAvailable: this.adapterAvailable,
-        hidAvailable: this.hidAvailable,
-        error: this.lastError,
-        devices: this.devices(),
-        liteDeviceId: globals.liteDeviceId ?? null,
-        favorites: globals.favorites ?? [],
-        groups: globals.groups ?? {},
-        thresholds: globals.thresholds ?? {},
-        slots: globals.slots ?? {}
-      } as any);
-    } catch {
-      // No Property Inspector is currently open.
-    }
+  async inspectorPayload(): Promise<any> {
+    const globals = await this.globals();
+    return {
+      type: "wireless-snapshot",
+      edition: this.edition,
+      adapterAvailable: this.adapterAvailable,
+      hidAvailable: this.hidAvailable,
+      error: this.lastError,
+      devices: this.devices(),
+      liteDeviceId: globals.liteDeviceId ?? null,
+      favorites: globals.favorites ?? [],
+      groups: globals.groups ?? {},
+      thresholds: globals.thresholds ?? {},
+      slots: globals.slots ?? {}
+    };
   }
 }
