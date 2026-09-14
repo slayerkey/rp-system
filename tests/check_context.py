@@ -19,6 +19,9 @@ required = [
     "skills/icue-widget-builder/SKILL.md",
     "platforms/streamdeck.md",
     "platforms/icue-xeneon.md",
+    "docs/RAT-DEV-RELIABILITY.md",
+    "docs/STREAMDECK_TROUBLESHOOTING_PLAYBOOK.md",
+    "docs/FRESH_CHAT_ACCEPTANCE.md",
     "standards/product-state.md",
     "standards/streamdeck-plugin-design-system-v1.md",
     "standards/streamdeck-key-visuals-v1.md",
@@ -29,6 +32,46 @@ required = [
 for rel in required:
     if not (ROOT / rel).is_file():
         errors.append(f"missing required file: {rel}")
+
+
+streamdeck_entry = ROOT / "STREAMDECK.md"
+if streamdeck_entry.is_file():
+    text = streamdeck_entry.read_text(encoding="utf-8")
+    for required_ref in (
+        "docs/RAT-DEV-RELIABILITY.md",
+        "docs/STREAMDECK_TROUBLESHOOTING_PLAYBOOK.md",
+        "standards/streamdeck-plugin-design-system-v1.md",
+        "standards/streamdeck-key-visuals-v1.md",
+        "skills/rat-qa/SKILL.md",
+    ):
+        if required_ref not in text:
+            errors.append(f"STREAMDECK.md must reference {required_ref}")
+
+design_standard = ROOT / "standards/streamdeck-plugin-design-system-v1.md"
+if design_standard.is_file():
+    text = design_standard.read_text(encoding="utf-8")
+    required_contracts = (
+        "#080A0E",
+        "#FFB21E",
+        "Lite → Pro upgrade pattern",
+        "Upgrade to Pro ↗",
+        "bottom feature-rich Pro card",
+        "Product-specific rollout tasks consume this pattern",
+    )
+    for contract in required_contracts:
+        if contract not in text:
+            errors.append(f"Stream Deck design system missing canonical contract: {contract}")
+
+troubleshooting = ROOT / "docs/STREAMDECK_TROUBLESHOOTING_PLAYBOOK.md"
+if troubleshooting.is_file():
+    text = troubleshooting.read_text(encoding="utf-8")
+    for required_ref in (
+        "streamdeck-plugin-design-audit.mjs",
+        "streamdeck-key-visual-audit.mjs",
+        "RAT-DEV-RELIABILITY.md",
+    ):
+        if required_ref not in text:
+            errors.append(f"Stream Deck troubleshooting playbook must reference {required_ref}")
 
 product_index = ROOT / "products/index.json"
 product_count = None
