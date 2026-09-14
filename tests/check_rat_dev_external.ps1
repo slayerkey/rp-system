@@ -53,15 +53,16 @@ Require-Text $external 'Attempting rollback' "External Rat Dev must attempt roll
 Require-Text $external 'Previous development build restored.' "Successful rollback must be reported."
 Require-Text $external 'Previous files were not deleted' "Failed rollback must preserve and report the previous build path."
 
-# Windows lock handling is confined to stale preflight cleanup. Healthy external updates avoid
-# touching the live directory altogether.
-Require-Text $preflight 'Existing Rat Dev checkout is reusable. Keeping the current plugin live during the update.' "Healthy preflight must keep the current plugin live."
+# Reusable checkouts skip destructive stale-folder cleanup. External Rat Dev still performs
+# isolated candidate builds, while internal native-helper builds may release their own process locks.
+Require-Text $preflight 'Existing Rat Dev checkout is reusable. Continuing without stale-checkout cleanup.' "Healthy preflight must reuse the checkout without destructive cleanup."
 Require-Text $preflight 'Windows is still releasing the old development folder. Retrying...' "Stale preflight must retry Windows file locks."
 Require-Text $preflight 'Restarting the Stream Deck app once to release it' "Stale preflight must have a final Stream Deck lock recovery path."
 
 # Existing internal products still use the established internal worktree path.
 Require-Text $legacy 'Sync-RatPackWorktree' "Internal Rat Dev must retain its canonical RatPack worktree sync path."
 Require-Text $legacy 'Build-And-TestPlugin' "Internal Stream Deck products must still build and test before link."
+Require-Text $legacy 'Release-RatDevBuildLocks' "Internal Rat Dev must release build-owned native helper locks before an in-place rebuild."
 
 # Success identity and profile diagnostics.
 Require-Text $external 'Source commit:' "Rat Dev success output must print exact source commit."

@@ -1,0 +1,71 @@
+{
+  "id": "window-manager-pro",
+  "name": "Window Manager Pro",
+  "type": "plugin",
+  "status": "release-candidate",
+  "workflow_state": "BLOCKED",
+  "blocker": "Fresh classic-behavior Windows + macOS QA is green at private commit e139fa3c92eb54005902cb21aa2fd56407b5fa1b. Remaining gates are final rat dev visual QA, human approval of the refreshed classic-product Rat Art/contact sheet, and pinning an authoritative validated package/media artifact for Rat Ship.",
+  "price_usd": 6.99,
+  "live_price_usd": 6.99,
+  "target_price_usd": 6.99,
+  "price_change_status": "UNCHANGED",
+  "version": "1.2.0.0",
+  "live_version": "1.1.0.0",
+  "platform": "Elgato Stream Deck / Windows + macOS",
+  "submission_metadata": "plugins/window-manager-pro/submission.json",
+  "source_repository": "https://github.com/slayerkey/vcs.git",
+  "source_ref": "refs/heads/product/window-manager-pro",
+  "source_commit": "e139fa3c92eb54005902cb21aa2fd56407b5fa1b",
+  "plugin_uuid": "com.packrat.windowmanagerpro",
+  "marketplace_product_id": "f3ed6217-0282-419d-a71d-4b1548147b11",
+  "marketplace_url": "https://marketplace.elgato.com/product/window-manager-pro-f3ed6217-0282-419d-a71d-4b1548147b11",
+  "lite_product_id": "window-manager",
+  "lite_marketplace_product_id": "a7693b4c-4afd-4dce-925a-262fd23b1f23",
+  "lite_marketplace_url": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23",
+  "release_gate": [
+    "46/46 deterministic tests: PASS on Windows + macOS at exact private commit e139fa3c92eb54005902cb21aa2fd56407b5fa1b.",
+    "Published plugin/action UUID compatibility: PASS.",
+    "Window Layout classic per-key contract (hold to record, press once to restore): PASS.",
+    "Closed applications are skipped; no app-launch control path is present: PASS.",
+    "Snap Window, Cycle Windows, Nudge Window, Windows + macOS, Stream Deck 6.9+, dial support, and Profiles: No remain preserved.",
+    "Canonical PackRat Stream Deck design and PackRat maker branding are present.",
+    "Existing Window Manager Lite -> Pro Marketplace relationship and exact Pro Marketplace ID remain preserved.",
+    "Windows private QA bridge run 34880801751: PASS; package 886720 bytes; SHA256 199f32c0832b4772206cd60ae8b9ee3de1f51690e93aeb34e75abece416396f9.",
+    "Windows physical smoke: PASS; repeatedRestores=5, missing=0, minimizedGeometry=restore-rect, behavior=per-key-layout-no-app-launch.",
+    "Windows exact package/Koffi audit: PASS.",
+    "macOS private QA bridge run 34880801751: PASS; package 898296 bytes; SHA256 24c905650ff7d24be8792cc9b8d5e53d42832d3fc70fbc66f278b3c2546be725.",
+    "Official Elgato validate/package: PASS on Windows + macOS.",
+    "Refreshed classic-product deterministic Rat Art render: PASS on Windows.",
+    "Final rat dev visual QA: PENDING.",
+    "Human Rat Art/contact-sheet approval: PENDING.",
+    "Authoritative validated package/media artifact pin for Rat Ship: PENDING."
+  ],
+  "final_boundary": "Run rat dev window-manager-pro for the final local visual check. After that, visually approve the refreshed classic-product Rat Art/contact sheet and pin the authoritative validated package/media artifact. Only then change workflow_state to READY_TO_SHIP. Keep the existing $6.99 price and existing Marketplace product.",
+  "notes": "Paid source remains private in slayerkey/vcs. This 1.2 candidate is a visual/reliability update of the existing Window Manager Pro product, not a workspace-product expansion. Earlier workspace-specific 1.2 QA evidence is historical only and is not final release evidence for this reset candidate.",
+  "automated_release_evidence": {
+    "status": "PASSED_AWAITING_VISUAL_AND_ARTIFACT_GATES",
+    "private_source_commit": "e139fa3c92eb54005902cb21aa2fd56407b5fa1b",
+    "public_qa_bridge_run": 34880801751,
+    "deterministic_tests": {
+      "windows": "46/46",
+      "macos": "46/46"
+    },
+    "windows": {
+      "package_bytes": 886720,
+      "package_sha256": "199f32c0832b4772206cd60ae8b9ee3de1f51690e93aeb34e75abece416396f9",
+      "physical_smoke": {
+        "repeatedRestores": 5,
+        "missing": 0,
+        "minimizedGeometry": "restore-rect",
+        "behavior": "per-key-layout-no-app-launch"
+      },
+      "exact_package_audit": "PASS",
+      "rat_art_render": "PASS"
+    },
+    "macos": {
+      "package_bytes": 898296,
+      "package_sha256": "24c905650ff7d24be8792cc9b8d5e53d42832d3fc70fbc66f278b3c2546be725",
+      "compatibility_scope": "build + AppKit enumeration + platform isolation + validation/package; not physical Accessibility-driven movement"
+    }
+  }
+}

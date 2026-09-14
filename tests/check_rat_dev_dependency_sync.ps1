@@ -38,7 +38,41 @@ try {
         throw "Projects without package-lock.json must remain on the legacy npm install path."
     }
 
-    Write-Host "Rat Dev dependency fingerprint checks passed."
+    $native = Join-Path $root "native"
+    New-Item -ItemType Directory -Force -Path $native | Out-Null
+    Set-Content -Path (Join-Path $native "Fixture.csproj") -NoNewline -Encoding utf8 -Value '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net8.0</TargetFramework></PropertyGroup></Project>'
+
+    Set-Item -Path Function:Get-RatDevDotNetSdkVersions -Value { @() }
+    $missingSdkThrew = $false
+    try {
+        Assert-RatDevBuildPrerequisites -PluginRoot $root -Slug "fixture-plugin"
+    }
+    catch {
+        $missingSdkThrew = $true
+        $message = $_.Exception.Message
+        if ($message -notmatch '\.NET 8\+ SDK' -or
+            $message -notmatch 'Microsoft\.DotNet\.SDK\.8' -or
+            $message -notmatch 'runtime by itself is not enough' -or
+            $message -notmatch 'rat dev fixture-plugin') {
+            throw "Missing-SDK error did not provide the expected actionable guidance: $message"
+        }
+    }
+    if (-not $missingSdkThrew) {
+        throw "A plugin containing a .csproj must fail Rat Dev prerequisite checks when no .NET SDK is available."
+    }
+
+    $ratDevPath = Join-Path $root "rat-dev.json"
+    Set-Content -Path $ratDevPath -NoNewline -Encoding utf8 -Value '{"build_prerequisites":{"dotnet_sdk":"self-managed"}}'
+    Assert-RatDevBuildPrerequisites -PluginRoot $root -Slug "fixture-plugin"
+    Remove-Item $ratDevPath -Force
+
+    Set-Item -Path Function:Get-RatDevDotNetSdkVersions -Value { @("8.0.425") }
+    Assert-RatDevBuildPrerequisites -PluginRoot $root -Slug "fixture-plugin"
+
+    Set-Item -Path Function:Get-RatDevDotNetSdkVersions -Value { @("10.0.100") }
+    Assert-RatDevBuildPrerequisites -PluginRoot $root -Slug "fixture-plugin"
+
+    Write-Host "Rat Dev dependency fingerprint and build-prerequisite checks passed."
 }
 finally {
     Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-12",
+  "updated_at": "2026-09-14",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -33,7 +33,7 @@
       "classification": "lite_to_pro",
       "lite_marketplace_url": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/window-manager-pro-f3ed6217-0282-419d-a71d-4b1548147b11",
-      "source_status": "catalog_only_in_ratpack",
+      "source_status": "private_source_verified_vcs",
       "lite_marketplace_product_id": "a7693b4c-4afd-4dce-925a-262fd23b1f23",
       "pro_marketplace_product_id": "f3ed6217-0282-419d-a71d-4b1548147b11"
     },
@@ -180,6 +180,21 @@
       "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
     },
     {
+      "lite_id": "windows-settings-manager-lite",
+      "pro_id": "windows-settings-manager-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "products/windows-settings-manager/plugin",
+        "products/windows-settings-manager-lite.json",
+        "products/windows-settings-manager-pro.json"
+      ],
+      "source_status": "lite_and_pro_qa_passed_ready_to_ship_pro_first_marketplace_linking_pending",
+      "notes": "Lite is the coherent free essentials edition for the broad use case of controlling Windows without opening Settings or leaving the current task: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, and Next Desktop. Pro expands the same use case into the complete 15-key Windows Control Center with Hibernate, protected Restart/Shutdown, Wi-Fi, Bluetooth, Light/Dark theme, New/Close/Current Desktop, plus advanced Windows controls. Both editions passed build/tests/validation/package/media gates and physical Stream Deck visual review. Release order remains Pro first. Lite may be generated/uploaded as a draft, but final public Lite submission requires the exact verified Pro and Lite Marketplace URLs/IDs and a passing strict shipping audit.",
+      "upsell_surface": "Lite Property Inspector",
+      "url_injection": "Build reads pro_marketplace_url from this map. The Lite upgrade CTA remains hidden until a verified direct Pro Marketplace product URL exists."
+    },
+    {
       "lite_id": "monitor-manager-lite",
       "pro_id": "monitor-manager-pro",
       "platform": "streamdeck",
@@ -190,7 +205,7 @@
         "plugins/_shared/monitor-manager"
       ],
       "source_status": "source_built_marketplace_pending",
-      "notes": "Source pair is built. Direct Marketplace URLs and product IDs stay absent until the public listings exist. Lite keeps its Pro CTA hidden until the exact verified public Pro URL is committed."
+      "notes": "Lite is the brightness-only free edition. Pro is the full display-control edition. Direct Marketplace URLs and product IDs stay absent until public listings exist; Lite keeps its Pro CTA hidden until the exact verified public Pro URL is committed."
     }
   ],
   "standalone_free": [

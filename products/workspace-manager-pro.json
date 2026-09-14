@@ -1,0 +1,57 @@
+{
+  "id": "workspace-manager-pro",
+  "name": "Workspace Manager Pro",
+  "type": "plugin",
+  "status": "qa_passed",
+  "workflow_state": "READY_FOR_HARDWARE_QA",
+  "blocker": "Physical Rat Dev visual/hardware QA on the user's actual Stream Deck remains before any release decision. Marketplace submission and shipping are not authorized.",
+  "version": "0.1.0.0",
+  "platform": "Elgato Stream Deck / Windows + macOS",
+  "source_repository": "https://github.com/slayerkey/vcs.git",
+  "source_ref": "refs/heads/product/workspace-manager-pro",
+  "source_commit": "e4a45791627d985fe196bfbbc6ae01fefbf4b763",
+  "plugin_uuid": "com.packrat.workspacemanagerpro",
+  "marketplace_identity": "NEW_STANDALONE_SKU_PENDING",
+  "lite_product_id": null,
+  "release_gate": [
+    "Standalone Pro-only product source created under streamdeck/workspace-manager-pro/0.1.0.0/source",
+    "Plugin UUID com.packrat.workspacemanagerpro and action UUID com.packrat.workspacemanagerpro.workspace are distinct from all published Window Manager Pro identifiers",
+    "Validated Window Manager Pro 1.2 workspace/model/native engine reused from source commit 577e9ff0c69b0c5d062a77745e481e8669728cf1",
+    "Named shared workspace create/capture/rename/duplicate/delete flow preserved",
+    "Entire-desktop restore, optimal one-to-one matching, same-app multi-window handling, monitor remapping, window state handling, safe missing-app launch, duplicate-launch prevention, retry, partial-failure and progress/results logic preserved",
+    "Windows/macOS model/native/workspace regression tests copied into the standalone source and new identity/design tests added",
+    "Canonical PackRat Stream Deck design applied locally; standards/streamdeck-plugin-design-system-v1.md remains read-only",
+    "Rat Dev external registration added for rat dev workspace-manager-pro",
+    "Private-source QA bridge run 34878150451: PASS on Windows + macOS at exact source commit e4a45791627d985fe196bfbbc6ae01fefbf4b763",
+    "Windows: npm ci, regression tests, build, native Win32 ABI enumeration, official Elgato validation/package, standalone identity audit and repeated-restore/closed-app smoke: PASS",
+    "macOS: npm ci, regression tests, build, AppKit monitor enumeration, platform bundle isolation, official Elgato validation/package and standalone identity audit: PASS",
+    "Plugin-level PNG preference icon corrected after validator feedback; 256x256 and 512x512 assets now included"
+  ],
+  "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host, inspect the canonical Property Inspector and full-face key visuals, and exercise named workspace capture/restore with real daily apps. Keep this product out of Marketplace submission/ship until that hardware QA is explicitly accepted.",
+  "notes": "Standalone Pro-only product with no Lite edition. This is a new future Marketplace identity and must never reuse Window Manager Pro Marketplace/product/action identifiers. Window Manager Pro source and control-plane metadata are not modified by this product registration.",
+  "automated_release_evidence": {
+    "status": "PASSED_AWAITING_PHYSICAL_RAT_DEV_QA",
+    "source_commit": "e4a45791627d985fe196bfbbc6ae01fefbf4b763",
+    "private_source_qa_bridge_run": 34878150451,
+    "windows": {
+      "status": "PASSED",
+      "tests": "PASSED",
+      "build": "PASSED",
+      "native_win32_enumeration": "PASSED",
+      "elgato_validate": "PASSED",
+      "elgato_package": "PASSED",
+      "standalone_identity_audit": "PASSED",
+      "repeated_restore_smoke": "PASSED"
+    },
+    "macos": {
+      "status": "PASSED",
+      "tests": "PASSED",
+      "build": "PASSED",
+      "appkit_monitor_enumeration": "PASSED",
+      "platform_bundle_isolation": "PASSED",
+      "elgato_validate": "PASSED",
+      "elgato_package": "PASSED",
+      "standalone_identity_audit": "PASSED"
+    }
+  }
+}

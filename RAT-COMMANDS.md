@@ -25,13 +25,15 @@ If one product fails, Rat Ship records the failure, continues the remaining queu
 
 ### Release-state guard
 
-Canonical product metadata can intentionally block public submission with the schema-defined `workflow_state` value `BLOCKED`.
+Canonical product metadata uses the schema-defined `workflow_state` release state machine. For any product that declares a workflow state, `rat ship` and `rat submit` fail closed unless the canonical state is exactly `READY_TO_SHIP`.
 
-Blocked products should name the unresolved dependency in their `blocker` field. `rat ship` and `rat submit` fail closed while that state is active and print the blocker when present. Legacy `BLOCKED_*` values are still recognized defensively during migration, but new product records should use canonical `BLOCKED`.
+That means intermediate states such as `BUILDING`, `TESTING`, `ART`, `READY_FOR_HARDWARE_QA`, `SUBMITTED`, `PUBLISHED`, `REJECTED`, and `BLOCKED` are not eligible for a new public submission. Legacy product records with no `workflow_state` retain the pre-state-machine behavior until migrated.
 
-This prevents a technically ready product from being publicly submitted before an external legal, platform, approval, licensing, or compliance dependency is cleared.
+Blocked products should name the unresolved dependency in their `blocker` field. Legacy `BLOCKED_*` values are still recognized defensively during migration, but new product records should use canonical `BLOCKED`.
 
-`rat kit` and `rat stage` remain available for non-public preparation and review. After the external blocker is actually resolved, move `products/<slug>.json` on canonical `main` to `READY_TO_SHIP` before running `rat ship`.
+This prevents a product from being publicly submitted before its current release candidate has actually cleared the release gate.
+
+`rat kit` and `rat stage` remain available for non-public preparation and review in every workflow state. Move `products/<slug>.json` on canonical `main` to `READY_TO_SHIP` only after the current candidate is genuinely ready for Marketplace submission.
 
 ### Stream Deck plugin release path
 
@@ -149,7 +151,8 @@ Rat Dev:
 12. Attempts to restore the previous known good plugin if activation fails.
 13. Saves successful deployment identity under `out\dev\state\<slug>.json`.
 14. Prints the exact product version, repository, source branch, full source commit, plugin UUID, plugin path, link status and restart status.
-15. Prints bundled profile names and the profile folder when profiles exist.
+15. Prints bundled profile names when profiles exist.
+16. Opens the preferred bundled `.streamDeckProfile` for import when the product opts in, or by default when bundled profiles exist and the product has not explicitly opted out.
 
 A successful run therefore gives an unambiguous answer to “which build am I actually running?”
 
@@ -167,13 +170,29 @@ Link:              verified (CLI success)
 Restart:           verified (CLI success)
 ```
 
-Development linking and packaged Marketplace installation are intentionally described separately. A dev link does not guarantee the same profile auto install behavior as a normal package installation. Rat Dev prints the bundled profile folder so this boundary is explicit instead of appearing to be an installation failure.
+Development linking and packaged Marketplace installation are intentionally described separately. For bundled profiles, Rat Dev now opens the preferred `.streamDeckProfile` after a successful link so Windows/Stream Deck can present the normal Install Profile flow. Products can set `open_profile_on_dev` or `dev_profile` in canonical metadata or `rat-dev.json` to override that behavior.
 
 See `docs/RAT-DEV-RELIABILITY.md` for the full external lifecycle contract and failure behavior.
+
+### Shared-source Lite/Pro products
+
+Rat Dev supports multiple product SKUs that intentionally share one internal source directory. The product registry remains authoritative:
+
+- `products/<slug>.json.source` selects the shared source root.
+- `products/<slug>.json.ship_plugin_dir` selects the exact generated `.sdPlugin` directory for that SKU.
+- A family branch such as `product/text-expander` can therefore serve both `rat dev text-expander` and `rat dev text-expander-pro`.
+
+Rat Dev refuses to guess when an unregistered source root contains multiple top-level `.sdPlugin` directories. Add explicit product metadata instead of relying on directory enumeration order.
 
 ### Internal Stream Deck products and XENEON widgets
 
 Products sourced from RatPack itself keep the established internal worktree path in `tools/local/rat-dev.ps1`.
+
+For pre-merge product work, Rat Dev prefers an exact `origin/product/<slug>` branch when it contains newer or divergent work. If that exact product branch is already fully merged and is merely an ancestor of newer `origin/main`, Rat Dev uses `origin/main` instead so a stale product ref cannot install an older build. Lite/Pro families may also share a family branch such as `origin/product/macro-recorder`; Rat Dev discovers that branch by verifying which product branch actually contains `plugins/<slug>` or `widgets/_src/<slug>`. If multiple unrelated product branches contain the same slug, resolution fails closed instead of guessing.
+
+For internal products, canonical product metadata and `plugins/<source>/rat-dev.json` are merged for development-only behavior such as preferred profiles, profile opening, plugin directories, and local inspection folders. Product metadata wins when both explicitly define the same field.
+
+Missing `rat-dev.json` files are treated as normal probes for internal products, so a pre-merge product can still be built by source inference when the plugin directory and manifest are unambiguous.
 
 For XENEON widgets Rat Dev automatically detects `widgets/_src/<slug>` and:
 

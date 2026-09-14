@@ -14,9 +14,11 @@ GitHub remains the source of truth. Do not rebuild the Stream Deck process from 
 2. `STREAMDECK.md`
 3. `skills/rat-build/SKILL.md`
 4. the matching platform/product-type guidance
-5. `skills/rat-art/SKILL.md`
-6. `skills/rat-ship/SKILL.md`
-7. `products/index.json`
+5. `standards/streamdeck-plugin-design-system-v1.md`
+6. `standards/streamdeck-key-visuals-v1.md`
+7. `skills/rat-art/SKILL.md`
+8. `skills/rat-ship/SKILL.md`
+9. `products/index.json`
 
 Read product-specific source and QA only after the product slug and type are known.
 
@@ -44,17 +46,41 @@ Use the Stream Deck SDK and canonical plugin build/test/package path.
 
 Validate manifest structure, built code paths, property inspectors, actions, assets, settings, cache/API behavior, error states, and Elgato CLI validation/package.
 
+Key-face visual quality and Property Inspector behavior are part of plugin correctness. Read `standards/streamdeck-plugin-design-system-v1.md` and `standards/streamdeck-key-visuals-v1.md` before designing action art, settings UI, live telemetry, or bundled profiles. A key must be obvious at real 72 x 72 Stream Deck scale, with the action or live value upfront. PackRat Keypad UI owns the full rendered key face: disable the Stream Deck title overlay with `ShowTitle: false` and render any state/value text into the image with an explicit text band. Do not cover a generic device illustration with host-managed title text.
+
+Every plugin with Keypad actions must run the shared key-face audit when practical:
+
+`node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin>`
+
+New Node SDK plugins should also run the source-level design contract audit:
+
+`node tools/qa/streamdeck-plugin-design-audit.mjs <plugin-source-root>`
+
+That audit catches stable action-identity drift, host-title regressions, and the Property Inspector context/transport failure pattern that causes dead buttons, stale startup state, and settings that do not persist.
+
+Dashboard-style plugins that promise the default major-model bundle must run:
+
+`node tools/qa/streamdeck-key-visual-audit.mjs <path-to-.sdPlugin> --require-major-profiles`
+
+The default major-model bundle is standard/MK.2, XL, Plus, and Neo (DeviceTypes 0, 2, 7, and 9) unless the product records a deliberate exception. Use `tools/streamdeck/profile-builder.mjs` for deterministic generation instead of hand-maintaining multiple archives. The shared builder supports multi-page layouts for feature-rich products.
+
+When bundled profiles exist, Rat Dev should make them impossible to forget: `rat dev <slug>` opens the DeviceType 0 standard/MK.2 profile by default after a validated link, unless the product explicitly opts out. Use `dev_profile` only to override which bundled profile is opened.
+
+The automated audit is only a floor. Also review actual keys at 72 x 72 and a reduced 36 x 36 preview. Dynamic keys must be reviewed using representative rendered states, not only their manifest fallback image.
+
 Use GitHub Actions for clean Node builds and vendor CLI work.
 
-Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures.
+Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures. The hardware pass must explicitly cover readable 72 x 72 key faces, accent/state behavior, Property Inspector save/reopen persistence, PI command buttons, live update cadence, and bundled profile appearance when profiles are promised.
 
 ### Profile
 
 Treat profiles as deterministic generated products when possible.
 
-Validate profile archive structure, pages, navigation, action UUIDs, plugin dependencies, grid placement, icons, compatibility, and required platform/device variants.
+Validate profile archive structure, pages, navigation, action UUIDs, plugin dependencies, grid placement, icons, compatibility, required platform/device variants, and key-face legibility.
 
-Generate Windows, Mac, VSD, XL, Plus, or other required variants from canonical definitions rather than hand-editing several independent copies.
+Bundled profile titles and action images must follow `standards/streamdeck-key-visuals-v1.md`. Profile generation is not allowed to reintroduce long labels over icon art that the plugin manifest avoided.
+
+Generate device variants from canonical definitions rather than hand-editing several independent copies. New PackRat profile bundles should prefer the shared deterministic builder in `tools/streamdeck/profile-builder.mjs`.
 
 A local Stream Deck import remains useful as final validation when required.
 
@@ -116,6 +142,7 @@ Depending on product type, this can include:
 * manifest validation
 * property inspector checks
 * SVG/PNG dimensions
+* 72 x 72 key-face visual audit and reduced-scale review
 * profile archive validation
 * action UUID/dependency checks
 * golden package comparisons
@@ -129,6 +156,20 @@ Depending on product type, this can include:
 `/rat-art` is the deterministic repository art pipeline, not ChatGPT image generation.
 
 Use real product screenshots, generated keys, device plates, approved assets, and canonical composition tooling.
+
+### Canonical Stream Deck hardware hero
+
+The shared MK.2 photo compositor lives at `tools/art/streamdeck_photo.py`.
+
+The approved hardware plate is `tools/art/assets/streamdeck-mk2-straight.png` and its 15-button calibration is `tools/art/streamdeck-mk2-straight.apertures.json`.
+
+The hardware plate contains real transparent LCD windows. Product key art must be rendered on an underlay **behind** those windows, then the untouched photographed hardware plate must be composited on top. Never draw key art over the physical button bezel, glass rim, chassis, or lighting.
+
+The source PNG alpha channel is authoritative. The calibration stores coarse physical button bounds and cached expected LCD bounds, but the compositor must detect each real LCD hole as an internal connected alpha component at render time. Every detected LCD pixel must receive a fully opaque screen underlay, with a small under-bezel safety bleed, before product art is added. A successful render requires exactly 15 detected LCDs and zero uncovered LCD pixels.
+
+Transparent key assets must be alpha-trimmed before fitting so invisible canvas padding cannot make the visible artwork undersized. Their transparency reveals the intentional screen background, never the marketplace scene. Opaque key-face screenshots fill the detected LCD area. The compositor must reject bad calibration that does not match the plate's real alpha holes.
+
+Stream Deck hero titles use the same deterministic font resolver, warm-studio scene, white/orange hierarchy, and source PackRat mark as the approved XENEON hero system.
 
 ## Shipping
 

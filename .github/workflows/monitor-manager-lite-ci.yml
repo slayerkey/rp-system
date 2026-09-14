@@ -91,7 +91,10 @@ jobs:
         shell: pwsh
         run: |
           $product = Get-Content products/monitor-manager-lite.json -Raw | ConvertFrom-Json
-          if ([string]$product.workflow_state -eq 'READY_TO_SHIP') {
+          if ([string]$product.workflow_state -eq 'READY_TO_SHIP' -and [string]$product.pro_cta_release_policy -eq 'deferred_until_verified_public_url') {
+            Write-Host 'Monitor Manager Lite ships with the Pro CTA intentionally hidden until the verified public Pro URL exists.'
+          }
+          elseif ([string]$product.workflow_state -eq 'READY_TO_SHIP') {
             python tools/lite_pro_audit.py --shipping monitor-manager-lite
             if ($LASTEXITCODE -ne 0) { throw 'Monitor Manager Lite strict Lite-to-Pro shipping audit failed.' }
           }

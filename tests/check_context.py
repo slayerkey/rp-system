@@ -8,6 +8,7 @@ errors = []
 
 required = [
     "RATPACK.md",
+    "STREAMDECK.md",
     "products/index.json",
     "skills/rat/SKILL.md",
     "skills/rat-validate/SKILL.md",
@@ -19,6 +20,11 @@ required = [
     "platforms/streamdeck.md",
     "platforms/icue-xeneon.md",
     "standards/product-state.md",
+    "standards/streamdeck-plugin-design-system-v1.md",
+    "standards/streamdeck-key-visuals-v1.md",
+    "tools/qa/streamdeck-key-visual-audit.mjs",
+    "tools/qa/streamdeck-plugin-design-audit.mjs",
+    "tools/streamdeck/profile-builder.mjs",
 ]
 for rel in required:
     if not (ROOT / rel).is_file():

@@ -1,0 +1,139 @@
+name: Window Manager Lite Rehydrate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/window-manager-lite-rehydrate.yml'
+
+permissions:
+  contents: write
+
+env:
+  VCS_REPOSITORY: slayerkey/vcs
+  VCS_REF: product/window-manager-lite
+
+jobs:
+  rehydrate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout public control plane
+        uses: actions/checkout@v4
+        with:
+          path: rp-system
+
+      - name: Verify private-source deploy key exists
+        shell: pwsh
+        env:
+          VCS_DEPLOY_KEY: ${{ secrets.VCS_DEPLOY_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:VCS_DEPLOY_KEY)) {
+            throw 'Missing VCS_DEPLOY_KEY.'
+          }
+
+      - name: Checkout private Lite archive
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.VCS_REPOSITORY }}
+          ref: ${{ env.VCS_REF }}
+          ssh-key: ${{ secrets.VCS_DEPLOY_KEY }}
+          path: vcs
+          persist-credentials: false
+
+      - name: Reconstruct exact Window Manager Lite 1.0.0.3 source
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $partsDir = 'vcs/streamdeck/window-manager-lite/1.0.0.3/firstparty'
+          $parts = Get-ChildItem $partsDir -Filter 'part*.b64' | Sort-Object Name
+          if ($parts.Count -ne 4) { throw "Expected 4 first-party parts, found $($parts.Count)" }
+
+          $base64 = ($parts | ForEach-Object { (Get-Content -Raw $_.FullName).Trim() }) -join ''
+          $archive = Join-Path $env:RUNNER_TEMP 'window-manager-lite-base.tar.xz'
+          [IO.File]::WriteAllBytes($archive, [Convert]::FromBase64String($base64))
+
+          $expected = '57d801cebb8c39a47680336d19f32719f99e50065df236acda3cd2356e11184a'
+          $actual = (Get-FileHash -Algorithm SHA256 $archive).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw "Base archive hash mismatch: $actual" }
+
+          $restore = Join-Path $env:RUNNER_TEMP 'window-manager-lite-restored'
+          New-Item -ItemType Directory -Force $restore | Out-Null
+          tar -xJf $archive -C $restore
+          if ($LASTEXITCODE -ne 0) { throw 'Base archive extraction failed' }
+
+          $plugin = Join-Path $restore 'com.packrat.windowmanager.sdPlugin'
+          if (-not (Test-Path (Join-Path $plugin 'manifest.json'))) { throw 'manifest.json missing' }
+          if (-not (Test-Path (Join-Path $plugin 'bin/plugin.js'))) { throw 'plugin.js missing' }
+
+          $overlayB64 = 'vcs/streamdeck/window-manager-lite/1.0.0.3/icon-hardening/window-manager-lite-icon-overlay.tar.xz.b64'
+          $overlayArchive = Join-Path $env:RUNNER_TEMP 'window-manager-lite-icon-overlay.tar.xz'
+          [IO.File]::WriteAllBytes($overlayArchive, [Convert]::FromBase64String((Get-Content -Raw $overlayB64).Trim()))
+
+          $overlayExpected = '2d431491f70f8cd710998dd8279173743f91d889092158377b4386cfd5ab8d22'
+          $overlayActual = (Get-FileHash -Algorithm SHA256 $overlayArchive).Hash.ToLowerInvariant()
+          if ($overlayActual -ne $overlayExpected) { throw "Overlay hash mismatch: $overlayActual" }
+
+          tar -xJf $overlayArchive -C $plugin
+          if ($LASTEXITCODE -ne 0) { throw 'Overlay extraction failed' }
+
+          $out = 'window-manager-lite-source'
+          New-Item -ItemType Directory -Force $out | Out-Null
+          Copy-Item -Recurse -Force $plugin $out
+
+          Write-Host "CURRENT LITE MANIFEST"
+          Get-Content -Raw (Join-Path $plugin 'manifest.json')
+          Write-Host "CURRENT LITE UI FILES"
+          Get-ChildItem (Join-Path $plugin 'ui') -File | Select-Object Name,Length
+          Write-Host "CURRENT PRO FOOTER"
+          Get-Content -Raw (Join-Path $plugin 'ui/pro-footer.js')
+
+      - name: Materialize editable Lite product branch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = 'rp-system'
+          $destination = Join-Path $repo 'plugins/window-manager'
+
+          git -C $repo checkout -B product/window-manager-lite origin/main
+
+          if (Test-Path $destination) { Remove-Item -Recurse -Force $destination }
+          New-Item -ItemType Directory -Force $destination | Out-Null
+          Copy-Item -Recurse -Force 'window-manager-lite-source/com.packrat.windowmanager.sdPlugin' $destination
+
+          @'
+          # Window Manager Lite
+
+          Canonical editable source for the free Stream Deck product.
+
+          Rehydrated from the exact private 1.0.0.3 baseline plus the pinned native-icon overlay.
+
+          Product boundary:
+          - Snap Window
+          - Cycle Windows
+          - existing hidden XENEON service
+          - existing Window Manager Pro Marketplace upsell
+
+          Do not expand the Lite action surface during visual/upsell refresh work.
+          '@ | Set-Content -Encoding UTF8 (Join-Path $destination 'README.md')
+
+          git -C $repo config user.name "github-actions[bot]"
+          git -C $repo config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C $repo add plugins/window-manager
+
+          if (git -C $repo diff --cached --quiet) {
+            Write-Host 'Editable Lite source already matches.'
+          } else {
+            git -C $repo commit -m "window-manager-lite: restore editable canonical source"
+          }
+
+          git -C $repo push --force-with-lease origin HEAD:product/window-manager-lite
+
+      - name: Upload reconstructed Lite source
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-lite-reconstructed-source
+          path: window-manager-lite-source
+          if-no-files-found: error
+          retention-days: 1

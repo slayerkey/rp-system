@@ -1,0 +1,31 @@
+{
+  "slug": "window-manager-pro",
+  "name": "Window Manager Pro",
+  "type": "plugin",
+  "price_usd": 6.99,
+  "pricing_status": "LIVE_PRICE_6_99_UNCHANGED",
+  "version": "1.2.0.0",
+  "marketplace_category": [
+    "Productivity"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows",
+    "macOS"
+  ],
+  "marketplace_tags": [
+    "Productivity",
+    "Window Management",
+    "Multi-Monitor",
+    "Stream Deck +"
+  ],
+  "marketplace_auto_publish": false,
+  "description": "Record and restore complete window arrangements from Stream Deck. Hold a Window Layout key to save the current arrangement, then press it once to put open windows back where you saved them. Closed applications are skipped rather than launched.\\n\\nWindow Manager Pro also includes Snap Window, Cycle Windows, and Nudge Window for everyday positioning and navigation. Nudge Window supports Stream Deck + dials for fine movement and resizing.\\n\\nThe 1.2 update keeps the same familiar workflow while refreshing the PackRat visual design and hardening multi-monitor placement and minimized-window restore behavior.\\n\\nSupports Windows and macOS with Stream Deck 6.9 or later.\\n\\nPart of the PackRat ecosystem.",
+  "release_notes": "- Refreshed Window Manager Pro with the canonical PackRat Stream Deck design.\\n- Preserved the classic Window Layout workflow: hold to record, press once to restore.\\n- Improved multi-monitor placement and minimized-window restore handling.\\n- Preserved Snap Window, Cycle Windows, Nudge Window, Windows + macOS support, Stream Deck 6.9+, and Stream Deck + dial support.\\n- Closed applications continue to be skipped during layout restore; this update does not add app launching or named workspaces.",
+  "target_price_usd": 6.99,
+  "marketplace_product_id": "f3ed6217-0282-419d-a71d-4b1548147b11",
+  "marketplace_existing_version": "1.1",
+  "marketplace_existing_product_update": true
+}

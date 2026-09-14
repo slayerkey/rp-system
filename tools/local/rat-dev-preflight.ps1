@@ -6,6 +6,7 @@ param(
 $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $Worktree = Join-Path $RepoRoot "out\dev\worktrees\$Slug"
+. (Join-Path $PSScriptRoot "rat-dev-source.ps1")
 
 function Get-StreamDeckCli {
     $cmd = Get-Command "streamdeck.cmd" -ErrorAction SilentlyContinue
@@ -66,16 +67,22 @@ function Read-JsonFromGitObject {
 }
 
 function Get-Registration {
-    $productRef = "refs/remotes/origin/product/${Slug}"
-    & git -C $RepoRoot rev-parse --verify --quiet $productRef *> $null
-    if ($LASTEXITCODE -eq 0) {
-        $productObject = "origin/product/${Slug}:plugins/${Slug}/rat-dev.json"
-        $config = Read-JsonFromGitObject $productObject
+    # Explicit external registrations on origin/main are authoritative and must
+    # be resolved before branch discovery. This prevents private products from
+    # failing preflight when stale slug copies exist on unrelated product branches.
+    $mainConfig = Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object "origin/main:plugins/$Slug/rat-dev.json"
+    if ($mainConfig -and $mainConfig.repository) {
+        return $mainConfig
+    }
+
+    $source = Resolve-RatDevInternalProductSource -RepoRoot $RepoRoot -Slug $Slug
+    if ($source -and $source.Kind -eq "ratpack") {
+        $productObject = "$($source.Ref):plugins/$Slug/rat-dev.json"
+        $config = Read-RatDevJsonFromGitObject -RepoRoot $RepoRoot -Object $productObject
         if ($config) { return $config }
     }
 
-    $mainObject = "origin/main:plugins/${Slug}/rat-dev.json"
-    return (Read-JsonFromGitObject $mainObject)
+    return $mainConfig
 }
 
 function Test-ReusableCheckout {
@@ -224,10 +231,11 @@ if (-not (Test-Path $Worktree)) {
 }
 
 # A healthy checkout may currently be the directory Stream Deck is running from.
-# Do not stop or unlink it before the replacement has built and validated. rat-dev.ps1
-# will switch the link only at the end of a successful update.
+# Reuse it in place. rat-dev.ps1 keeps ordinary plugins live, but if a plugin owns
+# a running native executable inside this checkout it will pause that plugin just
+# before the build so Windows can release the executable file lock.
 if (Test-ReusableCheckout -Config $config) {
-    Write-Host "Existing Rat Dev checkout is reusable. Keeping the current plugin live during the update." -ForegroundColor DarkGray
+    Write-Host "Existing Rat Dev checkout is reusable. Continuing without stale-checkout cleanup." -ForegroundColor DarkGray
     exit 0
 }
 

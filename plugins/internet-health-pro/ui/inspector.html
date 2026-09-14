@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Internet Health Pro</title>
+  <link rel="stylesheet" href="inspector.css" />
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>Internet Health Pro</h1>
+        <p class="muted">Live network health, latency, outages, targets, and manual speed testing.</p>
+      </div>
+      <button id="packratLink" class="brand-link" type="button" aria-label="Open PackRat on the Elgato Marketplace">
+        <img src="packrat-logo.svg" alt="" aria-hidden="true" />
+        <span>PackRat ↗</span>
+      </button>
+    </section>
+
+    <section class="status-card">
+      <div class="status-row"><span id="statusDot" class="dot"></span><strong id="statusTitle">Starting monitor…</strong></div>
+      <div id="statusDetail" class="muted">Internet Health Pro uses one shared monitoring engine for every key.</div>
+    </section>
+
+    <section class="group">
+      <label for="intervalSeconds">Background monitoring interval</label>
+      <select id="intervalSeconds">
+        <option value="1">1 second (default)</option>
+        <option value="5">5 seconds</option>
+        <option value="10">10 seconds</option>
+        <option value="15">15 seconds</option>
+        <option value="30">30 seconds</option>
+        <option value="60">60 seconds</option>
+      </select>
+      <p class="hint">Shared across every Internet Health Pro key. 1 second is the default for the most responsive live graph and latency display. 5 seconds remains available for a lighter background cadence. Failed endpoints still back off automatically.</p>
+    </section>
+
+    <section class="group" data-kinds="health latency jitter-loss summary">
+      <label for="historyWindow">History window</label>
+      <select id="historyWindow">
+        <option value="5">5 minutes</option>
+        <option value="30">30 minutes</option>
+        <option value="120">2 hours</option>
+      </select>
+    </section>
+
+    <section class="group" data-kinds="health latency summary">
+      <div class="two">
+        <div><label for="latencyWarn">Latency warning (ms)</label><input id="latencyWarn" type="number" min="10" max="1000" step="5" /></div>
+        <div><label for="latencyBad">Latency bad (ms)</label><input id="latencyBad" type="number" min="20" max="2000" step="5" /></div>
+      </div>
+    </section>
+
+    <section class="group" data-kinds="health jitter-loss summary">
+      <div class="two">
+        <div><label for="jitterWarn">Jitter warning (ms)</label><input id="jitterWarn" type="number" min="1" max="500" step="1" /></div>
+        <div><label for="jitterBad">Jitter bad (ms)</label><input id="jitterBad" type="number" min="2" max="1000" step="1" /></div>
+      </div>
+      <div class="two">
+        <div><label for="lossWarn">Loss warning (%)</label><input id="lossWarn" type="number" min="0" max="100" step="0.5" /></div>
+        <div><label for="lossBad">Loss bad (%)</label><input id="lossBad" type="number" min="0" max="100" step="0.5" /></div>
+      </div>
+      <p class="hint">No mystery score. GOOD / DEGRADED / BAD comes directly from these thresholds.</p>
+    </section>
+
+    <section class="group" data-kinds="jitter-loss">
+      <label for="metric">Metric</label>
+      <select id="metric"><option value="jitter">Jitter</option><option value="loss">Probe loss</option></select>
+      <p class="hint">Probe loss is failed observed probes. ICMP loss is counted only after ICMP has been proven to work on this connection.</p>
+    </section>
+
+    <section class="group" data-kinds="outage">
+      <label for="outageMode">Display</label>
+      <select id="outageMode">
+        <option value="uptime">Current uptime</option>
+        <option value="last">Last outage duration</option>
+        <option value="count">Outages in last 24 hours</option>
+        <option value="current">Current outage</option>
+      </select>
+      <p class="hint">A whole-internet outage requires multiple independent checks to fail. One dead website is never enough.</p>
+    </section>
+
+    <section class="group" data-kinds="target">
+      <label for="target">Host or HTTPS URL</label>
+      <input id="target" type="text" placeholder="1.1.1.1 or https://example.com" />
+      <label for="targetMethod">Measurement</label>
+      <select id="targetMethod">
+        <option value="auto">Auto</option>
+        <option value="icmp">ICMP latency</option>
+        <option value="tcp">TCP connect</option>
+        <option value="dns">DNS lookup</option>
+        <option value="https">HTTP/HTTPS response</option>
+      </select>
+      <div class="two">
+        <div><label for="targetPort">TCP port</label><input id="targetPort" type="number" min="1" max="65535" step="1" /></div>
+        <div><label for="family">IP family</label><select id="family"><option value="auto">Auto</option><option value="ipv4">IPv4</option><option value="ipv6">IPv6</option></select></div>
+      </div>
+      <p class="hint">The key labels the actual measurement used. HTTPS response time is never called ping.</p>
+    </section>
+
+    <section class="group" data-kinds="speed-test">
+      <strong>Manual speed test</strong>
+      <p class="hint">Never runs in the background. Fast links use a longer multi-stream sample for accuracy, capped at about 300 MB total transfer. Results are shown in Mbps.</p>
+      <div class="two">
+        <div><label for="expectedDownloadMbps">Expected down (Mbps)</label><input id="expectedDownloadMbps" type="number" min="0" max="100000" step="1" placeholder="Optional" /></div>
+        <div><label for="expectedUploadMbps">Expected up (Mbps)</label><input id="expectedUploadMbps" type="number" min="0" max="100000" step="1" placeholder="Optional" /></div>
+      </div>
+      <label for="lowSpeedPercent">Mark LOW below this % of expected</label>
+      <input id="lowSpeedPercent" type="number" min="10" max="100" step="5" />
+      <p class="hint">Leave expected speeds at 0 to show raw results only. The LOW label uses this explicit threshold, not a hidden score. 800 Mbps is about 100 MB/s.</p>
+      <button id="speedTest" type="button">Run speed test</button>
+    </section>
+
+    <section class="group">
+      <p id="saveStatus" class="hint">Settings save automatically.</p>
+      <label for="accent">Healthy accent</label>
+      <div class="color-row"><input id="accent" type="color" /><code id="accentValue">#2BE86A</code></div>
+    </section>
+
+    <section class="group">
+      <div class="button-row"><button id="refresh" type="button" class="secondary">Probe now</button></div>
+      <p id="methodDetail" class="hint">Waiting for the first measurement.</p>
+      <p class="hint">All history stays on this computer. Internet Health Pro has no PackRat telemetry.</p>
+    </section>
+  </main>
+  <script src="inspector.js"></script>
+</body>
+</html>

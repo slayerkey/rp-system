@@ -2,10 +2,15 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 REPO = Path(__file__).resolve().parents[3]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+from tools.art.marketplace_text import draw_fitted_text
 W, H = 1920, 960
 BG = (6, 8, 12)
 PANEL = (13, 16, 23)
@@ -64,9 +69,15 @@ def signature(img):
 
 def title(img, headline, sub=""):
     d = ImageDraw.Draw(img)
-    d.text((96, 68), headline, font=font(58, True), fill=WHITE)
+    draw_fitted_text(
+        d, (96, 58, 1824, 128), headline, font,
+        fill=WHITE, max_size=58, min_size=44, bold=True, max_lines=1
+    )
     if sub:
-        d.text((98, 142), sub, font=font(23), fill=MUTED)
+        draw_fitted_text(
+            d, (98, 138, 1824, 188), sub, font,
+            fill=MUTED, max_size=24, min_size=20, max_lines=1
+        )
 
 
 def chip(draw, x, y, value):
@@ -251,8 +262,14 @@ def features(out):
         x = 125 + i * 445
         d.rounded_rectangle((x, 255, x + 390, 710), 30, fill=(*PANEL, 235), outline=(48, 57, 70), width=2)
         key(d, x + 90, 310, size=210, **spec)
-        d.text((x + 195, 570), heading, font=font(21, True), fill=ACCENT if i == 1 else WHITE, anchor="mm")
-        d.multiline_text((x + 195, 618), desc, font=font(17), fill=MUTED, anchor="ma", align="center", spacing=5)
+        draw_fitted_text(
+            d, (x + 28, 550, x + 362, 590), heading, font,
+            fill=ACCENT if i == 1 else WHITE, max_size=23, min_size=18, bold=True, max_lines=1, align="center"
+        )
+        draw_fitted_text(
+            d, (x + 30, 610, x + 360, 682), desc, font,
+            fill=MUTED, max_size=21, min_size=16, spacing=5, max_lines=3, align="center"
+        )
     signature(img)
     img.convert("RGB").save(out / "03_gallery_01.png", quality=95)
 
@@ -276,8 +293,14 @@ def spotlight(out):
     d = ImageDraw.Draw(img)
     left_x = 230
     key(d, left_x, 280, "ALEX", "SPEAKING", avatar=AVATAR_COLORS[0], speaking=True, size=240)
-    d.text((left_x + 120, 575), "SPEAKER SPOTLIGHT", font=font(22, True), fill=ACCENT, anchor="mm")
-    d.multiline_text((left_x + 120, 620), "Large, centered, and readable.\nNo layout jump when someone talks.", font=font(17), fill=MUTED, anchor="ma", align="center", spacing=6)
+    draw_fitted_text(
+        d, (left_x - 20, 555, left_x + 260, 595), "SPEAKER SPOTLIGHT", font,
+        fill=ACCENT, max_size=24, min_size=19, bold=True, max_lines=1, align="center"
+    )
+    draw_fitted_text(
+        d, (left_x - 50, 612, left_x + 290, 690), "Large, centered, and readable. No layout jump when someone talks.", font,
+        fill=MUTED, max_size=21, min_size=16, spacing=6, max_lines=3, align="center"
+    )
 
     roster = [
         ("YOU", AVATAR_COLORS[1], "SPOKE", False),
@@ -287,8 +310,14 @@ def spotlight(out):
     ]
     for i, (name, color, state, active) in enumerate(roster):
         key(d, 720 + i * 250, 315, name, state, avatar=color, active=active, size=190)
-    d.text((1190, 565), "DYNAMIC MEMBER SLOTS", font=font(22, True), fill=WHITE, anchor="mm")
-    d.multiline_text((1190, 610), "Members stay in a predictable position.\nOnly their live state changes.", font=font(17), fill=MUTED, anchor="ma", align="center", spacing=6)
+    draw_fitted_text(
+        d, (920, 545, 1460, 590), "DYNAMIC MEMBER SLOTS", font,
+        fill=WHITE, max_size=24, min_size=19, bold=True, max_lines=1, align="center"
+    )
+    draw_fitted_text(
+        d, (900, 605, 1480, 690), "Members stay in a predictable position. Only their live state changes.", font,
+        fill=MUTED, max_size=21, min_size=16, spacing=6, max_lines=3, align="center"
+    )
     signature(img)
     img.convert("RGB").save(out / "05_gallery_03.png", quality=95)
 

@@ -1,0 +1,8 @@
+{
+  "type": "streamdeck-plugin",
+  "repository": "https://github.com/slayerkey/vcs.git",
+  "ref": "product/window-manager-pro",
+  "source_root": "streamdeck/window-manager-pro/1.2.0.0/source",
+  "plugin_dir": "com.packrat.windowmanagerpro.sdPlugin",
+  "plugin_uuid": "com.packrat.windowmanagerpro"
+}

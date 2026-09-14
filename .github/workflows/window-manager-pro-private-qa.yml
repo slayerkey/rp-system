@@ -1,0 +1,264 @@
+name: Window Manager Pro Private QA Bridge
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/window-manager-pro-private-qa.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: window-manager-pro-private-qa
+  cancel-in-progress: true
+
+env:
+  VCS_REPOSITORY: slayerkey/vcs
+  VCS_REF: e139fa3c92eb54005902cb21aa2fd56407b5fa1b
+  SOURCE_ROOT: vcs/streamdeck/window-manager-pro/1.2.0.0/source
+
+jobs:
+  windows:
+    name: Windows full private-source QA
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout public QA control plane
+        uses: actions/checkout@v4
+        with:
+          path: rp-system
+
+      - name: Verify private-source deploy key exists
+        shell: powershell
+        env:
+          VCS_DEPLOY_KEY: ${{ secrets.VCS_DEPLOY_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:VCS_DEPLOY_KEY)) {
+            throw 'Missing repository secret VCS_DEPLOY_KEY. Add the read-only SSH deploy private key for slayerkey/vcs.'
+          }
+
+      - name: Checkout exact private Window Manager Pro candidate
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.VCS_REPOSITORY }}
+          ref: ${{ env.VCS_REF }}
+          ssh-key: ${{ secrets.VCS_DEPLOY_KEY }}
+          path: vcs
+          persist-credentials: false
+
+      - name: Verify frozen private commit
+        shell: powershell
+        run: |
+          $actual=(git -C vcs rev-parse HEAD).Trim()
+          if($actual -ne $env:VCS_REF){throw "Private checkout mismatch: $actual != $env:VCS_REF"}
+          Write-Host "PRIVATE SOURCE COMMIT: $actual"
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Resolve lockfile and install exact dependency tree
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if (-not (Test-Path package-lock.json)) {
+            npm install --package-lock-only --ignore-scripts
+          }
+          npm ci
+          if (-not (Test-Path package-lock.json)) { throw 'package-lock.json was not produced.' }
+
+      - name: Dependency identity
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: powershell
+        run: |
+          node -e "const p=require('./node_modules/koffi/package.json'); if(p.version!=='3.1.6') throw new Error('Unexpected Koffi '+p.version); console.log('koffi='+p.version)"
+          node -e "const p=require('./node_modules/@elgato/streamdeck/package.json'); if(p.version!=='2.1.2') throw new Error('Unexpected SDK '+p.version); console.log('streamdeck-sdk='+p.version)"
+
+      - name: Deterministic fixtures
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm test
+
+      - name: Build paid runtime
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run build
+
+      - name: Native Win32 ABI enumeration
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: powershell
+        run: node -e "import('./src/win32.js').then(async m=>{m.assertNativeLayout();console.log('monitors='+JSON.stringify(await m.monitors()));console.log('windows='+String((await m.listWindows()).length))})"
+
+      - name: Official Elgato validation
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run validate
+
+      - name: Official Elgato package
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run pack
+
+      - name: Normalize and hash package
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $packages=@(Get-ChildItem dist -File -Filter *.streamDeckPlugin)
+          if($packages.Count -ne 1){throw "Expected exactly one package; found $($packages.Count)."}
+          $target=Join-Path (Resolve-Path dist) 'window-manager-pro.streamDeckPlugin'
+          if($packages[0].FullName -ne $target){Move-Item -Force $packages[0].FullName $target}
+          $p=Get-Item $target
+          $sha=(Get-FileHash -Algorithm SHA256 $p.FullName).Hash.ToLowerInvariant()
+          Write-Host "PACKAGE PATH: dist/window-manager-pro.streamDeckPlugin"
+          Write-Host "PACKAGE BYTES: $($p.Length)"
+          Write-Host "PACKAGE SHA256: $sha"
+
+      - name: Physical repeated-restore smoke
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: node scripts/windows-smoke.mjs
+
+      - name: Exact package and Koffi audit
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $manifest=Get-Content -Raw com.packrat.windowmanagerpro.sdPlugin/manifest.json | ConvertFrom-Json
+          if($manifest.UUID -ne 'com.packrat.windowmanagerpro'){throw 'Plugin UUID changed.'}
+          if($manifest.Version -ne '1.2.0.0'){throw 'Unexpected version.'}
+          if($null -ne $manifest.Profiles){throw 'Profiles must remain absent.'}
+          $ids=@($manifest.Actions | ForEach-Object UUID)
+          $required=@(
+            'com.packrat.windowmanagerpro.layout',
+            'com.packrat.windowmanagerpro.snap',
+            'com.packrat.windowmanagerpro.cycle',
+            'com.packrat.windowmanagerpro.nudge'
+          )
+          foreach($id in $required){if($ids -notcontains $id){throw "Missing action UUID $id"}}
+          $koffi=Get-Content -Raw com.packrat.windowmanagerpro.sdPlugin/bin/node_modules/koffi/package.json | ConvertFrom-Json
+          if([string]$koffi.version -ne '3.1.6'){throw "Unexpected Koffi $($koffi.version)"}
+          $native=@(Get-ChildItem com.packrat.windowmanagerpro.sdPlugin/bin/node_modules/@koromix -Directory -Filter 'koffi-win32-*')
+          if(-not $native.Count){throw 'Missing bundled Koffi Windows native companion.'}
+          Write-Host 'EXACT PACKAGE AUDIT PASS'
+
+      - name: Render deterministic Rat Art candidate
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: powershell
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==12.3.0
+          python -m py_compile scripts/rat-art.py
+          python scripts/rat-art.py --out dist/marketplace-art
+          Get-ChildItem dist/marketplace-art | Select-Object Name,Length
+          Write-Host 'RAT ART RENDER PASS'
+
+      - name: Public bridge privacy guard
+        shell: powershell
+        run: |
+          Write-Host 'No paid plugin package or private source is uploaded as a public Actions artifact.'
+          Write-Host 'QA outputs exist only on this ephemeral runner.'
+
+  macos:
+    name: macOS private-source compatibility QA
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout public QA control plane
+        uses: actions/checkout@v4
+        with:
+          path: rp-system
+
+      - name: Verify private-source deploy key exists
+        shell: bash
+        env:
+          VCS_DEPLOY_KEY: ${{ secrets.VCS_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$VCS_DEPLOY_KEY" || { echo 'Missing repository secret VCS_DEPLOY_KEY.' >&2; exit 1; }
+
+      - name: Checkout exact private Window Manager Pro candidate
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.VCS_REPOSITORY }}
+          ref: ${{ env.VCS_REF }}
+          ssh-key: ${{ secrets.VCS_DEPLOY_KEY }}
+          path: vcs
+          persist-credentials: false
+
+      - name: Verify frozen private commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git -C vcs rev-parse HEAD)"
+          test "$actual" = "$VCS_REF"
+          echo "PRIVATE SOURCE COMMIT: $actual"
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Resolve lockfile and install exact dependency tree
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f package-lock.json ]]; then npm install --package-lock-only --ignore-scripts; fi
+          npm ci
+          test -f package-lock.json
+
+      - name: Dependency identity
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: |
+          node -e "const p=require('./node_modules/koffi/package.json'); if(p.version!=='3.1.6') throw new Error('Unexpected Koffi '+p.version)"
+          node -e "const p=require('./node_modules/@elgato/streamdeck/package.json'); if(p.version!=='2.1.2') throw new Error('Unexpected SDK '+p.version)"
+
+      - name: Deterministic fixtures
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm test
+
+      - name: Build paid runtime
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run build
+
+      - name: macOS AppKit monitor enumeration
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: node -e "import('./src/darwin.js').then(async m=>console.log('monitors='+JSON.stringify(await m.monitors())))"
+
+      - name: Verify platform bundle isolation
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f com.packrat.windowmanagerpro.sdPlugin/bin/plugin.js
+          test -d com.packrat.windowmanagerpro.sdPlugin/bin/chunks
+          if grep -R -l -E 'user32|EnumWindows|koffi' com.packrat.windowmanagerpro.sdPlugin/bin/chunks | grep -v -E 'win32'; then
+            echo 'Win32/Koffi code leaked outside the Win32 platform chunk.'
+            exit 1
+          fi
+
+      - name: Official Elgato validation
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run validate
+
+      - name: Official Elgato package
+        working-directory: ${{ env.SOURCE_ROOT }}
+        run: npm run pack
+
+      - name: Hash compatibility package without publishing artifact
+        working-directory: ${{ env.SOURCE_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          count="$(find dist -maxdepth 1 -type f -name '*.streamDeckPlugin' | wc -l | tr -d '[:space:]')"
+          test "$count" = "1"
+          package="$(find dist -maxdepth 1 -type f -name '*.streamDeckPlugin' -print -quit)"
+          echo "PACKAGE BYTES: $(stat -f '%z' "$package")"
+          echo "PACKAGE SHA256: $(shasum -a 256 "$package" | awk '{print $1}')"
+
+      - name: Public bridge privacy guard
+        run: echo 'No paid plugin package or private source is uploaded as a public Actions artifact.'

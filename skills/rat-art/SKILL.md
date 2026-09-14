@@ -33,6 +33,18 @@ Keep PackRat text, device plates, icons, key faces, badges, and layouts determin
 
 Do not use generated images for product keys, text, device representations, marketplace screenshots, or contextual plates.
 
+## Stream Deck products
+
+For Stream Deck marketplace heroes, use the shared deterministic photo compositor at `tools/art/streamdeck_photo.py` with the approved `streamdeck-mk2-straight.png` hardware plate and its calibrated LCD map.
+
+The MK.2 plate is an overlay, not a canvas to paint on. Product key art belongs on an underlay behind the plate's real transparent LCD windows. The untouched photographed hardware goes on top so the physical bezel, rounded glass edge, reflections, chassis, and lighting remain authentic.
+
+Detect the 15 LCD windows from the source PNG alpha channel inside calibrated physical button bounds. Cached LCD bounds are regression evidence only, not the rendering mask. Fill every detected LCD pixel with an opaque screen underlay plus a small under-bezel safety bleed before placing product content. Rat Art must fail unless exactly 15 LCDs are detected and uncovered LCD pixels equal zero.
+
+Transparent key art must be alpha-trimmed and contained automatically. Its transparency reveals the intentional LCD background, never the warm-studio scene. Opaque key-face art fills the detected LCD region. Never paste product pixels over the physical button rim or compensate for a bad fit by covering a finished hero with a dark matte.
+
+Stream Deck hero typography must use the same deterministic font resolver and warm-studio white/orange hierarchy as the approved XENEON hero system.
+
 ## XENEON and iCUE widget products
 
 `standards/xeneon-marketplace-hero-v1.md` is the approved XENEON hero standard. For catalogued XENEON products, the hero uses the deterministic `warm-studio-v1` environment, a real `XL_H` product capture, the approved transparent XENEON Edge hardware plate, a large product name on the background monitor, and the PackRat rat/package mark in the upper-right. The approved mark is rendered at twice the original September prototype size for clearer browsing-scale brand recognition.
@@ -66,6 +78,20 @@ Before accepting Gallery 01, read only its title and feature points and ask whet
 For a game, stronger feature points are usually things like display fit, controls, difficulty/progression, persistence, replayability, or meaningful presentation options. For a utility, prioritize the core job, saved time or visibility, important live data, history/persistence, quick controls, and the feature that most clearly separates Lite from Pro.
 
 Use setup convenience as supporting copy unless setup simplicity is itself the product's main advantage.
+
+## Marketplace text safety
+
+All customer-facing Rat Art prose must be laid out inside explicit bounding boxes with the shared helper at `tools/art/marketplace_text.py`.
+
+- use `draw_fitted_text(...)` for card descriptions, subtitles, explanatory copy, and any text that can wrap
+- let the helper choose the largest safe font size inside the declared box
+- wrapping must preserve the full copy; do not silently truncate or clip
+- if the copy cannot fit at the declared minimum readable size, Rat Art must fail closed
+- do not use raw Pillow `multiline_text(...)` for marketplace prose
+- prefer fewer, larger cards over many narrow cards when the listing is expected to be judged at thumbnail size
+- inspect gallery frames at 480×240, 320×160, and 240×120; if text becomes decorative noise instead of useful information, simplify the layout or increase the content scale
+
+This rule exists specifically to prevent text from crossing card boundaries or becoming unreadable after Marketplace downsizing.
 
 ## Required preflight
 
