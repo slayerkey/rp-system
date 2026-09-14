@@ -158,10 +158,15 @@ function Invoke-CanonicalStreamDeckHero {
     try {
         $hero = Join-Path $heroWork "02_cover.png"
         $ratArtKeys = Join-Path $Target "rat-art-keys"
+        $ratArtFixtures = Join-Path $Target "rat-art-key-fixtures.json"
         Write-Host "Local Rat Ship plugin: render canonical orange desk hero..." -ForegroundColor DarkGray
         if (Test-Path $ratArtKeys -PathType Container) {
             Write-Host "Local Rat Ship plugin: using product Rat Art key faces for hero fidelity..." -ForegroundColor DarkGray
             & python $renderer --product $ProductSlug --plugin-dir $PluginDirectory --submission $SubmissionFile --out $hero --keys-dir $ratArtKeys | Out-Host
+        }
+        elseif (Test-Path $ratArtFixtures -PathType Leaf) {
+            Write-Host "Local Rat Ship plugin: using representative runtime key fixtures for hero fidelity..." -ForegroundColor DarkGray
+            & python $renderer --product $ProductSlug --plugin-dir $PluginDirectory --submission $SubmissionFile --out $hero --key-fixtures $ratArtFixtures | Out-Host
         }
         else {
             & python $renderer --product $ProductSlug --plugin-dir $PluginDirectory --submission $SubmissionFile --out $hero | Out-Host
