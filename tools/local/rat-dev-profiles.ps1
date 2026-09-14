@@ -125,6 +125,7 @@ function Write-RatDevProfileState {
 
 
 
+
 function Get-RatDevProfileActionIdsFromArchive {
     param([Parameter(Mandatory = $true)][string]$ProfilePath)
 
@@ -132,7 +133,8 @@ function Get-RatDevProfileActionIdsFromArchive {
     $archive = [System.IO.Compression.ZipFile]::OpenRead($ProfilePath)
     $values = @()
     try {
-        foreach ($entry in @($archive.Entries | Where-Object { $_.FullName -match '/Profiles/.+/manifest\.json    param([Parameter(Mandatory = $true)][string]$ProfileRoot)
+        foreach ($entry in @($archive.Entries | Where-Object { $_.FullName -match '/Profiles/.+/manifest\.json
+    param([Parameter(Mandatory = $true)][string]$ProfileRoot)
     $values = @()
     foreach ($manifestPath in @(Get-ChildItem -Path $ProfileRoot -Recurse -File -Filter "manifest.json" -ErrorAction SilentlyContinue)) {
         try {
