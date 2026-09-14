@@ -30,7 +30,7 @@ Profiles auto-install with the plugin but do not auto-switch. They use the same 
 One TelemetryService instance is shared by every visible key.
 
 - **Windows-native baseline:** Node's OS counters provide CPU utilization and RAM utilization without a helper, API key, account, or driver.
-- **Hardware sensors:** a small PackRat .NET helper hosts LibreHardwareMonitorLib 0.9.6 at a 1 Hz update rate and streams a sensor catalog plus samples as JSON Lines.
+- **Hardware sensors:** a small PackRat .NET helper hosts LibreHardwareMonitorLib 0.9.6 at a 2 Hz update rate and streams a sensor catalog plus samples as JSON Lines. The Property Inspector presents a short Common list first; raw sensor internals stay behind Show advanced sensors.
 - **FPS / frametime:** PresentMon 2.5.1 is downloaded from its official GitHub release during the deterministic build, bundled in the plugin, and run as one private named capture session. FPS uses `MsBetweenPresents`, the cadence between application `Present()` calls; it is not claimed as display-confirmed scan-out FPS. PackRat disables unrelated display/GPU/input tracking and console stats.
 - **Session engine:** frame events are aggregated into 100 ms FPS buckets. Percent-low calculations, worst raw frametime, hardware peaks, process changes, and completed-session summaries are maintained centrally.
 - **Persistence:** versioned, bounded JSON under %LOCALAPPDATA%\PackRat\PerformanceGrapher. Writes are committed through a temporary file, and corrupt state is quarantined instead of crashing startup.
@@ -39,18 +39,18 @@ Adding five keys does not create five PresentMon sessions or five Libre Hardware
 
 ## Permission and hardware boundaries
 
-PresentMon's real-time ETW path may require the current Windows user to be in **Performance Log Users** or to run with administrator rights. The plugin reports permission_required explicitly.
+PresentMon's real-time ETW path may require one Windows permission. When that happens, the Property Inspector offers **Enable Game FPS**: approve the normal UAC prompt, then sign out and back in once. The setup adds the current Windows user to the required local performance-logging group automatically, so customers do not have to edit Windows groups by hand.
 
 Libre Hardware Monitor can expose many GPU sensors without extra setup, but some lower-level motherboard/CPU sensors require elevated access or an already-installed compatible PawnIO path. Performance Grapher does not install PawnIO or another driver for you. Unsupported/missing sensors render an honest unavailable state.
 
 ## Performance budget
 
-- Hardware sensors: 1 Hz.
+- Hardware sensors: 2 Hz.
 - Windows CPU/RAM fallback: 1 Hz.
 - Frame aggregation: 100 ms graph buckets; raw events are not persisted. Average FPS and 1% / 0.1% lows are calculated from accepted raw frame times before graph aggregation.
 - FPS key rendering: maximum 4 image updates/second and only when visible.
-- Hardware key rendering: maximum 1 image update/second.
-- Sensor raw history: 15 minutes at 1 Hz.
+- Hardware key rendering: maximum 2 image updates/second.
+- Sensor recent history: 900 raw samples plus a 10-second bounded archive for longer windows.
 - Sensor archive: 6 hours at 10-second resolution.
 - FPS graph history: bounded recent samples plus 1-second session archive.
 - Persistence: debounced, maximum once every 30 seconds during steady state.
