@@ -19,6 +19,7 @@
   let socket = null;
   let uiUuid = "";
   let actionUuid = "";
+  let actionContext = "";
   let kind = "health";
   let settings = { ...DEFAULT_ACTION };
   let globals = { ...DEFAULT_GLOBAL };
@@ -126,16 +127,17 @@
     $("refresh").textContent = "Probe now";
   }
   function requestState() {
-    return send({ event: "sendToPlugin", action: actionUuid, context: uiUuid, payload: { type: "internetHealth.inspect" } });
+    return send({ event: "sendToPlugin", action: actionUuid, context: uiUuid, payload: { type: "internetHealth.inspect", actionContext } });
   }
   function command(command) {
-    return send({ event: "sendToPlugin", action: actionUuid, context: uiUuid, payload: { type: "internetHealth.command", command } });
+    return send({ event: "sendToPlugin", action: actionUuid, context: uiUuid, payload: { type: "internetHealth.command", command, actionContext } });
   }
 
   window.connectElgatoStreamDeckSocket = (port, uuid, registerEvent, info, rawActionInfo) => {
     uiUuid = uuid;
     const actionInfo = JSON.parse(rawActionInfo || "{}");
     actionUuid = String(actionInfo.action || "");
+    actionContext = String(actionInfo.context || "");
     kind = ID_TO_KIND[actionUuid] || "health";
     applyAction(actionInfo.payload?.settings || {});
     filterFields();
