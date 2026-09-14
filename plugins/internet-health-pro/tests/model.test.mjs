@@ -63,9 +63,10 @@ test("outage summary separates current duration, last outage and recent count", 
 });
 
 
-test("default monitoring cadence is five seconds with optional one second mode", () => {
-  assert.equal(DEFAULT_GLOBAL_SETTINGS.intervalSeconds, 5);
-  assert.equal(normalizeGlobalSettings({}).intervalSeconds, 5);
+test("default monitoring cadence is one second with five seconds still supported", () => {
+  assert.equal(DEFAULT_GLOBAL_SETTINGS.intervalSeconds, 1);
+  assert.equal(normalizeGlobalSettings({}).intervalSeconds, 1);
   assert.equal(normalizeGlobalSettings({ intervalSeconds: 1 }).intervalSeconds, 1);
+  assert.equal(normalizeGlobalSettings({ intervalSeconds: 5 }).intervalSeconds, 5);
   assert.equal(normalizeGlobalSettings({ intervalSeconds: 10 }).intervalSeconds, 10);
 });
