@@ -55,7 +55,7 @@ abstract class LiveTitleAction<S extends Record<string, any>> extends SingletonA
     runtime.state.subscribe(() => void this.paintAll());
   }
 
-  protected abstract readonly visual: KeyVisualKind;
+  protected abstract override readonly visual: KeyVisualKind;
   protected readonly tone: KeyVisualTone = "brand";
   protected abstract title(settings: S): Promise<string> | string;
 
@@ -413,7 +413,7 @@ class DesktopCloseBase extends DesktopCommandBase {
   protected readonly command = "close" as const;
   protected readonly baseTitle = "DESK\nCLOSE";
   protected readonly visual = "desktop-close" as const;
-  protected readonly tone = "danger" as const;
+  protected override readonly tone = "danger" as const;
 }
 class DesktopCurrentBase extends LiveTitleAction<Record<string, never>> {
   protected readonly visual = "desktop-current" as const;
