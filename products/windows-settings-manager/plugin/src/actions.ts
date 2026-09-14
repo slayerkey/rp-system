@@ -55,7 +55,7 @@ abstract class LiveTitleAction<S extends Record<string, any>> extends SingletonA
     runtime.state.subscribe(() => void this.paintAll());
   }
 
-  protected abstract override readonly visual: KeyVisualKind;
+  protected abstract readonly visual: KeyVisualKind;
   protected readonly tone: KeyVisualTone = "brand";
   protected abstract title(settings: S): Promise<string> | string;
 
@@ -214,7 +214,7 @@ class AwakeBase extends LiveTitleAction<ToggleSettings> {
 abstract class RadioBase extends LiveTitleAction<ToggleSettings> {
   protected abstract readonly radioKind: "wifi" | "bluetooth";
   protected abstract readonly backendKind: "WiFi" | "Bluetooth";
-  protected abstract readonly visual: KeyVisualKind;
+  protected abstract override readonly visual: KeyVisualKind;
 
   protected title(): string {
     const snapshot = runtime.state.getSnapshot();
