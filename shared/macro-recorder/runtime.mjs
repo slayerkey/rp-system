@@ -80,6 +80,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   let lastError = "";
   let latestSignature = "";
   let recoveringCrash = false;
+  let activeInspectorId = "";
   let savedFeedback = null;
   let savedFeedbackTimer = null;
 
@@ -192,17 +193,37 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     };
   }
 
+  async function sendPropertyInspector(payload, record = null) {
+    if (pro && streamDeck.ui?.sendToPropertyInspector) {
+      await streamDeck.ui.sendToPropertyInspector(payload).catch(() => {});
+      return;
+    }
+    if (record?.action?.sendToPropertyInspector) {
+      await record.action.sendToPropertyInspector(payload).catch(() => {});
+    }
+  }
+
   async function sendInspector(record) {
-    if (!record?.action?.sendToPropertyInspector) return;
-    await record.action.sendToPropertyInspector(await inspectorState(record)).catch(() => {});
+    if (!record) return;
+    await sendPropertyInspector(await inspectorState(record), record);
   }
 
   async function broadcastInspectors() {
+    if (pro) {
+      const record = visible.get(activeInspectorId);
+      if (record) await sendInspector(record);
+      return;
+    }
     await Promise.all([...visible.values()].filter((record) => record.inspectorOpen).map(sendInspector));
   }
 
   async function broadcastStatus() {
     const status = inspectorStatus();
+    if (pro) {
+      const record = visible.get(activeInspectorId);
+      if (record) await sendPropertyInspector(status, record);
+      return;
+    }
     await Promise.all([...visible.values()]
       .filter((record) => record.inspectorOpen && record.action?.sendToPropertyInspector)
       .map((record) => record.action.sendToPropertyInspector(status).catch(() => {})));
@@ -420,6 +441,158 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     if (knownPlayback && stopError) await action?.showAlert?.().catch(() => {});
   }
 
+  async function buildDiagnostic(record, meta = {}, client = {}) {
+    const disk = pro ? await library.diagnose() : null;
+    let storedSettings = null;
+    let settingsError = "";
+    try {
+      storedSettings = await record?.action?.getSettings?.();
+    } catch (error) {
+      settingsError = String(error?.message || error || "");
+    }
+
+    const selectedMacroId = String(record?.settings?.macroId || "");
+    const selectedMacro = selectedMacroId && pro ? library.get(selectedMacroId) : null;
+    const checks = [
+      { name:"PI request reached plugin", ok:true, detail:meta.transport || "unknown" },
+      { name:"Selected action resolved", ok:Boolean(record), detail:record?.id || meta.requestedActionContext || "none" },
+      { name:"Selected action is visible", ok:Boolean(record && visible.has(record.id)), detail:`${visible.size} visible actions` },
+      { name:"Action settings readable", ok:Boolean(storedSettings && !settingsError), detail:settingsError || "settings read from Stream Deck" },
+      { name:"Macro Library has entries", ok:Boolean(disk?.inMemoryCount > 0), detail:`${disk?.inMemoryCount ?? 0} macros in memory` },
+      { name:"Library file exists", ok:Boolean(disk?.disk?.exists), detail:disk?.disk?.error || disk?.file || "" },
+      { name:"Library file readable", ok:Boolean(disk?.disk?.readable), detail:disk?.disk?.error || "" },
+      { name:"Library file parseable", ok:Boolean(disk?.disk?.parseable), detail:disk?.disk?.error || "" },
+      { name:"Disk matches memory", ok:Boolean(disk?.disk?.matchesMemory), detail:`disk=${disk?.disk?.macroCount ?? 0}, memory=${disk?.inMemoryCount ?? 0}` },
+      { name:"Library directory writable", ok:Boolean(disk?.writeProbe?.ok), detail:disk?.writeProbe?.error || "non-destructive write/read/delete probe passed" },
+      { name:"Assigned macro resolves", ok:!selectedMacroId || Boolean(selectedMacro), detail:selectedMacroId || "no macroId assigned" },
+    ];
+    const failures = checks.filter((item) => !item.ok).map((item) => item.name);
+    return {
+      type:"macroRecorder.diagnostic",
+      timestamp:new Date().toISOString(),
+      edition,
+      version,
+      summary:failures.length ? `FAIL: ${failures.join("; ")}` : "PASS: PI transport, library storage, and selected action state are consistent.",
+      checks,
+      transport:{
+        mode:meta.transport || "",
+        requestedActionContext:meta.requestedActionContext || "",
+        eventActionId:meta.eventActionId || "",
+        activeInspectorId,
+      },
+      client,
+      selectedAction:record ? {
+        id:record.id,
+        kind:record.kind,
+        inspectorOpen:Boolean(record.inspectorOpen),
+        memorySettings:{ ...record.settings, seedMacro: undefined },
+        storedSettings,
+        settingsError,
+        resolvedMacro:selectedMacro ? {
+          id:selectedMacro.id,
+          name:selectedMacro.name,
+          eventCount:selectedMacro.events?.length || 0,
+          durationMs:selectedMacro.durationMs || 0,
+        } : null,
+      } : null,
+      runtime:{
+        visibleActions:[...visible.values()].map((item) => ({
+          id:item.id,
+          kind:item.kind,
+          inspectorOpen:Boolean(item.inspectorOpen),
+          macroId:String(item.settings?.macroId || ""),
+        })),
+        recording:Boolean(recording),
+        playback:playback ? { actionId:playback.actionId, macroName:playback.macro?.name || "" } : null,
+        latestMacro:latestMacro ? { id:latestMacro.id, name:latestMacro.name, eventCount:latestMacro.events?.length || 0 } : null,
+        lastError,
+      },
+      library:disk ? {
+        ...disk,
+        entries:library.list().map((item) => ({
+          id:item.id,
+          name:item.name,
+          eventCount:item.eventCount,
+          durationMs:item.durationMs,
+          updatedAt:item.updatedAt,
+        })),
+      } : null,
+    };
+  }
+
+  async function handleUiPayload(record, payload = {}, meta = {}) {
+    if (payload.type === "macroRecorder.diagnostic") {
+      const diagnostic = await buildDiagnostic(record, meta, payload.client || {});
+      await sendPropertyInspector(diagnostic, record);
+      return;
+    }
+    if (!record) return;
+    if (payload.type === "macroRecorder.inspect") return sendInspector(record);
+    if (payload.type !== "macroRecorder.command") return;
+
+    const command = String(payload.command || "");
+    lastError = "";
+    try {
+      if (command === "cancelRecording") await cancelRecording(record.action);
+      else if (command === "stopPlayback") await stopPlayback(record.action);
+      else if (command === "stopAll") await stopAll(record.action);
+      else if (command === "assignLatest" && !pro && latestMacro) {
+        const next = { ...record.settings, macro: normalizeMacro(latestMacro, { pro:false, limits }) };
+        await record.action.setSettings(next);
+        record.settings = settingsFor("replay", next);
+      } else if (command === "saveLiteMacro" && !pro) {
+        const next = { ...record.settings, macro: normalizeMacro(payload.macro, { pro:false, limits }) };
+        await record.action.setSettings(next);
+        record.settings = settingsFor("replay", next);
+      } else if (command === "selectMacro" && pro) {
+        const next = { ...record.settings, macroId: String(payload.macroId || ""), autoLatest: false };
+        await record.action.setSettings(next);
+        record.settings = settingsFor("replay", next);
+      } else if (command === "saveMacro" && pro) {
+        await library.update(String(payload.macroId || record.settings.macroId), payload.macro || {});
+        await renderAll();
+      } else if (command === "deleteMacro" && pro) {
+        const id = String(payload.macroId || record.settings.macroId);
+        await library.remove(id);
+        await Promise.all([...visible.values()]
+          .filter((item) => item.kind === "replay" && item.settings.macroId === id)
+          .map(async (item) => {
+            const next = { ...item.settings, macroId: "" };
+            await item.action.setSettings(next);
+            item.settings = settingsFor("replay", next);
+          }));
+        await renderAll();
+      } else if (command === "duplicateMacro" && pro) {
+        const macro = library.get(String(payload.macroId || record.settings.macroId));
+        if (macro) {
+          const copy = await library.add({ ...macro, id: undefined, createdAt: undefined, updatedAt: undefined, name: `${macro.name} Copy` });
+          const next = { ...record.settings, macroId: copy.id, autoLatest: false };
+          await record.action.setSettings(next);
+          record.settings = settingsFor("replay", next);
+        }
+      } else if (command === "importMacro" && pro) {
+        const imported = importEnvelope(payload.data);
+        const stored = await library.add({ ...imported, id: undefined });
+        const next = { ...record.settings, macroId: stored.id };
+        await record.action.setSettings(next);
+        record.settings = settingsFor("replay", next);
+      } else if (command === "exportMacro" && pro) {
+        const macro = library.get(String(payload.macroId || record.settings.macroId));
+        if (macro) await sendPropertyInspector({
+          type:"macroRecorder.export",
+          filename:`${macro.name.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-+|-+$/g,"") || "macro"}.packrat-macro.json`,
+          data:exportEnvelope(macro),
+        }, record);
+      }
+      await render(record);
+      await broadcastInspectors();
+    } catch (error) {
+      lastError = String(error?.message || error);
+      await record.action.showAlert?.().catch(() => {});
+      await sendInspector(record);
+    }
+  }
+
   class MacroAction extends SingletonAction {
     constructor(manifestId, kind) {
       super();
@@ -474,6 +647,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
 
     async onPropertyInspectorDidAppear(ev) {
+      if (pro) return;
       const record = visible.get(String(ev.action?.id || ""));
       if (!record) return;
       record.inspectorOpen = true;
@@ -481,73 +655,18 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
 
     onPropertyInspectorDidDisappear(ev) {
+      if (pro) return;
       const record = visible.get(String(ev.action?.id || ""));
       if (record) record.inspectorOpen = false;
     }
 
     async onSendToPlugin(ev) {
+      if (pro) return;
       const record = visible.get(String(ev.action?.id || ""));
-      if (!record) return;
-      const payload = ev.payload || {};
-      if (payload.type === "macroRecorder.inspect") return sendInspector(record);
-      if (payload.type !== "macroRecorder.command") return;
-      const command = String(payload.command || "");
-      lastError = "";
-      try {
-        if (command === "cancelRecording") await cancelRecording(record.action);
-        else if (command === "stopPlayback") await stopPlayback(record.action);
-        else if (command === "stopAll") await stopAll(record.action);
-        else if (command === "assignLatest" && !pro && latestMacro) {
-          const next = { ...record.settings, macro: normalizeMacro(latestMacro, { pro:false, limits }) };
-          await record.action.setSettings(next);
-          record.settings = settingsFor("replay", next);
-        } else if (command === "saveLiteMacro" && !pro) {
-          const next = { ...record.settings, macro: normalizeMacro(payload.macro, { pro:false, limits }) };
-          await record.action.setSettings(next);
-          record.settings = settingsFor("replay", next);
-        } else if (command === "selectMacro" && pro) {
-          const next = { ...record.settings, macroId: String(payload.macroId || ""), autoLatest: false };
-          await record.action.setSettings(next);
-          record.settings = settingsFor("replay", next);
-        } else if (command === "saveMacro" && pro) {
-          await library.update(String(payload.macroId || record.settings.macroId), payload.macro || {});
-          await renderAll();
-        } else if (command === "deleteMacro" && pro) {
-          const id = String(payload.macroId || record.settings.macroId);
-          await library.remove(id);
-          await Promise.all([...visible.values()]
-            .filter((item) => item.kind === "replay" && item.settings.macroId === id)
-            .map(async (item) => {
-              const next = { ...item.settings, macroId: "" };
-              await item.action.setSettings(next);
-              item.settings = settingsFor("replay", next);
-            }));
-          await renderAll();
-        } else if (command === "duplicateMacro" && pro) {
-          const macro = library.get(String(payload.macroId || record.settings.macroId));
-          if (macro) {
-            const copy = await library.add({ ...macro, id: undefined, createdAt: undefined, updatedAt: undefined, name: `${macro.name} Copy` });
-            const next = { ...record.settings, macroId: copy.id, autoLatest: false };
-            await record.action.setSettings(next);
-            record.settings = settingsFor("replay", next);
-          }
-        } else if (command === "importMacro" && pro) {
-          const imported = importEnvelope(payload.data);
-          const stored = await library.add({ ...imported, id: undefined });
-          const next = { ...record.settings, macroId: stored.id };
-          await record.action.setSettings(next);
-          record.settings = settingsFor("replay", next);
-        } else if (command === "exportMacro" && pro) {
-          const macro = library.get(String(payload.macroId || record.settings.macroId));
-          if (macro) await record.action.sendToPropertyInspector({ type:"macroRecorder.export", filename:`${macro.name.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-+|-+$/g,"") || "macro"}.packrat-macro.json`, data: exportEnvelope(macro) });
-        }
-        await render(record);
-        await broadcastInspectors();
-      } catch (error) {
-        lastError = String(error?.message || error);
-        await record.action.showAlert?.().catch(() => {});
-        await sendInspector(record);
-      }
+      await handleUiPayload(record, ev.payload || {}, {
+        transport:"per-action",
+        eventActionId:String(ev.action?.id || ""),
+      });
     }
 
     async onKeyDown(ev) {
@@ -566,7 +685,38 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
   }
 
-  for (const [kind, uuid] of Object.entries(ids)) streamDeck.actions.registerAction(new MacroAction(uuid, kind));
+  if (pro && streamDeck.ui) {
+    streamDeck.ui.onDidAppear?.((ev) => {
+      const id = String(ev.action?.id || "");
+      activeInspectorId = id;
+      for (const item of visible.values()) item.inspectorOpen = item.id === id;
+      const record = visible.get(id);
+      if (record) void sendInspector(record);
+    });
+    streamDeck.ui.onDidDisappear?.((ev) => {
+      const id = String(ev.action?.id || "");
+      const record = visible.get(id);
+      if (record) record.inspectorOpen = false;
+      if (activeInspectorId === id) activeInspectorId = "";
+    });
+    streamDeck.ui.onSendToPlugin?.((ev) => {
+      const payload = ev.payload || {};
+      const requestedActionContext = String(payload.actionContext || "");
+      const eventActionId = String(ev.action?.id || "");
+      const record =
+        visible.get(requestedActionContext) ||
+        visible.get(eventActionId) ||
+        visible.get(activeInspectorId) ||
+        null;
+      void handleUiPayload(record, payload, {
+        transport:"global-ui",
+        requestedActionContext,
+        eventActionId,
+      });
+    });
+  }
+
+    for (const [kind, uuid] of Object.entries(ids)) streamDeck.actions.registerAction(new MacroAction(uuid, kind));
 
   let terminating = false;
   async function terminate(error, exitCode) {
