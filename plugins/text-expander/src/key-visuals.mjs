@@ -106,7 +106,7 @@ export function renderKeySvg(kind,label=""){
   const glyph=GLYPHS[kind]||GLYPHS.text;
   return '<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">'+
     '<rect width="144" height="144" rx="24" fill="'+COLORS.bg+'"/>'+
-    '<rect x="4" y="4" width="136" height="136" rx="21" fill="none" stroke="'+COLORS.border+'" stroke-width="3"/>'+
+    '<rect x="4" y="4" width="136" height="136" rx="21" fill="none" stroke="'+COLORS.border+'" stroke-width="4"/>'+
     '<path d="M22 12h100" stroke="'+COLORS.accent+'" stroke-width="4" stroke-linecap="round"/>'+
     '<g fill="none" stroke="'+COLORS.text+'" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -6)">'+glyph+'</g>'+
     (label?textMarkup(label):"")+
