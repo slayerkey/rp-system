@@ -9,6 +9,8 @@ on:
       - 'plugins/*/submission.json'
       - 'schemas/product-workflow-state.schema.json'
       - 'tools/local/rat-marketplace.ps1'
+      - 'tools/local/rat-dev.ps1'
+      - 'tools/local/rat-dev-source.ps1'
       - 'tools/local/rat-maker-console.ps1'
       - 'tools/local/rat-ship-plugin.ps1'
       - 'tools/local/rat-ship-local.ps1'
@@ -26,6 +28,8 @@ on:
       - 'plugins/*/submission.json'
       - 'schemas/product-workflow-state.schema.json'
       - 'tools/local/rat-marketplace.ps1'
+      - 'tools/local/rat-dev.ps1'
+      - 'tools/local/rat-dev-source.ps1'
       - 'tools/local/rat-maker-console.ps1'
       - 'tools/local/rat-ship-plugin.ps1'
       - 'tools/local/rat-ship-local.ps1'
@@ -60,6 +64,8 @@ jobs:
         run: |
           $files = @(
             'tools/local/rat-marketplace.ps1',
+            'tools/local/rat-dev.ps1',
+            'tools/local/rat-dev-source.ps1',
             'tools/local/rat-maker-console.ps1',
             'tools/local/rat-ship-plugin.ps1',
             'tools/local/rat-ship-local.ps1',
@@ -75,6 +81,38 @@ jobs:
             }
             Write-Host "POWERSHELL PASS: $file"
           }
+
+      - name: Exercise Rat Dev freshness and bundled-profile contract
+        shell: pwsh
+        run: |
+          $sourceRaw = Get-Content 'tools/local/rat-dev-source.ps1' -Raw
+          $devRaw = Get-Content 'tools/local/rat-dev.ps1' -Raw
+
+          foreach ($required in @(
+            'Test-RatDevGitAncestor',
+            'merge-base --is-ancestor',
+            'origin/main (newer than merged',
+            '$sourcePath/rat-dev.json',
+            'open_profile_on_dev',
+            'open_dev_folder'
+          )) {
+            if ($sourceRaw -notmatch [regex]::Escape($required)) {
+              throw "Rat Dev source freshness/config merge contract is missing '$required'."
+            }
+          }
+
+          foreach ($required in @(
+            'Resolve-RatDevProfilePreference',
+            'streamDeckProfile',
+            'Opening bundled Stream Deck profile for import',
+            'Start-Process $profileToOpen'
+          )) {
+            if ($devRaw -notmatch [regex]::Escape($required)) {
+              throw "Rat Dev bundled-profile open flow is missing '$required'."
+            }
+          }
+
+          Write-Host 'RAT DEV FRESHNESS + PROFILE OPEN PASS'
 
       - name: Exercise disposable worktree isolation
         shell: pwsh
