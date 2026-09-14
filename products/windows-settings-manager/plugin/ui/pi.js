@@ -6,6 +6,7 @@ let context = { flavor: "lite", snapshot: null, modes: [] };
 let built = false;
 let modeDirty = false;
 const PRO_MARKETPLACE_URL = "";
+const PACKRAT_MAKER_URL = "https://marketplace.elgato.com/maker/packrat";
 
 function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
   uuid = inUUID;
@@ -59,17 +60,17 @@ function sendPlugin(payload) {
   }));
 }
 
+function openUrl(url) {
+  if (!url || websocket?.readyState !== WebSocket.OPEN) return;
+  websocket.send(JSON.stringify({ event: "openUrl", payload: { url } }));
+}
+
 function requestContext() { sendPlugin({ type: "get-context" }); }
 
 function build() {
   document.getElementById("refresh").addEventListener("click", () => sendPlugin({ type: "refresh" }));
-  document.getElementById("proUpgrade").addEventListener("click", () => {
-    if (!PRO_MARKETPLACE_URL || websocket?.readyState !== WebSocket.OPEN) return;
-    websocket.send(JSON.stringify({
-      event: "openUrl",
-      payload: { url: PRO_MARKETPLACE_URL }
-    }));
-  });
+  document.getElementById("packratMaker").addEventListener("click", () => openUrl(PACKRAT_MAKER_URL));
+  document.getElementById("proUpgrade").addEventListener("click", () => openUrl(PRO_MARKETPLACE_URL));
 
   bindSelect("toggleOperation", "operation");
   bindSelect("themeOperation", "operation");
