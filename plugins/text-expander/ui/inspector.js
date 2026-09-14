@@ -1,5 +1,6 @@
 (() => {
   const PACKRAT_MAKER_URL="https://marketplace.elgato.com/maker/packrat";
+  const BUILD_VERIFIED_PRO_URL="__PACKRAT_VERIFIED_PRO_URL__";
   let socket=null;
   let uiUuid="";
   let actionUuid="";
@@ -11,7 +12,7 @@
   let editingId="";
   let editorOpen=false;
   let saveTimer=null;
-  let proUrl="";
+  let proUrl=BUILD_VERIFIED_PRO_URL==="__PACKRAT_VERIFIED_PRO_URL__"?"":BUILD_VERIFIED_PRO_URL;
 
   const $=(id)=>document.getElementById(id);
   const isManage=()=>actionUuid.endsWith(".manage");
@@ -154,7 +155,7 @@
       if(index>=0)snippets[index]={...snippets[index],...data.selectedSnippet};
     }
     builtinIds=new Set(Array.isArray(data.builtinIds)?data.builtinIds:[]);
-    proUrl=String(data.verifiedProUrl||"");
+    proUrl=String(data.verifiedProUrl||BUILD_VERIFIED_PRO_URL||"");
 
     $("productTitle").textContent=edition==="pro"?"Text Expander Pro":"Text Expander Lite";
     $("productSubtitle").textContent=edition==="pro"
