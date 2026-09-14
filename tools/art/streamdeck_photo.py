@@ -43,6 +43,7 @@ class Calibration:
     alpha_hole_threshold: int
     safety_bleed: int
     transparent_content_padding: float
+    opaque_content_padding: float
     cached_bound_tolerance: int
     screen_background: tuple[int, int, int, int]
     keys: tuple[KeyCalibration, ...]
@@ -119,6 +120,7 @@ def load_calibration(path: Path = DEFAULT_CALIBRATION) -> Calibration:
         alpha_hole_threshold=int(data.get("alpha_hole_threshold", 240)),
         safety_bleed=int(data.get("safety_bleed", 3)),
         transparent_content_padding=float(data.get("transparent_content_padding", 0.07)),
+        opaque_content_padding=float(data.get("opaque_content_padding", 0.025)),
         cached_bound_tolerance=int(data.get("cached_bound_tolerance", 8)),
         screen_background=_rgba(data.get("screen_background", [10, 12, 16, 255]), "screen_background"),
         keys=tuple(keys),
@@ -135,6 +137,8 @@ def validate_calibration(cal: Calibration) -> None:
         raise StreamDeckPhotoError("safety_bleed is out of range")
     if not 0 <= cal.transparent_content_padding < 0.4:
         raise StreamDeckPhotoError("transparent_content_padding is out of range")
+    if not 0 <= cal.opaque_content_padding < 0.15:
+        raise StreamDeckPhotoError("opaque_content_padding is out of range")
     if not 0 <= cal.cached_bound_tolerance <= 24:
         raise StreamDeckPhotoError("cached_bound_tolerance is out of range")
     for key in cal.keys:
@@ -272,6 +276,7 @@ def fit_key_art(
     size: tuple[int, int],
     *,
     transparent_padding: float,
+    opaque_padding: float,
     background: tuple[int, int, int, int],
 ) -> Image.Image:
     """Return a fully opaque LCD face for one detected screen window."""
@@ -298,12 +303,16 @@ def fit_key_art(
         canvas.alpha_composite(fitted, ((target_w - fitted.width) // 2, (target_h - fitted.height) // 2))
         return canvas
 
-    # Full key-face images are authored for the entire physical LCD. The
-    # photographed device foreshortens a square key into a wider/shorter LCD
-    # shape, so preserve all source pixels and let the photo geometry provide
-    # that perspective compression. Cropping here would cut real top/bottom UI.
-    fitted = src.resize(size, Image.Resampling.LANCZOS)
-    canvas.alpha_composite(fitted)
+    # Full key-face images are authored for the entire physical LCD. Preserve
+    # every source pixel and let the photo geometry provide the perspective
+    # compression, but keep a tiny screen-safe inset so border-heavy UI does
+    # not visually collide with the photographed glass/bezel edge.
+    pad_x = round(target_w * opaque_padding)
+    pad_y = round(target_h * opaque_padding)
+    inner_w = max(1, target_w - 2 * pad_x)
+    inner_h = max(1, target_h - 2 * pad_y)
+    fitted = src.resize((inner_w, inner_h), Image.Resampling.LANCZOS)
+    canvas.alpha_composite(fitted, (pad_x, pad_y))
     return canvas
 
 
@@ -399,6 +408,7 @@ def compose_device(
             key_image,
             (lx2 - lx1, ly2 - ly1),
             transparent_padding=cal.transparent_content_padding,
+            opaque_padding=cal.opaque_content_padding,
             background=cal.screen_background,
         )
 
