@@ -194,8 +194,8 @@
     $("modeHelp").textContent=mode==="clipboard"
       ?"Paste with clipboard temporarily uses your clipboard, then restores the previous clipboard when Windows allows."
       :mode==="unicode"
-        ?"Type text inserts the snippet directly without replacing your clipboard."
-        :"Smart types normal snippets directly and uses clipboard paste only for very long text.";
+        ?"Type text injects the snippet directly without replacing your clipboard. Some protected apps can block synthetic text."
+        :"Smart types short single-line snippets directly and uses clipboard paste for multiline, tabbed, or very long text.";
     queueSave();
   });
   $("after").addEventListener("change",queueSave);
