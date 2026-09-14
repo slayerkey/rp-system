@@ -32,9 +32,18 @@ if ($ratDev -notmatch 'Stop-RatDevBuildOwnedProcesses -PluginRoot \$PluginRoot')
 }
 
 $releaseAt = $ratDev.LastIndexOf('Release-RatDevBuildLocks -PluginRoot $pluginRoot')
+$externalSyncAt = $ratDev.LastIndexOf('Sync-ExternalCheckout $source')
+$ratpackSyncAt = $ratDev.LastIndexOf('Sync-RatPackWorktree ([string]$source.Ref)')
 $buildAt = $ratDev.LastIndexOf('Build-And-TestPlugin -PluginRoot $pluginRoot')
 if ($releaseAt -lt 0 -or $buildAt -lt 0 -or $releaseAt -gt $buildAt) {
     throw "Rat Dev must release native helper locks before the plugin build begins."
+}
+if ($externalSyncAt -lt 0 -or $ratpackSyncAt -lt 0 -or
+    $releaseAt -gt $externalSyncAt -or $releaseAt -gt $ratpackSyncAt) {
+    throw "Rat Dev must release native helper locks before resetting or cleaning a reusable development checkout."
+}
+if ($ratDev -notmatch 'Unlink failed\. Try again\?') {
+    throw "Rat Dev is missing the documented Git unlink-loop regression guard."
 }
 
 $preflight = Get-Content (Join-Path $repoRoot "tools\local\rat-dev-preflight.ps1") -Raw
