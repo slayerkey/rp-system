@@ -82,6 +82,9 @@ jobs:
       - name: Validate Stream Deck profile builder
         run: node tests/check_streamdeck_profile_builder.mjs
 
+      - name: Validate Stream Deck global audits
+        run: node tests/check_streamdeck_global_audits.mjs
+
       - name: Validate Rat Dev source resolution
         shell: pwsh
         run: ./tests/check_rat_dev_source_resolution.ps1
