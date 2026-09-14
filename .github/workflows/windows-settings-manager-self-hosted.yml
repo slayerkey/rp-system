@@ -69,10 +69,10 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
 
       - name: Package Lite
-        run: npx streamdeck pack out/com.packrat.windows-settings-manager-lite.sdPlugin --output dist --force --no-update-check --no-file-list
+        run: npx streamdeck pack out/com.packrat.windows-settings-manager-lite2.sdPlugin --output dist --force --no-update-check --no-file-list
 
       - name: Package Pro
-        run: npx streamdeck pack out/com.packrat.windows-settings-manager-pro.sdPlugin --output dist --force --no-update-check --no-file-list
+        run: npx streamdeck pack out/com.packrat.windows-settings-manager-pro2.sdPlugin --output dist --force --no-update-check --no-file-list
 
       - name: Render Lite Marketplace media
         shell: powershell
