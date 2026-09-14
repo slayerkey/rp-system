@@ -201,6 +201,9 @@ for(const [uuid,name] of expected){
   if(!plugin.includes("renderSnippetKey")||!plugin.includes("setImage("))fail(`${name} must runtime-render semantic snippet keys.`);
   if(!plugin.includes("loadSnippetSelection")||!plugin.includes("setSettings(selection.settings)"))fail(`${name} must repair stale/missing snippet selections before rendering or insertion.`);
   if(!plugin.includes("onLibraryChanged"))fail(`${name} must refresh runtime state when the local full-library manager saves.`);
+  if(!plugin.includes('snippets: current.snippets.map(({ id, name, folder })'))fail(`${name} PI list transport must send snippet metadata only.`);
+  if(!plugin.includes('type:"snippetDetail"')||!plugin.includes('payload.type === "getSnippet"'))fail(`${name} PI must lazy-load selected snippet content.`);
+  if(plugin.includes('snippets: current.snippets.map(({ id, name, folder, content })'))fail(`${name} PI list transport must not send every snippet body.`);
 
 }
 
@@ -226,6 +229,7 @@ if(!inspectorJs.includes('event:"sendToPlugin"'))fail("Property Inspector must u
 if(inspectorJs.includes("context:actionContext"))fail("Property Inspector must not use the action instance as websocket context.");
 if(!inspectorJs.includes("Saving…")||!inspectorJs.includes("Saved"))fail("Property Inspector must visibly report settings persistence.");
 if(!inspectorJs.includes('document.createElement("optgroup")'))fail("Pro snippet selector must group the built-in library by folder.");
+if(!inspectorJs.includes('type:"getSnippet"')||!inspectorJs.includes('"Loading snippet…"'))fail("Property Inspector must lazy-load only the selected snippet body.");
 if(!inspectorJs.includes('type:"openManager"'))fail("Pro Property Inspector must wire the reusable-variable/full-library manager.");
 if(!inspectorJs.includes("multiline, tabbed, or very long text"))fail("Smart insertion help must describe its structured-text clipboard fallback.");
 
