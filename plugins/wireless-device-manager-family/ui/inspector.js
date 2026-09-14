@@ -1,21 +1,16 @@
-let ws, uiUuid="", actionUuid="", actionContext="", actionInfo={}, settings={}, snapshot=null, inspectTimer=null, responseTimer=null;
+let ws, uiUuid="", actionUuid="", actionInfo={}, settings={}, snapshot=null, responseTimer=null;
 const $=id=>document.getElementById(id);
 
 window.connectElgatoStreamDeckSocket=(port,inUUID,event,info,rawActionInfo)=>{
-  uiUuid=inUUID; actionInfo=JSON.parse(rawActionInfo||"{}"); actionUuid=String(actionInfo.action||""); actionContext=String(actionInfo.context||""); settings=actionInfo.payload?.settings||{};
+  uiUuid=inUUID; actionInfo=JSON.parse(rawActionInfo||"{}"); actionUuid=String(actionInfo.action||""); settings=actionInfo.payload?.settings||{};
   ws=new WebSocket(`ws://127.0.0.1:${port}`);
   ws.onopen=()=>{
     ws.send(JSON.stringify({event,uuid:uiUuid}));
-    ws.send(JSON.stringify({event:"getSettings",action:actionUuid,context:uiUuid}));
+    render();
     requestSnapshot();
-    setTimeout(requestSnapshot,250);
-    clearInterval(inspectTimer);
-    inspectTimer=setInterval(requestSnapshot,1500);
   };
   ws.onclose=()=>{
-    clearInterval(inspectTimer);
     clearTimeout(responseTimer);
-    inspectTimer=null;
     responseTimer=null;
   };
   ws.onmessage=e=>{
@@ -27,6 +22,12 @@ window.connectElgatoStreamDeckSocket=(port,inUUID,event,info,rawActionInfo)=>{
       responseTimer=null;
       render();
     }
+    if(msg.event==="sendToPropertyInspector" && msg.payload?.type==="wireless-error"){
+      clearTimeout(responseTimer);
+      responseTimer=null;
+      $("status").textContent=String(msg.payload?.message||"Wireless plugin error");
+      $("status").className="status bad";
+    }
   };
 };
 
@@ -36,20 +37,26 @@ function sendPlugin(payload){
     event:"sendToPlugin",
     action:actionUuid,
     context:uiUuid,
-    payload:{...payload,actionContext}
+    payload
   }));
   return true;
 }
 function requestSnapshot(){
-  if(!sendPlugin({type:"get-wireless-snapshot"}))return;
-  if(!snapshot&&!responseTimer){
-    responseTimer=setTimeout(()=>{
-      responseTimer=null;
-      if(snapshot)return;
-      $("status").textContent="Wireless plugin is not responding";
-      $("status").className="status bad";
-    },4000);
+  $("status").textContent="Scanning wireless devices…";
+  $("status").className="status";
+  clearTimeout(responseTimer);
+  responseTimer=null;
+  if(!sendPlugin({type:"refresh-wireless"})){
+    $("status").textContent="Stream Deck connection unavailable";
+    $("status").className="status bad";
+    return;
   }
+  responseTimer=setTimeout(()=>{
+    responseTimer=null;
+    if(snapshot)return;
+    $("status").textContent="Wireless plugin is not responding";
+    $("status").className="status bad";
+  },4000);
 }
 function save(patch){
   settings={...settings,...patch};

@@ -24,57 +24,32 @@ export class WirelessRuntime {
 
   constructor(readonly edition: "lite" | "pro") {}
 
-  private inspectorVisible = false;
-  private inspectorAttached = false;
-
-  attachInspector(): void {
-    if (this.inspectorAttached) return;
-    this.inspectorAttached = true;
-
-    this.subscribe(() => {
-      if (this.inspectorVisible) void this.sendInspector();
-    });
-
-    streamDeck.ui.onDidAppear(() => {
-      this.inspectorVisible = true;
-      void this.sendInspector();
-    });
-    streamDeck.ui.onDidDisappear(() => {
-      this.inspectorVisible = false;
-    });
-    streamDeck.ui.onSendToPlugin((ev) => {
-      this.inspectorVisible = true;
-      void this.handleInspectorMessage((ev as any)?.payload ?? {}).catch(error => {
-        streamDeck.logger.error("Wireless Property Inspector command failed", error);
-      });
-    });
-  }
-
-  private async sendInspector(): Promise<void> {
-    if (!this.inspectorVisible) return;
+  async warmGlobals(): Promise<void> {
     try {
-      await streamDeck.ui.sendToPropertyInspector(await this.inspectorPayload());
+      await this.loadGlobals();
+      this.notify();
     } catch (error) {
-      streamDeck.logger.error("Wireless Property Inspector update failed", error);
+      streamDeck.logger.error("Wireless global settings load failed", error);
     }
   }
 
-  private async handleInspectorMessage(payload: any): Promise<void> {
-    if (payload?.type === "get-wireless-snapshot") {
-      await this.sendInspector();
+  private cachedGlobals(): GlobalSettings {
+    if (!this.globalCache && !this.globalLoad) void this.warmGlobals();
+    return this.globalCache ?? {};
+  }
+
+  async handleInspectorCommand(payload: any): Promise<void> {
+    if (payload?.type === "refresh-wireless" || payload?.type === "get-wireless-snapshot") {
+      await this.refresh();
       return;
     }
-
     const deviceId = typeof payload?.deviceId === "string" ? payload.deviceId : "";
     let changed = false;
-
     if (payload?.type === "select-device" && deviceId) {
       if (this.edition === "lite") {
         await this.setLiteDeviceId(deviceId);
       } else {
-        if (typeof payload.slot === "string" && payload.slot) {
-          await this.setSlotDevice(payload.slot, deviceId);
-        }
+        if (typeof payload.slot === "string" && payload.slot) await this.setSlotDevice(payload.slot, deviceId);
         await this.setFavorite(deviceId, payload.favorite === true);
         await this.assignGroups(typeof payload.groupName === "string" ? payload.groupName : "", deviceId);
         await this.setThreshold(deviceId, Number(payload.lowBatteryThreshold ?? 20));
@@ -82,23 +57,19 @@ export class WirelessRuntime {
       }
     } else if (this.edition === "pro" && deviceId) {
       if (payload?.type === "set-favorite") {
-        await this.setFavorite(deviceId, payload.value === true);
-        changed = true;
+        await this.setFavorite(deviceId, payload.value === true); changed = true;
       } else if (payload?.type === "set-groups") {
-        await this.assignGroups(typeof payload.value === "string" ? payload.value : "", deviceId);
-        changed = true;
+        await this.assignGroups(typeof payload.value === "string" ? payload.value : "", deviceId); changed = true;
       } else if (payload?.type === "set-threshold") {
-        await this.setThreshold(deviceId, Number(payload.value ?? 20));
-        changed = true;
+        await this.setThreshold(deviceId, Number(payload.value ?? 20)); changed = true;
       }
     }
-
     if (changed) this.notify();
-    await this.sendInspector();
   }
 
   async start(): Promise<void> {
     await this.refresh();
+    void this.warmGlobals();
     this.timer = setInterval(() => void this.refresh(), 5000);
     this.timer.unref();
   }
@@ -185,7 +156,7 @@ export class WirelessRuntime {
   }
 
   async selectedDeviceId(localDeviceId?: string | null, slot?: string | null): Promise<string | null> {
-    const globals = (this.edition === "lite" || slot) ? await this.globals() : {};
+    const globals = (this.edition === "lite" || slot) ? this.cachedGlobals() : {};
     const slotDeviceId = slot ? globals.slots?.[slot] ?? null : null;
     return resolveSelectedDeviceId(this.edition, globals.liteDeviceId, localDeviceId, slotDeviceId);
   }
@@ -207,15 +178,15 @@ export class WirelessRuntime {
   }
 
   async favorites(): Promise<string[]> {
-    return (await this.globals()).favorites ?? [];
+    return this.cachedGlobals().favorites ?? [];
   }
 
   async thresholds(): Promise<Record<string, number>> {
-    return (await this.globals()).thresholds ?? {};
+    return this.cachedGlobals().thresholds ?? {};
   }
 
   async thresholdFor(id: string, fallback = 20): Promise<number> {
-    const value = (await this.globals()).thresholds?.[id] ?? fallback;
+    const value = this.cachedGlobals().thresholds?.[id] ?? fallback;
     return Math.max(1, Math.min(99, Number(value || 20)));
   }
 
@@ -256,11 +227,11 @@ export class WirelessRuntime {
     if (!name) return [];
     const normalized = parseGroupNames(name)[0];
     if (!normalized) return [];
-    return (await this.globals()).groups?.[normalized] ?? [];
+    return this.cachedGlobals().groups?.[normalized] ?? [];
   }
 
-  async inspectorPayload(): Promise<any> {
-    const globals = await this.globals();
+  inspectorPayload(): any {
+    const globals = this.cachedGlobals();
     return {
       type: "wireless-snapshot",
       edition: this.edition,
