@@ -19,6 +19,8 @@ export type RawDevice = {
   present?: boolean | null;
   batteryPercent?: number | null;
   charging?: boolean | null;
+  batteryObservedAt?: number | null;
+  batterySource?: string | null;
   control?: { connect?: boolean; disconnect?: boolean } | null;
 };
 
@@ -139,6 +141,12 @@ function mergeCurrentEndpoints(previous: Device | undefined, next: Device, now: 
       : typeof previous.charging === "boolean"
         ? previous.charging
         : null,
+    batteryObservedAt: Number.isFinite(next.batteryObservedAt)
+      ? Number(next.batteryObservedAt)
+      : Number.isFinite(previous.batteryObservedAt)
+        ? Number(previous.batteryObservedAt)
+        : null,
+    batterySource: next.batterySource ?? previous.batterySource ?? null,
     control: {
       connect: previous.control?.connect === true || next.control?.connect === true,
       disconnect: previous.control?.disconnect === true || next.control?.disconnect === true
