@@ -155,7 +155,7 @@ if(requireLiteProUpsell){
   const allUi=walk(resolve(pluginDir,"ui"),file=>/\.(?:html|css|js|mjs)$/i.test(file)).map(text).join("\n");
   if(!/packrat-topbar/.test(allUi))errors.push("Lite→Pro: .packrat-topbar is missing.");
   if(!/Upgrade to Pro\s*↗/.test(allUi))errors.push("Lite→Pro: top 'Upgrade to Pro ↗' CTA is missing.");
-  if(!/(?:class=["'][^"']*upsell|className\s*=\s*["']upsell|\.upsell\s*\{)/.test(allUi))errors.push("Lite→Pro: bottom .upsell feature card is missing.");
+  if(!/(?:class=["'][^"']*\bupsell\b[^"']*["']|className\s*=\s*["']upsell["'])/.test(allUi))errors.push("Lite→Pro: bottom .upsell feature card is missing.");
   if(!/Open [^\n"'<>]{1,80} Pro\s*↗/.test(allUi))errors.push("Lite→Pro: bottom direct 'Open <Product> Pro ↗' CTA is missing.");
   if(!/marketplace\.elgato\.com\/product\//i.test(allUi))errors.push("Lite→Pro: no direct Pro Marketplace /product/ URL was found.");
   if(/marketplace\.elgato\.com\/(?:search|maker)\//i.test(allUi)&&!/marketplace\.elgato\.com\/product\//i.test(allUi)){
