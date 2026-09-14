@@ -24,6 +24,7 @@ window.connectElgatoStreamDeckSocket=(port,inUUID,event,info,rawActionInfo)=>{
     if(msg.event==="sendToPropertyInspector" && msg.payload?.type==="wireless-snapshot"){
       snapshot=msg.payload;
       clearTimeout(responseTimer);
+      responseTimer=null;
       render();
     }
   };
@@ -41,9 +42,9 @@ function sendPlugin(payload){
 }
 function requestSnapshot(){
   if(!sendPlugin({type:"get-wireless-snapshot"}))return;
-  clearTimeout(responseTimer);
-  if(!snapshot){
+  if(!snapshot&&!responseTimer){
     responseTimer=setTimeout(()=>{
+      responseTimer=null;
       if(snapshot)return;
       $("status").textContent="Wireless plugin is not responding";
       $("status").className="status bad";

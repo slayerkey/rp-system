@@ -24,6 +24,79 @@ export class WirelessRuntime {
 
   constructor(readonly edition: "lite" | "pro") {}
 
+  private inspectorVisible = false;
+  private inspectorAttached = false;
+
+  attachInspector(): void {
+    if (this.inspectorAttached) return;
+    this.inspectorAttached = true;
+
+    this.subscribe(() => {
+      if (this.inspectorVisible) void this.sendInspector();
+    });
+
+    streamDeck.ui.onDidAppear(() => {
+      this.inspectorVisible = true;
+      void this.sendInspector();
+    });
+    streamDeck.ui.onDidDisappear(() => {
+      this.inspectorVisible = false;
+    });
+    streamDeck.ui.onSendToPlugin((ev) => {
+      this.inspectorVisible = true;
+      void this.handleInspectorMessage((ev as any)?.payload ?? {}).catch(error => {
+        streamDeck.logger.error("Wireless Property Inspector command failed", error);
+      });
+    });
+  }
+
+  private async sendInspector(): Promise<void> {
+    if (!this.inspectorVisible) return;
+    try {
+      await streamDeck.ui.sendToPropertyInspector(await this.inspectorPayload());
+    } catch (error) {
+      streamDeck.logger.error("Wireless Property Inspector update failed", error);
+    }
+  }
+
+  private async handleInspectorMessage(payload: any): Promise<void> {
+    if (payload?.type === "get-wireless-snapshot") {
+      await this.sendInspector();
+      return;
+    }
+
+    const deviceId = typeof payload?.deviceId === "string" ? payload.deviceId : "";
+    let changed = false;
+
+    if (payload?.type === "select-device" && deviceId) {
+      if (this.edition === "lite") {
+        await this.setLiteDeviceId(deviceId);
+      } else {
+        if (typeof payload.slot === "string" && payload.slot) {
+          await this.setSlotDevice(payload.slot, deviceId);
+        }
+        await this.setFavorite(deviceId, payload.favorite === true);
+        await this.assignGroups(typeof payload.groupName === "string" ? payload.groupName : "", deviceId);
+        await this.setThreshold(deviceId, Number(payload.lowBatteryThreshold ?? 20));
+        changed = true;
+      }
+    } else if (this.edition === "pro" && deviceId) {
+      if (payload?.type === "set-favorite") {
+        await this.setFavorite(deviceId, payload.value === true);
+        changed = true;
+      } else if (payload?.type === "set-groups") {
+        await this.assignGroups(typeof payload.value === "string" ? payload.value : "", deviceId);
+        changed = true;
+      } else if (payload?.type === "set-threshold") {
+        await this.setThreshold(deviceId, Number(payload.value ?? 20));
+        changed = true;
+      }
+    }
+
+    if (changed) this.notify();
+    await this.sendInspector();
+  }
+
   async start(): Promise<void> {
     await this.refresh();
     this.timer = setInterval(() => void this.refresh(), 5000);

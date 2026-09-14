@@ -152,20 +152,26 @@ test("wireless inspector does not block USB devices when Bluetooth is unavailabl
 });
 
 
-test("Property Inspector state is requested per action and sent through the supported UI command",async()=>{
+test("Property Inspector uses the proven global UI transport and bounded retry timeout",async()=>{
   const actions=await readFile("src/actions.ts","utf8");
   const runtime=await readFile("src/runtime.ts","utf8");
+  const lite=await readFile("src/lite.ts","utf8");
+  const pro=await readFile("src/pro.ts","utf8");
   const inspector=await readFile("ui/inspector.js","utf8");
-  assert.match(actions,/onPropertyInspectorDidAppear/);
-  assert.match(actions,/streamDeck\.ui\.sendToPropertyInspector\(await this\.runtime\.inspectorPayload\(\)\)/);
-  assert.match(actions,/payload\.type === "get-wireless-snapshot"[\s\S]*sendToPropertyInspector/);
-  assert.match(runtime,/inspectorPayload\(\)/);
-  assert.doesNotMatch(runtime,/sendInspector\(\)/);
+  assert.match(runtime,/attachInspector\(\)/);
+  assert.match(runtime,/streamDeck\.ui\.onDidAppear/);
+  assert.match(runtime,/streamDeck\.ui\.onDidDisappear/);
+  assert.match(runtime,/streamDeck\.ui\.onSendToPlugin/);
+  assert.match(runtime,/streamDeck\.ui\.sendToPropertyInspector\(await this\.inspectorPayload\(\)\)/);
+  assert.match(runtime,/payload\?\.type === "get-wireless-snapshot"/);
+  assert.match(lite,/runtime\.attachInspector\(\)/);
+  assert.match(pro,/runtime\.attachInspector\(\)/);
+  assert.doesNotMatch(actions,/onPropertyInspectorDidAppear|onSendToPlugin/);
   assert.match(inspector,/setInterval\(requestSnapshot,1500\)/);
-  assert.match(inspector,/Wireless plugin is not responding/);
+  assert.match(inspector,/if\(!snapshot&&!responseTimer\)/);
+  assert.match(inspector,/responseTimer=null;[\s\S]*Wireless plugin is not responding/);
   assert.match(inspector,/uiUuid=inUUID/);
-  assert.match(inspector,/actionContext=String\(actionInfo\.context\|\|""\)/);
-  assert.match(inspector,/event:"sendToPlugin"[\s\S]*context:uiUuid[\s\S]*payload:\{\.\.\.payload,actionContext\}/);
+  assert.match(inspector,/event:"sendToPlugin"[\s\S]*context:uiUuid/);
   assert.match(inspector,/event:"setSettings",action:actionUuid,context:uiUuid/);
   assert.doesNotMatch(inspector,/context:actionInfo\.context/);
 });
@@ -177,7 +183,10 @@ test("settings reads are side-effect free and global writes are explicit",async(
 
   const didReceive=actions.match(/onDidReceiveSettings[\s\S]*?\n  }/m)?.[0]||"";
   assert.doesNotMatch(didReceive,/setFavorite|assignGroups|setThreshold|setLiteDeviceId/);
-  assert.match(actions,/onSendToPlugin/);
+  assert.doesNotMatch(actions,/onSendToPlugin/);
+  assert.match(runtime,/payload\?\.type === "set-favorite"/);
+  assert.match(runtime,/payload\?\.type === "set-groups"/);
+  assert.match(runtime,/payload\?\.type === "set-threshold"/);
   assert.match(inspector,/type:"set-favorite"/);
   assert.match(inspector,/type:"set-groups"/);
   assert.match(inspector,/type:"set-threshold"/);

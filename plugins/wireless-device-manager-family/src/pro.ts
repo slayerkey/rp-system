@@ -4,6 +4,7 @@ import { WirelessRuntime } from "./runtime.js";
 
 streamDeck.logger.setLevel("info");
 const runtime = new WirelessRuntime("pro");
+runtime.attachInspector();
 streamDeck.actions.registerAction(new ProDeviceAction(runtime));
 streamDeck.actions.registerAction(new DashboardAction(runtime));
 streamDeck.actions.registerAction(new CycleDeviceAction(runtime));

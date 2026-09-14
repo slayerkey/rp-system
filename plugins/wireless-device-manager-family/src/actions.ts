@@ -1,10 +1,8 @@
-import streamDeck, {
+import {
   action,
   type DidReceiveSettingsEvent,
   type KeyAction,
   type KeyDownEvent,
-  type PropertyInspectorDidAppearEvent,
-  type SendToPluginEvent,
   SingletonAction,
   type WillAppearEvent
 } from "@elgato/streamdeck";
@@ -59,42 +57,6 @@ abstract class DeviceActionBase extends SingletonAction<DeviceSettings> {
     if (ev.action.isKey()) await this.paint(ev.action, ev.payload.settings ?? {});
   }
 
-  override async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<DeviceSettings>): Promise<void> {
-    await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
-  }
-
-  override async onSendToPlugin(ev: SendToPluginEvent<any, DeviceSettings>): Promise<void> {
-    const payload = ev.payload ?? {};
-    if (payload.type === "get-wireless-snapshot") {
-      await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
-      return;
-    }
-    const deviceId = typeof payload.deviceId === "string" ? payload.deviceId : "";
-
-    if (payload.type === "select-device" && deviceId) {
-      if (this.runtime.edition === "lite") {
-        await this.runtime.setLiteDeviceId(deviceId);
-      } else {
-        if (typeof payload.slot === "string" && payload.slot) {
-          await this.runtime.setSlotDevice(payload.slot, deviceId);
-        }
-        await this.runtime.setFavorite(deviceId, payload.favorite === true);
-        await this.runtime.assignGroups(typeof payload.groupName === "string" ? payload.groupName : "", deviceId);
-        await this.runtime.setThreshold(deviceId, Number(payload.lowBatteryThreshold ?? 20));
-      }
-    } else if (this.runtime.edition === "pro" && deviceId) {
-      if (payload.type === "set-favorite") {
-        await this.runtime.setFavorite(deviceId, payload.value === true);
-      } else if (payload.type === "set-groups") {
-        await this.runtime.assignGroups(typeof payload.value === "string" ? payload.value : "", deviceId);
-      } else if (payload.type === "set-threshold") {
-        await this.runtime.setThreshold(deviceId, Number(payload.value ?? 20));
-      }
-    }
-
-    this.runtime.notify();
-    await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
-  }
 
   override async onKeyDown(ev: KeyDownEvent<DeviceSettings>): Promise<void> {
     const settings = ev.payload.settings ?? {};
@@ -159,15 +121,6 @@ export class DashboardAction extends SingletonAction<DashboardSettings> {
     if (ev.action.isKey()) await this.paint(ev.action, ev.payload.settings ?? {});
   }
 
-  override async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<DashboardSettings>): Promise<void> {
-    await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
-  }
-
-  override async onSendToPlugin(ev: SendToPluginEvent<any, DashboardSettings>): Promise<void> {
-    if ((ev.payload as any)?.type === "get-wireless-snapshot") {
-      await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
-    }
-  }
 
   override async onKeyDown(): Promise<void> { await this.runtime.refresh(); }
 
@@ -223,15 +176,6 @@ export class CycleDeviceAction extends SingletonAction<CycleSettings> {
     if (ev.action.isKey()) await this.paint(ev.action, ev.payload.settings ?? {});
   }
 
-  override async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<CycleSettings>): Promise<void> {
-    await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
-  }
-
-  override async onSendToPlugin(ev: SendToPluginEvent<any, CycleSettings>): Promise<void> {
-    if ((ev.payload as any)?.type === "get-wireless-snapshot") {
-      await streamDeck.ui.sendToPropertyInspector(await this.runtime.inspectorPayload());
-    }
-  }
 
   private async paint(key: KeyAction<CycleSettings>, settings: CycleSettings): Promise<void> {
     const device = this.runtime.device(settings.currentId);

@@ -4,6 +4,7 @@ import { WirelessRuntime } from "./runtime.js";
 
 streamDeck.logger.setLevel("info");
 const runtime = new WirelessRuntime("lite");
+runtime.attachInspector();
 streamDeck.actions.registerAction(new LiteDeviceAction(runtime));
 
 streamDeck.connect().then(async () => {
