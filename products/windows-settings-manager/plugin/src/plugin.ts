@@ -2,24 +2,35 @@ import streamDeck from "@elgato/streamdeck";
 
 import {
   LiteAwakeAction,
-  LiteDisplayAction,
-  LiteHdrAction,
+  LiteDesktopNextAction,
+  LiteDesktopPreviousAction,
   LiteLockAction,
   LitePowerAction,
-  LiteStatusAction,
-  LiteTimeoutAction,
+  LiteSleepAction,
   ProApplyModeAction,
   ProAwakeAction,
+  ProBluetoothAction,
   ProCurrentModeAction,
   ProCycleModeAction,
+  ProDesktopCloseAction,
+  ProDesktopCurrentAction,
+  ProDesktopNewAction,
+  ProDesktopNextAction,
+  ProDesktopPreviousAction,
   ProDisplayAction,
   ProHdrAction,
+  ProHibernateAction,
   ProLockAction,
   ProPowerAction,
   ProProfilePageAction,
+  ProRestartAction,
   ProSaveModeAction,
+  ProShutdownAction,
+  ProSleepAction,
   ProStatusAction,
-  ProTimeoutAction
+  ProThemeAction,
+  ProTimeoutAction,
+  ProWifiAction
 } from "./actions.js";
 import { modeMatchesSnapshot } from "./modes.js";
 import { configureRuntime, runtime } from "./runtime.js";
@@ -30,21 +41,36 @@ export async function startPlugin(flavor: Flavor): Promise<void> {
   streamDeck.logger.setLevel("info");
 
   if (flavor === "lite") {
-    streamDeck.actions.registerAction(new LiteStatusAction());
-    streamDeck.actions.registerAction(new LiteHdrAction());
-    streamDeck.actions.registerAction(new LitePowerAction());
-    streamDeck.actions.registerAction(new LiteDisplayAction());
-    streamDeck.actions.registerAction(new LiteTimeoutAction());
-    streamDeck.actions.registerAction(new LiteAwakeAction());
     streamDeck.actions.registerAction(new LiteLockAction());
+    streamDeck.actions.registerAction(new LiteSleepAction());
+    streamDeck.actions.registerAction(new LitePowerAction());
+    streamDeck.actions.registerAction(new LiteAwakeAction());
+    streamDeck.actions.registerAction(new LiteDesktopPreviousAction());
+    streamDeck.actions.registerAction(new LiteDesktopNextAction());
   } else {
+    streamDeck.actions.registerAction(new ProLockAction());
+    streamDeck.actions.registerAction(new ProSleepAction());
+    streamDeck.actions.registerAction(new ProHibernateAction());
+    streamDeck.actions.registerAction(new ProRestartAction());
+    streamDeck.actions.registerAction(new ProShutdownAction());
+
+    streamDeck.actions.registerAction(new ProWifiAction());
+    streamDeck.actions.registerAction(new ProBluetoothAction());
+    streamDeck.actions.registerAction(new ProPowerAction());
+    streamDeck.actions.registerAction(new ProAwakeAction());
+    streamDeck.actions.registerAction(new ProThemeAction());
+
+    streamDeck.actions.registerAction(new ProDesktopPreviousAction());
+    streamDeck.actions.registerAction(new ProDesktopNextAction());
+    streamDeck.actions.registerAction(new ProDesktopNewAction());
+    streamDeck.actions.registerAction(new ProDesktopCloseAction());
+    streamDeck.actions.registerAction(new ProDesktopCurrentAction());
+
+    // Advanced controls remain available but do not own the default profile.
     streamDeck.actions.registerAction(new ProStatusAction());
     streamDeck.actions.registerAction(new ProHdrAction());
-    streamDeck.actions.registerAction(new ProPowerAction());
     streamDeck.actions.registerAction(new ProDisplayAction());
     streamDeck.actions.registerAction(new ProTimeoutAction());
-    streamDeck.actions.registerAction(new ProAwakeAction());
-    streamDeck.actions.registerAction(new ProLockAction());
     streamDeck.actions.registerAction(new ProApplyModeAction());
     streamDeck.actions.registerAction(new ProCycleModeAction());
     streamDeck.actions.registerAction(new ProCurrentModeAction());
