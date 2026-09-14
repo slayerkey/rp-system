@@ -78,29 +78,35 @@
         <label class="file-button">Import<input id="importFile" type="file" accept=".json,.packrat-macro.json" /></label>
         <button id="exportMacro" type="button" class="secondary">Export</button>
       </div>
+      <p id="libraryFeedback" class="hint library-feedback" hidden></p>
     </div>
 
-    <div class="pro-only diagnostic-block">
-      <h3>Deep troubleshooting</h3>
-      <p class="hint">Runs a non-destructive end-to-end check of the Property Inspector connection, selected Play action, saved Stream Deck settings, Macro Library file, disk/memory consistency, and library-folder write access.</p>
-      <div class="button-row">
-        <button id="runDiagnostic" type="button" class="primary">Run deep diagnostic</button>
-        <button id="copyDiagnostic" type="button" class="secondary" disabled>Copy report</button>
+    <details id="recordedStepsDetails" class="pro-only collapsible-section">
+      <summary><span>Recorded steps</span><span id="macroMeta" class="muted"></span></summary>
+      <div class="collapsible-content">
+        <p class="hint">Open this only when you want to inspect or edit the exact keyboard, mouse, and timing events in the selected macro.</p>
+        <div id="timelinePager" class="timeline-pager" hidden>
+          <button id="timelinePrev" type="button" class="secondary">Previous</button>
+          <span id="timelinePageLabel" class="muted"></span>
+          <button id="timelineNext" type="button" class="secondary">Next</button>
+        </div>
+        <div id="timeline" class="timeline"></div>
+        <p id="timelineWarning" class="warning" hidden></p>
       </div>
-      <p id="diagnosticStatus" class="hint">No diagnostic has been run yet.</p>
-      <pre id="diagnosticReport" class="diagnostic-report">No diagnostic has been run yet.</pre>
-    </div>
+    </details>
 
-    <div class="timeline-head">
-      <strong>Recorded steps</strong><span id="macroMeta" class="muted"></span>
-    </div>
-    <div id="timelinePager" class="timeline-pager" hidden>
-      <button id="timelinePrev" type="button" class="secondary">Previous</button>
-      <span id="timelinePageLabel" class="muted"></span>
-      <button id="timelineNext" type="button" class="secondary">Next</button>
-    </div>
-    <div id="timeline" class="timeline"></div>
-    <p id="timelineWarning" class="warning" hidden></p>
+    <details class="pro-only diagnostic-block">
+      <summary>Troubleshooting</summary>
+      <div class="collapsible-content">
+        <p class="hint">Runs a non-destructive end-to-end check of the Property Inspector connection, selected Play action, saved Stream Deck settings, Macro Library file, disk/memory consistency, and library-folder write access.</p>
+        <div class="button-row">
+          <button id="runDiagnostic" type="button" class="primary">Run deep diagnostic</button>
+          <button id="copyDiagnostic" type="button" class="secondary" disabled>Copy report</button>
+        </div>
+        <p id="diagnosticStatus" class="hint">No diagnostic has been run yet.</p>
+        <pre id="diagnosticReport" class="diagnostic-report">No diagnostic has been run yet.</pre>
+      </div>
+    </details>
   </section>
 
   <section class="group privacy">
