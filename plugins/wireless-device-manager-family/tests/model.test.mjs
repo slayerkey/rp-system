@@ -11,6 +11,7 @@ import {
   parseGroupNames,
   resolveSelectedDeviceId,
   shouldApplySnapshot,
+  soleVisibleDeviceId,
   shouldLowBatteryAlert,
   stableId,
   statusLabel
@@ -140,6 +141,13 @@ test("charging-supported fixture is distinct from plain battery",()=>{
   assert.equal(b.capabilities.CHARGING,false);
 });
 
+
+test("exactly one visible device becomes the default selection",()=>{
+  const only=normalizeDevice(maya);
+  assert.equal(soleVisibleDeviceId([only]),only.stableId);
+  assert.equal(soleVisibleDeviceId([only,normalizeDevice(keyboard)]),null);
+  assert.equal(soleVisibleDeviceId([normalizeDevice({...maya,present:false})]),null);
+});
 
 test("Lite shares one selected device while Pro keeps per-key targets",()=>{
   assert.equal(resolveSelectedDeviceId("lite","bt:global","bt:local"),"bt:global");
