@@ -93,6 +93,27 @@ test("schema v2 Pro libraries restore all missing built-ins without deleting edi
   assert.equal(migrated.variables.signature,"Custom signature");
 });
 
+
+
+test("Pro v3 migration preserves edited built-ins even when the library is at capacity",async()=>{
+  const root=await temp(),lib=new TextExpanderLibrary({edition:"pro",rootDir:root});
+  await fs.mkdir(root,{recursive:true});
+  const custom=Array.from({length:4999},(_,i)=>({id:"custom-"+i,name:"Custom "+i,folder:"CUSTOM",content:"x"}));
+  await fs.writeFile(lib.libraryPath,JSON.stringify({
+    schemaVersion:2,
+    snippets:[...custom,{id:"pro-address",name:"My Contact",folder:"PERSONAL",content:"edited contact"}],
+    variables:{}
+  },null,2),"utf8");
+  const migrated=await lib.load();
+  assert.equal(migrated.schemaVersion,3);
+  assert.equal(migrated.snippets.length,5000);
+  const preserved=migrated.snippets.find(s=>s.id==="pro-address");
+  assert.ok(preserved);
+  assert.equal(preserved.name,"My Contact");
+  assert.equal(preserved.content,"edited contact");
+  assert.equal(migrated.snippets.filter(s=>s.id.startsWith("custom-")).length,4999);
+});
+
 test("Pro migration never exceeds the 5,000 snippet cap",async()=>{
   const root=await temp(),lib=new TextExpanderLibrary({edition:"pro",rootDir:root});
   await fs.mkdir(root,{recursive:true});
