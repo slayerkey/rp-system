@@ -1,0 +1,62 @@
+{
+  "Name": "Window Manager Lite",
+  "Version": "1.0.0.3",
+  "Author": "Packrat",
+  "Actions": [
+    {
+      "Name": "Snap Window",
+      "UUID": "com.packrat.windowmanager.snap",
+      "Icon": "imgs/actions/snap/icon",
+      "Tooltip": "Sends the window you are working in to the left half, the right half, the middle, or full screen. Pick a monitor and it goes there.",
+      "PropertyInspectorPath": "ui/snap.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/snap/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
+    },
+    {
+      "Name": "Cycle Windows",
+      "UUID": "com.packrat.windowmanager.cycle",
+      "Icon": "imgs/actions/cycle/icon",
+      "Tooltip": "Steps to your next open window. Stay inside the program you are in, or move through everything.",
+      "PropertyInspectorPath": "ui/cycle.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/cycle/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
+    }
+  ],
+  "Category": "Window Manager Lite",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "Put a window exactly where you want it without dragging it there. Give one key the left half, another the right half, another the whole screen, and your layout is one press away every time. Tell a key which monitor to use and the window moves across on its own. The key face shows the shape it makes, so you can tell four of them apart at a glance. A second action steps through your open windows, either inside the program you are in or across everything, so getting back to what you were doing does not mean hunting through the taskbar.",
+  "Icon": "imgs/plugin/marketplace",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "6.9"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    },
+    {
+      "Platform": "mac",
+      "MinimumVersion": "12"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20"
+  },
+  "UUID": "com.packrat.windowmanager"
+}

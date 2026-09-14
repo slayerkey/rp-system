@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Cycle Windows</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body>
+		<h2>Which windows should this key step through?</h2>
+		<div class="row">
+			<label class="key" for="scope">Step through</label>
+			<div class="field">
+				<select id="scope">
+					<option value="all">Everything that is open</option>
+					<option value="app">Only the program I am in</option>
+				</select>
+			</div>
+		</div>
+
+		<p class="hint">
+			Each press brings the next window forward. Keep pressing and you work your way through all of them, then start
+			again from the top.
+		</p>
+		<p class="hint">
+			Staying inside one program is the quicker way to move between two documents or two browser windows without
+			everything else getting in the way.
+		</p>
+		<p class="hint">The key face names the window you land on next, so you know where a press takes you before you make it.</p>
+
+		<p class="disclaimer">
+			On a Mac, allow Stream Deck under System Settings, Privacy and Security, Accessibility before this can see your
+			windows.
+		</p>
+
+		<script src="cycle.js"></script>
+		<script src="pro-footer.js"></script>
+	</body>
+</html>
