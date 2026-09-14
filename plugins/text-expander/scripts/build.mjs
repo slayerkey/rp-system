@@ -84,6 +84,18 @@ function makePng(width,height,draw){
       for(let xx=Math.max(0,Math.floor(x));xx<Math.min(width,Math.ceil(x+w));xx++)
         set(xx,yy,...color);
   };
+  const roundRect=(x,y,w,h,r,color)=>{
+    const left=Math.floor(x),top=Math.floor(y),right=Math.ceil(x+w)-1,bottom=Math.ceil(y+h)-1;
+    const radius=Math.max(0,Math.min(r,w/2,h/2));
+    for(let yy=Math.max(0,top);yy<=Math.min(height-1,bottom);yy++){
+      for(let xx=Math.max(0,left);xx<=Math.min(width-1,right);xx++){
+        const nx=Math.max(left+radius,Math.min(xx,right-radius));
+        const ny=Math.max(top+radius,Math.min(yy,bottom-radius));
+        const dx=xx-nx,dy=yy-ny;
+        if(dx*dx+dy*dy<=radius*radius)set(xx,yy,...color);
+      }
+    }
+  };
   const circle=(cx,cy,r,color)=>{
     const minX=Math.max(0,Math.floor(cx-r)),maxX=Math.min(width-1,Math.ceil(cx+r));
     const minY=Math.max(0,Math.floor(cy-r)),maxY=Math.min(height-1,Math.ceil(cy+r));
@@ -99,7 +111,7 @@ function makePng(width,height,draw){
       circle(x1+(x2-x1)*t,y1+(y2-y1)*t,thickness/2,color);
     }
   };
-  draw({set,rect,circle,line,width,height});
+  draw({set,rect,roundRect,circle,line,width,height});
   const raw=Buffer.alloc(height*(1+width*4));
   for(let y=0;y<height;y++){
     raw[y*(1+width*4)]=0;
@@ -114,13 +126,14 @@ function makePng(width,height,draw){
     pngChunk("IEND",Buffer.alloc(0))
   ]);
 }
-function drawIcon({rect,circle,line,width,height},kind,{key=false,pro=false}={}){
+function drawIcon({rect,roundRect,circle,line,width,height},kind,{key=false,pro=false}={}){
   const s=Math.min(width,height);
-  const bg=[20,20,22,255],panel=[34,34,38,255],white=[255,255,255,255],muted=[180,180,186,255];
+  const bg=[5,7,10,255],panel=[13,16,21,255],white=[255,255,255,255],muted=[154,162,175,255],accent=[255,178,30,255];
   if(key){
-    rect(0,0,width,height,bg);
+    roundRect(0,0,width,height,s*.16,bg);
     const m=Math.max(2,Math.round(s*.055));
-    rect(m,m,width-2*m,height-2*m,panel);
+    roundRect(m,m,width-2*m,height-2*m,s*.12,panel);
+    roundRect(m+s*.018,m+s*.14,Math.max(2,s*.035),height-2*m-s*.28,s*.018,accent);
   }
   const cx=width/2,cy=height*(key ? .43 : .5);
   const stroke=Math.max(1.5,s*.055);
@@ -130,7 +143,7 @@ function drawIcon({rect,circle,line,width,height},kind,{key=false,pro=false}={})
   };
   const plusBadge=()=>{
     const bx=width*.74,by=height*.24,r=s*.12;
-    circle(bx,by,r,white);
+    circle(bx,by,r,key?accent:white);
     const t=Math.max(1,s*.035);
     rect(bx-r*.5,by-t/2,r,t,bg);
     rect(bx-t/2,by-r*.5,t,r,bg);
@@ -369,6 +382,7 @@ async function buildEdition(edition){
   await copyRuntimeDependencies(out);
   await copy(path.join(root,"runtime","win-bridge.ps1"),path.join(out,"runtime","win-bridge.ps1"));
   await copy(path.join(root,"ui","inspector.html"),path.join(out,"ui","inspector.html"));
+  await copy(path.join(repoRoot,"tools","art","assets","ratpack-icon-transparent.png"),path.join(out,"ui","packrat-icon.png"));
   await copy(path.join(root,"ui","manager.html"),path.join(out,"ui","manager.html"));
   const profileRecipe=JSON.parse(await fs.readFile(path.join(root,"profiles",edition+".json"),"utf8"));
   for(const device of profileDevices){
