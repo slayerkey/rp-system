@@ -15,15 +15,24 @@
 
   function updateStatus(){
     const dot=$("dot");dot.className="dot";
-    if(state?.recording){dot.classList.add("busy");$("statusTitle").textContent="RECORDING";$("statusDetail").textContent=`${state.recording.eventCount||0} events · ${Math.round((state.recording.elapsedMs||0)/100)/10}s`;}
-    else if(state?.playback){dot.classList.add("busy");$("statusTitle").textContent="PLAYING";$("statusDetail").textContent=state.playback.macroName||"Macro playback active";}
-    else{dot.classList.add("ready");$("statusTitle").textContent="Macro Recorder ready";$("statusDetail").textContent="Everything stays on this PC.";}
+    if(state?.lastError){dot.classList.add("error");}
+    else if(state?.recording||state?.playback){dot.classList.add("busy");}
+    else{dot.classList.add("ready");}
+    if(state?.recording){$("statusTitle").textContent="Recording";$("statusDetail").textContent=`${state.recording.eventCount||0} events · ${Math.round((state.recording.elapsedMs||0)/100)/10}s · press Record again to save`;}
+    else if(state?.playback){$("statusTitle").textContent="Playing";$("statusDetail").textContent=state.playback.macroName||"Macro playback active";}
+    else if(state?.lastError){$("statusTitle").textContent="Needs attention";$("statusDetail").textContent="See the message below.";}
+    else{$("statusTitle").textContent="Macro Recorder ready";$("statusDetail").textContent="Record a workflow once, then replay it from Stream Deck.";}
     $("recordLimit").textContent=state?.limits?`Limit: ${Math.round(state.limits.maxDurationMs/1000)} seconds · ${state.limits.maxEvents.toLocaleString()} events`:"";
     $("cancelRecording").disabled=!state?.recording;
-    $("stopPlayback").disabled=!state?.playback;
+    $("stopPlayback").disabled=!(state?.recording||state?.playback);
     $("assignLatest").disabled=!state?.hasLatestMacro;
     $("errorText").hidden=!state?.lastError;
     $("errorText").textContent=state?.lastError||"";
+    if($("assignedSummary")){
+      $("assignedSummary").textContent=state?.macro?.name
+        ? `Assigned: ${state.macro.name} · ${state.macro.events?.length||0} events · ${((state.macro.durationMs||0)/1000).toFixed(2)}s`
+        : "No macro assigned yet. Record one or choose one below.";
+    }
   }
 
   function populateLibrary(){
@@ -33,8 +42,7 @@
     for(const item of state?.library||[])select.appendChild(new Option(`${item.name} · ${item.eventCount} events`,item.id));
     select.value=(state?.library||[]).some(x=>x.id===chosen)?chosen:"";
     const hasMacro=Boolean(state?.macro);
-    $("macroName").value=state?.macro?.name||"";
-    $("macroName").disabled=!hasMacro;
+    $("renameMacro").disabled=!hasMacro;
     $("duplicateMacro").disabled=!hasMacro;
     $("deleteMacro").disabled=!hasMacro;
     $("exportMacro").disabled=!hasMacro;
@@ -51,95 +59,27 @@
     if(ev.type==="wheel")return`${ev.horizontal?"Horizontal":"Vertical"} wheel · ${ev.delta}`;
     return ev.type||"Unknown";
   }
-  function saveTimeline(macro){
-    if(!macro)return;
-    if(pro)command("saveMacro",{macroId:macro.id,macro});
-    else command("saveLiteMacro",{macro});
-  }
+  function saveTimeline(macro){if(!macro)return;if(pro)command("saveMacro",{macroId:macro.id,macro});else command("saveLiteMacro",{macro});}
   function renderTimeline(){
     const timeline=$("timeline"),pager=$("timelinePager"),warning=$("timelineWarning");
     timeline.replaceChildren();
     const macro=state?.macro;
-    if(!macro?.events?.length){
-      timeline.textContent=macro?"This macro has no events.":"No macro assigned yet.";
-      $("macroMeta").textContent="";
-      pager.hidden=true;
-      warning.hidden=true;
-      timelinePage=0;
-      return;
-    }
-
+    if(!macro?.events?.length){timeline.textContent=macro?"This macro has no events.":"Record something first, or choose a macro from the library.";$("macroMeta").textContent="";pager.hidden=true;warning.hidden=true;timelinePage=0;return;}
     $("macroMeta").textContent=`${macro.events.length} events · ${(macro.durationMs/1000).toFixed(2)}s`;
-    const pageCount=Math.max(1,Math.ceil(macro.events.length/PAGE_SIZE));
-    timelinePage=Math.max(0,Math.min(pageCount-1,timelinePage));
-    const first=timelinePage*PAGE_SIZE;
-    const last=Math.min(macro.events.length,first+PAGE_SIZE);
-    pager.hidden=pageCount<=1;
-    $("timelinePageLabel").textContent=`${first+1}–${last} of ${macro.events.length}`;
-    $("timelinePrev").disabled=timelinePage<=0;
-    $("timelineNext").disabled=timelinePage>=pageCount-1;
-
+    const pageCount=Math.max(1,Math.ceil(macro.events.length/PAGE_SIZE));timelinePage=Math.max(0,Math.min(pageCount-1,timelinePage));const first=timelinePage*PAGE_SIZE;const last=Math.min(macro.events.length,first+PAGE_SIZE);pager.hidden=pageCount<=1;$("timelinePageLabel").textContent=`${first+1}–${last} of ${macro.events.length}`;$("timelinePrev").disabled=timelinePage<=0;$("timelineNext").disabled=timelinePage>=pageCount-1;
     macro.events.slice(first,last).forEach((ev,offset)=>{
-      const index=first+offset;
-      const row=document.createElement("div");row.className="event";
-      const main=document.createElement("div");main.className="event-main";
-      const title=document.createElement("div");title.className="event-title";title.textContent=eventLabel(ev);
-      main.appendChild(title);
-      if(pro){
-        const controls=document.createElement("div");controls.className="event-controls";
-        const mk=(label,fn)=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.addEventListener("click",fn);return b;};
-        controls.append(
-          mk("↑",()=>{if(index<1)return;[macro.events[index-1],macro.events[index]]=[macro.events[index],macro.events[index-1]];saveTimeline(macro);}),
-          mk("↓",()=>{if(index>=macro.events.length-1)return;[macro.events[index+1],macro.events[index]]=[macro.events[index],macro.events[index+1]];saveTimeline(macro);}),
-          mk("Copy",()=>{macro.events.splice(index+1,0,structuredClone(ev));saveTimeline(macro);}),
-          mk("Delete",()=>{macro.events.splice(index,1);saveTimeline(macro);})
-        );
-        main.appendChild(controls);
-      }
-      const durationLimit=Math.max(0,Number(state?.limits?.maxDurationMs||60000));
-      const totalDelay=macro.events.reduce((sum,item)=>sum+Math.max(0,Number(item.delayMs||0)),0);
-      const otherDelay=Math.max(0,totalDelay-Math.max(0,Number(ev.delayMs||0)));
-      const maxDelay=Math.max(0,durationLimit-otherDelay);
-      const delay=document.createElement("input");delay.type="number";delay.className="delay";delay.min="0";delay.max=String(maxDelay);delay.value=String(ev.delayMs||0);delay.title="Delay before event (ms)";
-      delay.addEventListener("change",()=>{ev.delayMs=Math.max(0,Math.min(maxDelay,Number(delay.value||0)));saveTimeline(macro);});
-      row.append(main,delay);timeline.appendChild(row);
+      const index=first+offset,row=document.createElement("div");row.className="event";const main=document.createElement("div");main.className="event-main";const title=document.createElement("div");title.className="event-title";title.textContent=eventLabel(ev);main.appendChild(title);
+      if(pro){const controls=document.createElement("div");controls.className="event-controls";const mk=(label,fn)=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.addEventListener("click",fn);return b;};controls.append(mk("↑",()=>{if(index<1)return;[macro.events[index-1],macro.events[index]]=[macro.events[index],macro.events[index-1]];saveTimeline(macro);}),mk("↓",()=>{if(index>=macro.events.length-1)return;[macro.events[index+1],macro.events[index]]=[macro.events[index],macro.events[index+1]];saveTimeline(macro);}),mk("Copy",()=>{macro.events.splice(index+1,0,structuredClone(ev));saveTimeline(macro);}),mk("Delete",()=>{macro.events.splice(index,1);saveTimeline(macro);}));main.appendChild(controls);}
+      const durationLimit=Math.max(0,Number(state?.limits?.maxDurationMs||60000));const totalDelay=macro.events.reduce((sum,item)=>sum+Math.max(0,Number(item.delayMs||0)),0);const otherDelay=Math.max(0,totalDelay-Math.max(0,Number(ev.delayMs||0)));const maxDelay=Math.max(0,durationLimit-otherDelay);const delay=document.createElement("input");delay.type="number";delay.className="delay";delay.min="0";delay.max=String(maxDelay);delay.value=String(ev.delayMs||0);delay.title="Delay before event (ms)";delay.addEventListener("change",()=>{ev.delayMs=Math.max(0,Math.min(maxDelay,Number(delay.value||0)));saveTimeline(macro);});row.append(main,delay);timeline.appendChild(row);
     });
-
-    const validation=state?.validation;
-    const heldKeys=validation?.unmatchedKeys?.length||0,heldButtons=validation?.unmatchedButtons?.length||0;
-    warning.hidden=!(heldKeys||heldButtons);
-    warning.textContent=(heldKeys||heldButtons)?"Timeline has unmatched held inputs. Playback cleanup will still release them, but review the edits.":"";
+    const validation=state?.validation;const heldKeys=validation?.unmatchedKeys?.length||0,heldButtons=validation?.unmatchedButtons?.length||0;warning.hidden=!(heldKeys||heldButtons);warning.textContent=(heldKeys||heldButtons)?"Timeline has unmatched held inputs. Playback cleanup will still release them, but review the edits.":"";
   }
 
-  function applyStatus(next){
-    state={...(state||{}),...(next||{})};
-    if(!state)return;
-    updateStatus();
-  }
-  function applyState(next){
-    const nextMacroId=String(next?.macro?.id||"");
-    if(nextMacroId!==timelineMacroId){timelineMacroId=nextMacroId;timelinePage=0;}
-    state=next||state; if(!state)return;
-    updateStatus();populateLibrary();renderTimeline();
-  }
-  function applySettings(next){
-    settings={...(next||{})};
-    if(pro){
-      $("captureMouseMovement").checked=settings.captureMouseMovement!==false;
-      $("playbackSpeed").value=String(settings.playbackSpeed||1);
-      $("playbackMode").value=["once","count","while-held","toggle"].includes(settings.playbackMode)?settings.playbackMode:"once";
-      $("repeatCount").value=Number(settings.repeatCount||2);
-      $("coordinateMode").value=settings.coordinateMode==="active-window"?"active-window":"absolute";
-      $("repeatRow").hidden=$("playbackMode").value!=="count";
-    }
-  }
+  function applyStatus(next){state={...(state||{}),...(next||{})};if(!state)return;updateStatus();}
+  function applyState(next){const nextMacroId=String(next?.macro?.id||"");if(nextMacroId!==timelineMacroId){timelineMacroId=nextMacroId;timelinePage=0;}state=next||state;if(!state)return;updateStatus();populateLibrary();renderTimeline();}
+  function applySettings(next){settings={...(next||{})};if(pro){$("captureMouseMovement").checked=settings.captureMouseMovement!==false;$("playbackSpeed").value=String(settings.playbackSpeed||1);$("playbackMode").value=["once","count","while-held","toggle"].includes(settings.playbackMode)?settings.playbackMode:"once";$("repeatCount").value=Number(settings.repeatCount||2);$("coordinateMode").value=settings.coordinateMode==="active-window"?"active-window":"absolute";$("repeatRow").hidden=$("playbackMode").value!=="count";}}
 
-  window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{
-    uiUuid=uuid;const ai=JSON.parse(rawActionInfo||"{}");context=String(ai.context||uuid);actionUuid=String(ai.action||"");kind=detectKind();applySettings(ai.payload?.settings||{});filterKind();
-    socket=new WebSocket(`ws://127.0.0.1:${port}`);
-    socket.onopen=()=>{send({event:registerEvent,uuid:uiUuid});send({event:"getSettings",action:actionUuid,context});send({event:"sendToPlugin",action:actionUuid,context,payload:{type:"macroRecorder.inspect"}});};
-    socket.onmessage=event=>{let m;try{m=JSON.parse(event.data);}catch{return;}if(m.event==="didReceiveSettings")applySettings(m.payload?.settings||{});if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.state")applyState(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.status")applyStatus(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.export"){const blob=new Blob([JSON.stringify(m.payload.data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=m.payload.filename||"macro.packrat-macro.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}};
-  };
+  window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{uiUuid=uuid;const ai=JSON.parse(rawActionInfo||"{}");context=String(ai.context||uuid);actionUuid=String(ai.action||"");kind=detectKind();applySettings(ai.payload?.settings||{});filterKind();socket=new WebSocket(`ws://127.0.0.1:${port}`);socket.onopen=()=>{send({event:registerEvent,uuid:uiUuid});send({event:"getSettings",action:actionUuid,context});send({event:"sendToPlugin",action:actionUuid,context,payload:{type:"macroRecorder.inspect"}});};socket.onmessage=event=>{let m;try{m=JSON.parse(event.data);}catch{return;}if(m.event==="didReceiveSettings")applySettings(m.payload?.settings||{});if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.state")applyState(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.status")applyStatus(m.payload);if(m.event==="sendToPropertyInspector"&&m.payload?.type==="macroRecorder.export"){const blob=new Blob([JSON.stringify(m.payload.data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=m.payload.filename||"macro.packrat-macro.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}};};
 
   $("cancelRecording").addEventListener("click",()=>command("cancelRecording"));
   $("stopPlayback").addEventListener("click",()=>command("stopPlayback"));
@@ -149,23 +89,11 @@
   if(pro){
     $("captureMouseMovement").addEventListener("change",()=>saveSettings({captureMouseMovement:$("captureMouseMovement").checked}));
     $("macroSelect").addEventListener("change",()=>command("selectMacro",{macroId:$("macroSelect").value}));
-    $("macroName").addEventListener("change",()=>{if(!state?.macro)return;const macro={...state.macro,name:$("macroName").value.trim()||state.macro.name};command("saveMacro",{macroId:macro.id,macro});});
+    $("renameMacro").addEventListener("click",()=>{if(!state?.macro)return;const name=prompt("Rename macro",state.macro.name||"");if(name?.trim()){const macro={...state.macro,name:name.trim()};command("saveMacro",{macroId:macro.id,macro});}});
     $("duplicateMacro").addEventListener("click",()=>command("duplicateMacro",{macroId:$("macroSelect").value}));
     $("deleteMacro").addEventListener("click",()=>{if(confirm("Delete this macro from the local library?"))command("deleteMacro",{macroId:$("macroSelect").value});});
     $("exportMacro").addEventListener("click",()=>command("exportMacro",{macroId:$("macroSelect").value}));
-    $("importFile").addEventListener("change",async()=>{
-      const input=$("importFile"),file=input.files?.[0];
-      if(!file)return;
-      try{
-        if(file.size>MAX_IMPORT_BYTES)throw new Error("too-large");
-        command("importMacro",{data:JSON.parse(await file.text())});
-      }catch(error){
-        $("errorText").hidden=false;
-        $("errorText").textContent=error?.message==="too-large"?"That macro file is larger than 16 MB.":"That file is not valid PackRat macro JSON.";
-      }finally{
-        input.value="";
-      }
-    });
+    $("importFile").addEventListener("change",async()=>{const input=$("importFile"),file=input.files?.[0];if(!file)return;try{if(file.size>MAX_IMPORT_BYTES)throw new Error("too-large");command("importMacro",{data:JSON.parse(await file.text())});}catch(error){$("errorText").hidden=false;$("errorText").textContent=error?.message==="too-large"?"That macro file is larger than 16 MB.":"That file is not valid PackRat macro JSON.";}finally{input.value="";}});
     $("playbackSpeed").addEventListener("change",()=>saveSettings({playbackSpeed:Number($("playbackSpeed").value)}));
     $("playbackMode").addEventListener("change",()=>{const value=$("playbackMode").value;$("repeatRow").hidden=value!=="count";saveSettings({playbackMode:value});});
     $("repeatCount").addEventListener("change",()=>saveSettings({repeatCount:Math.max(1,Math.min(100,Number($("repeatCount").value||1)))}));
