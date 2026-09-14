@@ -1,0 +1,69 @@
+{
+  "id": "macro-recorder-pro",
+  "name": "Macro Recorder Pro",
+  "type": "plugin",
+  "status": "qa_passed",
+  "workflow_state": "TESTING",
+  "blocker_kind": "two_native_host_checks_and_physical_smoke",
+  "blocker": "Automated release QA is green. Remaining release blockers are the real >60-second recorded idle-gap timing check, genuine non-injected Ctrl+Shift+F12 idle/recording/playback behavior, and the remaining physical Windows/Stream Deck smoke matrix.",
+  "final_boundary": "Keep TESTING until the remaining native/physical acceptance checks pass. Then move this canonical record to READY_TO_SHIP and rerun rat ship macro-recorder-pro.",
+  "price_usd": 7.99,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "plugin_uuid": "com.packrat.macro-recorder-pro",
+  "minimum_stream_deck": "7.1",
+  "node_runtime": "24",
+  "submission_metadata": "products/_submission/macro-recorder-pro.json",
+  "source_repository": "https://github.com/slayerkey/rp-system.git",
+  "source_ref": "refs/heads/product/macro-recorder",
+  "source_commit": "84d538d9f915faed43a2da62aaf8ad8ba16edf66",
+  "release_artifact": {
+    "repository": "slayerkey/rp-system",
+    "run_id": 34899642883,
+    "name": "macro-recorder-family-release-qa",
+    "commit": "84d538d9f915faed43a2da62aaf8ad8ba16edf66",
+    "package_path": "plugins/macro-recorder-pro/dist/com.packrat.macro-recorder-pro.streamDeckPlugin",
+    "package_sha256": "eeb03ef3761f533f2d0421ee668ac4d749d69f1ce226402c996d6e451e38a582",
+    "media": {
+      "search_icon": "artifacts/ship-media/macro-recorder-pro/01_search_icon.png",
+      "cover": "artifacts/ship-media/macro-recorder-pro/02_cover.png",
+      "gallery": [
+        "artifacts/ship-media/macro-recorder-pro/03_gallery_01.png",
+        "artifacts/ship-media/macro-recorder-pro/04_gallery_02.png",
+        "artifacts/ship-media/macro-recorder-pro/05_gallery_03.png",
+        "artifacts/ship-media/macro-recorder-pro/06_gallery_04.png"
+      ]
+    }
+  },
+  "automated_release_evidence": {
+    "status": "PASS",
+    "run_id": 34899642883,
+    "head_sha": "84d538d9f915faed43a2da62aaf8ad8ba16edf66",
+    "artifact_id": 10370675122,
+    "artifact_digest": "sha256:76b0d46dc581aea49823fd4ff731815b7392b134fafa5625b53f35278df6cf03",
+    "pro_package_sha256": "eeb03ef3761f533f2d0421ee668ac4d749d69f1ce226402c996d6e451e38a582",
+    "source_contract": "PASS",
+    "windows_release": "PASS",
+    "native_integration": "PASS"
+  },
+  "automated_native_acceptance": {
+    "status": "PASS",
+    "blockers_closed": 8,
+    "blockers_total": 10,
+    "remaining_native_blockers": [
+      "pro_records_single_idle_gap_over_60_seconds",
+      "emergency_hotkey_only_intercepts_during_playback"
+    ]
+  },
+  "release_gate": [
+    "automated source-contract QA — PASS",
+    "Windows native integration acceptance — PASS",
+    "Pro unit/storage/UI/submission tests — PASS",
+    "official Elgato validation and packaging — PASS",
+    "five-device starter profile validation — PASS",
+    "deterministic Rat Ship media adapter — PASS",
+    "real >60-second recorded idle gap — PENDING",
+    "real Ctrl+Shift+F12 idle/recording/playback behavior — PENDING",
+    "remaining physical Windows/Stream Deck smoke matrix — PENDING"
+  ]
+}

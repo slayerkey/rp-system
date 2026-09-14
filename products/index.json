@@ -408,6 +408,14 @@
       "version": "1.0.0"
     },
     {
+      "id": "macro-recorder-pro",
+      "name": "Macro Recorder Pro",
+      "type": "plugin",
+      "status": "qa_passed",
+      "price_usd": 7.99,
+      "version": "1.0.0.0"
+    },
+    {
       "id": "market-command-center",
       "name": "Market Command Center",
       "type": "widget",
