@@ -271,6 +271,104 @@ Normal product tasks treat global standards as read-only. Fix the product agains
 
 Only edit a global standard when the user is explicitly asking for a reusable system change, and only promote lessons that genuinely recur across products.
 
+## 20. Canonical Rat Ship cover uses generic text keys instead of the real product visuals
+
+### Symptom
+
+The warm-studio/photo hero is present, so the cover looks globally "correct," but the Stream Deck itself contains generic text tiles such as action names instead of the product's real icons or runtime key states.
+
+### Why this happens
+
+The global hero compositor and the product key source are separate layers. A correct photographed device plate does **not** prove the key faces are correct.
+
+Common causes:
+
+- product Rat Art did not emit exact runtime key faces
+- the plugin paints keys dynamically at runtime but Rat Ship only saw static manifest metadata
+- the action art is SVG and the hero pipeline only considered raster assets
+- the renderer silently fell back to action-name text when it could not resolve usable art
+- the final Maker Console cover was never inspected; only the product-local gallery or an intermediate render was reviewed
+
+### Canonical key-source order
+
+For Stream Deck heroes, resolve key faces in this order:
+
+1. exact product-authored `rat-art-keys/` PNGs when available
+2. `rat-art-key-fixtures.json` for truthful representative runtime states plus the plugin's real icons
+3. the plugin's real action/state assets, including deterministic SVG rasterization
+4. **never** a silent text-only placeholder
+
+If no real visual source can be resolved, Rat Art should fail closed.
+
+### Fix
+
+- inspect the exact final `02_cover.png` from the Rat Ship ship-kit artifact
+- if runtime keys differ materially from static manifest art, add exact `rat-art-keys/` or representative `rat-art-key-fixtures.json`
+- preserve the real product glyphs; do not replace them with generated lettermarks or generic action-name cards
+- keep representative state values truthful to the shipping product
+- rerun the final canonical ship-kit render and visually inspect that artifact before Maker Console upload
+
+Do not use the user as the rendering QA loop by asking them to repeatedly run `rat ship` just to discover deterministic art defects that CI can expose.
+
+## 21. Every SVG action in the hero shows the same icon
+
+### Symptom
+
+The hero successfully contains icons instead of text placeholders, but multiple unrelated actions all show the same glyph.
+
+### Cause
+
+Many Stream Deck products store each action visual under a path ending in the same basename such as `icon.svg`.
+
+A raster cache keyed only by filename will collide:
+
+- brightness/icon.svg
+- contrast/icon.svg
+- input/icon.svg
+- hdr/icon.svg
+
+If all become a cached `icon_svg.png`, the first rendered glyph is reused for every later action.
+
+### Canonical fix
+
+Cache rasterized SVG assets by **content identity**, not basename.
+
+The shared Stream Deck hero renderer uses a content hash in the cache key. Preserve that behavior.
+
+Never key shared art caches using only:
+
+- filename
+- stem
+- extensionless asset name
+
+The regression is subtle because the render completes successfully and dimensions remain valid. Visual review of the exact final ship-kit artifact is mandatory.
+
+## 22. Product-local Rat Art looks good but the submitted cover is still wrong
+
+### Cause
+
+For normal Stream Deck plugins, Rat Ship globally owns and overwrites `02_cover.png` after product-local Rat Art runs.
+
+Reviewing only:
+
+- product-local `dist/marketplace/02_cover.png`
+- gallery frames
+- source SVGs
+- an earlier hero render
+
+does not prove what Maker Console will receive.
+
+### Fix
+
+CI for visually sensitive Stream Deck products should preserve/upload the **final canonical Rat Ship ship-kit**, including:
+
+- final `02_cover.png`
+- gallery files
+- key-source/provenance report
+- any representative key fixtures used to build the cover
+
+The artifact to approve is the one produced after the global hero overwrite and marketplace preflight.
+
 ## Minimal diagnostic order
 
 When a Stream Deck product looks wrong:
