@@ -27,17 +27,20 @@ test("AMD, NVIDIA, and Intel-style hardware catalogs map to the same canonical G
       type: "catalog",
       sensors: [
         { id: hardwareType + ".temp", name: "GPU Core", sensorType: "Temperature", hardwareType, hardwareName: hardwareType, unit: "°C" },
-        { id: hardwareType + ".load", name: "GPU Core", sensorType: "Load", hardwareType, hardwareName: hardwareType, unit: "%" }
+        { id: hardwareType + ".load", name: "GPU Core", sensorType: "Load", hardwareType, hardwareName: hardwareType, unit: "%" },
+        { id: hardwareType + ".fan", name: "GPU Fan 1", sensorType: "Fan", hardwareType, hardwareName: hardwareType, unit: "RPM" }
       ]
     }));
     telemetry._consumeHardwareLine(JSON.stringify({
       type: "sample",
       at: Date.now(),
       foregroundProcess: "game.exe",
-      values: { [hardwareType + ".temp"]: 72, [hardwareType + ".load"]: 98 }
+      values: { [hardwareType + ".temp"]: 72, [hardwareType + ".load"]: 98, [hardwareType + ".fan"]: 1234 }
     }));
     assert.equal(telemetry.metricValue("gpu.temperature"), 72);
     assert.equal(telemetry.metricValue("gpu.load"), 98);
+    assert.equal(telemetry.metricValue("gpu.fan"), 1234);
+    assert.equal(telemetry.metricDescriptor("gpu.fan").name, "GPU Fan Speed");
   }
 });
 
