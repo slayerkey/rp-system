@@ -53,7 +53,6 @@
   const $ = (id) => document.getElementById(id);
   const [getMetricSetting, setMetricSetting] = useSettings("metricId", (value) => {
     metricSetting = typeof value === "string" && value ? value : undefined;
-    if (String(metricSetting || "").startsWith("lhm.")) showAdvanced = true;
     updateMetricOptions();
     updateWarning();
   }, null);
@@ -170,7 +169,12 @@
       select.prepend(option);
     } else if (wanted.startsWith("lhm.") && !showAdvanced) {
       const metric = byId.get(wanted);
-      if (metric) appendOption(select, metric, String(metric.name || wanted));
+      if (metric) {
+        const currentGroup = document.createElement("optgroup");
+        currentGroup.label = "Current advanced sensor";
+        appendOption(currentGroup, metric, String(metric.name || wanted));
+        select.appendChild(currentGroup);
+      }
     }
 
     select.value = wanted;
@@ -363,7 +367,6 @@
     fpsSetup = payload.fpsSetup || fpsSetup;
     if (payload.settings?.metricId && !metricSetting) {
       metricSetting = String(payload.settings.metricId);
-      if (metricSetting.startsWith("lhm.")) showAdvanced = true;
     }
     updateMetricOptions();
     updateStatus();
@@ -374,7 +377,6 @@
     kind = KINDS[actionUuid] || "graph";
     const savedMetric = await getMetricSetting();
     metricSetting = typeof savedMetric === "string" && savedMetric ? savedMetric : undefined;
-    if (String(metricSetting || "").startsWith("lhm.")) showAdvanced = true;
     filterFields();
     updateMetricOptions();
     document.body.classList.add("ready");
