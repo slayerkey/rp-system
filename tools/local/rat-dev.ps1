@@ -87,11 +87,9 @@ function Resolve-Source {
     Write-Host "Fetching canonical RatPack source..." -ForegroundColor Cyan
     Invoke-Checked -Command "git" -Arguments @("-C", $RepoRoot, "fetch", "--prune", "origin") -Failure "Git fetch failed"
 
-    $productSource = Resolve-RatDevInternalProductSource -RepoRoot $RepoRoot -Slug $Slug
-    if ($productSource) {
-        return $productSource
-    }
-
+    # An explicit external registration on origin/main is authoritative. Resolve
+    # it before scanning product branches so private products cannot be shadowed
+    # by stale/copied slug directories on unrelated internal branches.
     $registration = Read-OriginMainRegistration
     if ($registration -and $registration.repository) {
         $externalRef = if ($registration.ref) { [string]$registration.ref } else { "product/$Slug" }
@@ -104,6 +102,11 @@ function Resolve-Source {
             SourceRoot = $sourceRoot
             Display = "$($registration.repository) @ $externalRef"
         }
+    }
+
+    $productSource = Resolve-RatDevInternalProductSource -RepoRoot $RepoRoot -Slug $Slug
+    if ($productSource) {
+        return $productSource
     }
 
     $mainWidget = "origin/main:widgets/_src/$Slug"
