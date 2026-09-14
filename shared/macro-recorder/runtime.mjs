@@ -1,3 +1,6 @@
+import { mkdir, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { InputHost } from "./input-host.mjs";
 import { MacroLibrary } from "./storage.mjs";
 import {
@@ -33,6 +36,27 @@ function packRatKeyImage(kind, title = "") {
     : `<text x="78" y="128" text-anchor="middle" fill="#F5F7FB" font-family="Arial,Segoe UI,sans-serif" font-size="${lines[0]?.length > 8 ? 15 : 18}" font-weight="700">${keyXml(lines[0] || fallback)}</text>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144"><rect width="144" height="144" rx="20" fill="#080A0E"/><rect x="5" y="18" width="5" height="108" rx="2.5" fill="#FFB21E"/>${glyph}${text}</svg>`;
   return "data:image/svg+xml;base64," + Buffer.from(svg).toString("base64");
+}
+
+function safeExportName(value) {
+  return String(value || "macro")
+    .trim()
+    .replace(/[^a-z0-9-_]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "macro";
+}
+
+function exportStamp(date = new Date()) {
+  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z").replace("T", "-");
+}
+
+async function exportMacroToDownloads(macro) {
+  const folder = join(homedir(), "Downloads", "PackRat Macro Recorder");
+  await mkdir(folder, { recursive: true });
+  const filename = `${safeExportName(macro?.name)}-${exportStamp()}.packrat-macro.json`;
+  const path = join(folder, filename);
+  await writeFile(path, JSON.stringify(exportEnvelope(macro), null, 2) + "\n", "utf8");
+  return { filename, path };
 }
 
 function proStarterMacros() {
@@ -578,10 +602,12 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
         record.settings = settingsFor("replay", next);
       } else if (command === "exportMacro" && pro) {
         const macro = library.get(String(payload.macroId || record.settings.macroId));
-        if (macro) await sendPropertyInspector({
-          type:"macroRecorder.export",
-          filename:`${macro.name.replace(/[^a-z0-9-_]+/gi,"-").replace(/^-+|-+$/g,"") || "macro"}.packrat-macro.json`,
-          data:exportEnvelope(macro),
+        if (!macro) throw new Error("Choose a macro before exporting.");
+        const exported = await exportMacroToDownloads(macro);
+        await sendPropertyInspector({
+          type:"macroRecorder.exportSaved",
+          filename:exported.filename,
+          path:exported.path,
         }, record);
       }
       await render(record);
