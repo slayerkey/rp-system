@@ -75,7 +75,12 @@ abstract class LiveTitleAction<S extends Record<string, any>> extends SingletonA
 
 class StatusBase extends LiveTitleAction<Record<string, never>> {
   protected title(): string { return statusTitle(runtime.state.getSnapshot()); }
-  override async onKeyDown(): Promise<void> { await runtime.state.refresh(); }
+
+  override async onKeyDown(ev: KeyDownEvent<Record<string, never>>): Promise<void> {
+    const snapshot = await freshSnapshot();
+    if (snapshot) await ev.action.showOk();
+    else await ev.action.showAlert();
+  }
 }
 
 class HdrBase extends LiveTitleAction<HdrSettings> {
@@ -200,12 +205,18 @@ class LockBase extends SingletonAction<Record<string, never>> {
 
 class ApplyModeBase extends LiveTitleAction<ModeActionSettings> {
   protected async title(settings: ModeActionSettings): Promise<string> {
-    return modeTitle(await runtime.store.getMode(settings.modeId || "gaming"));
+    const mode = await runtime.store.getMode(settings.modeId || "gaming");
+    return !mode || !hasConfiguredSettings(mode)
+      ? `SETUP\n${modeTitle(mode)}`
+      : modeTitle(mode);
   }
 
   override async onKeyDown(ev: KeyDownEvent<ModeActionSettings>): Promise<void> {
     const mode = await runtime.store.getMode(ev.payload.settings?.modeId || "gaming");
-    if (!mode || !hasConfiguredSettings(mode)) return ev.action.showAlert();
+    if (!mode || !hasConfiguredSettings(mode)) {
+      await ev.action.showAlert();
+      return;
+    }
 
     const result = await applyMode(mode, (op, args) => runtime.state.execute(op, args));
     await ev.action.setTitle(resultTitle(result));
