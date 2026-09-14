@@ -16,13 +16,14 @@
     <section class="group">
       <label for="intervalSeconds">Background monitoring interval</label>
       <select id="intervalSeconds">
+        <option value="1">1 second (most responsive)</option>
         <option value="5">5 seconds</option>
         <option value="10">10 seconds</option>
         <option value="15">15 seconds</option>
         <option value="30">30 seconds</option>
         <option value="60">60 seconds</option>
       </select>
-      <p class="hint">Shared across every Internet Health Pro key. Tiny probes only. Failed endpoints back off automatically.</p>
+      <p class="hint">Shared across every Internet Health Pro key. 5 seconds is the default. 1 second is available for the most responsive live graph and latency display. Failed endpoints still back off automatically.</p>
     </section>
 
     <section class="group" data-kinds="health latency jitter-loss summary">
