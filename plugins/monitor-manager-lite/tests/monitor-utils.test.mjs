@@ -99,7 +99,7 @@ test("bundled profiles are V2 archives with real Monitor Manager actions", async
     const text=zipText(data);
     assert.match(text,/"Version": "2\.0"/);
     assert.match(text,/com\.packrat\.monitormanagerlite\.brightness/);
-    assert.match(text,/com\.packrat\.monitormanagerlite\.refresh-rate/);
+    assert.doesNotMatch(text,/com\.packrat\.monitormanagerlite\.(power|refresh-rate|status)/);
   }
 });
 
@@ -199,14 +199,14 @@ test("Lite inspector does not visually substitute an unplugged configured monito
   assert.match(pi,/CONFIGURED MONITOR NOT CONNECTED/);
 });
 
-test("Lite manifest action UUIDs exactly match backend handlers", async () => {
+test("Lite exposes exactly one brightness action", async () => {
   const manifest=JSON.parse(await readFile("com.packrat.monitormanagerlite.sdPlugin/manifest.json","utf8"));
   const source=await readFile("src/actions.ts","utf8");
   const handlers=[...source.matchAll(/@action\(\{\s*UUID:\s*"([^"]+)"/g)].map((match)=>match[1]).sort();
-  const exposed=manifest.Actions.map((action)=>action.UUID).sort();
-  assert.deepEqual(handlers,exposed);
-  const encoders=manifest.Actions.filter((action)=>action.Controllers?.includes("Encoder")).map((action)=>action.UUID);
-  assert.deepEqual(encoders,["com.packrat.monitormanagerlite.brightness"]);
+  assert.deepEqual(handlers,["com.packrat.monitormanagerlite.brightness"]);
+  assert.deepEqual(manifest.Actions.map((action)=>action.UUID),["com.packrat.monitormanagerlite.brightness"]);
+  assert.deepEqual(manifest.Actions[0].Controllers,["Keypad","Encoder"]);
+  assert.equal(manifest.Actions[0].States[0].ShowTitle,false);
 });
 
 test("monitor scans are coalesced and slow DDC discovery gets a dedicated timeout", async () => {
@@ -259,4 +259,44 @@ test("Lite Pro URL validator requires an exact direct Marketplace product URL", 
   assert.match(source,/\[0-9a-f\]\{8\}.*\[0-9a-f\]\{12\}/);
   assert.doesNotMatch(source,/marketplace\.elgato\.com\/search\?/i);
   assert.doesNotMatch(source,/marketplace\.elgato\.com\/@packrat/i);
+});
+
+
+test("Lite is intentionally brightness-only across manifest, profile and Marketplace copy", async () => {
+  const manifest=JSON.parse(await readFile("com.packrat.monitormanagerlite.sdPlugin/manifest.json","utf8"));
+  const submission=JSON.parse(await readFile("submission.json","utf8"));
+  const profileSource=await readFile("scripts/build-profiles.mjs","utf8");
+  assert.equal(manifest.Actions.length,1);
+  assert.match(submission.headline,/Brightness/i);
+  assert.match(submission.description,/one everyday job well/i);
+  assert.doesNotMatch(profileSource,/\.power|refresh-rate|\.status/);
+  assert.match(profileSource,/25%/);
+  assert.match(profileSource,/100%/);
+});
+
+test("Lite generated profiles are one-page brightness surfaces", async () => {
+  const root=path.resolve("com.packrat.monitormanagerlite.sdPlugin","profiles");
+  for(const name of ["monitor-manager-lite-standard","monitor-manager-lite-xl","monitor-manager-lite-plus","monitor-manager-lite-virtual"]){
+    const docs=zipJsonDocuments(await readFile(path.join(root,name+".streamDeckProfile")));
+    const rootDoc=docs.find((doc)=>!doc.name.includes("/Profiles/"));
+    assert.equal(rootDoc.json.Pages.Pages.length,1,name+" should stay one page");
+    for(const doc of docs)for(const controller of doc.json.Controllers??[])for(const action of Object.values(controller.Actions??{})){
+      assert.equal(action.UUID,"com.packrat.monitormanagerlite.brightness");
+      if(controller.Type==="Keypad")assert.equal(action.States?.[0]?.ShowTitle,false);
+    }
+  }
+});
+
+test("Lite consumes the canonical PackRat visual system", async () => {
+  const css=await readFile("com.packrat.monitormanagerlite.sdPlugin/ui/pi.css","utf8");
+  const html=await readFile("com.packrat.monitormanagerlite.sdPlugin/ui/config.html","utf8");
+  const visuals=await readFile("src/key-visuals.ts","utf8");
+  assert.match(css,/#080A0E/i);
+  assert.match(css,/#FFB21E/i);
+  assert.match(css,/radial-gradient/);
+  assert.match(html,/ratpack-icon-transparent\.png/);
+  assert.match(html,/PackRat ↗/);
+  assert.match(visuals,/setImage/);
+  assert.match(visuals,/stroke="#fff"/);
+  assert.match(visuals,/#FFB21E/);
 });

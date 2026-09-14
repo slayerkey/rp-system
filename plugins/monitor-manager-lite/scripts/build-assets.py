@@ -7,7 +7,7 @@ OUT = ROOT / "com.packrat.monitormanagerlite.sdPlugin" / "imgs" / "plugin"
 OUT.mkdir(parents=True, exist_ok=True)
 
 def png(path: Path, size: int) -> None:
-    bg=(8,11,15,255); panel=(17,22,29,255); white=(255,255,255,255); green=(43,232,106,255)
+    bg=(8,11,15,255); panel=(17,22,29,255); white=(255,255,255,255); green=(255,178,30,255)
     px=[list(bg) for _ in range(size*size)]
     def put(x,y,c):
         if 0<=x<size and 0<=y<size: px[y*size+x]=list(c)

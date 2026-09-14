@@ -3,7 +3,7 @@
   "Name": "Monitor Manager Lite",
   "Version": "1.0.0.0",
   "Author": "Packrat",
-  "Description": "Free Windows monitor control for Stream Deck: brightness, safe monitor power, refresh rate and live display status for one configured monitor.",
+  "Description": "Free one-monitor brightness control for Stream Deck with exact presets, up/down adjustment, and Stream Deck+ dial support.",
   "Category": "Monitor Manager Lite",
   "CategoryIcon": "imgs/plugin/category-icon",
   "Icon": "imgs/plugin/marketplace",
@@ -56,8 +56,8 @@
     {
       "Name": "Monitor Brightness",
       "UUID": "com.packrat.monitormanagerlite.brightness",
-      "Icon": "imgs/actions/common/icon",
-      "Tooltip": "Set, raise or lower brightness on the selected monitor. Stream Deck+ can use the dial.",
+      "Icon": "imgs/actions/brightness/icon",
+      "Tooltip": "Set monitor brightness, raise/lower it, or use a Stream Deck+ dial on one configured display.",
       "PropertyInspectorPath": "ui/config.html",
       "Controllers": [
         "Keypad",
@@ -71,56 +71,8 @@
       },
       "States": [
         {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
-        }
-      ]
-    },
-    {
-      "Name": "Monitor Power",
-      "UUID": "com.packrat.monitormanagerlite.power",
-      "Icon": "imgs/actions/common/icon",
-      "Tooltip": "Power the selected monitor on/off only when its DDC/CI capabilities advertise the power VCP feature.",
-      "PropertyInspectorPath": "ui/config.html",
-      "Controllers": [
-        "Keypad"
-      ],
-      "States": [
-        {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
-        }
-      ]
-    },
-    {
-      "Name": "Refresh Rate Switch",
-      "UUID": "com.packrat.monitormanagerlite.refresh-rate",
-      "Icon": "imgs/actions/common/icon",
-      "Tooltip": "Switch the selected monitor to a refresh rate Windows reports as available at the current resolution.",
-      "PropertyInspectorPath": "ui/config.html",
-      "Controllers": [
-        "Keypad"
-      ],
-      "States": [
-        {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
-        }
-      ]
-    },
-    {
-      "Name": "Current Display Status",
-      "UUID": "com.packrat.monitormanagerlite.status",
-      "Icon": "imgs/actions/common/icon",
-      "Tooltip": "Show the selected display's current refresh rate and resolution.",
-      "PropertyInspectorPath": "ui/config.html",
-      "Controllers": [
-        "Keypad"
-      ],
-      "States": [
-        {
-          "Image": "imgs/actions/common/key",
-          "TitleAlignment": "middle"
+          "Image": "imgs/actions/brightness/key",
+          "ShowTitle": false
         }
       ]
     }

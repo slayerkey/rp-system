@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ROOT=Path(__file__).resolve().parents[3]
 RAT=ROOT/"tools"/"art"/"assets"/"ratpack-icon-transparent.png"
 W,H=1920,960
-BG=(7,10,14); PANEL=(16,20,26); BORDER=(43,50,61); WHITE=(247,249,251); MUTED=(169,179,192); ACCENT=(43,232,106); WARN=(243,184,74)
+BG=(7,10,14); PANEL=(16,20,26); BORDER=(43,50,61); WHITE=(247,249,251); MUTED=(169,179,192); ACCENT=(255,178,30); WARN=(255,196,77)
 
 def font(size,bold=True):
     candidates=[]
@@ -59,21 +59,21 @@ def search_icon(path):
     im.save(path,"PNG",optimize=True)
 
 def hero(path):
-    im=bg(); header(im,"CONTROL YOUR MONITORS","Windows display control from Stream Deck without pretending every monitor supports the same hardware features.")
-    d=ImageDraw.Draw(im); d.text((110,380),"BRIGHTNESS. HZ. POWER.",font=font(34),fill=(*WHITE,255))
-    d.text((110,438),"One useful monitor. Free.",font=font(28,False),fill=(*MUTED,255))
-    labels=[("165 HZ","REFRESH",ACCENT),("65%","BRIGHTNESS",ACCENT),("POWER","DDC/CI",WARN),("STATUS","2560×1440",ACCENT),("BRIGHT +","+5%",ACCENT),
-            ("60 HZ","REFRESH",ACCENT),("120 HZ","REFRESH",ACCENT),("144 HZ","REFRESH",ACCENT),("240 HZ","REFRESH",ACCENT),("BRIGHT -","-5%",ACCENT),
-            ("SUPPORTED","CAPABILITY",ACCENT),("UNKNOWN","CAPABILITY",WARN),("MONITOR","SELECT",ACCENT),("CURRENT","DISPLAY",ACCENT),("WINDOWS","DISPLAY",ACCENT)]
+    im=bg(); header(im,"BRIGHTNESS WITHOUT THE MONITOR BUTTONS","One everyday display control, directly on Stream Deck.")
+    d=ImageDraw.Draw(im); d.text((110,380),"MONITOR BRIGHTNESS.",font=font(34),fill=(*WHITE,255))
+    d.text((110,438),"Presets, up / down, and a Stream Deck+ dial. Free.",font=font(28,False),fill=(*MUTED,255))
+    labels=[("25%","BRIGHTNESS",ACCENT),("50%","BRIGHTNESS",ACCENT),("75%","BRIGHTNESS",ACCENT),("100%","BRIGHTNESS",ACCENT),("BRIGHT +","+5%",ACCENT),
+            ("BRIGHT -","-5%",ACCENT),("65%","PRESET",ACCENT),("DIAL","STREAM DECK+",ACCENT),("SUPPORTED","BRIGHTNESS",ACCENT),("MONITOR","ONE DISPLAY",ACCENT),
+            ("25%","PRESET",ACCENT),("50%","PRESET",ACCENT),("75%","PRESET",ACCENT),("100%","PRESET",ACCENT),("LITE","FOCUSED",ACCENT)]
     deck(im,labels); footer(im); save(im,path)
 
 def controls(path):
     im=bg(); header(im,"Useful on day one.","Real Lite actions for one configured Windows display.")
     d=ImageDraw.Draw(im)
-    items=[("MONITOR BRIGHTNESS","Set a value or use Brightness Up / Down. Stream Deck+ gets a real dial."),
-           ("REFRESH RATE SWITCH","60 / 120 / 144 / 165 / 240 Hz only when Windows reports the requested mode."),
-           ("MONITOR POWER","Uses DDC/CI power control only when the monitor advertises the feature."),
-           ("CURRENT DISPLAY STATUS","See current Hz and resolution directly on the key.")]
+    items=[("EXACT PRESETS","Put the brightness levels you actually use on dedicated keys."),
+           ("BRIGHTNESS UP / DOWN","Simple steps when you do not need an exact preset."),
+           ("STREAM DECK+ DIAL","Rotate for continuous brightness adjustment."),
+           ("ONE MONITOR","Lite stays focused. Pro owns the deeper display-control workflows.")]
     y=330
     for title,body in items:
         d.ellipse((135,y+7,151,y+23),fill=(*ACCENT,255)); d.text((175,y),title,font=font(27),fill=(*WHITE,255)); d.text((175,y+45),body,font=font(20,False),fill=(*MUTED,255)); y+=125
@@ -83,17 +83,17 @@ def capabilities(path):
     im=bg(); header(im,"Capability aware by design.","DDC/CI is monitor-specific, so Lite reports what it knows instead of guessing.")
     d=ImageDraw.Draw(im)
     for i,(state,body,color) in enumerate([
-        ("SUPPORTED","The monitor/API explicitly exposes this control.",ACCENT),
-        ("NOT SUPPORTED","The capability data explicitly omits it.",(255,90,103)),
-        ("UNKNOWN","Windows or the monitor cannot prove support safely.",WARN)]):
+        ("SUPPORTED","External DDC / Windows APIs expose brightness.",ACCENT),
+        ("LAPTOP PANEL","Uses the Windows internal brightness path.",ACCENT),
+        ("UNAVAILABLE","Lite reports the limitation instead of faking success.",WARN)]):
         y=340+i*145; card(d,(180,y,1740,y+110)); d.text((230,y+22),state,font=font(28),fill=(*color,255)); d.text((600,y+28),body,font=font(21,False),fill=(*MUTED,255))
     footer(im); save(im,path)
 
 def profiles(path):
     im=bg(); header(im,"Starter profiles included.","Standard / MK.2, XL, Stream Deck+ and Virtual Stream Deck layouts use real plugin actions.")
-    labels=[("MONITORS","STATUS",ACCENT),("65%","BRIGHTNESS",ACCENT),("POWER","DDC/CI",WARN),("60 HZ","DISPLAY",ACCENT),("120 HZ","DISPLAY",ACCENT),
-            ("144 HZ","DISPLAY",ACCENT),("165 HZ","DISPLAY",ACCENT),("240 HZ","DISPLAY",ACCENT),("25%","BRIGHTNESS",ACCENT),("50%","BRIGHTNESS",ACCENT),
-            ("65%","BRIGHTNESS",ACCENT),("80%","BRIGHTNESS",ACCENT),("BRIGHT -","5%",ACCENT),("BRIGHT +","5%",ACCENT),("STATUS","CURRENT",ACCENT)]
+    labels=[("25%","BRIGHTNESS",ACCENT),("50%","BRIGHTNESS",ACCENT),("75%","BRIGHTNESS",ACCENT),("100%","BRIGHTNESS",ACCENT),("BRIGHT +","5%",ACCENT),
+            ("BRIGHT -","5%",ACCENT),("25%","PRESET",ACCENT),("50%","PRESET",ACCENT),("75%","PRESET",ACCENT),("100%","PRESET",ACCENT),
+            ("BRIGHT +","5%",ACCENT),("BRIGHT -","5%",ACCENT),("DIAL","PLUS",ACCENT),("ONE","MONITOR",ACCENT),("LITE","FOCUSED",ACCENT)]
     deck(im,labels,x=500,y=305); footer(im); save(im,path)
 
 def plus(path):
@@ -106,9 +106,9 @@ def plus(path):
 def compatibility(path):
     im=bg(); header(im,"Windows first. Hardware honest.","External DDC/CI and laptop internal brightness use different Windows paths.")
     d=ImageDraw.Draw(im)
-    boxes=[("EXTERNAL MONITOR","DDC/CI capability discovery\nBrightness + safe power when exposed"),
-           ("LAPTOP PANEL","Windows internal brightness path\nNo fake DDC/CI requirement"),
-           ("DISPLAY MODES","Windows mode enumeration\nUnsupported Hz requests are rejected")]
+    boxes=[("EXTERNAL MONITOR","Windows monitor APIs / DDC\nBrightness when available"),
+           ("LAPTOP PANEL","Windows internal brightness\nNo fake DDC requirement"),
+           ("PRO UPGRADE","Power, modes, inputs, HDR, profiles\nand multi-monitor control")]
     x=120
     for title,body in boxes:
         card(d,(x,350,x+520,650)); d.text((x+35,400),title,font=font(25),fill=(*WHITE,255))
