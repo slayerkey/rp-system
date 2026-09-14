@@ -133,32 +133,32 @@ def main():
     labels = profile_actions(args.flavor)
     hero = canvas()
     d = ImageDraw.Draw(hero)
-    title(d, "WINDOWS SETTINGS", "MANAGER " + args.flavor.upper(), "PC Modes & System Controls for Stream Deck" if args.flavor == "pro" else "Live Windows System Controls for Stream Deck")
+    title(d, "WINDOWS SETTINGS", "MANAGER " + args.flavor.upper(), "15 Windows controls with live state" if args.flavor == "pro" else "Six useful Windows controls for Stream Deck")
     key_grid(hero, labels[:15] if args.flavor == "pro" else labels)
     save(hero, args.output, "02_cover.png")
 
     if args.flavor == "pro":
         text_frame(
-            "CHANGE YOUR PC",
-            "WITH ONE KEY",
+            "WINDOWS CONTROLS",
+            "YOU ACTUALLY USE",
             [
-                ("ONE KEY MODES", "Apply several Windows settings together from one Stream Deck key."),
-                ("YOU CHOOSE WHAT CHANGES", "Every unselected setting is left alone."),
-                ("LIVE CURRENT MODE", "Saved modes are matched against the Windows state that is actually active."),
-                ("HONEST RESULTS", "COMPLETE, PARTIAL, or FAILED after per-setting verification.")
+                ("PC POWER", "Lock, Sleep, Hibernate, protected Restart, and protected Shutdown."),
+                ("RADIOS + POWER", "Wi-Fi, Bluetooth, power plan, Keep Awake, and Light / Dark theme."),
+                ("VIRTUAL DESKTOPS", "Previous, Next, New, Close, and live Current Desktop state."),
+                ("PREDICTABLE", "State-changing controls verify Windows instead of assuming success.")
             ],
             args.output,
             "03_gallery_01.png",
         )
     else:
         text_frame(
-            "LIVE WINDOWS",
-            "CONTROLS",
+            "WINDOWS CONTROL",
+            "STARTER SET",
             [
-                ("SEE THE REAL STATE", "HDR, power, display, and timeout keys follow Windows itself."),
-                ("CHANGE COMMON SETTINGS FAST", "A focused control set instead of a page of random commands."),
-                ("NO QUICK SETTINGS CLICKING", "Direct system control without screen coordinates or hidden mouse movement."),
-                ("READY TO USE", "Editable starter profiles for seven current Stream Deck families.")
+                ("LOCK + SLEEP", "Put two everyday PC controls directly on Stream Deck."),
+                ("POWER + KEEP AWAKE", "See the active power plan and control idle sleep behavior."),
+                ("DESKTOP NAVIGATION", "Move between previous and next Windows virtual desktops."),
+                ("READY TO USE", "Editable profiles for seven current Stream Deck families.")
             ],
             args.output,
             "03_gallery_01.png",
@@ -168,9 +168,9 @@ def main():
         "REAL WINDOWS STATE",
         "READ BACK",
         [
-            ("HDR", "Live capability and active state where Windows exposes it."),
-            ("POWER + DISPLAY", "Active plan, topology, and timeouts are queried again after changes."),
-            ("OUTSIDE CHANGES", "Keys poll Windows instead of trusting the last PackRat command.")
+            ("LIVE KEYS", "Power, radios, theme, Keep Awake, and desktop state are re-read from Windows."),
+            ("OUTSIDE CHANGES", "Keys poll Windows instead of trusting the last PackRat command."),
+            ("FAIL CLOSED", "Unavailable or uncertain controls show N/A, OFFLINE, or an alert instead of fake success.")
         ],
         args.output,
         "04_gallery_02.png",
@@ -178,12 +178,12 @@ def main():
 
     if args.flavor == "pro":
         text_frame(
-            "PC MODE RESULTS",
-            "TELL THE TRUTH",
+            "SAFE PHYSICAL",
+            "BUTTONS",
             [
-                ("COMPLETE", "Every configured setting confirmed."),
-                ("PARTIAL", "Some settings changed and at least one did not."),
-                ("FAILED", "No configured setting could be confirmed.")
+                ("RESTART", "Requires a second press by default before Windows restarts."),
+                ("SHUTDOWN", "Requires a second press by default before Windows shuts down."),
+                ("RADIOS + DESKTOPS", "Changes are followed by state verification where Windows exposes readable state.")
             ],
             args.output,
             "05_gallery_03.png",
@@ -191,11 +191,11 @@ def main():
     else:
         text_frame(
             "DIRECT WINDOWS",
-            "NO UI AUTOMATION",
+            "NO UI CLICKING",
             [
                 ("NO COORDINATE CLICKS", "No hidden mouse movement or Quick Settings clicking."),
-                ("NO FAKE STATE", "Unsupported HDR shows N/A instead of pretending."),
-                ("LOCAL CONTROL", "Settings stay on this Windows PC.")
+                ("NO FAKE STATE", "Unavailable controls fail closed instead of pretending."),
+                ("LOCAL CONTROL", "Windows actions and settings stay on this PC.")
             ],
             args.output,
             "05_gallery_03.png",
@@ -205,9 +205,9 @@ def main():
         "READY-MADE",
         "PROFILES",
         [
-            ("STANDARD / XL / + XL", "Large layouts keep the full control set readable."),
-            ("PLUS / NEO / GALLEON", "Compact current-device layouts keep the important keys close."),
-            ("MINI", "A focused six-key layout without tiny labels.")
+            ("STANDARD", "The Pro 5 x 3 profile is the complete 15-key Windows Control Center."),
+            ("XL / + XL", "Larger decks add advanced Windows controls without crowding the core set."),
+            ("MINI / PLUS / NEO", "Compact layouts prioritize the Windows actions people reach for most.")
         ],
         args.output,
         "06_gallery_04.png",
