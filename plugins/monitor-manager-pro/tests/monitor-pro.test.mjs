@@ -423,19 +423,16 @@ test("Monitor Manager consumes the canonical PackRat Property Inspector design s
   assert.match(pi,/event:"openUrl"/);
 });
 
-test("Monitor Manager key faces use canonical white geometry plus PackRat accent highlight", async () => {
+test("Monitor Manager key faces stay clean black and white without the removed accent rail", async () => {
   const visuals=await readFile("src/key-visuals.ts","utf8");
   const manifest=JSON.parse(await readFile("com.packrat.monitormanagerpro.sdPlugin/manifest.json","utf8"));
-  assert.match(visuals,/PRIMARY_ACCENT="#FFB21E"/);
-  assert.match(visuals,/ACCENT_HOVER="#FFC44D"/);
-  assert.match(visuals,/stroke="#fff"/);
-  assert.match(visuals,/ACCENT_RAIL/);
+  assert.match(visuals,/stroke="#fff"/);  assert.doesNotMatch(visuals,/ACCENT_RAIL/);
+  assert.doesNotMatch(visuals,/#FFB21E/i);
   for(const action of manifest.Actions.filter((a)=>a.Controllers?.includes("Keypad"))){
     const file=path.resolve("com.packrat.monitormanagerpro.sdPlugin",action.States[0].Image+".svg");
     const svg=await readFile(file,"utf8");
     assert.match(svg,/#05070A/i,action.Name+" must include the canonical dark key background");
-    assert.match(svg,/#fff/i,action.Name+" must keep white semantic geometry");
-    assert.match(svg,/#FFB21E/i,action.Name+" must include the canonical PackRat accent highlight");
+    assert.match(svg,/#fff/i,action.Name+" must keep white semantic geometry");    assert.doesNotMatch(svg,/#FFB21E/i,action.Name+" must not include the removed accent rail");
   }
 });
 
