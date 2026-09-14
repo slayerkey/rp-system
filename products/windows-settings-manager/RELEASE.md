@@ -22,8 +22,8 @@ Shared implementation:
 
 Generated bundles:
 
-- `out/com.packrat.windows-settings-manager-lite.sdPlugin`
-- `out/com.packrat.windows-settings-manager-pro.sdPlugin`
+- `out/com.packrat.windows-settings-manager-lite2.sdPlugin`
+- `out/com.packrat.windows-settings-manager-pro2.sdPlugin`
 
 ## Primary product surfaces
 
