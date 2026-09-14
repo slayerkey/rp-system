@@ -22,6 +22,9 @@ BORDER = (48, 54, 64, 255)
 WHITE = (245, 247, 251, 255)
 MUTED = (154, 162, 175, 255)
 ORANGE = (255, 178, 30, 255)
+RED = (255, 93, 108, 255)
+GREEN = (43, 232, 106, 255)
+NEUTRAL = (139, 147, 161, 255)
 
 
 def fail(message: str) -> None:
@@ -171,13 +174,25 @@ def compact_action_name(name: str, product_name: str = "") -> str:
     return " ".join(trimmed or words)
 
 
-def fallback_face(name: str, icon_path: Path | None = None, product_name: str = "") -> Image.Image:
+def fallback_face(
+    name: str,
+    icon_path: Path | None = None,
+    product_name: str = "",
+    lines: list[str] | None = None,
+    tone: str = "brand",
+) -> Image.Image:
     image = blank_face()
     draw = ImageDraw.Draw(image)
     # Match the canonical PackRat hardware-key language used by newer products:
     # one restrained orange status/accent line, one large white glyph, concise
     # bottom text. Do not invent extra decorative bars or PACKRAT wordmarks.
-    draw.rounded_rectangle((44, 20, W - 44, 27), 3, fill=ORANGE)
+    accent = {
+        "danger": RED,
+        "success": GREEN,
+        "neutral": NEUTRAL,
+        "brand": ORANGE,
+    }.get(str(tone or "brand").lower(), ORANGE)
+    draw.rounded_rectangle((44, 20, W - 44, 27), 3, fill=accent)
 
     if icon_path:
         try:
@@ -187,7 +202,14 @@ def fallback_face(name: str, icon_path: Path | None = None, product_name: str = 
         except Exception:
             icon_path = None
 
-    line1, line2 = wrap_action_name(compact_action_name(name, product_name))
+    if lines is not None:
+        clean = [str(value).strip().upper() for value in lines if str(value).strip()][:2]
+        if not clean:
+            clean = ["N/A"]
+        line1 = clean[0]
+        line2 = clean[1] if len(clean) > 1 else ""
+    else:
+        line1, line2 = wrap_action_name(compact_action_name(name, product_name))
     if icon_path:
         top = 211
         f1 = fit(draw, line1, 238, 29, 18)
@@ -233,12 +255,84 @@ def action_face(plugin_dir: Path, action: dict, cache_dir: Path, product_name: s
     return fallback_face(str(action.get("Name") or "Action"), None, product_name), "text-fallback"
 
 
+def fixture_faces(
+    plugin_dir: Path,
+    manifest: dict,
+    fixture_path: Path,
+    cache_dir: Path,
+) -> tuple[list[Image.Image], list[str]]:
+    try:
+        data = json.loads(fixture_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        fail(f"could not read Stream Deck Rat Art key fixtures {fixture_path}: {exc}")
+    if data.get("schema_version") != 1:
+        fail(f"unsupported Stream Deck Rat Art key fixture schema: {fixture_path}")
+    specs = data.get("keys")
+    if not isinstance(specs, list) or len(specs) != 15:
+        fail(f"Stream Deck Rat Art key fixtures must contain exactly 15 entries: {fixture_path}")
+
+    actions = manifest.get("Actions")
+    by_uuid = {
+        str(action.get("UUID")): action
+        for action in actions
+        if isinstance(action, dict) and action.get("UUID")
+    }
+
+    faces: list[Image.Image] = []
+    sources: list[str] = []
+    for index, spec in enumerate(specs):
+        if spec is None:
+            faces.append(blank_face())
+            sources.append("fixture-blank")
+            continue
+        if not isinstance(spec, dict):
+            fail(f"Stream Deck Rat Art key fixture {index} must be an object or null")
+        action_uuid = str(spec.get("action_uuid") or "").strip()
+        action = by_uuid.get(action_uuid)
+        if not action:
+            fail(f"Stream Deck Rat Art key fixture {index} references unknown action UUID: {action_uuid}")
+
+        icon_asset = resolve_asset(plugin_dir, action.get("Icon"))
+        states = action.get("States") if isinstance(action.get("States"), list) else []
+        state_ref = states[0].get("Image") if states and isinstance(states[0], dict) else None
+        visual_asset = icon_asset or resolve_asset(plugin_dir, state_ref)
+        visual_path = raster_asset(visual_asset, cache_dir)
+        if not visual_path:
+            fail(f"Stream Deck Rat Art key fixture {index} has no usable visual asset: {action_uuid}")
+
+        raw_lines = spec.get("lines")
+        if isinstance(raw_lines, str):
+            fixture_lines = [part for part in raw_lines.split("\\n") if part.strip()]
+        elif isinstance(raw_lines, list):
+            fixture_lines = [str(part) for part in raw_lines]
+        else:
+            fixture_lines = [str(action.get("Name") or "Action")]
+
+        tone = str(spec.get("tone") or "brand").strip().lower()
+        if tone not in {"brand", "danger", "success", "neutral"}:
+            fail(f"Stream Deck Rat Art key fixture {index} has invalid tone: {tone}")
+
+        faces.append(
+            fallback_face(
+                str(action.get("Name") or "Action"),
+                visual_path,
+                "",
+                fixture_lines,
+                tone,
+            )
+        )
+        sources.append(f"fixture:{action_uuid}")
+
+    return faces, sources
+
+
 def render_ship_hero(
     product: str,
     plugin_dir: Path,
     submission_path: Path,
     out: Path,
     keys_dir: Path | None = None,
+    key_fixtures: Path | None = None,
 ) -> dict:
     manifest_path = plugin_dir / "manifest.json"
     if not manifest_path.is_file():
@@ -273,6 +367,10 @@ def render_ship_hero(
                 fail(f"Could not load product Rat Art key face {path}: {exc}")
             faces.append(face)
             sources.append(f"product-rat-art:{path.name}")
+    elif key_fixtures is not None:
+        if not key_fixtures.is_file():
+            fail(f"Product Rat Art key fixture file is missing: {key_fixtures}")
+        faces, sources = fixture_faces(plugin_dir, manifest, key_fixtures, svg_cache)
     else:
         for action in actions[:15]:
             if not isinstance(action, dict):
@@ -321,6 +419,7 @@ def render_ship_hero(
         "action_count": len(actions),
         "key_sources": sources[:15],
         "product_rat_art_keys": str(keys_dir) if keys_dir is not None else None,
+        "product_rat_art_key_fixtures": str(key_fixtures) if key_fixtures is not None else None,
         "cover": str(out),
         "only_marketplace_slot_replaced": "02_cover.png",
         "image_generation": "disabled",
@@ -340,8 +439,16 @@ def main() -> None:
     parser.add_argument("--submission", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--keys-dir", type=Path)
+    parser.add_argument("--key-fixtures", type=Path)
     args = parser.parse_args()
-    render_ship_hero(args.product, args.plugin_dir, args.submission, args.out, args.keys_dir)
+    render_ship_hero(
+        args.product,
+        args.plugin_dir,
+        args.submission,
+        args.out,
+        args.keys_dir,
+        args.key_fixtures,
+    )
     print(f"STREAM DECK RAT SHIP HERO PASS: {args.product} -> {args.out}")
 
 
