@@ -130,4 +130,6 @@ jobs:
           path: |
             plugins/monitor-manager-lite/dist/*.streamDeckPlugin
             plugins/monitor-manager-lite/dist/marketplace/*.png
+            ${{ runner.temp }}/monitor-manager-lite-ship-kit/*.png
+            ${{ runner.temp }}/monitor-manager-lite-ship-kit/streamdeck-ship-hero-report.json
           if-no-files-found: error
