@@ -16,9 +16,11 @@ GitHub remains the source of truth. Do not rebuild the Stream Deck process from 
 4. the matching platform/product-type guidance
 5. `standards/streamdeck-plugin-design-system-v1.md`
 6. `standards/streamdeck-key-visuals-v1.md`
-7. `skills/rat-art/SKILL.md`
-8. `skills/rat-ship/SKILL.md`
-9. `products/index.json`
+7. `docs/RAT-DEV-RELIABILITY.md`
+8. `skills/rat-qa/SKILL.md`
+9. `skills/rat-art/SKILL.md`
+10. `skills/rat-ship/SKILL.md`
+11. `products/index.json`
 
 Read product-specific source and QA only after the product slug and type are known.
 
@@ -55,6 +57,8 @@ Every plugin with Keypad actions must run the shared key-face audit when practic
 New Node SDK plugins should also run the source-level design contract audit:
 
 `node tools/qa/streamdeck-plugin-design-audit.mjs <plugin-source-root>`
+
+For work using the canonical PackRat Property Inspector, add `--require-canonical-pi`. For Lite/free products with a direct Pro counterpart, add `--require-lite-pro-upsell`. The audit reads the real action-level Property Inspector paths declared in the manifest and should be run before the hardware pass.
 
 That audit catches stable action-identity drift, host-title regressions, and the Property Inspector context/transport failure pattern that causes dead buttons, stale startup state, and settings that do not persist.
 
@@ -108,6 +112,12 @@ Use local execution only for genuine host, hardware, or authenticated-browser bo
 
 Keep reusable tooling centralized in `ratpack-system` rather than duplicating it inside individual product branches.
 
+Canonical standards are **read-only inputs to normal product work**. A product build, visual refresh, QA pass, or rollout task should consume the global Stream Deck standards exactly; it must not edit them to make a local implementation pass. Update a global standard only when the user is explicitly asking for a reusable system change.
+
+When a product-level fix reveals a repeatable failure, first fix the product, then promote the minimal reusable rule/check into shared tooling. Do not copy product-specific hacks into the global system.
+
+Before a destructive rollback, product split, or architecture reversal, freeze the current exact working state on a branch/tag/commit so useful engineering can be reused instead of reconstructed from chat history.
+
 ## Marketplace demand data
 
 The dated Marketplace search snapshot lives at `data/marketplace/streamdeck_search_popularity.json`. Its interpretation and usage rules live at `docs/STREAMDECK_MARKETPLACE_SEARCH_DATA.md`.
@@ -134,6 +144,21 @@ Ask questions only when the answer would materially change the product, architec
 ## QA principle
 
 Automate everything that can be objectively checked before local hardware/import testing.
+
+The first local `rat dev` pass should be a **visual/physical confirmation pass**, not the place where ordinary source, asset, settings, text-overflow, or package mistakes are first discovered.
+
+Shared automation should catch, when applicable:
+
+- missing or ambiguous extensionless Stream Deck assets
+- stale host title overlays
+- action-list icon drift
+- wrong canonical PI palette/branding
+- missing local PackRat logo asset
+- PI transport/settings-context mistakes
+- Lite→Pro top/bottom conversion surfaces
+- profile coverage/generation mistakes
+- marketplace text overflow and reduced-size readability failures
+- stale QA/package evidence after behavior-scope changes
 
 Depending on product type, this can include:
 
@@ -196,3 +221,8 @@ A new chat should be able to start from something as small as:
 `Build a Stream Deck <plugin/profile/icon pack> for <idea>. Read RATPACK.md and STREAMDECK.md in slayerkey/ratpack-system and follow RatPack end to end.`
 
 The assistant should recover the rest of the build, QA, art, and shipping process from GitHub rather than requiring the user to restate it.
+
+For an existing product refresh, the minimum prompt can be even smaller:
+
+`Update <slug>. Read RATPACK.md + STREAMDECK.md, use the canonical PackRat Stream Deck design system read-only, preserve product behavior unless I explicitly change scope, run Rat Dev/QA/art gates, and leave it ready for my final hardware check.`
+
