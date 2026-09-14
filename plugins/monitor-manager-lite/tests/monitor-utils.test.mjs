@@ -148,7 +148,7 @@ test("Lite binds monitor choice globally and never falls through from an externa
   const piSource=await readFile("com.packrat.monitormanagerlite.sdPlugin/ui/pi.js","utf8");
   assert.match(runtimeSource,/monitor\.internalDisplay && snapshot\.internalBrightness\?\.available/);
   assert.match(pluginSource,/getGlobalSettings<LiteGlobalSettings>/);
-  assert.match(pluginSource,/setGlobalSettings\(\{ monitorKey:/);
+  assert.match(pluginSource,/setGlobalSettings\(\{monitorKey:/);
   assert.match(piSource,/setGlobalSettings/);
   assert.match(piSource,/globalSettings\.monitorKey/);
 });
@@ -175,8 +175,8 @@ test("native helper prefers dedicated HDR packet types and has no DISPLAY-number
 
 test("B1 dial feedback updates text and progress indicator", async () => {
   const source=await readFile("src/actions.ts","utf8");
-  assert.match(source,/value: String\(value\) \+ "%", indicator: value/);
-  assert.match(source,/value: String\(value \?\? 0\) \+ "%", indicator: value \?\? 0/);
+  assert.match(source,/value:String\(value\)\+"%",indicator:value/);
+  assert.match(source,/value:current===null\?"N\/A":String\(current\)\+"%",indicator:current\?\?0/);
 });
 
 test("non-finite hardware percentages fail closed", () => {
