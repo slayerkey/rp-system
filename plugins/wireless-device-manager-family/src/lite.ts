@@ -5,10 +5,6 @@ import { WirelessRuntime } from "./runtime.js";
 streamDeck.logger.setLevel("info");
 const runtime = new WirelessRuntime("lite");
 streamDeck.actions.registerAction(new LiteDeviceAction(runtime));
-streamDeck.ui.onDidAppear(() => void runtime.sendInspector());
-streamDeck.ui.onSendToPlugin((ev) => {
-  if ((ev.payload as any)?.type === "get-wireless-snapshot") void runtime.sendInspector();
-});
 
 streamDeck.connect().then(async () => {
   try {
