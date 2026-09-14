@@ -9,11 +9,6 @@ function recordingName() {
   return `Recording ${new Date().toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" })}`;
 }
 
-function shortTitle(text, max = 18) {
-  const value = String(text || "").trim();
-  return value.length <= max ? value : value.slice(0, max - 1) + "…";
-}
-
 export async function startMacroRecorder({ streamDeck, SingletonAction, pro, prefix, version }) {
   const edition = pro ? "pro" : "lite";
   const limits = pro ? PRO_LIMITS : LITE_LIMITS;
@@ -61,15 +56,9 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   async function render(record) {
     if (!record?.action?.isKey?.()) return;
     let title = "";
-    if (record.kind === "record") {
-      title = recording ? `● REC\n${recording.eventCount || 0}` : "RECORD";
-    } else if (record.kind === "stop") {
-      title = recording ? "STOP\nREC" : playback ? "STOP\nPLAY" : "STOP";
-    } else {
-      const macro = macroFor(record);
-      title = macro ? `▶ ${shortTitle(macro.name)}` : "PLAY";
-      if (playback?.actionId === record.id) title = "■ PLAYING";
-    }
+    if (record.kind === "record" && recording) title = "REC";
+    else if (record.kind === "stop" && (recording || playback)) title = "STOP";
+    else if (record.kind === "replay" && playback?.actionId === record.id) title = "PLAY";
     await record.action.setTitle(title).catch(() => {});
   }
 
@@ -123,6 +112,18 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       .map((record) => record.action.sendToPropertyInspector(status).catch(() => {})));
   }
 
+  async function assignNewRecordingToBlankReplayKeys(macro) {
+    if (!pro || !macro?.id) return;
+    const blankReplayKeys = [...visible.values()].filter((item) => item.kind === "replay" && !item.settings.macroId && !item.settings.seedMacro);
+    await Promise.all(blankReplayKeys.map(async (item) => {
+      const next = { ...item.settings, macroId: macro.id };
+      delete next.seedMacro;
+      await item.action.setSettings(next);
+      item.settings = settingsFor("replay", next);
+      await item.action.showOk?.().catch(() => {});
+    }));
+  }
+
   async function finalizeCapture(raw) {
     if (!raw?.events) return;
     const signature = JSON.stringify(raw.events) + ":" + raw.durationMs;
@@ -132,14 +133,16 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     recording = null;
     if (!macro.events.length) {
       latestMacro = null;
-      lastError = "No keyboard or mouse input was captured, so no macro was saved.";
+      lastError = "Nothing was captured. Press Record, perform the workflow, then press the same Record key again to save.";
       await renderAll();
       await broadcastInspectors();
       return;
     }
     if (pro) macro = await library.add(macro);
     latestMacro = macro;
+    await assignNewRecordingToBlankReplayKeys(macro);
     lastError = "";
+    await Promise.all([...visible.values()].filter((item) => item.kind === "record").map((item) => item.action.showOk?.().catch(() => {})));
     await renderAll();
     await broadcastInspectors();
   }
@@ -210,10 +213,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   }
 
   async function startRecording(record) {
-    if (recording) {
-      await record.action.showAlert?.().catch(() => {});
-      return;
-    }
+    if (recording) return stopRecording(record.action);
     if (playback) await stopPlayback(record.action);
     lastError = "";
     try {
@@ -248,17 +248,12 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
 
   async function stopAll(action = null) {
     const hadKnownState = Boolean(recording || playback);
-    const options = hadKnownState
-      ? { timeoutMs: 3000 }
-      : { skipEnsure: true, timeoutMs: 1500 };
+    const options = hadKnownState ? { timeoutMs: 3000 } : { skipEnsure: true, timeoutMs: 1500 };
     const errors = [];
-
     try { await host.command("stopRecording", {}, options); }
     catch (error) { if (hadKnownState) errors.push(error); }
-
     try { await host.command("stopPlayback", {}, { skipEnsure: true, timeoutMs: 1500 }); }
     catch (error) { if (hadKnownState) errors.push(error); }
-
     if (errors.length) {
       lastError = errors.map((error) => String(error?.message || error)).join(" · ");
       await action?.showAlert?.().catch(() => {});
@@ -270,6 +265,9 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   async function startPlayback(record) {
     const macro = macroFor(record);
     if (!macro?.events?.length) {
+      lastError = "No macro is assigned to this Play key. Record a workflow first, or choose one from Macro Library in the Play key settings.";
+      await renderAll();
+      await broadcastInspectors();
       await record.action.showAlert?.().catch(() => {});
       return;
     }
@@ -302,6 +300,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       playback = null;
       lastError = String(error?.message || error);
       await renderAll();
+      await broadcastInspectors();
       await record.action.showAlert?.().catch(() => {});
     }
   }
@@ -310,9 +309,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     const knownPlayback = Boolean(playback);
     let stopError = null;
     try {
-      await host.command("stopPlayback", {}, knownPlayback
-        ? { timeoutMs: 3000 }
-        : { skipEnsure: true, timeoutMs: 1500 });
+      await host.command("stopPlayback", {}, knownPlayback ? { timeoutMs: 3000 } : { skipEnsure: true, timeoutMs: 1500 });
     } catch (error) {
       stopError = error;
       if (knownPlayback) lastError = String(error?.message || error);
@@ -364,10 +361,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     async onWillDisappear(ev) {
       const id = String(ev.action?.id || "");
       const record = visible.get(id);
-      if (record?.kind === "replay" && playback?.actionId === id &&
-          (playback.mode === "while-held" || playback.mode === "toggle")) {
-        await stopPlayback();
-      }
+      if (record?.kind === "replay" && playback?.actionId === id && (playback.mode === "while-held" || playback.mode === "toggle")) await stopPlayback();
       visible.delete(id);
     }
 
@@ -402,6 +396,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       try {
         if (command === "cancelRecording") await cancelRecording(record.action);
         else if (command === "stopPlayback") await stopPlayback(record.action);
+        else if (command === "stopAll") await stopAll(record.action);
         else if (command === "assignLatest" && !pro && latestMacro) {
           const next = { ...record.settings, macro: normalizeMacro(latestMacro, { pro:false, limits }) };
           await record.action.setSettings(next);
