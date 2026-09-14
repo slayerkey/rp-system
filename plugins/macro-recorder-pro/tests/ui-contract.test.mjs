@@ -14,7 +14,7 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
     readFile(new URL("scripts/build-assets.mjs",root),"utf8"),
   ]);
   new vm.Script(js);
-  for(const id of ["captureMouseMovement","macroSelect","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
+  for(const id of ["captureMouseMovement","macroSelect","stateConnection","refreshLibrary","renameMacro","duplicateMacro","deleteMacro","importFile","exportMacro","playbackSpeed","playbackMode","repeatCount","coordinateMode","assignedSummary","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
     assert.match(html,new RegExp(`id=["']${id}["']`),`missing inspector control ${id}`);
   }
   assert.doesNotMatch(html,/id=["']macroName["']/);
@@ -42,9 +42,12 @@ test("Pro property inspector keeps replay setup visible and debuggable",async()=
   assert.match(js,/autoLatest:false/);
   assert.doesNotMatch(runtime,/record\.kind === "record"[\s\S]{0,180}else if \(saved\) title = "SAVED"/);
   assert.match(js,/context:uiUuid/);
-  assert.match(js,/actionContext=String\(ai\.context\|\|uuid\)/);
-  assert.match(js,/context:actionContext/);
-  assert.doesNotMatch(js,/sendToPlugin"[\s\S]{0,120}context:uiUuid/);
+  assert.doesNotMatch(js,/actionContext/);
+  assert.match(js,/sendToPlugin"[\s\S]{0,120}context:uiUuid/);
+  assert.match(js,/function requestState/);
+  assert.match(js,/stateRetries<5/);
+  assert.match(js,/Macro Library connected/);
+  assert.match(js,/Macro Library connection failed/);
   assert.match(js,/state\?\.settings\?\.macroId/);
   assert.match(js,/if\(next\?\.settings\)applySettings\(next\.settings\)/);
   assert.match(html,/<option value="1" selected>1×<\/option>/);
