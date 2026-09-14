@@ -2,14 +2,49 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { inflateRawSync } from "node:zlib";
 
-function readStoredProfileManifest(data){
-  assert.equal(data.readUInt32LE(0),0x04034b50);
-  const compressedSize=data.readUInt32LE(18);
-  const nameLength=data.readUInt16LE(26);
-  const extraLength=data.readUInt16LE(28);
-  const start=30+nameLength+extraLength;
-  return JSON.parse(data.subarray(start,start+compressedSize).toString("utf8"));
+function readZipEntries(data){
+  const entries=new Map();
+  let offset=0;
+  while(offset+30<=data.length && data.readUInt32LE(offset)===0x04034b50){
+    const method=data.readUInt16LE(offset+8);
+    const compressedSize=data.readUInt32LE(offset+18);
+    const nameLength=data.readUInt16LE(offset+26);
+    const extraLength=data.readUInt16LE(offset+28);
+    const nameStart=offset+30;
+    const name=data.subarray(nameStart,nameStart+nameLength).toString("utf8");
+    const bodyStart=nameStart+nameLength+extraLength;
+    const compressed=data.subarray(bodyStart,bodyStart+compressedSize);
+    const raw=method===0?compressed:method===8?inflateRawSync(compressed):null;
+    assert.ok(raw,`Unsupported ZIP compression method ${method} for ${name}`);
+    entries.set(name,raw);
+    offset=bodyStart+compressedSize;
+  }
+  return entries;
+}
+
+function readProfileBundle(data){
+  const entries=readZipEntries(data);
+  const rootEntry=[...entries.entries()].find(([name])=>/\.sdProfile\/manifest\.json$/.test(name)&&!name.includes("/Profiles/"));
+  assert.ok(rootEntry,"Profile root manifest missing");
+  const root=JSON.parse(rootEntry[1].toString("utf8"));
+  const pages=[];
+  if(root.Actions){
+    pages.push({name:rootEntry[0],actions:root.Actions});
+  }else{
+    for(const [name,raw] of entries){
+      if(!/\.sdProfile\/Profiles\/[^/]+\/manifest\.json$/.test(name))continue;
+      const manifest=JSON.parse(raw.toString("utf8"));
+      const keypad=(manifest.Controllers??[]).find(controller=>controller.Type==="Keypad");
+      pages.push({name,actions:keypad?.Actions??{}});
+    }
+  }
+  return {
+    root,
+    pages,
+    allActions:pages.flatMap(page=>Object.values(page.actions))
+  };
 }
 
 const profileBounds={
@@ -43,13 +78,17 @@ for(const [edition,root,prefix] of roots){
       const data=await readFile(path.join(root,"profiles",`${prefix}-${suffix}.streamDeckProfile`));
       const text=data.toString("utf8");
       assert.match(text,/\.sdProfile\/manifest\.json/);
-      const manifest=readStoredProfileManifest(data);
-      assert.equal(manifest.Version,"1.0");
+      const bundle=readProfileBundle(data);
+      assert.equal(bundle.root.Version,"2.0");
+      assert.ok(bundle.pages.length>=1);
       const bounds=profileBounds[suffix];
-      for(const position of Object.keys(manifest.Actions)){
-        const [col,row]=position.split(",").map(Number);
-        assert.ok(col>=0 && col<bounds.cols,`${edition} ${suffix} column out of bounds: ${position}`);
-        assert.ok(row>=0 && row<bounds.rows,`${edition} ${suffix} row out of bounds: ${position}`);
+      for(const page of bundle.pages){
+        for(const [position,action] of Object.entries(page.actions)){
+          const [col,row]=position.split(",").map(Number);
+          assert.ok(col>=0 && col<bounds.cols,`${edition} ${suffix} column out of bounds: ${position}`);
+          assert.ok(row>=0 && row<bounds.rows,`${edition} ${suffix} row out of bounds: ${position}`);
+          for(const state of action.States??[]) assert.equal(state.ShowTitle,false,`${edition} ${suffix} must keep host titles disabled`);
+        }
       }
     });
   }
@@ -64,6 +103,23 @@ test("Lite exposes exactly one configurable action type",async()=>{
 test("Pro exposes device, dashboard and cycle actions",async()=>{
   const m=JSON.parse(await readFile("com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json","utf8"));
   assert.deepEqual(m.Actions.map(x=>x.Name),["Wireless Device","Device Dashboard","Cycle Device"]);
+});
+
+test("Pro profiles separate device controls from groups instead of crowding page one",async()=>{
+  const manifest=JSON.parse(await readFile("com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json","utf8"));
+  const allowed=new Set(manifest.Actions.map(action=>action.UUID));
+  for(const suffix of ["standard","mini","xl","plus","neo"]){
+    const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
+    const bundle=readProfileBundle(data);
+    assert.equal(bundle.pages.length,2,`${suffix} should have DEVICES and GROUPS pages`);
+    const first=Object.values(bundle.pages[0].actions);
+    const second=Object.values(bundle.pages[1].actions);
+    assert.ok(first.length<=7,`${suffix} first page should stay focused`);
+    assert.ok(first.some(action=>action.UUID.endsWith(".cycle")),`${suffix} first page should expose Cycle Device`);
+    assert.ok(first.some(action=>action.UUID.endsWith(".dashboard")),`${suffix} first page should expose all-device status`);
+    assert.ok(second.every(action=>action.UUID.endsWith(".dashboard")),`${suffix} group page should contain dashboards only`);
+    for(const action of bundle.allActions) assert.ok(allowed.has(action.UUID),`${suffix} contains unknown action UUID ${action.UUID}`);
+  }
 });
 
 test("Wireless keys use canonical PackRat full-key visuals",async()=>{
@@ -100,8 +156,8 @@ test("SEO copy is truthful and contains requested discovery language",async()=>{
 test("Pro bundled profiles seed favorites and example multi-group memberships",async()=>{
   for(const suffix of ["standard","mini","xl","plus","neo"]){
     const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
-    const manifest=readStoredProfileManifest(data);
-    const deviceSettings=Object.values(manifest.Actions)
+    const bundle=readProfileBundle(data);
+    const deviceSettings=bundle.allActions
       .filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.device")
       .map(action=>action.Settings);
     assert.ok(deviceSettings.length>=4);
@@ -115,8 +171,8 @@ test("Pro bundled profiles seed favorites and example multi-group memberships",a
 test("Lite bundled profiles stay free of Pro-only favorite and group settings",async()=>{
   for(const suffix of ["standard","mini","xl","plus","neo"]){
     const data=await readFile(path.join("com.packrat.wireless-device-manager.sdPlugin","profiles",`wireless-device-manager-${suffix}.streamDeckProfile`));
-    const manifest=readStoredProfileManifest(data);
-    for(const action of Object.values(manifest.Actions)){
+    const bundle=readProfileBundle(data);
+    for(const action of bundle.allActions){
       assert.equal("favorite" in (action.Settings??{}),false);
       assert.equal("groupName" in (action.Settings??{}),false);
     }
@@ -239,8 +295,8 @@ test("settings reads are side-effect free and global writes are explicit",async(
 test("bundled Pro headset status and control keys share one logical slot",async()=>{
   for(const suffix of ["standard","mini","xl","plus","neo"]){
     const data=await readFile(path.join("com.packrat.wireless-device-manager-pro.sdPlugin","profiles",`wireless-device-manager-pro-${suffix}.streamDeckProfile`));
-    const manifest=readStoredProfileManifest(data);
-    const devices=Object.values(manifest.Actions).filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.device");
+    const bundle=readProfileBundle(data);
+    const devices=bundle.allActions.filter(action=>action.UUID==="com.packrat.wireless-device-manager-pro.device");
     const headset=devices.find(action=>action.Settings?.label==="HEADPHONES");
     const control=devices.find(action=>action.Settings?.view==="control");
     assert.equal(headset?.Settings?.slot,"HEADPHONES");
