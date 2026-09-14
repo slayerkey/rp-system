@@ -55,11 +55,14 @@ if design_standard.is_file():
         "#FFB21E",
         "Lite → Pro upgrade pattern",
         "Upgrade to Pro ↗",
-        "bottom feature-rich Pro card",
         "Product-specific rollout tasks consume this pattern",
+        ".packrat-topbar",
+        ".upsell",
+        "Open <Product> Pro ↗",
     )
+    folded = text.casefold()
     for contract in required_contracts:
-        if contract not in text:
+        if contract.casefold() not in folded:
             errors.append(f"Stream Deck design system missing canonical contract: {contract}")
 
 troubleshooting = ROOT / "docs/STREAMDECK_TROUBLESHOOTING_PLAYBOOK.md"
