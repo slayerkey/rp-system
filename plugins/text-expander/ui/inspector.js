@@ -26,11 +26,22 @@
   function setSaveStatus(text){$("saveStatus").textContent=text||"";}
 
   function requestSnippets(){
+    const selectedId=editingId||settings.snippetId||$("snippet").value||"";
     return send({
       event:"sendToPlugin",
       action:actionUuid,
       context:uiUuid,
-      payload:{type:"listSnippets",actionContext}
+      payload:{type:"listSnippets",actionContext,selectedId}
+    });
+  }
+
+  function requestSnippetDetail(snippetId){
+    if(!snippetId)return false;
+    return send({
+      event:"sendToPlugin",
+      action:actionUuid,
+      context:uiUuid,
+      payload:{type:"getSnippet",actionContext,snippetId}
     });
   }
 
@@ -74,12 +85,19 @@
     editingId=snippet?.id||"";
     $("editName").value=snippet?.name||"";
     $("editFolder").value=snippet?.folder||(edition==="pro"?"QUICK":"STARTER");
-    $("editContent").value=snippet?.content||"";
+    const hasContent=typeof snippet?.content==="string";
+    $("editContent").value=hasContent?snippet.content:"";
+    $("editContent").disabled=!!snippet&&!hasContent;
     $("deleteSnippet").disabled=!editingId;
     $("editorTarget").textContent=snippet
       ?(builtinIds.has(snippet.id)?"Editing built-in starter: ":"Editing local snippet: ")+snippet.name
       :"Creating a new local snippet.";
-    setStatus("");
+    if(snippet&&!hasContent){
+      setStatus("Loading snippet…");
+      requestSnippetDetail(snippet.id);
+    }else{
+      setStatus("");
+    }
   }
 
   function showEditor(force){
@@ -131,6 +149,10 @@
   function renderList(data){
     edition=data.edition||edition;
     snippets=Array.isArray(data.snippets)?data.snippets:[];
+    if(data.selectedSnippet?.id){
+      const index=snippets.findIndex((snippet)=>snippet.id===data.selectedSnippet.id);
+      if(index>=0)snippets[index]={...snippets[index],...data.selectedSnippet};
+    }
     builtinIds=new Set(Array.isArray(data.builtinIds)?data.builtinIds:[]);
     proUrl=String(data.verifiedProUrl||"");
 
@@ -277,6 +299,17 @@
       }
       if(message.event==="sendToPropertyInspector"&&message.payload?.type==="snippetList"){
         renderList(message.payload);
+      }
+      if(message.event==="sendToPropertyInspector"&&message.payload?.type==="snippetDetail"){
+        const detail=message.payload.snippet;
+        if(detail?.id){
+          const index=snippets.findIndex((snippet)=>snippet.id===detail.id);
+          if(index>=0)snippets[index]={...snippets[index],...detail};
+          if(editorOpen&&$("snippet").value===detail.id)fillEditor(index>=0?snippets[index]:detail);
+        }else if(editorOpen){
+          setStatus("That snippet no longer exists. Refreshing library…");
+          requestSnippets();
+        }
       }
       if(message.event==="sendToPropertyInspector"&&message.payload?.type==="snippetError"){
         setStatus(message.payload.message||"Could not update snippets.");
