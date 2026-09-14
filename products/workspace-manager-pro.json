@@ -4,12 +4,12 @@
   "type": "plugin",
   "status": "built",
   "workflow_state": "TESTING",
-  "blocker": "Automated revalidation is running for the final pre-hardware UX hardening and global PackRat design/key audits. Physical Rat Dev hardware QA still remains before any release decision. Marketplace submission and shipping are not authorized.",
+  "blocker": "Automated revalidation is rerunning after a QA-test assertion fix; product behavior changes are unchanged. Physical Rat Dev hardware QA still remains before any release decision. Marketplace submission and shipping are not authorized.",
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows + macOS",
   "source_repository": "https://github.com/slayerkey/vcs.git",
   "source_ref": "refs/heads/product/workspace-manager-pro",
-  "source_commit": "537332014d278c49ada3f815599dde29f29393d2",
+  "source_commit": "6b76dea7e3cb86ab5923a74bc8e342124baa2d45",
   "plugin_uuid": "com.packrat.workspacemanagerpro",
   "marketplace_identity": "NEW_STANDALONE_SKU_PENDING",
   "lite_product_id": null,
@@ -29,13 +29,13 @@
     "Final pre-hardware hardening: flush debounced settings on PI close, preserve pending edits, command watchdog, stale-workspace guards, empty-workspace restore guard, zero-window capture warning, shared-key refresh, and deleted-workspace reference clearing",
     "Canonical real PackRat PNG asset copied from the validated Window Manager Lite implementation; substitute PI SVG removed",
     "Public QA bridge now runs the shared streamdeck-plugin-design-audit with --require-canonical-pi and streamdeck-key-visual-audit on both Windows and macOS",
-    "Private-source revalidation requested for exact source commit 537332014d278c49ada3f815599dde29f29393d2"
+    "Private-source revalidation requested for exact source commit 6b76dea7e3cb86ab5923a74bc8e342124baa2d45"
   ],
   "final_boundary": "Run rat dev workspace-manager-pro on the real Windows/Stream Deck host. Verify Retry persists after close/reopen, New/Capture show in-inspector progress + completion feedback, captured window/app summary updates, and multiple Workspace keys keep independent selected workspace IDs. Keep this product out of Marketplace submission/ship until that hardware QA is explicitly accepted.",
   "notes": "Standalone Pro-only product with no Lite edition. This is a new future Marketplace identity and must never reuse Window Manager Pro Marketplace/product/action identifiers. Window Manager Pro source and control-plane metadata are not modified by this product registration.",
   "automated_release_evidence": {
     "status": "REVALIDATION_REQUIRED",
-    "source_commit": "537332014d278c49ada3f815599dde29f29393d2",
+    "source_commit": "6b76dea7e3cb86ab5923a74bc8e342124baa2d45",
     "previous_private_source_qa_bridge_run": 34889302086
   }
 }
