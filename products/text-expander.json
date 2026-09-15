@@ -1,0 +1,44 @@
+{
+  "id": "text-expander",
+  "name": "Text Expander Lite",
+  "type": "plugin",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "blocker": null,
+  "price_usd": 0,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "plugin_uuid": "com.packrat.textexpanderlite",
+  "submission_metadata": "products/_submission/text-expander.json",
+  "source_repository": "https://github.com/slayerkey/rp-system.git",
+  "source_commit": "77af3f0aa3267fb8efb5c8aa1705c87d79004ed0",
+  "release_artifact": {
+    "repository": "slayerkey/rp-system",
+    "run_id": 34923090363,
+    "name": "text-expander-streamdeck-candidates",
+    "commit": "77af3f0aa3267fb8efb5c8aa1705c87d79004ed0",
+    "package_path": "release/com.packrat.textexpanderlite.streamDeckPlugin",
+    "package_sha256": "db68a333cc00a2751fbb4f65c890dd4c87117da87285c7387b1af4ced7d62e11",
+    "media": {
+      "search_icon": "release/art-lite/01_search_icon.png",
+      "cover": "release/art-lite/02_cover.png",
+      "gallery": [
+        "release/art-lite/03_gallery_01.png",
+        "release/art-lite/04_gallery_02.png",
+        "release/art-lite/05_gallery_03.png",
+        "release/art-lite/06_gallery_04.png"
+      ]
+    }
+  },
+  "automated_release_evidence": {
+    "status": "PASS",
+    "run_id": 34923090363,
+    "artifact_id": 10378628617,
+    "artifact_digest": "sha256:13d9718d3d2097366fcbbaad1ac6fd33593623e77f6cee16f38e4bc02d9d9241",
+    "automated_tests": 37,
+    "official_elgato_validation_package": "PASS",
+    "deterministic_marketplace_media": "PASS",
+    "physical_starter_smoke": "PASS on real Stream Deck: EMAIL + insertion, CLIP + clipboard insertion, and LIBRARY dashboard."
+  },
+  "final_boundary": "READY_TO_SHIP from the exact validated artifact at 77af3f0aa3267fb8efb5c8aa1705c87d79004ed0. Lite uses the PackRat maker-page upgrade fallback until the verified direct Pro Marketplace URL is available."
+}
