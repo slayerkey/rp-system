@@ -349,6 +349,28 @@ def render_ship_hero(
     name = str(submission.get("name") or manifest.get("Name") or product).strip()
     line1, line2 = split_balanced(name)
 
+    product_meta = {}
+    product_meta_path = ROOT / "products" / f"{product}.json"
+    if product_meta_path.is_file():
+        try:
+            product_meta = json.loads(product_meta_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            fail(f"could not read product art metadata {product_meta_path}: {exc}")
+    art_meta = product_meta.get("marketplace_art") if isinstance(product_meta.get("marketplace_art"), dict) else {}
+
+    scene_path = None
+    scene_ref = str(art_meta.get("scene") or "").strip()
+    if scene_ref:
+        scene_path = (ROOT / scene_ref).resolve()
+        if not scene_path.is_relative_to(ROOT.resolve()):
+            fail(f"Stream Deck hero scene must remain inside the repository: {scene_ref}")
+        if not scene_path.is_file():
+            fail(f"Stream Deck hero scene does not exist: {scene_path}")
+
+    title_style = str(art_meta.get("hero_title_style") or "monitor").strip().lower()
+    if title_style not in {"monitor", "glass"}:
+        fail(f"unsupported Stream Deck hero title style for {product}: {title_style}")
+
     key_root = out.parent / "ship-hero-keys"
     key_root.mkdir(parents=True, exist_ok=True)
     svg_cache = out.parent / "ship-hero-svg-cache"
@@ -396,7 +418,15 @@ def render_ship_hero(
     for index, face in enumerate(faces[:15]):
         face.save(key_root / f"{index:02d}.png", "PNG", optimize=True)
 
-    render(product, line1, line2, key_root, out)
+    render(
+        product,
+        line1,
+        line2,
+        key_root,
+        out,
+        scene_path=scene_path,
+        title_style=title_style,
+    )
 
     report_path = out.parent / "streamdeck-product-hero-report.json"
     if not report_path.is_file():
@@ -421,6 +451,8 @@ def render_ship_hero(
         "product_rat_art_keys": str(keys_dir) if keys_dir is not None else None,
         "product_rat_art_key_fixtures": str(key_fixtures) if key_fixtures is not None else None,
         "cover": str(out),
+        "scene": str(scene_path) if scene_path is not None else None,
+        "hero_title_style": title_style,
         "only_marketplace_slot_replaced": "02_cover.png",
         "image_generation": "disabled",
         "canonical_report": report,

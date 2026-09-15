@@ -29,5 +29,9 @@
   "blocker": null,
   "final_boundary": "READY_TO_SHIP. Physical hardware QA has been accepted complete by the user; automated Windows CI, fixtures, helper smoke, official Elgato validation/package, Rat Art, canonical Rat Ship kit, and release-candidate artifact are passing. Next step: publish Monitor Manager Pro, then enable the Lite upsell when the real Marketplace URL exists.",
   "open_profile_on_dev": true,
-  "dev_profile": "profiles/monitor-manager-pro-standard.streamDeckProfile"
+  "dev_profile": "profiles/monitor-manager-pro-standard.streamDeckProfile",
+  "marketplace_art": {
+    "scene": "tools/art/scenes/warm-studio-clean-v1/base-v2.png",
+    "hero_title_style": "glass"
+  }
 }
