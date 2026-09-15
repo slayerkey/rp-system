@@ -160,19 +160,18 @@ test("profile accent no longer changes the key frame", () => {
 });
 
 
-test("voicemeeter mute key reports Windows endpoint state instead of claiming end-to-end mic silence", () => {
+test("voicemeeter presence does not change the simple mic key wording", () => {
   const muted = decodeSvg(renderKey("mute-mic", {
     endpoint: { name: "Microphone" },
     muted: true,
     voiceMeeter: true,
   }));
-  assert.match(muted, /WIN MUTED/);
-  assert.doesNotMatch(muted, /MIC MUTED/);
+  assert.match(muted, /MIC MUTED/);
 
   const live = decodeSvg(renderKey("mute-mic", {
     endpoint: { name: "Microphone" },
     muted: false,
     voiceMeeter: true,
   }));
-  assert.match(live, /WIN LIVE/);
+  assert.match(live, /MIC LIVE/);
 });
