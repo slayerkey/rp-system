@@ -1,5 +1,14 @@
 # Market Command Center 1.0.2 QA
 
+## 1.0.3 real-iCUE import recovery
+
+- Customer report: iCUE rejected the 1.0.2 package as unsupported/corrupted with \`JSON parsing error in meta parameters\`.
+- Root cause: the \`x-icue-groups\` \`application/json\` metadata contained a raw ampersand in \`S&P 500\`. The grouping JSON is valid JSON, but this metadata lives inside iCUE's strict-XML \`<head>\` import path.
+- Fix: encode the ampersand as the JSON escape \`S\u0026P 500\`, which becomes \`S&P 500\` after JSON parsing without leaving a raw \`&\` in the metadata source.
+- Shared regression: \`tools/xeneon/inline.py\` now validates every \`application/json\` metadata block as both valid JSON and XML-safe text before generating a shipping widget.
+- Release version advanced to 1.0.3 so the repaired package can be published as a distinct revision.
+
+
 ## Update scope
 
 - Migrated the published widget into the canonical RatPack XENEON source layout.
