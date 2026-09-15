@@ -103,12 +103,13 @@
       <label for="editorProfile">Profile to edit</label>
       <select id="editorProfile"></select>
 
-      <label for="profileName">Profile name</label>
+      <label for="profileName">Rename profile</label>
       <input id="profileName" maxlength="80" placeholder="Headset">
-      <p class="field-hint">Press Enter or use Save profile below.</p>
-
-      <label for="profileAccent">Accent</label>
-      <input id="profileAccent" type="color" value="#FFB21E">
+      <p class="field-hint">Press Enter to save the rename.</p>
+      <div class="button-row profile-actions">
+        <button id="saveProfile">Save profile</button>
+        <button id="deleteProfile" class="danger">Delete</button>
+      </div>
 
       <div class="slot" data-slot="outputDefault">
         <div class="slot-title"><strong>Default output</strong><span>games + system</span></div>
@@ -155,10 +156,6 @@
       </div>
 
       <p id="profileValidation" class="hint" hidden></p>
-      <div class="button-row">
-        <button id="saveProfile">Save profile</button>
-        <button id="deleteProfile" class="danger">Delete</button>
-      </div>
       <p class="hint">Leave a role blank to preserve it. Audio Manager saves the Windows endpoint identity so profiles can safely rebind only when the same hardware can be identified.</p>
     </section>
 
