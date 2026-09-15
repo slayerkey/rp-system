@@ -38,6 +38,7 @@ function fixture(){
 <link rel="stylesheet" href="pi.css">
 <div class="packrat-topbar"><button class="packrat-brand"><img class="packrat-logo" src="../imgs/plugin/packrat-logo.png">PackRat ↗</button><button class="primary packrat-upgrade">Upgrade to Pro ↗</button></div>
 <div class="section">Demo</div>
+<div class="privacy">Local by design</div>
 <div class="upsell"><strong>DEMO PRO</strong><button>Open Demo Pro ↗</button></div>
 <script src="pi.js"></script>`);
   write(join(plugin,"ui","pi.css"),`:root{--accent:#FFB21E}
@@ -125,6 +126,21 @@ function save(settings){send({event:"setSettings",action:actionUuid,context:uiUu
     assert.notEqual(result.status,0,"Lite→Pro audit must fail when the bottom explanatory card is removed");
     assert.match(result.stderr,/bottom \.upsell feature card is missing/);
     assert.match(result.stderr,/bottom direct 'Open <Product> Pro ↗' CTA is missing/);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
+    const htmlPath=join(plugin,"ui","snap.html");
+    const html=readFileSync(htmlPath,"utf8");
+    const bad=html
+      .replace('<div class="privacy">Local by design</div>\n<div class="upsell">','<div class="upsell">')
+      .replace('</button></div>\n<script src="pi.js"></script>','</button></div>\n<div class="privacy">Local by design</div>\n<script src="pi.js"></script>');
+    write(htmlPath,bad);
+    const result=run(designAudit,[root,"--require-canonical-pi","--require-lite-pro-upsell"]);
+    assert.notEqual(result.status,0,"Lite→Pro audit must fail when the large upsell appears above Local by design/privacy content");
+    assert.match(result.stderr,/appears before Local by design\/privacy content/);
   } finally { rmSync(root,{recursive:true,force:true}); }
 }
 
