@@ -24,6 +24,12 @@ try{
 }
 finally{Pop-Location}
 
+$keyDir=Join-Path $Destination "rat-art-keys"
+if(Test-Path $keyDir){Remove-Item $keyDir -Recurse -Force}
+Write-Host "Exporting exact shipping Monitor Manager key faces..." -ForegroundColor DarkGray
+& node (Join-Path $Root "scripts\export-rat-art-keys.mjs") $keyDir | Out-Host
+if($LASTEXITCODE -ne 0){throw "Could not export exact Monitor Manager runtime key faces for Rat Art."}
+
 python (Join-Path $Root "scripts\rat_art.py") --out $Destination
 if($LASTEXITCODE -ne 0){throw "Monitor Manager Pro Rat Art failed."}
 foreach($file in @("01_search_icon.png","02_cover.png","03_gallery_01.png","04_gallery_02.png","05_gallery_03.png","06_gallery_04.png")){
