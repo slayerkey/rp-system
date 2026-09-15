@@ -405,6 +405,46 @@ Use one central renderer for glyph + label/value geometry.
 
 If empty space exists, use it to make the useful information larger.
 
+### SETUP / NO DATA / ERROR looks much worse than live numeric cards
+
+Treat this as a **runtime state typography bug**, not a general font-size problem.
+
+Strong signature:
+
+- live cards such as `49°C`, `38%`, or `57.7W` fit correctly
+- state cards such as `SETUP`, `NO DATA`, `WAITING`, or `ERROR` clip or shift sideways
+- the state card still has a tiny metric unit attached, such as `FPS`, `°C`, or `%`
+
+Typical cause: the renderer sends state words through the same primary-value formatter used for numeric measurements. The state token may be wider than the numeric fixture, and an appended unit changes the centered text width.
+
+Fix:
+
+1. classify setup/error/unavailable text separately from real measurements
+2. use a dedicated fitted state font size
+3. omit the metric unit for non-measurement state tokens
+4. clip the primary text to an explicit safe region as a final guard
+5. regression-test the real state at 36, 72, and 144 px; do not test only the 144 px source canvas
+
+Do not shrink all live values just because one state word overflows.
+
+### Sensor card shows a believable `0` / `0°C` when the sensor is unavailable
+
+Treat this as a telemetry-null bug until hardware proves the zero is real.
+
+JavaScript coercion is a common cause: `Number(null)` and `Number("")` both become `0`.
+
+Check the complete chain:
+
+1. raw helper/provider output: is the sensor omitted, null, empty, stale, or actually zero?
+2. numeric normalization: does it reject `null`, `undefined`, and empty string **before** `Number(...)`?
+3. canonical alias selection: if one temperature sensor is invalid but another plausible CPU/GPU sensor exists, does the plausible source win?
+4. disappearance/unsupported path: are canonical value + timestamp cleared when no plausible source remains?
+5. renderer: does unavailable render as `--` / `N/A` rather than a metric zero?
+
+For temperature aliases on a normal running Windows PC, a canonical reading at or below 0°C is not a useful live CPU/GPU temperature. Prefer another plausible raw temperature sensor when available; otherwise show unavailable.
+
+Required regression: one invalid-zero sensor + one valid sensor must resolve to the valid reading; all-invalid/missing inputs must resolve to null/unavailable.
+
 ## 9. Action-list/sidebar icons look colorful or inconsistent
 
 Action-list/category icons and hardware key faces are separate surfaces.
