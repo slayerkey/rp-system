@@ -1,0 +1,11 @@
+{
+  "slug": "audio-manager-lite",
+  "plugin_path": "plugins/audio-manager-lite/com.packrat.audio-manager-lite.sdPlugin",
+  "build_root": "plugins/audio-manager-lite",
+  "build_command": "npm run build",
+  "test_command": "npm test",
+  "validate_command": "npm run validate",
+  "dev_profile": "profiles/audio-manager-lite-standard.streamDeckProfile",
+  "open_profile_on_dev": true,
+  "build_prerequisites": { "dotnet_sdk": "self-managed" }
+}
