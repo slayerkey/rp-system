@@ -26,12 +26,24 @@ for (const size of [72, 96, 144]) {
   });
 }
 
-test("permission state is visible instead of showing stale FPS", () => {
+test("permission state uses bounded state typography without a fake metric unit", () => {
   const svg = decode(renderKey({ label: "GAME FPS", value: null, unit: "FPS", secondary: "", points: [], state: "permission_required" }, {}, 144));
   assert.match(svg, /SETUP/);
   assert.match(svg, /ENABLE FPS/);
+  assert.match(svg, /clipPath id="primaryText"/);
+  assert.doesNotMatch(svg, /> FPS<\/tspan>/);
+
+  const setupText = svg.match(/clip-path="url\(#primaryText\)"[^>]*font-size="([0-9.]+)"[^>]*>SETUP/);
+  assert.ok(setupText, "SETUP should render through the bounded primary text region");
+  assert.ok(Number(setupText[1]) <= 36, "SETUP state should not use oversized live-value typography");
 });
 
+
+test("healthy numeric metrics keep their compact unit treatment", () => {
+  const svg = decode(renderKey({ label: "GPU TEMP", value: 49, unit: "°C", secondary: "5 MIN", points: [], state: "ready" }, {}, 144));
+  assert.match(svg, />49<tspan[^>]*> °C<\/tspan>/);
+  assert.match(svg, /clip-path="url\(#primaryText\)"/);
+});
 
 test("Game FPS shows a clear idle state when telemetry is ready but no game is active", () => {
   const telemetry = {
