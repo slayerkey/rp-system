@@ -1,8 +1,11 @@
 import streamDeck,{SingletonAction} from "@elgato/streamdeck";
-import { AudioHelper } from "./audio-helper.js";
-import { renderKey } from "./render.js";
+import {AudioHelper} from "./audio-helper.js";
+import {renderKey} from "./render.js";
 
-const ACTION="com.packrat.audio-manager-lite.set-output";
+const ACTIONS={
+  "set-output":"com.packrat.audio-manager-lite.set-output",
+  "set-input":"com.packrat.audio-manager-lite.set-input",
+};
 const PRO_URL="https://marketplace.elgato.com/maker/packrat";
 const visible=new Map();
 const helper=new AudioHelper({log});
@@ -15,6 +18,10 @@ function info(v){try{streamDeck.logger.info(String(v));}catch{}}
 function ident(e){return{endpointId:String(e?.id||e?.endpointId||""),name:String(e?.name||""),containerId:String(e?.containerId||"").toLowerCase()};}
 function settingsOf(raw={}){return{device:raw?.device&&typeof raw.device==="object"?ident(raw.device):null};}
 function norm(v){return String(v||"").normalize("NFKC").trim().replace(/\s+/g," ").toLowerCase();}
+function listFor(kind){return kind==="set-input"?(snapshot?.inputs||[]):(snapshot?.outputs||[]);}
+function defaultIdFor(kind){return kind==="set-input"?snapshot?.defaultInputId:snapshot?.defaultOutputId;}
+function multimediaIdFor(kind){return kind==="set-input"?snapshot?.multimediaInputId:snapshot?.multimediaOutputId;}
+function currentFor(kind){return listFor(kind).find(e=>String(e.id)===String(defaultIdFor(kind)||""))||null;}
 function match(saved,list=[]){
   if(!saved)return{status:"unconfigured",endpoint:null};
   let endpoint=list.find(e=>String(e.id)===String(saved.endpointId||""));
@@ -24,9 +31,6 @@ function match(saved,list=[]){
     if(matches.length===1)return{status:"matched",endpoint:matches[0]};
   }
   return{status:"missing",endpoint:null};
-}
-function currentOutput(){
-  return (snapshot?.outputs||[]).find(e=>String(e.id)===String(snapshot?.defaultOutputId||""))||null;
 }
 function accept(s){snapshot=s||null;lastError=String(s?.error||"");schedule();return snapshot;}
 async function refresh(){
@@ -41,9 +45,9 @@ function schedule(delay=20){
 }
 async function renderRecord(record){
   if(!record?.action?.isKey?.())return;
-  const m=match(record.settings.device,snapshot?.outputs||[]);
+  const m=match(record.settings.device,listFor(record.kind));
   const configured=Boolean(record.settings.device?.endpointId||record.settings.device?.name||record.settings.device?.containerId);
-  const image=renderKey({device:m.endpoint||record.settings.device,missing:configured&&m.status!=="matched",offline:Boolean(lastError)});
+  const image=renderKey(record.kind,{device:m.endpoint||record.settings.device,missing:configured&&m.status!=="matched",offline:Boolean(lastError)});
   if(image===record.lastImage)return;
   record.lastImage=image;
   await record.action.setImage(image).catch(log);
@@ -53,10 +57,11 @@ async function sendInspector(record){
   try{
     await streamDeck.ui.sendToPropertyInspector({
       type:"audioManagerLite.state",
+      action:record.kind,
       snapshot,
       latestError:lastError,
       settings:record.settings,
-      currentOutput:currentOutput(),
+      currentDevice:currentFor(record.kind),
       proMarketplaceUrl:PRO_URL,
       lastResult:record.lastResult||null
     });
@@ -70,27 +75,30 @@ function recordFrom(payload={}){
   const id=String(payload.actionContext||streamDeck.ui?.action?.id||"");
   return id?visible.get(id)||null:null;
 }
-async function setOutput(record){
-  const m=match(record.settings.device,snapshot?.outputs||[]);
+async function switchDevice(record){
+  const input=record.kind==="set-input";
+  const m=match(record.settings.device,listFor(record.kind));
   if(m.status!=="matched"||!m.endpoint){
-    record.lastResult={status:"FAILED",message:"Choose an output device first."};
+    record.lastResult={status:"FAILED",message:`Choose an ${input?"input":"output"} device first.`};
     await record.action.showAlert().catch(()=>{});schedule();return;
   }
   try{
-    const r=await helper.setDefaultOutput(m.endpoint.id);
-    const ok=r?.ok===true&&String(r?.snapshot?.defaultOutputId||"")===String(m.endpoint.id)&&String(r?.snapshot?.multimediaOutputId||"")===String(m.endpoint.id);
-    if(r?.snapshot)accept(r.snapshot);else await refresh();
-    record.lastResult=ok?{status:"SUCCESS",message:`Switched to ${m.endpoint.name}`}:{status:"FAILED",message:r?.error||"Windows did not verify the output switch."};
-    if(!ok)await record.action.showAlert().catch(()=>{});
-    else await record.action.showOk().catch(()=>{});
+    const r=input?await helper.setDefaultInput(m.endpoint.id):await helper.setDefaultOutput(m.endpoint.id);
+    const snap=r?.snapshot;
+    const ok=r?.ok===true&&String(input?snap?.defaultInputId:snap?.defaultOutputId)===String(m.endpoint.id)&&String(input?snap?.multimediaInputId:snap?.multimediaOutputId)===String(m.endpoint.id);
+    if(snap)accept(snap);else await refresh();
+    record.lastResult=ok
+      ?{status:"SUCCESS",message:`Switched to ${m.endpoint.name}`}
+      :{status:"FAILED",message:r?.error||`Windows did not verify the ${input?"microphone":"output"} switch.`};
+    if(!ok)await record.action.showAlert().catch(()=>{});else await record.action.showOk().catch(()=>{});
   }catch(e){record.lastResult={status:"FAILED",message:String(e?.message||e)};await record.action.showAlert().catch(()=>{});await refresh();}
   schedule(0);
 }
-class SetOutputAction extends SingletonAction{
-  constructor(){super();this.manifestId=ACTION;}
+class DirectDeviceAction extends SingletonAction{
+  constructor(kind){super();this.kind=kind;this.manifestId=ACTIONS[kind];}
   async onWillAppear(ev){
     const id=String(ev.action?.id||"");if(!id)return;
-    const record={id,action:ev.action,settings:settingsOf(ev.payload?.settings),lastImage:"",lastResult:null,inspectorOpen:false};
+    const record={id,kind:this.kind,action:ev.action,settings:settingsOf(ev.payload?.settings),lastImage:"",lastResult:null,inspectorOpen:false};
     visible.set(id,record);if(!snapshot)await refresh();await renderRecord(record);
   }
   onWillDisappear(ev){visible.delete(String(ev.action?.id||""));}
@@ -105,15 +113,15 @@ class SetOutputAction extends SingletonAction{
   onPropertyInspectorDidDisappear(ev){const r=visible.get(String(ev.action?.id||""));if(r)r.inspectorOpen=false;}
   async onKeyDown(ev){
     const r=visible.get(String(ev.action?.id||""));if(!r)return;
-    const run=mutation.catch(()=>{}).then(()=>setOutput(r));mutation=run.catch(log);return run;
+    const run=mutation.catch(()=>{}).then(()=>switchDevice(r));mutation=run.catch(log);return run;
   }
 }
-streamDeck.actions.registerAction(new SetOutputAction());
+streamDeck.actions.registerAction(new DirectDeviceAction("set-output"));
+streamDeck.actions.registerAction(new DirectDeviceAction("set-input"));
 streamDeck.ui.onSendToPlugin(ev=>{
   const p=ev?.payload||{},r=recordFrom(p);if(!r)return;
   r.inspectorOpen=true;
-  if(p.type==="audioManagerLite.refresh")void refresh().then(()=>sendInspector(r));
-  else if(p.type==="audioManagerLite.inspect")void refresh().then(()=>sendInspector(r));
+  if(p.type==="audioManagerLite.refresh"||p.type==="audioManagerLite.inspect")void refresh().then(()=>sendInspector(r));
 });
 streamDeck.ui.onDidAppear(()=>{const r=visible.get(String(streamDeck.ui?.action?.id||""));if(r){r.inspectorOpen=true;void refresh().then(()=>sendInspector(r));}});
 streamDeck.ui.onDidDisappear(()=>{for(const r of visible.values())r.inspectorOpen=false;});
