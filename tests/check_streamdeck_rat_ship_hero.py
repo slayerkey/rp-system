@@ -123,6 +123,33 @@ def main() -> None:
         ]
         assert fixture_report["key_sources"][2:] == ["fixture-blank"] * 13
 
+        # Fresh Marketplace UUID rewrites happen after product Rat Art has authored
+        # its fixture file. A fixture using the pre-rewrite namespace must still
+        # resolve safely by its unique action suffix (the Monitor Manager Lite case).
+        rewritten_manifest = json.loads(json.dumps(manifest))
+        rewritten_manifest["UUID"] = "com.packrat.test-control-pro2"
+        for action in rewritten_manifest["Actions"]:
+            action["UUID"] = action["UUID"].replace(
+                "com.packrat.test-control-pro.",
+                "com.packrat.test-control-pro2.",
+            )
+        (plugin / "manifest.json").write_text(json.dumps(rewritten_manifest), encoding="utf-8")
+        remap_out = root / "02_cover-fixture-remap.png"
+        remap_report = render_ship_hero(
+            "test-control-pro",
+            plugin,
+            submission,
+            remap_out,
+            None,
+            fixture_path,
+        )
+        assert remap_out.is_file()
+        assert remap_report["key_sources"][:2] == [
+            "fixture:com.packrat.test-control-pro.real",
+            "fixture:com.packrat.test-control-pro.second",
+        ]
+        (plugin / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
         product_keys = root / "rat-art-keys"
         product_keys.mkdir()
         for index in range(15):
