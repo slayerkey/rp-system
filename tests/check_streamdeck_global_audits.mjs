@@ -79,6 +79,41 @@ function save(settings){send({event:"setSettings",action:actionUuid,context:uiUu
 {
   const {root,plugin}=fixture();
   try{
+    const jsPath=join(plugin,"ui","pi.js");
+    write(jsPath,`const PACKRAT_MAKER_URL="https://marketplace.elgato.com/maker/packrat";
+const VERIFIED_DIRECT_PRO_URL="";
+const upgradeUrl=VERIFIED_DIRECT_PRO_URL||PACKRAT_MAKER_URL;
+let uiUuid="",actionContext="",actionUuid="",socket=null;
+function send(message){socket?.send(JSON.stringify(message));}
+function command(command){send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"demo.command",actionContext,command}});}
+function save(settings){send({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings});}
+function openUpgrade(){send({event:"openUrl",payload:{url:upgradeUrl}});}
+`);
+    const result=run(designAudit,[root,"--require-canonical-pi","--require-lite-pro-upsell"]);
+    assert.equal(result.status,0,`canonical maker fallback should pass before a direct Pro URL exists\nSTDOUT:\n${result.stdout}\nSTDERR:\n${result.stderr}`);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
+    const jsPath=join(plugin,"ui","pi.js");
+    write(jsPath,`const PACKRAT_MAKER_URL="https://marketplace.elgato.com/maker/packrat";
+const upgradeUrl="https://marketplace.elgato.com/search/?q=demo";
+let uiUuid="",actionContext="",actionUuid="",socket=null;
+function send(message){socket?.send(JSON.stringify(message));}
+function command(command){send({event:"sendToPlugin",action:actionUuid,context:uiUuid,payload:{type:"demo.command",actionContext,command}});}
+function save(settings){send({event:"setSettings",action:actionUuid,context:uiUuid,payload:settings});}
+`);
+    const result=run(designAudit,[root,"--require-canonical-pi","--require-lite-pro-upsell"]);
+    assert.notEqual(result.status,0,"Lite→Pro audit must reject Marketplace search URLs even when the maker fallback exists");
+    assert.match(result.stderr,/search URLs are not allowed/);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
     const htmlPath=join(plugin,"ui","snap.html");
     const html=`<!doctype html>
 <link rel="stylesheet" href="pi.css">
