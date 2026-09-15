@@ -174,6 +174,24 @@ Verify canonical engine imports, required source assets, brand logo, device plat
 
 Missing brand typography is an error. Never silently fall back to Pillow's default bitmap font for marketplace output.
 
+## Exact Stream Deck preview command
+
+Use `rat preview-art <slug>` when the user wants to see Marketplace art without shipping or opening Maker Console.
+
+The preview path must:
+
+1. resolve the registered product from canonical `products/<slug>.json`
+2. build the current product bundle when needed
+3. run product-local `rat-art.ps1`
+4. apply the same canonical `render_streamdeck_ship_hero.py` overwrite used by Rat Ship
+5. preserve product-owned `rat-art-keys/` or representative fixtures so the final cover uses truthful key faces
+6. build `review-contact-sheet.png` in Marketplace order: cover first, then the four gallery frames
+7. stop without staging or submitting anything to Maker Console
+
+The preview artifact is the visual approval surface. A product-local cover that has not received the final Rat Ship overwrite is not an exact preview.
+
+The reusable helper is `tools/local/rat-preview-art.ps1`. The manual CI equivalent is `.github/workflows/preview-streamdeck-rat-art.yml`.
+
 ## Review
 
 Run deterministic QA, inspect every candidate hero and contact sheet, and record visual review results.
