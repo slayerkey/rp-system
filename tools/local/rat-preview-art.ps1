@@ -26,20 +26,24 @@ $product = Get-Content $productPath -Raw | ConvertFrom-Json
 if ($product.type -ne "plugin") {
     throw "Rat Art preview currently supports Stream Deck plugin products; '$Slug' is '$($product.type)'."
 }
-if (-not $product.source) {
-    throw "Product '$Slug' does not declare a source path."
+$isExternalArtifact = $null -ne $product.release_artifact
+if (-not $product.source -and -not $isExternalArtifact) {
+    throw "Product '$Slug' declares neither source nor a validated release artifact."
 }
 
-$sourceDir = Join-Path $RepoRoot ([string]$product.source -replace '/', '\')
-if (-not (Test-Path $sourceDir -PathType Container)) {
-    throw "Product source directory is missing: $sourceDir"
+$sourceDir = $null
+if ($product.source) {
+    $sourceDir = Join-Path $RepoRoot ([string]$product.source -replace '/', '\')
+    if (-not (Test-Path $sourceDir -PathType Container)) {
+        throw "Product source directory is missing: $sourceDir"
+    }
 }
 
 $submissionPath = $null
 if ($product.submission_metadata) {
     $submissionPath = Join-Path $RepoRoot ([string]$product.submission_metadata -replace '/', '\')
 }
-else {
+elseif ($sourceDir) {
     $submissionPath = Join-Path $sourceDir "submission.json"
 }
 if (-not (Test-Path $submissionPath -PathType Leaf)) {
@@ -62,6 +66,31 @@ if (Test-Path $destination) {
     Remove-Item $destination -Recurse -Force
 }
 New-Item -ItemType Directory -Force -Path $destination | Out-Null
+
+if ($isExternalArtifact) {
+    Write-Host "Rat Art preview: build exact final media from validated external artifact..." -ForegroundColor Cyan
+    $shipHelper = Join-Path $PSScriptRoot "rat-ship-plugin.ps1"
+    & $shipHelper -PluginSlug $Slug -Destination $destination
+    if ($LASTEXITCODE -ne 0) {
+        throw "Validated external artifact preview failed for '$Slug'."
+    }
+
+    $sheet = Join-Path $destination "review-contact-sheet.png"
+    $sheetBuilder = Join-Path $RepoRoot "tools\art\build_marketplace_contact_sheet.py"
+    & python $sheetBuilder --input $destination --output $sheet | Out-Host
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $sheet -PathType Leaf)) {
+        throw "Marketplace contact sheet generation failed for '$Slug'."
+    }
+
+    Write-Host ""
+    Write-Host "Rat Art preview ready." -ForegroundColor Green
+    Write-Host "  product: $Slug"
+    Write-Host "  source:  validated external artifact"
+    Write-Host "  media:   $destination"
+    Write-Host "  sheet:   $sheet"
+    Write-Host "  Maker Console: NOT TOUCHED" -ForegroundColor DarkGray
+    return
+}
 
 # Build first when the product owns a build step so generated plugin bundles,
 # manifests, profiles, and runtime art are current before we render marketing.
