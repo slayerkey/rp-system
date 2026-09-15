@@ -60,7 +60,8 @@ Internet Health Pro is the reference for this pattern.
 11. Long explanations belong in the tooltip or Property Inspector.
 12. An extensionless manifest asset path must resolve to exactly one canonical file. Do not ship competing `.svg`, `.png`, or `@2x` variants for the same path.
 13. Action-list/category icons and key faces are different jobs. Keep action-list/sidebar icons monochrome white when required by Elgato presentation; use PackRat orange/white on the hardware key face.
-14. Runtime-generated key images are authoritative. A correct fallback SVG does not excuse stale runtime colors, tiny runtime text, or a different runtime layout.
+14. Do not add generic decorative PackRat accent rails, bars, stripes, or corner strokes to hardware key faces. Orange must carry semantic meaning (for example a +, active state, warning-safe highlight, or other intentional detail), not exist as repeated branding furniture above/beside every glyph.
+15. Runtime-generated key images are authoritative. A correct fallback SVG does not excuse stale runtime colors, tiny runtime text, or a different runtime layout.
 
 ## Geometry baseline
 
@@ -69,6 +70,7 @@ For a 144 x 144 rendered source:
 - keep essential content at least 10-12 px from edges
 - use simple bold geometry and high contrast
 - avoid decorative detail that disappears at 72 x 72
+- never reserve top/side space for a generic orange accent rail; give that space back to the semantic glyph/text
 - for data cards, start around 15-17 px for the label, 29-38 px for the primary value, and 13-16 px for secondary values
 - footer text is optional; never hide essential information in micro-copy
 - if two values are equally important, use a dedicated equal-weight layout instead of shrinking one into a footer
