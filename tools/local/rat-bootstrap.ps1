@@ -23,6 +23,36 @@ function Invoke-Git {
     }
 }
 
+function Invoke-GitNetwork {
+    param(
+        [string[]]$Arguments,
+        [int]$Attempts = 3
+    )
+
+    for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
+        $previous = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            $output = & git -C $RepoRoot @Arguments 2>&1
+            $code = $LASTEXITCODE
+        }
+        finally {
+            $ErrorActionPreference = $previous
+        }
+
+        if ($output) { $output | ForEach-Object { Write-Host ([string]$_) } }
+        if ($code -eq 0) { return }
+
+        if ($attempt -lt $Attempts) {
+            $delay = if ($attempt -eq 1) { 2 } else { 5 }
+            Write-Host "GitHub connection failed during 'git $($Arguments -join ' ')'. Retrying in $delay seconds ($attempt/$Attempts)..." -ForegroundColor Yellow
+            Start-Sleep -Seconds $delay
+        }
+    }
+
+    throw "git $($Arguments -join ' ') failed after $Attempts attempts"
+}
+
 function Get-GitText {
     param([string[]]$Arguments)
 
@@ -141,7 +171,7 @@ if ($dirty) {
 Write-Host "Refreshing RatPack command layer..." -ForegroundColor DarkGray
 # Fetch main explicitly instead of relying on whatever remote refspec happens to be configured on
 # this machine. This prevents a successful fetch from leaving origin/main stale.
-Invoke-Git -Arguments @("fetch", "--prune", "origin", "+refs/heads/main:refs/remotes/origin/main")
+Invoke-GitNetwork -Arguments @("fetch", "--prune", "origin", "+refs/heads/main:refs/remotes/origin/main")
 
 $branch = Get-GitText -Arguments @("branch", "--show-current")
 if ($branch -ne "main") {
