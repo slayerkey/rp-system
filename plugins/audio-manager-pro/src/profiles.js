@@ -64,7 +64,7 @@ export function normalizeProfile(raw) {
     schemaVersion: 1,
     id,
     name,
-    accent: /^#[0-9a-f]{6}$/i.test(String(raw.accent || "")) ? String(raw.accent).toUpperCase() : "#56F2A5",
+    accent: /^#[0-9a-f]{6}$/i.test(String(raw.accent || "")) ? String(raw.accent).toUpperCase() : "#FFB21E",
     slots,
   };
 }
