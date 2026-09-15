@@ -806,6 +806,45 @@ CI for visually sensitive Stream Deck products should preserve/upload the **fina
 
 The artifact to approve is the one produced after the global hero overwrite and marketplace preflight.
 
+## 23. Maker Console shows an unexpected error with a Try again button
+
+### Symptom
+
+Rat Ship is moving normally through Maker Console, then Elgato briefly replaces the current wizard step with an **Unexpected error** / **Try again** state. Manually pressing **Try again** makes the same step work.
+
+A common package-upload signature is:
+
+- Rat Ship has already selected Plugin and advanced to the create route
+- Playwright waits for the package file input
+- Maker Console navigates to the expected `/create` URL but never mounts the file input
+- the visible recovery action is `Try again`
+- a manual retry immediately restores the wizard
+
+Treat this as a transient Maker Console frontend/backend failure unless product validation or the package itself reports a separate deterministic error.
+
+### Canonical Rat Ship behavior
+
+Do **not** restart Chromium, reopen the same draft, or replay the entire product for this class of error.
+
+Rat Ship should recover in place:
+
+1. detect an exact visible `Try again` / `Retry` control on a transient error page
+2. capture a screenshot and record the phase/URL/body excerpt in recovery state
+3. click **Try again once**
+4. wait for the same wizard step to remount
+5. reacquire fresh DOM locators rather than reusing stale handles
+6. continue the current operation
+
+For package upload specifically, wait for either the real file input or the transient retry state. After recovery, reacquire the package input and upload the same already-validated package.
+
+The automatic recovery is intentionally bounded to one retry per encounter. If the retry page immediately fails again or the expected wizard control still never appears, fail the product and preserve diagnostics rather than entering a loop.
+
+### Safety boundary
+
+This recovery is not permission to resubmit, republish, delete, or replay irreversible Maker Console actions. It is only for restoring the **current transiently failed UI step**.
+
+Keep the existing single-attempt Rat Ship batch behavior: a genuine Maker Console failure still records diagnostics and moves to the next slug rather than reopening/resuming the same draft automatically.
+
 ## Minimal diagnostic order
 
 When a Stream Deck product looks wrong:
