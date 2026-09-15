@@ -72,7 +72,7 @@ export function patchMakerConsoleSource(source, options) {
     "        const take = Math.ceil(remainingClauses / remainingGroups);",
     "        groups[groupIndex].push(...clauses.slice(cursor, cursor + take));",
     "        cursor += take;",
-    "      }"
+    "      }",
     "      items = groups.filter(group => group.length).map(group => group.join(', '));",
     "    }",
     "  }",
