@@ -8,11 +8,14 @@
 </head>
 <body>
   <main>
-    <section class="hero">
+    <div class="packrat-topbar">
       <button id="packratMaker" class="brand-link" type="button" aria-label="Open PackRat Marketplace maker page">
         <img src="packrat-icon.png" alt="">
         <span>PackRat ↗</span>
       </button>
+      <button id="topProUpgrade" class="primary packrat-upgrade hidden" type="button">Upgrade to Pro ↗</button>
+    </div>
+    <section class="hero">
       <div class="eyebrow">WINDOWS CONTROL CENTER</div>
       <h1>Windows Settings Manager</h1>
       <p id="edition">Windows Control Center for Stream Deck</p>
@@ -177,13 +180,16 @@
       </div>
     </section>
 
-    <section id="liteUpsell" class="card hidden">
-      <div class="eyebrow">PRO</div>
+    <section id="liteUpsell" class="upsell hidden">
+      <div class="upsell-eyebrow">WINDOWS SETTINGS MANAGER PRO</div>
       <h2>Unlock the full Windows Control Center</h2>
-      <p>Pro adds Wi-Fi, Bluetooth, Hibernate, protected Restart and Shutdown, Light/Dark theme, and full virtual desktop create/close/status controls while keeping live Windows state visible on your keys.</p>
-      <div class="row" style="margin-top:10px">
-        <button id="proUpgrade" class="primary" type="button">View Windows Settings Manager Pro</button>
-      </div>
+      <p>Lite covers the everyday essentials. Pro expands the same workflow into the complete Windows control center.</p>
+      <ul class="upsell-list">
+        <li><strong>Connectivity</strong> — Wi-Fi and Bluetooth controls.</li>
+        <li><strong>Protected power + theme</strong> — Hibernate, Restart, Shutdown, and Light/Dark controls.</li>
+        <li><strong>Full desktop control</strong> — create, close, navigate, and inspect virtual desktops.</li>
+      </ul>
+      <button id="proUpgrade" class="primary" type="button">Open Windows Settings Manager Pro ↗</button>
     </section>
 
     <section class="privacy">
