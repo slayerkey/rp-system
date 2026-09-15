@@ -26,10 +26,10 @@ PRODUCTS = {
         "edition": "FREE",
         "subtitle": "Record short keyboard workflows once. Replay them from Stream Deck.",
         "plugin": ROOT / "plugins" / "macro-recorder-lite" / "com.packrat.macro-recorder-lite.sdPlugin",
-        "badges": ["KEYBOARD", "30 SEC", "60 EVENTS"],
+        "badges": ["KEYBOARD", "10 SEC", "50 EVENTS"],
         "gallery": [
             ("02-capture.png", "PERFORM IT ONCE", "Capture keyboard order and timing while you do the real workflow.", ["KEY DOWN + KEY UP", "SHORTCUT COMBINATIONS", "TIMING INCLUDED"]),
-            ("03-edit.png", "FIX THE TIMELINE", "Review the captured sequence and adjust delays without writing macro syntax.", ["HUMAN-READABLE EVENTS", "EDIT DELAYS", "30 SEC · 60 EVENTS"]),
+            ("03-edit.png", "FIX THE TIMELINE", "Review the captured sequence and adjust delays without writing macro syntax.", ["HUMAN-READABLE EVENTS", "EDIT DELAYS", "10 SEC · 50 EVENTS"]),
             ("04-safety.png", "STOP MEANS STOP", "Cancel recording or playback from Stream Deck, with a keyboard emergency fallback.", ["LOCAL MACRO DATA", "GLOBAL STOP ACTION", "CTRL + SHIFT + F12"]),
             ("05-profiles.png", "STARTER PROFILES INCLUDED", "Start with ready-to-edit layouts sized for the Stream Deck hardware you already use.", ["MK.2 + STANDARD", "XL", "PLUS + NEO"]),
         ],
