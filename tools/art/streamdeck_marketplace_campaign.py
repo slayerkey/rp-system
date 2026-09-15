@@ -29,6 +29,7 @@ class CampaignConfig:
     gallery_scene: Path
     hero_title_style: str
     campaign_style: str
+    gallery_mode: str
 
 
 def _repo_path(value: str | None, fallback: Path) -> Path:
@@ -68,12 +69,20 @@ def resolve_campaign_config(product: str) -> CampaignConfig:
     campaign_style = str(art.get("campaign_style") or "warm-studio-glass-v1").strip().lower()
     if campaign_style not in {"warm-studio-glass-v1"}:
         raise SystemExit(f"Unsupported Stream Deck Marketplace campaign style for {product}: {campaign_style}")
+
+    # Legacy/external products are globally normalized at Rat Ship time by default.
+    # Products that already render directly with the shared campaign opt into native.
+    gallery_mode = str(art.get("gallery_mode") or "wrap").strip().lower()
+    if gallery_mode not in {"native", "wrap"}:
+        raise SystemExit(f"Unsupported Stream Deck Marketplace gallery mode for {product}: {gallery_mode}")
+
     return CampaignConfig(
         product=product,
         hero_scene=hero_scene,
         gallery_scene=gallery_scene,
         hero_title_style=title_style,
         campaign_style=campaign_style,
+        gallery_mode=gallery_mode,
     )
 
 
