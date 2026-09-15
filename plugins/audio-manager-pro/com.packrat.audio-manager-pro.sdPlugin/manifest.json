@@ -149,5 +149,35 @@
     "MinimumVersion": "7.3"
   },
   "UUID": "com.packrat.audio-manager-pro",
-  "Version": "1.0.0.0"
+  "Version": "1.0.0.0",
+  "Profiles": [
+    {
+      "Name": "profiles/audio-manager-pro-standard",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/audio-manager-pro-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/audio-manager-pro-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/audio-manager-pro-neo",
+      "DeviceType": 9,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
+  ]
 }
