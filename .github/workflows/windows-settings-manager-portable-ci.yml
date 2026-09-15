@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - product/windows-settings-manager
+      - main
     paths:
       - "products/windows-settings-manager/**"
       - "products/windows-settings-manager-lite.json"
