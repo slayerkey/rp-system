@@ -1,0 +1,311 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import os
+from pathlib import Path
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+REPO = Path(__file__).resolve().parents[3]
+W, H = 1920, 960
+BG = (7, 9, 13)
+PANEL = (14, 18, 25)
+KEY = (10, 13, 18)
+BORDER = (45, 53, 65)
+WHITE = (245, 247, 250)
+MUTED = (158, 169, 185)
+ACCENT = (43, 232, 106)
+WARN = (255, 179, 77)
+DANGER = (255, 93, 108)
+BLUE = (75, 143, 255)
+RAT = REPO / "tools" / "art" / "assets" / "ratpack-icon-transparent.png"
+
+
+def font(size: int, bold: bool = False):
+    env = os.getenv("RATPACK_ART_FONT_BOLD" if bold else "RATPACK_ART_FONT")
+    candidates = [Path(env)] if env else []
+    if os.name == "nt":
+        candidates += [
+            Path("C:/Windows/Fonts/segoeuib.ttf" if bold else "C:/Windows/Fonts/segoeui.ttf"),
+            Path("C:/Windows/Fonts/bahnschrift.ttf"),
+            Path("C:/Windows/Fonts/arialbd.ttf" if bold else "C:/Windows/Fonts/arial.ttf"),
+        ]
+    else:
+        candidates += [
+            Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+            Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
+        ]
+    for candidate in candidates:
+        if candidate.exists():
+            return ImageFont.truetype(str(candidate), size)
+    raise SystemExit("required deterministic marketplace font was not found; no silent fallback is allowed")
+
+
+def background():
+    img = Image.new("RGBA", (W, H), (*BG, 255))
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(glow)
+    d.ellipse((250, 260, 1320, 1350), fill=(*ACCENT, 17))
+    d.ellipse((1260, -520, 2200, 520), fill=(*BLUE, 20))
+    return Image.alpha_composite(img, glow.filter(ImageFilter.GaussianBlur(170)))
+
+
+def title(img, headline, sub=""):
+    d = ImageDraw.Draw(img)
+    d.text((96, 118), headline, font=font(54, True), fill=WHITE)
+    if sub:
+        d.text((98, 188), sub, font=font(22), fill=MUTED)
+
+
+def signature(img):
+    if RAT.exists():
+        rat = Image.open(RAT).convert("RGBA")
+        box = rat.getbbox()
+        if box:
+            rat = rat.crop(box)
+        scale = min(64 / rat.width, 64 / rat.height)
+        rat = rat.resize((max(1, int(rat.width * scale)), max(1, int(rat.height * scale))), Image.Resampling.LANCZOS)
+        img.alpha_composite(rat, ((W - rat.width) // 2, 34))
+    else:
+        raise SystemExit(f"required PackRat logo missing: {RAT}")
+
+
+def spark(draw, box, values, color=ACCENT, spike=False):
+    x0, y0, x1, y1 = box
+    if len(values) < 2:
+        return
+    lo, hi = min(values), max(values)
+    if hi <= lo:
+        hi = lo + 1
+    points = []
+    for i, value in enumerate(values):
+        x = x0 + (x1 - x0) * i / (len(values) - 1)
+        y = y1 - (y1 - y0) * (value - lo) / (hi - lo)
+        points.append((x, y))
+    draw.line(points, fill=color, width=5, joint="curve")
+    if spike:
+        peak = max(range(len(values)), key=lambda i: values[i])
+        px, py = points[peak]
+        draw.ellipse((px - 7, py - 7, px + 7, py + 7), fill=DANGER)
+
+
+def perf_key(draw, x, y, size, label, value, unit="", secondary="", values=None, color=ACCENT, alert=False):
+    draw.rounded_rectangle((x, y, x + size, y + size), int(size * .15), fill=KEY, outline=(60, 70, 84), width=max(2, size // 65))
+    dot = DANGER if alert else color
+    r = max(4, int(size * .022))
+    draw.ellipse((x + size*.08-r, y + size*.095-r, x + size*.08+r, y + size*.095+r), fill=dot)
+    label_font = font(max(11, int(size * .08)), True)
+    value_font = font(max(18, int(size * (.19 if len(str(value)) > 7 else .28))), True)
+    small_font = font(max(9, int(size * .067)), True)
+    draw.text((x + size*.13, y + size*.07), str(label).upper()[:17], font=label_font, fill=MUTED)
+    text = str(value)
+    bbox = draw.textbbox((0, 0), text, font=value_font)
+    tw = bbox[2] - bbox[0]
+    draw.text((x + size*.50 - tw/2, y + size*.30), text, font=value_font, fill=WHITE)
+    if unit:
+        draw.text((x + size*.52 + tw/2, y + size*.44), unit, font=font(max(9, int(size*.08))), fill=MUTED, anchor="lm")
+    if values:
+        spark(draw, (x + size*.12, y + size*.67, x + size*.88, y + size*.84), values, color, alert)
+    draw.text((x + size*.50, y + size*.92), str(secondary).upper(), font=small_font, fill=DANGER if alert else MUTED, anchor="mm")
+
+
+def deck(img, x, y, keys, key_size=155, gap=18, cols=5):
+    # This is intentionally a deterministic key cluster, not a simulated
+    # Stream Deck hardware chassis. PackRat has no approved calibrated
+    # Stream Deck device plate in-repo, so Rat Art must not invent one.
+    d = ImageDraw.Draw(img)
+    rows = (len(keys) + cols - 1) // cols
+    width = cols * key_size + (cols - 1) * gap
+    height = rows * key_size + (rows - 1) * gap
+    for i, spec in enumerate(keys):
+        col = i % cols
+        row = i // cols
+        perf_key(d, x + col * (key_size + gap), y + row * (key_size + gap), key_size, **spec)
+    return width, height
+
+
+def search_icon(out):
+    img = Image.new("RGB", (288, 288), BG)
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle((18, 18, 270, 270), 58, fill=PANEL, outline=ACCENT, width=8)
+    values = [55, 61, 59, 68, 64, 79, 72, 86, 74, 92]
+    spark(d, (55, 72, 233, 176), values, ACCENT, False)
+    d.text((144, 220), "PERF", font=font(30, True), fill=WHITE, anchor="mm")
+    img.save(out / "01_search_icon.png", quality=95)
+
+
+def hero(out):
+    img = background()
+    d = ImageDraw.Draw(img)
+    d.text((96, 96), "PC PERFORMANCE HISTORY", font=font(24, True), fill=ACCENT)
+    d.text((96, 172), "See what just happened.", font=font(58, True), fill=WHITE)
+    d.text((98, 250), "FPS lows  •  frametime spikes  •  session peaks", font=font(20, True), fill=MUTED)
+
+    keys = [
+        dict(label="FPS", value="144", unit="", secondary="1% 118", values=[122, 138, 145, 142, 139, 147, 144, 143, 146, 144]),
+        dict(label="1% LOW", value="118", unit="", secondary="SESSION", values=[130, 126, 124, 120, 118, 121, 119, 118, 122, 118]),
+        dict(label="GPU TEMP", value="73", unit="°C", secondary="PEAK 78", values=[58, 61, 65, 67, 70, 72, 74, 73, 76, 73]),
+        dict(label="FRAMETIME", value="31.4", unit="ms", secondary="SPIKE", values=[7, 7, 8, 8, 31, 9, 8, 7, 8, 7], color=DANGER, alert=True),
+        dict(label="SESSION", value="42m", unit="", secondary="AVG 141", values=[]),
+    ]
+    key_size = 300
+    gap = 20
+    cluster_width = 5 * key_size + 4 * gap
+    deck(img, (W - cluster_width) // 2, 360, keys, key_size=key_size, gap=gap, cols=5)
+    signature(img)
+    img.convert("RGB").save(out / "02_cover.png", quality=95)
+
+
+def history_context(out):
+    img = background()
+    title(img, "The moment is gone. The history isn't.", "A live number tells you now. Performance Grapher keeps enough context to diagnose what just happened.")
+    d = ImageDraw.Draw(img)
+    cards = [
+        ("GAME FPS", "144", "1% 118", [141,145,144,142,137,62,121,140,144,145], ACCENT),
+        ("GPU TEMP", "73", "PEAK 81", [60,62,64,67,70,74,81,79,75,73], WARN),
+        ("FRAMETIME", "7.1", "WORST 31.4", [7,7,7,8,8,31,9,8,7,7], DANGER),
+    ]
+    for i, (label, value, secondary, vals, color) in enumerate(cards):
+        x = 165 + i * 555
+        d.rounded_rectangle((x, 255, x+460, 705), 32, fill=(*PANEL, 245), outline=BORDER, width=2)
+        perf_key(d, x+105, 325, 250, label, value, "ms" if label=="FRAMETIME" else ("°C" if label=="GPU TEMP" else ""), secondary, vals, color, label=="FRAMETIME")
+        if i == 0:
+            d.text((x+230, 640), "FPS DROP SAVED", font=font(18, True), fill=WHITE, anchor="mm")
+        elif i == 1:
+            d.text((x+230, 640), "THERMAL PEAK SAVED", font=font(18, True), fill=WHITE, anchor="mm")
+        else:
+            d.text((x+230, 640), "SPIKE SAVED", font=font(18, True), fill=WHITE, anchor="mm")
+    signature(img)
+    img.convert("RGB").save(out / "03_gallery_01.png", quality=95)
+
+
+def session_summary(out):
+    img = background()
+    title(img, "A game session, not a wall of live sensors", "Press one Session Summary key to cycle the diagnostics that matter after a stutter.")
+    d = ImageDraw.Draw(img)
+    pages = [
+        ("AVG FPS", "141", "VALORANT"),
+        ("1% LOW", "118", "SESSION LOW"),
+        ("0.1% LOW", "93", "SESSION LOW"),
+        ("WORST FRAME", "31.4", "ms SPIKE"),
+        ("PEAK GPU", "78", "°C"),
+        ("PEAK CPU", "71", "°C"),
+        ("GPU LOAD", "99", "% PEAK"),
+        ("SESSION", "42m", "VALORANT"),
+        ("PRESSURE", "GPU", "SIGNAL"),
+    ]
+    for i, (label, value, sec) in enumerate(pages):
+        col = i % 5
+        row = i // 5
+        x = 130 + col * 335
+        y = 250 + row * 280
+        perf_key(d, x, y, 225, label, value, "", sec, [])
+    d.text((960, 830), "PRESSURE IS A CONSERVATIVE SIGNAL, NOT A CLAIM OF CAUSALITY", font=font(17, True), fill=MUTED, anchor="mm")
+    signature(img)
+    img.convert("RGB").save(out / "04_gallery_02.png", quality=95)
+
+
+def readable_keys(out):
+    img = background()
+    title(img, "Readable on a key. Detailed in the history.", "The key shows one primary value, one useful secondary diagnostic, and a compact trend.")
+    d = ImageDraw.Draw(img)
+    perf_key(d, 220, 295, 330, "GPU TEMP", "73", "°C", "60 SEC", [58,61,65,68,72,76,73], ACCENT)
+    perf_key(d, 795, 295, 330, "GPU TEMP", "91", "°C", "ALERT", [72,75,80,83,86,89,91], DANGER, True)
+    perf_key(d, 1370, 295, 330, "GAME FPS", "144", "", "1% 118", [130,140,144,141,136,146,144], ACCENT)
+    d.text((385, 700), "NORMAL", font=font(23, True), fill=ACCENT, anchor="mm")
+    d.text((960, 700), "THRESHOLD", font=font(23, True), fill=DANGER, anchor="mm")
+    d.text((1535, 700), "CONTEXT", font=font(23, True), fill=ACCENT, anchor="mm")
+    d.text((960, 795), "No six-number dashboards squeezed into 72 / 96 / 144 px.", font=font(23), fill=MUTED, anchor="mm")
+    signature(img)
+    img.convert("RGB").save(out / "05_gallery_03.png", quality=95)
+
+
+def ready_made_dashboards(out):
+    img = background()
+    title(img, "Start with a complete monitoring dashboard", "Four editable profiles are included for MK.2 / 15-key, XL, Stream Deck +, and Neo.")
+    d = ImageDraw.Draw(img)
+
+    base = [
+        dict(label="FPS", value="144", unit="", secondary="1% 118", values=[122,138,145,142,144], color=ACCENT),
+        dict(label="FRAME", value="7.1", unit="ms", secondary="SPIKE", values=[7,7,8,31,7], color=DANGER, alert=True),
+        dict(label="SESSION", value="42m", unit="", secondary="AVG 141", values=[]),
+        dict(label="GPU TEMP", value="73", unit="°C", secondary="5 MIN", values=[61,66,70,74,73], color=WARN),
+        dict(label="GPU LOAD", value="92", unit="%", secondary="60 SEC", values=[52,67,84,94,92], color=ACCENT),
+        dict(label="CPU LOAD", value="54", unit="%", secondary="5 MIN", values=[42,48,53,59,54], color=BLUE),
+        dict(label="RAM", value="68", unit="%", secondary="LOCAL", values=[]),
+        dict(label="GPU ALERT", value="73", unit="°C", secondary="NORMAL", values=[], color=ACCENT),
+    ]
+
+    def card(x, y, width, height, label, cols, rows, key_size, gap):
+        d.rounded_rectangle((x, y, x + width, y + height), 28, fill=(*PANEL, 245), outline=BORDER, width=2)
+        d.text((x + 28, y + 30), label, font=font(21, True), fill=WHITE)
+        d.text((x + width - 28, y + 31), f"{cols * rows} KEYS", font=font(16, True), fill=ACCENT, anchor="ra")
+        keys = [dict(base[i % len(base)]) for i in range(cols * rows)]
+        cluster_w = cols * key_size + (cols - 1) * gap
+        cluster_h = rows * key_size + (rows - 1) * gap
+        deck(img, x + (width - cluster_w) // 2, y + 62 + max(0, (height - 78 - cluster_h) // 2), keys, key_size=key_size, gap=gap, cols=cols)
+
+    card(90, 275, 805, 275, "MK.2 / 15-KEY", 5, 3, 61, 8)
+    card(1025, 275, 805, 275, "XL", 8, 4, 43, 5)
+    card(190, 630, 650, 215, "STREAM DECK +", 4, 2, 64, 8)
+    card(1080, 630, 650, 215, "NEO", 4, 2, 64, 8)
+
+    d.text((960, 885), "EDITABLE AFTER INSTALL  •  NO AUTO-SWITCH  •  SAME FIVE PERFORMANCE GRAPHER ACTIONS", font=font(18, True), fill=MUTED, anchor="mm")
+    signature(img)
+    img.convert("RGB").save(out / "06_gallery_04.png", quality=95)
+
+
+def thumbnail_review(out):
+    source = out / "02_cover.png"
+    if not source.is_file():
+        raise SystemExit("Hero must exist before thumbnail review")
+    hero = Image.open(source).convert("RGB")
+    sizes = [(480, 240), (320, 160), (240, 120)]
+    gap = 24
+    label_h = 34
+    width = max(w for w, _ in sizes) + 96
+    height = sum(h + label_h for _, h in sizes) + gap * (len(sizes) + 1)
+    sheet = Image.new("RGB", (width, height), BG)
+    d = ImageDraw.Draw(sheet)
+    y = gap
+    for w, h in sizes:
+        shot = hero.resize((w, h), Image.Resampling.LANCZOS)
+        x = (width - w) // 2
+        sheet.paste(shot, (x, y))
+        d.text((width // 2, y + h + 18), f"{w} × {h}", font=font(18, True), fill=MUTED, anchor="mm")
+        y += h + label_h + gap
+    qa_dir = out.parent / "marketplace-qa"
+    qa_dir.mkdir(parents=True, exist_ok=True)
+    sheet.save(qa_dir / "hero-thumbnail-review.png", quality=95)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--destination", required=True)
+    args = parser.parse_args()
+    out = Path(args.destination)
+    out.mkdir(parents=True, exist_ok=True)
+    search_icon(out)
+    hero(out)
+    history_context(out)
+    session_summary(out)
+    readable_keys(out)
+    ready_made_dashboards(out)
+    thumbnail_review(out)
+    required = ["01_search_icon.png", "02_cover.png", "03_gallery_01.png", "04_gallery_02.png", "05_gallery_03.png", "06_gallery_04.png"]
+    for name in required:
+        path = out / name
+        if not path.is_file():
+            raise SystemExit(f"Missing Rat Art output: {name}")
+        with Image.open(path) as check:
+            expected = (288, 288) if name == "01_search_icon.png" else (W, H)
+            if check.size != expected:
+                raise SystemExit(f"Wrong Rat Art size for {name}: {check.size} != {expected}")
+    qa_sheet = out.parent / "marketplace-qa" / "hero-thumbnail-review.png"
+    if not qa_sheet.is_file():
+        raise SystemExit("Missing Marketplace V2 thumbnail review sheet")
+    print(f"Performance Grapher Rat Art ready: {out}")
+
+
+if __name__ == "__main__":
+    main()

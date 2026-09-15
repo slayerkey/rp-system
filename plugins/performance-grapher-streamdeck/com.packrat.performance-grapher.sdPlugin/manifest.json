@@ -1,0 +1,148 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Actions": [
+    {
+      "UUID": "com.packrat.performance-grapher.graph",
+      "Name": "Performance Graph",
+      "Tooltip": "Current metric plus rolling history and a threshold state.",
+      "Icon": "imgs/actions/graph/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/graph/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.performance-grapher.fps",
+      "Name": "Game FPS",
+      "Tooltip": "Current FPS or frametime with history and percent-low context.",
+      "Icon": "imgs/actions/fps/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/fps/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.performance-grapher.session",
+      "Name": "Session Summary",
+      "Tooltip": "Cycle game-session diagnostics including lows, worst frametime, peaks, and duration.",
+      "Icon": "imgs/actions/session/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/session/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.performance-grapher.metric",
+      "Name": "Sensor / Metric",
+      "Tooltip": "A readable current CPU, GPU, RAM, storage, or hardware sensor value.",
+      "Icon": "imgs/actions/metric/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/metric/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.performance-grapher.alert",
+      "Name": "Performance Alert",
+      "Tooltip": "Turn a selected metric into a visible above/below threshold warning.",
+      "Icon": "imgs/actions/alert/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/alert/key",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ],
+  "Author": "PackRat",
+  "Category": "Performance Grapher",
+  "CategoryIcon": "imgs/category/icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "See what your PC did, not just what it is doing right now. Rolling hardware history, process-aware FPS lows, frametime spikes, session peaks, and threshold alerts.",
+  "Icon": "imgs/plugin/icon",
+  "Name": "Performance Grapher for Stream Deck",
+  "Nodejs": {
+    "Version": "24"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "PropertyInspectorPath": "ui/inspector.html",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.3"
+  },
+  "UUID": "com.packrat.performance-grapher",
+  "Version": "1.0.0.0",
+  "Profiles": [
+    {
+      "Name": "profiles/performance-dashboard-mk2",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/performance-dashboard-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/performance-dashboard-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/performance-dashboard-neo",
+      "DeviceType": 9,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
+  ]
+}

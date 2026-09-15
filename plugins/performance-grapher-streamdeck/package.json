@@ -1,0 +1,24 @@
+{
+  "name": "@packrat/performance-grapher-streamdeck",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-profiles.mjs && node scripts/build.mjs && rollup -c && node scripts/cleanup-build.mjs",
+    "test": "node scripts/build-profiles.mjs && node --test tests/*.test.mjs",
+    "check": "npm run test && npm run build",
+    "validate": "streamdeck validate com.packrat.performance-grapher.sdPlugin --no-update-check",
+    "pack": "streamdeck pack com.packrat.performance-grapher.sdPlugin --no-update-check --force --no-file-list --output dist",
+    "check:syntax": "node scripts/check-js-syntax.mjs"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "2.1.2"
+  },
+  "devDependencies": {
+    "@elgato/cli": "1.9.0",
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^15.2.2",
+    "@rollup/plugin-terser": "^1.0.0",
+    "rollup": "^4.0.2"
+  }
+}

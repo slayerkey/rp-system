@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Performance Grapher</title>
+  <script src="sdpi-components.js?v=1.0.0.0-3"></script>
+  <link rel="stylesheet" href="inspector.css?v=1.0.0.0-3" />
+</head>
+<body>
+  <main>
+    <section id="providerWarning" class="notice warning" hidden>
+      <strong id="warningTitle"></strong>
+      <p id="warningDetail"></p>
+      <button id="warningAction" type="button" hidden></button>
+    </section>
+
+    <div data-kinds="graph metric alert">
+      <sdpi-item label="Metric">
+        <select id="metricId" class="native-select">
+          <option value="">Loading metrics…</option>
+        </select>
+      </sdpi-item>
+      <div id="metricHint" class="help">Common PC metrics are shown first.</div>
+      <div class="subaction-row">
+        <button id="advancedMetricsButton" type="button">Show advanced sensors</button>
+      </div>
+    </div>
+
+    <div data-kinds="graph fps">
+      <sdpi-item label="History">
+        <sdpi-select setting="windowMs" default="60000">
+          <option value="60000">60 seconds</option>
+          <option value="300000">5 minutes</option>
+          <option value="900000">15 minutes</option>
+          <option value="0">Game session</option>
+        </sdpi-select>
+      </sdpi-item>
+      <div class="help" data-kinds="graph">Press the key to cycle these windows.</div>
+    </div>
+
+    <div data-kinds="fps">
+      <sdpi-item label="Readout">
+        <sdpi-select setting="fpsMode" default="fps">
+          <option value="fps">FPS</option>
+          <option value="frametime">Frametime (ms)</option>
+        </sdpi-select>
+      </sdpi-item>
+      <sdpi-item label="Low stat">
+        <sdpi-select setting="lowMode" default="one">
+          <option value="one">1% low</option>
+          <option value="pointOne">0.1% low</option>
+        </sdpi-select>
+      </sdpi-item>
+      <div class="help">Press the key to toggle FPS and frametime.</div>
+    </div>
+
+    <div data-kinds="graph alert">
+      <sdpi-item label="Direction">
+        <sdpi-select setting="thresholdDirection" default="above">
+          <option value="above">Warn above</option>
+          <option value="below">Warn below</option>
+        </sdpi-select>
+      </sdpi-item>
+      <sdpi-item label="Threshold">
+        <sdpi-textfield setting="threshold" default="85" placeholder="85"></sdpi-textfield>
+      </sdpi-item>
+      <div class="help">The key changes state when this metric crosses the threshold.</div>
+    </div>
+
+    <div data-kinds="graph">
+      <sdpi-item label="Scale min">
+        <sdpi-textfield setting="scaleMin" placeholder="Auto"></sdpi-textfield>
+      </sdpi-item>
+      <sdpi-item label="Scale max">
+        <sdpi-textfield setting="scaleMax" placeholder="Auto"></sdpi-textfield>
+      </sdpi-item>
+      <div class="help">Leave both blank for automatic scale. Custom max must be greater than min.</div>
+    </div>
+
+    <div data-kinds="session">
+      <section class="simple-block">
+        <strong>Session Summary</strong>
+        <p>Press the key to cycle average FPS, 1% low, 0.1% low, worst frametime, temperature/load peaks, duration, and pressure.</p>
+        <button id="resetSession" type="button">End / reset current session</button>
+      </section>
+    </div>
+
+    <sdpi-item label="Accent">
+      <sdpi-color setting="accent" default="#2BE86A"></sdpi-color>
+    </sdpi-item>
+
+    <div id="sessionLine" class="session-line" data-kinds="fps session">No active game session.</div>
+
+    <details class="diagnostics">
+      <summary>Telemetry diagnostics</summary>
+      <div class="diag-row">
+        <span id="fpsDot" class="dot"></span>
+        <div><strong id="fpsTitle">Game telemetry</strong><p id="fpsDetail">Waiting for plugin state…</p></div>
+      </div>
+      <div class="diag-row">
+        <span id="sensorDot" class="dot"></span>
+        <div><strong id="sensorTitle">Hardware sensors</strong><p id="sensorDetail">Waiting for plugin state…</p></div>
+      </div>
+      <button id="restartFps" type="button">Restart game telemetry</button>
+      <button id="presentMonHelp" type="button">Why does FPS need Windows access?</button>
+    </details>
+  </main>
+  <script src="inspector.js?v=1.0.0.0-3"></script>
+</body>
+</html>
