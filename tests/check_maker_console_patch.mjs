@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v11.mjs';
+import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v12.mjs';
 
 const core = readFileSync(resolve('tools/ship/maker_console_core.mjs'), 'utf8').replace(/\r\n?/g, '\n');
 
@@ -45,7 +45,12 @@ function check(label, source) {
     "Release notes are a second sales/value surface",
     "exactId === 'media-app-icon'",
     "waitFor({state:'attached',timeout:5000})",
-    "Search/app icon: late dedicated Maker Console field"
+    "Search/app icon: late dedicated Maker Console field",
+    "async function recoverMakerConsoleTransientError(target, phase = 'current step')",
+    "Maker Console transient error during ' + phase + '; clicking Try again once and continuing.",
+    "async function waitForPackageInputWithTransientRecovery(target)",
+    "async function uploadPackageWithTransientRecovery(target)",
+    "Maker Console package upload input did not appear after transient Try again recovery"
   ];
 
   for (const needle of required) {
