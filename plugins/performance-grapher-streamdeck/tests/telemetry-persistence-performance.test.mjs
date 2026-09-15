@@ -44,6 +44,33 @@ test("AMD, NVIDIA, and Intel-style hardware catalogs map to the same canonical G
   }
 });
 
+test("canonical temperature aliases skip impossible zero readings instead of showing fake 0 C", () => {
+  const telemetry = new TelemetryService({ pluginRoot: resolve(tmpdir(), "missing-performance-provider"), persistPath: resolve(tmpdir(), "packrat-test-state-temp-alias.json") });
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "catalog",
+    sensors: [
+      { id: "cpu.package", name: "CPU Package", sensorType: "Temperature", hardwareType: "Cpu", hardwareName: "Ryzen", unit: "°C" },
+      { id: "cpu.coremax", name: "Core Max", sensorType: "Temperature", hardwareType: "Cpu", hardwareName: "Ryzen", unit: "°C" }
+    ]
+  }));
+
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "sample",
+    at: Date.now(),
+    foregroundProcess: "game.exe",
+    values: { "cpu.package": 0, "cpu.coremax": 54 }
+  }));
+  assert.equal(telemetry.metricValue("cpu.temperature"), 54);
+
+  telemetry._consumeHardwareLine(JSON.stringify({
+    type: "sample",
+    at: Date.now() + 1000,
+    foregroundProcess: "game.exe",
+    values: { "cpu.package": 0, "cpu.coremax": 0 }
+  }));
+  assert.equal(telemetry.metricValue("cpu.temperature"), null);
+});
+
 test("sensor disappearance expires stale readings instead of showing a frozen number", () => {
   const telemetry = new TelemetryService({ pluginRoot: resolve(tmpdir(), "missing-performance-provider"), persistPath: resolve(tmpdir(), "packrat-test-state-expire.json") });
   const oldNow = Date.now;
