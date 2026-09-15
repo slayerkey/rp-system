@@ -75,9 +75,32 @@ function encoderSlots(prefix) {
 function plusPages(prefix) {
   const profiles = profilePage(prefix, false);
   profiles.encoder = encoderSlots(prefix);
-  const routing = routingPage(prefix, false);
+  const routing = routingPage(`${prefix}:routing`, false);
   routing.encoder = encoderSlots(`${prefix}:routing`);
   return [profiles, routing];
+}
+
+
+function assertUniqueActionIds(profileSpecs) {
+  const seen = new Map();
+  for (const spec of profileSpecs) {
+    for (const [pageIndex, page] of (spec.pages || []).entries()) {
+      for (const [controllerName, actions] of [["keypad", page.keypad], ["encoder", page.encoder]]) {
+        if (!actions) continue;
+        for (const [position, action] of Object.entries(actions)) {
+          const id = String(action?.ActionID || "").trim();
+          if (!id) throw new Error(`Missing ActionID in ${spec.file} page ${pageIndex + 1} ${controllerName} ${position}`);
+          if (seen.has(id)) {
+            const first = seen.get(id);
+            throw new Error(
+              `Duplicate generated ActionID ${id}: ${first} conflicts with ${spec.file} page ${pageIndex + 1} ${controllerName} ${position}`,
+            );
+          }
+          seen.set(id, `${spec.file} page ${pageIndex + 1} ${controllerName} ${position}`);
+        }
+      }
+    }
+  }
 }
 
 const specs = [
@@ -103,4 +126,5 @@ const specs = [
   },
 ];
 
+assertUniqueActionIds(specs);
 await writeProfiles(profileDir, specs);
