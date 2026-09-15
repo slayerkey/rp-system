@@ -5,7 +5,7 @@
   "status": "qa_passed",
   "workflow_state": "READY_TO_SHIP",
   "blocker": null,
-  "final_boundary": "READY_TO_SHIP. Initial Lite launch is intentionally standalone; add the verified direct Macro Recorder Pro Marketplace URL in a later Lite update.",
+  "final_boundary": "READY_TO_SHIP technically. The Lite top-right and bottom Pro CTAs are always visible and use the PackRat maker page until the verified direct Macro Recorder Pro Marketplace URL exists. After Pro publication, record the exact direct URL and rebuild Lite so both CTAs route directly to Pro.",
   "price_usd": 0,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -16,8 +16,8 @@
   "source_repository": "https://github.com/slayerkey/rp-system.git",
   "source_ref": "refs/heads/product/macro-recorder",
   "source_commit": "860df6441de55dd7a539c60df029ed76ed7c94dc",
-  "upgrade_url": null,
-  "upgrade_url_state": "deferred_until_verified_direct_pro_listing",
+  "upgrade_url": "https://marketplace.elgato.com/maker/packrat",
+  "upgrade_url_state": "maker_fallback_until_verified_direct_pro_listing",
   "limits": {
     "recording_seconds": 30,
     "events": 60,
@@ -51,9 +51,10 @@
     "description": "One six-key starter layout: Record / Play / Stop plus Find / Save / Next x3."
   },
   "upsell_release_gate": {
-    "required_before_public_lite_launch": false,
-    "current_state": "deferred_until_verified_direct_macro_recorder_pro_listing",
-    "policy": "Lite launches standalone. Add the direct Pro upgrade surface only after the real public Pro listing is verified."
+    "required_before_public_lite_launch": true,
+    "current_state": "maker_fallback_active",
+    "fallback_marketplace_url": "https://marketplace.elgato.com/maker/packrat",
+    "policy": "Both canonical Lite→Pro surfaces stay visible. Use the verified direct Macro Recorder Pro URL when available; otherwise route both CTAs to the PackRat maker page."
   },
   "release_artifact": {
     "repository": "slayerkey/rp-system",
@@ -82,7 +83,7 @@
     "five-device focused starter profiles with unique ActionIDs — PASS",
     "deterministic Marketplace/Rat Ship media — PASS",
     "30-second / 60-event keyboard-only limits — PASS",
-    "direct Pro Marketplace URL intentionally deferred until a later Lite update"
+    "top-right + bottom Pro CTAs use PackRat maker fallback until the verified direct Pro URL is available"
   ],
   "automated_release_evidence": {
     "status": "PASS",
