@@ -85,6 +85,15 @@ body>*{position:relative;z-index:1}
   box-shadow:0 0 14px var(--packrat-accent-glow);
 }
 .shell{display:grid;gap:10px}
+.manage-launcher{text-align:center;padding:18px 14px}
+.manage-launcher-icon{
+  width:48px;height:48px;margin:0 auto 10px;border:1px solid var(--packrat-border);
+  border-radius:12px;display:grid;place-items:center;background:#11151A;
+  color:var(--packrat-text);font-size:25px;line-height:1;
+}
+.manage-launcher h2{margin-bottom:7px}
+.manage-launcher .primary{margin-top:13px}
+.manage-launcher .hint{margin-top:10px}
 .section,.upsell{
   background:linear-gradient(145deg,#151920,#0D1015);
   border:1px solid var(--packrat-border);
