@@ -237,7 +237,24 @@ async function renderAll() {
   }
 }
 
+function activeProfileForInspector() {
+  if (!latestSnapshot) return null;
+  return globalSettings.profiles.find((profile) => profileMatchesSnapshot(profile, latestSnapshot)) || null;
+}
+
+function defaultMicForInspector() {
+  const endpoint = (latestSnapshot?.inputs || []).find((item) => String(item.id || "") === String(latestSnapshot?.defaultInputId || ""));
+  if (!endpoint) return null;
+  return {
+    id: String(endpoint.id || ""),
+    name: String(endpoint.name || "Default microphone"),
+    muted: Boolean(endpoint.muted),
+    muteAvailable: endpoint.muteAvailable === true,
+  };
+}
+
 function inspectorPayload(record) {
+  const activeProfile = activeProfileForInspector();
   return {
     type: "audioManager.state",
     buildVersion: BUILD_VERSION,
@@ -245,6 +262,8 @@ function inspectorPayload(record) {
     snapshot: latestSnapshot,
     globalSettings,
     latestError,
+    activeProfile: activeProfile ? { id: activeProfile.id, name: activeProfile.name, accent: activeProfile.accent } : null,
+    defaultMic: defaultMicForInspector(),
     lastResult: record.lastResult || null,
   };
 }
@@ -508,6 +527,8 @@ async function toggleDefaultMic(record) {
   const verified = ok && endpointMuteMatches(response?.snapshot || null, endpoint.id, expectedMute);
   const result = {
     status: verified ? "SUCCESS" : ok ? "PARTIAL" : "FAILED",
+    scope: "action",
+    message: verified ? (expectedMute ? "Default microphone muted" : "Default microphone live") : "",
     failures: verified
       ? []
       : [{
@@ -700,25 +721,25 @@ async function handleInspectorEvent(ev) {
     const command = String(payload.command || "");
     if (command === "refresh") {
       await refreshSnapshot({ quiet: false });
-      record.lastResult = { status: "SUCCESS", message: "Refreshed Windows audio" };
+      record.lastResult = { status: "SUCCESS", scope: "profile", command, message: "Refreshed Windows audio" };
     } else if (command === "create-profile") {
       const profile = await createProfile(payload.name);
       createdProfileId = profile.id;
       record.settings = { ...record.settings, profileId: profile.id };
       if (["apply", "status", "volume"].includes(record.kind))
         await record.action.setSettings(record.settings);
-      record.lastResult = { status: "SUCCESS", message: `Captured ${profile.name}` };
+      record.lastResult = { status: "SUCCESS", scope: "profile", command, message: `Captured ${profile.name}` };
     } else if (command === "save-profile") {
       const profile = await upsertProfile(payload.profile);
-      record.lastResult = { status: "SUCCESS", message: `Saved ${profile.name}` };
+      record.lastResult = { status: "SUCCESS", scope: "profile", command, message: `Saved ${profile.name}` };
     } else if (command === "delete-profile") {
       const removed = findProfile(globalSettings, payload.profileId);
       await deleteProfile(payload.profileId);
-      record.lastResult = { status: "SUCCESS", message: removed ? `Deleted ${removed.name}` : "Profile deleted" };
+      record.lastResult = { status: "SUCCESS", scope: "profile", command, message: removed ? `Deleted ${removed.name}` : "Profile deleted" };
     }
   } catch (error) {
     logger(`Property Inspector command failed: ${String(error?.message || error)}`);
-    record.lastResult = { status: "FAILED", failures: [{ error: String(error?.message || error) }] };
+    record.lastResult = { status: "FAILED", scope: "profile", command: String(payload.command || ""), failures: [{ error: String(error?.message || error) }] };
   }
 
   await sendInspector(record);
