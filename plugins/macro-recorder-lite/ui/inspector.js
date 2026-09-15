@@ -128,7 +128,7 @@
       title.textContent=eventLabel(ev);
       main.appendChild(title);
 
-      const durationLimit=Math.max(0,Number(state?.limits?.maxDurationMs||30000));
+      const durationLimit=Math.max(0,Number(state?.limits?.maxDurationMs||10000));
       const totalDelay=macro.events.reduce((sum,item)=>sum+Math.max(0,Number(item.delayMs||0)),0);
       const otherDelay=Math.max(0,totalDelay-Math.max(0,Number(ev.delayMs||0)));
       const maxDelay=Math.max(0,durationLimit-otherDelay);
