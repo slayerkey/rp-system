@@ -173,6 +173,35 @@ Reference shape:
 
 Window Manager Lite is the reference for density, row spacing, button proportions, and management-control hierarchy. Reuse its structure and canonical tokens; do not copy Lite-specific upgrade messaging into unrelated Pro products.
 
+### Contextual action Property Inspector rule
+
+Do not show a product's entire configuration surface for every action just because all actions share one Property Inspector file.
+
+The selected action should see the smallest useful surface:
+
+- profile/preset actions may expose the profile manager they depend on
+- direct device/toggle actions show only their target plus the live current state needed to understand the action
+- status/toggle actions should not force the user through unrelated manager/editor controls
+- advanced/global configuration can remain available only where it materially helps the selected action
+
+Always distinguish these two concepts in copy and layout:
+
+1. **configured target** — what this key/dial will do when invoked
+2. **current live state** — what Windows/the app/hardware is using right now
+
+Use explicit language such as `This key uses`, `Switch to`, `Currently active`, or `Windows is using`. Do not make the user infer whether a selector is editing the action, editing a saved object, or reporting live state.
+
+For manager-style editors:
+
+- name the object selector `Profile to edit`, `Layout to edit`, etc. when a separate action-level selector also exists
+- support Enter-to-save for a normal single-line name field when Save is the obvious primary action
+- keep mutation feedback inside the manager/editor card rather than a distant global status hero
+- keep action-setting feedback immediately after the action-specific controls
+- use one current-state summary card/row rather than repeating live state across unrelated controls
+- if a background poll/live refresh exists, it must never overwrite unsaved local edits
+
+The goal is not maximum configurability on every action. The goal is that clicking an action makes the next step obvious in under a few seconds.
+
 ### Ambient corner glow
 
 Property Inspectors use one subtle premium orange glow in the top-right:
