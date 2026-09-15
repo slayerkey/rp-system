@@ -416,6 +416,17 @@ if ($null -ne $product.release_artifact) {
     return
 }
 
+Require-Command "python" "Install Python 3.12 or newer."
+$campaignValidator = Join-Path $RepoRoot "tools\art\validate_streamdeck_marketplace_campaign.py"
+if (-not (Test-Path $campaignValidator -PathType Leaf)) {
+    throw "Canonical Stream Deck Marketplace campaign validator missing: $campaignValidator"
+}
+Write-Host "Local Rat Ship plugin: validate Marketplace campaign config..." -ForegroundColor DarkGray
+& python $campaignValidator --product $PluginSlug | Out-Host
+if ($LASTEXITCODE -ne 0) {
+    throw "Marketplace campaign validation failed for '$PluginSlug'."
+}
+
 if (-not $product.source) {
     throw "Product '$PluginSlug' does not declare a canonical source path."
 }
