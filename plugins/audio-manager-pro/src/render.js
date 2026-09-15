@@ -92,7 +92,7 @@ export function renderKey(kind, { profile = null, endpoint = null, active = fals
 
   if (kind === "mute-mic") {
     const color = offline ? DANGER : missing ? WARN : muted ? DANGER : SUCCESS;
-    const label = offline ? "AUDIO OFFLINE" : missing ? "NO DEFAULT MIC" : muted ? (voiceMeeter ? "WIN MUTED" : "MIC MUTED") : (voiceMeeter ? "WIN LIVE" : "MIC LIVE");
+    const label = offline ? "AUDIO OFFLINE" : missing ? "NO DEFAULT MIC" : muted ? "MIC MUTED" : "MIC LIVE";
     return svgDataUri(frame(`<rect x="60" y="20" width="24" height="45" rx="12" fill="none" stroke="${FG}" stroke-width="6"/><path d="M49 55c0 16 9 25 23 25s23-9 23-25M72 80v14M58 95h28" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/>${text(72, 120, label, label.length > 10 ? 13 : 16, color, 850, .35)}`, color));
   }
 
