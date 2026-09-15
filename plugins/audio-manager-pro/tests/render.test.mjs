@@ -107,14 +107,14 @@ test("direct device keys reserve readable text space below raised glyphs", () =>
   }));
   assert.match(output, /font-size="14"/);
   assert.match(output, /font-size="1[579]"/);
-  assert.match(output, /y="109"/);
-  assert.match(output, /y="131"/);
+  assert.match(output, /y="103"/);
+  assert.match(output, /y="123"/);
   assert.doesNotMatch(output, /font-size="9"/);
 
   const mic = decodeSvg(renderKey("mute-mic", {
     endpoint: { name: "Microphone" },
   }));
-  assert.match(mic, /y="126"/);
+  assert.match(mic, /y="120"/);
   assert.match(mic, /MIC LIVE/);
 });
 
@@ -130,4 +130,25 @@ test("normal direct audio actions use PackRat orange while success remains seman
     muted: false,
   }));
   assert.ok(mic.includes("#2BE86A"));
+});
+
+
+test("unconfigured profile key uses a two-line safe-area label without redundant badge", () => {
+  const svg = decodeSvg(renderKey("apply", { profile: null }));
+  assert.match(svg, />SELECT<\/text>/);
+  assert.match(svg, />PROFILE<\/text>/);
+  assert.doesNotMatch(svg, /SELECT PROFILE/);
+  assert.match(svg, /y="42"/);
+  assert.match(svg, /y="64"/);
+});
+
+test("selected profile text stays inside the tighter safe area", () => {
+  const svg = decodeSvg(renderKey("apply", {
+    profile: { name: "Very Long Headset Profile Name", accent: "#FFB21E" },
+    active: true,
+  }));
+  assert.match(svg, /y="50"/);
+  assert.match(svg, /y="76"/);
+  assert.match(svg, /y="104"/);
+  assert.doesNotMatch(svg, /Very Long Headset Profile Name/);
 });
