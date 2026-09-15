@@ -839,11 +839,51 @@ For package upload specifically, wait for either the real file input or the tran
 
 The automatic recovery is intentionally bounded to one retry per encounter. If the retry page immediately fails again or the expected wizard control still never appears, fail the product and preserve diagnostics rather than entering a loop.
 
+### Cross-product isolation test
+
+When the same upload failure appears on more than one unrelated plugin, especially when one of them is uploaded manually outside Rat Ship, treat that as strong evidence of a **Maker Console service/UI problem rather than a product-package defect**.
+
+Use this decision order:
+
+1. confirm the plugin already passed local tests and official Elgato validation
+2. confirm the failure occurs after Maker Console has accepted the create/update flow
+3. retry the exact same package once through the visible **Try again** path
+4. if practical, reproduce with one unrelated known-good plugin or version upload
+5. if the unrelated product fails the same way, stop changing product code and preserve the evidence as a platform incident
+
+Do **not** respond to a cross-product transient Maker Console failure by:
+
+- rebuilding an unchanged package
+- bumping the plugin version
+- changing the plugin UUID
+- regenerating Marketplace art
+- weakening validation
+- creating repeated duplicate drafts
+- repeatedly deleting and recreating the product
+
+Those actions create new variables without addressing the failing service boundary.
+
+If the same package later uploads successfully without a code/package change, record that as additional evidence that the incident was transient Maker Console behavior.
+
 ### Safety boundary
 
 This recovery is not permission to resubmit, republish, delete, or replay irreversible Maker Console actions. It is only for restoring the **current transiently failed UI step**.
 
 Keep the existing single-attempt Rat Ship batch behavior: a genuine Maker Console failure still records diagnostics and moves to the next slug rather than reopening/resuming the same draft automatically.
+
+### Evidence worth keeping
+
+For this class of incident, preserve:
+
+- the exact package SHA-256
+- the Maker Console URL/step
+- screenshot of the unexpected-error state
+- recovery ZIP / Playwright error
+- whether manual **Try again** recovered the same step
+- whether an unrelated plugin reproduced the same failure
+- whether the original unchanged package uploaded successfully later
+
+This makes future incidents much faster to classify and prevents product-level debugging of a platform outage.
 
 ## Minimal diagnostic order
 
