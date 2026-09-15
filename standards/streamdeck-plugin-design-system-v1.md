@@ -245,8 +245,10 @@ Requirements:
 - top CTA copy is exactly `Upgrade to Pro ↗`
 - top CTA uses the canonical orange primary-button treatment and glow
 - keep the CTA compact with `width:auto` and `white-space:nowrap`
-- clicking the CTA opens the **exact direct Pro Marketplace listing** through Stream Deck `openUrl`
-- do not use a creator page, search URL, placeholder URL, or guessed Marketplace URL
+- clicking the CTA uses Stream Deck `openUrl`
+- destination resolution is **verified direct Pro Marketplace listing when known → otherwise `https://marketplace.elgato.com/maker/packrat`**
+- the PackRat maker page is the one approved pre-publication fallback; never use search URLs, placeholder URLs, or guessed product URLs
+- once a verified direct Pro `/product/` URL exists, it replaces the maker fallback for both upgrade surfaces
 - this row must remain visible above the fold at normal Property Inspector width
 
 Do not put the PackRat logo inside the first product card. The top bar is its own chrome layer above the product content.
@@ -380,12 +382,14 @@ Approved visual baseline:
 
 #### Conversion and QA rules
 
-Both conversion surfaces are required when a Lite product has a direct Pro counterpart:
+Both conversion surfaces are required when a Lite product has a direct Pro counterpart, even before the Pro Marketplace listing exists:
 
 - **top:** persistent, compact `Upgrade to Pro ↗`
-- **bottom:** explanatory Pro feature card with direct CTA
+- **bottom:** explanatory Pro feature card with CTA
+- **destination before Pro publication:** PackRat maker page fallback
+- **destination after Pro publication:** exact verified Pro Marketplace `/product/` URL
 
-Do not replace one with the other.
+Do not hide either surface just because the direct Pro URL is not known yet, and do not replace one surface with the other.
 
 Do not:
 
@@ -401,13 +405,31 @@ Regression coverage for a Lite → Pro product should verify:
 - `.packrat-topbar` exists
 - PackRat brand is left-side topbar content
 - `Upgrade to Pro ↗` exists
-- top CTA points to the exact direct Pro Marketplace URL
+- top CTA is always present for a true Lite→Pro pair
 - bottom `.upsell` exists
 - bottom card names the real Pro product
 - bottom card contains real Pro feature explanations
 - bottom full-width Pro CTA exists
-- no placeholder/generic Marketplace route is packaged
-- no stale or unshipped feature claims are present
+- both CTAs resolve to the exact direct Pro Marketplace URL when verified
+- before that URL exists, both CTAs resolve to `https://marketplace.elgato.com/maker/packrat`
+- no search URL, placeholder URL, guessed product URL, or stale/unshipped feature claim is packaged
+
+### Lite → Pro fallback URL contract
+
+The canonical PackRat fallback for an unpublished/unlinked Pro counterpart is:
+
+`https://marketplace.elgato.com/maker/packrat`
+
+Implementation rule:
+
+```js
+const PACKRAT_MAKER_URL = "https://marketplace.elgato.com/maker/packrat";
+const upgradeUrl = VERIFIED_DIRECT_PRO_URL || PACKRAT_MAKER_URL;
+```
+
+Use the same resolved `upgradeUrl` for the top-right `Upgrade to Pro ↗` button and the bottom `Open <Product> Pro ↗` button.
+
+A Lite product with a real Pro counterpart must not ship with the upgrade surfaces hidden merely because the Pro listing has not been published yet. The maker page keeps the conversion path useful before publication. Strict Lite shipping/release gates may still require the exact direct Pro URL once publication order reaches the final public Lite release.
 
 ### Key-face style
 
