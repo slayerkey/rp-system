@@ -1,0 +1,27 @@
+{
+  "slug": "text-expander",
+  "name": "Text Expander Lite",
+  "type": "plugin",
+  "price_usd": 0,
+  "version": "1.0.0.0",
+  "marketplace_category": [
+    "Utilities"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows"
+  ],
+  "marketplace_tags": [
+    "Text",
+    "Productivity",
+    "Clipboard",
+    "Shortcuts",
+    "Windows"
+  ],
+  "marketplace_auto_publish": false,
+  "headline": "Reusable Text Snippets With Dynamic Date, Time, and Clipboard",
+  "description": "Text Expander Lite turns repeated typing into reusable Stream Deck shortcuts. Save named text snippets once, use them as simple reusable text templates, assign them to keys, and update the snippet later without rebuilding every key that uses it.\n\nLite includes up to 10 local snippets plus dynamic text variables for {date}, {time}, and {clipboard}. Use it for email text, support replies, addresses, links, code snippets, creator notes, or any text you type repeatedly. Unicode, emoji, multiline text, tabs, special characters, and URLs are supported.\n\nInsertion is designed for real Windows apps. Normal snippets can use Unicode keyboard input, while long text can fall back to temporary clipboard paste for speed and compatibility. When clipboard paste is used, Text Expander attempts to preserve and restore the previous clipboard contents.\n\nEverything stays local on your PC. There is no cloud account, snippet sync, or PackRat service. Text Expander treats snippet content as text and does not execute it as shell code or commands.\n\nIncludes simple starter profiles for Standard/MK.2, Mini, XL, Stream Deck +, and Neo with EMAIL + and CLIP + keys. Both use clear purpose-specific icons with an add badge, while additional snippets can be created directly in the Property Inspector.\n\nRequires Windows 10 or newer and Stream Deck 7.1 or newer.\n\nPart of the PackRat Ecosystem.",
+  "release_notes": "- Reusable local named text snippets with a 10-snippet Lite library\n- Dynamic {date}, {time}, and {clipboard} variables\n- Unicode, emoji, multiline, code, URL, and long-text insertion support\n- Clipboard-paste fallback with best-effort clipboard restoration\n- Simple EMAIL + and CLIP + starter profiles with purpose-specific key icons for Standard/MK.2, Mini, XL, Stream Deck +, and Neo"
+}
