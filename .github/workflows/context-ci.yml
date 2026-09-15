@@ -41,6 +41,9 @@ jobs:
       - name: Validate global Rat Ship Stream Deck hero
         run: python tests/check_streamdeck_rat_ship_hero.py
 
+      - name: Validate global Stream Deck gallery campaign
+        run: python tests/check_streamdeck_gallery_campaign.py
+
       - name: Validate Rat Art text safety
         run: python tests/check_rat_art_text_safety.py
 
