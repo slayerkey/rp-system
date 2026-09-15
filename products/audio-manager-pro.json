@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "testing",
   "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Current candidate adds live-refresh-safe Property Inspector editing, larger hardware key labels, and bundled standard/MK.2, XL, Plus, and Neo Stream Deck layouts. Exact-head automated QA must be green, then the remaining gate is physical target-machine validation of edit persistence, bundled-profile import/deduplication, audio switching, Stream Deck+ controls, restart/reboot/sleep-wake recovery, and demo evidence when required.",
+  "blocker": "Core audio switching, profile capture/save/apply, bundled layouts, contextual Property Inspector behavior, safe key rendering, and Windows/native/package gates are green. Remaining physical gate is one short final usability pass on the target Stream Deck: no horizontal PI scroll, simplified direct-device keys, rename/save placement, and honest Windows-endpoint mute wording when VoiceMeeter is present.",
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -30,23 +30,26 @@
     "Stream Deck sleep/wake action and Property Inspector event smoke",
     "read-only Audio Manager host audit at meaningful diagnostic/final checkpoints"
   ],
-  "final_boundary": "Exact-head Windows CI is green for the PI live-refresh race fix, larger hardware key layout, and bundled major-device Stream Deck profiles (54/54 tests plus design/key/profile/native/package/art gates). Remaining gate is physical target-machine confirmation: edits must survive multiple live refreshes, bundled profile import/deduplication must behave correctly, key text must be readable on hardware, and the remaining USB/Bluetooth/multi-mic/Plus/restart/reboot/sleep-wake matrix must pass.",
+  "final_boundary": "Exact-head Windows CI run 34929230647 passed on d72b2aa8531af3a3b72013c790e8d7cc360257f6 with 62/62 tests plus canonical PI/key/profile/native/Elgato/package/art gates. Physical testing has already confirmed profile capture/save/apply and real Windows input/output switching. Remaining gate is the final visual/usability confirmation; VoiceMeeter strip silence is explicitly outside Windows endpoint mute semantics unless a future explicit VoiceMeeter Remote API strip target is added.",
   "automated_release_evidence": {
-    "latest_successful_windows_run": 34923537432,
+    "latest_successful_windows_run": 34929230647,
     "automated_gate": "PASS",
-    "exact_head_at_run": "f94eaf3b327a0a323c170cbe430d41a7104893f1",
-    "test_suite": "54/54 passing",
+    "exact_head_at_run": "d72b2aa8531af3a3b72013c790e8d7cc360257f6",
+    "test_suite": "62/62 passing",
     "passed": [
       "shared PackRat AudioCore Windows build",
       "XENEON Audio Control Center bridge regression build",
       "locked npm install and high-severity dependency audit",
-      "full Audio Manager test suite including PI stale-refresh draft protection",
+      "full Audio Manager test suite",
       "deterministic standard/MK.2, XL, Plus and Neo profile generation",
       "canonical plugin release metadata preflight",
-      "full Lite to Pro catalog audit",
-      "pre-hardware Rat Ship workflow-state guard",
       "canonical PackRat Property Inspector design audit",
+      "Property Inspector horizontal-overflow regressions",
+      "contextual action UI and co-located feedback regressions",
+      "profile rename Enter-to-save and accent-control removal regressions",
       "Stream Deck key visual audit with major-profile coverage",
+      "simplified direct-device key safe-area regressions",
+      "VoiceMeeter Windows-endpoint mute-boundary regressions",
       "Audio Manager static host audit",
       "native helper self-test",
       "real Windows Core Audio snapshot protocol smoke",
@@ -57,12 +60,14 @@
       "release QA artifact upload"
     ],
     "current_scope": [
-      "PI unsaved profile drafts survive live Windows refresh without snapping back",
-      "pending action settings survive stale settings responses until acknowledgement",
-      "profile name, accent, endpoint and restore-state edits remain local until Save",
-      "speaker/mic glyphs are raised and role/device labels use larger hardware text",
-      "standard/MK.2, XL, Plus and Neo Stream Deck layout profiles are bundled",
-      "Rat Dev selects the standard/MK.2 dev profile and global profile sync handles deduplication"
+      "PI unsaved profile drafts survive live Windows refresh",
+      "long device names cannot force horizontal PI scrolling",
+      "Save/Delete live beside Rename profile and Enter saves",
+      "profile accent is no longer user-facing or used to recolor keys",
+      "direct input/output keys omit the crowded gray role footer",
+      "active profile and live Windows target are explicit",
+      "Mute Default Mic reports Windows endpoint state honestly when VoiceMeeter is present",
+      "standard/MK.2, XL, Plus and Neo Stream Deck layout profiles are bundled"
     ]
   },
   "legacy_status": "testing"
