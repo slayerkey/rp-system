@@ -142,6 +142,13 @@ test("Audio Manager profile editor keeps save and delete beside rename and remov
   assert.match(inspectorSource, /e\.key!=="Enter"/);
 });
 
+
+test("Audio Manager documents the VoiceMeeter mute boundary in the inspector and runtime result", () => {
+  assert.match(inspectorSource, /VoiceMeeter can capture or route audio outside Windows endpoint mute/);
+  assert.match(pluginSource, /Windows endpoint muted · VoiceMeeter may still pass audio/);
+  assert.match(pluginSource, /voiceMeeter/);
+});
+
 test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
   assert.match(inspectorHtml, /id="brandLink"/);
   assert.match(inspectorHtml, /packrat-logo\.png/);
