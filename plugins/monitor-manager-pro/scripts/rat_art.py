@@ -265,6 +265,16 @@ def paste_face(im,face,x,y,size):
     im.alpha_composite(rendered,(x,y))
 
 
+def exact_state_face(out,name):
+    path=out/"rat-art-states"/f"{name}.png"
+    if not path.is_file():
+        raise SystemExit("RAT ART FAIL: missing exact runtime marketing state: "+str(path))
+    face=Image.open(path).convert("RGBA")
+    if face.size!=(288,288):
+        raise SystemExit(f"RAT ART FAIL: exact runtime state {path.name} is {face.size}, expected 288x288")
+    return face
+
+
 def key(im,x,y,label,sub="",accent=ACCENT,size=142):
     d=ImageDraw.Draw(im); card(d,(x,y,x+size,y+size))
     inner=size-28
@@ -357,21 +367,44 @@ def capabilities(path,faces):
 
 def profiles(path,faces):
     im=bg()
-    header(im,"Stop opening Windows Display Settings.","This is what Monitor Manager Pro actually looks like on your deck.")
+    header(im,"Your gaming display. Tuned instantly.","Jump to the Hz, brightness or contrast preset you actually use.")
     d=ImageDraw.Draw(im)
-    glass_panel(im,(110,300,1810,760),radius=36,fill=(7,11,18,210),border_alpha=205,glow_alpha=34,border_width=2)
+    out=path.parent
 
-    device=device_from_faces(faces,(1060,400))
-    im.alpha_composite(device,(165,350))
+    glass_panel(im,(115,300,1080,745),radius=36,fill=(7,11,18,214),border_alpha=205,glow_alpha=34,border_width=2)
+    d.text((165,345),"REFRESH RATE",font=font(22),fill=(*MUTED,255))
+    d.text((165,385),"60 Hz → 165 Hz. One press.",font=font(34),fill=(*WHITE,255))
 
-    d.text((1325,370),"REAL PRODUCT PROOF",font=font(21),fill=(*MUTED,255))
-    d.text((1325,415),"REAL KEYS.",font=font(40),fill=(*WHITE,255))
-    d.text((1325,465),"REAL VALUES.",font=font(40),fill=(*WHITE,255))
-    d.text((1325,515),"REAL STATES.",font=font(40),fill=(*WHITE,255))
-    for i,label in enumerate(["INPUTS","HDR","PROFILES","LIVE STATUS"]):
-        y=585+i*42
-        d.text((1325,y),label,font=font(19),fill=(*MUTED,255))
+    r60=exact_state_face(out,"refresh-60")
+    r165=exact_state_face(out,"refresh-165")
+    r144=exact_state_face(out,"refresh-144")
+    r240=exact_state_face(out,"refresh-240")
+    paste_face(im,r60,175,455,215)
+    arrow(d,430,562,545)
+    paste_face(im,r165,590,455,215)
+    d.text((282,695),"60 HZ",font=font(19),fill=(*MUTED,255),anchor="mm")
+    d.text((697,695),"165 HZ",font=font(19),fill=(*MUTED,255),anchor="mm")
+    d.text((870,415),"OTHER PRESETS",font=font(17),fill=(*MUTED,255),anchor="mm")
+    paste_face(im,r144,825,455,120)
+    paste_face(im,r240,945,455,120)
+
+    glass_panel(im,(1110,300,1805,745),radius=36,fill=(7,11,18,214),border_alpha=205,glow_alpha=34,border_width=2)
+    d.text((1160,345),"BRIGHTNESS + CONTRAST",font=font(22),fill=(*MUTED,255))
+    d.text((1160,385),"Exact presets. No OSD menu.",font=font(34),fill=(*WHITE,255))
+
+    preset_specs=[
+        ("brightness-25","25%"),("brightness-65","65%"),("brightness-80","80%"),
+        ("contrast-40","40%"),("contrast-60","60%"),
+    ]
+    coords=[(1165,455),(1365,455),(1565,455),(1265,620),(1465,620)]
+    for (state,label),(x,y) in zip(preset_specs,coords):
+        face=exact_state_face(out,state)
+        paste_face(im,face,x,y,150)
+        d.text((x+75,y+165),label,font=font(18),fill=(*MUTED,255),anchor="mm")
     footer(im); save(im,path)
+
+
+
 
 
 
@@ -381,19 +414,37 @@ def plus(path,faces):
     im=bg()
     header(im,"Turn the controls you tweak all day.","Brightness, contrast and monitor volume on native Stream Deck+ dials.")
     d=ImageDraw.Draw(im)
-    glass_panel(im,(120,305,1800,720),radius=36,fill=(7,11,18,214),border_alpha=205,glow_alpha=34,border_width=2)
+    glass_panel(im,(120,305,1800,690),radius=36,fill=(7,11,18,214),border_alpha=205,glow_alpha=34,border_width=2)
 
     d.text((175,350),"KEY PRESETS",font=font(20),fill=(*MUTED,255))
-    for face,x in zip([faces[0],faces[1],faces[2]],[170,390,610]):
-        paste_face(im,face,x,410,175)
+    for face,x in zip([faces[0],faces[1],faces[2]],[170,390,390]):
+        paste_face(im,face,x,410,185)
 
-    d.text((955,350),"STREAM DECK+ DIALS",font=font(20),fill=(*MUTED,255))
-    dial_strip(im,955,390,760,"BRIGHTNESS",65)
-    dial_strip(im,955,530,760,"CONTRAST",50)
-    # Volume is shown as the third repeated daily-use control without squeezing text.
-    d.text((175,625),"Press for an exact preset.",font=font(25),fill=(*WHITE,255))
-    d.text((955,685),"VOLUME  •  rotate for continuous adjustment",font=font(22),fill=(*WHITE,255))
+    d.text((690,350),"STREAM DECK+ DIALS",font=font(20),fill=(*MUTED,255))
+    dial_strip(im,690,390,1010,"BRIGHTNESS",65)
+    dial_strip(im,690,530,1010,"CONTRAST",50)
+
+    d.text((175,625),"Press for an exact preset.",font=font(24),fill=(*WHITE,255))
+    d.text((690,655),"VOLUME  •  rotate for continuous adjustment",font=font(21),fill=(*WHITE,255))
+
+    d.text((150,725),"BUNDLED PROFILES INCLUDED",font=font(20),fill=(*MUTED,255))
+    models=[
+        ("STANDARD / MK.2","KEYS + PROFILE"),
+        ("XL","KEYS + PROFILE"),
+        ("STREAM DECK+","KEYS + 3 DIALS"),
+        ("VIRTUAL","KEYS + PROFILE"),
+    ]
+    x=150
+    widths=[395,300,430,300]
+    for (name,detail),w in zip(models,widths):
+        d.rounded_rectangle((x,755,x+w,815),radius=17,fill=(10,15,22,225),outline=(80,91,108,230),width=2)
+        d.text((x+22,777),name,font=font(18),fill=(*WHITE,255),anchor="lm")
+        d.text((x+w-22,777),detail,font=font(15),fill=(*MUTED,255),anchor="rm")
+        x+=w+18
     footer(im); save(im,path)
+
+
+
 
 
 
