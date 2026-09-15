@@ -191,6 +191,13 @@ if ($needsSvgRuntime) {
     }
 }
 
+$galleryCampaign = Join-Path $RepoRoot "tools\art\apply_streamdeck_gallery_campaign.py"
+Write-Host "Rat Art preview: apply canonical final gallery campaign..." -ForegroundColor Cyan
+& python $galleryCampaign --product $Slug --media-dir $destination | Out-Host
+if ($LASTEXITCODE -ne 0) {
+    throw "Canonical final Stream Deck gallery campaign failed for '$Slug'."
+}
+
 Write-Host "Rat Art preview: apply canonical final Rat Ship hero..." -ForegroundColor Cyan
 & python @heroArgs | Out-Host
 if ($LASTEXITCODE -ne 0) {
