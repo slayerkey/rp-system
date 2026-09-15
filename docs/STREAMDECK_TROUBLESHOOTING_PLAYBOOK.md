@@ -34,6 +34,26 @@ Read the stage that failed before activation. Rat Dev intentionally leaves the e
 
 Do not bypass the failing stage just to see the UI. Correct the source/test/registration, rerun Rat Dev, and let activation happen only after the candidate is green.
 
+### Bootstrap succeeds, then preflight says it cannot fetch canonical RatPack refs
+
+Treat this as a shared Rat Dev fetch-contract failure before debugging the product.
+
+Strong signature:
+
+- `Refreshing RatPack command layer...` succeeds
+- local `main` fast-forwards to the current canonical commit
+- immediately afterward `rat-dev-preflight.ps1` throws `Could not fetch canonical RatPack refs before Rat Dev preflight`
+- no product build/test stage has started yet
+
+The bootstrap and preflight must use explicit canonical refspecs instead of trusting the clone's configured `remote.origin.fetch`:
+
+- `+refs/heads/main:refs/remotes/origin/main`
+- `+refs/heads/product/*:refs/remotes/origin/product/*`
+
+Do not fall back to a plain `git fetch --prune origin` in preflight. Older/main-only clones or stale/malformed configured fetch refspecs can make that command fail or leave product refs stale even when the explicit bootstrap fetch already succeeded.
+
+On fetch failure, preserve the real Git stderr in the thrown message rather than discarding it. Once the shared command layer is fixed on canonical `main`, rerun the same `rat dev <slug>`; the normal bootstrap will self-update the local command layer before preflight.
+
 ## 2. Rat Dev finds the product on multiple branches
 
 ### Cause
