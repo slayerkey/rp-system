@@ -26,16 +26,18 @@ for (const size of [72, 96, 144]) {
   });
 }
 
-test("permission state uses bounded state typography without a fake metric unit", () => {
-  const svg = decode(renderKey({ label: "GAME FPS", value: null, unit: "FPS", secondary: "", points: [], state: "permission_required" }, {}, 144));
-  assert.match(svg, /SETUP/);
-  assert.match(svg, /ENABLE FPS/);
-  assert.match(svg, /clipPath id="primaryText"/);
-  assert.doesNotMatch(svg, /> FPS<\/tspan>/);
+test("permission state stays bounded at 36/72/144 without a fake metric unit", () => {
+  for (const size of [36, 72, 144]) {
+    const svg = decode(renderKey({ label: "GAME FPS", value: null, unit: "FPS", secondary: "", points: [], state: "permission_required" }, {}, size));
+    assert.match(svg, /SETUP/);
+    assert.match(svg, /ENABLE FPS/);
+    assert.match(svg, /clipPath id="primaryText"/);
+    assert.doesNotMatch(svg, /> FPS<\/tspan>/);
 
-  const setupText = svg.match(/clip-path="url\(#primaryText\)"[^>]*font-size="([0-9.]+)"[^>]*>SETUP/);
-  assert.ok(setupText, "SETUP should render through the bounded primary text region");
-  assert.ok(Number(setupText[1]) <= 36, "SETUP state should not use oversized live-value typography");
+    const setupText = svg.match(/clip-path="url\(#primaryText\)"[^>]*font-size="([0-9.]+)"[^>]*>SETUP/);
+    assert.ok(setupText, "SETUP should render through the bounded primary text region at " + size + "px");
+    assert.ok(Number(setupText[1]) <= size * 0.25, "SETUP state should not use oversized live-value typography at " + size + "px");
+  }
 });
 
 
