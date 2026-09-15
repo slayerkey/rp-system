@@ -72,6 +72,18 @@ For work using the canonical PackRat Property Inspector, add `--require-canonica
 That audit catches stable action-identity drift, host-title regressions, and the Property Inspector context/transport failure pattern that causes dead buttons, stale startup state, and settings that do not persist.
 
 For stateful Property Inspectors, transport correctness is not enough. Product regression tests must also cover save/render races: a pending local selection/value must survive a stale plugin state response, authoritative state must clear `Saving…`, text drafts used by Rename/Create/Apply must survive background renders until the command reads them, and dynamic selectors must persist immutable IDs rather than names/counts/positions.
+When the PI itself renders but live plugin-owned state never arrives, do not keep toggling websocket context assumptions blindly. Separate the failure layers:
+
+1. verify the Node plugin process actually launched
+2. verify `streamDeck.connect()` completed
+3. verify the PI command reached `streamDeck.ui.onSendToPlugin`
+4. verify runtime/native refresh completed
+5. verify `sendToPropertyInspector` completed
+6. verify the PI received and rendered the response
+
+For Node plugins, `Nodejs.Debug` is command-line argument configuration, not a boolean/off switch. Omit it unless valid debug arguments are intentionally required; never use values such as `"disabled"` as a fake off state.
+
+A direct native/host audit proves the native boundary only. If the native helper works but Stream Deck does not, instrument the PI → plugin → runtime → native bridge → plugin → PI path before rewriting hardware code.
 
 Dashboard-style plugins that promise the default major-model bundle must run:
 
@@ -79,11 +91,21 @@ Dashboard-style plugins that promise the default major-model bundle must run:
 
 The default major-model bundle is standard/MK.2, XL, Plus, and Neo (DeviceTypes 0, 2, 7, and 9) unless the product records a deliberate exception. Use `tools/streamdeck/profile-builder.mjs` for deterministic generation instead of hand-maintaining multiple archives. The shared builder supports multi-page layouts for feature-rich products.
 
-When bundled profiles exist, Rat Dev should make them impossible to forget: `rat dev <slug>` opens the DeviceType 0 standard/MK.2 profile by default after a validated link, unless the product explicitly opts out. Use `dev_profile` only to override which bundled profile is opened.
+When bundled profiles exist, Rat Dev should make them impossible to forget and impossible to leave stale:
+
+- prefer the DeviceType 0 standard/MK.2 bundle unless `dev_profile` overrides it
+- if no same-name profile is installed, use the normal import/open path
+- if the profile is already installed, compare the **installed manifests/pages/actions/settings/states** semantically against the current bundle rather than trusting only the stored bundle SHA
+- if any same-name installed copy differs, refresh the installed profile in place with backup/verification/rollback instead of importing another duplicate
+- if multiple same-name copies already exist, refresh all of them together while preserving each Stream Deck device binding
+
+Do not ask the user to manually delete/reimport profiles when Rat Dev can identify and replace them safely.
 
 The automated audit is only a floor. Also review actual keys at 72 x 72 and a reduced 36 x 36 preview. Dynamic keys must be reviewed using representative rendered states, not only their manifest fallback image.
 
 Use GitHub Actions for clean Node builds and vendor CLI work.
+
+Hardware telemetry must remain device-reported unless the product explicitly owns and labels an estimation model. A battery percentage that stays at the same number across **fresh** reads is not automatically stale. Where ambiguity matters, expose or log telemetry source, transport, and observation freshness. Do not smooth or invent a lower battery value simply because the hardware reports in coarse steps.
 
 Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures. The hardware pass must explicitly cover readable 72 x 72 key faces, accent/state behavior, Property Inspector save/reopen persistence, selector switching without rollback, mutable text commands such as Rename/Create, visible `Saving… → Saved` acknowledgement, PI command buttons, live update cadence, and bundled profile appearance when profiles are promised.
 
