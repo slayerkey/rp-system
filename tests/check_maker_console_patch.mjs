@@ -31,7 +31,11 @@ function check(label, source) {
     "async function uploadThroughNamedMediaSection(target, headingPattern, filePath, stopHeadingPattern = null)",
     "thumbnail-section-filechooser",
     "single-unlabeled-image-input",
-    "media-section-candidates.json"
+    "media-section-candidates.json",
+    "icon-identity",
+    "ambiguous-parent",
+    "if (section.match)",
+    "thumbnail upload was routed into the app icon field"
   ];
 
   for (const needle of required) {
