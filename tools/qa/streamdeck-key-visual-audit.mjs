@@ -212,7 +212,7 @@ console.log("Keypad actions: "+keypad.length);
 console.log("Bundled profiles: "+profiles.length+(requireMajorProfiles?" (major-model coverage required)":""));
 for(const warning of warnings)console.log("WARN: "+warning);
 for(const error of errors)console.error("ERROR: "+error);
-console.log("Manual gate still required: review representative runtime-rendered keys at 72 x 72 and 36 x 36, including longest labels, two-line labels, error/N-A states, presets, and live values. This script prevents host title overlays and ambiguous extensionless assets but cannot prove internal rendered layout quality.");
+console.log("Manual gate still required: review representative runtime-rendered keys at 72 x 72 and 36 x 36, including longest labels, setup/permission states, error/N-A states, presets, and live values. Runtime state tokens must use bounded state typography and must not inherit live metric units. For scale-aware renderers, product tests should cover 36/72/144 output. This script prevents host title overlays and ambiguous extensionless assets but cannot prove internal rendered layout quality.");
 
 if(errors.length){
   console.error("FAIL: "+errors.length+" key visual error(s), "+warnings.length+" warning(s)");
