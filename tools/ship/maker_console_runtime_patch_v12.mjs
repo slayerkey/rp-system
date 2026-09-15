@@ -135,21 +135,28 @@ ${helper}`,
     'clickIfVisible helper and transient recovery insertion'
   );
 
-  const directUpload = `        page = await livePage();
+  source = replaceOnce(
+    source,
+    `        page = await livePage();
         const input = page.locator('input[type="file"]').first();
         await input.setInputFiles(join(KIT,packages[0]));
-        await click(page,/^(next|continue)$/i,180000);`;
-
-  const recoveredUpload = `        page = await livePage();
+        await click(page,/^(next|continue)$/i,180000);`,
+    `        page = await livePage();
         await uploadPackageWithTransientRecovery(page);
-        await click(page,/^(next|continue)$/i,180000);`;
+        await click(page,/^(next|continue)$/i,180000);`,
+    'resumed package upload'
+  );
 
-  source = replaceCount(
+  source = replaceOnce(
     source,
-    directUpload,
-    recoveredUpload,
-    2,
-    'package upload'
+    `      page = await livePage();
+      const input = page.locator('input[type="file"]').first();
+      await input.setInputFiles(join(KIT,packages[0]));
+      await click(page,/^(next|continue)$/i,180000);`,
+    `      page = await livePage();
+      await uploadPackageWithTransientRecovery(page);
+      await click(page,/^(next|continue)$/i,180000);`,
+    'fresh package upload'
   );
 
   return source;
