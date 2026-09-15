@@ -20,6 +20,9 @@ const index = json(resolve(repoRoot, "products", "index.json"));
 const editionMap = json(resolve(repoRoot, "products", "lite-pro-map.json"));
 const roster = index.products.find((entry) => entry.id === "audio-manager-pro");
 const inspectorSource = readFileSync(resolve(productRoot, "ui", "inspector.js"), "utf8");
+const inspectorHtml = readFileSync(resolve(productRoot, "ui", "inspector.html"), "utf8");
+const inspectorCss = readFileSync(resolve(productRoot, "ui", "inspector.css"), "utf8");
+const buildSource = readFileSync(resolve(productRoot, "scripts", "build.mjs"), "utf8");
 const pluginSource = readFileSync(resolve(productRoot, "src", "plugin.js"), "utf8");
 
 test("Audio Manager intentionally ships without bundled Stream Deck profiles", () => {
@@ -68,6 +71,20 @@ test("Audio Manager Property Inspector keeps UI and action contexts distinct", (
   assert.match(pluginSource, /streamDeck\.ui\.onSendToPlugin/);
   assert.match(pluginSource, /recordForInspectorEvent/);
   assert.match(pluginSource, /acceptInspectorRequest/);
+});
+
+
+test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
+  assert.match(inspectorHtml, /id="brandLink"/);
+  assert.match(inspectorHtml, /ratpack-icon-transparent\.png/);
+  assert.match(inspectorSource, /https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
+  assert.match(inspectorCss, /--packrat-bg:#080A0E/i);
+  assert.match(inspectorCss, /--packrat-accent:#FFB21E/i);
+  assert.match(inspectorCss, /body::before/);
+  assert.match(inspectorCss, /button\.secondary/);
+  assert.match(inspectorCss, /button\.danger/);
+  assert.doesNotMatch(inspectorCss, /button\{background:#366b58/i);
+  assert.match(buildSource, /ratpack-icon-transparent\.png/);
 });
 
 test("Audio Manager listing follows current PackRat standalone paid conventions", () => {
