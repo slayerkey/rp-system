@@ -87,6 +87,7 @@ async function setOutput(record){
   schedule(0);
 }
 class SetOutputAction extends SingletonAction{
+  constructor(){super();this.manifestId=ACTION;}
   async onWillAppear(ev){
     const id=String(ev.action?.id||"");if(!id)return;
     const record={id,action:ev.action,settings:settingsOf(ev.payload?.settings),lastImage:"",lastResult:null,inspectorOpen:false};
@@ -107,7 +108,7 @@ class SetOutputAction extends SingletonAction{
     const run=mutation.catch(()=>{}).then(()=>setOutput(r));mutation=run.catch(log);return run;
   }
 }
-streamDeck.actions.registerAction(new SetOutputAction(ACTION));
+streamDeck.actions.registerAction(new SetOutputAction());
 streamDeck.ui.onSendToPlugin(ev=>{
   const p=ev?.payload||{},r=recordFrom(p);if(!r)return;
   r.inspectorOpen=true;
