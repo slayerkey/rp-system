@@ -249,18 +249,20 @@ export function renderKey(view, settings = {}, size = 144) {
   const graphH = s * 0.19;
   const path = pathFor(view?.points || [], graphX, graphY, graphW, graphH, settings.scaleMin, settings.scaleMax, view?.mode || "max");
   const labelSize = fittedFontSize(top, s * 0.105, 11, 0.72);
-  const valueSize = valueText.length > 9 ? s * 0.19 : valueText.length > 6 ? s * 0.23 : s * 0.30;
+  const valueSize = unavailable
+    ? fittedFontSize(valueText, s * 0.25, 5, 0.78)
+    : valueText.length > 9 ? s * 0.19 : valueText.length > 6 ? s * 0.23 : s * 0.30;
   const secondarySize = fittedFontSize(secondary, s * 0.085, 14, 0.68);
-  const unitText = unit && valueText !== "--" ? " " + unit : "";
+  const unitText = !unavailable && unit && valueText !== "--" ? " " + unit : "";
   const statusColor = unavailable ? WARNING : accent;
 
   const svg = [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + s + '" height="' + s + '" viewBox="0 0 ' + s + ' ' + s + '">',
-    '<defs><clipPath id="topText"><rect x="' + (s * 0.12) + '" y="' + (s * 0.02) + '" width="' + (s * 0.80) + '" height="' + (s * 0.14) + '"/></clipPath><clipPath id="bottomText"><rect x="' + (s * 0.07) + '" y="' + (s * 0.88) + '" width="' + (s * 0.86) + '" height="' + (s * 0.11) + '"/></clipPath></defs>',
+    '<defs><clipPath id="topText"><rect x="' + (s * 0.12) + '" y="' + (s * 0.02) + '" width="' + (s * 0.80) + '" height="' + (s * 0.14) + '"/></clipPath><clipPath id="primaryText"><rect x="' + (s * 0.08) + '" y="' + (s * 0.22) + '" width="' + (s * 0.84) + '" height="' + (s * 0.38) + '"/></clipPath><clipPath id="bottomText"><rect x="' + (s * 0.07) + '" y="' + (s * 0.88) + '" width="' + (s * 0.86) + '" height="' + (s * 0.11) + '"/></clipPath></defs>',
     '<rect width="' + s + '" height="' + s + '" rx="' + (s * 0.16) + '" fill="' + BG + '"/>',
     '<rect x="' + (s * 0.075) + '" y="' + (s * 0.075) + '" width="' + (s * 0.035) + '" height="' + (s * 0.035) + '" rx="' + (s * 0.018) + '" fill="' + statusColor + '"/>',
     '<text clip-path="url(#topText)" x="' + (s * 0.13) + '" y="' + (s * 0.12) + '" fill="' + MUTED + '" font-family="Segoe UI,Arial,sans-serif" font-size="' + labelSize + '" font-weight="700">' + top + '</text>',
-    '<text x="' + (s * 0.50) + '" y="' + (s * 0.53) + '" text-anchor="middle" fill="' + TEXT + '" font-family="Segoe UI,Arial,sans-serif" font-size="' + valueSize + '" font-weight="750">' + xml(valueText) + '<tspan fill="' + MUTED + '" font-size="' + (valueSize * 0.38) + '">' + xml(unitText) + '</tspan></text>',
+    '<text clip-path="url(#primaryText)" x="' + (s * 0.50) + '" y="' + (s * 0.53) + '" text-anchor="middle" fill="' + TEXT + '" font-family="Segoe UI,Arial,sans-serif" font-size="' + valueSize + '" font-weight="750">' + xml(valueText) + '<tspan fill="' + MUTED + '" font-size="' + (valueSize * 0.38) + '">' + xml(unitText) + '</tspan></text>',
   ];
   if (path) {
     svg.push('<path d="' + path + '" fill="none" stroke="' + accent + '" stroke-width="' + Math.max(1.8, s * 0.018) + '" stroke-linecap="round" stroke-linejoin="round"/>');
