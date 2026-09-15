@@ -25,6 +25,36 @@
 
   function setStatus(text){$("editorStatus").textContent=text||"";}
   function setSaveStatus(text){$("saveStatus").textContent=text||"";}
+  function setManageStatus(text){$("manageStatus").textContent=text||"";}
+
+  function openFullLibraryDashboard(){
+    const ok=send({
+      event:"sendToPlugin",
+      action:actionUuid,
+      context:uiUuid,
+      payload:{type:"openManager",actionContext}
+    });
+    if(!ok){
+      if(isManage())setManageStatus("Stream Deck connection unavailable.");
+      else setStatus("Stream Deck connection unavailable.");
+    }
+  }
+
+  function renderManageShell(inferredPro){
+    edition=inferredPro?"pro":"lite";
+    $("productTitle").textContent=inferredPro?"Text Expander Pro":"Text Expander Lite";
+    $("productSubtitle").textContent="Full Library";
+    $("manageDescription").textContent=inferredPro
+      ?"Open the full local dashboard to edit snippets, folders, reusable variables, and date/time formats."
+      :"Open the full local dashboard to edit your Lite snippets. Everything stays stored locally on this PC.";
+    $("manageSettings").classList.remove("hidden");
+    $("insertSettings").classList.add("hidden");
+    $("editor").classList.add("hidden");
+    $("dynamicCard").classList.add("hidden");
+    $("upgrade").classList.add("hidden");
+    $("topUpgrade").classList.add("hidden");
+    editorOpen=false;
+  }
 
   function requestSnippets(){
     const selectedId=editingId||settings.snippetId||$("snippet").value||"";
@@ -293,15 +323,8 @@
   $("topUpgrade").addEventListener("click",()=>{
     if(proUrl)send({event:"openUrl",payload:{url:proUrl}});
   });
-  $("openManager").addEventListener("click",()=>{
-    const ok=send({
-      event:"sendToPlugin",
-      action:actionUuid,
-      context:uiUuid,
-      payload:{type:"openManager",actionContext}
-    });
-    if(!ok)setStatus("Stream Deck connection unavailable.");
-  });
+  $("openManager").addEventListener("click",openFullLibraryDashboard);
+  $("manageOpenDashboard").addEventListener("click",openFullLibraryDashboard);
 
   window.connectElgatoStreamDeckSocket=(port,uuid,registerEvent,info,rawActionInfo)=>{
     uiUuid=uuid;
@@ -312,10 +335,12 @@
 
     const inferredPro=actionUuid.includes("textexpanderpro");
     $("productTitle").textContent=inferredPro?"Text Expander Pro":"Text Expander Lite";
+    if(isManage())renderManageShell(inferredPro);
 
     socket=new WebSocket("ws://127.0.0.1:"+port);
     socket.onopen=()=>{
       send({event:registerEvent,uuid:uiUuid});
+      if(isManage())return;
       send({event:"getSettings",action:actionUuid,context:uiUuid});
       requestSnippets();
       setTimeout(requestSnippets,180);
@@ -346,9 +371,5 @@
       }
     };
 
-    if(isManage()){
-      $("insertSettings").classList.add("hidden");
-      showEditor(true);
-    }
   };
 })();
