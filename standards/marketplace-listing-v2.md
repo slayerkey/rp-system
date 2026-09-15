@@ -237,6 +237,17 @@ Compatibility/sizes normally belongs at the end of the gallery after value and i
 
 Eight slot captures remain QA evidence even if only a subset appears in marketplace media.
 
+
+## Stream Deck Marketplace campaign standard
+
+For Stream Deck plugins, use `standards/streamdeck-marketplace-art-system-v1.md` as the canonical visual campaign layer.
+
+It defines the approved cover/gallery scene family, orange→blue glass framing, five-frame buyer funnel, exact runtime-product proof rule, and `rat preview-art <slug>` approval contract.
+
+Monitor Manager Pro is the approved reference implementation.
+
+This does **not** mean every existing listing should be silently restyled. Existing products remain opt-in under the rollout-safety rule below. The shared system is the default for new Stream Deck products and for existing products when their Marketplace art is intentionally refreshed and reviewed.
+
 ## Stream Deck plugin / profile rule
 
 When a plugin/profile is best understood as a key layout, make the physical or deterministic Stream Deck key cluster large enough to read as the product rather than decoration.
