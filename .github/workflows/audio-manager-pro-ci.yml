@@ -77,10 +77,19 @@ jobs:
           Write-Host 'AUDIO MANAGER RELEASE-STATE GUARD PASS'
       - run: npm run build
         working-directory: plugins/audio-manager-pro
+      - name: Fetch canonical Stream Deck QA tools
+        shell: pwsh
+        run: |
+          git fetch origin +refs/heads/main:refs/remotes/origin/main --depth=1
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\packrat-qa" | Out-Null
+          git show origin/main:tools/qa/streamdeck-plugin-design-audit.mjs | Set-Content -Path "$env:RUNNER_TEMP\packrat-qa\streamdeck-plugin-design-audit.mjs" -Encoding utf8
+          git show origin/main:tools/qa/streamdeck-key-visual-audit.mjs | Set-Content -Path "$env:RUNNER_TEMP\packrat-qa\streamdeck-key-visual-audit.mjs" -Encoding utf8
       - name: Audit PackRat Stream Deck plugin design contract
-        run: node tools/qa/streamdeck-plugin-design-audit.mjs plugins/audio-manager-pro --require-canonical-pi
+        shell: pwsh
+        run: node "$env:RUNNER_TEMP\packrat-qa\streamdeck-plugin-design-audit.mjs" plugins/audio-manager-pro --require-canonical-pi
       - name: Audit Stream Deck key-face visuals
-        run: node tools/qa/streamdeck-key-visual-audit.mjs plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin
+        shell: pwsh
+        run: node "$env:RUNNER_TEMP\packrat-qa\streamdeck-key-visual-audit.mjs" plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin
       - name: Run Audio Manager static host audit
         shell: pwsh
         working-directory: plugins/audio-manager-pro
