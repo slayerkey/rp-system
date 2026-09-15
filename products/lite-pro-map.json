@@ -225,10 +225,11 @@
         "shared/macro-recorder",
         "shared/windows-input/PackRat.InputHost"
       ],
-      "source_status": "lite_release_ready_pro_url_deferred",
-      "notes": "Lite is a standalone useful keyboard recorder with 30-second / 60-event limits and one macro per Play action. Pro adds mouse capture, 10-minute / 25,000-event recordings, speed, loops, reusable Macro Library, full editing and import/export. Add a direct Lite-to-Pro CTA only after the real public Pro Marketplace listing is verified.",
-      "launch_sequence": "Lite may launch standalone. Add the verified direct Pro product URL in a later Lite update.",
-      "upsell_build_source": "deferred"
+      "source_status": "lite_release_ready_maker_fallback_active_direct_pro_url_deferred",
+      "notes": "Lite is a useful keyboard recorder with 30-second / 60-event limits. Pro adds mouse capture, longer recordings, speed, loops, a reusable Macro Library, full editing, and import/export. Both canonical Lite upgrade surfaces stay visible now and route to the PackRat maker page until the verified direct Pro Marketplace /product/ URL is recorded.",
+      "launch_sequence": "Lite may launch with the PackRat maker fallback. After Pro publication, capture the exact direct Pro URL and rebuild/revalidate Lite so both CTAs route directly to Pro.",
+      "upsell_build_source": "maker_fallback_then_verified_direct_pro",
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
     }
   ],
   "standalone_free": [
