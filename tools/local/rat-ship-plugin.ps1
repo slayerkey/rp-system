@@ -192,6 +192,59 @@ function Invoke-CanonicalStreamDeckHero {
     }
 }
 
+function Invoke-CanonicalStreamDeckGalleries {
+    param(
+        [string]$ProductSlug,
+        [string]$Target
+    )
+
+    $renderer = Join-Path $RepoRoot "tools\art\apply_streamdeck_gallery_campaign.py"
+    if (-not (Test-Path $renderer -PathType Leaf)) {
+        throw "Canonical Stream Deck gallery campaign renderer missing: $renderer"
+    }
+
+    Require-Command "python" "Install Python 3.11 or newer for canonical Stream Deck Marketplace art."
+    Write-Host "Local Rat Ship plugin: apply canonical Stream Deck gallery campaign..." -ForegroundColor DarkGray
+    & python $renderer --product $ProductSlug --media-dir $Target | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "Canonical Stream Deck gallery campaign failed with exit code $LASTEXITCODE."
+    }
+
+    $report = Join-Path $Target "streamdeck-gallery-campaign-report.json"
+    if (-not (Test-Path $report -PathType Leaf)) {
+        throw "Canonical Stream Deck gallery campaign did not produce its provenance report."
+    }
+    Write-Host "Canonical Stream Deck gallery campaign applied." -ForegroundColor Green
+}
+
+function Get-PluginDirectoryFromPackage {
+    param(
+        [string]$PackagePath,
+        [string]$ProductSlug
+    )
+
+    $work = Join-Path ([System.IO.Path]::GetTempPath()) ("PackRat\streamdeck-package-{0}-{1}" -f $ProductSlug, $PID)
+    if (Test-Path $work) { Remove-Item $work -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path $work | Out-Null
+
+    $zip = Join-Path $work "package.zip"
+    $extract = Join-Path $work "extract"
+    Copy-Item $PackagePath $zip -Force
+    Expand-Archive -Path $zip -DestinationPath $extract -Force
+
+    $manifests = @(Get-ChildItem -Path $extract -File -Recurse -Filter "manifest.json" |
+        Where-Object { $_.Directory.Name -like "*.sdPlugin" })
+    if ($manifests.Count -ne 1) {
+        if (Test-Path $work) { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }
+        throw "Expected exactly one *.sdPlugin manifest inside validated package for '$ProductSlug'; found $($manifests.Count)."
+    }
+
+    return [PSCustomObject]@{
+        WorkRoot = $work
+        PluginDirectory = $manifests[0].Directory.FullName
+    }
+}
+
 function Resolve-ProductPath {
     param([string]$RelativePath)
     if ([string]::IsNullOrWhiteSpace($RelativePath)) { return $null }
@@ -408,14 +461,6 @@ if ($product.version -and $submission.version -and ([string]$submission.version)
     throw "submission.json version ($($submission.version)) does not match products/$PluginSlug.json ($($product.version))."
 }
 
-# Some external plugins are released from an exact already-validated GitHub Actions
-# artifact rather than copied into RatPack. This preserves repository isolation and
-# guarantees Maker Console receives the same package/media that passed the release gate.
-if ($null -ne $product.release_artifact) {
-    Build-FromValidatedExternalArtifact -Product $product -Submission $submission -SubmissionPath $submissionPath -Target $Destination
-    return
-}
-
 Require-Command "python" "Install Python 3.12 or newer."
 $campaignValidator = Join-Path $RepoRoot "tools\art\validate_streamdeck_marketplace_campaign.py"
 if (-not (Test-Path $campaignValidator -PathType Leaf)) {
@@ -425,6 +470,14 @@ Write-Host "Local Rat Ship plugin: validate Marketplace campaign config..." -For
 & python $campaignValidator --product $PluginSlug | Out-Host
 if ($LASTEXITCODE -ne 0) {
     throw "Marketplace campaign validation failed for '$PluginSlug'."
+}
+
+# Some plugins are released from an exact already-validated GitHub Actions artifact.
+# The package remains byte-for-byte validated, but Marketplace media still receives
+# the current global campaign pass at ship time.
+if ($null -ne $product.release_artifact) {
+    Build-FromValidatedExternalArtifact -Product $product -Submission $submission -SubmissionPath $submissionPath -Target $Destination
+    return
 }
 
 if (-not $product.source) {
@@ -484,6 +537,10 @@ if (Test-Path $artScript) {
 else {
     Write-Host "Local Rat Ship plugin: no product rat-art.ps1 yet; package kit created without product-specific gallery media." -ForegroundColor Yellow
 }
+
+# Global Stream Deck rule: every product-local or legacy gallery is normalized through
+# the current campaign before the final cover is applied.
+Invoke-CanonicalStreamDeckGalleries -ProductSlug $PluginSlug -Target $Destination
 
 # Global Stream Deck rule: product-local Rat Art may own the icon and gallery,
 # but the canonical orange desk/photo composition always owns the Marketplace hero.
