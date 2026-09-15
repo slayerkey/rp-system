@@ -111,7 +111,7 @@ export function captureProfileFromSnapshot(name, snapshot, id) {
     schemaVersion: 1,
     id,
     name,
-    accent: "#56F2A5",
+    accent: "#FFB21E",
     slots,
   });
 }
