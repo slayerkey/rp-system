@@ -187,8 +187,8 @@
       "source_paths": [
         "plugins/wireless-device-manager-family"
       ],
-      "source_status": "pro_ready_to_ship_lite_maker_fallback_active",
-      "notes": "Wireless Device Manager Lite always shows the canonical top-right and bottom Pro conversion surfaces. Until the verified direct Wireless Device Manager Pro Marketplace /product/ URL exists, both open the PackRat maker page. After Pro publication, record the exact direct URL and rebuild/revalidate Lite so both CTAs route directly to Pro.",
+      "source_status": "lite_and_pro_ready_to_ship_maker_fallback_active",
+      "notes": "Wireless Device Manager Lite and Pro are READY_TO_SHIP. Lite always shows the canonical top-right and bottom Pro conversion surfaces. Until a verified direct Wireless Device Manager Pro Marketplace /product/ URL exists, both open the PackRat maker page. After Pro publication, record the exact direct URL and rebuild/revalidate Lite when moving to the direct-product route.",
       "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
     }
   ],
