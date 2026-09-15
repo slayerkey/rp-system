@@ -395,8 +395,9 @@ test("bundled Pro profiles use neutral logical slots without pretending a device
   }
 });
 
-test("Lite upsell is catalog-driven and never hardcodes a placeholder Marketplace destination",async()=>{
+test("Lite upsell is catalog-driven with the canonical PackRat maker fallback",async()=>{
   const html=await readFile("ui/inspector.html","utf8");
+  const inspector=await readFile("ui/inspector.js","utf8");
   const submission=JSON.parse(await readFile("submission-lite.json","utf8"));
   const map=JSON.parse(await readFile("../../products/lite-pro-map.json","utf8"));
   const pair=map.pairs.find(item=>item.lite_id==="wireless-device-manager");
@@ -406,7 +407,13 @@ test("Lite upsell is catalog-driven and never hardcodes a placeholder Marketplac
   assert.match(html,/Wireless Device Manager Pro/);
   assert.match(html,/favorites/i);
   assert.match(html,/low-battery alerts/i);
-  assert.match(html,/id="pro-link"[^>]*hidden/);
+  assert.match(html,/id="top-pro-link"/);
+  assert.match(html,/Upgrade to Pro ↗/);
+  assert.match(html,/id="pro-link"/);
+  assert.match(html,/Open Wireless Device Manager Pro ↗/);
+  assert.doesNotMatch(html,/id="pro-link"[^>]*hidden/);
+  assert.match(inspector,/PACKRAT_MAKER_URL="https:\/\/marketplace\.elgato\.com\/maker\/packrat"/);
+  assert.match(inspector,/return direct\?candidate:PACKRAT_MAKER_URL/);
   assert.match(submission.description,/Upgrade to Wireless Device Manager Pro/);
   assert.doesNotMatch(html,/marketplace\.elgato\.com\/product\/wireless-device-manager-pro/i);
   assert.equal(config,`window.WIRELESS_PRO_MARKETPLACE_URL = ${JSON.stringify(pair?.pro_marketplace_url??"")};`);
