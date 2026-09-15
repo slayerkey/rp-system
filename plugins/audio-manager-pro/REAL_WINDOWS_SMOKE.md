@@ -2,6 +2,24 @@
 
 Run this on the exact release candidate after `rat dev audio-manager-pro`.
 
+## Property Inspector + Audio Profile workflow
+
+Run this before the deeper device matrix. A rendered inspector is not enough; every control must complete a PI → plugin → PI round trip.
+
+- [ ] open an **Apply Audio Profile** action and confirm the PI changes from Connecting to **Windows audio connected**
+- [ ] press **Refresh** and confirm visible progress/acknowledgement instead of a silent click
+- [ ] press **Capture current setup** once and confirm exactly one new `Audio Profile N` appears and becomes the focused editor profile
+- [ ] rename that profile, press **Save profile**, switch to another Stream Deck action and back, and confirm the saved name/devices persist
+- [ ] choose the captured profile in the action-level **Audio Profile** selector, leave/reopen the action, and confirm the selection persists
+- [ ] press the hardware key and confirm the selected profile actually applies rather than reporting Select/Create profile
+- [ ] change one role/device in the editor, save, apply, and confirm the corresponding Windows role changes
+- [ ] press **Delete** on a throwaway profile and confirm it is removed only after confirmation
+- [ ] confirm no command creates duplicate profiles or executes twice
+- [ ] rerun `rat audit audio-manager-pro` and confirm an Audio Manager plugin log now exists
+- [ ] if any PI button is still dead, open the Stream Deck Property Inspector debugger at `http://localhost:23654/`, select the Audio Manager inspector page, and inspect console/WebSocket errors before changing audio/native code
+
+The compatibility contract for this plugin is: the manual PI WebSocket uses the callback PI UUID as its message context, while the selected action instance is carried separately as `payload.actionContext`. Plugin commands are also accepted on the global `streamDeck.ui.onSendToPlugin` path and request IDs prevent duplicate delivery from executing a command twice.
+
 - [ ] USB headset is discoverable and can be used for Default + Communications output
 - [ ] speakers can become Default output without changing Communications output when the profile says so
 - [ ] applying Default output aligns both Windows Console and Multimedia output roles
