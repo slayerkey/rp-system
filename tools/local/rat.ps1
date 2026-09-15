@@ -31,6 +31,28 @@ function Invoke-GitCommand {
     }
 }
 
+function Invoke-GitNetworkCommand {
+    param(
+        [string[]]$GitArgs,
+        [int]$Attempts = 3
+    )
+
+    for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
+        & git @GitArgs | Out-Host
+        if ($LASTEXITCODE -eq 0) {
+            return
+        }
+
+        if ($attempt -lt $Attempts) {
+            $delay = if ($attempt -eq 1) { 2 } else { 5 }
+            Write-Host "GitHub connection failed during 'git $($GitArgs -join ' ')'. Retrying in $delay seconds ($attempt/$Attempts)..." -ForegroundColor Yellow
+            Start-Sleep -Seconds $delay
+        }
+    }
+
+    throw "git $($GitArgs -join ' ') failed after $Attempts attempts"
+}
+
 function Get-GitText {
     param([string[]]$GitArgs)
     $output = & git @GitArgs 2>&1
@@ -78,17 +100,18 @@ function Sync-CurrentBranch {
     Push-Location $RepoRoot
     try {
         Assert-CleanWorktree
-        Invoke-GitCommand -GitArgs @("fetch", "--prune", "origin")
+        Invoke-GitNetworkCommand -GitArgs @("fetch", "--prune", "origin")
         $branch = Get-GitText -GitArgs @("branch", "--show-current")
         if (-not $branch) {
             throw "The checkout is in detached HEAD state. Run: rat main"
         }
-        & git rev-parse --abbrev-ref "${branch}@{upstream}" *> $null
-        if ($LASTEXITCODE -eq 0) {
-            Invoke-GitCommand -GitArgs @("pull", "--ff-only")
+
+        $upstream = & git rev-parse --abbrev-ref "${branch}@{upstream}" 2>$null
+        if ($LASTEXITCODE -eq 0 -and $upstream) {
+            Invoke-GitCommand -GitArgs @("merge", "--ff-only", ([string]$upstream).Trim())
         }
         elseif ($branch -eq "main") {
-            Invoke-GitCommand -GitArgs @("pull", "--ff-only", "origin", "main")
+            Invoke-GitCommand -GitArgs @("merge", "--ff-only", "origin/main")
         }
         else {
             Write-Host "Fetched origin. Branch '$branch' has no upstream, so it was not changed." -ForegroundColor Yellow
@@ -105,9 +128,13 @@ function Sync-Main {
     Push-Location $RepoRoot
     try {
         Assert-CleanWorktree
-        Invoke-GitCommand -GitArgs @("fetch", "--prune", "origin")
+
+        # Fetch exactly once, with bounded retries for transient GitHub/network failures.
+        # After a successful fetch, origin/main is already the canonical remote snapshot;
+        # fast-forward locally from that ref instead of making a second HTTPS request via pull.
+        Invoke-GitNetworkCommand -GitArgs @("fetch", "--prune", "origin")
         Invoke-GitCommand -GitArgs @("switch", "main")
-        Invoke-GitCommand -GitArgs @("pull", "--ff-only", "origin", "main")
+        Invoke-GitCommand -GitArgs @("merge", "--ff-only", "origin/main")
         Write-Host "RatPack main is current." -ForegroundColor Green
     }
     finally {
