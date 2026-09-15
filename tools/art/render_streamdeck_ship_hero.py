@@ -11,6 +11,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from render_streamdeck_product_hero import render
+from streamdeck_marketplace_campaign import resolve_campaign_config
 
 ROOT = Path(__file__).resolve().parents[2]
 SVG_RENDERER = ROOT / "tools" / "ship" / "render_svg_icon.mjs"
@@ -349,27 +350,9 @@ def render_ship_hero(
     name = str(submission.get("name") or manifest.get("Name") or product).strip()
     line1, line2 = split_balanced(name)
 
-    product_meta = {}
-    product_meta_path = ROOT / "products" / f"{product}.json"
-    if product_meta_path.is_file():
-        try:
-            product_meta = json.loads(product_meta_path.read_text(encoding="utf-8"))
-        except Exception as exc:
-            fail(f"could not read product art metadata {product_meta_path}: {exc}")
-    art_meta = product_meta.get("marketplace_art") if isinstance(product_meta.get("marketplace_art"), dict) else {}
-
-    scene_path = None
-    scene_ref = str(art_meta.get("scene") or "").strip()
-    if scene_ref:
-        scene_path = (ROOT / scene_ref).resolve()
-        if not scene_path.is_relative_to(ROOT.resolve()):
-            fail(f"Stream Deck hero scene must remain inside the repository: {scene_ref}")
-        if not scene_path.is_file():
-            fail(f"Stream Deck hero scene does not exist: {scene_path}")
-
-    title_style = str(art_meta.get("hero_title_style") or "monitor").strip().lower()
-    if title_style not in {"monitor", "glass"}:
-        fail(f"unsupported Stream Deck hero title style for {product}: {title_style}")
+    campaign = resolve_campaign_config(product)
+    scene_path = campaign.hero_scene
+    title_style = campaign.hero_title_style
 
     key_root = out.parent / "ship-hero-keys"
     key_root.mkdir(parents=True, exist_ok=True)
