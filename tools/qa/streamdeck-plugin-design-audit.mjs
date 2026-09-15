@@ -85,6 +85,32 @@ const pluginSource=sourceFiles
   .filter(file=>/[\\/](?:src|bin)[\\/]/.test(file)||/[\\/]plugin\.(?:js|ts)$/i.test(file))
   .map(text).join("\n");
 
+// Telemetry helpers must distinguish absence from numeric zero before coercion.
+// Number(null) and Number("") both become 0 in JavaScript, which can turn an
+// unavailable sensor into a believable live value such as 0°C.
+function escapeRegExp(value){return String(value).replace(/[.*+?^$()|[\\]\\\\]/g,"\\const pluginSource=sourceFiles
+  .filter(file=>/[\\/](?:src|bin)[\\/]/.test(file)||/[\\/]plugin\.(?:js|ts)$/i.test(file))
+  .map(text).join("\n");
+
+for(const action of manifest.Actions??[]){");}
+for(const file of sourceFiles.filter(file=>/(?:telemetry|sensor|hardware|metrics)/i.test(file))){
+  const source=text(file);
+  for(const match of source.matchAll(/function\s+finite\s*\(\s*([A-Za-z_$][\w$]*)\s*\)\s*\{([\s\S]{0,600}?)\}/g)){
+    const arg=match[1];
+    const body=match[2];
+    const escaped=escapeRegExp(arg);
+    const coerces=new RegExp("Number\\(\\s*"+escaped+"\\s*\\)").test(body);
+    if(!coerces)continue;
+    const guarded=
+      new RegExp(escaped+"\\s*(?:===|==)\\s*null").test(body) ||
+      new RegExp(escaped+"\\s*(?:===|==)\\s*undefined").test(body) ||
+      new RegExp(escaped+"\\s*(?:===|==)\\s*[\\\"\']{2}").test(body);
+    if(!guarded){
+      errors.push("Telemetry finite("+arg+") in "+file+" coerces with Number(...) without first rejecting null/undefined/empty input; missing telemetry can become a fake zero.");
+    }
+  }
+}
+
 for(const action of manifest.Actions??[]){
   if(!(action.Controllers??[]).includes("Keypad"))continue;
   const suffix=String(action.UUID||"").split(".").pop();
