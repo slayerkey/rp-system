@@ -44,11 +44,14 @@ test("Audio Manager ships deterministic major-device Stream Deck profiles", () =
   assert.equal(ratDev.open_profile_on_dev, true);
 });
 
-test("Audio Manager is not inventing a Lite-to-Pro relationship or unrelated Marketplace upsell", () => {
+test("Audio Manager Pro remains the paid endpoint of the intentional Lite-to-Pro family", () => {
   const pairs = Array.isArray(editionMap.pairs) ? editionMap.pairs : [];
-  assert.equal(pairs.some((pair) => pair.lite_id === "audio-manager-pro" || pair.pro_id === "audio-manager-pro"), false);
-  assert.equal(/marketplace\.elgato\.com\/product\//i.test(submission.description), false);
-  assert.equal(/upgrade\s+to\s+audio\s+manager|audio\s+manager\s+lite/i.test(submission.description), false);
+  const pair = pairs.find((entry) => entry.lite_id === "audio-manager-lite");
+  assert.ok(pair);
+  assert.equal(pair.pro_id, "audio-manager-pro");
+  assert.equal(pair.platform, "streamdeck");
+  assert.equal(pairs.some((entry) => entry.lite_id === "audio-manager-pro"), false);
+  assert.equal(/upgrade\s+to\s+audio\s+manager\s+lite/i.test(submission.description), false);
 });
 
 test("Audio Manager catalog price and version stay consistent", () => {
