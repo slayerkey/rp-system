@@ -35,14 +35,18 @@ do not keep answering `y`. The linked plugin is usually respawning the native he
 
 The required order is:
 
-1. identify the currently linked plugin/UUID
-2. pause/stop and unlink that development plugin
+1. resolve the **exact requested SKU/plugin UUID** from canonical product metadata
+2. pause/stop and unlink that exact development plugin
 3. terminate remaining build-owned helper processes
 4. only then run `git reset --hard` / clean / worktree refresh
 5. build and validate
 6. relink/restart only after the candidate passes
 
-The shared Rat Dev regression must enforce lock release **before** any reusable-worktree reset/clean operation.
+For shared Lite/Pro families, do not stop a generic family UUID or guess from the shared source folder. `rat dev <lite-slug>` and `rat dev <pro-slug>` may build from the same source root while linking different `.sdPlugin` directories and UUIDs. The exact requested edition must be stopped before the build deletes/recreates its output directory.
+
+If Windows reports `EBUSY` while removing a generated `.sdPlugin` directory, treat that as evidence the live edition was not fully stopped/released before build cleanup.
+
+The shared Rat Dev regression must enforce lock release **before** any reusable-worktree reset/clean/build-output removal operation.
 
 External Rat Dev therefore uses the checkout under `out/dev/worktrees/<slug>` only as a Git controller. Candidate code runs from a separate detached worktree. A successful candidate becomes the development link only after validation.
 
@@ -132,11 +136,28 @@ The Rat command bootstrap explicitly fetches:
 
 It then fast-forwards local `main` and verifies local `HEAD` exactly equals `refs/remotes/origin/main`. A normal Git progress message written to stderr is not treated as a PowerShell failure; the real Git process exit code controls success.
 
+### Self-update syntax gate and rollback
+
+`rat` must not immediately trust a freshly fast-forwarded command layer just because Git succeeded.
+
+After refresh, parse every PowerShell command-layer script under `tools/local` with the PowerShell parser **before dispatching into the refreshed scripts**. If any refreshed script has a syntax error:
+
+1. print the file, line, and parser error
+2. reset local `main` back to the exact pre-refresh commit
+3. clearly report that the previous working command layer was restored
+4. stop instead of invoking partially parsed/new helpers
+
+This specifically prevents a broken direct push to `main` from bricking every local `rat dev` command before CI finishes.
+
+The bootstrap regression must cover the rollback path. A CI syntax check that only runs after a broken commit lands is not sufficient protection for local self-update.
+
 ## Shared-source internal product families
 
 Internal Lite/Pro product families may share one source root while producing separate Stream Deck plugin directories. Rat Dev resolves these through canonical product metadata rather than folder-name guessing.
 
 For each requested slug, `products/<slug>.json` supplies the shared `source` and the exact `ship_plugin_dir`. This allows a family branch such as `product/text-expander` to serve both `rat dev text-expander` and `rat dev text-expander-pro` while linking the correct UUID/build output for each SKU.
+
+Before touching a reusable worktree or edition-specific build output, resolve the exact requested SKU UUID from that metadata and stop that edition first. This is mandatory for shared families because a running Lite or Pro host can lock the edition's generated `.sdPlugin` directory even when the other edition shares the same source.
 
 If no explicit plugin directory is configured, Rat Dev only accepts a single unambiguous top-level `.sdPlugin` directory. Multiple candidates fail closed and require product metadata or `rat-dev.json` configuration.
 
