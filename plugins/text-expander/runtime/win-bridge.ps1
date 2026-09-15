@@ -16,7 +16,20 @@ public static class PackRatTextInput {
     [StructLayout(LayoutKind.Sequential)]
     struct INPUT { public uint type; public InputUnion U; }
     [StructLayout(LayoutKind.Explicit)]
-    struct InputUnion { [FieldOffset(0)] public KEYBDINPUT ki; }
+    struct InputUnion {
+        [FieldOffset(0)] public MOUSEINPUT mi;
+        [FieldOffset(0)] public KEYBDINPUT ki;
+        [FieldOffset(0)] public HARDWAREINPUT hi;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    struct MOUSEINPUT {
+        public int dx;
+        public int dy;
+        public uint mouseData;
+        public uint dwFlags;
+        public uint time;
+        public UIntPtr dwExtraInfo;
+    }
     [StructLayout(LayoutKind.Sequential)]
     struct KEYBDINPUT {
         public ushort wVk;
@@ -24,6 +37,12 @@ public static class PackRatTextInput {
         public uint dwFlags;
         public uint time;
         public UIntPtr dwExtraInfo;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    struct HARDWAREINPUT {
+        public uint uMsg;
+        public ushort wParamL;
+        public ushort wParamH;
     }
 
     const uint INPUT_KEYBOARD = 1;
@@ -52,9 +71,18 @@ public static class PackRatTextInput {
     [DllImport("user32.dll")]
     static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 
+    public static int InputStructSize() {
+        return Marshal.SizeOf(typeof(INPUT));
+    }
+    public static int ExpectedInputStructSize() {
+        return IntPtr.Size == 8 ? 40 : 28;
+    }
     static void Send(INPUT input) {
         var values = new INPUT[] { input };
-        if (SendInput(1, values, Marshal.SizeOf(typeof(INPUT))) != 1)
+        int size = Marshal.SizeOf(typeof(INPUT));
+        if (size != ExpectedInputStructSize())
+            throw new InvalidOperationException("Unexpected Win32 INPUT struct size: " + size);
+        if (SendInput(1, values, size) != 1)
             throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
     }
     static void VirtualKey(ushort vk, bool up) {
@@ -177,6 +205,8 @@ switch ($Mode) {
       app = [PackRatTextInput]::ForegroundProcessName()
       username = [Environment]::UserName
       computer = [Environment]::MachineName
+      inputStructSize = [PackRatTextInput]::InputStructSize()
+      expectedInputStructSize = [PackRatTextInput]::ExpectedInputStructSize()
     }
   }
   "clipboard" {
