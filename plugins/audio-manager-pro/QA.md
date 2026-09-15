@@ -115,19 +115,19 @@ This prevents the visual or PI transport contract from silently drifting again.
 
 ## Live-refresh editor race repair
 
-Physical PI review found a second repeatable defect: the 1.5-second live Windows snapshot refresh called the editor renderer and overwrote unsaved local edits. Device choices, profile name, accent, volume and mute controls could visibly snap back before Save.
+Physical PI review found a second repeatable defect: the 1.5-second live Windows snapshot refresh called the editor renderer and overwrote unsaved local edits. Device choices, profile name, volume and mute controls could visibly snap back before Save.
 
 The current candidate now:
 
 - keeps a dirty local Audio Profile draft until authoritative saved state matches it
 - prevents live snapshot renders from overwriting a dirty draft
 - protects action-level settings with a pending settings patch until Stream Deck acknowledges them
-- marks profile name, accent, device, restore-volume, restore-mute, volume and mute edits dirty immediately
+- marks profile name, device, restore-volume, restore-mute, volume and mute edits dirty immediately
 - prompts before switching profiles with unsaved changes
 - shows `Save profile · unsaved` while a draft is dirty
 - shows explicit Refresh / Capture / Save / Delete success acknowledgement
 
-Regression coverage must prove a user can change a device/name/accent, wait through multiple live refreshes, and still save the exact intended values.
+Regression coverage must prove a user can change a device/name, wait through multiple live refreshes, and still save the exact intended values.
 
 ## Bundled Stream Deck profile contract
 
@@ -144,18 +144,21 @@ These bundled Stream Deck layouts do **not** invent Windows audio-device IDs. Au
 
 ## Final usability polish boundary
 
-The latest physical review confirmed profile capture/save/apply and real Windows device switching work. Remaining product changes are quality-of-life only:
+The latest physical review confirmed profile capture/save/apply and real Windows device switching work. The final candidate now also:
 
-- contextual PI surfaces: profile manager only on profile actions; Mute Default Mic only shows the current default mic/state
-- explicit configured-target versus current-live-state language
-- exact active-profile summary in the PI
-- profile mutation feedback co-located inside the profile manager
-- Enter saves a profile name
-- VoiceMeeter/default-mic behavior is named explicitly instead of implying physical mic identity
-- unconfigured profile key simplified to SELECT / PROFILE
-- profile/direct-device hardware text pulled further inside the safe area
+- prevents horizontal Property Inspector scrolling from long live device names
+- removes the low-value profile accent editor and uses the canonical PackRat key accent
+- keeps Save profile / Delete immediately beside Rename profile
+- keeps Enter-to-save for profile renames
+- removes the crowded gray DEFAULT/COMM footer from direct input/output key faces
+- keeps contextual PI surfaces: profile manager only on profile actions; Mute Default Mic only shows current mic/state
+- distinguishes configured target from current live Windows state
+- reports the exact active profile or Custom / no exact profile match
+- reports VoiceMeeter mute honestly as **Windows endpoint** state, because VoiceMeeter routing can still pass audio after Windows Core Audio reports the endpoint muted
 
-These changes must still pass exact-head CI and one short physical visual/usability pass before the workflow can advance.
+A true VoiceMeeter strip mute would require an explicit VoiceMeeter Remote API strip mapping. Do not guess that mapping from a Windows endpoint name.
+
+After exact-head CI is green, only one short physical visual/usability pass is required for this polish scope.
 
 ## Device resilience contract
 
@@ -185,18 +188,18 @@ Use `REAL_WINDOWS_SMOKE.md` as the canonical checklist.
 
 The immediate short smoke is:
 
-1. rerun `rat dev audio-manager-pro` for the current PI/profile candidate
-2. open an Apply Audio Profile action
-3. verify live Windows audio state appears
-4. Refresh
-5. Capture current setup
-6. rename + Save profile
-7. select that profile for the action
-8. leave/reopen the action and verify the selection persists
-9. press the hardware key and verify the saved profile applies
-10. rerun `rat audit audio-manager-pro`
+1. rerun `rat dev audio-manager-pro`
+2. confirm no Property Inspector horizontal scrollbar appears, including with long VoiceMeeter device names
+3. confirm direct speaker/mic device keys have comfortable margins and no gray DEFAULT/COMM footer
+4. rename a profile and press Enter; confirm the rename saves
+5. confirm Save profile / Delete sit beside Rename profile and there is no Accent control
+6. apply the known-good profile once and confirm Windows output/input still switch correctly
+7. open Mute Default Mic: confirm it names the current Windows Default Input and reports LIVE / MUTED / SPLIT honestly
+8. with VoiceMeeter routing active, treat `WIN MUTED` as Windows endpoint state only; do not require it to silence a VoiceMeeter strip
 
-Only after that short PI/profile smoke passes continue with the deeper physical matrix:
+No Rat Audit is required for this visual/usability pass. Use Rat Audit only if a new host/audio problem appears or at a final diagnostic checkpoint.
+
+The deeper physical matrix remains the broader release-confidence checklist:
 
 - USB headset + speakers
 - two microphones
