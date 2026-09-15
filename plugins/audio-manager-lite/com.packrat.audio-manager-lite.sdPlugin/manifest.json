@@ -3,29 +3,87 @@
   "Name": "Audio Manager Lite",
   "Version": "1.0.0.0",
   "Author": "PackRat",
-  "Description": "Free Windows output switching for Stream Deck. Pick a speaker, headset, or other playback device and switch to it with one key.",
+  "Description": "Free Windows speaker and microphone switching for Stream Deck. Pick playback and capture devices and switch them with one key.",
   "Category": "Audio Manager Lite",
   "CategoryIcon": "imgs/category/icon",
   "Icon": "imgs/plugin/icon",
   "CodePath": "bin/plugin.js",
   "SDKVersion": 3,
-  "Software": { "MinimumVersion": "7.3" },
-  "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
-  "Nodejs": { "Version": "24" },
+  "Software": {
+    "MinimumVersion": "7.3"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "24"
+  },
   "UUID": "com.packrat.audio-manager-lite",
   "Profiles": [
-    { "Name": "profiles/audio-manager-lite-standard", "DeviceType": 0, "Readonly": false, "DontAutoSwitchWhenInstalled": true, "AutoInstall": true },
-    { "Name": "profiles/audio-manager-lite-xl", "DeviceType": 2, "Readonly": false, "DontAutoSwitchWhenInstalled": true, "AutoInstall": true },
-    { "Name": "profiles/audio-manager-lite-plus", "DeviceType": 7, "Readonly": false, "DontAutoSwitchWhenInstalled": true, "AutoInstall": true },
-    { "Name": "profiles/audio-manager-lite-neo", "DeviceType": 9, "Readonly": false, "DontAutoSwitchWhenInstalled": true, "AutoInstall": true }
+    {
+      "Name": "profiles/audio-manager-lite-standard",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/audio-manager-lite-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/audio-manager-lite-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/audio-manager-lite-neo",
+      "DeviceType": 9,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
   ],
-  "Actions": [{
-    "Name": "Set Output Device",
-    "UUID": "com.packrat.audio-manager-lite.set-output",
-    "Icon": "imgs/actions/set-output/icon",
-    "Tooltip": "Switch Windows Default Output to the selected speaker, headset, or playback device.",
-    "PropertyInspectorPath": "ui/config.html",
-    "Controllers": ["Keypad"],
-    "States": [{ "Image": "imgs/actions/set-output/key", "ShowTitle": false }]
-  }]
+  "Actions": [
+    {
+      "Name": "Set Output Device",
+      "UUID": "com.packrat.audio-manager-lite.set-output",
+      "Icon": "imgs/actions/set-output/icon",
+      "Tooltip": "Switch Windows Default Output to the selected speaker, headset, or playback device.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/set-output/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "Name": "Set Input Device",
+      "UUID": "com.packrat.audio-manager-lite.set-input",
+      "Icon": "imgs/actions/set-input/icon",
+      "Tooltip": "Switch Windows Default Input to the selected microphone or capture device.",
+      "PropertyInspectorPath": "ui/config.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/set-input/key",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ]
 }
