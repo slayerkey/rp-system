@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v9.mjs';
+import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v10.mjs';
 
 const core = readFileSync(resolve('tools/ship/maker_console_core.mjs'), 'utf8').replace(/\r\n?/g, '\n');
 
@@ -38,7 +38,11 @@ function check(label, source) {
     "thumbnail upload was routed into the app icon field",
     "ordered-single-image-icon",
     "Search/app icon: visible App Icon section",
-    "!used.has(info.index)"
+    "!used.has(info.index)",
+    "Release notes: ' + items.length + ' value bullet",
+    "while (items.length > 4)",
+    "items.length === 1 && items[0].length > 180",
+    "Release notes are a second sales/value surface"
   ];
 
   for (const needle of required) {
