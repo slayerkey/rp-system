@@ -16,6 +16,11 @@ on:
       - 'tools/local/rat-maker-console.ps1'
       - 'tools/local/rat-ship-plugin.ps1'
       - 'tools/local/rat-ship-local.ps1'
+      - 'tools/local/rat-preview-art.ps1'
+      - 'tools/art/streamdeck_marketplace_campaign.py'
+      - 'tools/art/apply_streamdeck_gallery_campaign.py'
+      - 'tools/art/render_streamdeck_ship_hero.py'
+      - 'tools/art/render_streamdeck_product_hero.py'
       - 'tools/local/rat-worktree.ps1'
       - 'tools/ship/maker_console.mjs'
       - 'tools/ship/maker_console_core.mjs'
@@ -40,6 +45,11 @@ on:
       - 'tools/local/rat-maker-console.ps1'
       - 'tools/local/rat-ship-plugin.ps1'
       - 'tools/local/rat-ship-local.ps1'
+      - 'tools/local/rat-preview-art.ps1'
+      - 'tools/art/streamdeck_marketplace_campaign.py'
+      - 'tools/art/apply_streamdeck_gallery_campaign.py'
+      - 'tools/art/render_streamdeck_ship_hero.py'
+      - 'tools/art/render_streamdeck_product_hero.py'
       - 'tools/local/rat-worktree.ps1'
       - 'tools/ship/maker_console.mjs'
       - 'tools/ship/maker_console_core.mjs'
@@ -285,7 +295,41 @@ jobs:
           if ($submission.slug -ne 'valorant-tracker' -or [decimal]$submission.price_usd -ne [decimal]7.99) {
             throw 'Valorant submission metadata did not survive the external artifact shipping path.'
           }
+          $galleryReport = Get-Content (Join-Path $dest 'streamdeck-gallery-campaign-report.json') -Raw | ConvertFrom-Json
+          if ($galleryReport.gallery_mode -ne 'wrap' -or @($galleryReport.galleries).Count -ne 4) {
+            throw 'External artifact did not receive the canonical final gallery campaign.'
+          }
+          if (-not (Test-Path (Join-Path $dest 'streamdeck-ship-hero-report.json') -PathType Leaf)) {
+            throw 'External artifact did not receive the canonical final Stream Deck hero.'
+          }
           Write-Host 'EXTERNAL STREAM DECK RELEASE ARTIFACT PASS'
+
+      - name: Exercise source-backed Stream Deck final campaign
+        shell: pwsh
+        run: |
+          $dest = Join-Path (Resolve-Path '.').Path 'out\ci-discord-bridge'
+          ./tools/local/rat-ship-plugin.ps1 -PluginSlug 'discord-bridge' -Destination $dest -IsolatedBuild
+
+          foreach ($name in @(
+            'discord-bridge.streamDeckPlugin',
+            '02_cover.png',
+            '03_gallery_01.png',
+            '04_gallery_02.png',
+            '05_gallery_03.png',
+            '06_gallery_04.png',
+            'streamdeck-gallery-campaign-report.json',
+            'streamdeck-ship-hero-report.json'
+          )) {
+            if (-not (Test-Path (Join-Path $dest $name) -PathType Leaf)) {
+              throw "Source-backed final campaign kit is missing $name"
+            }
+          }
+
+          $galleryReport = Get-Content (Join-Path $dest 'streamdeck-gallery-campaign-report.json') -Raw | ConvertFrom-Json
+          if ($galleryReport.gallery_mode -ne 'wrap' -or @($galleryReport.galleries).Count -ne 4) {
+            throw 'Source-backed legacy product did not receive the canonical final gallery campaign.'
+          }
+          Write-Host 'SOURCE-BACKED STREAM DECK FINAL CAMPAIGN PASS'
 
       - name: Exercise rat.cmd help path
         shell: cmd
