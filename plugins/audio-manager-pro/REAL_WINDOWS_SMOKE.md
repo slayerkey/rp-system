@@ -2,6 +2,9 @@
 
 Run this on the exact release candidate after `rat dev audio-manager-pro`.
 
+- [ ] Rat Dev opens/imports the bundled standard/MK.2 profile instead of requiring a hand-built Stream Deck layout
+- [ ] the bundled profile shows useful Apply/Cycle/Status/Mute/routing actions and does not create duplicate same-name profile copies on repeated Rat Dev runs
+
 ## Property Inspector + Audio Profile workflow
 
 Run this before the deeper device matrix. A rendered inspector is not enough; every control must complete a PI → plugin → PI round trip.
@@ -9,7 +12,8 @@ Run this before the deeper device matrix. A rendered inspector is not enough; ev
 - [ ] open an **Apply Audio Profile** action and confirm the PI changes from Connecting to **Windows audio connected**
 - [ ] press **Refresh** and confirm visible progress/acknowledgement instead of a silent click
 - [ ] press **Capture current setup** once and confirm exactly one new `Audio Profile N` appears and becomes the focused editor profile
-- [ ] rename that profile, press **Save profile**, switch to another Stream Deck action and back, and confirm the saved name/devices persist
+- [ ] change the profile name, accent, one device, and one restore control; **wait at least 3 seconds** (two live refresh cycles) and confirm none of those unsaved edits snap back
+- [ ] press **Save profile**, switch to another Stream Deck action and back, and confirm the saved name/accent/devices persist
 - [ ] choose the captured profile in the action-level **Audio Profile** selector, leave/reopen the action, and confirm the selection persists
 - [ ] press the hardware key and confirm the selected profile actually applies rather than reporting Select/Create profile
 - [ ] change one role/device in the editor, save, apply, and confirm the corresponding Windows role changes
