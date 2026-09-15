@@ -134,10 +134,8 @@ for (const [kind, glyph] of Object.entries(actionKinds)) {
   await mkdir(dir, { recursive: true });
   const small = (size) => '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 144 144">' + glyph.replaceAll("COLOR", "#fff") + '</svg>';
   const key = (size) => '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 144 144"><rect width="144" height="144" rx="25" fill="#090B10"/>' + glyph.replaceAll("COLOR", "#2BE86A") + '</svg>';
-  await writeFile(resolve(dir, "icon.svg"), small(20));
-  await writeFile(resolve(dir, "icon@2x.svg"), small(40));
-  await writeFile(resolve(dir, "key.svg"), key(72));
-  await writeFile(resolve(dir, "key@2x.svg"), key(144));
+  await writeFile(resolve(dir, "icon.svg"), small(40));
+  await writeFile(resolve(dir, "key.svg"), key(144));
 }
 
 console.log("Generating runtime npm license inventory...");
