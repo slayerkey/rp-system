@@ -1,0 +1,46 @@
+name: Preview Stream Deck Rat Art
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Registered Stream Deck product slug"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout canonical source
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deterministic Rat Art runtime
+        run: python -m pip install Pillow==12.3.0
+
+      - name: Render exact final Marketplace art
+        shell: pwsh
+        run: >
+          ./tools/local/rat-preview-art.ps1
+          -Slug "${{ inputs.slug }}"
+          -OutputRoot "artifacts/rat-art-preview"
+
+      - name: Upload five-image review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rat-art-preview-${{ inputs.slug }}
+          path: artifacts/rat-art-preview/${{ inputs.slug }}
+          if-no-files-found: error
