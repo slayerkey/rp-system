@@ -192,6 +192,35 @@ The preview artifact is the visual approval surface. A product-local cover that 
 
 The reusable helper is `tools/local/rat-preview-art.ps1`. The manual CI equivalent is `.github/workflows/preview-streamdeck-rat-art.yml`.
 
+
+## Approved Stream Deck Marketplace campaign system
+
+`standards/streamdeck-marketplace-art-system-v1.md` is now the canonical Stream Deck Marketplace art standard.
+
+Use `tools/art/streamdeck_marketplace_campaign.py` for the shared campaign framing instead of reimplementing product-local backgrounds, glass outlines, campaign headers, footer dividers, or connector arrows.
+
+The default approved campaign uses:
+- original `warm-studio-v1` for the cover/hero
+- clean `warm-studio-clean-v1/base-v2.png` for galleries
+- orange→blue glass framing
+- exact product/runtime visual proof
+- the five-frame funnel: click → desire → strongest workflow → specific feature proof → close
+
+Monitor Manager Pro is the approved reference product. Reuse the system, not its exact product-specific copy or feature composition.
+
+For new or refreshed Stream Deck products, prefer product metadata in `products/<slug>.json`:
+
+```json
+"marketplace_art": {
+  "hero_scene": "tools/art/scenes/warm-studio-v1/base.png",
+  "gallery_scene": "tools/art/scenes/warm-studio-clean-v1/base-v2.png",
+  "hero_title_style": "monitor",
+  "campaign_style": "warm-studio-glass-v1"
+}
+```
+
+Gallery 3 no longer defaults to a generic hardware-proof frame. If a specific feature/use case is more persuasive, show that feature with exact runtime states instead. Generic “REAL KEYS / REAL VALUES / REAL STATES” proof is a fallback, not the goal.
+
 ## Review
 
 Run deterministic QA, inspect every candidate hero and contact sheet, and record visual review results.
