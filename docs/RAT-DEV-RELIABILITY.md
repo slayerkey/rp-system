@@ -66,6 +66,58 @@ Restart:           verified (CLI success)
 
 When bundled profiles exist, Rat Dev also prints their names and profile folder. Development linking is intentionally described separately from Marketplace/package installation because Elgato profile auto-install behavior is tied to normal plugin installation, not guaranteed by a development link.
 
+## Bundled profile synchronization contract
+
+Rat Dev must keep bundled Stream Deck profiles current without creating duplicate imports or trusting stale local state.
+
+### Decision source
+
+A stored bundle fingerprint is only a cache hint. It is **not** sufficient proof that the profile visible in Stream Deck matches the current bundle.
+
+When a bundled profile already exists locally, Rat Dev must:
+
+1. resolve the bundled profile's logical `Name`
+2. enumerate **all** installed `.sdProfile` directories with that exact Name
+3. compare installed manifests/pages/actions/settings/states semantically against the current exported bundle
+4. ignore host-owned fields such as physical `Device` binding, host `AppIdentifier`, and current page selection
+5. skip refresh only when every same-name installed copy semantically matches
+6. treat any mismatch as installed-profile drift even when the bundle SHA/fingerprint is unchanged
+
+This prevents the failure mode where Rat Dev prints `bundle unchanged` while the user is still looking at an older or manually drifted profile.
+
+### In-place replacement
+
+When the bundle changed, the installed copy is untracked, profile-state metadata was upgraded, or semantic drift is detected, Rat Dev refreshes the installed profile **in place** instead of importing another copy.
+
+The replacement contract is transactional:
+
+- validate/extract the incoming `.streamDeckProfile` to staging
+- preserve the existing installed `.sdProfile` path
+- preserve the physical Stream Deck `Device` binding
+- preserve host-owned metadata only when compatible
+- back up the existing installed profile under Rat Dev state
+- stop Stream Deck once so the host cannot rewrite the profile mid-swap
+- stage the replacement beside the installed profile
+- verify root/page manifests and action UUIDs
+- atomically swap the staged profile into the existing path
+- verify the installed result
+- rollback automatically from the old copy if verification fails
+- restart Stream Deck after the swap
+
+If multiple same-name installed copies already exist because of older import behavior, Rat Dev refreshes **all** of them during the same host stop/restart window. This prevents an inactive stale duplicate from later becoming the user's active profile.
+
+Missing profiles still use the normal import/open path because there is nothing to replace in place.
+
+### Profile state versioning
+
+Profile state metadata should version the synchronization algorithm. A newer Rat Dev implementation may force one in-place refresh when it cannot trust state written by an older profile lifecycle.
+
+Do not silently adopt an installed profile as current merely because its Name matches.
+
+### Windows compatibility
+
+Global Rat Dev PowerShell helpers must remain compatible with the Windows PowerShell environment used by the local PackRat command layer. Avoid relying on newer PowerShell/.NET-only path APIs when an equivalent portable path calculation exists.
+
 ## Failure behavior
 
 The stage name printed immediately before an error identifies the failed layer. Rat Dev does not open a generated or candidate directory as though it were installed. The existing inspection helper may open the controller folder after failure, but terminal output explicitly states that no new validated development build was activated.
