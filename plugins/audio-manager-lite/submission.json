@@ -1,0 +1,15 @@
+{
+  "slug":"audio-manager-lite",
+  "name":"Audio Manager Lite",
+  "type":"plugin",
+  "price_usd":0,
+  "version":"1.0.0.0",
+  "marketplace_category":["Audio"],
+  "marketplace_language":["English"],
+  "marketplace_operating_systems":["Windows"],
+  "marketplace_tags":["Audio","Windows","Speakers","Headphones","Utilities"],
+  "marketplace_auto_publish":true,
+  "headline":"Switch speakers or headphones with one key.",
+  "description":"Audio Manager Lite gives Stream Deck one simple, useful Windows audio job: switch your Default Output device with a key.\n\nCreate separate keys for speakers, headphones, a monitor, a USB DAC, or another playback device. Each key remembers its target and shows the device directly on Stream Deck.\n\nLite is intentionally output-only. It does not include Audio Profiles, input switching, Communications routing, profile cycling/status, microphone controls, or Stream Deck+ profile volume.\n\nNeed to switch your entire setup at once? Audio Manager Pro adds complete Audio Profiles for output + input + Communications roles, plus capture/apply/cycle/status, saved volume and mute restore, direct input controls, and Stream Deck+ profile volume.\n\nStarter layouts are included for Standard/MK.2, XL, Stream Deck+, and Neo.\n\nRuns locally on Windows. Requires Windows 10+ and Stream Deck 7.3+.\n\nPart of the PackRat ecosystem.",
+  "release_notes":"Initial release. Free Windows Default Output switching with bundled Stream Deck layouts and Audio Manager Pro upgrade path."
+}
