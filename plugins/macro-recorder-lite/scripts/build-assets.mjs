@@ -8,15 +8,9 @@ const root=resolve(here,"..");
 const plugin=resolve(root,"com.packrat.macro-recorder-lite.sdPlugin");
 for(const dir of ["bin","imgs","ui","helpers"])await rm(resolve(plugin,dir),{recursive:true,force:true});
 for(const dir of ["bin","imgs","ui","helpers"])await mkdir(resolve(plugin,dir),{recursive:true});
-for(const file of ["inspector.css","inspector.js"])await cp(resolve(root,"ui",file),resolve(plugin,"ui",file));
-const catalog=JSON.parse(await readFile(resolve(root,"..","..","products","lite-pro-map.json"),"utf8"));
-const pair=(catalog.pairs||[]).find(item=>item.lite_id==="macro-recorder-lite");
-if(!pair||pair.pro_id!=="macro-recorder-pro")throw new Error("Macro Recorder Lite/Pro catalog pair is missing.");
-const proUrl=String(pair.pro_marketplace_url||"").trim();
-if(proUrl&&!/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9-]+$/i.test(proUrl))throw new Error("Macro Recorder Pro Marketplace URL must be an exact direct product URL.");
-let inspectorHtml=await readFile(resolve(root,"ui","inspector.html"),"utf8");
-inspectorHtml=inspectorHtml.replace('data-pro-url=""',`data-pro-url="${proUrl}"`);
-await writeFile(resolve(plugin,"ui","inspector.html"),inspectorHtml,"utf8");
+for(const file of ["inspector.html","inspector.css","inspector.js"])await cp(resolve(root,"ui",file),resolve(plugin,"ui",file));
+const packratLogo=resolve(root,"..","..","tools","art","assets","ratpack-icon-transparent.png");
+await cp(packratLogo,resolve(plugin,"ui","packrat.png"));
 const helper=process.env.PACKRAT_INPUT_HOST||resolve(root,"..","..","artifacts","input-host","PackRat.InputHost.exe");
 try{await stat(helper);}catch{throw new Error("PackRat.InputHost.exe is missing. Publish shared/windows-input/PackRat.InputHost first.");}
 await cp(helper,resolve(plugin,"helpers","PackRat.InputHost.exe"));
@@ -29,22 +23,19 @@ function crc32(b){let crc=0xffffffff;for(const x of b){crc^=x;for(let i=0;i<8;i+
 function chunk(type,data){const n=Buffer.from(type),body=Buffer.concat([n,data]),o=Buffer.alloc(12+data.length);o.writeUInt32BE(data.length,0);n.copy(o,4);data.copy(o,8);o.writeUInt32BE(crc32(body),8+data.length);return o;}
 function encode(size,p){const raw=Buffer.alloc((size*4+1)*size);for(let y=0;y<size;y++){const row=y*(size*4+1);raw[row]=0;p.copy(raw,row+1,y*size*4,(y+1)*size*4);}const ih=Buffer.alloc(13);ih.writeUInt32BE(size,0);ih.writeUInt32BE(size,4);ih[8]=8;ih[9]=6;return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk("IHDR",ih),chunk("IDAT",deflateSync(raw,{level:9})),chunk("IEND",Buffer.alloc(0))]);}
 function draw(size,kind,mode){
- const p=Buffer.alloc(size*size*4),dark=[10,12,17,255],white=[255,255,255,255],green=[53,230,126,255],red=[244,76,86,255];
+ const p=Buffer.alloc(size*size*4),dark=[8,10,14,255],white=[255,255,255,255],accent=[255,178,30,255],recordRed=[255,93,108,255],playGreen=[43,232,106,255];
  if(mode!=="list")for(let i=0;i<p.length;i+=4)p.set(dark,i);
- const set=(x,y,c)=>{x=Math.floor(x);y=Math.floor(y);if(x<0||y<0||x>=size||y>=size)return;p.set(c,(y*size+x)*4);};
- const rect=(x0,y0,x1,y1,c)=>{for(let y=Math.floor(y0);y<=Math.ceil(y1);y++)for(let x=Math.floor(x0);x<=Math.ceil(x1);x++)set(x,y,c);};
+ const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x<0||y<0||x>=size||y>=size)return;p.set(c,(y*size+x)*4);};
+ const rect=(x0,y0,x1,y1,c)=>{for(let y=Math.round(y0);y<=Math.round(y1);y++)for(let x=Math.round(x0);x<=Math.round(x1);x++)set(x,y,c);};
  const circle=(cx,cy,r,c,stroke=0)=>{for(let y=Math.floor(cy-r);y<=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x<=Math.ceil(cx+r);x++){const d=(x-cx)**2+(y-cy)**2;if(d<=r*r&&(!stroke||d>=(r-stroke)**2))set(x,y,c);}};
- const tri=(x0,y0,h,c)=>{for(let y=0;y<=h;y++){const half=(y/h)*(h*.45);for(let x=Math.floor(x0-half);x<=Math.ceil(x0+half);x++)set(x,y0-h/2+y,c);}};
+ const triangleRight=(cx,cy,w,h,c)=>{const left=cx-w/2,right=cx+w/2;for(let x=Math.floor(left);x<=Math.ceil(right);x++){const t=(x-left)/w;const half=(h/2)*Math.max(0,Math.min(1,1-t));for(let y=Math.ceil(cy-half);y<=Math.floor(cy+half);y++)set(x,y,c);}};
  const s=size/144;
- if(mode==="list"){
-   if(kind==="record")circle(72*s,72*s,35*s,white,12*s);
-   else if(kind==="stop")rect(42*s,42*s,102*s,102*s,white);
-   else if(kind==="replay")tri(65*s,72*s,82*s,white);
-   else{circle(72*s,72*s,48*s,white,11*s);tri(69*s,72*s,54*s,white);}
- }else if(kind==="record")circle(72*s,72*s,32*s,red);
- else if(kind==="stop")rect(45*s,45*s,99*s,99*s,white);
- else if(kind==="replay")tri(64*s,72*s,78*s,green);
- else{circle(72*s,72*s,47*s,green);circle(72*s,72*s,25*s,dark);}
+ const glyph=mode==="list"?white:(kind==="record"?recordRed:kind==="replay"?playGreen:white);
+ if(mode!=="list")rect(5*s,18*s,10*s,126*s,accent);
+ if(kind==="record")circle(76*s,60*s,26*s,glyph,7*s);
+ else if(kind==="stop")rect(51*s,35*s,101*s,85*s,glyph);
+ else if(kind==="replay")triangleRight(79*s,60*s,58*s,66*s,glyph);
+ else{circle(76*s,60*s,37*s,glyph,7*s);triangleRight(80*s,60*s,34*s,40*s,glyph);}
  return encode(size,p);
 }
 async function savePair(dir,kind,size,mode){await mkdir(dir,{recursive:true});await writeFile(resolve(dir,"icon.png"),draw(size,kind,mode));await writeFile(resolve(dir,"icon@2x.png"),draw(size*2,kind,mode));}
@@ -55,4 +46,4 @@ for(const kind of ["record","stop","replay"]){
  await writeFile(resolve(dir,"icon.png"),draw(20,kind,"list"));await writeFile(resolve(dir,"icon@2x.png"),draw(40,kind,"list"));
  await writeFile(resolve(dir,"key.png"),draw(72,kind,"key"));await writeFile(resolve(dir,"key@2x.png"),draw(144,kind,"key"));
 }
-console.log("Built Marketplace-compliant list icons, key art, UI, local input host, and third-party notices.");
+console.log("Built canonical PackRat Lite key art, monochrome action-list icons, UI, local input host, and third-party notices.");
