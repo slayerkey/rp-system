@@ -194,8 +194,12 @@ def runtime_key(im,x,y,kind,lines,size=150,tone="brand"):
         d.text((x+size/2,y+size*.88),clean[1],font=f,fill=(*WHITE,255),anchor="mm")
 
 def arrow(d,x1,y,x2):
-    d.line((x1,y,x2,y),fill=(*ACCENT,255),width=10)
-    d.polygon([(x2,y),(x2-30,y-23),(x2-30,y+23)],fill=(*ACCENT,255))
+    # Thin connector: readable, but not a cartoon callout competing with the keys.
+    d.line((x1,y,x2-18,y),fill=(*ACCENT,238),width=6)
+    d.line((x2-18,y-16,x2,y),fill=(*ACCENT,238),width=6)
+    d.line((x2-18,y+16,x2,y),fill=(*ACCENT,238),width=6)
+
+
 
 def dial_strip(im,x,y,w,title,value):
     d=ImageDraw.Draw(im)
@@ -211,25 +215,20 @@ def dial_strip(im,x,y,w,title,value):
 
 
 def exact_runtime_faces(out):
-    specs=[
-        ("brightness",["65%"]),("contrast",["50%"]),("volume",["50%"]),("power",["ON"]),("input",["DP"]),
-        ("refresh-rate",["165HZ"]),("resolution",["1440P"]),("hdr",["HDR","ON"]),("topology",["EXTEND"]),("primary",["PRIMARY"]),
-        ("orientation",["LAND"]),("save-profile",["SAVE","GAMING"]),("apply-profile",["APPLY","GAMING"]),("status",["165HZ","1440P"]),None
-    ]
+    # rat-art.ps1 exports these through the shipping TypeScript keyImage() function.
+    # Never redraw Monitor Manager glyphs independently in marketing art.
     key_dir=out/"rat-art-keys"
-    key_dir.mkdir(parents=True,exist_ok=True)
+    paths=sorted(key_dir.glob("*.png")) if key_dir.is_dir() else []
+    if len(paths)!=15:
+        raise SystemExit(f"RAT ART FAIL: expected 15 exact runtime key faces, got {len(paths)}")
     faces=[]
-    for i,spec in enumerate(specs):
-        face=Image.new("RGBA",(288,288),(5,7,10,255))
-        if spec is None:
-            d=ImageDraw.Draw(face)
-            d.rounded_rectangle((0,0,287,287),radius=46,fill=(5,7,10,255),outline=(50,57,68,255),width=5)
-        else:
-            kind,lines=spec
-            runtime_key(face,0,0,kind,lines,288)
-        face.save(key_dir/f"{i:02d}.png","PNG",optimize=True)
+    for path in paths:
+        face=Image.open(path).convert("RGBA")
+        if face.size!=(288,288):
+            raise SystemExit(f"RAT ART FAIL: exact runtime key {path.name} is {face.size}, expected 288x288")
         faces.append(face)
     return faces
+
 
 
 def device_from_faces(faces,max_box=(1080,520)):
@@ -294,23 +293,18 @@ def controls(path,faces):
     draw_fitted_text(d,(170,405,710,470),"Tiny monitor buttons.",font,fill=(*WHITE,255),max_size=36,min_size=28,bold=True,max_lines=1)
     draw_fitted_text(d,(170,485,710,550),"Hidden OSD menus.",font,fill=(*WHITE,255),max_size=36,min_size=28,bold=True,max_lines=1)
     draw_fitted_text(d,(170,565,710,630),"Input switching by feel.",font,fill=(*WHITE,255),max_size=36,min_size=28,bold=True,max_lines=1)
-    for i in range(5):
-        x=170+i*55
-        d.ellipse((x,658,x+15,673),fill=(112,119,130,230))
-
     arrow(d,805,510,930)
 
-    glass_panel(im,(985,300,1790,710),radius=34,fill=(7,12,19,218),border_alpha=190,glow_alpha=32,border_width=2)
-    d.text((1035,345),"ON YOUR STREAM DECK",font=font(26),fill=(*WHITE,255))
+    glass_panel(im,(970,300,1800,710),radius=34,fill=(7,12,19,218),border_alpha=190,glow_alpha=32,border_width=2)
+    d.text((1020,345),"ON YOUR STREAM DECK",font=font(26),fill=(*WHITE,255))
     proof=[faces[4],faces[0],faces[8],faces[5]]
-    coords=[(1035,405),(1230,405),(1425,405),(1620,405)]
+    coords=[(995,392),(1195,392),(1395,392),(1595,392)]
     for face,(x,y) in zip(proof,coords):
-        paste_face(im,face,x,y,155)
+        paste_face(im,face,x,y,185)
     labels=["INPUT","BRIGHTNESS","DISPLAY MODE","REFRESH RATE"]
-    for i,label in enumerate(labels):
-        x=1112+i*195
-        d.text((x,590),label,font=font(16),fill=(*MUTED,255),anchor="mm")
-    draw_fitted_text(d,(1035,630,1740,675),"The controls you actually change stay one press away.",font,fill=(*MUTED,255),max_size=25,min_size=20,max_lines=1)
+    for (x,_),label in zip(coords,labels):
+        d.text((x+92,610),label,font=font(17),fill=(*MUTED,255),anchor="mm")
+    draw_fitted_text(d,(1020,642,1750,680),"The controls you actually change stay one press away.",font,fill=(*MUTED,255),max_size=25,min_size=20,max_lines=1)
     footer(im); save(im,path)
 
 
@@ -323,22 +317,22 @@ def capabilities(path,faces):
     d=ImageDraw.Draw(im)
     glass_panel(im,(115,300,1805,720),radius=36,fill=(7,11,18,214),border_alpha=205,glow_alpha=34,border_width=2)
 
-    paste_face(im,faces[12],170,390,205)
-    d.text((272,620),"APPLY GAMING",font=font(20),fill=(*WHITE,255),anchor="mm")
-    arrow(d,420,492,565)
+    paste_face(im,faces[12],150,372,230)
+    d.text((265,625),"APPLY GAMING",font=font(22),fill=(*WHITE,255),anchor="mm")
+    arrow(d,430,488,560)
 
     proof=[faces[4],faces[5],faces[7],faces[0]]
     labels=["INPUT","REFRESH","HDR","BRIGHTNESS"]
-    for i,(face,label) in enumerate(zip(proof,labels)):
-        x=615+i*240
-        paste_face(im,face,x,365,180)
-        d.text((x+90,570),label,font=font(18),fill=(*MUTED,255),anchor="mm")
+    proof_x=[600,835,1070,1305]
+    for face,label,x in zip(proof,labels,proof_x):
+        paste_face(im,face,x,352,205)
+        d.text((x+102,585),label,font=font(19),fill=(*MUTED,255),anchor="mm")
 
-    d.text((1090,612),"SAVED SETUPS",font=font(17),fill=(*MUTED,255),anchor="mm")
+    d.text((1080,618),"SAVED SETUPS",font=font(19),fill=(*MUTED,255),anchor="mm")
     for i,name in enumerate(["GAMING","CONSOLE","NIGHT"]):
-        x=650+i*300
-        d.rounded_rectangle((x,635,x+250,690),radius=16,fill=(13,18,25,235),outline=(75,85,99,230),width=2)
-        d.text((x+125,662),name,font=font(18),fill=(*WHITE,255),anchor="mm")
+        x=570+i*345
+        d.rounded_rectangle((x,644,x+305,706),radius=18,fill=(13,18,25,235),outline=(84,95,112,235),width=2)
+        d.text((x+152,675),name,font=font(21),fill=(*WHITE,255),anchor="mm")
     footer(im); save(im,path)
 
 
