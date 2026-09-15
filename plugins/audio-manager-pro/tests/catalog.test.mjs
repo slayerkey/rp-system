@@ -111,7 +111,9 @@ test("Audio Manager Property Inspector keeps action UX contextual and co-locates
   assert.match(inspectorHtml, /id="currentMicName"/);
   assert.match(inspectorSource, /PROFILE_KINDS/);
   assert.match(inspectorSource, /Custom \/ no exact profile match/);
-  assert.match(inspectorSource, /VoiceMeeter can capture or route audio outside Windows endpoint mute/);
+  assert.match(inspectorHtml, /id="micRoutingNote"/);
+  assert.match(inspectorHtml, /VoiceMeeter can route microphone audio outside the Windows endpoint mute path/);
+  assert.match(inspectorSource, /micRoutingNote/);
   assert.match(inspectorSource, /e\.key!=="Enter"/);
   assert.match(inspectorSource, /requestId:nextRequestId\(\)/);
   assert.match(pluginSource, /activeProfileForInspector/);
@@ -143,10 +145,10 @@ test("Audio Manager profile editor keeps save and delete beside rename and remov
 });
 
 
-test("Audio Manager documents the VoiceMeeter mute boundary in the inspector and runtime result", () => {
-  assert.match(inspectorSource, /VoiceMeeter can capture or route audio outside Windows endpoint mute/);
+test("Audio Manager documents the VoiceMeeter mute boundary without changing normal mic key wording", () => {
+  assert.match(inspectorHtml, /VoiceMeeter can route microphone audio outside the Windows endpoint mute path/);
+  assert.match(inspectorSource, /micRoutingNote/);
   assert.match(pluginSource, /Windows endpoint muted · VoiceMeeter may still pass audio/);
-  assert.match(pluginSource, /voiceMeeter/);
 });
 
 test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
