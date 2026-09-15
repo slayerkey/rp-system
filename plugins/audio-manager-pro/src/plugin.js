@@ -250,6 +250,7 @@ function defaultMicForInspector() {
     name: String(endpoint.name || "Default microphone"),
     muted: Boolean(endpoint.muted),
     muteAvailable: endpoint.muteAvailable === true,
+    split: String(latestSnapshot?.defaultInputId || "") !== String(latestSnapshot?.multimediaInputId || ""),
   };
 }
 
