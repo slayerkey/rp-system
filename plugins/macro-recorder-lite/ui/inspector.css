@@ -26,8 +26,8 @@ main{position:relative;z-index:1;padding:12px;display:grid;gap:10px}
 .brand-link{display:inline-flex;align-items:center;gap:6px;width:max-content;color:var(--packrat-accent);text-decoration:none;font-size:10px;font-weight:800;letter-spacing:.08em;cursor:pointer}
 .brand-link img{width:16px;height:16px;object-fit:contain}
 .brand-link:hover{color:var(--packrat-accent-hover);text-decoration:underline;text-shadow:0 0 10px var(--packrat-accent-glow)}
-.lite-badge{font-size:9px;font-weight:900;letter-spacing:.12em;color:var(--packrat-muted);border:1px solid var(--packrat-border);border-radius:999px;padding:4px 7px;background:var(--packrat-input)}
-.hero,.group,.status-card{background:linear-gradient(145deg,var(--packrat-card-start),var(--packrat-card-end));border:1px solid var(--packrat-border);border-radius:9px;padding:11px}
+.packrat-upgrade{width:auto;flex:0 0 auto;white-space:nowrap;padding:7px 11px;font-size:10.5px}
+.hero,.group,.status-card,.upsell{background:linear-gradient(145deg,var(--packrat-card-start),var(--packrat-card-end));border:1px solid var(--packrat-border);border-radius:9px;padding:11px}
 .hero{display:grid;gap:5px}
 .hero h1{font-size:17px;line-height:1.15;margin:0}
 .hero p{margin:0}
@@ -46,7 +46,7 @@ button.primary:hover{background:var(--packrat-accent-hover)}
 button.secondary{background:var(--packrat-button);color:var(--packrat-text)}
 button.danger{background:var(--packrat-danger);border-color:var(--packrat-danger);color:#fff}
 button.danger:hover{background:#ff7180;border-color:#ff7180;box-shadow:none}
-button:disabled{opacity:.5;cursor:default}
+button:disabled{opacity:.5;cursor:default}.upsell{border-color:rgba(255,178,30,.38);box-shadow:0 0 22px rgba(255,178,30,.07)}.upsell-eyebrow{color:var(--packrat-accent);font-size:10px;font-weight:850;letter-spacing:.09em;margin-bottom:5px}.upsell h3{margin:0 0 6px}.upsell-list{list-style:none;padding:0;margin:9px 0}.upsell-list li{padding:7px 0;border-top:1px solid #2B3038;color:#CBD1DB;font-size:11px;line-height:1.4}.upsell-list strong{color:#fff}.pro-button{width:100%}
 .button-row{display:flex;gap:7px;margin-top:8px;align-items:center}
 .button-row>*{flex:1;min-width:0}
 .collapsible-section,.diagnostic-block{margin-top:10px;border:1px solid var(--packrat-border);border-radius:8px;background:var(--packrat-input)}
