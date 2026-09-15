@@ -30,21 +30,40 @@
     "Stream Deck sleep/wake action and Property Inspector event smoke",
     "read-only Audio Manager host audit at meaningful diagnostic/final checkpoints"
   ],
-  "final_boundary": "Prior native/audio host evidence is healthy, but the product boundary changed after hardware QA exposed Property Inspector save/render races, unreadably small key text, and the absence of bundled Stream Deck layout profiles. Prior qa_passed evidence is historical only until the new exact-head CI and physical smoke pass.",
+  "final_boundary": "Exact-head Windows CI is green for the PI live-refresh race fix, larger hardware key layout, and bundled major-device Stream Deck profiles (54/54 tests plus design/key/profile/native/package/art gates). Remaining gate is physical target-machine confirmation: edits must survive multiple live refreshes, bundled profile import/deduplication must behave correctly, key text must be readable on hardware, and the remaining USB/Bluetooth/multi-mic/Plus/restart/reboot/sleep-wake matrix must pass.",
   "automated_release_evidence": {
-    "prior_successful_windows_run": 34777162074,
-    "prior_gate": "HISTORICAL_PASS_BEFORE_CURRENT_PI_PROFILE_SCOPE",
-    "prior_test_suite": "48/48 passing",
-    "current_scope": [
-      "PI unsaved profile drafts survive 1.5-second live Windows refresh",
-      "pending action settings survive stale didReceiveSettings until acknowledgement",
-      "profile name, accent, endpoint and restore-state edits are protected until Save",
-      "hardware key glyphs moved upward with larger role/device text",
-      "standard/MK.2, XL, Plus and Neo Stream Deck layout profiles generated deterministically",
-      "Rat Dev opens the standard/MK.2 profile and uses semantic installed-profile deduplication",
-      "canonical PackRat dark/orange PI and key semantics"
+    "latest_successful_windows_run": 34923537432,
+    "automated_gate": "PASS",
+    "exact_head_at_run": "f94eaf3b327a0a323c170cbe430d41a7104893f1",
+    "test_suite": "54/54 passing",
+    "passed": [
+      "shared PackRat AudioCore Windows build",
+      "XENEON Audio Control Center bridge regression build",
+      "locked npm install and high-severity dependency audit",
+      "full Audio Manager test suite including PI stale-refresh draft protection",
+      "deterministic standard/MK.2, XL, Plus and Neo profile generation",
+      "canonical plugin release metadata preflight",
+      "full Lite to Pro catalog audit",
+      "pre-hardware Rat Ship workflow-state guard",
+      "canonical PackRat Property Inspector design audit",
+      "Stream Deck key visual audit with major-profile coverage",
+      "Audio Manager static host audit",
+      "native helper self-test",
+      "real Windows Core Audio snapshot protocol smoke",
+      "official Stream Deck CLI validation",
+      "official .streamDeckPlugin packaging",
+      "packaged native helper and release-payload hygiene",
+      "deterministic Marketplace media generation",
+      "release QA artifact upload"
     ],
-    "automated_gate": "PENDING_EXACT_HEAD_CI"
+    "current_scope": [
+      "PI unsaved profile drafts survive live Windows refresh without snapping back",
+      "pending action settings survive stale settings responses until acknowledgement",
+      "profile name, accent, endpoint and restore-state edits remain local until Save",
+      "speaker/mic glyphs are raised and role/device labels use larger hardware text",
+      "standard/MK.2, XL, Plus and Neo Stream Deck layout profiles are bundled",
+      "Rat Dev selects the standard/MK.2 dev profile and global profile sync handles deduplication"
+    ]
   },
   "legacy_status": "testing"
 }
