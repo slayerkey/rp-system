@@ -98,27 +98,8 @@ for(const file of sourceFiles.filter(file=>/(?:telemetry|sensor|hardware|metrics
     const coerces=new RegExp("Number\\(\\s*"+escaped+"\\s*\\)").test(body);
     if(!coerces)continue;
     const guarded=
-      new RegExp(escaped+"\\s*(?:===|==)\\s*null").test(body) ||
-      new RegExp(escaped+"\\s*(?:===|==)\\s*undefined").test(body) ||
+      new RegExp(escaped+"\\s*(?:===|==)\\s*(?:null|undefined)").test(body) ||
       new RegExp(escaped+"\\s*(?:===|==)\\s*(?:\"\"|\'\')").test(body);
-    if(!guarded){
-      errors.push("Telemetry finite("+arg+") in "+file+" coerces with Number(...) without first rejecting null/undefined/empty input; missing telemetry can become a fake zero.");
-    }
-  }
-}
-for(const action of manifest.Actions??[]){");}
-for(const file of sourceFiles.filter(file=>/(?:telemetry|sensor|hardware|metrics)/i.test(file))){
-  const source=text(file);
-  for(const match of source.matchAll(/function\s+finite\s*\(\s*([A-Za-z_$][\w$]*)\s*\)\s*\{([\s\S]{0,600}?)\}/g)){
-    const arg=match[1];
-    const body=match[2];
-    const escaped=escapeRegExp(arg);
-    const coerces=new RegExp("Number\\(\\s*"+escaped+"\\s*\\)").test(body);
-    if(!coerces)continue;
-    const guarded=
-      new RegExp(escaped+"\\s*(?:===|==)\\s*null").test(body) ||
-      new RegExp(escaped+"\\s*(?:===|==)\\s*undefined").test(body) ||
-      new RegExp(escaped+"\\s*(?:===|==)\\s*[\\\"\']{2}").test(body);
     if(!guarded){
       errors.push("Telemetry finite("+arg+") in "+file+" coerces with Number(...) without first rejecting null/undefined/empty input; missing telemetry can become a fake zero.");
     }
@@ -130,13 +111,12 @@ for(const action of manifest.Actions??[]){
   const suffix=String(action.UUID||"").split(".").pop();
   if(!suffix)errors.push((action.Name||"Unnamed action")+": action UUID has no stable semantic suffix");
   if(action.Icon&&!String(action.Icon).includes("/actions/"+suffix+"/")){
-    warnings.push((action.Name||action.UUID)+": action Icon path does not mirror UUID suffix '"+suffix+"'");
+    warnings.push((action.Name||action.UUID)+": action Icon path does not mirror UUID suffix \'"+suffix+"\'");
   }
   for(const [index,state] of (action.States??[]).entries()){
     if(state.ShowTitle!==false)errors.push((action.Name||action.UUID)+" state "+index+": ShowTitle must be false");
   }
 }
-
 const piPaths=collectPropertyInspectors(manifest);
 const piBundles=[];
 for(const relative of piPaths){
