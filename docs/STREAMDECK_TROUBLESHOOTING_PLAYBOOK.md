@@ -155,6 +155,32 @@ Treat this combination as a transport bug until disproven:
 
 This means the Stream Deck settings path is healthy, but the PI → plugin → PI state channel is not. Do **not** debug storage first just because the library UI is empty.
 
+### Large-library / editor transport variant
+
+If a PI-backed library can grow into hundreds or thousands of items, do not send every item's full body whenever the selector refreshes. That can make the PI look blank, hung, or unreliable even though the plugin process is healthy.
+
+Use a split transport:
+
+- list payload: immutable ID + display metadata only (`id`, `name`, `folder`, lightweight status)
+- detail payload: load the body/content only for the currently selected item
+- after a library save, notify the running plugin so visible keys and the open PI refresh without a restart
+- if a selected ID was deleted or belongs to an older schema, resolve a valid fallback, **persist the repaired ID with `setSettings`**, and render/execute from that same repaired selection
+
+Do not let the key renderer and the key-press handler resolve stale IDs differently. A key that visually falls back to a valid item but still executes the stale ID is a real runtime bug.
+
+### Dedicated-action PI variant
+
+If one action only exists to launch a dashboard/library/manager, do not reuse a full editor PI just because the same plugin owns both actions.
+
+Use a dedicated PI shell for the launcher action:
+
+- concise explanation
+- one primary launch/open button
+- no unrelated selectors/editors
+- ignore global state/list/detail pushes that belong to the editor action
+
+This avoids the failure where selecting a `LIBRARY`/`DASHBOARD` key unexpectedly opens or rehydrates an unrelated inline editor.
+
 Verify these hops in order:
 
 1. PI websocket is open.
@@ -449,20 +475,59 @@ A good host audit prints repeated samples with transport, kind, battery, chargin
 
 ## 14. Lite → Pro upsell is missing, buried, or misleading
 
-For a Lite/free product with a direct Pro counterpart:
+For a Lite/free product with a real Pro counterpart:
 
-- top: compact `Upgrade to Pro ↗` in PackRat chrome
+- top: compact persistent `Upgrade to Pro ↗` in PackRat chrome
 - bottom: explanatory Pro feature card with 2–3 real Pro-only benefits and `Open <Product> Pro ↗`
-- the large bottom Pro card must appear **after** normal Lite/setup/privacy content; it is the final conversion surface, not the main product UI
-- use the exact public direct Pro Marketplace `/product/` URL when it is verified
-- before the direct Pro URL exists, the canonical PackRat maker page may be used as an explicit temporary fallback
-- do not guess a product URL
-- never use Marketplace search routes as the conversion destination
-- replacing the maker fallback with the verified direct Pro URL is a normal later Lite update
+- **both surfaces stay visible before and after Pro publication**
+- the large bottom Pro card appears after normal Lite/setup/privacy content; it is the final conversion surface, not the main product UI
+- destination order is **verified direct Pro Marketplace `/product/` URL → canonical PackRat maker fallback**
+- the only approved fallback is `https://marketplace.elgato.com/maker/packrat`
+- never guess a product URL and never use Marketplace search routes as the conversion destination
+- once the verified direct Pro URL exists, rebuild/revalidate Lite so both surfaces route directly to Pro
+
+The maker fallback is not a substitute for the final public Pro URL; it is the canonical pre-publication default so Lite never ships with dead/hidden upgrade UI.
 
 Do not add fake locked features to manufacture an upsell.
 
 If the user explicitly asks to move the large upsell below another section, add a DOM/order regression. Presence-only tests are insufficient because the same card can silently drift back above normal content later.
+
+## Windows input bridge: key faces update but every press inserts nothing
+
+Treat this as a native input-boundary failure before rewriting Stream Deck action registration when all of these are true:
+
+- bundled keys render correctly
+- `onWillAppear` / runtime `setImage(...)` clearly runs
+- the Property Inspector works
+- every text-insertion key appears to press but nothing reaches the target app
+
+On Windows, verify the Win32 `SendInput` ABI first.
+
+The native `INPUT` struct is a union. A keyboard-only managed declaration can be **too small** even if the product only sends keyboard events. The managed union must include the native-sized members (`MOUSEINPUT`, `KEYBDINPUT`, and `HARDWAREINPUT`) so `Marshal.SizeOf(INPUT)` matches Windows:
+
+- x64: 40 bytes
+- x86: 28 bytes
+
+If `SendInput(...)` receives the wrong structure size it can fail with `ERROR_INVALID_PARAMETER`, making every hardware press look dead while context/focus probes still pass.
+
+Required regression:
+
+- compile and execute the bridge on a hosted Windows runner
+- expose/assert actual `INPUT` size against the expected platform size
+- assert `SendInput` return count / Win32 error handling
+- do not accept a context-only or foreground-focus smoke as proof that text injection works
+
+### Text insertion safety variant
+
+For text-expander/snippet products:
+
+- Smart mode should use clipboard insertion for multiline, tabbed, or very large text
+- authored newlines/tabs in explicit text-input mode must remain text input, not be converted into real Enter/Tab navigation keys
+- only an explicit post-insert action such as `After insertion → Enter` may synthesize a real Enter
+- clipboard operations should retry transient Windows clipboard locks
+- Ctrl must be released in a `finally` path if Ctrl+V injection fails
+- clipboard restore delay should scale with payload size
+- native/PowerShell bridge work needs a timeout so one stuck host call cannot wedge all later presses
 
 ## 15. A rollback/product split risks losing useful work
 
@@ -560,6 +625,8 @@ The profile builder should fail closed when:
 - any ActionID is duplicated across bundled device variants
 
 Expose generated ActionIDs in profile audit output/maps so this can be verified deterministically.
+
+The shared Rat Dev/profile regression should execute this guard against real generated archives. Do not rely only on string/fixture inspection of the helper that is supposed to detect duplicate ActionIDs.
 
 ## 19. Rat Ship says the product is not registered on canonical main
 
