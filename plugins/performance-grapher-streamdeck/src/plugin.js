@@ -217,27 +217,6 @@ class PerformanceAction extends SingletonAction {
     await sendInspector(record);
   }
 
-  async onSendToPlugin(ev) {
-    const record = visible.get(String(ev.action?.id || ""));
-    if (!record) return;
-    const payload = ev.payload || {};
-    if (payload.type === "performanceGrapher.inspect") {
-      await sendInspector(record);
-      return;
-    }
-    if (payload.type !== "performanceGrapher.command") return;
-    if (payload.command === "restart-fps") telemetry.restartFps();
-    else if (payload.command === "reset-session") telemetry.resetSession();
-    else if (payload.command === "enable-fps-access") {
-      await runFpsSetup();
-    }
-    else if (payload.command === "open-presentmon-help") {
-      await streamDeck.system.openUrl("https://github.com/GameTechDev/PresentMon/blob/v2.5.1/README-ConsoleApplication.md");
-    }
-    await renderRecord(record, true);
-    await sendInspector(record);
-  }
-
   async onKeyDown(ev) {
     const record = visible.get(String(ev.action?.id || ""));
     if (!record) return;
@@ -261,9 +240,40 @@ class PerformanceAction extends SingletonAction {
   }
 }
 
+async function handleInspectorPayload(payload = {}) {
+  const actionContext = String(payload?.actionContext || "");
+  const openActionId = String(streamDeck.ui.action?.id || "");
+  if (!actionContext || !openActionId || actionContext !== openActionId) return;
+
+  const record = visible.get(actionContext);
+  if (!record) return;
+
+  if (payload.type === "performanceGrapher.inspect") {
+    await sendInspector(record);
+    return;
+  }
+  if (payload.type !== "performanceGrapher.command") return;
+
+  if (payload.command === "restart-fps") telemetry.restartFps();
+  else if (payload.command === "reset-session") telemetry.resetSession();
+  else if (payload.command === "enable-fps-access") {
+    await runFpsSetup();
+  } else if (payload.command === "open-presentmon-help") {
+    await streamDeck.system.openUrl("https://github.com/GameTechDev/PresentMon/blob/v2.5.1/README-ConsoleApplication.md");
+  }
+
+  await renderRecord(record, true);
+  await sendInspector(record);
+}
+
+
 for (const [kind, manifestId] of Object.entries(ACTIONS)) {
   streamDeck.actions.registerAction(new PerformanceAction(manifestId, kind));
 }
+
+streamDeck.ui.onSendToPlugin((ev) => {
+  void handleInspectorPayload(ev?.payload || {});
+});
 
 telemetry.on("update", () => {
   scheduleRender();
