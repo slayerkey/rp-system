@@ -17,7 +17,7 @@ test("Lite Property Inspector uses canonical PackRat UI and proven global transp
   new vm.Script(js);
 
   for(const id of [
-    "packratLink","cancelRecording","stopPlayback","assignLatest","assignedSummary",
+    "packratLink","topProUpgrade","proUpgrade","cancelRecording","stopPlayback","assignLatest","assignedSummary",
     "recordedStepsDetails","timeline","timelinePager","timelinePrev","timelineNext",
     "timelinePageLabel","runDiagnostic","copyDiagnostic","diagnosticStatus",
     "diagnosticReport","errorText"
@@ -31,7 +31,11 @@ test("Lite Property Inspector uses canonical PackRat UI and proven global transp
   assert.match(css,/body::before/);
   assert.match(html,/PackRat ↗/);
   assert.match(html,/30 seconds and 60 keyboard events/);
-  assert.match(html,/mouse recording, 10-minute macros, playback speed, repeat modes/i);
+  assert.match(html,/Upgrade to Pro ↗/);
+  assert.match(html,/Open Macro Recorder Pro ↗/);
+  assert.match(html,/mouse recording|Mouse \+ longer recording/i);
+  assert.match(html,/10-minute|10 minutes/i);
+  assert.match(html,/playback speed|Playback controls/i);
   assert.match(html,/<details id="recordedStepsDetails"/);
   assert.match(html,/<summary>Troubleshooting<\/summary>/);
 
@@ -39,6 +43,10 @@ test("Lite Property Inspector uses canonical PackRat UI and proven global transp
   assert.match(js,/actionContext/);
   assert.match(js,/type:"macroRecorder\.inspect",actionContext/);
   assert.match(js,/type:"macroRecorder\.diagnostic",actionContext/);
+  assert.match(js,/PACKRAT_MAKER_URL="https:\/\/marketplace\.elgato\.com\/maker\/packrat"/);
+  assert.match(js,/PRO_MARKETPLACE_URL\|\|PACKRAT_MAKER_URL/);
+  assert.match(js,/topProUpgrade/);
+  assert.match(js,/proUpgrade/);
   assert.match(js,/PAGE_SIZE=200/);
   assert.match(js,/function runDiagnostic/);
   assert.match(js,/no plugin diagnostic response within 2\.5 seconds/);
