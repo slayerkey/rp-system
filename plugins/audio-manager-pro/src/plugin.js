@@ -698,19 +698,24 @@ async function handleInspectorEvent(ev) {
   let createdProfileId = "";
   try {
     const command = String(payload.command || "");
-    if (command === "refresh") await refreshSnapshot({ quiet: false });
-    else if (command === "create-profile") {
+    if (command === "refresh") {
+      await refreshSnapshot({ quiet: false });
+      record.lastResult = { status: "SUCCESS", message: "Refreshed Windows audio" };
+    } else if (command === "create-profile") {
       const profile = await createProfile(payload.name);
       createdProfileId = profile.id;
       record.settings = { ...record.settings, profileId: profile.id };
       if (["apply", "status", "volume"].includes(record.kind))
         await record.action.setSettings(record.settings);
+      record.lastResult = { status: "SUCCESS", message: `Captured ${profile.name}` };
     } else if (command === "save-profile") {
-      await upsertProfile(payload.profile);
+      const profile = await upsertProfile(payload.profile);
+      record.lastResult = { status: "SUCCESS", message: `Saved ${profile.name}` };
     } else if (command === "delete-profile") {
+      const removed = findProfile(globalSettings, payload.profileId);
       await deleteProfile(payload.profileId);
+      record.lastResult = { status: "SUCCESS", message: removed ? `Deleted ${removed.name}` : "Profile deleted" };
     }
-    record.lastResult = null;
   } catch (error) {
     logger(`Property Inspector command failed: ${String(error?.message || error)}`);
     record.lastResult = { status: "FAILED", failures: [{ error: String(error?.message || error) }] };
