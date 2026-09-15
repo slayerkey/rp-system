@@ -218,6 +218,33 @@ function command(command){send({event:"sendToPlugin",action:actionUuid,context:u
 {
   const {root,plugin}=fixture();
   try{
+    write(join(root,"src","telemetry.js"),`function finite(value){
+  const n=Number(value);
+  return Number.isFinite(n)?n:null;
+}`);
+    const result=run(designAudit,[root]);
+    assert.notEqual(result.status,0,"design audit must fail when telemetry Number(null) can become a fake zero");
+    assert.match(result.stderr,/missing telemetry can become a fake zero/);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
+    write(join(root,"src","telemetry.js"),`function finite(value){
+  if(value===null||value===undefined||value==="")return null;
+  const n=Number(value);
+  return Number.isFinite(n)?n:null;
+}`);
+    const result=run(designAudit,[root]);
+    assert.equal(result.status,0,`null-safe telemetry normalization should pass\nSTDOUT:\n${result.stdout}\nSTDERR:\n${result.stderr}`);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+
+{
+  const {root,plugin}=fixture();
+  try{
     const manifestPath=join(plugin,"manifest.json");
     const manifest=JSON.parse(readFileSync(manifestPath,"utf8"));
     manifest.Profiles=[{Name:"demo-profile",DeviceType:0,AutoInstall:true,DontAutoSwitchWhenInstalled:true,Readonly:false}];
