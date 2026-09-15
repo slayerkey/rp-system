@@ -33,15 +33,41 @@ async function uploadThroughNamedMediaSection(target, headingPattern, filePath, 
   for (let i = 0; i < await inputs.count(); i++) {
     const input = inputs.nth(i);
     const section = await input.evaluate((el) => {
+      const identity = (
+        String(el.id || '') + ' ' +
+        String(el.getAttribute('name') || '') + ' ' +
+        String(el.getAttribute('aria-label') || '')
+      ).toLowerCase();
+
+      // Never let a Thumbnail recovery path touch the dedicated app/search icon input.
+      // The previous broad ancestor-text check could see a parent containing both
+      // "App icon" and "Thumbnail" and then overwrite the icon with 02_cover.png.
+      if (/media-app-icon|app[-_ ]?icon|search[-_ ]?icon/.test(identity)) {
+        return {match:false,reason:'icon-identity'};
+      }
+
       let node = el;
       for (let depth = 0; node && depth < 7; depth += 1, node = node.parentElement) {
         const text = String(node.innerText || '').replace(/\\s+/g,' ').trim();
-        if (/thumbnail/i.test(text)) return true;
-        if (/gallery/i.test(text) && !/thumbnail/i.test(text)) return false;
+        if (!text) continue;
+
+        const hasThumbnail = /\\bthumbnail\\b|\\bcover image\\b/i.test(text);
+        const hasIcon = /\\bapp icon\\b|\\bsearch icon\\b/i.test(text);
+        const hasGallery = /\\bgallery\\b|\\badditional media\\b|\\bscreenshots?\\b/i.test(text);
+
+        if (hasIcon && !hasThumbnail) return {match:false,reason:'icon-section'};
+        if (hasThumbnail && !hasIcon && !hasGallery) return {match:true,reason:'thumbnail-section'};
+        if (hasGallery && !hasThumbnail) return {match:false,reason:'gallery-section'};
+
+        // Once an ancestor contains multiple media headings it is a broad wrapper,
+        // not proof that this particular input belongs to Thumbnail.
+        if ((hasThumbnail && hasIcon) || (hasThumbnail && hasGallery)) {
+          return {match:false,reason:'ambiguous-parent'};
+        }
       }
-      return false;
-    }).catch(() => false);
-    if (section) {
+      return {match:false,reason:'no-thumbnail-boundary'};
+    }).catch(() => ({match:false,reason:'inspect-failed'}));
+    if (section.match) {
       await input.setInputFiles(filePath,{timeout:60000});
       return true;
     }
@@ -106,7 +132,17 @@ async function uploadThroughNamedMediaSection(target, headingPattern, filePath, 
 `  if (!cover) await mediaDiagnostic(target,'cover upload input not found on Maker Console media step');
 
   if (cover.locator) await cover.locator.setInputFiles(join(KIT,'02_cover.png'),{timeout:60000});
-  await target.waitForTimeout(1800);`,
+  await target.waitForTimeout(1800);
+
+  // Exact regression guard: if Maker Console still exposes the dedicated icon input
+  // and it now contains the cover filename, stop instead of staging a broken listing.
+  const iconAfterCover = target.locator('input#media-app-icon').first();
+  if (await iconAfterCover.count()) {
+    const iconFiles = await selectedFileNames(iconAfterCover);
+    if (iconFiles.some(name => /^02_cover\\.png$/i.test(name))) {
+      await mediaDiagnostic(target,'thumbnail upload was routed into the app icon field');
+    }
+  }`,
 `  if (!cover) {
     const uploaded = await uploadThroughNamedMediaSection(
       target,
