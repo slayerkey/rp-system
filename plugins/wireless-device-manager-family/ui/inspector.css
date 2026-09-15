@@ -37,7 +37,9 @@ body::before{
   background:radial-gradient(circle,rgba(255,178,30,.12) 0%,rgba(255,178,30,.055) 34%,rgba(255,178,30,0) 72%);
 }
 main{position:relative;z-index:1;display:grid;gap:12px;padding:14px}
-.hero,.card,.privacy{
+.packrat-topbar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.packrat-upgrade{width:auto;flex:0 0 auto;padding:7px 11px;white-space:nowrap;font-size:10.5px}
+.hero,.card,.privacy,.upsell{
   border:1px solid var(--packrat-border);
   background:linear-gradient(145deg,var(--packrat-card-start),var(--packrat-card-end));
   border-radius:14px;
@@ -82,13 +84,20 @@ input:focus,select:focus{border-color:var(--packrat-accent);box-shadow:0 0 0 2px
 .cap.off{border-color:var(--packrat-border);background:transparent;color:var(--packrat-neutral);opacity:.62}
 .privacy{background:#0D1116}
 .privacy strong{display:block;margin-bottom:5px;font-size:11px}
-.note{border-color:rgba(255,178,30,.35)}
-.cta-link{display:inline-block;margin-top:10px;color:var(--packrat-accent);font-weight:800;text-decoration:none}
-.cta-link:hover{color:var(--packrat-accent-hover);text-decoration:underline;text-shadow:0 0 10px var(--packrat-accent-glow)}
+.upsell{border-color:rgba(255,178,30,.38);box-shadow:0 0 22px rgba(255,178,30,.07)}
+.upsell-eyebrow{color:var(--packrat-accent);font-size:10px;font-weight:850;letter-spacing:.09em;margin-bottom:5px}
+.upsell h3{margin:0 0 6px;font-size:14px}
+.upsell-list{list-style:none;padding:0;margin:9px 0}
+.upsell-list li{padding:7px 0;border-top:1px solid #2B3038;color:#CBD1DB;font-size:11px;line-height:1.4}
+.upsell-list strong{color:#fff}
+.pro-button{width:100%;margin-top:2px}
 [hidden]{display:none!important}
 
 .status-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
 .status-head .status{min-width:0}
-button.secondary{border:1px solid var(--packrat-border);background:var(--packrat-button);color:var(--packrat-text);border-radius:9px;padding:8px 11px;font:inherit;font-weight:800;cursor:pointer}
-button.secondary:hover,button.secondary:focus{background:var(--packrat-button-hover);border-color:var(--packrat-accent);box-shadow:0 0 0 2px var(--packrat-accent-glow);outline:none}
+button{border:1px solid var(--packrat-border);background:var(--packrat-button);color:var(--packrat-text);border-radius:9px;padding:8px 11px;font:inherit;font-weight:800;cursor:pointer}
+button:hover,button:focus{background:var(--packrat-button-hover);border-color:var(--packrat-accent);box-shadow:0 0 0 2px var(--packrat-accent-glow);outline:none}
+button.primary{background:var(--packrat-accent);border-color:var(--packrat-accent-hover);color:#17120A;box-shadow:0 0 16px var(--packrat-accent-glow)}
+button.primary:hover,button.primary:focus{background:var(--packrat-accent-hover);color:#17120A}
+button.secondary{background:var(--packrat-button);color:var(--packrat-text)}
 button.small{width:auto;margin:0;white-space:nowrap}
