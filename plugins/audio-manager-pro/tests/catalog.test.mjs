@@ -25,9 +25,23 @@ const inspectorCss = readFileSync(resolve(productRoot, "ui", "inspector.css"), "
 const buildSource = readFileSync(resolve(productRoot, "scripts", "build.mjs"), "utf8");
 const pluginSource = readFileSync(resolve(productRoot, "src", "plugin.js"), "utf8");
 
-test("Audio Manager intentionally ships without bundled Stream Deck profiles", () => {
-  assert.equal(Object.hasOwn(manifest, "Profiles"), false);
-  assert.equal(existsSync(resolve(productRoot, "com.packrat.audio-manager-pro.sdPlugin", "profiles")), false);
+test("Audio Manager ships deterministic major-device Stream Deck profiles", () => {
+  assert.deepEqual(
+    manifest.Profiles.map((profile) => profile.DeviceType),
+    [0, 2, 7, 9],
+  );
+  for (const profile of manifest.Profiles) {
+    assert.equal(profile.AutoInstall, true);
+    assert.equal(profile.DontAutoSwitchWhenInstalled, true);
+    assert.equal(profile.Readonly, false);
+    assert.equal(
+      existsSync(resolve(productRoot, "com.packrat.audio-manager-pro.sdPlugin", `${profile.Name}.streamDeckProfile`)),
+      true,
+      `missing bundled profile ${profile.Name}`,
+    );
+  }
+  assert.equal(ratDev.dev_profile, "profiles/audio-manager-pro-standard.streamDeckProfile");
+  assert.equal(ratDev.open_profile_on_dev, true);
 });
 
 test("Audio Manager is not inventing a Lite-to-Pro relationship or unrelated Marketplace upsell", () => {
@@ -75,6 +89,16 @@ test("Audio Manager Property Inspector keeps UI and action contexts distinct", (
   assert.doesNotMatch(pluginSource, /record\.action\.sendToPropertyInspector/);
 });
 
+
+test("Audio Manager Property Inspector preserves unsaved edits across live refresh", () => {
+  assert.match(inspectorSource, /editorDirty/);
+  assert.match(inspectorSource, /editorDraft/);
+  assert.match(inspectorSource, /pendingAction/);
+  assert.match(inspectorSource, /profileSig/);
+  assert.match(inspectorSource, /Discard unsaved Audio Profile changes/);
+  assert.match(inspectorSource, /profileAccent"\)\.addEventListener\("input"/);
+  assert.match(inspectorSource, /Save profile · unsaved/);
+});
 
 test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
   assert.match(inspectorHtml, /id="brandLink"/);
