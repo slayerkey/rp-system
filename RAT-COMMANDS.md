@@ -44,12 +44,14 @@ For a registered Stream Deck plugin, Rat Ship:
 3. Runs product build and tests.
 4. Runs the official Elgato validator.
 5. Creates the official `.streamDeckPlugin` package.
-6. Runs deterministic Rat Art when present.
-7. Builds the local ship kit with metadata, release notes, package and media.
-8. Reuses the persistent local Maker Console browser login.
-9. Creates or resumes the correct Plugin product type.
-10. Sets applicable metadata, pricing, media, release notes and publish policy.
-11. Submits the product.
+6. Runs deterministic product Rat Art when present, or recovers the pinned validated media for an external-artifact plugin.
+7. Applies the current global Stream Deck gallery campaign to all four gallery frames. Native shared galleries are preserved; legacy/custom/external galleries are automatically normalized into the newest approved clean campaign.
+8. Applies the current global Stream Deck cover/hero overwrite using the newest resolved scene and real product key-source precedence.
+9. Builds the local ship kit with metadata, release notes, package and final media.
+10. Reuses the persistent local Maker Console browser login.
+11. Creates or resumes the correct Plugin product type.
+12. Sets applicable metadata, pricing, media, release notes and publish policy.
+13. Submits the product.
 
 `rat kit <slug>` is allowed before Marketplace pricing is chosen because it does not create a Maker Console product. `rat stage <slug>` and `rat ship <slug>` fail closed when required pricing is unset.
 
@@ -83,7 +85,7 @@ The normal XENEON marketplace sequence is:
 4. Settings, interaction or alternate state
 5. Slot size compatibility
 
-The cover is separate from the gallery. Stream Deck plugin products can provide their own deterministic Rat Art sequence, but the local plugin ship kit expects the canonical file names `01_search_icon.png`, `02_cover.png`, and `03_gallery_01.png` through `06_gallery_04.png`.
+The cover is separate from the gallery. Stream Deck plugin products can provide their own deterministic Rat Art sequence, but the final ship kit always applies the global campaign after product-local rendering. The kit expects the canonical file names `01_search_icon.png`, `02_cover.png`, and `03_gallery_01.png` through `06_gallery_04.png`. Products already using the shared gallery primitives are preserved in `native` mode; all other registered plugins default to the global `wrap` handoff so older art cannot bypass the current clean campaign.
 
 ### Crash and recovery behavior
 
@@ -112,7 +114,7 @@ rat preview-art monitor-manager-pro
 rat preview-art windows-settings-manager-pro
 ```
 
-The command syncs canonical `main`, builds the current product when needed, runs product-local Rat Art, then applies the exact same final global Stream Deck hero renderer that `rat ship` uses. It writes the final files under:
+The command syncs canonical `main`, builds the current product when needed (or recovers its pinned validated artifact), then applies the exact same final global Stream Deck gallery campaign and hero renderer that `rat ship` uses. It writes the final files under:
 
 ```text
 out\art-preview\<slug>
