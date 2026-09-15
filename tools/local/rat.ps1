@@ -145,7 +145,7 @@ function Show-Help {
     Write-Host "  rat ship <slug> [slug...]    Sync main once, build/validate/package/Rat Art locally, then fill Maker Console and submit."
     Write-Host "  rat dev <slug>               Build, validate, and activate a real local development candidate."
     Write-Host "  rat audit <slug>             Audit the exact active Rat Dev build against the real host environment."
-    Write-Host "  rat preview-art <slug>       Render exact final Marketplace art (product Rat Art + Rat Ship hero) and open the five-image review sheet."
+    Write-Host "  rat preview-art <slug>       Render exact final Marketplace art (product art + global gallery campaign + Rat Ship hero) and open the five-image review sheet."
     Write-Host "  rat audit <slug> --probe     Run the deeper product transport probe when that product supports one."
     Write-Host "  rat status                   Show the local repo branch, commit, and whether local files changed."
     Write-Host "  rat help                     Show this cheat sheet."
