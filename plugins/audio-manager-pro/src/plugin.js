@@ -251,12 +251,10 @@ function inspectorPayload(record) {
 
 async function sendInspectorPayload(record, payload) {
   try {
-    await record.action.sendToPropertyInspector(payload);
-    return;
-  } catch {}
-  try {
     await streamDeck.ui.sendToPropertyInspector(payload);
-  } catch {}
+  } catch (error) {
+    logger(`Property Inspector response failed: ${String(error?.message || error)}`);
+  }
 }
 
 async function sendInspector(record) {
