@@ -1,0 +1,86 @@
+name: Window Manager Lite Manual Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/window-manager-lite-manual-release.yml'
+
+permissions:
+  contents: read
+
+env:
+  CANDIDATE_REF: d0667b058b0fad131057d1c49f4b446f418494f0
+  PLUGIN_ROOT: plugins/window-manager
+  PLUGIN_DIR: com.packrat.windowmanager.sdPlugin
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact Window Manager Lite 1.0.0.4 candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE_REF }}
+
+      - name: Verify exact candidate
+        shell: pwsh
+        run: |
+          $actual=(git rev-parse HEAD).Trim()
+          if($actual -ne $env:CANDIDATE_REF){throw "Candidate mismatch: $actual != $env:CANDIDATE_REF"}
+          $manifest=Get-Content -Raw "$env:PLUGIN_ROOT\$env:PLUGIN_DIR\manifest.json" | ConvertFrom-Json
+          if($manifest.UUID -ne 'com.packrat.windowmanager'){throw "Unexpected UUID $($manifest.UUID)"}
+          if($manifest.Version -ne '1.0.0.4'){throw "Unexpected version $($manifest.Version)"}
+          $actions=@($manifest.Actions | ForEach-Object UUID)
+          $expected=@('com.packrat.windowmanager.snap','com.packrat.windowmanager.cycle')
+          if(($actions -join '|') -ne ($expected -join '|')){throw "Lite action surface changed: $($actions -join ', ')"}
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Run Lite visual and upsell tests
+        working-directory: ${{ env.PLUGIN_ROOT }}
+        run: npm test
+
+      - name: Install exact Elgato CLI
+        working-directory: ${{ env.PLUGIN_ROOT }}
+        run: npm install --no-save --no-package-lock @elgato/cli@1.7.4
+
+      - name: Official Elgato validation
+        working-directory: ${{ env.PLUGIN_ROOT }}
+        run: npx streamdeck validate ${{ env.PLUGIN_DIR }} --no-update-check
+
+      - name: Official Elgato package
+        working-directory: ${{ env.PLUGIN_ROOT }}
+        run: npx streamdeck pack ${{ env.PLUGIN_DIR }} --output dist --force --no-update-check --no-file-list
+
+      - name: Normalize package name and write release notes
+        working-directory: ${{ env.PLUGIN_ROOT }}
+        shell: pwsh
+        run: |
+          $pkg=Get-ChildItem dist -File -Filter *.streamDeckPlugin
+          if($pkg.Count -ne 1){throw "Expected exactly one package, found $($pkg.Count)"}
+          $target=Join-Path (Resolve-Path dist) 'Window-Manager-Lite-1.0.0.4.streamDeckPlugin'
+          Move-Item -Force $pkg[0].FullName $target
+          @'
+          • Refreshed Window Manager Lite with the canonical PackRat visual design.
+          • Added clearer Snap Window and Cycle Windows key art for faster recognition.
+          • Improved the built-in Window Manager Pro upgrade card while keeping Lite focused on Snap + Cycle.
+          • Preserved the existing local XENEON integration, Windows/macOS support, and published plugin identity.
+          '@ | Set-Content -Encoding UTF8 (Join-Path (Resolve-Path dist) 'Window-Manager-Lite-1.0.0.4-release-notes.txt')
+          $sha=(Get-FileHash -Algorithm SHA256 $target).Hash.ToLowerInvariant()
+          Write-Host "PACKAGE SHA256: $sha"
+
+      - name: Upload one-day manual release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-lite-1.0.0.4-manual-release
+          path: |
+            ${{ env.PLUGIN_ROOT }}/dist/Window-Manager-Lite-1.0.0.4.streamDeckPlugin
+            ${{ env.PLUGIN_ROOT }}/dist/Window-Manager-Lite-1.0.0.4-release-notes.txt
+          if-no-files-found: error
+          retention-days: 1
