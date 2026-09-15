@@ -4,7 +4,7 @@ Updated: 2026-08-22
 
 ## Canonical hub
 
-`slayerkey/ratpack-system` is now the canonical RatPack hub.
+`slayerkey/rp-system` is now the canonical RatPack hub.
 
 ChatGPT should read `RATPACK.md` first, then the matching canonical skill and platform contract.
 

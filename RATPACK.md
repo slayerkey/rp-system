@@ -18,7 +18,7 @@ Local applications and physical hardware are final validation boundaries only wh
 
 ## Canonical repository
 
-`ratpack-system` is the hub for shared skills, standards, platform references, workflow contracts, schemas, CI contracts, reusable QA, adapters, product registry, and product source as migration progresses.
+`rp-system` is the hub for shared skills, standards, platform references, workflow contracts, schemas, CI contracts, reusable QA, adapters, product registry, and product source as migration progresses.
 
 The current migrated product roster lives at `products/index.json`. Read it for fresh chat roster discovery and current legacy product status.
 

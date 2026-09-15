@@ -147,7 +147,7 @@ GitHub Actions is the remote build/test computer.
 
 Use local execution only for genuine host, hardware, or authenticated-browser boundaries.
 
-Keep reusable tooling centralized in `ratpack-system` rather than duplicating it inside individual product branches.
+Keep reusable tooling centralized in `rp-system` rather than duplicating it inside individual product branches.
 
 Canonical standards are **read-only inputs to normal product work**. A product build, visual refresh, QA pass, or rollout task should consume the global Stream Deck standards exactly; it must not edit them to make a local implementation pass. Update a global standard only when the user is explicitly asking for a reusable system change.
 
@@ -263,7 +263,7 @@ When one product uncovers a genuinely reusable fix, move that fix into shared to
 
 A new chat should be able to start from something as small as:
 
-`Build a Stream Deck <plugin/profile/icon pack> for <idea>. Read RATPACK.md and STREAMDECK.md in slayerkey/ratpack-system and follow RatPack end to end.`
+`Build a Stream Deck <plugin/profile/icon pack> for <idea>. Read RATPACK.md and STREAMDECK.md in slayerkey/rp-system and follow RatPack end to end.`
 
 The assistant should recover the rest of the build, QA, art, and shipping process from GitHub rather than requiring the user to restate it.
 
