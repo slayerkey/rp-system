@@ -39,7 +39,7 @@ jobs:
         working-directory: plugins/audio-manager-lite
       - run: npm test
         working-directory: plugins/audio-manager-lite
-      - name: Generate Marketplace Rat Art smoke
+      - name: Generate Marketplace Rat Art and campaign smoke
         shell: pwsh
         run: |
           $dest = Join-Path $env:RUNNER_TEMP 'audio-manager-lite-rat-art'
@@ -48,6 +48,8 @@ jobs:
           foreach ($name in @('01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png')) {
             if (-not (Test-Path (Join-Path $dest $name) -PathType Leaf)) { throw "Missing Rat Art output: $name" }
           }
+          python tools/art/apply_streamdeck_gallery_campaign.py --product audio-manager-lite --media-dir $dest
+          if ($LASTEXITCODE -ne 0) { throw 'Audio Manager Lite gallery campaign failed.' }
       - name: Audit canonical Lite to Pro catalog relationships
         run: python tools/lite_pro_audit.py
       - run: npm run build
