@@ -103,6 +103,27 @@ The ZIP contains recovery screenshots, error text, state and page diagnostics. A
 
 GitHub Actions never receives Maker Console cookies, passwords, browser profile data or session tokens.
 
+## `rat preview-art <slug> [slug...]`
+
+Use this to review Stream Deck Marketplace art without opening Maker Console.
+
+```text
+rat preview-art monitor-manager-pro
+rat preview-art windows-settings-manager-pro
+```
+
+The command syncs canonical `main`, builds the current product when needed, runs product-local Rat Art, then applies the exact same final global Stream Deck hero renderer that `rat ship` uses. It writes the final files under:
+
+```text
+out\art-preview\<slug>
+```
+
+The folder includes the exact final `02_cover.png`, all four gallery frames, hero provenance, and `review-contact-sheet.png` with the cover on top and the four galleries below. The command opens that review sheet automatically.
+
+This command never opens, stages, edits, or submits Maker Console.
+
+A manual GitHub Actions equivalent is available through `Preview Stream Deck Rat Art` (`.github/workflows/preview-streamdeck-rat-art.yml`).
+
 ## Clean GitHub runner commands
 
 ### `rat ship-cloud <slug> [slug...]`
