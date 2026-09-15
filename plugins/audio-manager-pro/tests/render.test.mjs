@@ -38,7 +38,7 @@ test("inactive profile status uses warning state", () => {
     profile: { name: "Meeting", accent: "#56F2A5" },
     status: "INACTIVE",
   }));
-  assert.ok(svg.includes("#FFCC66"));
+  assert.ok(svg.includes("#FFC44D"));
 });
 
 
@@ -78,7 +78,7 @@ test("offline audio actions render an explicit offline state", () => {
     role: "default",
   }));
   assert.match(deviceSvg, /AUDIO OFFLINE/);
-  assert.ok(deviceSvg.includes("#FF6B76"));
+  assert.ok(deviceSvg.includes("#FF5D6C"));
 
   const micSvg = decodeSvg(renderKey("mute-mic", {
     endpoint: null,
@@ -86,7 +86,7 @@ test("offline audio actions render an explicit offline state", () => {
     offline: true,
   }));
   assert.match(micSvg, /AUDIO OFFLINE/);
-  assert.ok(micSvg.includes("#FF6B76"));
+  assert.ok(micSvg.includes("#FF5D6C"));
 });
 
 
@@ -96,5 +96,38 @@ test("profile keys render OFFLINE as a danger state", () => {
     status: "OFFLINE",
   }));
   assert.match(svg, /OFFLINE/);
-  assert.ok(svg.includes("#FF6B76"));
+  assert.ok(svg.includes("#FF5D6C"));
+});
+
+
+test("direct device keys reserve readable text space below raised glyphs", () => {
+  const output = decodeSvg(renderKey("set-output", {
+    endpoint: { name: "Headset Earphone (USB Audio Device)" },
+    role: "default",
+  }));
+  assert.match(output, /font-size="13"/);
+  assert.match(output, /font-size="1[468]"/);
+  assert.match(output, /y="109"/);
+  assert.match(output, /y="131"/);
+  assert.doesNotMatch(output, /font-size="9"/);
+
+  const mic = decodeSvg(renderKey("mute-mic", {
+    endpoint: { name: "Microphone" },
+  }));
+  assert.match(mic, /y="126"/);
+  assert.match(mic, /MIC LIVE/);
+});
+
+test("normal direct audio actions use PackRat orange while success remains semantic green", () => {
+  const output = decodeSvg(renderKey("set-output", {
+    endpoint: { name: "Headset" },
+    role: "default",
+  }));
+  assert.ok(output.includes("#FFB21E"));
+
+  const mic = decodeSvg(renderKey("mute-mic", {
+    endpoint: { name: "Microphone" },
+    muted: false,
+  }));
+  assert.ok(mic.includes("#2BE86A"));
 });
