@@ -44,6 +44,16 @@ test("AMD, NVIDIA, and Intel-style hardware catalogs map to the same canonical G
   }
 });
 
+test("missing telemetry values never coerce to a believable zero", () => {
+  const telemetry = new TelemetryService({ pluginRoot: resolve(tmpdir(), "missing-performance-provider"), persistPath: resolve(tmpdir(), "packrat-test-state-null-metric.json") });
+  telemetry._setMetric("cpu.temperature", null, Date.now());
+  telemetry._setMetric("gpu.temperature", undefined, Date.now());
+  telemetry._setMetric("cpu.power", "", Date.now());
+  assert.equal(telemetry.metricValue("cpu.temperature"), null);
+  assert.equal(telemetry.metricValue("gpu.temperature"), null);
+  assert.equal(telemetry.metricValue("cpu.power"), null);
+});
+
 test("canonical temperature aliases skip impossible zero readings instead of showing fake 0 C", () => {
   const telemetry = new TelemetryService({ pluginRoot: resolve(tmpdir(), "missing-performance-provider"), persistPath: resolve(tmpdir(), "packrat-test-state-temp-alias.json") });
   telemetry._consumeHardwareLine(JSON.stringify({
