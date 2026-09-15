@@ -13,24 +13,22 @@ test("long Unicode device names render without splitting surrogate pairs", () =>
     endpoint: { name: "超長いオーディオデバイス🎧🎧🎧🎧🎧🎧🎧" },
     role: "default",
   }));
-  assert.match(svg, /DEFAULT OUT/);
   assert.ok(!svg.includes("\uFFFD"));
 });
 
-test("communications output key visibly identifies its Windows role", () => {
-  const svg = decodeSvg(renderKey("set-output", {
+test("direct device keys omit the crowded gray role footer", () => {
+  const output = decodeSvg(renderKey("set-output", {
     endpoint: { name: "Headset" },
     role: "communications",
   }));
-  assert.match(svg, /COMM OUT/);
-});
-
-test("communications input key visibly identifies its Windows role", () => {
-  const svg = decodeSvg(renderKey("set-input", {
+  const input = decodeSvg(renderKey("set-input", {
     endpoint: { name: "Headset Mic" },
-    role: "communications",
+    role: "default",
   }));
-  assert.match(svg, /COMM IN/);
+  assert.doesNotMatch(output, /COMM OUT|DEFAULT OUT/);
+  assert.doesNotMatch(input, /COMM IN|DEFAULT IN/);
+  assert.match(output, /Headset/);
+  assert.match(input, /Headset Mic/);
 });
 
 test("inactive profile status uses warning state", () => {
@@ -105,11 +103,10 @@ test("direct device keys reserve readable text space below raised glyphs", () =>
     endpoint: { name: "Headset Earphone (USB Audio Device)" },
     role: "default",
   }));
-  assert.match(output, /font-size="13"/);
-  assert.match(output, /font-size="1[579]"/);
-  assert.match(output, /y="103"/);
-  assert.match(output, /y="123"/);
+  assert.match(output, /font-size="1[5798]"/);
+  assert.match(output, /y="121"/);
   assert.doesNotMatch(output, /font-size="9"/);
+  assert.doesNotMatch(output, /DEFAULT OUT/);
 
   const mic = decodeSvg(renderKey("mute-mic", {
     endpoint: { name: "Microphone" },
@@ -151,4 +148,13 @@ test("selected profile text stays inside the tighter safe area", () => {
   assert.match(svg, /y="76"/);
   assert.match(svg, /y="104"/);
   assert.doesNotMatch(svg, /Very Long Headset Profile Name/);
+});
+
+
+test("profile accent no longer changes the key frame", () => {
+  const svg = decodeSvg(renderKey("apply", {
+    profile: { name: "Headset", accent: "#00FF00" },
+  }));
+  assert.ok(svg.includes("#FFB21E"));
+  assert.ok(!svg.includes("#00FF00"));
 });
