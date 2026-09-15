@@ -75,22 +75,19 @@ function profileBody(profile, status = "", active = false) {
 
 export function renderKey(kind, { profile = null, endpoint = null, active = false, status = "", muted = false, missing = false, offline = false, role = "default" } = {}) {
   if (["apply", "cycle", "status"].includes(kind)) {
-    const frameColor = status ? resultColor(status) : (profile?.accent || ACCENT);
+    const frameColor = status ? resultColor(status) : ACCENT;
     return svgDataUri(frame(profileBody(profile, status, active), frameColor));
   }
 
   if (kind === "set-output" || kind === "set-input") {
     const isCommunications = role === "communications";
-    const label = kind === "set-output"
-      ? (isCommunications ? "COMM OUT" : "DEFAULT OUT")
-      : (isCommunications ? "COMM IN" : "DEFAULT IN");
     const rawName = offline ? "AUDIO OFFLINE" : missing ? "REBIND" : endpoint?.name || "SELECT DEVICE";
     const name = offline || missing ? rawName : compactDeviceName(rawName);
     const color = offline ? DANGER : missing ? WARN : ACCENT;
     const glyph = kind === "set-output"
       ? `<path d="M35 43h21l22-17v57L56 66H35z" fill="none" stroke="${FG}" stroke-width="6" stroke-linejoin="round"/><path d="M89 40c8 8 8 21 0 29M99 31c14 14 14 31 0 45" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round"/>`
       : `<rect x="60" y="20" width="24" height="45" rx="12" fill="none" stroke="${FG}" stroke-width="6"/><path d="M49 55c0 16 9 25 23 25s23-9 23-25M72 80v14M58 95h28" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/>`;
-    return svgDataUri(frame(`${glyph}${text(72, 103, label, 13, MUTED, 850, .45)}${text(72, 123, name, Math.min(deviceTextSize(name), 17), color, 800)}`, color));
+    return svgDataUri(frame(`${glyph}${text(72, 121, name, Math.min(deviceTextSize(name), 18), color, 850)}`, color));
   }
 
   if (kind === "mute-mic") {
