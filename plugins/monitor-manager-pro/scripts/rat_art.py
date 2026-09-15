@@ -1,15 +1,17 @@
 from __future__ import annotations
 import argparse, os, hashlib, json, math, sys
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageChops, ImageOps
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT=Path(__file__).resolve().parents[3]
 sys.dont_write_bytecode=True
 sys.path.insert(0,str(ROOT/"tools"/"art"))
 from marketplace_text import draw_fitted_text
 from streamdeck_photo import compose_device, alpha_crop_device
+from streamdeck_marketplace_campaign import campaign_footer, campaign_header, glass_panel as campaign_glass_panel, load_scene, resolve_campaign_config, thin_arrow
 RAT=ROOT/"tools"/"art"/"assets"/"ratpack-icon-transparent.png"
-SCENE=ROOT/"tools"/"art"/"scenes"/"warm-studio-clean-v1"/"base-v2.png"
+CAMPAIGN=resolve_campaign_config("monitor-manager-pro")
+SCENE=CAMPAIGN.gallery_scene
 PLUGIN_DIR=ROOT/"plugins"/"monitor-manager-pro"/"com.packrat.monitormanagerpro.sdPlugin"
 MANIFEST_PATH=PLUGIN_DIR/"manifest.json"
 W,H=1920,960
@@ -26,54 +28,12 @@ def font(size,bold=True):
     raise SystemExit("RAT ART FAIL: deterministic font missing")
 
 def bg():
-    if not SCENE.is_file():
-        raise SystemExit("RAT ART FAIL: warm studio scene missing: "+str(SCENE))
-    base=Image.open(SCENE).convert("RGBA")
-    # User-supplied campaign backgrounds may not arrive at exact Marketplace size.
-    # Fit by cover-scaling + center crop so Rat Art never stretches the room.
-    if base.size!=(W,H):
-        base=ImageOps.fit(
-            base,(W,H),
-            method=Image.Resampling.LANCZOS,
-            centering=(0.5,0.5),
-        )
-    # Preserve the room, but darken it slightly so product proof wins.
-    veil=Image.new("RGBA",(W,H),(2,5,10,44))
-    return Image.alpha_composite(base,veil)
+    return load_scene(SCENE,veil=(2,5,10,44))
+
 
 
 def glass_panel(im,box,radius=30,fill=(8,12,19,206),border_alpha=225,glow_alpha=54,border_width=3):
-    x1,y1,x2,y2=[int(v) for v in box]
-    if x2<=x1 or y2<=y1:
-        raise ValueError("invalid glass panel box")
-    layer=Image.new("RGBA",(W,H),(0,0,0,0))
-    ld=ImageDraw.Draw(layer)
-    ld.rounded_rectangle((x1,y1,x2,y2),radius=radius,fill=fill)
-    im.alpha_composite(layer)
-
-    outer=Image.new("L",(W,H),0); od=ImageDraw.Draw(outer)
-    od.rounded_rectangle((x1,y1,x2,y2),radius=radius,fill=255)
-    inner=Image.new("L",(W,H),0); idr=ImageDraw.Draw(inner)
-    inset=max(1,border_width)
-    idr.rounded_rectangle((x1+inset,y1+inset,x2-inset,y2-inset),radius=max(1,radius-inset),fill=255)
-    ring=ImageChops.subtract(outer,inner)
-
-    gradient=Image.new("RGBA",(W,H),(0,0,0,0))
-    gd=ImageDraw.Draw(gradient)
-    width=max(1,x2-x1)
-    for x in range(x1,x2+1):
-        t=(x-x1)/width
-        r=round(WARM[0]*(1-t)+COOL[0]*t)
-        g=round(WARM[1]*(1-t)+COOL[1]*t)
-        b=round(WARM[2]*(1-t)+COOL[2]*t)
-        gd.line((x,y1,x,y2),fill=(r,g,b,border_alpha),width=1)
-    gradient.putalpha(ImageChops.multiply(gradient.getchannel("A"),ring))
-
-    glow_mask=ring.filter(ImageFilter.GaussianBlur(14))
-    glow=gradient.copy()
-    glow.putalpha(glow_mask.point(lambda p: round(p*glow_alpha/255)))
-    im.alpha_composite(glow)
-    im.alpha_composite(gradient)
+    campaign_glass_panel(im,box,radius=radius,fill=fill,border_alpha=border_alpha,glow_alpha=glow_alpha,border_width=border_width)
 
 
 
@@ -88,39 +48,13 @@ def fit_font(draw,text,max_width,max_size,min_size=12,bold=True):
     return font(min_size,bold)
 
 def header(im,title,sub):
-    # One strong campaign header: translucent glass with warm-left / cool-right edge.
-    glass_panel(im,(195,74,1725,258),radius=34,fill=(5,9,16,196),border_alpha=205,glow_alpha=40,border_width=2)
-    d=ImageDraw.Draw(im)
-    draw_fitted_text(
-        d,(245,108,1675,174),title,font,
-        fill=(*WHITE,255),max_size=56,min_size=40,bold=True,max_lines=1,align="center"
-    )
-    if str(sub or "").strip():
-        draw_fitted_text(
-            d,(275,190,1645,228),sub,font,
-            fill=(*MUTED,255),max_size=27,min_size=21,bold=False,max_lines=1,align="center"
-        )
+    campaign_header(im,title,sub,font)
 
 
 
 
 def footer(im):
-    d=ImageDraw.Draw(im)
-    # Carry the campaign framing into the footer without competing with content.
-    x1,x2,y=115,1805,835
-    width=max(1,x2-x1)
-    for x in range(x1,x2+1):
-        t=(x-x1)/width
-        r=round(WARM[0]*(1-t)+COOL[0]*t)
-        g=round(WARM[1]*(1-t)+COOL[1]*t)
-        b=round(WARM[2]*(1-t)+COOL[2]*t)
-        d.line((x,y,x,y+1),fill=(r,g,b,88),width=1)
-    if RAT.is_file():
-        rat=Image.open(RAT).convert("RGBA"); box=rat.getbbox()
-        if box: rat=rat.crop(box)
-        s=min(48/rat.width,48/rat.height)
-        rat=rat.resize((max(1,int(rat.width*s)),max(1,int(rat.height*s))),Image.Resampling.LANCZOS)
-        im.alpha_composite(rat,((W-rat.width)//2,875))
+    campaign_footer(im,logo_path=RAT)
 
 
 
@@ -210,10 +144,8 @@ def runtime_key(im,x,y,kind,lines,size=150,tone="brand"):
         d.text((x+size/2,y+size*.88),clean[1],font=f,fill=(*WHITE,255),anchor="mm")
 
 def arrow(d,x1,y,x2):
-    # Thin connector: readable, but not a cartoon callout competing with the keys.
-    d.line((x1,y,x2-18,y),fill=(*ACCENT,238),width=6)
-    d.line((x2-18,y-16,x2,y),fill=(*ACCENT,238),width=6)
-    d.line((x2-18,y+16,x2,y),fill=(*ACCENT,238),width=6)
+    thin_arrow(d,x1,y,x2,color=ACCENT)
+
 
 
 
