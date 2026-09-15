@@ -145,6 +145,7 @@ function Show-Help {
     Write-Host "  rat ship <slug> [slug...]    Sync main once, build/validate/package/Rat Art locally, then fill Maker Console and submit."
     Write-Host "  rat dev <slug>               Build, validate, and activate a real local development candidate."
     Write-Host "  rat audit <slug>             Audit the exact active Rat Dev build against the real host environment."
+    Write-Host "  rat preview-art <slug>       Render exact final Marketplace art (product Rat Art + Rat Ship hero) and open the five-image review sheet."
     Write-Host "  rat audit <slug> --probe     Run the deeper product transport probe when that product supports one."
     Write-Host "  rat status                   Show the local repo branch, commit, and whether local files changed."
     Write-Host "  rat help                     Show this cheat sheet."
@@ -498,6 +499,43 @@ function Invoke-SlugBatch {
     }
 }
 
+
+function Run-PreviewArt {
+    param([string]$WidgetSlug)
+
+    $helper = Join-Path $PSScriptRoot "rat-preview-art.ps1"
+    if (-not (Test-Path $helper -PathType Leaf)) {
+        throw "Rat Art preview helper not found: $helper"
+    }
+
+    $root = Join-Path $RepoRoot "out\art-preview"
+    & $helper -Slug $WidgetSlug -OutputRoot $root
+    if ($LASTEXITCODE -ne 0) {
+        throw "Rat Art preview failed for '$WidgetSlug'."
+    }
+
+    $sheet = Join-Path (Join-Path $root $WidgetSlug) "review-contact-sheet.png"
+    if (-not (Test-Path $sheet -PathType Leaf)) {
+        throw "Rat Art preview completed without a review contact sheet: $sheet"
+    }
+    Write-Host "Opening exact final five-image Rat Art review sheet..." -ForegroundColor Green
+    Start-Process $sheet
+}
+
+function Invoke-PreviewArtBatch {
+    param([string[]]$Slugs)
+
+    $queue = @($Slugs | ForEach-Object { if ($_ -and $_.Trim()) { $_.Trim() } })
+    if (-not $queue.Count) {
+        throw "rat preview-art needs at least one product slug."
+    }
+
+    Sync-Main
+    foreach ($item in $queue) {
+        Run-PreviewArt $item
+    }
+}
+
 function Run-Doctor {
     Write-Host "RatPack local doctor" -ForegroundColor Cyan
     Write-Host "Repo: $RepoRoot"
@@ -542,6 +580,8 @@ switch ($Action.ToLowerInvariant()) {
     "kit" { Invoke-SlugBatch -Mode "kit" -Slugs $RequestedSlugs }
     "kit-cloud" { Invoke-SlugBatch -Mode "kit" -Slugs $RequestedSlugs }
     "stage" { Invoke-SlugBatch -Mode "stage" -Slugs $RequestedSlugs }
+    "preview-art" { Invoke-PreviewArtBatch -Slugs $RequestedSlugs }
+    "preview" { Invoke-PreviewArtBatch -Slugs $RequestedSlugs }
     "open" { Start-Process explorer.exe $RepoRoot }
     "doctor" { Run-Doctor }
     default {
