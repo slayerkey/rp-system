@@ -20,14 +20,14 @@ Do not mark this smoke PASS if the tested candidate differs from the package int
 0. For normal hardware iteration run `rat dev text-expander` and `rat dev text-expander-pro`. Rat Dev now resolves the shared source to each edition's exact `ship_plugin_dir`. For the final combined release identity check, `scripts/hardware-smoke.ps1 -Edition both` remains available.
 1. Confirm Text Expander Lite and Pro link as separate plugin UUIDs and do not replace each other.
 2. When testing the packaged Marketplace candidate, confirm the correct device-specific starter profile imports on Standard/MK.2, Mini, XL, Stream Deck +, and Neo where hardware is available.
-3. Confirm the Lite starter profile is intentionally just **EMAIL +** and **CLIP +**.
-4. Confirm Pro opens with a **QUICK** page containing **EMAIL +, CLIP +, TIME, DATE, ADDRESS, LINK**, followed by the deeper workflow pages.
+3. Confirm the Lite starter profile contains **EMAIL +, CLIP +, LIBRARY**.
+4. Confirm Pro opens with a **QUICK** page containing **EMAIL +, CLIP +, TIME, DATE, ADDRESS, LINK, LIBRARY** on Standard/MK.2, XL, Plus, and Neo. Mini keeps QUICK at six keys and places **LIBRARY** on EMAIL because the 3×2 QUICK grid is full.
 
 ## First-run happy path
 
 Do this before any deeper variable testing.
 
-1. Add **Insert Snippet** to a key. Confirm there is no second visible Manage Snippets action in the actions list.
+1. Confirm the actions list exposes both **Insert Snippet** and **Full Library**. Pressing Full Library should open the local dashboard.
 2. In the Property Inspector click **Open snippet library**.
 3. Click **New snippet**, name the snippet `TEST`, enter `hello world`, and click **Save changes**.
 4. Confirm `TEST` immediately appears in the Snippet selector.
@@ -36,8 +36,8 @@ Do this before any deeper variable testing.
 7. Edit `TEST` to `hello again`, save, press the same key, and confirm the updated text is inserted.
 8. Restart Stream Deck software and confirm `TEST` still exists and still inserts correctly.
 9. Confirm **Insert method** reads **Smart (recommended)**, **Type text**, and **Paste with clipboard**. There should be no old `Unicode typing` or `Clipboard paste + restore` wording.
-10. Confirm Pro shows **Open reusable variables & full library ↗** under Dynamic text. Open it, change a reusable variable, save, and confirm the change is available on the next insertion.
-11. Confirm the legacy hidden library action, if already placed from an earlier dev build, no longer blocks access to editing: selecting it shows the inline snippet editor.
+10. Confirm Pro shows **Open full library dashboard ↗** under Dynamic text. Open it, change a reusable variable, save, and confirm the change is available on the next insertion.
+11. Press the bundled **LIBRARY** hardware key and confirm it opens the same full local dashboard.
 12. Delete the snippet currently assigned to a placed key. Confirm the key automatically falls back to a valid remaining snippet, persists that repaired selection, and still works when pressed instead of showing a stale-ID alert.
 
 ## Insertion matrix
@@ -78,6 +78,12 @@ Verify at press time:
 ## Pro variables
 
 Verify:
+
+- In the normal Property Inspector snippet editor and the Full Library dashboard, confirm the date/time presets are visible.
+- Change the built-in Time snippet to **12-hour time** and confirm a live value such as `7:23 PM`.
+- Change Time to **24-hour time** and confirm a live value such as `19:23`.
+- Test **With seconds**, **US date**, **Readable date**, **Long date**, and **Date + time**.
+- Confirm presets replace the single token on the built-in Time/Date/Stamp snippets, but insert at the caret for a normal custom snippet.
 
 - `{date}`, `{time}`, and `{datetime}`
 - custom format such as `{datetime:YYYY-MM-DD HH:mm:ss}`
