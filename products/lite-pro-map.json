@@ -182,10 +182,12 @@
         "widgets/retro-terminal-pro"
       ],
       "source_status": "free_catalog_only_source_unavailable_pro_marketplace_live",
-      "notes": "The published free Retro Terminal remains unchanged until its exact source/package is recovered. Retro Terminal Pro is live on Marketplace. When the free package is available, use the standard XENEON Lite→Pro in-widget overlay with a prominent View Pro CTA routed directly to the verified Pro Marketplace URL.",
+      "notes": "The published free Retro Terminal is live on Marketplace (public listing currently v1.0.1), but its exact source/package is not stored in rp-system. Retro Terminal Pro is live on Marketplace. When the free package is recovered, use the standard XENEON Lite→Pro in-widget overlay with a prominent View Pro CTA routed directly to the verified Pro Marketplace URL.",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/retro-terminal-pro-c2b47dcc-9c5a-4bf6-9007-18418a5724cf",
       "pro_marketplace_product_id": "c2b47dcc-9c5a-4bf6-9007-18418a5724cf",
-      "upsell_surface": "Lite in-widget XENEON Pro upgrade overlay"
+      "upsell_surface": "Lite in-widget XENEON Pro upgrade overlay",
+      "lite_marketplace_url": "https://marketplace.elgato.com/product/retro-terminal-35b54acf-643d-4a1f-9418-0b811555a002",
+      "lite_marketplace_product_id": "35b54acf-643d-4a1f-9418-0b811555a002"
     },
     {
       "lite_id": "windows-settings-manager-lite",
