@@ -3,7 +3,7 @@
   "name": "Wireless Device Manager",
   "type": "plugin",
   "status": "qa_passed",
-  "workflow_state": "READY_FOR_HARDWARE_QA",
+  "workflow_state": "READY_TO_SHIP",
   "price_usd": 0,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -11,10 +11,10 @@
   "plugin_uuid": "com.packrat.wireless-device-manager",
   "automated_feasibility": "GO",
   "hardware_smoke": "MAYA_X_PASS_BLUETOOTH_AUDIO_CONTROL_WAIVED",
-  "notes": "Free Lite edition. One selected device with sole-visible auto-selection. Battery/charging/control are capability-gated and battery percentages remain device-reported. Canonical top-right and bottom Pro upgrade surfaces are active and use the PackRat maker Marketplace page until the verified direct Pro listing exists.",
+  "notes": "Free Lite edition. One selected device with sole-visible auto-selection. Battery/charging/control are capability-gated and battery percentages remain device-reported. Final visual approval is complete. Canonical top-right and bottom Pro upgrade surfaces are active and use the PackRat maker Marketplace page until the verified direct Pro listing exists.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json",
-  "blocker": "Bluetooth hardware QA is waived for this release. Lite is code-complete. Its canonical top-right and bottom Pro upgrade surfaces are active now and default to the PackRat maker page. Final public Lite release still follows Pro-first publication: once the verified direct Pro Marketplace URL exists, record it, rebuild Lite so both CTAs route directly to Pro, and run the final Lite shipping gate.",
+  "blocker": null,
   "release_gate": [
     "locked dependency install and npm audit with 0 vulnerabilities",
     "64 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
@@ -44,7 +44,9 @@
     "official_elgato_packaging": "PASS_LITE_AND_PRO",
     "lite_package_sha256": "A94D4E194AAED8D8E52BFE9C4797F7C578EDC4B2BCBD2871D771B4746114CB0B",
     "pro_package_sha256": "D4BE5570BEAF8B23637EAD6422A5F6E71EBE72F715CDDE7C59F2FDE880A6194F",
-    "lite_pro_upgrade_fallback": "PASS - Lite top-right Upgrade to Pro and bottom Pro feature card are always visible after Lite edition state is known; direct Pro /product/ URL is used when verified, otherwise both route to https://marketplace.elgato.com/maker/packrat."
+    "lite_pro_upgrade_fallback": "PASS - Lite top-right Upgrade to Pro and bottom Pro feature card are always visible after Lite edition state is known; direct Pro /product/ URL is used when verified, otherwise both route to https://marketplace.elgato.com/maker/packrat.",
+    "owner_visual_approval": "PASS - final Lite and Pro presentation approved on real Stream Deck / Property Inspector",
+    "release_state": "READY_TO_SHIP"
   },
   "catalog_audit": {
     "profiles": {
@@ -75,5 +77,5 @@
       "behavior": "Top-right Upgrade to Pro and bottom Pro feature card are always visible in Lite. Both use the verified direct Pro /product/ URL when available; otherwise both open the PackRat maker page."
     }
   },
-  "final_boundary": "Bluetooth physical QA is waived. Lite can use the PackRat maker fallback before Pro publication. Publish Wireless Device Manager Pro first; once its exact public Marketplace URL is recorded in products/lite-pro-map.json, rebuild/revalidate Lite so both upgrade CTAs route directly to Pro, then complete the final Lite shipping gate."
+  "final_boundary": "READY_TO_SHIP. The product owner visually approved the final Lite and Pro presentation. Wireless Device Manager Lite uses the canonical PackRat maker-page fallback until a verified direct Pro Marketplace URL exists. Run rat ship wireless-device-manager-pro first, then rat ship wireless-device-manager."
 }
