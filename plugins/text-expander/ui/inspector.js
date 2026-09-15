@@ -12,7 +12,9 @@
   let editingId="";
   let editorOpen=false;
   let saveTimer=null;
-  let proUrl=BUILD_VERIFIED_PRO_URL.startsWith("__PACKRAT_")?"":BUILD_VERIFIED_PRO_URL;
+  let proUrl=BUILD_VERIFIED_PRO_URL.startsWith("__PACKRAT_")||!BUILD_VERIFIED_PRO_URL
+    ?PACKRAT_MAKER_URL
+    :BUILD_VERIFIED_PRO_URL;
 
   const $=(id)=>document.getElementById(id);
   const isManage=()=>actionUuid.endsWith(".manage");
@@ -51,8 +53,16 @@
     $("insertSettings").classList.add("hidden");
     $("editor").classList.add("hidden");
     $("dynamicCard").classList.add("hidden");
-    $("upgrade").classList.add("hidden");
-    $("topUpgrade").classList.add("hidden");
+    if(inferredPro){
+      $("upgrade").classList.add("hidden");
+      $("topUpgrade").classList.add("hidden");
+      $("upgradeButton").classList.add("hidden");
+    }else{
+      proUrl=proUrl||PACKRAT_MAKER_URL;
+      $("upgrade").classList.remove("hidden");
+      $("topUpgrade").classList.remove("hidden");
+      $("upgradeButton").classList.remove("hidden");
+    }
     editorOpen=false;
   }
 
@@ -186,7 +196,7 @@
       if(index>=0)snippets[index]={...snippets[index],...data.selectedSnippet};
     }
     builtinIds=new Set(Array.isArray(data.builtinIds)?data.builtinIds:[]);
-    proUrl=String(data.verifiedProUrl||BUILD_VERIFIED_PRO_URL||"");
+    proUrl=String(data.verifiedProUrl||BUILD_VERIFIED_PRO_URL||PACKRAT_MAKER_URL);
 
     $("productTitle").textContent=edition==="pro"?"Text Expander Pro":"Text Expander Lite";
     $("productSubtitle").textContent=edition==="pro"
@@ -221,7 +231,8 @@
 
     const upgrade=$("upgrade");
     const topUpgrade=$("topUpgrade");
-    if(edition==="lite"&&proUrl){
+    if(edition==="lite"){
+      proUrl=proUrl||PACKRAT_MAKER_URL;
       upgrade.classList.remove("hidden");
       $("upgradeButton").classList.remove("hidden");
       topUpgrade.classList.remove("hidden");
