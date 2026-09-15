@@ -24,10 +24,10 @@
   ],
   "marketplace_auto_publish": false,
   "headline": "RECORD -> DO IT -> REPLAY",
-  "description": "Record short keyboard macros by performing them once. Macro Recorder Lite captures key down/up events, combinations and timing on Windows, then lets you assign the recording to a Stream Deck key and replay it without writing scripts. Great for keyboard shortcuts, hotkeys and simple automation. Mouse recording, long macros, loops and Macro Library are available in Pro.",
-  "release_notes": "- Record keyboard key-down/key-up events, shortcuts and timing.\n- Assign the latest recording to any Replay Macro key and edit event delays.\n- Includes ready-to-use starter profiles for standard Stream Deck, Mini, XL, Plus, and Neo with REC / STOP / PLAY and safe keyboard examples.\n- Adds a global Stop action and Ctrl+Shift+F12 emergency playback stop.",
+  "description": "Record short keyboard macros by performing them once. Macro Recorder Lite captures key down/up events, shortcuts, key combinations and timing on Windows, then replays them from Stream Deck without scripting. New recordings automatically fill an empty Play key, and you can inspect the recorded steps and adjust delays. Lite is limited to 30 seconds and 60 keyboard events per macro. Macro Recorder Pro adds mouse recording, longer macros, playback speed, repeat modes, a reusable Macro Library, full editing and import/export.",
+  "release_notes": "- Record keyboard shortcuts, combinations and timing for up to 30 seconds / 60 events.\n- New recordings automatically fill an empty Play key; each Play key stores its own local macro.\n- Inspect recorded keyboard steps and adjust per-step delays without writing macro syntax.\n- Includes focused Record / Play / Stop / Find / Save / Next x3 starter profiles for Stream Deck, Mini, XL, Plus and Neo.\n- Uses the canonical PackRat Property Inspector and red Record / green Play / white Stop key visuals.",
   "hero": "RECORD -> DO IT -> REPLAY",
-  "tagline": "Record keyboard workflows once. Replay them from Stream Deck.",
+  "tagline": "Record short keyboard workflows once. Replay them from Stream Deck.",
   "keywords": [
     "keyboard",
     "macro",
@@ -40,13 +40,13 @@
     "record keystrokes",
     "keyboard macro"
   ],
-  "privacy": "Macro contents are never uploaded to PackRat. Lite stores assigned macros in local Stream Deck action settings; if the user exports or shares a Stream Deck profile, those action settings can be included in that exported profile.",
+  "privacy": "Macro contents are never uploaded to PackRat. Lite stores each assigned keyboard macro in that local Stream Deck Play action's settings. Exporting or sharing a Stream Deck profile can include those action settings.",
   "compatibility": {
     "platform": "Windows 10+",
     "stream_deck": "7.1+"
   },
   "pro_marketplace_url": null,
-  "pro_url_policy": "Do not populate until a verified direct Macro Recorder Pro Marketplace URL exists.",
+  "pro_url_policy": "Optional post-launch upgrade link. Populate only after the direct Macro Recorder Pro Marketplace product URL is verified.",
   "media": {
     "marketplace_app_icon": "artifacts/marketplace/macro-recorder-lite/00-app-icon.png",
     "thumbnail": "artifacts/marketplace/macro-recorder-lite/01-hero.png",
