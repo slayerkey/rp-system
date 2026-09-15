@@ -147,11 +147,41 @@ $heroArgs = @(
     "--submission", $submissionPath,
     "--out", $hero
 )
+$needsSvgRuntime = $false
 if (Test-Path $keysDir -PathType Container) {
     $heroArgs += @("--keys-dir", $keysDir)
 }
 elseif (Test-Path $keyFixtures -PathType Leaf) {
     $heroArgs += @("--key-fixtures", $keyFixtures)
+    $needsSvgRuntime = $true
+}
+else {
+    $needsSvgRuntime = $true
+}
+
+if ($needsSvgRuntime) {
+    $toolsRoot = Join-Path $RepoRoot "tools"
+    $playwrightModule = Join-Path $toolsRoot "node_modules\playwright"
+    if (-not (Test-Path $playwrightModule -PathType Container)) {
+        & npm install --prefix $toolsRoot --no-save --package-lock=false --no-fund --no-audit "playwright@1.62.1" | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not install canonical Playwright runtime for '$Slug'."
+        }
+    }
+
+    Push-Location $toolsRoot
+    try {
+        & node -e "import('playwright').then(({chromium})=>process.exit(require('fs').existsSync(chromium.executablePath())?0:2)).catch(()=>process.exit(3))" *> $null
+        if ($LASTEXITCODE -ne 0) {
+            & npx playwright install chromium | Out-Host
+            if ($LASTEXITCODE -ne 0) {
+                throw "Could not install canonical Chromium runtime for '$Slug'."
+            }
+        }
+    }
+    finally {
+        Pop-Location
+    }
 }
 
 Write-Host "Rat Art preview: apply canonical final Rat Ship hero..." -ForegroundColor Cyan
