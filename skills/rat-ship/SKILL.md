@@ -89,6 +89,22 @@ Before authenticated Maker Console submission:
 
 If the final ship-kit cover is wrong, fix the global/product Rat Art pipeline first and regenerate the candidate.
 
+
+## Canonical Stream Deck campaign routing
+
+Rat Ship must consume the shared Stream Deck Marketplace campaign configuration from `tools/art/streamdeck_marketplace_campaign.py`.
+
+The approved defaults are:
+- cover scene: `warm-studio-v1/base.png`
+- gallery scene: `warm-studio-clean-v1/base-v2.png`
+- campaign style: `warm-studio-glass-v1`
+
+Per-product overrides live in `products/<slug>.json` under `marketplace_art`. Rat Ship owns the final cover overwrite and must use the resolved `hero_scene` and `hero_title_style`. Product-local gallery renderers should use the resolved `gallery_scene` and shared campaign primitives.
+
+Before shipping or staging visually sensitive Stream Deck products, `rat preview-art <slug>` is the canonical visual approval path. It validates campaign configuration, renders product-local art, applies the final Rat Ship hero, and produces the five-image contact sheet without touching Maker Console.
+
+Do not silently fall back to a different hero or gallery world when a configured scene is missing. Fail closed.
+
 ## Stream Deck canonical UI preflight
 
 Before packaging a Stream Deck plugin that uses the PackRat canonical Property Inspector, Rat Ship should require the shared design audit against the actual shipping source:
