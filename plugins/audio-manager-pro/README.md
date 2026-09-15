@@ -56,11 +56,23 @@ That library owns MMDevice enumeration, endpoint volume/mute, role-aware default
 
 Audio Control Center keeps its original behavior by using a thin adapter that sets Default and Communications roles together. Audio Manager Pro exposes the roles separately.
 
+## Microphone mute boundary
+
+`Mute Default Mic` controls the Windows Default capture endpoint through Windows Core Audio and verifies the endpoint's mute flag afterward.
+
+That is an OS-endpoint guarantee, not an end-to-end signal guarantee for every audio stack. Virtual/pro-audio mixers such as VoiceMeeter can capture or route a microphone through their own strips/buses and may continue passing audio even while Windows reports the endpoint muted.
+
+When VoiceMeeter is detected, Audio Manager therefore reports **Windows endpoint muted** rather than claiming the entire microphone route is silent. True VoiceMeeter strip mute would require a separate explicit VoiceMeeter Remote API target/mapping; Audio Manager does not guess a strip.
+
 ## Wave Link boundary
 
 Audio Manager Pro uses Windows audio roles only. It does not call private Wave Link internals.
 
 Wave Link users can configure Monitor Mix to follow Windows Default Output, or use Elgato's official Wave Link Stream Deck plugin for Wave-specific routing.
+
+## Property Inspector behavior
+
+The Property Inspector is constrained to the Stream Deck viewport: long device names ellipsize instead of creating horizontal scrolling. Profile management keeps Capture/Refresh/Save/Delete feedback beside the profile controls, Enter saves a rename, and the removed profile-accent picker no longer adds a setting that does not materially help the audio workflow.
 
 ## Development
 
