@@ -56,7 +56,7 @@ jobs:
 
       - name: Official Elgato package
         working-directory: ${{ env.PLUGIN_ROOT }}
-        run: npx streamdeck pack ${{ env.PLUGIN_DIR }} --output dist --force --no-update-check --no-file-list
+        run: npx streamdeck pack ${{ env.PLUGIN_DIR }} --output dist --force --no-update-check
 
       - name: Normalize package name and write release notes
         working-directory: ${{ env.PLUGIN_ROOT }}
