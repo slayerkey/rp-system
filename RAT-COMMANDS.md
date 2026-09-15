@@ -101,6 +101,10 @@ The cover is separate from the gallery. Stream Deck plugin products can provide 
 
 Maker Console gets one automated attempt per product. If that attempt fails, Rat Ship preserves diagnostics, records that slug as failed, and continues the remaining batch instead of reopening or replaying the same draft automatically. This avoids duplicate package uploads and stale-draft loops.
 
+A visible Maker Console **Unexpected error / Try again** state is treated as a bounded transient UI/service failure: Rat Ship may click **Try again once in place**, reacquire the current step, and continue. It must not restart the browser or replay the full product for that recovery.
+
+If the same upload failure reproduces on an unrelated known-good plugin or through a manual Marketplace upload, classify the incident as Maker Console/platform-side until contrary evidence appears. Do not bump versions, change UUIDs, rebuild unchanged packages, or regenerate art merely to work around that service failure.
+
 On a local Maker Console failure Rat Ship creates:
 
 ```text
