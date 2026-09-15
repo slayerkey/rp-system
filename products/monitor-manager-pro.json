@@ -31,7 +31,7 @@
   "open_profile_on_dev": true,
   "dev_profile": "profiles/monitor-manager-pro-standard.streamDeckProfile",
   "marketplace_art": {
-    "scene": "tools/art/scenes/warm-studio-clean-v1/base-v2.png",
-    "hero_title_style": "glass"
+    "scene": "tools/art/scenes/warm-studio-v1/base.png",
+    "hero_title_style": "monitor"
   }
 }
