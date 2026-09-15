@@ -179,6 +179,19 @@ if(requireLiteProUpsell){
   }
   if(!/justify-content\s*:\s*space-between/i.test(allUi))warnings.push("Lite→Pro: top bar does not visibly use the approved left/right space-between layout.");
   if(!/white-space\s*:\s*nowrap/i.test(allUi))warnings.push("Lite→Pro: top CTA should use white-space: nowrap.");
+
+  for(const bundle of piBundles){
+    const html=String(bundle.html||"");
+    if(!html)continue;
+    const upsellIndex=html.search(/class=["'][^"']*\bupsell\b[^"']*["']/i);
+    const privacyIndex=Math.max(
+      html.search(/class=["'][^"']*\bprivacy\b[^"']*["']/i),
+      html.search(/Local by design/i)
+    );
+    if(upsellIndex>=0&&privacyIndex>=0&&upsellIndex<privacyIndex){
+      errors.push("Lite→Pro: bottom .upsell feature card appears before Local by design/privacy content; keep the large Pro conversion card at the bottom.");
+    }
+  }
 }
 
 const profileEntries=Array.isArray(manifest.Profiles)?manifest.Profiles:[];
