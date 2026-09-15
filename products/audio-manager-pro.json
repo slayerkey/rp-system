@@ -2,9 +2,9 @@
   "id": "audio-manager-pro",
   "name": "Audio Manager Pro",
   "type": "plugin",
-  "status": "testing",
-  "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Core audio switching, profile capture/save/apply, bundled layouts, contextual Property Inspector behavior, safe key rendering, and Windows/native/package gates are green. Remaining physical gate is one short final usability pass on the target Stream Deck: no horizontal PI scroll, simplified direct-device keys, rename/save placement, and honest Windows-endpoint mute wording when VoiceMeeter is present.",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "blocker": null,
   "price_usd": 9.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -30,45 +30,32 @@
     "Stream Deck sleep/wake action and Property Inspector event smoke",
     "read-only Audio Manager host audit at meaningful diagnostic/final checkpoints"
   ],
-  "final_boundary": "Exact-head Windows CI run 34930405696 passed on 6b5ad22164111b9c728b33d3e2be2492124c1608 with 62/62 tests plus canonical PI/key/profile/native/Elgato/package/art gates. Physical testing confirmed profile capture/save/apply, Windows input/output switching, PI width safety, and simplified key faces. VoiceMeeter caveat is conditional PI help only; hardware keys remain MIC LIVE / MIC MUTED. Release state remains unchanged until explicitly promoted.",
+  "final_boundary": "READY_TO_SHIP. Audio Manager Pro passed 62/62 automated tests plus PackRat PI/key/profile/native/Elgato/package/art gates on the validated candidate, and the product owner accepted the completed physical Windows/Stream Deck workflow: profile capture/save/apply, output/input switching, bundled profile layout, PI persistence/width safety, simplified key faces, and final mic wording. VoiceMeeter routing remains an explicitly documented Windows-endpoint mute boundary, not a release blocker.",
   "automated_release_evidence": {
-    "latest_successful_windows_run": 34930405696,
-    "automated_gate": "PASS",
-    "exact_head_at_run": "6b5ad22164111b9c728b33d3e2be2492124c1608",
+    "status": "PASS",
+    "latest_successful_windows_run": 34930663387,
+    "exact_head_at_run": "671d57154c3b2c4887acf723d2d9b3df4aa1a077",
+    "artifact_id": 10382000460,
+    "artifact_name": "audio-manager-pro-release-qa",
+    "artifact_digest": "sha256:6f71954720d62ac94b4311c449a15a071ad021efeb2cbeee3bdf6922370bd066",
     "test_suite": "62/62 passing",
-    "passed": [
-      "shared PackRat AudioCore Windows build",
-      "XENEON Audio Control Center bridge regression build",
-      "locked npm install and high-severity dependency audit",
-      "full Audio Manager test suite",
-      "deterministic standard/MK.2, XL, Plus and Neo profile generation",
-      "canonical plugin release metadata preflight",
-      "canonical PackRat Property Inspector design audit",
-      "Property Inspector horizontal-overflow regressions",
-      "contextual action UI and co-located feedback regressions",
-      "profile rename Enter-to-save and accent-control removal regressions",
-      "Stream Deck key visual audit with major-profile coverage",
-      "simplified direct-device key safe-area regressions",
-      "VoiceMeeter Windows-endpoint mute-boundary regressions",
-      "Audio Manager static host audit",
-      "native helper self-test",
-      "real Windows Core Audio snapshot protocol smoke",
-      "official Stream Deck CLI validation",
-      "official .streamDeckPlugin packaging",
-      "packaged native helper and release-payload hygiene",
-      "deterministic Marketplace media generation",
-      "release QA artifact upload"
-    ],
-    "current_scope": [
-      "PI unsaved profile drafts survive live Windows refresh",
-      "long device names cannot force horizontal PI scrolling",
-      "Save/Delete live beside Rename profile and Enter saves",
-      "profile accent is no longer user-facing or used to recolor keys",
-      "direct input/output keys omit the crowded gray role footer",
-      "active profile and live Windows target are explicit",
-      "Mute Default Mic reports Windows endpoint state honestly when VoiceMeeter is present",
-      "standard/MK.2, XL, Plus and Neo Stream Deck layout profiles are bundled"
-    ]
+    "official_elgato_validation_package": "PASS",
+    "key_visual_audit": "PASS — 0 structural warnings",
+    "note": "The remaining PI design-audit warnings on this run were legacy action icon-folder naming warnings, not runtime or visual-release blockers."
   },
-  "legacy_status": "testing"
+  "legacy_status": "qa_passed",
+  "physical_release_evidence": {
+    "status": "ACCEPTED",
+    "date_local": "2026-09-14",
+    "accepted_release_checks": [
+      "profile capture, rename/save, and apply worked on the target Windows machine",
+      "Windows output and input switching worked from hardware keys",
+      "bundled Stream Deck profile/layout loaded and was usable",
+      "Property Inspector edits persisted through live refresh",
+      "Property Inspector horizontal overflow fix accepted",
+      "simplified speaker/mic key faces accepted",
+      "MIC LIVE / MIC MUTED wording accepted with VoiceMeeter caveat moved to conditional PI help"
+    ],
+    "operator_release_decision": "Product owner stated the functionality has worked, the final UI checks look good, and no additional hardware checks are needed before shipping."
+  }
 }
