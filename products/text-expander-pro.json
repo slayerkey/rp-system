@@ -47,21 +47,21 @@
   "ship_plugin_dir": "dist/com.packrat.textexpanderpro.sdPlugin",
   "automated_tests": 37,
   "automated_release_evidence": {
-    "candidate_commit": "9a3da82211b1f40afe5dcd3e1e5121375b5969be",
-    "github_actions_run": 34921370485,
-    "artifact_id": 10378126887,
-    "artifact_digest": "sha256:299b4ba3ecd4277d77e814879b8cb8d9c258482a42140b4f5590a1ebc83c8718",
+    "candidate_commit": "55ea00acdfb46204f5ad14f76065712fe93b0b68",
+    "github_actions_run": 34922471623,
+    "artifact_id": 10378078507,
+    "artifact_digest": "sha256:36f5e15ff5ea0fbbd9d44a1f26a2d247413c517f546f5cc1e6113f0d1871b7e9",
     "automated_tests": 37,
     "dependency_audit": "PASS - 0 vulnerabilities",
-    "native_windows_bridge": "PASS - hosted Windows compiles and executes the corrected full Win32 INPUT union; real hardware QUICK-key smoke confirmed Email, Clipboard, Time, Date, Address, and Link insertions",
-    "structural_qa": "PASS - Full Library action is visible and bundled exactly once per device profile; Standard/XL/Plus/Neo place it on QUICK, Mini places it on EMAIL, Lite places it on STARTER; Pro PI and Full Library dashboard expose common live date/time format presets",
+    "native_windows_bridge": "PASS - hosted Windows compiles and executes the corrected full Win32 INPUT union; Pro real-hardware QUICK smoke confirmed the shared insertion engine",
+    "structural_qa": "PASS - Full Library is visible and bundled once per device profile; its Property Inspector is launcher-only and ignores snippet-list/detail pushes; Insert Snippet retains inline editing; Lite/Pro remain isolated; Pro date/time presets remain available in Insert Snippet and the full dashboard",
     "key_visual_audit": "PASS - Lite and Pro, 0 structural errors and 0 warnings",
     "official_cli_validation": "PASS - Lite and Pro",
     "official_packaging": "PASS - Lite and Pro",
-    "lite_package_sha256": "150fcd20ca4f4ba9af27de9d1794a27f6f25fc36317321bd0cad9a8aa2da9c5e",
-    "pro_package_sha256": "eb0942bf9f893fc17f83de4a33d6bff05caa7eecab6973037e08c609ffdfff56",
-    "lite_unpacked_content_sha256": "e1bfb5ab349be209ae16824636fb0343c878a01cc91d6a6cbbd66b83bf368262",
-    "pro_unpacked_content_sha256": "f90d10e141be28693439cdaa09e8c78b37b648b610aaab2a2353aad540024d40",
+    "lite_package_sha256": "832768028e9cdc972d5c51265b35b5d848dc023588b9f66784c16d0edbb939f5",
+    "pro_package_sha256": "6bde61674851d84b6961b880dfe04f4c2e8684fc780c3aa781e5a834591eace0",
+    "lite_unpacked_content_sha256": "53bf7a20f126dcfa04ce9bc067f62a45afde92146de2bb08fa4dd06aee961f58",
+    "pro_unpacked_content_sha256": "b05deac813ad4867117b509ee67007b1846cda5f07b0f735d3452e31d927c20f",
     "profile_coverage": [
       "Standard/MK.2",
       "Mini",
@@ -70,8 +70,8 @@
       "Neo"
     ],
     "deterministic_art": "PASS - Lite and Pro",
-    "physical_quick_smoke": "PASS on real Stream Deck - Email placeholder, Clipboard contents, live Time, live Date, Address placeholder, and Link placeholder all inserted successfully",
     "full_library_shortcut": "PASS in packaged profiles - visible Full Library action; one bundled hardware shortcut per device profile with Mini placement adjusted for its 3x2 grid",
+    "launcher_only_library_pi": "PASS - selecting Full Library shows only the dashboard launcher card; it does not load/render the Insert Snippet library editor",
     "date_time_formats": [
       "{time:h:mm A}",
       "{time:HH:mm}",
@@ -82,7 +82,8 @@
       "{datetime:MMM D, YYYY h:mm A}"
     ],
     "host_smoke_identity": "Local combined smoke uses the official Elgato packer, unpacks the temporary package, and compares stable relative-path/file-byte SHA256 content to the validated unpacked-content hash before linking.",
-    "package_container_note": "Outer .streamDeckPlugin SHA256 can change across equivalent pack operations because ZIP metadata can vary. Use unpacked-content SHA256 for exact-content host QA."
+    "package_container_note": "Outer .streamDeckPlugin SHA256 can change across equivalent pack operations because ZIP metadata can vary. Use unpacked-content SHA256 for exact-content host QA.",
+    "physical_quick_smoke": "PASS on real Stream Deck - Email placeholder, Clipboard contents, live Time, live Date, Address placeholder, and Link placeholder all inserted successfully."
   },
-  "blocker": "Real Windows/physical Stream Deck smoke has not yet been recorded as PASS."
+  "blocker": "Core Pro QUICK hardware smoke is PASS. Final release still requires the remaining cross-app/template/clipboard-restoration checks in REAL_WINDOWS_SMOKE.md against this exact candidate."
 }
