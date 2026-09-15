@@ -228,7 +228,7 @@ if(!inspector.includes('src="../imgs/plugin/packrat-logo.png"'))fail("Property I
 if(!inspector.includes("Loading snippets…"))fail("Property Inspector must show a clear snippet-loading state instead of a blank selector.");
 if(!inspector.includes("Open snippet library"))fail("Insert Snippet Property Inspector must expose a clear inline snippet-library control.");
 if(!inspector.includes('id="manageSettings"')||!inspector.includes('id="manageOpenDashboard"')||!inspector.includes("Open Full Library Dashboard ↗"))fail("Full Library Property Inspector must provide a dedicated one-button dashboard launcher.");
-if(!inspector.includes('id="topUpgrade"')||!inspector.includes("Upgrade to Pro ↗"))fail("Lite Property Inspector must include the canonical hidden top Pro conversion surface.");
+if(!inspector.includes('id="topUpgrade"')||!inspector.includes("Upgrade to Pro ↗"))fail("Lite Property Inspector must include the canonical top Pro conversion surface.");
 if(!inspector.includes('class="upsell hidden"')||!inspector.includes("Open Text Expander Pro ↗"))fail("Lite Property Inspector must include the canonical bottom Pro feature card.");
 if(!inspector.includes("multiline, tabbed, or very long text"))fail("Initial Smart insertion help must match the hardened structured-text fallback behavior.");
 if(!inspector.includes("Dynamic text"))fail("Pro Property Inspector must explain available dynamic text.");
@@ -260,8 +260,10 @@ if(!inspectorJs.includes('pro-quick-time')||!inspectorJs.includes('pro-quick-dat
 if(!inspectorJs.includes('BUILD_VERIFIED_PRO_URL')||!inspectorJs.includes('__PACKRAT_VERIFIED_PRO_URL__'))fail("Source Property Inspector must reserve the verified Pro URL for build-time injection.");
 if(!inspectorJs.includes('BUILD_VERIFIED_PRO_URL.startsWith("__PACKRAT_")'))fail("Property Inspector placeholder detection must survive replacement with a real Pro URL.");
 if(inspectorJs.includes('BUILD_VERIFIED_PRO_URL==="__PACKRAT_VERIFIED_PRO_URL__"'))fail("Property Inspector must not compare against the full replaceable Pro URL placeholder.");
-if(!inspectorJs.includes('const topUpgrade=$("topUpgrade")')||!inspectorJs.includes('topUpgrade.classList.remove("hidden")'))fail("Lite top Pro CTA must activate only through verified Pro URL state.");
-if(!inspectorJs.includes('topUpgrade.classList.add("hidden")'))fail("Lite top Pro CTA must stay hidden without a verified Pro URL.");
+if(!inspectorJs.includes('const topUpgrade=$("topUpgrade")')||!inspectorJs.includes('topUpgrade.classList.remove("hidden")'))fail("Lite top Pro CTA must be visible.");
+if(!inspectorJs.includes("PACKRAT_MAKER_URL"))fail("Lite upsell must include the canonical PackRat maker fallback.");
+if(!inspectorJs.includes("data.verifiedProUrl||BUILD_VERIFIED_PRO_URL||PACKRAT_MAKER_URL"))fail("Lite upsell must resolve direct Pro URL first, then PackRat maker fallback.");
+if(!inspectorJs.includes('if(edition==="lite")'))fail("Lite conversion surfaces must stay visible even before the direct Pro URL exists.");
 if(!inspectorJs.includes("multiline, tabbed, or very long text"))fail("Smart insertion help must describe its structured-text clipboard fallback.");
 
 for(const token of ["#080A0E","#151920","#0D1015","#FFB21E","#181C21","#FF5D6C"]){
