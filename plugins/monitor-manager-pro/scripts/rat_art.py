@@ -425,18 +425,12 @@ def plus(path,faces):
     d.text((805,655),"VOLUME  •  rotate for continuous adjustment",font=font(21),fill=(*WHITE,255))
 
     d.text((150,725),"BUNDLED PROFILES INCLUDED",font=font(20),fill=(*MUTED,255))
-    models=[
-        ("STANDARD / MK.2","KEYS + PROFILE"),
-        ("XL","KEYS + PROFILE"),
-        ("STREAM DECK+","KEYS + 3 DIALS"),
-        ("VIRTUAL","KEYS + PROFILE"),
-    ]
+    models=["STANDARD / MK.2","XL","STREAM DECK+","VIRTUAL"]
     x=150
     widths=[395,300,430,300]
-    for (name,detail),w in zip(models,widths):
+    for name,w in zip(models,widths):
         d.rounded_rectangle((x,755,x+w,815),radius=17,fill=(10,15,22,225),outline=(80,91,108,230),width=2)
-        d.text((x+22,777),name,font=font(18),fill=(*WHITE,255),anchor="lm")
-        d.text((x+w-22,777),detail,font=font(15),fill=(*MUTED,255),anchor="rm")
+        d.text((x+w/2,785),name,font=font(20),fill=(*WHITE,255),anchor="mm")
         x+=w+18
     footer(im); save(im,path)
 
