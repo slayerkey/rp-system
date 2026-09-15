@@ -73,13 +73,11 @@ const pluginDir=resolve(imgs,"plugin");
 await mkdir(pluginDir,{recursive:true});
 await cp(resolve(root, "..", "..", "tools", "art", "assets", "ratpack-icon-transparent.png"), resolve(pluginDir, "packrat-logo.png"));
 await writeFile(resolve(pluginDir,"icon.png"),iconPng(256));
-await writeFile(resolve(pluginDir,"icon@2x.png"),iconPng(512));
 
 const categoryDir=resolve(imgs,"category");
 await mkdir(categoryDir,{recursive:true});
 const category=(size)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 28 28" fill="none"><path d="M5 7h18M5 14h18M5 21h18" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="10" cy="7" r="2.7" fill="#fff"/><circle cx="18" cy="14" r="2.7" fill="#fff"/><circle cx="12" cy="21" r="2.7" fill="#fff"/></svg>`;
-await writeFile(resolve(categoryDir,"icon.svg"),category(28));
-await writeFile(resolve(categoryDir,"icon@2x.svg"),category(56));
+await writeFile(resolve(categoryDir,"icon.svg"),category(56));
 
 const kinds=["apply","set-output","set-input","cycle","status","mute-mic","volume"];
 function glyph(kind,color="#fff") {
