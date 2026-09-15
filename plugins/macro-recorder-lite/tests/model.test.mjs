@@ -4,6 +4,7 @@ import { LITE_LIMITS, exportEnvelope, importEnvelope, normalizeMacro, playbackSa
 
 const pro=false;
 const limits=LITE_LIMITS;
+assert.deepEqual(LITE_LIMITS,{maxDurationMs:10_000,maxEvents:50});
 
 test("preserves modifier down/up ordering and timing",()=>{
  const macro=normalizeMacro({name:"Ctrl+C",events:[
@@ -66,11 +67,11 @@ test("unmatched key-down is surfaced for edited or truncated recordings",()=>{
 
 test("slow sequence just inside Lite duration remains valid",()=>{
  const macro=normalizeMacro({events:[
-  {type:"keyDown",vk:65,delayMs:29_000},
+  {type:"keyDown",vk:65,delayMs:9_000},
   {type:"keyUp",vk:65,delayMs:900}
  ]},{pro:false,limits});
  assert.equal(macro.events.length,2);
- assert.equal(macro.durationMs,29_900);
+ assert.equal(macro.durationMs,9_900);
 });
 
 test("auto-repeat key-downs clear with one logical key-up",()=>{
@@ -95,11 +96,11 @@ test("malformed executable events are dropped rather than coerced",()=>{
  assert.equal(macro.events[0].vk,65);
 });
 
-test("Lite clamps an edited delay to its 30-second edition boundary",()=>{
+test("Lite clamps an edited delay to its 10-second edition boundary",()=>{
  const macro=normalizeMacro({events:[
   {type:"keyDown",vk:65,delayMs:120_000}
  ]},{pro:false,limits});
- assert.equal(macro.events[0].delayMs,30_000);
+ assert.equal(macro.events[0].delayMs,10_000);
 });
 
 test("Lite one-shot playback is unaffected by infinite-loop guard",()=>{
