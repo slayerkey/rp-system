@@ -4,7 +4,7 @@
     {
       "UUID": "com.packrat.macro-recorder-lite.record",
       "Name": "Record Keyboard Macro",
-      "Tooltip": "Start recording keyboard input.",
+      "Tooltip": "Start or stop a short keyboard macro recording.",
       "Icon": "imgs/actions/record/icon",
       "Controllers": [
         "Keypad"
@@ -15,16 +15,15 @@
       "States": [
         {
           "Image": "imgs/actions/record/key",
-          "ShowTitle": true,
-          "TitleAlignment": "middle"
+          "ShowTitle": false
         }
       ],
       "SupportedInKeyLogicActions": false
     },
     {
       "UUID": "com.packrat.macro-recorder-lite.stop",
-      "Name": "Stop Recording / Playback",
-      "Tooltip": "Stop the active recording or immediately cancel playback.",
+      "Name": "Stop",
+      "Tooltip": "Stop the active recording or playback.",
       "Icon": "imgs/actions/stop/icon",
       "Controllers": [
         "Keypad"
@@ -35,16 +34,15 @@
       "States": [
         {
           "Image": "imgs/actions/stop/key",
-          "ShowTitle": true,
-          "TitleAlignment": "middle"
+          "ShowTitle": false
         }
       ],
       "SupportedInKeyLogicActions": false
     },
     {
       "UUID": "com.packrat.macro-recorder-lite.replay",
-      "Name": "Replay Macro",
-      "Tooltip": "Replay the keyboard macro assigned to this key.",
+      "Name": "Play Keyboard Macro",
+      "Tooltip": "Replay the keyboard macro stored on this key.",
       "Icon": "imgs/actions/replay/icon",
       "Controllers": [
         "Keypad"
@@ -55,8 +53,7 @@
       "States": [
         {
           "Image": "imgs/actions/replay/key",
-          "ShowTitle": true,
-          "TitleAlignment": "middle"
+          "ShowTitle": false
         }
       ]
     }
@@ -65,7 +62,7 @@
   "Category": "Macro Recorder Lite",
   "CategoryIcon": "imgs/category/icon",
   "CodePath": "bin/plugin.js",
-  "Description": "Record short keyboard macros once, then assign and replay them from Stream Deck on Windows.",
+  "Description": "Record short keyboard macros, then replay them from Stream Deck on Windows.",
   "Icon": "imgs/plugin/icon",
   "Name": "Macro Recorder Lite",
   "Nodejs": {
