@@ -36,6 +36,8 @@ A direct host/native probe is only native-boundary evidence. It does not prove t
 
 The visual gate is not satisfied by correct image dimensions alone. Every PackRat Keypad state must explicitly use `ShowTitle: false`; state/value text belongs inside the rendered key image. Review keys at 72 x 72 and 36 x 36. Reject clipped text, text crossing the main glyph, tiny low-contrast subjects, dense generic device illustrations behind labels, unrelated actions that all look the same, preset buttons that all collapse to one current value, and raw resolution strings that run off the key. Dynamic state must be readable without requiring the user to remember what the button means.
 
+For runtime data cards, test setup/permission/error/unavailable states separately from healthy numeric states. `SETUP`, `NO DATA`, `WAITING`, and `ERROR` must use fitted state typography, remain inside an explicit safe region, and must not carry live metric units. When the renderer accepts a target size, add deterministic 36/72/144 tests instead of validating only the 144 px source.
+
 Reject ambiguous extensionless assets as well: a manifest path such as `imgs/actions/foo/key` must not have competing SVG/PNG/@2x candidates. Review representative runtime-generated states in addition to static manifest art, because runtime rendering is the shipping UI.
 
 For profiles, include ZIP structure, page structure, action IDs, required plugins, device variants, icons, platform encoding, and the same key-face visual standard.
@@ -65,6 +67,8 @@ For art, include dimensions, expected file count, font identity, required source
 
 For live battery/device telemetry, distinguish **freshness** from **value change**. If repeated fresh bridge/device reads return the same percentage, treat that as device-reported telemetry rather than forcing a synthetic change. Where practical, expose/log transport, source, observation timestamp, charging state, and repeated samples. Clear stale value/source/timestamp metadata when the device disappears.
 
+For numeric telemetry, distinguish **missing** from **zero** before coercion. JavaScript helpers must reject `null`, `undefined`, and empty strings before `Number(...)`; otherwise unavailable sensors can become believable zeros. Canonical temperature/sensor alias tests should prove a plausible alternate sensor wins over an invalid source and that all-invalid/missing inputs produce null/unavailable, never fake `0°C`.
+
 Do not mark the whole workflow local because a final device check remains.
 
 Do not preserve a stale `qa_passed` state after Marketplace or real-host evidence demonstrates a failure. Route the product back to blocked/recovery status until the rejected behavior is covered by an automated regression and that regression passes against the exact package intended for resubmission.
@@ -86,5 +90,7 @@ A stale test that blocks Rat Dev after an intentional limit change is useful evi
 For user-requested PI hierarchy/placement changes that affect conversion or comprehension, add a structural regression (DOM/order/class relationship), not just a screenshot or presence assertion. In Lite products, the large bottom Pro upsell should remain after normal Lite/setup/privacy content.
 
 For paid/private-source products, distinguish infrastructure failure from product failure. A private Actions run that fails before meaningful checkout/test steps because runner allocation is unavailable is not code evidence. Use the established public control-plane/private-source QA bridge when configured, pin the exact private SHA, keep paid source/packages out of public artifacts, and record the actual Windows/macOS job evidence.
+
+When the operator deliberately accepts a deferred hardware/runtime check for release, record it as an explicit accepted risk. Do not rewrite the deferred item as PASS; pin the exact automated artifact/package evidence and list the unexecuted check in release metadata.
 
 Report automated pass, warnings, blockers, and the smallest exact hardware or host test still required.
