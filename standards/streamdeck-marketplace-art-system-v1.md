@@ -32,8 +32,6 @@ A product may override scene choices in `products/<slug>.json`:
 ```json
 {
   "marketplace_art": {
-    "hero_scene": "tools/art/scenes/warm-studio-v1/base.png",
-    "gallery_scene": "tools/art/scenes/warm-studio-clean-v1/base-v2.png",
     "hero_title_style": "monitor",
     "campaign_style": "warm-studio-glass-v1",
     "gallery_mode": "native"
@@ -42,6 +40,8 @@ A product may override scene choices in `products/<slug>.json`:
 ```
 
 The shared resolver is authoritative. Do not hardcode alternate scene paths in Rat Ship.
+
+Normal products should inherit the global scene defaults rather than pinning today's filenames. Only set `hero_scene` or `gallery_scene` when the product intentionally needs a permanent exception. This keeps future global scene upgrades automatic.
 
 ### Final gallery normalization contract
 
