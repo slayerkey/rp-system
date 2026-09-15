@@ -53,6 +53,29 @@ Monitor Manager Pro is the PackRat reference for compact utility controls. The p
 
 These numbers are a proven starting point, not a reason to force every plugin into the exact same typography. The invariant is stronger: the renderer owns the collision-free geometry.
 
+### Runtime state typography contract
+
+Runtime state words are a different visual class from measurements.
+
+Examples include:
+
+- `SETUP`
+- `NO DATA`
+- `WAITING`
+- `PERMISSION`
+- `ERROR`
+- `N/A`
+
+Do not route these through the same primary-value formatter used for short numeric measurements. A five-character word can be wider than `49`, and a generic numeric formatter may also append a unit that makes the centered text shift and clip.
+
+Required behavior:
+
+- state/setup/error tokens use a dedicated fitted font path
+- primary state text stays inside an explicit safe or clip region
+- units are omitted whenever the primary token is not a real measurement
+- representative runtime states are regression-tested at 36, 72, and 144 source/output scales when the renderer supports those scales
+- the static fallback image is not accepted as proof that runtime state text fits
+
 Centralize semantic glyphs in one obvious map keyed by the stable action slug. Do not scatter one-off SVG strings across action handlers.
 
 ## 3. Short labels and equal hierarchy
@@ -80,6 +103,22 @@ Examples:
 Do not repaint every preset key with one shared current hardware value; that makes distinct buttons visually identical.
 
 Live values belong on actions whose job is status/monitoring, and on encoder feedback. If the same action supports both Keypad and Encoder, the Keypad may show the configured preset while the Encoder shows the live value.
+
+### Missing telemetry is not zero
+
+Treat absence, corruption, unsupported hardware, and real numeric zero as distinct states.
+
+JavaScript's `Number(null) === 0` and `Number("") === 0` are dangerous for telemetry. A generic numeric coercion helper must reject `null`, `undefined`, and empty strings before calling `Number(...)`.
+
+For hardware sensors:
+
+- reject impossible canonical readings when the domain makes them non-physical, such as CPU/GPU temperatures at or below 0°C on a normal running Windows gaming host
+- if multiple raw sensors can satisfy a canonical metric, prefer a plausible available sensor rather than pinning a stale/invalid first match
+- if no plausible source exists, clear the canonical value/timestamp and render unavailable
+- never preserve a stale canonical alias after the underlying hardware disappears
+- never turn unsupported/unavailable telemetry into a believable `0`, `0°C`, `0 RPM`, or similar live reading
+
+Add regressions for both paths: a valid fallback sensor should win over an impossible zero, and all-invalid/missing inputs should produce unavailable/null rather than zero.
 
 ## 4. Canonical PackRat visual system
 
