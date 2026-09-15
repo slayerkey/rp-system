@@ -71,7 +71,7 @@ function profileBody(profile, status = "", active = false) {
 
 export function renderKey(kind, { profile = null, endpoint = null, active = false, status = "", muted = false, missing = false, offline = false, role = "default" } = {}) {
   if (["apply", "cycle", "status"].includes(kind)) {
-    const frameColor = profile?.accent || (status ? resultColor(status) : ACCENT);
+    const frameColor = status ? resultColor(status) : (profile?.accent || ACCENT);
     return svgDataUri(frame(profileBody(profile, status, active), frameColor));
   }
 
@@ -86,7 +86,7 @@ export function renderKey(kind, { profile = null, endpoint = null, active = fals
     const glyph = kind === "set-output"
       ? `<path d="M35 43h21l22-17v57L56 66H35z" fill="none" stroke="${FG}" stroke-width="6" stroke-linejoin="round"/><path d="M89 40c8 8 8 21 0 29M99 31c14 14 14 31 0 45" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round"/>`
       : `<rect x="60" y="20" width="24" height="45" rx="12" fill="none" stroke="${FG}" stroke-width="6"/><path d="M49 55c0 16 9 25 23 25s23-9 23-25M72 80v14M58 95h28" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/>`;
-    return svgDataUri(frame(`${glyph}${text(72, 109, label, 13, MUTED, 850, .7)}${text(72, 131, name, deviceTextSize(name), color, 800)}`, color));
+    return svgDataUri(frame(`${glyph}${text(72, 109, label, 14, MUTED, 850, .55)}${text(72, 131, name, deviceTextSize(name), color, 800)}`, color));
   }
 
   if (kind === "mute-mic") {
