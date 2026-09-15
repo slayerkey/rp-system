@@ -127,6 +127,13 @@ if (-not (Test-Path $artScript -PathType Leaf)) {
     throw "Product Rat Art entry point is missing: $artScript"
 }
 
+$campaignValidator = Join-Path $RepoRoot "tools\art\validate_streamdeck_marketplace_campaign.py"
+Write-Host "Rat Art preview: validate canonical campaign config..." -ForegroundColor Cyan
+& python $campaignValidator --product $Slug | Out-Host
+if ($LASTEXITCODE -ne 0) {
+    throw "Marketplace campaign validation failed for '$Slug'."
+}
+
 Write-Host "Rat Art preview: render product-local gallery..." -ForegroundColor Cyan
 & $artScript -Destination $destination | Out-Host
 if ($LASTEXITCODE -ne 0) {
