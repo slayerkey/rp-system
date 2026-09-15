@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-01",
+  "updated_at": "2026-09-15",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -178,6 +178,21 @@
       ],
       "source_status": "free_catalog_only_source_unavailable_pro_qa_passed",
       "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
+    },
+    {
+      "lite_id": "audio-manager-lite",
+      "pro_id": "audio-manager-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "plugins/audio-manager-lite",
+        "plugins/audio-manager-pro",
+        "companions/packrat-audio-core"
+      ],
+      "source_status": "lite_source_built_pro_hardware_qa",
+      "notes": "Lite is the output-switching-only free edition. Pro expands the same Windows audio use case into complete Audio Profiles, input/Communications routing, cycling/status, mic control, restore state, and Stream Deck+ profile volume. Until the verified direct Pro Marketplace URL is recorded, both canonical Lite CTAs use the PackRat maker fallback.",
+      "upsell_surface": "Lite Property Inspector",
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
     }
   ],
   "standalone_free": [
