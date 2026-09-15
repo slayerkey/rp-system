@@ -56,6 +56,13 @@ test("stale or empty snippet selections repair to the first available snippet wi
   assert.equal(none.snippet,null);
 });
 test("date formatter supports documented tokens",()=>assert.equal(formatDate(fixed,"dddd, MMMM D YYYY HH:mm:ss"),"Saturday, September 12 2026 22:16:05"));
+test("Pro date/time presets render common 12h, 24h, readable date, and combined formats",()=>{
+  assert.equal(renderSnippet("{time:h:mm A}",{edition:"pro",now:fixed}).text,"10:16 PM");
+  assert.equal(renderSnippet("{time:HH:mm:ss}",{edition:"pro",now:fixed}).text,"22:16:05");
+  assert.equal(renderSnippet("{date:MM/DD/YYYY}",{edition:"pro",now:fixed}).text,"09/12/2026");
+  assert.equal(renderSnippet("{date:MMM D, YYYY}",{edition:"pro",now:fixed}).text,"Sep 12, 2026");
+  assert.equal(renderSnippet("{datetime:MMM D, YYYY h:mm A}",{edition:"pro",now:fixed}).text,"Sep 12, 2026 10:16 PM");
+});
 test("missing app context and empty reusable variables resolve safely",()=>{
   assert.equal(renderSnippet("{app}|{blank}",{edition:"pro",variables:{blank:""}}).text,"|");
 });
