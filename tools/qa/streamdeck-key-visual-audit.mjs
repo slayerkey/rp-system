@@ -49,6 +49,21 @@ function inspectSvg(file,name){
     if(Math.abs(w-h)>0.01)warnings.push(name+": key SVG viewBox is not square ("+w+" x "+h+")");
     if(Math.max(w,h)<72)warnings.push(name+": key SVG source canvas is smaller than 72 px");
   }
+  const accent="#ffb21e";
+  const canvas=view?Math.max(Number(view[1]),Number(view[2])):144;
+  for(const match of text.matchAll(/<line\b[^>]*\bx1=["']([\d.]+)["'][^>]*\by1=["']([\d.]+)["'][^>]*\bx2=["']([\d.]+)["'][^>]*\by2=["']([\d.]+)["'][^>]*\bstroke=["'](#(?:ffb21e|ffc44d))["'][^>]*>/gi)){
+    const [,x1,y1,x2,y2,color]=match;
+    const yy=Math.max(Number(y1),Number(y2));
+    if(Math.abs(Number(y1)-Number(y2))<=1&&Math.abs(Number(x2)-Number(x1))>=canvas*.5&&yy<=canvas*.2){
+      errors.push(name+": decorative PackRat accent rail detected near the top of the hardware key. Use orange only for a semantic detail, not a generic repeated stripe.");
+    }
+  }
+  for(const match of text.matchAll(/<path\b[^>]*\bd=["'][^"']*M\s*([\d.]+)[ ,]([\d.]+)\s*h\s*([\d.]+)[^"']*["'][^>]*\bstroke=["'](#(?:ffb21e|ffc44d))["'][^>]*>/gi)){
+    const [,x,y,dx,color]=match;
+    if(Math.abs(Number(dx))>=canvas*.5&&Number(y)<=canvas*.2){
+      errors.push(name+": decorative PackRat accent rail detected near the top of the hardware key. Use orange only for a semantic detail, not a generic repeated stripe.");
+    }
+  }
   const widths=[...text.matchAll(/stroke-width=["']([\d.]+)["']/gi)].map(m=>Number(m[1])).filter(Number.isFinite);
   if(widths.length){
     const min=Math.min(...widths);
