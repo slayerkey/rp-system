@@ -14,38 +14,17 @@
   "open_profile_on_dev": true,
   "dev_profile": "profiles/audio-manager-lite-standard.streamDeckProfile",
   "pro_cta_release_policy": "always_visible_direct_pro_or_packrat_maker_fallback",
-  "notes": "Lite intentionally exposes one useful job: switch Windows Default Output. Pro owns complete Audio Profiles, input/Communications routing, cycle/status, mic control, restore state, and Stream Deck+ profile volume.",
-  "blocker": "Automated release QA is green. Remaining gate is one physical target-machine pass: Rat Dev profile import, output selection persistence, speaker/headphone switching, key readability, current Windows output display, and both Lite→Pro conversion surfaces.",
+  "notes": "Lite intentionally exposes two direct-device jobs: switch Windows Default Output and switch Windows Default Input. Pro owns complete Audio Profiles, Communications routing, capture/apply/cycle/status, mic mute, restore state, and Stream Deck+ profile volume.",
+  "blocker": "Behavior boundary changed from output-only to output + input. Prior final QA evidence is stale. Rerun exact-head automated QA, then perform one physical pass for speaker switching, microphone switching, selection persistence, key readability, current-device state, starter profile layout, and Lite→Pro surfaces.",
   "release_gate": [
-    "output-switching-only Lite surface",
+    "direct output + direct input Lite surface only",
     "shared AudioCore build and native helper smoke",
-    "major-device starter profiles with unique ActionIDs",
+    "major-device starter profiles with output and input keys plus unique ActionIDs",
     "canonical PackRat PI design audit",
     "canonical top + bottom Pro CTAs",
-    "Property Inspector width-safety",
+    "Property Inspector width-safety and stale-refresh protection",
     "official Elgato validation/package",
-    "physical Windows output switch smoke"
+    "physical Windows output and input switch smoke"
   ],
-  "final_boundary": "GitHub Actions run 34930586864 passed on 421dd86407fdf4eab09a6802d21eaebd8dc1e36c with 11/11 tests, canonical PackRat PI audit (0 warnings), key/profile audit (0 warnings), native Windows snapshot smoke, Elgato validation/package, and packaged-helper hygiene. Physical Stream Deck validation remains required before READY_TO_SHIP.",
-  "automated_release_evidence": {
-    "latest_successful_windows_run": 34930586864,
-    "automated_gate": "PASS",
-    "exact_head_at_run": "421dd86407fdf4eab09a6802d21eaebd8dc1e36c",
-    "test_suite": "11/11 passing",
-    "design_audit": "PASS — 0 warnings",
-    "key_visual_audit": "PASS — 0 warnings",
-    "passed": [
-      "shared PackRat AudioCore Windows build",
-      "locked dependency install and high-severity audit",
-      "output-switching-only surface tests",
-      "Lite→Pro catalog relationship audit",
-      "four deterministic major-device starter profiles",
-      "canonical PackRat PI design audit with Lite→Pro surfaces",
-      "Property Inspector width-safety and stale-refresh selection protection",
-      "key visual audit with pure-white action-list icon",
-      "native helper self-test and real Windows snapshot protocol",
-      "official Elgato validation and package",
-      "packaged native helper without debug symbols"
-    ]
-  }
+  "final_boundary": "STALE after Sep 14 scope change: Lite now includes Set Output Device + Set Input Device. Exact-head CI and physical mic/output validation must be refreshed before READY_TO_SHIP."
 }
