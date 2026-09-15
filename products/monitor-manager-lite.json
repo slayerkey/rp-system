@@ -5,7 +5,7 @@
   "status": "qa_passed",
   "workflow_state": "READY_TO_SHIP",
   "price_usd": 0,
-  "version": "1.0.0.2",
+  "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
   "source": "plugins/monitor-manager-lite",
   "plugin_uuid": "com.packrat.monitormanagerlite",

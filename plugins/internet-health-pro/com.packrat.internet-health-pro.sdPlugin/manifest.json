@@ -154,7 +154,7 @@
     "MinimumVersion": "7.1"
   },
   "UUID": "com.packrat.internet-health-pro",
-  "Version": "1.0.0.2",
+  "Version": "1.0.0.0",
   "Profiles": [
     {
       "Name": "profiles/internet-health-dashboard-mk2",
