@@ -228,7 +228,7 @@ export function makeView(telemetry, kind, settings = {}) {
 }
 
 export function renderKey(view, settings = {}, size = 144) {
-  const s = Math.max(72, Number(size) || 144);
+  const s = Math.max(36, Number(size) || 144);
   const accent = view?.breached ? DANGER : /^#[0-9A-Fa-f]{6}$/.test(String(settings.accent || "")) ? String(settings.accent) : ACCENT;
   const state = String(view?.state || "ready");
   const unavailable = ["unavailable", "offline", "permission_required"].includes(state) && finite(view?.value) === null && !String(view?.value || "").length;
