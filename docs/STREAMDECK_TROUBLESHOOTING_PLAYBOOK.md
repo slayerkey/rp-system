@@ -34,6 +34,24 @@ Read the stage that failed before activation. Rat Dev intentionally leaves the e
 
 Do not bypass the failing stage just to see the UI. Correct the source/test/registration, rerun Rat Dev, and let activation happen only after the candidate is green.
 
+### "The plugin builds, but one contract test blocks Rat Dev" variant
+
+This is usually contract drift, not evidence that Rat Dev is broken.
+
+When an intentional product rule changes — for example a Lite limit moves from 30 seconds / 60 events to 10 seconds / 50 events — update the whole contract surface in the same change:
+
+- runtime/source-of-truth constant
+- Property Inspector copy and any UI fallback/default
+- deterministic tests at the real boundary
+- product metadata
+- Marketplace description/release notes
+- generated Marketplace/Rat Art that displays the limit
+- release-gate wording
+
+If one stale test still expects the old value, Rat Dev should fail before activation. Do not weaken the test just to get the build linked when the old expectation represents customer-visible truth that should have been updated.
+
+For fixed limits, prefer a single exported runtime constant and make tests assert that constant directly. Human-facing copies and generated art should be covered by contract tests against the approved values.
+
 ### Bootstrap succeeds, then preflight says it cannot fetch canonical RatPack refs
 
 Treat this as a shared Rat Dev fetch-contract failure before debugging the product.
@@ -433,14 +451,18 @@ A good host audit prints repeated samples with transport, kind, battery, chargin
 
 For a Lite/free product with a direct Pro counterpart:
 
-- top: compact direct `Upgrade to Pro ↗`
+- top: compact `Upgrade to Pro ↗` in PackRat chrome
 - bottom: explanatory Pro feature card with 2–3 real Pro-only benefits and `Open <Product> Pro ↗`
-- both links use the exact public direct Pro Marketplace `/product/` URL
-- do not guess the URL
-- do not use maker/search routes as the conversion destination
-- if Pro is not public yet, keep the Lite rollout blocked
+- the large bottom Pro card must appear **after** normal Lite/setup/privacy content; it is the final conversion surface, not the main product UI
+- use the exact public direct Pro Marketplace `/product/` URL when it is verified
+- before the direct Pro URL exists, the canonical PackRat maker page may be used as an explicit temporary fallback
+- do not guess a product URL
+- never use Marketplace search routes as the conversion destination
+- replacing the maker fallback with the verified direct Pro URL is a normal later Lite update
 
 Do not add fake locked features to manufacture an upsell.
+
+If the user explicitly asks to move the large upsell below another section, add a DOM/order regression. Presence-only tests are insufficient because the same card can silently drift back above normal content later.
 
 ## 15. A rollback/product split risks losing useful work
 
@@ -456,16 +478,29 @@ Do not make a later chat reconstruct valuable work from conversation history.
 
 Old evidence is no longer final release evidence.
 
-A feature rollback, product split, major settings migration, or added/removed app-launch/profile/workspace behavior requires fresh:
+This includes seemingly small owner-approved changes when they alter shipping truth, such as:
+
+- changing a Lite duration/event/device limit
+- moving/removing a required conversion surface
+- changing a feature boundary between Lite and Pro
+- feature rollback or product split
+- major settings migration
+- added/removed app-launch/profile/workspace behavior
+
+After such a change, refresh **all** affected truth surfaces, then require fresh:
 
 - deterministic tests
-- native smoke
+- native smoke when relevant
 - vendor validation/package
-- relevant Rat Art
+- relevant Rat Art/Marketplace copy
 - exact package hash/size
-- final hardware/host gate
+- final hardware/host gate when required
 
-Pin evidence to the exact source commit under review.
+Pin evidence to the exact new source commit.
+
+If canonical `main` already points Rat Ship at an older green artifact, that pin is now stale. After the new exact commit is green, update canonical release metadata to the new run/artifact/package hash before returning the product to `READY_TO_SHIP`.
+
+When updating canonical `main`, patch from the **latest main record**. Do not overwrite concurrent control-plane changes (for example an approved maker-page fallback policy) by copying an older product-branch JSON wholesale.
 
 ## 17. Private GitHub Actions is red before tests really start
 
