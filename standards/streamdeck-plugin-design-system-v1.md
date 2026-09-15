@@ -608,6 +608,21 @@ Run:
 
 when the product promises the major-model bundle.
 
+
+## Marketplace campaign handoff
+
+Stream Deck product UI and Marketplace art share one source of truth for product visuals, but they are governed by separate standards.
+
+Use `standards/streamdeck-marketplace-art-system-v1.md` for Marketplace cover/gallery composition.
+
+The Marketplace layer must:
+- export or consume the same runtime key/state visuals the shipping plugin uses
+- never invent a second marketing-only glyph system when the runtime renderer can provide exact output
+- preserve product-specific workflow choices while using the shared campaign framing
+- review the final Rat Ship contact sheet, not only product-local intermediate media
+
+Monitor Manager Pro is the approved reference for this handoff: real runtime key states feed the Marketplace campaign while the plugin UI standard continues to own the actual product behavior and key visual semantics.
+
 ## 8. Physical QA matrix
 
 Automation is the floor. Before `READY_TO_SHIP`, visually sensitive plugins must pass a short hardware matrix.
