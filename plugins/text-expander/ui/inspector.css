@@ -194,6 +194,11 @@ button:disabled{opacity:.5;cursor:default;box-shadow:none}
   font-size:10px;
 }
 .token strong{display:block;color:#fff;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:10px;margin-bottom:2px}
+.format-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.format-token{min-height:48px;text-align:left;padding:7px 8px}
+.format-token strong{display:block;font-size:10.5px;color:#fff}
+.format-token span{display:block;margin-top:2px;color:var(--packrat-muted);font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:9.5px}
+.format-token.wide{grid-column:1/-1}
 .divider{height:1px;background:#2B3038;margin:10px 0}
 .hidden{display:none!important}
 .upsell{
