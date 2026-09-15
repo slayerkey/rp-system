@@ -1,7 +1,7 @@
 from __future__ import annotations
 import argparse, os, hashlib, json, math, sys
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageChops
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageChops, ImageOps
 
 ROOT=Path(__file__).resolve().parents[3]
 sys.dont_write_bytecode=True
@@ -29,10 +29,16 @@ def bg():
     if not SCENE.is_file():
         raise SystemExit("RAT ART FAIL: warm studio scene missing: "+str(SCENE))
     base=Image.open(SCENE).convert("RGBA")
+    # User-supplied campaign backgrounds may not arrive at exact Marketplace size.
+    # Fit by cover-scaling + center crop so Rat Art never stretches the room.
     if base.size!=(W,H):
-        raise SystemExit(f"RAT ART FAIL: warm studio scene is {base.size}, expected {(W,H)}")
-    # Preserve the approved room, but darken it slightly so product proof wins.
-    veil=Image.new("RGBA",(W,H),(2,5,10,56))
+        base=ImageOps.fit(
+            base,(W,H),
+            method=Image.Resampling.LANCZOS,
+            centering=(0.5,0.5),
+        )
+    # Preserve the room, but darken it slightly so product proof wins.
+    veil=Image.new("RGBA",(W,H),(2,5,10,44))
     return Image.alpha_composite(base,veil)
 
 
@@ -99,6 +105,16 @@ def header(im,title,sub):
 
 
 def footer(im):
+    d=ImageDraw.Draw(im)
+    # Carry the campaign framing into the footer without competing with content.
+    x1,x2,y=115,1805,835
+    width=max(1,x2-x1)
+    for x in range(x1,x2+1):
+        t=(x-x1)/width
+        r=round(WARM[0]*(1-t)+COOL[0]*t)
+        g=round(WARM[1]*(1-t)+COOL[1]*t)
+        b=round(WARM[2]*(1-t)+COOL[2]*t)
+        d.line((x,y,x,y+1),fill=(r,g,b,88),width=1)
     if RAT.is_file():
         rat=Image.open(RAT).convert("RGBA"); box=rat.getbbox()
         if box: rat=rat.crop(box)
