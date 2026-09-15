@@ -7,6 +7,7 @@
 - Fix: encode the ampersand as the JSON escape \`S\u0026P 500\`, which becomes \`S&P 500\` after JSON parsing without leaving a raw \`&\` in the metadata source.
 - Shared regression: \`tools/xeneon/inline.py\` now validates every \`application/json\` metadata block as both valid JSON and XML-safe text before generating a shipping widget.
 - Release version advanced to 1.0.3 so the repaired package can be published as a distinct revision.
+- Follow-up exact-package audit also found that initial Custom Style values could wait on the iCUE initialization flag; appearance bindings are now applied immediately before the normal boot wait, while lifecycle updates remain unchanged.
 
 
 ## Update scope
