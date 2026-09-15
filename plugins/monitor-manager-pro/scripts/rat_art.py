@@ -382,8 +382,6 @@ def profiles(path,faces):
     paste_face(im,r60,175,455,215)
     arrow(d,430,562,545)
     paste_face(im,r165,590,455,215)
-    d.text((282,695),"60 HZ",font=font(19),fill=(*MUTED,255),anchor="mm")
-    d.text((697,695),"165 HZ",font=font(19),fill=(*MUTED,255),anchor="mm")
     d.text((870,415),"OTHER PRESETS",font=font(17),fill=(*MUTED,255),anchor="mm")
     paste_face(im,r144,825,455,120)
     paste_face(im,r240,945,455,120)
@@ -400,7 +398,6 @@ def profiles(path,faces):
     for (state,label),(x,y) in zip(preset_specs,coords):
         face=exact_state_face(out,state)
         paste_face(im,face,x,y,150)
-        d.text((x+75,y+165),label,font=font(18),fill=(*MUTED,255),anchor="mm")
     footer(im); save(im,path)
 
 
@@ -417,15 +414,15 @@ def plus(path,faces):
     glass_panel(im,(120,305,1800,690),radius=36,fill=(7,11,18,214),border_alpha=205,glow_alpha=34,border_width=2)
 
     d.text((175,350),"KEY PRESETS",font=font(20),fill=(*MUTED,255))
-    for face,x in zip([faces[0],faces[1],faces[2]],[170,390,390]):
-        paste_face(im,face,x,410,185)
+    for face,x in zip([faces[0],faces[1],faces[2]],[160,365,570]):
+        paste_face(im,face,x,410,175)
 
-    d.text((690,350),"STREAM DECK+ DIALS",font=font(20),fill=(*MUTED,255))
-    dial_strip(im,690,390,1010,"BRIGHTNESS",65)
-    dial_strip(im,690,530,1010,"CONTRAST",50)
+    d.text((805,350),"STREAM DECK+ DIALS",font=font(20),fill=(*MUTED,255))
+    dial_strip(im,805,390,905,"BRIGHTNESS",65)
+    dial_strip(im,805,530,905,"CONTRAST",50)
 
-    d.text((175,625),"Press for an exact preset.",font=font(24),fill=(*WHITE,255))
-    d.text((690,655),"VOLUME  •  rotate for continuous adjustment",font=font(21),fill=(*WHITE,255))
+    d.text((160,625),"Press for an exact preset.",font=font(24),fill=(*WHITE,255))
+    d.text((805,655),"VOLUME  •  rotate for continuous adjustment",font=font(21),fill=(*WHITE,255))
 
     d.text((150,725),"BUNDLED PROFILES INCLUDED",font=font(20),fill=(*MUTED,255))
     models=[
