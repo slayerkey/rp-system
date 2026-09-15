@@ -476,7 +476,7 @@ if ($product.version -and $submission.version -and ([string]$submission.version)
     throw "submission.json version ($($submission.version)) does not match products/$PluginSlug.json ($($product.version))."
 }
 
-Require-Command "python" "Install Python 3.12 or newer."
+Ensure-StreamDeckHeroRuntime
 $campaignValidator = Join-Path $RepoRoot "tools\art\validate_streamdeck_marketplace_campaign.py"
 if (-not (Test-Path $campaignValidator -PathType Leaf)) {
     throw "Canonical Stream Deck Marketplace campaign validator missing: $campaignValidator"
