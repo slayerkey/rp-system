@@ -236,6 +236,10 @@ test("Wireless Property Inspector consumes the canonical PackRat visual contract
   assert.match(css,/body::before/);
   assert.match(html,/packrat-logo\.png/);
   assert.match(html,/marketplace\.elgato\.com\/maker\/packrat/);
+  assert.match(html,/id="top-pro-link"/);
+  assert.match(html,/Upgrade to Pro ↗/);
+  assert.match(html,/id="lite-upsell"/);
+  assert.match(html,/Open Wireless Device Manager Pro ↗/);
   assert.match(assets,/tools\/art\/assets\/ratpack-icon-transparent\.png|tools\\art\\assets\\ratpack-icon-transparent\.png/);
   assert.match(assets,/packrat-logo\.png/);
 });
@@ -315,6 +319,11 @@ test("Property Inspector uses the canonical PackRat UI envelope and preserves ac
   assert.match(inspector,/requestId:lastRequestId/);
   assert.doesNotMatch(inspector,/setInterval\(requestSnapshot/);
   assert.match(inspector,/Plugin process did not reply/);
+  assert.match(inspector,/PACKRAT_MAKER_URL="https:\/\/marketplace\.elgato\.com\/maker\/packrat"/);
+  assert.match(inspector,/return direct\?candidate:PACKRAT_MAKER_URL/);
+  assert.match(inspector,/top-pro-link/);
+  assert.match(inspector,/pro-link/);
+  assert.match(inspector,/event:"openUrl"/);
 });
 
 test("Rat Audit prints repeated fresh battery bridge samples",async()=>{
