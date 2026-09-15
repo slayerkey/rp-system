@@ -1,9 +1,10 @@
 const BG = "#090C12";
 const FG = "#F5F7FA";
-const MUTED = "#8A93A3";
-const ACCENT = "#56F2A5";
-const WARN = "#FFCC66";
-const DANGER = "#FF6B76";
+const MUTED = "#9AA2AF";
+const ACCENT = "#FFB21E";
+const SUCCESS = "#2BE86A";
+const WARN = "#FFC44D";
+const DANGER = "#FF5D6C";
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -14,6 +15,29 @@ function esc(value) {
 function truncate(value, max = 18) {
   const chars = Array.from(String(value || ""));
   return chars.length <= max ? chars.join("") : `${chars.slice(0, Math.max(1, max - 1)).join("")}…`;
+}
+
+function compactDeviceName(value) {
+  const cleaned = String(value || "")
+    .replace(/\s+\([^)]*\)\s*$/u, "")
+    .replace(/\s+-\s+this one\s*$/iu, "")
+    .replace(/\s+/gu, " ")
+    .trim();
+  return truncate(cleaned || "SELECT DEVICE", 13);
+}
+
+function deviceTextSize(value) {
+  const length = Array.from(String(value || "")).length;
+  if (length <= 8) return 18;
+  if (length <= 11) return 16;
+  return 14;
+}
+
+function profileTextSize(value) {
+  const length = Array.from(String(value || "")).length;
+  if (length <= 10) return 19;
+  if (length <= 13) return 17;
+  return 15;
 }
 
 function svgDataUri(body) {
@@ -30,7 +54,7 @@ function frame(body, color = ACCENT) {
 
 function resultColor(status) {
   return status === "SUCCESS" || status === "ACTIVE"
-    ? ACCENT
+    ? SUCCESS
     : status === "PARTIAL" || status === "INACTIVE"
       ? WARN
       : status === "FAILED" || status === "OFFLINE"
@@ -40,14 +64,14 @@ function resultColor(status) {
 
 function profileBody(profile, status = "", active = false) {
   const name = truncate(profile?.name || "SELECT PROFILE", 16);
-  const color = resultColor(status || (active ? "SUCCESS" : ""));
+  const color = resultColor(status || (active ? "ACTIVE" : ""));
   const badge = status || (active ? "ACTIVE" : "PROFILE");
-  return `${text(72, 58, name, 16)}${text(72, 87, badge, 11, color, 800, 1.1)}<path d="M47 109h50" stroke="${color}" stroke-width="6" stroke-linecap="round"/><circle cx="72" cy="109" r="8" fill="${color}"/>`;
+  return `${text(72, 55, name, profileTextSize(name))}${text(72, 82, badge, 13, color, 850, .8)}<path d="M47 108h50" stroke="${color}" stroke-width="6" stroke-linecap="round"/><circle cx="72" cy="108" r="8" fill="${color}"/>`;
 }
 
 export function renderKey(kind, { profile = null, endpoint = null, active = false, status = "", muted = false, missing = false, offline = false, role = "default" } = {}) {
   if (["apply", "cycle", "status"].includes(kind)) {
-    const frameColor = status ? resultColor(status) : (profile?.accent || (active ? ACCENT : MUTED));
+    const frameColor = profile?.accent || (status ? resultColor(status) : ACCENT);
     return svgDataUri(frame(profileBody(profile, status, active), frameColor));
   }
 
@@ -56,18 +80,19 @@ export function renderKey(kind, { profile = null, endpoint = null, active = fals
     const label = kind === "set-output"
       ? (isCommunications ? "COMM OUT" : "DEFAULT OUT")
       : (isCommunications ? "COMM IN" : "DEFAULT IN");
-    const name = offline ? "AUDIO OFFLINE" : missing ? "REBIND" : truncate(endpoint?.name || "SELECT DEVICE", 15);
+    const rawName = offline ? "AUDIO OFFLINE" : missing ? "REBIND" : endpoint?.name || "SELECT DEVICE";
+    const name = offline || missing ? rawName : compactDeviceName(rawName);
     const color = offline ? DANGER : missing ? WARN : ACCENT;
     const glyph = kind === "set-output"
-      ? '<path d="M37 60h20l23-18v60L57 84H37z" fill="none" stroke="#F5F7FA" stroke-width="6" stroke-linejoin="round"/><path d="M91 57c8 8 8 22 0 30M100 49c14 14 14 32 0 46" fill="none" stroke="#56F2A5" stroke-width="5" stroke-linecap="round"/>'
-      : '<rect x="60" y="35" width="24" height="48" rx="12" fill="none" stroke="#F5F7FA" stroke-width="6"/><path d="M49 72c0 16 9 25 23 25s23-9 23-25M72 97v17M58 115h28" fill="none" stroke="#56F2A5" stroke-width="6" stroke-linecap="round"/>';
-    return svgDataUri(frame(`${glyph}${text(72, 122, label, 9, MUTED, 800, 1.3)}${text(72, 138, name, 9, color, 700)}`, color));
+      ? `<path d="M35 43h21l22-17v57L56 66H35z" fill="none" stroke="${FG}" stroke-width="6" stroke-linejoin="round"/><path d="M89 40c8 8 8 21 0 29M99 31c14 14 14 31 0 45" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round"/>`
+      : `<rect x="60" y="20" width="24" height="45" rx="12" fill="none" stroke="${FG}" stroke-width="6"/><path d="M49 55c0 16 9 25 23 25s23-9 23-25M72 80v14M58 95h28" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/>`;
+    return svgDataUri(frame(`${glyph}${text(72, 109, label, 13, MUTED, 850, .7)}${text(72, 131, name, deviceTextSize(name), color, 800)}`, color));
   }
 
   if (kind === "mute-mic") {
-    const color = offline ? DANGER : missing ? WARN : muted ? DANGER : ACCENT;
+    const color = offline ? DANGER : missing ? WARN : muted ? DANGER : SUCCESS;
     const label = offline ? "AUDIO OFFLINE" : missing ? "NO DEFAULT MIC" : muted ? "MIC MUTED" : "MIC LIVE";
-    return svgDataUri(frame(`<rect x="60" y="31" width="24" height="48" rx="12" fill="none" stroke="${FG}" stroke-width="6"/><path d="M49 69c0 17 9 26 23 26s23-9 23-26M72 95v18M58 114h28" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/>${text(72, 134, label, 9, color, 800, .7)}`, color));
+    return svgDataUri(frame(`<rect x="60" y="20" width="24" height="45" rx="12" fill="none" stroke="${FG}" stroke-width="6"/><path d="M49 55c0 16 9 25 23 25s23-9 23-25M72 80v14M58 95h28" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/>${text(72, 126, label, label.length > 10 ? 13 : 16, color, 850, .35)}`, color));
   }
 
   return svgDataUri(frame(`${text(72, 67, "AUDIO", 19, ACCENT)}${text(72, 93, "MANAGER", 17)}`));
