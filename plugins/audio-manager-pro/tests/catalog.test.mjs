@@ -96,7 +96,8 @@ test("Audio Manager Property Inspector preserves unsaved edits across live refre
   assert.match(inspectorSource, /pendingAction/);
   assert.match(inspectorSource, /profileSig/);
   assert.match(inspectorSource, /Discard unsaved Audio Profile changes/);
-  assert.match(inspectorSource, /profileAccent"\)\.addEventListener\("input"/);
+  assert.doesNotMatch(inspectorHtml, /profileAccent/);
+  assert.doesNotMatch(inspectorSource, /profileAccent/);
   assert.match(inspectorSource, /Save profile · unsaved/);
 });
 
@@ -110,7 +111,7 @@ test("Audio Manager Property Inspector keeps action UX contextual and co-locates
   assert.match(inspectorHtml, /id="currentMicName"/);
   assert.match(inspectorSource, /PROFILE_KINDS/);
   assert.match(inspectorSource, /Custom \/ no exact profile match/);
-  assert.match(inspectorSource, /VoiceMeeter endpoint Windows currently uses as Default Input/);
+  assert.match(inspectorSource, /VoiceMeeter can capture or route audio outside Windows endpoint mute/);
   assert.match(inspectorSource, /e\.key!=="Enter"/);
   assert.match(inspectorSource, /requestId:nextRequestId\(\)/);
   assert.match(pluginSource, /activeProfileForInspector/);
@@ -122,6 +123,23 @@ test("Audio Manager Property Inspector explains split default microphone roles e
   assert.match(pluginSource, /split: String\(latestSnapshot\?\.defaultInputId/);
   assert.match(inspectorSource, /pill\.textContent="SPLIT"/);
   assert.match(inspectorSource, /Align the Default inputs before using this mute key/);
+});
+
+
+test("Audio Manager Property Inspector prevents horizontal overflow from long device names", () => {
+  assert.match(inspectorCss, /html,body\{[^}]*overflow-x:hidden/);
+  assert.match(inspectorCss, /grid-template-columns:minmax\(0,1fr\)/);
+  assert.match(inspectorCss, /\.current-state\{[^}]*grid-template-columns:auto minmax\(0,1fr\)/);
+  assert.match(inspectorCss, /text-overflow:ellipsis/);
+});
+
+test("Audio Manager profile editor keeps save and delete beside rename and removes accent control", () => {
+  const renameIndex = inspectorHtml.indexOf('id="profileName"');
+  const saveIndex = inspectorHtml.indexOf('id="saveProfile"');
+  const firstSlotIndex = inspectorHtml.indexOf('data-slot="outputDefault"');
+  assert.ok(renameIndex >= 0 && saveIndex > renameIndex && firstSlotIndex > saveIndex);
+  assert.doesNotMatch(inspectorHtml, /id="profileAccent"/);
+  assert.match(inspectorSource, /e\.key!=="Enter"/);
 });
 
 test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
