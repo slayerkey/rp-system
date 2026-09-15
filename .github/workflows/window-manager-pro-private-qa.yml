@@ -156,11 +156,21 @@ jobs:
           Get-ChildItem dist/marketplace-art | Select-Object Name,Length
           Write-Host 'RAT ART RENDER PASS'
 
+      - name: Upload one-day manual Marketplace package
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-manager-pro-manual-upload
+          path: |
+            ${{ env.SOURCE_ROOT }}/dist/window-manager-pro.streamDeckPlugin
+            ${{ env.SOURCE_ROOT }}/dist/marketplace-art/**
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Public bridge privacy guard
         shell: powershell
         run: |
-          Write-Host 'No paid plugin package or private source is uploaded as a public Actions artifact.'
-          Write-Host 'QA outputs exist only on this ephemeral runner.'
+          Write-Host 'Only the packaged .streamDeckPlugin and rendered Marketplace art are uploaded for one day.'
+          Write-Host 'No private source tree, node_modules, lockfile, or raw paid implementation files are uploaded.'
 
   macos:
     name: macOS private-source compatibility QA
