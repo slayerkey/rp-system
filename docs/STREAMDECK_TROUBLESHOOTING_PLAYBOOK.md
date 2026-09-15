@@ -150,6 +150,65 @@ Refresh/import/export/rename/duplicate actions must provide visible acknowledgem
 
 For exports inside the Stream Deck WebView, prefer a plugin-side deterministic file write with the saved path returned to the PI over relying only on browser-download behavior.
 
+### PI HTML loads but the plugin process never answers
+
+Treat this signature differently from a normal PI settings bug:
+
+- Property Inspector HTML/CSS renders
+- static manifest/fallback art renders
+- `sendToPlugin` requests time out
+- runtime-rendered key faces never appear
+- a direct native host audit may still succeed
+
+Before rewriting PI context handling again, verify **plugin process launch**.
+
+For Node plugins:
+
+- inspect the manifest `Nodejs` block
+- omit `Nodejs.Debug` unless it contains intentional, valid Node command-line arguments
+- never use strings such as `"Debug": "disabled"` as a boolean/off switch; developer-mode launch can pass that value into Node and prevent the plugin from starting correctly
+- compare the manifest/runtime contract against a known-good current PackRat Node plugin using the same SDK generation
+
+Instrument these lifecycle points when launch is uncertain:
+
+1. module loaded
+2. `streamDeck.connect()` resolved/rejected
+3. runtime start entered/completed
+4. uncaught exception / process exit
+5. PI command received
+6. bridge refresh entered/completed
+7. PI response attempted/completed
+
+A PI timeout is not proof that PI websocket routing is wrong; the plugin process may never have reached the handler.
+
+### Native host probe works but Stream Deck still fails
+
+A successful direct/native host audit proves the native boundary only. It does **not** prove:
+
+- the Stream Deck Node process launched
+- the built/linked `plugin.js` is the expected candidate
+- PI → plugin delivery works
+- plugin → native bridge invocation works inside Stream Deck
+- plugin → PI response delivery works
+- PI rendering completed without JavaScript exceptions
+
+Trace the chain explicitly:
+
+**PI opens → websocket registers → command leaves PI → plugin handler fires → runtime refreshes → native bridge returns → plugin emits PI payload → PI receives payload → PI renders.**
+
+Use correlated request IDs where practical. Log device count, bridge error, refresh duration, response send, response receive, and render exceptions.
+
+When a product has a native helper, a one-shot deep probe should also verify:
+
+- linked plugin path
+- linked `plugin.js` hash versus the Rat Dev build
+- running plugin/helper processes
+- direct native snapshot
+- recent plugin/Stream Deck logs
+- Property Inspector debugger availability
+
+Do not send the user through repeated reinstall loops when one copyable probe can identify the failing hop.
+
 ## 4. PackRat logo is missing, becomes a square, or renders inconsistently
 
 ### Cause
@@ -212,6 +271,13 @@ Run:
 Then review representative runtime-rendered states at 72×72 and 36×36.
 
 A manifest path such as `imgs/actions/foo/key` must resolve to exactly one canonical asset.
+
+For bundled/generated profiles, disabling host titles requires both sides of the contract:
+
+- every Keypad state uses `ShowTitle: false`
+- generated state `Title` is empty when PackRat owns the entire key face
+
+Do not assume the plugin manifest's `ShowTitle: false` protects a profile generated with `ShowTitle: true` or a non-empty host title. That mismatch produces clipped/duplicated text over otherwise-correct runtime art.
 
 ## 8. Key text is too small, clips, or crosses the box/icon
 
@@ -280,6 +346,31 @@ For normal in-repository Stream Deck plugins:
 - product-local art must not overwrite the global hero afterward
 - cover and gallery files must remain distinct
 
+## Device-reported battery/status looks stuck or implausibly stable
+
+Do not "correct" device telemetry by inventing values.
+
+For battery/status products:
+
+- distinguish **fresh observation** from **changed value**
+- record or expose telemetry source when practical (`windows-aep`, direct HID feature report, vendor API, etc.)
+- record an observation timestamp/freshness indicator when stale-vs-live is ambiguous
+- if the device returns the same value repeatedly from fresh reads, show that value truthfully
+- do not smooth, decrement, interpolate, or estimate a different battery percentage unless the product explicitly owns an estimation model and labels it as estimated
+- clear battery value **and** freshness/source metadata when the device disappears or the telemetry capability is no longer present
+
+For vendor HID devices, verify transport changes independently. A receiver plugged into the PC is not the same as the device being physically wired/charging.
+
+Useful physical proof:
+
+1. sample the bridge several times with timestamps
+2. confirm each sample is a new hardware request
+3. compare receiver/wireless mode with direct wired mode
+4. verify charging state changes only when the device itself reports charging
+5. if receiver mode remains at one percentage but wired mode immediately reports a different live value, preserve the device-reported values rather than fabricating a correction
+
+A good host audit prints repeated samples with transport, kind, battery, charging, source, and observation time.
+
 ## 14. Lite → Pro upsell is missing, buried, or misleading
 
 For a Lite/free product with a direct Pro counterpart:
@@ -331,16 +422,36 @@ For paid/private source, use the established public control-plane → private re
 - never publish paid source/package artifacts publicly
 - record Windows/macOS job evidence from the bridge
 
-## 18. Profile keeps duplicating or Rat Dev forgets to open it
+## 18. Profile keeps duplicating, looks stale, or Rat Dev says "unchanged" incorrectly
 
-Rat Dev fingerprints bundled profiles.
+Rat Dev must not rely on the exported bundle SHA alone.
 
-- unchanged installed profile: do not reopen/import
-- changed bundle: open newest once for replace/update
-- deleted/missing installed profile: open again
-- default selection: DeviceType 0 standard/MK.2 unless overridden
+The canonical profile sync contract is:
 
-Do not blindly import the same unchanged profile on every Rat Dev run.
+- locate installed profiles by bundled profile **Name**
+- enumerate **all** same-name installed copies, not only the first folder returned
+- compare installed profile manifests/pages/actions/settings/states semantically against the current bundle
+- ignore host-owned fields when comparing, including the physical Stream Deck `Device` binding, host `AppIdentifier`, and current page selection
+- if every installed copy matches, skip refresh
+- if any copy differs, treat it as installed-profile drift even when the bundle fingerprint is unchanged
+- if the bundle changed, the installed profile is untracked, profile-state metadata was upgraded, or installed content drifted, refresh in place instead of importing another duplicate
+- preserve the installed `.sdProfile` path and Stream Deck device binding
+- back up the old installed profile before replacement
+- stop Stream Deck once, stage/validate the new profile, swap transactionally, verify pages/action UUIDs, then restart
+- rollback automatically if post-swap verification fails
+- if multiple same-name copies already exist from older workflows, refresh all of them together so the user cannot remain on a stale duplicate
+
+Do **not** tell the user to repeatedly delete/import profiles when Rat Dev can prove the identity and replace safely.
+
+### "Bundle unchanged" but the visible profile is old
+
+This usually means one of:
+
+- Rat Dev compared only its stored bundle fingerprint
+- the installed profile was modified/drifted after the last Rat Dev run
+- an older duplicate with the same profile Name is the one currently active
+
+The fix is semantic installed-profile comparison plus same-name duplicate enumeration, not another blind import.
 
 ### Generated-profile ActionID collision variant
 
