@@ -174,6 +174,17 @@ function command(command){send({event:"sendToPlugin",action:actionUuid,context:u
 {
   const {root,plugin}=fixture();
   try{
+    const result=run(keyAudit,[plugin]);
+    assert.equal(result.status,0,`key audit fixture should pass\nSTDOUT:\n${result.stdout}\nSTDERR:\n${result.stderr}`);
+    assert.match(result.stdout,/setup\/permission states/);
+    assert.match(result.stdout,/must not inherit live metric units/);
+    assert.match(result.stdout,/36\/72\/144 output/);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
     write(join(plugin,"imgs","actions","snap","key.png"),Buffer.alloc(32));
     const result=run(keyAudit,[plugin]);
     assert.notEqual(result.status,0,"key audit must fail on competing extensionless key assets");
