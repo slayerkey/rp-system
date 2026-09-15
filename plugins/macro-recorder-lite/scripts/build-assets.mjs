@@ -10,7 +10,6 @@ for(const dir of ["bin","imgs","ui","helpers"])await rm(resolve(plugin,dir),{rec
 for(const dir of ["bin","imgs","ui","helpers"])await mkdir(resolve(plugin,dir),{recursive:true});
 for(const file of ["inspector.html","inspector.css","inspector.js"])await cp(resolve(root,"ui",file),resolve(plugin,"ui",file));
 const packratLogo=resolve(root,"..","..","tools","art","assets","ratpack-icon-transparent.png");
-await cp(packratLogo,resolve(plugin,"ui","packrat.png"));
 const helper=process.env.PACKRAT_INPUT_HOST||resolve(root,"..","..","artifacts","input-host","PackRat.InputHost.exe");
 try{await stat(helper);}catch{throw new Error("PackRat.InputHost.exe is missing. Publish shared/windows-input/PackRat.InputHost first.");}
 await cp(helper,resolve(plugin,"helpers","PackRat.InputHost.exe"));
@@ -40,6 +39,7 @@ function draw(size,kind,mode){
 }
 async function savePair(dir,kind,size,mode){await mkdir(dir,{recursive:true});await writeFile(resolve(dir,"icon.png"),draw(size,kind,mode));await writeFile(resolve(dir,"icon@2x.png"),draw(size*2,kind,mode));}
 await savePair(resolve(plugin,"imgs","plugin"),"plugin",256,"key");
+await cp(packratLogo,resolve(plugin,"imgs","plugin","packrat-logo.png"));
 await savePair(resolve(plugin,"imgs","category"),"category",28,"list");
 for(const kind of ["record","stop","replay"]){
  const dir=resolve(plugin,"imgs","actions",kind);await mkdir(dir,{recursive:true});
