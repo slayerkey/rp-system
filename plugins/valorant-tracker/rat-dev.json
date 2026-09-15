@@ -1,8 +1,0 @@
-{
-  "type": "streamdeck-plugin",
-  "repository": "https://github.com/slayerkey/packrat-riot-tracker.git",
-  "ref": "product/valorant-tracker",
-  "source_root": ".",
-  "plugin_dir": "com.packrat.valorant-tracker.sdPlugin",
-  "plugin_uuid": "com.packrat.valorant-tracker"
-}

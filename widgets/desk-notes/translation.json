@@ -1,7 +1,0 @@
-{
-  "en": {"translation": {
-    "Desk Notes Lite": "Desk Notes Lite", "Board Title": "Board Title", "Note Theme": "Note Theme", "Font Size": "Font Size", "Text Color": "Text Color", "Accent Color": "Accent Color", "Background Color": "Background Color", "Background Transparency": "Background Transparency", "Layout": "Layout", "Appearance": "Appearance", "Midnight": "Midnight", "Paper": "Paper", "Sage": "Sage", "Ocean": "Ocean", "Plum": "Plum", "Amber": "Amber",
-    "Each Entry field is one note. Start an entry with [ ] to make it a tappable checklist item. Lite supports up to 8 entries.": "Each Entry field is one note. Start an entry with [ ] to make it a tappable checklist item. Lite supports up to 8 entries.",
-    "Entry 1": "Entry 1", "Entry 2": "Entry 2", "Entry 3": "Entry 3", "Entry 4": "Entry 4", "Entry 5": "Entry 5", "Entry 6": "Entry 6", "Entry 7": "Entry 7", "Entry 8": "Entry 8"
-  }}
-}

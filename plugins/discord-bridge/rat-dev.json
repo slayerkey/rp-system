@@ -1,6 +1,0 @@
-{
-  "type": "streamdeck-plugin",
-  "plugin_dir": "com.packrat.discord-bridge.sdPlugin",
-  "plugin_uuid": "com.packrat.discord-bridge",
-  "open_url": "http://127.0.0.1:17483/state"
-}

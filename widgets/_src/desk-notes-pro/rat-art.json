@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "hero": {"subtitle": "Four persistent boards for the things you keep coming back to."},
-  "showcase": {"title": "Your desk memory, organized.", "subtitle": "Today, Work, Personal and Current Project stay one tap away.", "shot": "XL_H.png"},
-  "features": {"title": "Built for repeat daily use.", "subtitle": "Pro adds organization instead of taking basics away from Lite.", "shot": "L_H.png", "items": [["4 boards × 16 Entry fields", "Keep separate spaces for work, personal reminders and active projects using supported iCUE text fields."], ["Cards, categories and pins", "Blank Entry fields make note cards, headings label them, and pinned items rise to the top."], ["Completed history", "Checklist completions are remembered locally so finished work can still be reviewed."], ["Optional board rotation", "Cycle through boards automatically or switch instantly with touch tabs."]]},
-  "settings": {"title": "More structure without a helper app.", "subtitle": "Each board gets its own grouped native Entry fields. No helper app or unsupported text capture.", "panels": [{"label": "Four boards", "file": "XL_H.png"}, {"label": "History", "file": "VARIANT_HISTORY.png"}, {"label": "Compact overflow", "file": "VARIANT_MAX_NOTES.png"}, {"label": "Board switching", "file": "VARIANT_SECOND_BOARD.png"}], "tags": "9 themes   •   cards / columns / list   •   board rotation   •   local completion history"},
-  "sizes": {"title": "Every XENEON slot is deliberate.", "subtitle": "Compact slots show the highest-priority portion of a board with an explicit more-items count. Larger slots expand to the full board.", "footer": "8 tuned layouts total   •   4 sizes   •   horizontal + vertical"}
-}

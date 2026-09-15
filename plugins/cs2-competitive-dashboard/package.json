@@ -1,8 +1,0 @@
-{
-  "name": "@packrat/cs2-competitive-dashboard-rat-dev",
-  "private": true,
-  "scripts": {
-    "build": "npm --prefix ../../products/cs2-competitive-dashboard/plugin ci --no-fund --no-audit && npm --prefix ../../products/cs2-competitive-dashboard/plugin run build",
-    "test": "npm --prefix ../../products/cs2-competitive-dashboard/plugin test"
-  }
-}

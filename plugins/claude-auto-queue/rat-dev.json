@@ -1,7 +1,0 @@
-{
-  "type": "streamdeck-plugin",
-  "source_root": ".",
-  "plugin_dir": "com.packrat.claude-auto-queue.sdPlugin",
-  "plugin_uuid": "com.packrat.claude-auto-queue",
-  "open_url": "http://127.0.0.1:19741/"
-}

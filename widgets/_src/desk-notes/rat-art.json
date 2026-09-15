@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "hero": {"subtitle": "Your reminders stay visible even when every desktop window is busy."},
-  "showcase": {"title": "A real sticky note board for XENEON Edge.", "subtitle": "Plain notes and touch checklists, permanently visible under your monitor.", "shot": "XL_H.png"},
-  "features": {"title": "Simple enough to use every day.", "subtitle": "Lite is intentionally useful forever, not a crippled demo.", "shot": "M_H.png", "items": [["Up to 8 entries", "Mix plain reminders with tappable checklist items on one board."], ["Touch completion", "Finished checklist items stay visible but de-emphasized instead of disappearing."], ["Persistent by design", "Completion state is stored locally per widget instance and note text lives in iCUE settings."], ["Built for every slot", "Eight tuned XENEON layouts keep the board readable horizontally and vertically."]]},
-  "settings": {"title": "Edit every note with native iCUE controls.", "subtitle": "Eight supported single-line Entry fields. No unsupported keyboard capture or helper app.", "panels": [{"label": "Wide board", "file": "XL_H.png"}, {"label": "Vertical", "file": "M_V.png"}, {"label": "Compact", "file": "S_H.png"}, {"label": "Completed state", "file": "VARIANT_COMPLETED.png"}], "tags": "8 native Entry fields   •   6 note themes   •   font sizing   •   text, accent and background colors"},
-  "sizes": {"title": "Designed for all eight XENEON slots.", "subtitle": "Small stays compact without hiding your eight Lite entries. Larger layouts add breathing room.", "footer": "8 tuned layouts total   •   4 sizes   •   horizontal + vertical"}
-}

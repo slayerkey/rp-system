@@ -1,6 +1,0 @@
-{
-  "en": {"translation": {
-    "Desk Notes Pro": "Desk Notes Pro", "Board Title": "Board Title", "Arrangement": "Arrangement", "Cards": "Cards", "Columns": "Columns", "List": "List", "Rotate Boards": "Rotate Boards", "Rotation Interval": "Rotation Interval", "Completed History": "Completed History", "Note Theme": "Note Theme", "Font Size": "Font Size", "Text Color": "Text Color", "Accent Color": "Accent Color", "Background Color": "Background Color", "Background Transparency": "Background Transparency", "Today Board": "Today Board", "Work Board": "Work Board", "Personal Board": "Personal Board", "Project Board": "Project Board", "Board Behavior": "Board Behavior", "Layout": "Layout", "Appearance": "Appearance", "Midnight": "Midnight", "Paper": "Paper", "Sage": "Sage", "Ocean": "Ocean", "Plum": "Plum", "Amber": "Amber", "Slate": "Slate", "Rose": "Rose", "Teal": "Teal",
-    "Each Entry field is one line. [ ] makes a checklist item. ! pins an item. Leave an Entry blank to start a new note card. ## creates a card heading and # creates a category.": "Each Entry field is one line. [ ] makes a checklist item. ! pins an item. Leave an Entry blank to start a new note card. ## creates a card heading and # creates a category."
-  }}
-}
