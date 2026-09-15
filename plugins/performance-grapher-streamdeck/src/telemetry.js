@@ -71,6 +71,14 @@ function descriptorScore(sensor, target) {
   return -1;
 }
 
+function plausibleAliasValue(target, value) {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  if (String(target).endsWith(".temperature") && (n <= 0 || n > 150)) return null;
+  return n;
+}
+
 export class TelemetryService extends EventEmitter {
   constructor({
     pluginRoot = null,
@@ -453,8 +461,14 @@ export class TelemetryService extends EventEmitter {
     }
     for (const [alias, id] of this.aliases) {
       if (Object.prototype.hasOwnProperty.call(message.values, id)) {
+        const aliasValue = plausibleAliasValue(alias, message.values[id]);
+        if (aliasValue === null) {
+          this.values.delete(alias);
+          this.timestamps.delete(alias);
+          continue;
+        }
         const source = this.catalog.get(id);
-        this._setMetric(alias, message.values[id], at, {
+        this._setMetric(alias, aliasValue, at, {
           id: alias,
           name: alias === "gpu.temperature" ? "GPU Temperature" :
             alias === "cpu.temperature" ? "CPU Temperature" :
@@ -479,11 +493,18 @@ export class TelemetryService extends EventEmitter {
     return norm(sensor?.hardwareType) + "|" + norm(sensor?.hardwareName);
   }
 
-  _bestAliasSensor(target, sensors) {
+  _bestAliasSensor(target, sensors, values = null) {
     let best = null;
     let bestScore = -1;
+    const temperatureTarget = String(target).endsWith(".temperature");
     for (const sensor of sensors) {
-      const score = descriptorScore(sensor, target);
+      let score = descriptorScore(sensor, target);
+      if (score < 0) continue;
+      if (temperatureTarget && values) {
+        if (!Object.prototype.hasOwnProperty.call(values, sensor.id)) continue;
+        if (plausibleAliasValue(target, values[sensor.id]) === null) continue;
+        score += 10;
+      }
       if (score > bestScore) {
         best = sensor;
         bestScore = score;
@@ -496,7 +517,7 @@ export class TelemetryService extends EventEmitter {
     this.aliases.clear();
 
     for (const target of ["cpu.temperature", "cpu.power"]) {
-      const best = this._bestAliasSensor(target, this.hardwareCatalog);
+      const best = this._bestAliasSensor(target, this.hardwareCatalog, values);
       if (best?.id) this.aliases.set(target, best.id);
     }
 
@@ -542,8 +563,16 @@ export class TelemetryService extends EventEmitter {
     this.activeGpuKey = selectedKey;
     const selectedGpu = selectedKey === null ? [] : gpuGroups.get(selectedKey) || [];
     for (const target of ["gpu.temperature", "gpu.fan", "gpu.load", "gpu.power"]) {
-      const best = this._bestAliasSensor(target, selectedGpu);
+      const best = this._bestAliasSensor(target, selectedGpu, values);
       if (best?.id) this.aliases.set(target, best.id);
+    }
+
+    if (values) {
+      for (const alias of HARDWARE_ALIASES) {
+        if (this.aliases.has(alias)) continue;
+        this.values.delete(alias);
+        this.timestamps.delete(alias);
+      }
     }
   }
 
