@@ -36,6 +36,8 @@ When the product is developed on a separate branch, prefer canonical metadata on
 
 Registration and readiness are separate concepts. Adding the canonical record fixes "not registered" but must not silently change `TESTING` to `READY_TO_SHIP`. Promote readiness only when the remaining gate is intentionally accepted/closed.
 
+If the operator explicitly chooses to ship with a deferred hardware/runtime check, preserve that distinction in canonical metadata. Record the item as an accepted release risk / deferred check, never as `PASS`, and pin the exact automated artifact that was actually validated. A deferred check must remain visible to future troubleshooting instead of disappearing during promotion to `READY_TO_SHIP`.
+
 When re-pinning an existing product after a new green run, read the **latest canonical main record first** and patch only the fields owned by the new evidence (source commit, run/artifact, package hash, synchronized release copy/state). Preserve concurrent approved control-plane changes rather than replacing the whole record from a stale product branch.
 
 ## Marketplace rejection versioning
