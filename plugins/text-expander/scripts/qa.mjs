@@ -68,7 +68,7 @@ for(const [uuid,name] of expected){
   const expectedDeviceTypes=[0,1,2,7,9];
   const isLite=uuid.endsWith("textexpanderlite");
   const expectedPages=isLite?["STARTER"]:["QUICK","EMAIL","SUPPORT","CREATOR","DEVELOPMENT","PERSONAL"];
-  const expectedFirstPageIds=isLite
+  const baseFirstPageIds=isLite
     ?["lite-email","lite-clipboard"]
     :["pro-quick-email","pro-quick-clipboard","pro-quick-time","pro-quick-date","pro-quick-address","pro-quick-link"];
   const deviceDimensions=new Map([[0,[5,3]],[1,[3,2]],[2,[8,4]],[7,[4,2]],[9,[4,2]]]);
@@ -110,6 +110,7 @@ for(const [uuid,name] of expected){
     const actionIds=new Set();
     const actualPageNames=[];
     let firstPageIds=[];
+    let fullLibraryKeys=0;
     for(const [pageIndex,pageId] of pageIds.entries()){
       if(!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(pageId)){
         fail(`${name} contains an invalid page UUIDv4: ${pageId}`);
@@ -127,7 +128,10 @@ for(const [uuid,name] of expected){
       const [maxCols,maxRows]=deviceDimensions.get(profileEntry.DeviceType)||[];
       for(const controller of page.Controllers||[]){
         for(const [coordinate,value] of Object.entries(controller.Actions||{})){
-          if(pageIndex===0)firstPageIds.push(value.Settings?.snippetId||"");
+          const isManageAction=value.UUID===uuid+".manage";
+          const isInsertAction=value.UUID===uuid+".insert";
+          if(pageIndex===0)firstPageIds.push(value.Settings?.snippetId||(isManageAction?"__LIBRARY__":""));
+          if(isManageAction)fullLibraryKeys++;
           const [col,row]=coordinate.split(",").map(Number);
           if(!Number.isInteger(col)||!Number.isInteger(row)||col<0||row<0||col>=maxCols||row>=maxRows){
             fail(`${name} profile for DeviceType ${profileEntry.DeviceType} contains out-of-grid key ${coordinate}.`);
@@ -138,8 +142,9 @@ for(const [uuid,name] of expected){
           if(actionIds.has(value.ActionID))fail(`${name} bundled profile contains duplicate ActionID ${value.ActionID}.`);
           actionIds.add(value.ActionID);
           if(value.LinkedTitle!==true)fail(`${name} bundled action must link its title.`);
-          if(!value.Settings?.snippetId)fail(`${name} bundled action has no snippetId setting.`);
-          if(value.UUID!==uuid+".insert")fail(`${name} bundled profile references the wrong action UUID.`);
+          if(!isManageAction&&!isInsertAction)fail(`${name} bundled profile references an unexpected action UUID: ${value.UUID}.`);
+          if(isInsertAction&&!value.Settings?.snippetId)fail(`${name} bundled Insert Snippet action has no snippetId setting.`);
+          if(isManageAction&&value.Settings?.snippetId)fail(`${name} Full Library shortcut must not carry a snippetId.`);
           if(value.States?.[0]?.ShowTitle!==false)fail(`${name} bundled starter key must disable Stream Deck title overlays.`);
           if(String(value.States?.[0]?.Title||"")!=="")fail(`${name} bundled profile must leave host title empty; runtime owns the full key face.`);
           if(value.States?.[0]?.Image)fail(`${name} bundled profile must not pin custom profile pixel art; runtime owns setImage().`);
@@ -155,9 +160,13 @@ for(const [uuid,name] of expected){
     if(JSON.stringify(actualPageNames)!==JSON.stringify(expectedPages)){
       fail(`${name} starter page order mismatch. Expected ${expectedPages.join(", ")}, got ${actualPageNames.join(", ")}.`);
     }
+    const expectedFirstPageIds=isLite
+      ?[...baseFirstPageIds,"__LIBRARY__"]
+      :(profileEntry.DeviceType===1?baseFirstPageIds:[...baseFirstPageIds,"__LIBRARY__"]);
     if(JSON.stringify(firstPageIds)!==JSON.stringify(expectedFirstPageIds)){
       fail(`${name} first starter page has the wrong defaults: ${firstPageIds.join(", ")}.`);
     }
+    if(fullLibraryKeys!==1)fail(`${name} bundled profile must contain exactly one Full Library hardware shortcut, found ${fullLibraryKeys}.`);
   }
 
   for(const action of manifest.Actions){
@@ -165,7 +174,8 @@ for(const [uuid,name] of expected){
     if(action.States?.[0]?.ShowTitle!==false)fail(`${name} action must disable host title overlays.`);
   }
   const manageAction=manifest.Actions.find(action=>action.UUID===uuid+".manage");
-  if(!manageAction||manageAction.VisibleInActionsList!==false)fail(`${name} legacy Manage action must stay registered but hidden from the actions list.`);
+  if(!manageAction||manageAction.VisibleInActionsList!==true)fail(`${name} Full Library action must stay visible in the actions list.`);
+  if(manageAction.Name!=="Full Library")fail(`${name} manager action must use the customer-facing Full Library name.`);
 
   const category=await requireSvg(path.join(dir,"imgs","plugin","category-icon.svg"));
   if(!/stroke="#FFFFFF"/i.test(category))fail(`${name} category icon must remain monochrome white.`);
@@ -220,7 +230,8 @@ if(!inspector.includes('id="topUpgrade"')||!inspector.includes("Upgrade to Pro �
 if(!inspector.includes('class="upsell hidden"')||!inspector.includes("Open Text Expander Pro ↗"))fail("Lite Property Inspector must include the canonical bottom Pro feature card.");
 if(!inspector.includes("multiline, tabbed, or very long text"))fail("Initial Smart insertion help must match the hardened structured-text fallback behavior.");
 if(!inspector.includes("Dynamic text"))fail("Pro Property Inspector must explain available dynamic text.");
-if(!inspector.includes("Open reusable variables & full library"))fail("Pro Property Inspector must expose reusable/global variables without requiring the hidden legacy action.");
+if(!inspector.includes("Open full library dashboard"))fail("Pro Property Inspector must expose the full library dashboard.");
+if(!inspector.includes("12-hour time")||!inspector.includes("24-hour time")||!inspector.includes("Date + time"))fail("Pro Property Inspector must expose obvious date/time format presets.");
 if(!inspector.includes("{{name}}")||!inspector.includes("literal braces"))fail("Pro Property Inspector must explain how code/text can escape fill-in braces.");
 if(!inspector.includes("Type text")||!inspector.includes("Paste with clipboard"))fail("Insert method copy must use plain-language labels.");
 if(inspector.includes("Unicode typing")||inspector.includes("Clipboard paste + restore"))fail("Old technical insertion labels must not return.");
@@ -235,6 +246,8 @@ if(!inspectorJs.includes("Saving…")||!inspectorJs.includes("Saved"))fail("Prop
 if(!inspectorJs.includes('document.createElement("optgroup")'))fail("Pro snippet selector must group the built-in library by folder.");
 if(!inspectorJs.includes('type:"getSnippet"')||!inspectorJs.includes('"Loading snippet…"'))fail("Property Inspector must lazy-load only the selected snippet body.");
 if(!inspectorJs.includes('type:"openManager"'))fail("Pro Property Inspector must wire the reusable-variable/full-library manager.");
+if(!inspectorJs.includes('data-token')&&!inspectorJs.includes('format-token'))fail("Property Inspector must wire date/time format preset controls.");
+if(!inspectorJs.includes('pro-quick-time')||!inspectorJs.includes('pro-quick-date')||!inspectorJs.includes('pro-timestamp'))fail("Built-in Time, Date, and Stamp snippets must support one-click format replacement.");
 if(!inspectorJs.includes('BUILD_VERIFIED_PRO_URL')||!inspectorJs.includes('__PACKRAT_VERIFIED_PRO_URL__'))fail("Source Property Inspector must reserve the verified Pro URL for build-time injection.");
 if(!inspectorJs.includes('BUILD_VERIFIED_PRO_URL.startsWith("__PACKRAT_")'))fail("Property Inspector placeholder detection must survive replacement with a real Pro URL.");
 if(inspectorJs.includes('BUILD_VERIFIED_PRO_URL==="__PACKRAT_VERIFIED_PRO_URL__"'))fail("Property Inspector must not compare against the full replaceable Pro URL placeholder.");
