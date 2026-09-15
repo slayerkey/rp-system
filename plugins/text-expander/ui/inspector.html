@@ -77,6 +77,20 @@
         <textarea id="editContent" spellcheck="false" placeholder="Type the text this key should insert."></textarea>
       </div>
 
+      <div id="dateTimePresets" class="field hidden">
+        <label>Date & time presets</label>
+        <div class="format-grid">
+          <button type="button" class="format-token" data-token="{time:h:mm A}"><strong>12-hour time</strong><span>7:23 PM</span></button>
+          <button type="button" class="format-token" data-token="{time:HH:mm}"><strong>24-hour time</strong><span>19:23</span></button>
+          <button type="button" class="format-token" data-token="{time:HH:mm:ss}"><strong>With seconds</strong><span>19:23:45</span></button>
+          <button type="button" class="format-token" data-token="{date:MM/DD/YYYY}"><strong>US date</strong><span>09/14/2026</span></button>
+          <button type="button" class="format-token" data-token="{date:MMM D, YYYY}"><strong>Readable date</strong><span>Sep 14, 2026</span></button>
+          <button type="button" class="format-token" data-token="{date:dddd, MMMM D, YYYY}"><strong>Long date</strong><span>Monday, September 14, 2026</span></button>
+          <button type="button" class="format-token wide" data-token="{datetime:MMM D, YYYY h:mm A}"><strong>Date + time</strong><span>Sep 14, 2026 7:23 PM</span></button>
+        </div>
+        <p class="hint">Click a preset to insert it. On the built-in Time, Date, or Stamp snippet, a preset replaces the existing date/time token. You can still type any custom pattern manually.</p>
+      </div>
+
       <div class="row">
         <button id="newSnippet" type="button">New snippet</button>
         <button id="saveSnippet" class="primary" type="button">Save changes</button>
@@ -89,14 +103,14 @@
       <h2>Dynamic text</h2>
       <p class="muted">Use these anywhere inside a Pro snippet. Unknown names such as <code>{name}</code> become fill-in fields when you press the key. To insert literal braces, double them: <code>{{name}}</code> inserts <code>{name}</code>.</p>
       <div class="dynamic-grid">
-        <div class="token"><strong>Date & time</strong>{date} · {time}<br>{datetime}</div>
+        <div class="token"><strong>Date & time</strong>{date} · {time}<br>{time:h:mm A}<br>{datetime:MMM D, YYYY h:mm A}</div>
         <div class="token"><strong>Windows context</strong>{clipboard}<br>{app}</div>
         <div class="token"><strong>Device</strong>{username}<br>{computer}</div>
         <div class="token"><strong>Automation</strong>{counter:name}<br>{cursor}</div>
       </div>
       <div class="divider"></div>
       <p class="muted">Reusable variables are shared across Pro snippets. Use them for things like your signature, meeting link, contact block, or creator links.</p>
-      <button id="openManager" type="button" style="margin-top:9px">Open reusable variables & full library ↗</button>
+      <button id="openManager" type="button" style="margin-top:9px">Open full library dashboard ↗</button>
     </section>
 
     <section id="upgrade" class="upsell hidden">
