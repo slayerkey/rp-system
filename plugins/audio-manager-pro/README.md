@@ -76,7 +76,7 @@ The private SDK does not modify global PATH, does not require an administrator i
 rat dev audio-manager-pro
 ```
 
-After Rat Dev activates the validated candidate, run the read-only host audit:
+`rat audit audio-manager-pro` is a read-only **diagnostic/checkpoint**, not a command you need after every normal `rat dev`. Use it when a host/transport problem needs evidence, after a meaningful hardware-fix checkpoint, and once near final hardware sign-off.
 
 ```text
 rat audit audio-manager-pro
