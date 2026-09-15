@@ -105,10 +105,11 @@ function Convert-RatStreamDeckPluginIdentity {
         }
     }
 
+    $oldNamespacePattern = [regex]::Escape($oldUuid) + '(?=$|[^a-z0-9-])'
     foreach ($file in Get-ChildItem -Path $PluginDirectory -Recurse -File) {
         if ($file.Extension -in $textExtensions) {
             $text = [System.IO.File]::ReadAllText($file.FullName, [System.Text.Encoding]::UTF8)
-            if ($text.Contains($oldUuid)) {
+            if ($text -match $oldNamespacePattern) {
                 throw "Old Stream Deck plugin UUID '$oldUuid' remains after rewrite in $($file.FullName)."
             }
         }
