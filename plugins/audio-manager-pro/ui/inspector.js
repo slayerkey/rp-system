@@ -201,6 +201,7 @@ function actionUI(){
   if(kind==="mute-mic"){
     const name=defaultMic?.name||"No default microphone";
     $("currentMicName").textContent=name;
+    $("micRoutingNote").hidden=!voiceMeeterDetected();
     const pill=$("currentMicState");
     pill.className="state-pill";
     if(!defaultMic){
@@ -214,14 +215,10 @@ function actionUI(){
       $("currentMicHint").textContent="This Windows Default Input does not expose mute control.";
     }else if(defaultMic.muted){
       pill.textContent="MUTED";pill.classList.add("muted");
-      $("currentMicHint").textContent=voiceMeeterDetected()
-        ?"Windows reports this endpoint muted. VoiceMeeter can capture or route audio outside Windows endpoint mute, so a VoiceMeeter path may still pass your mic."
-        :"Press the key to unmute the Windows Default microphone.";
+      $("currentMicHint").textContent="Press the key to unmute the Windows Default microphone.";
     }else{
       pill.textContent="LIVE";pill.classList.add("live");
-      $("currentMicHint").textContent=voiceMeeterDetected()
-        ?"This key controls the Windows Default Input endpoint. VoiceMeeter routes may bypass Windows endpoint mute."
-        :"Press the key to mute the Windows Default microphone.";
+      $("currentMicHint").textContent="Press the key to mute the Windows Default microphone.";
     }
   }
 
