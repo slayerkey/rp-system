@@ -101,6 +101,8 @@ When bundled profiles exist, Rat Dev should make them impossible to forget and i
 
 Do not ask the user to manually delete/reimport profiles when Rat Dev can identify and replace them safely.
 
+Every generated action instance across all bundled device variants must also have a unique ActionID. The shared profile audit/ Rat Dev regression should execute that uniqueness guard against real generated archives; manually dragged actions are not proof that bundled-profile identities are safe.
+
 The automated audit is only a floor. Also review actual keys at 72 x 72 and a reduced 36 x 36 preview. Dynamic keys must be reviewed using representative rendered states, not only their manifest fallback image.
 
 Use GitHub Actions for clean Node builds and vendor CLI work.
@@ -108,6 +110,8 @@ Use GitHub Actions for clean Node builds and vendor CLI work.
 Hardware telemetry must remain device-reported unless the product explicitly owns and labels an estimation model. A battery percentage that stays at the same number across **fresh** reads is not automatically stale. Where ambiguity matters, expose or log telemetry source, transport, and observation freshness. Do not smooth or invent a lower battery value simply because the hardware reports in coarse steps.
 
 Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures. The hardware pass must explicitly cover readable 72 x 72 key faces, accent/state behavior, Property Inspector save/reopen persistence, selector switching without rollback, mutable text commands such as Rename/Create, visible `Saving… → Saved` acknowledgement, PI command buttons, live update cadence, and bundled profile appearance when profiles are promised.
+
+When a product injects text/keystrokes on Windows, the first real hardware press is a host-boundary check, not a substitute for ABI tests. Before hardware QA, hosted Windows automation should compile/execute the native bridge, assert platform-correct structure sizes, and exercise the real injection boundary where practical. A passing foreground-window/context probe alone does not prove `SendInput` works.
 
 ### Profile
 
@@ -191,8 +195,13 @@ Shared automation should catch, when applicable:
 - PI save/render races that overwrite pending selections or text drafts
 - save acknowledgements that can leave `Saving…` stuck despite persisted settings
 - dynamic selectors that use ambiguous labels/positions instead of immutable IDs
-- Lite→Pro top/bottom conversion surfaces
-- profile coverage/generation mistakes
+- large-library PIs that send every item body instead of metadata + lazy selected-detail loading
+- dedicated launcher/dashboard actions that accidentally reuse or rehydrate an unrelated editor PI
+- stale/deleted selected IDs where the key renderer and press handler resolve different fallbacks
+- Windows native text-input ABI mistakes; hosted Windows tests must assert native `INPUT` sizing when using `SendInput`
+- text-insertion paths that reinterpret authored newline/tab characters as real submit/navigation keys
+- Lite→Pro top + bottom conversion surfaces with direct-Pro-first / PackRat-maker-fallback routing
+- profile coverage/generation mistakes, including unique ActionIDs across every bundled device variant
 - marketplace text overflow and reduced-size readability failures
 - stale QA/package evidence after behavior-scope changes
 
