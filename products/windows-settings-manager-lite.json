@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "qa_passed",
   "workflow_state": "READY_TO_SHIP",
-  "final_boundary": "Generate and upload the Lite candidate after the Pro listing exists. Final public Lite submission still requires the exact verified Pro and Lite Marketplace URLs/IDs in products/lite-pro-map.json and a passing strict Lite-to-Pro shipping audit.",
+  "final_boundary": "Lite is technically/physically approved. Both canonical Pro upgrade surfaces remain usable before Pro publication through the PackRat maker fallback. Final public Lite submission still requires the exact verified Pro and Lite Marketplace URLs/IDs in products/lite-pro-map.json and a passing strict Lite-to-Pro shipping audit.",
   "price_usd": 0,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -54,13 +54,14 @@
   ],
   "upsell": {
     "target_product_id": "windows-settings-manager-pro",
-    "surface": "Property Inspector",
+    "surface": "Property Inspector top-right + bottom feature card",
     "url_source": "products/lite-pro-map.json",
-    "requires_verified_direct_marketplace_url": true,
-    "hidden_until_verified": true,
-    "release_order": "publish Pro first, then record direct Pro and Lite Marketplace URLs before Lite publication"
+    "fallback_marketplace_url": "https://marketplace.elgato.com/maker/packrat",
+    "routing": "verified direct Pro Marketplace URL when available, otherwise PackRat maker fallback",
+    "hidden_until_verified": false,
+    "release_order": "publish Pro first, then record the verified direct Pro URL and rebuild Lite so both CTAs route directly to Pro"
   },
-  "commercial_release_boundary": "After technical/physical QA passes, publish Pro first. Lite remains BLOCKED until Pro is published, both exact direct Marketplace URLs/IDs are recorded in products/lite-pro-map.json, the rebuilt Lite package contains the exact Pro URL, and tools/lite_pro_audit.py --shipping windows-settings-manager-lite passes.",
+  "commercial_release_boundary": "Publish Pro first. Before the direct listing exists, Lite upgrade CTAs route to the PackRat maker page. After publication, record exact direct Marketplace URLs/IDs, rebuild Lite so both CTAs target Pro directly, then run tools/lite_pro_audit.py --shipping windows-settings-manager-lite before final public Lite submission.",
   "current_direction": {
     "thesis": "A free, coherent set of everyday Windows essentials for the broad use case: control your PC without opening Windows Settings or leaving what you are doing.",
     "primary_surface": "six-key essentials: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, Next Desktop",
