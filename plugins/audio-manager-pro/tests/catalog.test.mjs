@@ -100,6 +100,23 @@ test("Audio Manager Property Inspector preserves unsaved edits across live refre
   assert.match(inspectorSource, /Save profile · unsaved/);
 });
 
+
+test("Audio Manager Property Inspector keeps action UX contextual and co-locates feedback", () => {
+  assert.match(inspectorHtml, /id="micAction"/);
+  assert.match(inspectorHtml, /id="profileManager"/);
+  assert.match(inspectorHtml, /id="profileResultBox"/);
+  assert.match(inspectorHtml, /id="actionResultBox"/);
+  assert.match(inspectorHtml, /id="activeProfileName"/);
+  assert.match(inspectorHtml, /id="currentMicName"/);
+  assert.match(inspectorSource, /PROFILE_KINDS/);
+  assert.match(inspectorSource, /Custom \/ no exact profile match/);
+  assert.match(inspectorSource, /VoiceMeeter endpoint Windows currently uses as Default Input/);
+  assert.match(inspectorSource, /e\.key!=="Enter"/);
+  assert.match(inspectorSource, /requestId:nextRequestId\(\)/);
+  assert.match(pluginSource, /activeProfileForInspector/);
+  assert.match(pluginSource, /defaultMicForInspector/);
+});
+
 test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
   assert.match(inspectorHtml, /id="brandLink"/);
   assert.match(inspectorHtml, /packrat-logo\.png/);
