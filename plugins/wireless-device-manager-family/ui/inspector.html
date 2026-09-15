@@ -8,11 +8,14 @@
 </head>
 <body>
   <main>
-    <section class="hero">
-      <a id="packrat-brand" class="brand-link" href="https://marketplace.elgato.com/maker/packrat" target="_blank" rel="noopener noreferrer">
+    <div class="packrat-topbar">
+      <a id="packrat-brand" class="brand-link" href="https://marketplace.elgato.com/maker/packrat">
         <img src="packrat-logo.png" alt="" aria-hidden="true">
         <span>PackRat ↗</span>
       </a>
+      <button id="top-pro-link" class="primary packrat-upgrade" type="button" hidden>Upgrade to Pro ↗</button>
+    </div>
+    <section class="hero">
       <h1 id="product-title">Wireless Device Manager</h1>
       <p>Live wireless status, battery telemetry, and capability-gated controls from one Stream Deck plugin.</p>
     </section>
@@ -66,10 +69,16 @@
       <p class="help">Cycles through devices marked as favorites. Cycling changes what is shown; it does not auto-connect a device.</p>
     </section>
 
-    <section id="lite-upsell" class="card note" hidden>
-      <h2>Wireless Device Manager Pro</h2>
-      <p>Dedicated device keys, favorites, Cycle Device, groups, low-battery alerts, and multi-device dashboards.</p>
-      <a id="pro-link" class="cta-link" hidden target="_blank" rel="noopener noreferrer">View Pro on Marketplace ↗</a>
+    <section id="lite-upsell" class="upsell" hidden>
+      <div class="upsell-eyebrow">WIRELESS DEVICE MANAGER PRO</div>
+      <h3>Manage every wireless device.</h3>
+      <p>Lite focuses on one selected device. Pro expands the same workflow into a complete multi-device control center.</p>
+      <ul class="upsell-list">
+        <li><strong>Dedicated device keys</strong> — keep multiple devices available without rebinding one Lite key.</li>
+        <li><strong>Favorites + Cycle Device</strong> — move quickly between the wireless devices you actually use.</li>
+        <li><strong>Groups, alerts, and dashboards</strong> — organize devices and watch low-battery state across your setup.</li>
+      </ul>
+      <button id="pro-link" class="primary pro-button" type="button">Open Wireless Device Manager Pro ↗</button>
     </section>
 
     <section class="privacy">
