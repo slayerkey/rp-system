@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync } from "node:fs";
 import { extname, resolve } from "node:path";
+import { inflateRawSync } from "node:zlib";
 
 const root=process.argv[2];
 const flags=new Set(process.argv.slice(3));
@@ -23,6 +24,55 @@ const warnings=[];
 const keypad=(manifest.Actions??[]).filter(a=>(a.Controllers??[]).includes("Keypad"));
 const reused=new Map();
 
+function readZipEntries(buffer,name){
+  const entries=new Map();
+  let offset=0;
+  while(offset+30<=buffer.length&&buffer.readUInt32LE(offset)===0x04034b50){
+    const method=buffer.readUInt16LE(offset+8);
+    const compressedSize=buffer.readUInt32LE(offset+18);
+    const nameLength=buffer.readUInt16LE(offset+26);
+    const extraLength=buffer.readUInt16LE(offset+28);
+    const nameStart=offset+30;
+    const entryName=buffer.subarray(nameStart,nameStart+nameLength).toString("utf8");
+    const bodyStart=nameStart+nameLength+extraLength;
+    const compressed=buffer.subarray(bodyStart,bodyStart+compressedSize);
+    let raw;
+    if(method===0)raw=compressed;
+    else if(method===8)raw=inflateRawSync(compressed);
+    else throw new Error("unsupported ZIP compression method "+method+" in "+name);
+    entries.set(entryName,raw);
+    offset=bodyStart+compressedSize;
+  }
+  return entries;
+}
+
+function inspectProfileArchive(buffer,name){
+  let entries;
+  try{entries=readZipEntries(buffer,name);}
+  catch(error){warnings.push("Bundled profile "+name+": could not inspect internal key states ("+error.message+")");return;}
+  let manifestCount=0;
+  for(const [entryName,raw] of entries){
+    if(!/manifest\.json$/i.test(entryName))continue;
+    let profileManifest;
+    try{profileManifest=JSON.parse(raw.toString("utf8"));}
+    catch{continue;}
+    manifestCount+=1;
+    const actions=[];
+    if(profileManifest.Actions)actions.push(...Object.values(profileManifest.Actions));
+    for(const controller of profileManifest.Controllers??[]){
+      if(controller?.Type!=="Keypad"||!controller.Actions)continue;
+      actions.push(...Object.values(controller.Actions));
+    }
+    for(const action of actions){
+      for(const [index,state] of (action?.States??[]).entries()){
+        const label="Bundled profile "+name+" "+entryName+" action "+(action?.UUID??action?.Name??"unknown")+" state "+index;
+        if(state?.ShowTitle!==false)errors.push(label+": ShowTitle must be false when PackRat owns the key face");
+        if(String(state?.Title??"").trim()!=="")errors.push(label+": Title must be empty when PackRat owns the key face; host text can overlay/clamp runtime art");
+      }
+    }
+  }
+  if(!manifestCount)warnings.push("Bundled profile "+name+": no internal manifest.json entries were inspected");
+}
 function assetCandidates(base){
   if(!base)return[];
   if(extname(base))return[resolve(pluginDir,base)];
@@ -137,6 +187,7 @@ for(const profile of profiles){
   else{
     const b=readFileSync(file);
     if(b.length<4||b.subarray(0,2).toString("ascii")!=="PK")errors.push("Bundled profile is not a valid ZIP-style .streamDeckProfile: "+name);
+    else inspectProfileArchive(b,name);
   }
   if(profile.AutoInstall!==true)warnings.push("Bundled profile "+name+" should normally set AutoInstall=true");
   if(profile.DontAutoSwitchWhenInstalled!==true)warnings.push("Bundled profile "+name+" should normally set DontAutoSwitchWhenInstalled=true");
