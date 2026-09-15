@@ -215,11 +215,14 @@ async function renderRecord(record) {
     });
   } else if (record.kind === "mute-mic") {
     const endpoint = (latestSnapshot?.inputs || []).find((item) => item.id === latestSnapshot?.defaultInputId);
+    const voiceMeeter = [...(latestSnapshot?.inputs || []), ...(latestSnapshot?.outputs || [])]
+      .some((item) => /voicemeeter/i.test(String(item?.name || "")));
     image = renderKey(record.kind, {
       endpoint,
       muted: Boolean(endpoint?.muted),
       missing: !endpoint,
       offline: Boolean(latestError),
+      voiceMeeter,
     });
   } else {
     image = renderKey(record.kind);
@@ -526,10 +529,16 @@ async function toggleDefaultMic(record) {
   const ok = response?.results?.[0]?.ok === true;
   const expectedMute = !endpoint.muted;
   const verified = ok && endpointMuteMatches(response?.snapshot || null, endpoint.id, expectedMute);
+  const voiceMeeter = [...(snapshot.inputs || []), ...(snapshot.outputs || [])]
+    .some((item) => /voicemeeter/i.test(String(item?.name || "")));
   const result = {
     status: verified ? "SUCCESS" : ok ? "PARTIAL" : "FAILED",
     scope: "action",
-    message: verified ? (expectedMute ? "Default microphone muted" : "Default microphone live") : "",
+    message: verified
+      ? voiceMeeter
+        ? (expectedMute ? "Windows endpoint muted · VoiceMeeter may still pass audio" : "Windows endpoint live")
+        : (expectedMute ? "Default microphone muted" : "Default microphone live")
+      : "",
     failures: verified
       ? []
       : [{
