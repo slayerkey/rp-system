@@ -88,7 +88,7 @@ The old PI used a product-local green custom theme. The current candidate now fo
 Audio Manager CI now consumes the current canonical shared:
 
 - `streamdeck-plugin-design-audit.mjs --require-canonical-pi`
-- `streamdeck-key-visual-audit.mjs`
+- `streamdeck-key-visual-audit.mjs --require-major-profiles`
 
 This prevents the visual or PI transport contract from silently drifting again.
 
