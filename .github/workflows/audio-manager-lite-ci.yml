@@ -3,6 +3,16 @@ on:
   push:
     branches:
       - product/audio-manager-lite
+      - main
+    paths:
+      - 'plugins/audio-manager-lite/**'
+      - 'plugins/audio-manager-pro/**'
+      - 'companions/packrat-audio-core/**'
+      - 'products/audio-manager-lite.json'
+      - 'products/audio-manager-pro.json'
+      - 'products/index.json'
+      - 'products/lite-pro-map.json'
+      - '.github/workflows/audio-manager-lite-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,6 +27,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install Rat Art dependency
+        run: python -m pip install pillow
       - run: dotnet build companions/packrat-audio-core/src/PackRat.AudioCore/PackRat.AudioCore.csproj -c Release
       - run: npm ci --no-fund --no-audit
         working-directory: plugins/audio-manager-lite
@@ -24,6 +39,15 @@ jobs:
         working-directory: plugins/audio-manager-lite
       - run: npm test
         working-directory: plugins/audio-manager-lite
+      - name: Generate Marketplace Rat Art smoke
+        shell: pwsh
+        run: |
+          $dest = Join-Path $env:RUNNER_TEMP 'audio-manager-lite-rat-art'
+          & ./plugins/audio-manager-lite/rat-art.ps1 -Destination $dest
+          if ($LASTEXITCODE -ne 0) { throw 'Audio Manager Lite Rat Art failed.' }
+          foreach ($name in @('01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png')) {
+            if (-not (Test-Path (Join-Path $dest $name) -PathType Leaf)) { throw "Missing Rat Art output: $name" }
+          }
       - name: Audit canonical Lite to Pro catalog relationships
         run: python tools/lite_pro_audit.py
       - run: npm run build
