@@ -160,3 +160,33 @@ test("build packages the one-click Windows FPS setup helper", async () => {
   assert.match(setup, /Start-Process/);
   assert.match(setup, /Add-LocalGroupMember/);
 });
+
+
+test("property inspector command transport uses PI UUID plus selected action context", async () => {
+  const [js, plugin] = await Promise.all([
+    readFile(resolve(root, "ui", "inspector.js"), "utf8"),
+    readFile(resolve(root, "src", "plugin.js"), "utf8"),
+  ]);
+
+  assert.match(js, /let uiUuid\s*=\s*""/);
+  assert.match(js, /let actionContext\s*=\s*""/);
+  assert.match(js, /propertyInspectorUUID/);
+  assert.match(js, /actionInfo\?\.context/);
+  assert.match(js, /streamDeckClient\.send\("sendToPlugin"/);
+  assert.match(js, /actionContext\s*,/);
+  assert.doesNotMatch(js, /new\s+WebSocket\s*\(/);
+
+  assert.match(plugin, /streamDeck\.ui\.onSendToPlugin/);
+  assert.match(plugin, /payload\?\.actionContext/);
+  assert.match(plugin, /actionContext\s*!==\s*openActionId/);
+  assert.doesNotMatch(plugin, /async\s+onSendToPlugin\s*\(/);
+  assert.doesNotMatch(plugin, /\.action\.sendToPropertyInspector/);
+});
+
+test("property inspector commands cannot target a different open action instance", async () => {
+  const plugin = await readFile(resolve(root, "src", "plugin.js"), "utf8");
+  const guardAt = plugin.indexOf("actionContext !== openActionId");
+  const commandAt = plugin.indexOf('payload.type !== "performanceGrapher.command"');
+  assert.ok(guardAt >= 0, "Global PI handler must reject stale/wrong action contexts.");
+  assert.ok(commandAt > guardAt, "Action-context guard must run before command execution.");
+});
