@@ -145,10 +145,11 @@ test("Audio Manager profile editor keeps save and delete beside rename and remov
 });
 
 
-test("Audio Manager documents the VoiceMeeter mute boundary without changing normal mic key wording", () => {
+test("Audio Manager documents the VoiceMeeter mute boundary as a conditional note only", () => {
   assert.match(inspectorHtml, /VoiceMeeter can route microphone audio outside the Windows endpoint mute path/);
   assert.match(inspectorSource, /micRoutingNote/);
-  assert.match(pluginSource, /Windows endpoint muted · VoiceMeeter may still pass audio/);
+  assert.doesNotMatch(pluginSource, /VoiceMeeter may still pass audio/);
+  assert.match(pluginSource, /Default microphone muted/);
 });
 
 test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
