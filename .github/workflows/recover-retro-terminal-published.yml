@@ -80,3 +80,5 @@ jobs:
           git add data/recovery/retro-terminal-marketplace-record.json
           git commit -m "Capture published Retro Terminal Marketplace record"
           git push origin HEAD:main
+
+# trigger recovery after workflow registration
