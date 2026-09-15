@@ -821,3 +821,28 @@ When a Stream Deck product looks wrong:
 9. rerun exact-commit QA before release
 
 The objective is that local hardware review finds taste/host-specific issues, not ordinary repeatable engineering mistakes.
+
+
+## Windows microphone shows muted but audio still passes
+
+Do not assume a verified Windows `IAudioEndpointVolume` mute means end-to-end microphone silence when a virtual mixer or pro-audio path is involved.
+
+Strong signature:
+
+- the plugin targets the expected Windows capture endpoint
+- Windows `SetMute` succeeds
+- a follow-up snapshot reads the endpoint as muted
+- the user's application still receives microphone audio
+- VoiceMeeter, ASIO, KS, or another virtual/pro-audio routing layer is present
+
+Interpret this as a routing-boundary issue, not automatically as a failed Core Audio command. Virtual mixers can own/capture the physical source and route it through their own strips/buses while Windows endpoint mute state remains independently readable.
+
+Rules:
+
+- report what was actually verified: **Windows endpoint muted**, not guaranteed end-to-end silence
+- if a virtual mixer is detected, explain that its route may bypass Windows endpoint mute
+- do not silently compensate by forcing endpoint volume to zero; that mutates another setting and still may not affect bypass routes
+- if true mixer-level mute is required, use that mixer's supported control API and make the target explicit
+- for VoiceMeeter specifically, its Remote API exposes strip mute controls; mapping a Windows endpoint to a VoiceMeeter strip must be deterministic before automating it
+- never claim `MIC MUTED` from Windows state alone when the product knows a bypass-capable virtual mixer is in the signal path
+
