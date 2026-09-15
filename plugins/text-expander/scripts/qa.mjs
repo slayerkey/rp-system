@@ -221,6 +221,7 @@ for(const [uuid,name] of expected){
 const inspector=await fs.readFile(path.join(root,"ui","inspector.html"),"utf8");
 const inspectorJs=await fs.readFile(path.join(root,"ui","inspector.js"),"utf8");
 const inspectorCss=await fs.readFile(path.join(root,"ui","inspector.css"),"utf8");
+const managerHtml=await fs.readFile(path.join(root,"ui","manager.html"),"utf8");
 
 if(!inspector.includes('class="packrat-topbar"'))fail("Property Inspector PackRat chrome must live in the canonical topbar.");
 if(!inspector.includes('src="../imgs/plugin/packrat-logo.png"'))fail("Property Inspector must use the packaged PackRat logo asset.");
@@ -232,6 +233,7 @@ if(!inspector.includes("multiline, tabbed, or very long text"))fail("Initial Sma
 if(!inspector.includes("Dynamic text"))fail("Pro Property Inspector must explain available dynamic text.");
 if(!inspector.includes("Open full library dashboard"))fail("Pro Property Inspector must expose the full library dashboard.");
 if(!inspector.includes("12-hour time")||!inspector.includes("24-hour time")||!inspector.includes("Date + time"))fail("Pro Property Inspector must expose obvious date/time format presets.");
+if(!managerHtml.includes("Date & time presets")||!managerHtml.includes('data-token="{time:h:mm A}"')||!managerHtml.includes('data-token="{datetime:MMM D, YYYY h:mm A}"'))fail("Full Library dashboard must expose the same common date/time presets.");
 if(!inspector.includes("{{name}}")||!inspector.includes("literal braces"))fail("Pro Property Inspector must explain how code/text can escape fill-in braces.");
 if(!inspector.includes("Type text")||!inspector.includes("Paste with clipboard"))fail("Insert method copy must use plain-language labels.");
 if(inspector.includes("Unicode typing")||inspector.includes("Clipboard paste + restore"))fail("Old technical insertion labels must not return.");
