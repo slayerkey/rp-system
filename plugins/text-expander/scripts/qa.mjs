@@ -255,6 +255,9 @@ for(const forbidden of ["FONT_5X7","drawProfileLabel","profileKeyImage","CustomI
 }
 if(!buildSource.includes('key-visuals.mjs'))fail("Build must package the semantic runtime key renderer.");
 if(!buildSource.includes('packrat-logo.png'))fail("Build must package the shared PackRat logo at the canonical PI path.");
+const keyVisualSource=await fs.readFile(path.join(root,"src","key-visuals.mjs"),"utf8");
+if(keyVisualSource.includes('M22 12h100'))fail("Text Expander runtime keys must not restore the generic decorative orange top rail.");
+if(!keyVisualSource.includes('followup:'))fail("Text Expander must keep a distinct semantic Follow Up glyph.");
 
 const sourceLibrary=await fs.readFile(path.join(root,"src","library.mjs"),"utf8");
 if(!sourceLibrary.includes("CURRENT_SCHEMA_VERSION = 3"))fail("Text Expander must migrate existing local libraries to schema v3.");
@@ -285,6 +288,8 @@ for(const forbidden of ["Invoke-Expression","iex ","cmd.exe /c","Start-Process"]
 }
 if(!bridge.includes("Invoke-ClipboardRetry"))fail("Windows bridge must retry transient clipboard locks.");
 if(!bridge.includes("pasteDelayMs"))fail("Windows bridge must wait adaptively before restoring clipboard after paste.");
+if(!bridge.includes("struct MOUSEINPUT")||!bridge.includes("struct KEYBDINPUT")||!bridge.includes("struct HARDWAREINPUT"))fail("Windows bridge must declare the full native INPUT union so SendInput receives the correct structure size.");
+if(!bridge.includes("ExpectedInputStructSize")||!bridge.includes("IntPtr.Size == 8 ? 40 : 28"))fail("Windows bridge must verify the native Win32 INPUT structure size before SendInput.");
 if(!bridge.includes("UnicodeChar('\\r')")||!bridge.includes("UnicodeChar('\\t')"))fail("Type text must inject authored newlines/tabs as text packets instead of submit/navigation keys.");
 
 const windowsSource=await fs.readFile(path.join(root,"src","windows.mjs"),"utf8");
