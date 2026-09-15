@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-14",
+  "updated_at": "2026-09-15",
   "notes": "Commercial edition relationships. Lite products with a true Pro counterpart always show the canonical top-right and bottom Pro conversion surfaces. Use the exact verified direct Pro Marketplace URL when available; until then use the canonical PackRat maker fallback. Strict final Lite shipping may still require exact verified public Lite/Pro product URLs and IDs. Window Manager Lite remains the structural reference implementation.",
   "pairs": [
     {
@@ -181,8 +181,11 @@
         "widgets/_src/retro-terminal-pro",
         "widgets/retro-terminal-pro"
       ],
-      "source_status": "free_catalog_only_source_unavailable_pro_qa_passed",
-      "notes": "The published free Retro Terminal remains unchanged. Its canonical source was not found in rp-system main, branches/history, code search, or other accessible Slayerkey repositories. Retro Terminal Pro is a separate paid product and passed the full hardware-free XENEON release-candidate gate. No Pro Marketplace URL or product ID is recorded until a real public listing exists."
+      "source_status": "free_catalog_only_source_unavailable_pro_marketplace_live",
+      "notes": "The published free Retro Terminal remains unchanged until its exact source/package is recovered. Retro Terminal Pro is live on Marketplace. When the free package is available, use the standard XENEON Lite→Pro in-widget overlay with a prominent View Pro CTA routed directly to the verified Pro Marketplace URL.",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/retro-terminal-pro-c2b47dcc-9c5a-4bf6-9007-18418a5724cf",
+      "pro_marketplace_product_id": "c2b47dcc-9c5a-4bf6-9007-18418a5724cf",
+      "upsell_surface": "Lite in-widget XENEON Pro upgrade overlay"
     },
     {
       "lite_id": "windows-settings-manager-lite",
