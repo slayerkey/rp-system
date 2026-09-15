@@ -2,13 +2,16 @@
 
 Audio Manager Lite is the free, focused edition of PackRat's Windows audio family for Stream Deck.
 
-## One job
+## Two direct controls
 
-Lite exposes exactly one customer-facing action: **Set Output Device**.
+Lite exposes exactly two customer-facing actions:
 
-Use separate keys for speakers, headphones, a monitor, a USB DAC, or another Windows playback device. Each key remembers its configured target and shows the target on the hardware key while the Property Inspector separately shows what Windows is using right now.
+- **Set Output Device** — switch Windows Default Output to a speaker, headset, monitor, USB DAC, or other playback device.
+- **Set Input Device** — switch Windows Default Input to a microphone or other capture device.
 
-Lite controls the Windows **Default Output** role, which means Console + Multimedia together.
+Each key remembers its own configured target and shows that target on the hardware key. The Property Inspector separately shows what Windows is using right now.
+
+Lite controls the Windows **Default** role, meaning Console + Multimedia together. It intentionally does not expose Communications routing.
 
 ## Why Pro exists
 
@@ -17,11 +20,11 @@ Audio Manager Pro is the whole-setup edition. It adds:
 - Audio Profiles that switch output + input + Communications roles together
 - profile capture, apply, cycle, and status
 - saved endpoint volume/mute restore
-- direct input switching and Communications routing
-- default microphone control
+- Communications routing
+- default microphone mute
 - Stream Deck+ profile-output volume
 
-Lite intentionally does not expose those features.
+Lite intentionally stops at individual speaker/microphone switching. Pro is where multiple audio changes become one setup.
 
 ## Lite → Pro UI
 
@@ -35,7 +38,7 @@ Until the exact public Audio Manager Pro Marketplace product URL exists, both up
 
 ## Bundled layouts
 
-Starter layouts ship for Standard/MK.2, XL, Stream Deck+, and Neo. They contain several unconfigured Set Output Device keys so the user can bind their common speakers/headphones without building the page from scratch.
+Starter layouts ship for Standard/MK.2, XL, Stream Deck+, and Neo. Each layout includes unconfigured output and input keys so the user immediately gets both halves of Lite without building the page from scratch.
 
 ## Development
 
