@@ -125,6 +125,25 @@ test("generated profiles contain valid bounded keypad layouts and only Performan
   }
 });
 
+test("MK.2 dashboard groups game diagnostics on the left and hardware sensors on the right", async () => {
+  const spec = EXPECTED.find((item) => item.file === "performance-dashboard-mk2");
+  const profile = await readProfile(spec);
+  const actions = profile.page.Controllers[0].Actions || {};
+
+  for (const [position, action] of Object.entries(actions)) {
+    const x = Number(position.split(",")[0]);
+    const metricId = String(action.Settings?.metricId || "");
+    const isGame = action.UUID === "com.packrat.performance-grapher.fps" ||
+      action.UUID === "com.packrat.performance-grapher.session" ||
+      ["game.fps", "game.frametime"].includes(metricId);
+    if (x <= 1) {
+      assert.equal(isGame, true, position + " should stay in the left game/session block");
+    } else {
+      assert.equal(isGame, false, position + " should stay in the right hardware block");
+    }
+  }
+});
+
 test("Performance Grapher profile archives rebuild byte-for-byte deterministically", async () => {
   const before = new Map();
   for (const spec of EXPECTED) {
