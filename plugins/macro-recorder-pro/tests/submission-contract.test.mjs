@@ -33,7 +33,7 @@ test("Pro submission matches registry and Marketplace contract",async()=>{
   assert.equal(submission.bundled_profiles.device_types.length,5);
   assert.deepEqual(submission.bundled_profiles.device_types.map(x=>x.device_type),[0,1,2,7,9]);
   assert.equal(manifest.Profiles.length,5);
-  assert.equal(product.workflow_state,"TESTING");
+  assert.equal(product.workflow_state,"READY_TO_SHIP");
   assert.equal(product.native_release_gate,"docs/MACRO_RECORDER_NATIVE_GATE.json");
   assert.ok(Array.isArray(submission.limitations)&&submission.limitations.length>=2);
   for(const name of ["01_search_icon.png","02_cover.png","03_gallery_01.png","04_gallery_02.png","05_gallery_03.png","06_gallery_04.png"]){
