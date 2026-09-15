@@ -1,0 +1,175 @@
+name: XENEON Performance Grapher Recovery
+
+on:
+  push:
+    branches:
+      - 'recovery/perf-grapher-transparency-*'
+    paths:
+      - 'widgets/_src/perf-grapher/**'
+      - 'widgets/perf-grapher/**'
+      - 'tools/xeneon/perf-grapher-regression-smoke.mjs'
+      - '.github/workflows/xeneon-perf-grapher-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate:
+    name: Exact Performance Grapher 1.4.1 package and regression gate
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Generate authored source and check syntax
+        shell: pwsh
+        run: |
+          Get-ChildItem widgets/_src/perf-grapher -Filter *.js -File | ForEach-Object {
+            node --check $_.FullName
+            if ($LASTEXITCODE -ne 0) { throw "JavaScript syntax failed: $($_.Name)" }
+          }
+          node --check tools/xeneon/perf-grapher-regression-smoke.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Regression smoke syntax failed' }
+          python tools/xeneon/inline.py perf-grapher
+          if ($LASTEXITCODE -ne 0) { throw 'Canonical inline generation failed' }
+          python tools/xeneon/inline.py perf-grapher --check
+          if ($LASTEXITCODE -ne 0) { throw 'Generated shipping index is stale' }
+
+      - name: Official CORSAIR validate and package
+        shell: pwsh
+        run: |
+          npx --yes icuewidget-cli@0.4.47 validate widgets/perf-grapher
+          if ($LASTEXITCODE -ne 0) { throw 'Official validation failed' }
+          npx --yes icuewidget-cli@0.4.47 package widgets/perf-grapher
+          if ($LASTEXITCODE -ne 0) { throw 'Official package failed' }
+
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          New-Item -ItemType Directory -Force -Path artifacts/extracted/perf-grapher | Out-Null
+          $pkg = Get-ChildItem -Path widgets -Filter *.icuewidget -File |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $pkg) { throw 'No official .icuewidget package found under widgets/' }
+          Copy-Item $pkg.FullName artifacts/package/perf-grapher.icuewidget
+
+          @'
+          import json, pathlib, zipfile
+          package = pathlib.Path('artifacts/package/perf-grapher.icuewidget')
+          if not zipfile.is_zipfile(package):
+              raise SystemExit('official package is not ZIP compatible')
+          with zipfile.ZipFile(package) as z:
+              bad = z.testzip()
+              if bad:
+                  raise SystemExit(f'corrupt package member: {bad}')
+              names = {n.replace('\\','/') for n in z.namelist()}
+              for required in ('index.html','manifest.json'):
+                  if required not in names:
+                      raise SystemExit(f'missing root {required}')
+              manifest = json.loads(z.read('manifest.json'))
+              if manifest.get('id') != 'com.packrat.perfgrapher':
+                  raise SystemExit(f'published id changed: {manifest.get("id")}')
+              if manifest.get('version') != '1.4.1':
+                  raise SystemExit(f'candidate version is not 1.4.1: {manifest.get("version")}')
+              z.extractall('artifacts/extracted/perf-grapher')
+          print('OK exact Performance Grapher package integrity and identity')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Exact package integrity failed' }
+
+      - name: Install browser test dependencies
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+
+      - name: Lexical iCUE Custom Style gate
+        shell: pwsh
+        run: |
+          node tools/xeneon/native-style-smoke.mjs artifacts/extracted/perf-grapher/index.html artifacts/native-style
+          if ($LASTEXITCODE -ne 0) { throw 'Lexical iCUE settings gate failed' }
+
+      - name: Eight composition Performance Grapher regression
+        shell: pwsh
+        run: |
+          node tools/xeneon/perf-grapher-regression-smoke.mjs artifacts/extracted/perf-grapher/index.html artifacts/perf-regression
+          if ($LASTEXITCODE -ne 0) { throw 'Performance Grapher product regression failed' }
+
+      - name: Clone Corsair Labs runner
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          if (Test-Path $runnerDir) { Remove-Item -Recurse -Force $runnerDir }
+          git clone --depth 1 https://github.com/Corsair-Labs/iCUE-widget-runner-windows.git $runnerDir
+          git -C $runnerDir rev-parse HEAD | Set-Content artifacts/corsair-runner-commit.txt
+          $target = Join-Path (Join-Path $runnerDir 'widgets') 'perf-grapher'
+          if (Test-Path $target) { Remove-Item -Recurse -Force $target }
+          Copy-Item -Recurse -Force artifacts/extracted/perf-grapher $target
+
+      - name: Corsair Labs exact package host smoke
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          $stdout = Join-Path $env:RUNNER_TEMP 'corsair-perf.out.log'
+          $stderr = Join-Path $env:RUNNER_TEMP 'corsair-perf.err.log'
+          $process = Start-Process node -ArgumentList 'web-server.js' -WorkingDirectory $runnerDir -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              try {
+                $response = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/api/widgets -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+              Start-Sleep -Seconds 1
+            }
+            if (-not $ready) { throw 'Corsair Labs runner did not become ready' }
+            node tools/xeneon/icue-runner-smoke.mjs http://127.0.0.1:8080/ perf-grapher artifacts/icue-runner
+            if ($LASTEXITCODE -ne 0) { throw 'Corsair Labs exact-package smoke failed' }
+          }
+          finally {
+            if ($process -and -not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
+            if (Test-Path $stdout) { Copy-Item $stdout artifacts/corsair-runner.stdout.log }
+            if (Test-Path $stderr) { Copy-Item $stderr artifacts/corsair-runner.stderr.log }
+          }
+
+      - name: Write tester handoff and checksums
+        shell: pwsh
+        run: |
+          @'
+          PERFORMANCE GRAPHER 1.4.1 TEST
+
+          Primary regression:
+          1. Set Transparency to a noticeable nonzero value such as 50%.
+          2. Switch to another XENEON dashboard page.
+          3. Return to the Performance Grapher page several times.
+          4. Confirm the sensor cards remain dark/readable and do not become progressively more transparent.
+
+          Also confirm:
+          - Sensor Readout Size changes the top-right readings in graph, bar, and radial modes.
+          - Performance Header Size changes the header cleanly.
+          - With FPS OFF, a Celsius reading keeps the full degree/C unit inside the sensor card.
+          - Show Ping produces a numeric HTTPS response-time reading when Cloudflare is reachable.
+
+          Ping is HTTPS response timing, not ICMP ping.
+          '@ | Set-Content artifacts/package/TESTER-NOTE.txt -Encoding UTF8
+          Get-FileHash artifacts/package/perf-grapher.icuewidget -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  perf-grapher.icuewidget" } |
+            Set-Content artifacts/package/SHA256SUMS.txt -Encoding ASCII
+
+      - name: Upload Performance Grapher physical candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-grapher-1.4.1-real-icue-candidate
+          path: artifacts/package/
+          retention-days: 30
+
+      - name: Upload Performance Grapher evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-grapher-1.4.1-evidence
+          path: artifacts/
+          retention-days: 30

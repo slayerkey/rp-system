@@ -1,0 +1,13 @@
+{
+  "slug": "perf-grapher",
+  "name": "Performance Grapher",
+  "type": "widget",
+  "price_usd": 7.99,
+  "version": "1.4.2",
+  "marketplace_category": ["Utilities"],
+  "marketplace_dashboard_sizes": ["Extra large", "Large", "Medium", "Small"],
+  "marketplace_language": ["English"],
+  "marketplace_auto_publish": true,
+  "description": "Performance Grapher for CORSAIR XENEON Edge. Monitor iCUE sensor history with graph, bar, radial, or readout views, optional live FPS and frametime statistics, and an optional HTTPS response-time indicator. Customize sensor scales, sampling, warnings, typography, colors, header sizing, sensor readout sizing, and background transparency while keeping local history on this PC.",
+  "release_notes": "1.4.2 fixes a persistence regression where saved per-sensor Graph/Bar/Radial/Readout choices and custom LOW/HIGH scales could revert to Graph + Auto. Preferences now keep an additional sensor-set backup inside CORSAIR's documented localStorage[uniqueId] record, malformed/empty active records no longer suppress recovery, and existing valid 1.4.1 preferences migrate forward automatically while preserving the 1.4.1 transparency and readability fixes."
+}

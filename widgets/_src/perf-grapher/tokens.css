@@ -1,0 +1,72 @@
+/* Packrat widget design tokens. Shared by every widget; inlined at build time by
+ * widgets/_build/inline.py.
+ *
+ * The sizing model is the one the iCUE widget docs prescribe: a single --layout-unit
+ * that every other size derives from, so a widget scales across the eight Xeneon Edge
+ * slots without per-slot overrides. Font sizes are additionally capped against vh,
+ * because the short-and-wide slots (2536x696) run out of height long before width.
+ */
+
+:root {
+    --layout-unit: 4.5px;
+    --text: #F2F5F7;
+    --accent: #2BE86A;
+    --bg: #0B0E11;
+    --fs-value: min(calc(var(--layout-unit) * 6.2), 6.2vh);
+    --fs-label: min(calc(var(--layout-unit) * 3.1), 3.1vh);
+    --fs-body: min(calc(var(--layout-unit) * 3.4), 3.6vh);
+    --space-pad: calc(var(--layout-unit) * 4);
+    --space-gap: calc(var(--layout-unit) * 3);
+    --radius-tile: calc(var(--layout-unit) * 3);
+
+    /* Keep content panels opaque even when the widget background is transparent.
+     * The old translucent-white panel depended on an opaque body underneath, so
+     * page changes could expose the dashboard wallpaper through sensor cards. */
+    --panel: color-mix(in srgb, var(--bg) 95.5%, white 4.5%);
+    --panel-line: rgba(255, 255, 255, 0.10);
+    --warn: #F5C93F;
+    --bad: #FF6B6B;
+}
+
+@media (min-width: 1200px) { :root { --layout-unit: 6px; } }
+@media (min-width: 1660px) { :root { --layout-unit: 7.5px; } }
+@media (min-width: 2400px) { :root { --layout-unit: 9px; } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Inter", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-variant-numeric: tabular-nums;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.label { font-size: max(11px, var(--fs-label)); }
+.interactive { font-size: max(12px, var(--fs-label)); }
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--radius-tile);
+    padding: var(--space-pad);
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 999px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    transition: transform 0.09s ease, filter 0.2s ease;
+}
+button:active { transform: translateY(1px) scale(0.985); }
+button:disabled { filter: grayscale(0.75) brightness(0.6); cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+    button { transition: none; }
+}

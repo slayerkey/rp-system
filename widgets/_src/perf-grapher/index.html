@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('Performance Grapher')</title>
+
+<meta name="x-icue-property" content="sensors" data-label="tr('Sensors')" data-type="sensors-factory" data-default="[]" />
+<meta name="x-icue-property" content="sampleSeconds" data-label="tr('Sample Every')" data-type="slider" data-min="1" data-max="30" data-step="1" data-unit-label="'s'" data-default="2" />
+<meta name="x-icue-property" content="decimals" data-label="tr('Decimals')" data-type="combobox" data-default="'0'" data-values="[{'key':'0','value':'0'},{'key':'1','value':'0.0'},{'key':'2','value':'0.00'}]" />
+<meta name="x-icue-property" content="showWarn" data-label="tr('Show Warnings')" data-type="switch" data-default="true" />
+<meta name="x-icue-property" content="warnAt" data-label="tr('Warn Above')" data-type="slider" data-min="0" data-max="120" data-step="1" data-default="80" />
+<meta name="x-icue-property" content="showFill" data-label="tr('Fill Under Line')" data-type="switch" data-default="true" />
+<meta name="x-icue-property" content="showGrid" data-label="tr('Show Midline')" data-type="switch" data-default="true" />
+<meta name="x-icue-property" content="smoothing" data-label="tr('Graph Smoothing')" data-type="slider" data-min="0" data-max="10" data-step="1" data-default="0" />
+<meta name="x-icue-property" content="showFps" data-label="tr('Show FPS')" data-type="switch" data-default="true" />
+<meta name="x-icue-property" content="showPing" data-label="tr('Show Ping')" data-type="switch" data-default="false" />
+
+<meta name="x-icue-property" content="widgetTitle" data-label="tr('Widget Title')" data-type="textfield" data-default="'Performance'" />
+<meta name="x-icue-property" content="headerTitleSize" data-label="tr('Performance Header Size')" data-type="slider" data-min="75" data-max="180" data-step="5" data-unit-label="'%'" data-default="100" />
+<meta name="x-icue-property" content="sensorTitleSize" data-label="tr('Sensor Title Size')" data-type="slider" data-min="75" data-max="200" data-step="5" data-unit-label="'%'" data-default="100" />
+<meta name="x-icue-property" content="sensorValueSize" data-label="tr('Sensor Readout Size')" data-type="slider" data-min="75" data-max="180" data-step="5" data-unit-label="'%'" data-default="100" />
+<meta name="x-icue-property" content="fontChoice" data-label="tr('Font')" data-type="combobox" data-default="'system'" data-values="[{'key':'system','value':tr('System')},{'key':'bahnschriftSemi','value':tr('Bahnschrift SemiBold SemiCondensed')},{'key':'bahnschrift','value':tr('Bahnschrift')},{'key':'segoe','value':tr('Segoe UI')},{'key':'arial','value':tr('Arial')},{'key':'consolas','value':tr('Consolas')}]" />
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F2F5F7'" />
+<meta name="x-icue-property" content="sensorNameColor" data-label="tr('Sensor Name Color')" data-type="color" data-default="'#F2F5F7'" />
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'" />
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#0B0E11'" />
+<meta name="x-icue-property" content="transparency" data-label="tr('Transparency')" data-type="slider" data-min="0" data-max="100" data-step="5" data-unit-label="'%'" data-default="0" />
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Graphs')",
+    "properties": ["sensors", "sampleSeconds", "decimals", "showWarn", "warnAt", "showFill", "showGrid", "smoothing", "showFps", "showPing"],
+    "info": "tr('Add any sensors iCUE can read. History is kept on this PC.')"
+  },
+  {
+    "title": "tr('Display')",
+    "properties": ["widgetTitle", "headerTitleSize", "sensorTitleSize", "sensorValueSize", "fontChoice"]
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "sensorNameColor", "accentColor", "backgroundColor", "transparency"]
+  }
+]
+</script>
+
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="perf-grapher.css" />
+<link rel="stylesheet" href="product-line-polish.css" />
+</head>
+<body>
+<div id="stage">
+    <header id="topbar">
+        <span id="titleText">Performance</span>
+        <span id="statusCluster">
+            <span id="pingStatus" hidden>PING --</span>
+            <span id="sessionStatus">LOCAL TELEMETRY</span>
+        </span>
+    </header>
+
+    <main id="dashboard">
+        <section id="fpsPanel" class="panel">
+            <button id="fpsHeroButton" class="fps-hero interactive" type="button" aria-label="Show frametime milliseconds">
+                <span id="processName">DESKTOP IDLE</span>
+                <span class="fps-reading">
+                    <span id="fpsValue">--</span>
+                    <span id="fpsUnit">FPS</span>
+                </span>
+                <span id="fpsHint">Start a game to begin a frametime session.</span>
+            </button>
+
+            <div id="lowStats">
+                <div class="low-stat">
+                    <span class="low-label">1% LOW</span>
+                    <span id="lowOne" class="low-value">--</span>
+                </div>
+                <div class="low-stat">
+                    <span class="low-label">0.1% LOW</span>
+                    <span id="lowPointOne" class="low-value">--</span>
+                </div>
+            </div>
+
+            <button id="frameWindowButton" class="frametime interactive" type="button" aria-label="Change frametime window">
+                <span class="frame-head">
+                    <span>FRAMETIME</span>
+                    <span id="windowLabel">60 SEC</span>
+                </span>
+                <svg id="frameGraph" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+                    <line class="frame-guide" x1="0" y1="16" x2="100" y2="16"></line>
+                    <path id="frameArea"></path>
+                    <path id="frameLine"></path>
+                </svg>
+                <span class="frame-foot">
+                    <span id="frameLatest">-- MS</span>
+                    <span>TAP FOR WINDOW</span>
+                </span>
+            </button>
+        </section>
+
+        <section id="sensorPanel" class="panel">
+            <div id="sensorHead">
+                <span>SENSOR HISTORY</span>
+                <span id="sensorStatus">WAITING</span>
+                <span id="sensorPager" hidden>
+                    <button id="pagePrev" class="pager-button interactive" type="button" aria-label="Previous sensors">&#8249;</button>
+                    <span id="pageLabel">1 / 1</span>
+                    <button id="pageNext" class="pager-button interactive" type="button" aria-label="Next sensors">&#8250;</button>
+                </span>
+            </div>
+            <div id="cells"></div>
+        </section>
+    </main>
+
+    <section id="sensorEditor" class="editor" role="dialog" aria-modal="true" aria-labelledby="editorName" hidden>
+        <div class="editor-card panel">
+            <div class="editor-head">
+                <div>
+                    <span class="editor-kicker">SENSOR DISPLAY</span>
+                    <h2 id="editorName">Sensor</h2>
+                </div>
+                <button id="editorClose" class="editor-close interactive" type="button">DONE</button>
+            </div>
+
+            <div class="editor-section">
+                <span class="editor-label">STYLE</span>
+                <div id="modeButtons" class="mode-buttons">
+                    <button class="mode-button interactive" type="button" data-mode="graph">GRAPH</button>
+                    <button class="mode-button interactive" type="button" data-mode="bar">BAR</button>
+                    <button class="mode-button interactive" type="button" data-mode="radial">RADIAL</button>
+                    <button class="mode-button interactive" type="button" data-mode="readout">READOUT</button>
+                </div>
+            </div>
+
+            <div class="editor-section">
+                <span class="editor-label">CUSTOM SCALE</span>
+                <div class="range-fields">
+                    <label>LOW <input id="rangeMin" class="range-input interactive" type="number" inputmode="decimal" placeholder="Auto" /></label>
+                    <label>HIGH <input id="rangeMax" class="range-input interactive" type="number" inputmode="decimal" placeholder="Auto" /></label>
+                </div>
+                <div class="editor-actions">
+                    <button id="rangeAuto" class="editor-action interactive" type="button">USE AUTO</button>
+                    <button id="rangeSave" class="editor-action primary interactive" type="button">APPLY RANGE</button>
+                </div>
+                <span id="rangeError" class="range-error" aria-live="polite"></span>
+            </div>
+        </div>
+    </section>
+</div>
+<script src="runtime.js"></script>
+<script src="animation.js"></script>
+<script src="perf-core.js"></script>
+<script src="perf-sensors.js"></script>
+<script src="perf-storage.js"></script>
+<script src="perf-render.js"></script>
+<script src="perf-fps.js"></script>
+<script src="perf-controls.js"></script>
+</body>
+</html>

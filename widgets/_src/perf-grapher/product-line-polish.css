@@ -1,0 +1,68 @@
+/* Keep PackRat telemetry products visually related without changing the data UI.
+ * Network Dashboard uses the same restrained accent wash in the upper-left canvas.
+ * Tie it to background opacity so full transparency remains truly transparent. */
+#stage {
+    background: radial-gradient(
+        circle at 8% -12%,
+        color-mix(in srgb, var(--accent) calc(11% * var(--bg-alpha)), transparent),
+        transparent 34%
+    );
+}
+
+/* Physical reviewer polish: use the same accent-reactive surface treatment from
+ * the FPS panel on every real information box. The accent tint is global product
+ * styling; per-sensor identity still lives on the colored left wall of each sensor
+ * card. Keep ordinary borders neutral instead of adding extra decorative color
+ * lines that compete with the sensor series color. */
+#fpsPanel,
+#sensorPanel,
+.low-stat,
+.frametime,
+.cell,
+.editor-card {
+    background:
+        radial-gradient(
+            circle at 5% 5%,
+            color-mix(in srgb, var(--accent) 10%, transparent),
+            transparent 48%
+        ),
+        var(--panel);
+    border-color: var(--panel-line);
+}
+
+/* Sensor cards retain the useful per-sensor side wall even though the rest of the
+ * card now follows the shared accent gradient. Warning state can outline the card
+ * without replacing that sensor identity color. */
+.cell {
+    border-left-color: var(--series);
+}
+
+.cell.warn {
+    border-color: var(--warn);
+    border-left-color: var(--series);
+}
+
+/* Physical iCUE recovery: 1.4.1 briefly reserved 68% of every sensor header for
+ * the numeric readout. That made ordinary labels such as "CPU Temperature" become
+ * "CPU Tempera…" even when the actual value used only a small fraction of the row.
+ * Let the label own all remaining space up to the real rendered value instead. */
+.cell-head {
+    justify-content: flex-start;
+}
+
+.cell-name {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
+}
+
+.cell-value {
+    flex: 0 1 auto;
+    width: auto;
+    max-width: 52%;
+    margin-left: auto;
+}
+
+.cell-value .value-number {
+    flex: 0 1 auto;
+}

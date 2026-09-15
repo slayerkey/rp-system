@@ -1,0 +1,84 @@
+name: XENEON Performance Grapher Title Width
+
+on:
+  push:
+    branches:
+      - 'recovery/perf-grapher-transparency-*'
+    paths:
+      - 'widgets/_src/perf-grapher/**'
+      - 'widgets/perf-grapher/**'
+      - 'tools/xeneon/perf-grapher-title-width-smoke.mjs'
+      - '.github/workflows/xeneon-perf-grapher-title-width.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  title-width:
+    name: Exact package sensor title width regression
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Generate validate package and extract
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          New-Item -ItemType Directory -Force -Path artifacts/extracted | Out-Null
+          python tools/xeneon/inline.py perf-grapher
+          if ($LASTEXITCODE -ne 0) { throw 'inline generation failed' }
+          python tools/xeneon/inline.py perf-grapher --check
+          if ($LASTEXITCODE -ne 0) { throw 'inline determinism failed' }
+          npx --yes icuewidget-cli@0.4.47 validate widgets/perf-grapher
+          if ($LASTEXITCODE -ne 0) { throw 'official validation failed' }
+          npx --yes icuewidget-cli@0.4.47 package widgets/perf-grapher
+          if ($LASTEXITCODE -ne 0) { throw 'official package failed' }
+          $pkg = Get-ChildItem -Path widgets -Filter *.icuewidget -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $pkg) { throw 'package missing' }
+          Copy-Item $pkg.FullName artifacts/package/perf-grapher.icuewidget
+          @'
+          import pathlib, zipfile
+          package = pathlib.Path('artifacts/package/perf-grapher.icuewidget')
+          if not zipfile.is_zipfile(package):
+              raise SystemExit('not ZIP compatible')
+          with zipfile.ZipFile(package) as z:
+              bad = z.testzip()
+              if bad:
+                  raise SystemExit(f'corrupt member {bad}')
+              z.extractall('artifacts/extracted')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'exact package extraction failed' }
+
+      - name: Install Playwright
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+
+      - name: Prove CPU Temperature uses the full space before readout
+        shell: pwsh
+        run: |
+          node tools/xeneon/perf-grapher-title-width-smoke.mjs artifacts/extracted/index.html artifacts/title-width
+          if ($LASTEXITCODE -ne 0) { throw 'sensor title width regression failed' }
+
+      - name: Upload exact candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-grapher-1.4.1-title-width-candidate
+          path: artifacts/package/
+          retention-days: 30
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-grapher-1.4.1-title-width-evidence
+          path: artifacts/
+          retention-days: 30

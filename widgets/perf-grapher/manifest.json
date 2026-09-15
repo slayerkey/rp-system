@@ -1,0 +1,28 @@
+{
+    "author": "PackRat 🐀",
+    "id": "com.packrat.perfgrapher",
+    "name": "Performance Grapher",
+    "description": "See stutter and hardware changes before they disappear. Keep live game FPS, low-frame stats, frametime, and optional HTTPS ping beside any sensors iCUE can read, or hide FPS to reclaim the display for up to 16 sensor readings. Give each sensor a graph, bar, radial gauge, or clean readout, set a durable custom scale, smooth its history, and personalize the title, font, colors, warnings, decimals, and background.",
+    "version": "1.4.2",
+    "preview_icon": "resources/icon.svg",
+    "min_framework_version": "1.0.0",
+    "min_app_version": "5.47",
+    "os": [
+        {
+            "platform": "windows"
+        }
+    ],
+    "supported_devices": [
+        {
+            "type": "dashboard_lcd",
+            "features": [
+                "sensor-screen"
+            ]
+        }
+    ],
+    "required_plugins": [
+        "widgetbuilder.sensorsdataprovider:Sensors:1.0",
+        "widgetbuilder.fpsdataprovider:Fps:1.0"
+    ],
+    "interactive": true
+}
