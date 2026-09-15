@@ -1,0 +1,82 @@
+name: Recover Published Retro Terminal
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/recover-retro-terminal-published.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Fetch exact public Marketplace record
+        run: |
+          mkdir -p data/recovery
+          node --input-type=commonjs <<'NODE'
+          const fs=require('fs');
+          (async()=>{
+            let url='https://mp-gateway.elgato.com/products?organization_id=6ca8662c-1988-4901-8058-f5929450a596&limit=100&offset=0';
+            const products=[];
+            const seen=new Set();
+            while(url){
+              if(seen.has(url)) throw new Error('pagination loop');
+              seen.add(url);
+              const r=await fetch(url,{headers:{accept:'application/json','user-agent':'PackRat-Recovery/1.0'}});
+              if(!r.ok) throw new Error('catalog HTTP '+r.status);
+              const d=await r.json();
+              products.push(...(d.results||[]));
+              url=d.next||null;
+            }
+            const matches=products.filter(p=>String(p.name||'').toLowerCase()==='retro terminal' || (String(p.slug||'').startsWith('retro-terminal') && !String(p.slug||'').includes('-pro')));
+            if(!matches.length) throw new Error('Published free Retro Terminal not found in PackRat catalog');
+            const product=matches[0];
+
+            async function tryJson(u){
+              try{
+                const r=await fetch(u,{headers:{accept:'application/json','user-agent':'PackRat-Recovery/1.0'}});
+                if(!r.ok) return {url:u,status:r.status};
+                const ct=r.headers.get('content-type')||'';
+                if(!ct.includes('json')) return {url:u,status:r.status,content_type:ct};
+                return {url:u,status:r.status,data:await r.json()};
+              }catch(e){return {url:u,error:String(e)}}
+            }
+
+            const detailAttempts=[
+              'https://mp-gateway.elgato.com/products/'+encodeURIComponent(product.id||''),
+              'https://mp-gateway.elgato.com/products/'+encodeURIComponent(product.slug||'')
+            ];
+            const details=[];
+            for(const u of detailAttempts) details.push(await tryJson(u));
+
+            const payload={fetched_at:new Date().toISOString(),catalog_match:product,detail_attempts:details};
+
+            const urls=[];
+            function walk(v,path='root'){
+              if(typeof v==='string' && /^https?:\/\//i.test(v)) urls.push({path,url:v});
+              else if(Array.isArray(v)) v.forEach((x,i)=>walk(x,path+'['+i+']'));
+              else if(v&&typeof v==='object') Object.entries(v).forEach(([k,x])=>walk(x,path+'.'+k));
+            }
+            walk(payload);
+            payload.discovered_urls=urls;
+
+            fs.writeFileSync('data/recovery/retro-terminal-marketplace-record.json',JSON.stringify(payload,null,2)+'\n');
+            console.log(JSON.stringify(payload,null,2));
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Commit recovery record
+        run: |
+          git config user.name "packrat-recovery-bot"
+          git config user.email "packrat-recovery-bot@users.noreply.github.com"
+          git add data/recovery/retro-terminal-marketplace-record.json
+          git commit -m "Capture published Retro Terminal Marketplace record"
+          git push origin HEAD:main
