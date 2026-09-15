@@ -117,6 +117,13 @@ test("Audio Manager Property Inspector keeps action UX contextual and co-locates
   assert.match(pluginSource, /defaultMicForInspector/);
 });
 
+
+test("Audio Manager Property Inspector explains split default microphone roles explicitly", () => {
+  assert.match(pluginSource, /split: String\(latestSnapshot\?\.defaultInputId/);
+  assert.match(inspectorSource, /pill\.textContent="SPLIT"/);
+  assert.match(inspectorSource, /Align the Default inputs before using this mute key/);
+});
+
 test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
   assert.match(inspectorHtml, /id="brandLink"/);
   assert.match(inspectorHtml, /packrat-logo\.png/);
