@@ -84,6 +84,12 @@ jobs:
       - name: Build plugin and pinned telemetry providers
         run: npm run build
 
+      - name: PackRat plugin design contract
+        run: node ../../tools/qa/streamdeck-plugin-design-audit.mjs .
+
+      - name: PackRat key visual and major-profile contract
+        run: node ../../tools/qa/streamdeck-key-visual-audit.mjs com.packrat.performance-grapher.sdPlugin --require-major-profiles
+
       - name: Probe Libre Hardware Monitor helper
         shell: pwsh
         run: |
