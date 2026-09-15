@@ -250,6 +250,21 @@
       "notes": "Lite focuses on one selected wireless device. Pro adds multi-device dashboards, favorites, groups, low-battery alerts, and Cycle Device. Bluetooth audio physical control is explicitly owner-waived for initial release.",
       "launch_sequence": "Ship Pro first, then Lite. Lite uses the PackRat maker fallback until the exact direct Pro Marketplace URL is verified.",
       "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+    },
+    {
+      "lite_id": "audio-manager-lite",
+      "pro_id": "audio-manager-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_paths": [
+        "plugins/audio-manager-lite",
+        "plugins/audio-manager-pro",
+        "companions/packrat-audio-core"
+      ],
+      "source_status": "ready_to_ship_exact_head_ci_green",
+      "notes": "Lite is the direct-device free edition: Set Output Device + Set Input Device. Pro expands the same Windows audio use case into complete Audio Profiles, Communications routing, capture/apply/cycle/status, mic mute, restore state, and Stream Deck+ profile volume. Until the verified direct Pro Marketplace URL is recorded, both canonical Lite CTAs use the PackRat maker fallback.",
+      "upsell_surface": "Lite Property Inspector",
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
     }
   ],
   "standalone_free": [

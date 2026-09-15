@@ -1,0 +1,10 @@
+{
+  "type": "streamdeck-plugin",
+  "plugin_dir": "com.packrat.audio-manager-pro.sdPlugin",
+  "plugin_uuid": "com.packrat.audio-manager-pro",
+  "build_prerequisites": {
+    "dotnet_sdk": "self-managed"
+  },
+  "dev_profile": "profiles/audio-manager-pro-standard.streamDeckProfile",
+  "open_profile_on_dev": true
+}

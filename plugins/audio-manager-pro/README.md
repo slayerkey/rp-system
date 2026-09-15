@@ -1,0 +1,111 @@
+# Audio Manager Pro
+
+Audio Manager Pro is PackRat's paid Windows audio-profile plugin for Stream Deck.
+
+The product owns one job: **switch your entire audio setup with one key**. It is intentionally not a per-app volume mixer and does not try to duplicate Elgato Volume Controller or Audio Switcher.
+
+## Actions
+
+1. Apply Audio Profile
+2. Set Output Device
+3. Set Input Device
+4. Cycle Audio Profile
+5. Audio Profile Status
+6. Mute Default Mic
+7. Profile Output Volume for Stream Deck +
+
+## Audio Profiles
+
+Each profile can independently configure:
+
+- Windows Default output
+- Windows Communications output
+- Windows Default input
+- Windows Communications input
+- optional endpoint volume restore
+- optional endpoint mute restore
+
+For Audio Manager Pro, the user-facing **Default** role means Windows Console + Multimedia together. Applying a Default role sets both underlying Windows roles, and Status requires both to still match before reporting the profile ACTIVE.
+
+A missing or recreated endpoint is never replaced by a friendly-name guess. Profiles store endpoint identity plus hardware-container metadata. Automatic rebind is allowed only when the saved hardware Container ID and normalized endpoint name identify exactly one active endpoint; weak name-only matches require an explicit user rebind.
+
+Applying a profile reports one of three outcomes: SUCCESS, PARTIAL, or FAILED. If two configured roles target the same physical endpoint but request contradictory saved volume or mute state, routing can still apply but the contradictory state restore is skipped and reported instead of arbitrarily choosing a winner.
+
+## Bundled Stream Deck profiles
+
+Audio Manager Pro ships deterministic Stream Deck layout profiles for:
+
+- standard / MK.2 (DeviceType 0)
+- XL (DeviceType 2)
+- Stream Deck + (DeviceType 7)
+- Neo (DeviceType 9)
+
+These are **hardware layouts**, not fake machine-specific Audio Profiles. They place the useful Apply / Cycle / Status / Mute / routing actions for you so the user does not have to build the Stream Deck page by hand. Apply/Status/Profile Volume slots still require the user to select one of their real Audio Profiles because Windows endpoint IDs differ by PC.
+
+`rat dev audio-manager-pro` opens the standard/MK.2 bundled profile for review automatically when appropriate. Plus also includes four encoder Profile Output Volume slots.
+
+## Windows architecture
+
+The Stream Deck plugin is Node-based and launches a bundled, local-only C# helper over stdio.
+
+Both Audio Manager Pro and the existing XENEON Audio Control Center consume the same shared library:
+
+`companions/packrat-audio-core/src/PackRat.AudioCore/`
+
+That library owns MMDevice enumeration, endpoint volume/mute, role-aware default-device switching, friendly names, diagnostic device-instance metadata, and hardware container IDs.
+
+Audio Control Center keeps its original behavior by using a thin adapter that sets Default and Communications roles together. Audio Manager Pro exposes the roles separately.
+
+## Microphone mute boundary
+
+`Mute Default Mic` controls the Windows Default capture endpoint through Windows Core Audio and verifies the endpoint's mute flag afterward.
+
+That is an OS-endpoint guarantee, not an end-to-end signal guarantee for every audio stack. Virtual/pro-audio mixers such as VoiceMeeter can capture or route a microphone through their own strips/buses and may continue passing audio even while Windows reports the endpoint muted.
+
+When VoiceMeeter is detected, Audio Manager therefore reports **Windows endpoint muted** rather than claiming the entire microphone route is silent. True VoiceMeeter strip mute would require a separate explicit VoiceMeeter Remote API target/mapping; Audio Manager does not guess a strip.
+
+## Wave Link boundary
+
+Audio Manager Pro uses Windows audio roles only. It does not call private Wave Link internals.
+
+Wave Link users can configure Monitor Mix to follow Windows Default Output, or use Elgato's official Wave Link Stream Deck plugin for Wave-specific routing.
+
+## Property Inspector behavior
+
+The Property Inspector is constrained to the Stream Deck viewport: long device names ellipsize instead of creating horizontal scrolling. Profile management keeps Capture/Refresh/Save/Delete feedback beside the profile controls, Enter saves a rename, and the removed profile-accent picker no longer adds a setting that does not materially help the audio workflow.
+
+## Development
+
+Building the plugin requires Node.js 24+. The native helper also requires a .NET 8 SDK at build time, but `rat dev audio-manager-pro` manages that dependency automatically.
+
+Rat Dev first uses an already installed .NET 8 SDK when one is available. If none is installed on Windows, Audio Manager bootstraps Microsoft's official SDK version `8.0.425` into a private PackRat cache at:
+
+`%LOCALAPPDATA%\PackRat\tools\dotnet\8.0.425`
+
+The private SDK does not modify global PATH, does not require an administrator install, and is reused by later Audio Manager builds. Customers do not need the .NET SDK or runtime because the shipped helper is self-contained.
+
+```text
+rat dev audio-manager-pro
+```
+
+`rat audit audio-manager-pro` is a read-only **diagnostic/checkpoint**, not a command you need after every normal `rat dev`. Use it when a host/transport problem needs evidence, after a meaningful hardware-fix checkpoint, and once near final hardware sign-off.
+
+```text
+rat audit audio-manager-pro
+```
+
+The audit does not change Windows audio. It verifies the exact build, native helper, current Core Audio snapshot, Windows role alignment, active endpoint IDs, Stream Deck process/version, and recent plugin/host-log visibility. It writes `HOST_AUDIT_LATEST.txt` beside the product source for easy sharing.
+
+The Audio Profile Status action is read-only: it refreshes current Windows audio state and reports ACTIVE / INACTIVE without applying the profile.
+
+Release flow after physical QA passes:
+
+1. Move `products/audio-manager-pro.json` to `READY_TO_SHIP`.
+2. Merge `product/audio-manager-pro` into committed `main`.
+3. Run:
+
+```text
+rat ship audio-manager-pro
+```
+
+Rat Ship intentionally packages committed `main`, never an unmerged product branch.

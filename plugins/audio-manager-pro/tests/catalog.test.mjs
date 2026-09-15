@@ -1,0 +1,185 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const productRoot = resolve(here, "..");
+const repoRoot = resolve(productRoot, "..", "..");
+
+function json(path) {
+  return JSON.parse(readFileSync(path, "utf8"));
+}
+
+const manifest = json(resolve(productRoot, "com.packrat.audio-manager-pro.sdPlugin", "manifest.json"));
+const submission = json(resolve(productRoot, "submission.json"));
+const ratDev = json(resolve(productRoot, "rat-dev.json"));
+const product = json(resolve(repoRoot, "products", "audio-manager-pro.json"));
+const index = json(resolve(repoRoot, "products", "index.json"));
+const editionMap = json(resolve(repoRoot, "products", "lite-pro-map.json"));
+const roster = index.products.find((entry) => entry.id === "audio-manager-pro");
+const inspectorSource = readFileSync(resolve(productRoot, "ui", "inspector.js"), "utf8");
+const inspectorHtml = readFileSync(resolve(productRoot, "ui", "inspector.html"), "utf8");
+const inspectorCss = readFileSync(resolve(productRoot, "ui", "inspector.css"), "utf8");
+const buildSource = readFileSync(resolve(productRoot, "scripts", "build.mjs"), "utf8");
+const pluginSource = readFileSync(resolve(productRoot, "src", "plugin.js"), "utf8");
+
+test("Audio Manager ships deterministic major-device Stream Deck profiles", () => {
+  assert.deepEqual(
+    manifest.Profiles.map((profile) => profile.DeviceType),
+    [0, 2, 7, 9],
+  );
+  for (const profile of manifest.Profiles) {
+    assert.equal(profile.AutoInstall, true);
+    assert.equal(profile.DontAutoSwitchWhenInstalled, true);
+    assert.equal(profile.Readonly, false);
+    assert.equal(
+      existsSync(resolve(productRoot, "com.packrat.audio-manager-pro.sdPlugin", `${profile.Name}.streamDeckProfile`)),
+      true,
+      `missing bundled profile ${profile.Name}`,
+    );
+  }
+  assert.equal(ratDev.dev_profile, "profiles/audio-manager-pro-standard.streamDeckProfile");
+  assert.equal(ratDev.open_profile_on_dev, true);
+});
+
+test("Audio Manager is not inventing a Lite-to-Pro relationship or unrelated Marketplace upsell", () => {
+  const pairs = Array.isArray(editionMap.pairs) ? editionMap.pairs : [];
+  assert.equal(pairs.some((pair) => pair.lite_id === "audio-manager-pro" || pair.pro_id === "audio-manager-pro"), false);
+  assert.equal(/marketplace\.elgato\.com\/product\//i.test(submission.description), false);
+  assert.equal(/upgrade\s+to\s+audio\s+manager|audio\s+manager\s+lite/i.test(submission.description), false);
+});
+
+test("Audio Manager catalog price and version stay consistent", () => {
+  assert.ok(roster);
+  assert.equal(product.price_usd, 9.99);
+  assert.equal(submission.price_usd, 9.99);
+  assert.equal(roster.price_usd, 9.99);
+  assert.equal(product.version, "1.0.0.0");
+  assert.equal(submission.version, "1.0.0.0");
+  assert.equal(manifest.Version, "1.0.0.0");
+  assert.equal(roster.version, "1.0.0.0");
+});
+
+test("Audio Manager canonical catalog paths and product identity stay aligned", () => {
+  assert.equal(product.type, "plugin");
+  assert.equal(product.source, "plugins/audio-manager-pro");
+  assert.equal(product.submission_metadata, "plugins/audio-manager-pro/submission.json");
+  assert.equal(manifest.UUID, "com.packrat.audio-manager-pro");
+  assert.equal(submission.slug, "audio-manager-pro");
+  assert.equal(manifest.Name, "Audio Manager Pro");
+  assert.equal(submission.name, "Audio Manager Pro");
+});
+
+test("Audio Manager declares that Rat Dev may defer the .NET SDK prerequisite to its private bootstrap", () => {
+  assert.equal(ratDev.build_prerequisites?.dotnet_sdk, "self-managed");
+});
+
+
+test("Audio Manager Property Inspector keeps UI and action contexts distinct", () => {
+  assert.match(inspectorSource, /context:uiUuid/);
+  assert.match(inspectorSource, /actionContext/);
+  assert.match(inspectorSource, /requestId:nextRequestId\(\)/);
+  assert.doesNotMatch(inspectorSource, /context:ctx/);
+  assert.match(pluginSource, /streamDeck\.ui\.onSendToPlugin/);
+  assert.match(pluginSource, /recordForInspectorEvent/);
+  assert.match(pluginSource, /acceptInspectorRequest/);
+  assert.match(pluginSource, /streamDeck\.ui\.sendToPropertyInspector/);
+  assert.doesNotMatch(pluginSource, /record\.action\.sendToPropertyInspector/);
+});
+
+
+test("Audio Manager Property Inspector preserves unsaved edits across live refresh", () => {
+  assert.match(inspectorSource, /editorDirty/);
+  assert.match(inspectorSource, /editorDraft/);
+  assert.match(inspectorSource, /pendingAction/);
+  assert.match(inspectorSource, /profileSig/);
+  assert.match(inspectorSource, /Discard unsaved Audio Profile changes/);
+  assert.doesNotMatch(inspectorHtml, /profileAccent/);
+  assert.doesNotMatch(inspectorSource, /profileAccent/);
+  assert.match(inspectorSource, /Save profile · unsaved/);
+});
+
+
+test("Audio Manager Property Inspector keeps action UX contextual and co-locates feedback", () => {
+  assert.match(inspectorHtml, /id="micAction"/);
+  assert.match(inspectorHtml, /id="profileManager"/);
+  assert.match(inspectorHtml, /id="profileResultBox"/);
+  assert.match(inspectorHtml, /id="actionResultBox"/);
+  assert.match(inspectorHtml, /id="activeProfileName"/);
+  assert.match(inspectorHtml, /id="currentMicName"/);
+  assert.match(inspectorSource, /PROFILE_KINDS/);
+  assert.match(inspectorSource, /Custom \/ no exact profile match/);
+  assert.match(inspectorHtml, /id="micRoutingNote"/);
+  assert.match(inspectorHtml, /VoiceMeeter can route microphone audio outside the Windows endpoint mute path/);
+  assert.match(inspectorSource, /micRoutingNote/);
+  assert.match(inspectorSource, /e\.key!=="Enter"/);
+  assert.match(inspectorSource, /requestId:nextRequestId\(\)/);
+  assert.match(pluginSource, /activeProfileForInspector/);
+  assert.match(pluginSource, /defaultMicForInspector/);
+});
+
+
+test("Audio Manager Property Inspector explains split default microphone roles explicitly", () => {
+  assert.match(pluginSource, /split: String\(latestSnapshot\?\.defaultInputId/);
+  assert.match(inspectorSource, /pill\.textContent="SPLIT"/);
+  assert.match(inspectorSource, /Align the Default inputs before using this mute key/);
+});
+
+
+test("Audio Manager Property Inspector prevents horizontal overflow from long device names", () => {
+  assert.match(inspectorCss, /html,body\{[^}]*overflow-x:hidden/);
+  assert.match(inspectorCss, /grid-template-columns:minmax\(0,1fr\)/);
+  assert.match(inspectorCss, /\.current-state\{[^}]*grid-template-columns:auto minmax\(0,1fr\)/);
+  assert.match(inspectorCss, /text-overflow:ellipsis/);
+});
+
+test("Audio Manager profile editor keeps save and delete beside rename and removes accent control", () => {
+  const renameIndex = inspectorHtml.indexOf('id="profileName"');
+  const saveIndex = inspectorHtml.indexOf('id="saveProfile"');
+  const firstSlotIndex = inspectorHtml.indexOf('data-slot="outputDefault"');
+  assert.ok(renameIndex >= 0 && saveIndex > renameIndex && firstSlotIndex > saveIndex);
+  assert.doesNotMatch(inspectorHtml, /id="profileAccent"/);
+  assert.match(inspectorSource, /e\.key!=="Enter"/);
+});
+
+
+test("Audio Manager documents the VoiceMeeter mute boundary as a conditional note only", () => {
+  assert.match(inspectorHtml, /VoiceMeeter can route microphone audio outside the Windows endpoint mute path/);
+  assert.match(inspectorSource, /micRoutingNote/);
+  assert.doesNotMatch(pluginSource, /VoiceMeeter may still pass audio/);
+  assert.match(pluginSource, /Default microphone muted/);
+});
+
+test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
+  assert.match(inspectorHtml, /id="brandLink"/);
+  assert.match(inspectorHtml, /packrat-logo\.png/);
+  assert.match(inspectorSource, /https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
+  assert.match(inspectorCss, /--packrat-bg:#080A0E/i);
+  assert.match(inspectorCss, /--packrat-accent:#FFB21E/i);
+  assert.match(inspectorCss, /body::before/);
+  assert.match(inspectorCss, /button\.secondary/);
+  assert.match(inspectorCss, /button\.danger/);
+  assert.doesNotMatch(inspectorCss, /button\{background:#366b58/i);
+  assert.match(buildSource, /packrat-logo\.png/);
+});
+
+test("Audio Manager listing follows current PackRat standalone paid conventions", () => {
+  assert.equal(submission.marketplace_auto_publish, true);
+  assert.match(submission.description, /Part of the Packrat Ecosystem\.$/);
+  assert.match(submission.headline, /Switch your entire audio setup with one key\./);
+  assert.equal(submission.marketplace_operating_systems?.includes("Windows"), true);
+});
+
+test("Audio Manager stays on the current PackRat Stream Deck runtime baseline", () => {
+  assert.equal(manifest.Author, "PackRat");
+  assert.equal(manifest.SDKVersion, 3);
+  assert.equal(manifest.Nodejs?.Version, "24");
+  assert.equal(Object.hasOwn(manifest.Nodejs || {}, "Debug"), false);
+  assert.equal(manifest.Software?.MinimumVersion, "7.3");
+  assert.equal(manifest.OS?.[0]?.Platform, "windows");
+  assert.equal(manifest.OS?.[0]?.MinimumVersion, "10");
+  assert.equal(manifest.Actions?.length, 7);
+  assert.equal(new Set(manifest.Actions.map((action) => action.UUID)).size, 7);
+});

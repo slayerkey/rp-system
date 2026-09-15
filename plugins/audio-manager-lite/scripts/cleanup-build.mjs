@@ -1,0 +1,1 @@
+import {readdir,rm} from "node:fs/promises";import {resolve} from "node:path";const out=resolve(import.meta.dirname,"..","com.packrat.audio-manager-lite.sdPlugin","bin");for(const n of await readdir(out)){if(n==="plugin.js")continue;await rm(resolve(out,n),{recursive:true,force:true});}
