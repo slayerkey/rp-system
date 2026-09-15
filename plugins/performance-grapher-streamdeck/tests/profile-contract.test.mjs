@@ -79,6 +79,7 @@ test("generated profiles contain valid bounded keypad layouts and only Performan
   const manifest = JSON.parse(await readFile(resolve(plugin, "manifest.json"), "utf8"));
   const allowedUuids = new Set(manifest.Actions.map((action) => action.UUID));
   const allowedWindows = new Set([0, 60_000, 300_000, 900_000]);
+  const globalActionIds = new Set();
 
   for (const spec of EXPECTED) {
     const profile = await readProfile(spec);
@@ -103,8 +104,10 @@ test("generated profiles contain valid bounded keypad layouts and only Performan
       assert.ok(x >= 0 && x < spec.width, position + " outside " + spec.file + " width");
       assert.ok(y >= 0 && y < spec.height, position + " outside " + spec.file + " height");
       assert.ok(allowedUuids.has(action.UUID), "Unknown action UUID " + action.UUID);
-      assert.ok(!seenActionIds.has(action.ActionID), "Duplicate ActionID " + action.ActionID);
+      assert.ok(!seenActionIds.has(action.ActionID), "Duplicate ActionID inside " + spec.file + ": " + action.ActionID);
+      assert.ok(!globalActionIds.has(action.ActionID), "Generated action instance IDs must be unique across all device variants: " + action.ActionID);
       seenActionIds.add(action.ActionID);
+      globalActionIds.add(action.ActionID);
       seenPluginActions.add(action.UUID);
       assert.equal(action.State, 0);
       assert.equal(action.States?.[0]?.ShowTitle, false);
@@ -140,4 +143,13 @@ test("Performance Grapher profile archives rebuild byte-for-byte deterministical
     const bytes = await readFile(resolve(profileDir, spec.file + ".streamDeckProfile"));
     assert.equal(sha256(bytes), before.get(spec.file), spec.file + " is not deterministic");
   }
+});
+
+
+test("profile generation uses the shared PackRat profile builder", async () => {
+  const source = await readFile(resolve(root, "scripts", "build-profiles.mjs"), "utf8");
+  assert.match(source, /tools\/streamdeck\/profile-builder\.mjs/);
+  assert.match(source, /profileAction/);
+  assert.match(source, /writeProfiles/);
+  assert.doesNotMatch(source, /function\s+(?:crc32|zip|buildProfile|deterministicUuid)\b/);
 });
