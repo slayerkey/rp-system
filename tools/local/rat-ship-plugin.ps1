@@ -401,9 +401,24 @@ function Build-FromValidatedExternalArtifact {
             throw "Validated package SHA256 mismatch. Expected $expectedHash, got $actualHash."
         }
 
-        Copy-Item $packageSource (Join-Path $Target "$PluginSlug.streamDeckPlugin") -Force
+        $canonicalPackage = Join-Path $Target "$PluginSlug.streamDeckPlugin"
+        Copy-Item $packageSource $canonicalPackage -Force
         Copy-SubmissionFiles -Submission $Submission -SubmissionPath $SubmissionPath -Target $Target
         Copy-ValidatedArtifactMedia -Artifact $artifact -ArtifactRoot $artifactRoot -Target $Target
+
+        # Validated external artifacts keep their exact package bytes, but their
+        # Marketplace media is normalized to the current global Stream Deck campaign.
+        Invoke-CanonicalStreamDeckGalleries -ProductSlug $PluginSlug -Target $Target
+
+        $expandedPackage = Get-PluginDirectoryFromPackage -PackagePath $canonicalPackage -ProductSlug $PluginSlug
+        try {
+            Invoke-CanonicalStreamDeckHero -ProductSlug $PluginSlug -PluginDirectory $expandedPackage.PluginDirectory -SubmissionFile $SubmissionPath -Target $Target
+        }
+        finally {
+            if ($expandedPackage -and (Test-Path $expandedPackage.WorkRoot)) {
+                Remove-Item $expandedPackage.WorkRoot -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
 
         $requiredMedia = @("01_search_icon.png", "02_cover.png", "03_gallery_01.png", "04_gallery_02.png", "05_gallery_03.png", "06_gallery_04.png")
         $missingMedia = @($requiredMedia | Where-Object { -not (Test-Path (Join-Path $Target $_) -PathType Leaf) })
