@@ -67,23 +67,24 @@ function compactActions(prefix) {
 
 function mk2Actions() {
   return {
+    // Left two columns: game/session diagnostics.
     "0,0": fps("mk2-fps", "fps"),
     "1,0": fps("mk2-frametime", "frametime"),
-    "2,0": session("mk2-session"),
-    "3,0": graph("mk2-gpu-temp", "gpu.temperature", "GPU Temperature", 300_000, 85, "above"),
-    "4,0": graph("mk2-gpu-load", "gpu.load", "GPU Load", 60_000, 98, "above"),
+    "0,1": session("mk2-session"),
+    "1,1": graph("mk2-fps-15m", "game.fps", "FPS History", 900_000, 60, "below"),
+    "0,2": graph("mk2-frame-15m", "game.frametime", "Frametime History", 900_000, 33.3, "above"),
+    "1,2": alert("mk2-fps-alert", "game.fps", "FPS Alert", 60, "below"),
 
-    "0,1": graph("mk2-cpu-load", "cpu.load", "CPU Load", 300_000, 95, "above"),
-    "1,1": graph("mk2-ram", "ram.load", "RAM Used", 300_000, 90, "above"),
-    "2,1": graph("mk2-cpu-temp", "cpu.temperature", "CPU Temperature", 300_000, 90, "above"),
-    "3,1": metric("mk2-gpu-power", "gpu.power", "GPU Power"),
-    "4,1": alert("mk2-gpu-temp-alert", "gpu.temperature", "GPU Temp Alert", 85, "above"),
-
-    "0,2": graph("mk2-fps-15m", "game.fps", "FPS History", 900_000, 60, "below"),
-    "1,2": graph("mk2-frame-15m", "game.frametime", "Frametime History", 900_000, 33.3, "above"),
+    // Right three columns: hardware sensors and hardware history/alerts.
+    "2,0": graph("mk2-gpu-temp", "gpu.temperature", "GPU Temperature", 300_000, 85, "above"),
+    "3,0": graph("mk2-gpu-load", "gpu.load", "GPU Load", 60_000, 98, "above"),
+    "4,0": metric("mk2-gpu-power", "gpu.power", "GPU Power"),
+    "2,1": graph("mk2-cpu-load", "cpu.load", "CPU Load", 300_000, 95, "above"),
+    "3,1": graph("mk2-ram", "ram.load", "RAM Used", 300_000, 90, "above"),
+    "4,1": graph("mk2-cpu-temp", "cpu.temperature", "CPU Temperature", 300_000, 90, "above"),
     "2,2": graph("mk2-gpu-temp-15m", "gpu.temperature", "GPU Temp 15 Min", 900_000, 85, "above"),
     "3,2": graph("mk2-cpu-load-15m", "cpu.load", "CPU Load 15 Min", 900_000, 95, "above"),
-    "4,2": alert("mk2-fps-alert", "game.fps", "FPS Alert", 60, "below"),
+    "4,2": alert("mk2-gpu-temp-alert", "gpu.temperature", "GPU Temp Alert", 85, "above"),
   };
 }
 
