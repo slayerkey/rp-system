@@ -45,7 +45,7 @@ function pngChunk(type, data) {
 }
 function iconPng(size) {
   const pixels = Buffer.alloc(size * size * 4);
-  const bg = [9, 12, 18, 255], fg = [245, 247, 250, 255], accent = [86, 242, 165, 255];
+  const bg = [9, 12, 18, 255], fg = [245, 247, 250, 255], accent = [255, 178, 30, 255];
   for (let i = 0; i < pixels.length; i += 4) pixels.set(bg, i);
   const set = (x, y, color) => {
     x = Math.floor(x); y = Math.floor(y);
@@ -93,7 +93,7 @@ function glyph(kind,color="#fff") {
 for(const kind of kinds){
   const dir=resolve(imgs,"actions",kind); await mkdir(dir,{recursive:true});
   const small=(size)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 144 144">${glyph(kind)}</svg>`;
-  const key=(size)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 144 144"><rect width="144" height="144" rx="25" fill="#090C12"/>${glyph(kind,"#56F2A5")}</svg>`;
+  const key=(size)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 144 144"><rect width="144" height="144" rx="25" fill="#090C12"/>${glyph(kind,"#FFB21E")}</svg>`;
   await writeFile(resolve(dir,"icon.svg"),small(20)); await writeFile(resolve(dir,"icon@2x.svg"),small(40));
   await writeFile(resolve(dir,"key.svg"),key(72)); await writeFile(resolve(dir,"key@2x.svg"),key(144));
   if(kind==="volume"){ await writeFile(resolve(dir,"encoder.svg"),small(72)); await writeFile(resolve(dir,"encoder@2x.svg"),small(144)); }
