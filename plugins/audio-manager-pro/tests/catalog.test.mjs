@@ -19,6 +19,8 @@ const product = json(resolve(repoRoot, "products", "audio-manager-pro.json"));
 const index = json(resolve(repoRoot, "products", "index.json"));
 const editionMap = json(resolve(repoRoot, "products", "lite-pro-map.json"));
 const roster = index.products.find((entry) => entry.id === "audio-manager-pro");
+const inspectorSource = readFileSync(resolve(productRoot, "ui", "inspector.js"), "utf8");
+const pluginSource = readFileSync(resolve(productRoot, "src", "plugin.js"), "utf8");
 
 test("Audio Manager intentionally ships without bundled Stream Deck profiles", () => {
   assert.equal(Object.hasOwn(manifest, "Profiles"), false);
@@ -55,6 +57,17 @@ test("Audio Manager canonical catalog paths and product identity stay aligned", 
 
 test("Audio Manager declares that Rat Dev may defer the .NET SDK prerequisite to its private bootstrap", () => {
   assert.equal(ratDev.build_prerequisites?.dotnet_sdk, "self-managed");
+});
+
+
+test("Audio Manager Property Inspector keeps UI and action contexts distinct", () => {
+  assert.match(inspectorSource, /context:uiUuid/);
+  assert.match(inspectorSource, /actionContext/);
+  assert.match(inspectorSource, /requestId:nextRequestId\(\)/);
+  assert.doesNotMatch(inspectorSource, /context:ctx/);
+  assert.match(pluginSource, /streamDeck\.ui\.onSendToPlugin/);
+  assert.match(pluginSource, /recordForInspectorEvent/);
+  assert.match(pluginSource, /acceptInspectorRequest/);
 });
 
 test("Audio Manager listing follows current PackRat standalone paid conventions", () => {
