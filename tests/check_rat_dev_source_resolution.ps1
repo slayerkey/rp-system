@@ -17,7 +17,11 @@ if ($preflightScript -notmatch '\+refs/heads/main:refs/remotes/origin/main') {
 if ($preflightScript -notmatch '\+refs/heads/product/\*:refs/remotes/origin/product/\*') {
     throw "Rat Dev preflight must explicitly refresh origin/product/* instead of trusting configured fetch refspecs."
 }
-if ($preflightScript -match '(?m)git\s+-C\s+\$RepoRoot\s+fetch\s+--prune\s+origin\s*(?:1>\$null\s+2>\$null)?\s*
+
+if ($preflightScript -match '(?m)^\s*&\s+git\s+-C\s+\$RepoRoot\s+fetch\s+--prune\s+origin\s*(?:1>\$null\s+2>\$null)?\s*$') {
+    throw "Rat Dev preflight regressed to a plain origin fetch."
+}
+
 function Invoke-Git {
     param(
         [Parameter(Mandatory = $true)][string]$Root,
