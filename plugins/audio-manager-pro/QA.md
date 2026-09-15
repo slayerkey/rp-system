@@ -18,6 +18,25 @@ Current candidate: **current `product/audio-manager-pro` head after the live-ref
 
 The current candidate is a focused Property Inspector/profile repair on top of a target-machine candidate whose audio/native/install path already passed.
 
+## Current exact-head automated run
+
+GitHub Actions run **34923537432**: **PASS**
+
+On commit `f94eaf3b327a0a323c170cbe430d41a7104893f1`, the changed PI/profile/key scope passed:
+
+- **54/54 tests**
+- shared AudioCore + XENEON bridge builds
+- profile generation for standard/MK.2, XL, Plus and Neo
+- canonical PackRat PI design audit
+- key visual audit with required major profiles
+- static host audit
+- native helper self-test + real Windows snapshot protocol smoke
+- official Elgato validate/package
+- packaged helper/payload hygiene
+- deterministic Marketplace art + release artifact upload
+
+The product remains `READY_FOR_HARDWARE_QA`; this automated pass does not replace the physical confirmation described below.
+
 ## Target-machine evidence already obtained
 
 Candidate `665eb03e4571daaa06ae2bdc1331ce6651363b15` was installed on the real target Windows machine with:
