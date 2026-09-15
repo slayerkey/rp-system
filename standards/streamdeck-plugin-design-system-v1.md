@@ -241,6 +241,23 @@ For manager-style editors:
 
 The goal is not maximum configurability on every action. The goal is that clicking an action makes the next step obvious in under a few seconds.
 
+### Property Inspector width-safety rule
+
+A Property Inspector must never create horizontal scrolling at normal Stream Deck width.
+
+Long endpoint names, profile names, status text, and current-state rows are untrusted-width content. Flex/grid defaults can let a long child force the entire inspector wider than its viewport.
+
+Use this baseline on PIs that display device/profile names:
+
+- `html, body { width:100%; max-width:100%; overflow-x:hidden; }`
+- the root content grid uses `grid-template-columns:minmax(0,1fr)`
+- cards and nested flex/grid children use `min-width:0`
+- long live-state values use `overflow:hidden; text-overflow:ellipsis; white-space:nowrap`
+- selects/inputs/buttons use `max-width:100%; min-width:0`
+- ambient glows or fixed decorative elements must not create scrollable overflow
+
+Do not solve PI overflow by shrinking the entire UI or reducing useful font sizes. Constrain the layout and ellipsize only the long dynamic value.
+
 ### Ambient corner glow
 
 Property Inspectors use one subtle premium orange glow in the top-right:
