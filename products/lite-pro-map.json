@@ -187,8 +187,9 @@
       "source_paths": [
         "plugins/wireless-device-manager-family"
       ],
-      "source_status": "pro_ready_to_ship_lite_waiting_for_public_pro_url",
-      "notes": "Wireless Device Manager Pro is READY_TO_SHIP with an explicit owner waiver for the unverified Bluetooth A2DP/HFP physical matrix. Maya X USB/2.4 GHz telemetry and Stream Deck runtime QA passed. Lite is code-complete but remains blocked from READY_TO_SHIP until the real public Pro Marketplace URL/product ID exists and is injected into its upgrade CTAs."
+      "source_status": "pro_ready_to_ship_lite_maker_fallback_active",
+      "notes": "Wireless Device Manager Lite always shows the canonical top-right and bottom Pro conversion surfaces. Until the verified direct Wireless Device Manager Pro Marketplace /product/ URL exists, both open the PackRat maker page. After Pro publication, record the exact direct URL and rebuild/revalidate Lite so both CTAs route directly to Pro.",
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
     }
   ],
   "standalone_free": [
