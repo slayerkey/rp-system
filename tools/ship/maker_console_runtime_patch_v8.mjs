@@ -132,17 +132,7 @@ async function uploadThroughNamedMediaSection(target, headingPattern, filePath, 
 `  if (!cover) await mediaDiagnostic(target,'cover upload input not found on Maker Console media step');
 
   if (cover.locator) await cover.locator.setInputFiles(join(KIT,'02_cover.png'),{timeout:60000});
-  await target.waitForTimeout(1800);
-
-  // Exact regression guard: if Maker Console still exposes the dedicated icon input
-  // and it now contains the cover filename, stop instead of staging a broken listing.
-  const iconAfterCover = target.locator('input#media-app-icon').first();
-  if (await iconAfterCover.count()) {
-    const iconFiles = await selectedFileNames(iconAfterCover);
-    if (iconFiles.some(name => /^02_cover\\.png$/i.test(name))) {
-      await mediaDiagnostic(target,'thumbnail upload was routed into the app icon field');
-    }
-  }`,
+  await target.waitForTimeout(1800);`,
 `  if (!cover) {
     const uploaded = await uploadThroughNamedMediaSection(
       target,
@@ -171,7 +161,17 @@ async function uploadThroughNamedMediaSection(target, headingPattern, filePath, 
   if (!cover) await mediaDiagnostic(target,'cover upload input not found on Maker Console media step');
 
   if (cover.locator) await cover.locator.setInputFiles(join(KIT,'02_cover.png'),{timeout:60000});
-  await target.waitForTimeout(1800);`,
+  await target.waitForTimeout(1800);
+
+  // Exact regression guard: if Maker Console still exposes the dedicated icon input
+  // and it now contains the cover filename, stop instead of staging a broken listing.
+  const iconAfterCover = target.locator('input#media-app-icon').first();
+  if (await iconAfterCover.count()) {
+    const iconFiles = await selectedFileNames(iconAfterCover);
+    if (iconFiles.some(name => /^02_cover\\.png$/i.test(name))) {
+      await mediaDiagnostic(target,'thumbnail upload was routed into the app icon field');
+    }
+  }`,
     'thumbnail section fallback'
   );
 
