@@ -225,10 +225,30 @@
         "shared/macro-recorder",
         "shared/windows-input/PackRat.InputHost"
       ],
-      "source_status": "lite_release_ready_maker_fallback_active_direct_pro_url_deferred",
-      "notes": "Lite is a useful keyboard recorder with 30-second / 60-event limits. Pro adds mouse capture, longer recordings, speed, loops, a reusable Macro Library, full editing, and import/export. Both canonical Lite upgrade surfaces stay visible now and route to the PackRat maker page until the verified direct Pro Marketplace /product/ URL is recorded.",
-      "launch_sequence": "Lite may launch with the PackRat maker fallback. After Pro publication, capture the exact direct Pro URL and rebuild/revalidate Lite so both CTAs route directly to Pro.",
+      "source_status": "lite_and_pro_release_artifacts_pinned",
+      "notes": "Lite is limited to 10 seconds / 50 keyboard events. Pro adds mouse capture, longer recordings, speed, loops, a reusable Macro Library, full editing, and import/export. Lite uses the PackRat maker fallback until the verified direct Pro Marketplace URL is recorded.",
+      "launch_sequence": "Pro and Lite have exact validated artifacts. After Pro publication, record the exact direct Pro URL and rebuild/revalidate Lite if a direct upgrade target is desired.",
       "upsell_build_source": "maker_fallback_then_verified_direct_pro",
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+    },
+    {
+      "lite_id": "text-expander",
+      "pro_id": "text-expander-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_status": "exact_validated_artifacts_pinned_ready_to_ship",
+      "notes": "Lite provides a 10-snippet local library with date, time, and clipboard variables. Pro adds large libraries, folders, fill-in templates, reusable variables, counters, custom date/time formats, cursor placement, and optional Tab/Enter behavior.",
+      "launch_sequence": "Publish Pro first when convenient; Lite can use the PackRat maker fallback until the verified direct Pro URL is recorded.",
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+    },
+    {
+      "lite_id": "wireless-device-manager",
+      "pro_id": "wireless-device-manager-pro",
+      "platform": "streamdeck",
+      "classification": "lite_to_pro",
+      "source_status": "exact_validated_artifacts_pinned_ready_to_ship",
+      "notes": "Lite focuses on one selected wireless device. Pro adds multi-device dashboards, favorites, groups, low-battery alerts, and Cycle Device. Bluetooth audio physical control is explicitly owner-waived for initial release.",
+      "launch_sequence": "Ship Pro first, then Lite. Lite uses the PackRat maker fallback until the exact direct Pro Marketplace URL is verified.",
       "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
     }
   ],
