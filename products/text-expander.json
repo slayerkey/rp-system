@@ -81,8 +81,9 @@
     "host_smoke_identity": "Local combined smoke uses the official Elgato packer, unpacks the temporary package, and compares stable relative-path/file-byte SHA256 content to the validated unpacked-content hash before linking.",
     "package_container_note": "Outer .streamDeckPlugin SHA256 can change across equivalent pack operations because ZIP metadata can vary. Use unpacked-content SHA256 for exact-content host QA.",
     "physical_quick_smoke": "PENDING for Lite specifically - Pro hardware smoke proved the shared insertion engine, but Lite EMAIL + / CLIP + / LIBRARY still need a direct Lite hardware pass.",
-    "lite_pro_upgrade_fallback": "PASS - Lite top-right Upgrade to Pro and bottom Pro feature card are always visible. With no verified direct Pro URL, both route to https://marketplace.elgato.com/maker/packrat; once a verified direct Pro URL is injected, both route directly to Pro."
+    "lite_pro_upgrade_fallback": "PASS in validated package - top-right Upgrade to Pro and bottom Open Text Expander Pro CTAs are always present for Lite and resolve to the PackRat maker page until a verified direct Pro URL is injected.",
+    "physical_starter_smoke": "PASS on real Stream Deck - EMAIL + insertion works, CLIP + clipboard insertion works, and LIBRARY opens the Lite full dashboard."
   },
-  "blocker": "Lite-specific physical Stream Deck smoke remains required for EMAIL + / CLIP + / LIBRARY, 10-snippet cap, persistence, and coexistence. Upgrade surfaces are already active through the PackRat maker fallback.",
+  "blocker": "Starter hardware smoke is PASS. Remaining formal Lite release checks are the 10-snippet cap, Lite variable behavior, restart persistence, Lite/Pro storage coexistence, and final direct-Pro URL rebuild after Pro publication.",
   "upsell_status": "Top-right Upgrade to Pro and bottom Pro feature card are enabled for Lite. Before Pro publication both open the PackRat maker Marketplace page; after the verified direct Pro URL is recorded they open that direct listing."
 }
