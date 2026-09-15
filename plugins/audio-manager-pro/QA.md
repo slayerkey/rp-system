@@ -8,192 +8,159 @@ Price: $9.99
 
 ## Current release state
 
-Status: **TESTING**
+Workflow state: **READY_FOR_HARDWARE_QA**
 
-The product implementation is complete enough for release-candidate testing, but it is **not READY_TO_SHIP** yet.
+Do **not** mark `READY_TO_SHIP`, merge PR #174, or submit publicly until the remaining physical Windows + Stream Deck smoke passes.
 
-Automated release gate: **PASS**
+Current candidate: `bab5a0d2d1d26285c8e0f211529d44e015de3b94`
 
-GitHub Actions run **34770048489** completed successfully on the current implementation head and passed:
+The current candidate is a focused Property Inspector/profile repair on top of a target-machine candidate whose audio/native/install path already passed.
 
-- Windows runner setup
-- shared `PackRat.AudioCore` .NET build
-- existing XENEON `PackRat.AudioBridge` regression build
-- locked npm install
-- high-severity npm audit
-- full npm test suite
-- complete Audio Manager build including self-contained win-x64 helper publish
-- Audio Manager static host audit on Windows PowerShell
-- native helper self-test
-- real Windows helper `snapshot` protocol smoke
-- rejected-command request-correlation smoke
-- official Elgato CLI validation
-- official `.streamDeckPlugin` packaging
-- packaged native-helper verification
-- deterministic Rat Art / Marketplace rendering
-- release-QA artifact upload
+## Target-machine evidence already obtained
 
-Still required before READY_TO_SHIP:
+Candidate `665eb03e4571daaa06ae2bdc1331ce6651363b15` was installed on the real target Windows machine with:
 
-- `rat dev audio-manager-pro` on the real target Windows machine
-- read-only `rat audit audio-manager-pro` against that exact active candidate
-- final physical USB / Bluetooth / multi-microphone audio-device smoke
-- physical Stream Deck + dial / press / touch smoke
-- Windows sleep/wake action + Property Inspector event smoke
-- reboot / Stream Deck restart persistence smoke
-- real-hardware Marketplace demonstration video, if required by the live Maker Console/review flow
+- `rat dev audio-manager-pro`: PASS
+- native .NET helper publish: PASS
+- npm suite: **49 tests, 49 pass, 0 fail**
+- official Elgato validation: PASS
+- Stream Deck development link: PASS
+- plugin restart: PASS
+- `rat audit audio-manager-pro`: completed successfully with overall WARN only
+- helper snapshot protocol: SUCCESS
+- Windows Core Audio snapshot: **13 outputs · 5 inputs**
+- PolicyConfig default-device switching: available
+- Default output Console + Multimedia: aligned
+- Default input Console + Multimedia: aligned
+- Communications output/input: active
+- all role endpoint IDs resolve to active endpoints
 
-## Automated evidence already obtained
+The only host-audit warning on that candidate was that no Audio Manager plugin log had been written yet.
 
-A prior Windows product run, GitHub Actions run **34739703004**, executed successfully through these gates before later catching a plugin syntax defect:
+This evidence proves the native helper, Windows audio enumeration/role layer, build, validation, link, and restart path. It does **not** prove the Property Inspector/profile workflow.
 
-- checkout/setup
-- shared `PackRat.AudioCore` .NET build
-- regression build of the existing XENEON `PackRat.AudioBridge`
-- locked npm install
-- high-severity npm audit
-- profile/device fixture tests
-- win-x64 helper publish
-- helper executable self-test returning `SUCCESS`
+## Current Property Inspector/profile repair
 
-That run then caught a syntax error in the new Stream Deck + dial path during bundle build. The defect was fixed in commit `cd084c68e1bc8527322a27cc256ac3672144bd5f`.
+The physical pass exposed one shared user-facing failure signature:
 
-After that fix, a series of workflow attempts failed before runner allocation. Runner capacity later recovered, and current Windows run **34770048489** completed every automated release step successfully. The earlier no-runner failures are retained only as historical infrastructure evidence.
+- Property Inspector HTML rendered
+- command buttons appeared clickable but did not work reliably
+- Audio Profile creation/selection did not work reliably
+- action-level profile selection could therefore fail to persist
+- native/helper audit remained healthy
 
-## Off-runner implementation checks
+Root cause boundary: Property Inspector transport/context handling, not Windows audio.
 
-The corrected source received an additional implementation-session preflight:
+Current candidate hardening:
 
-- current plugin source parses successfully
-- current Property Inspector source parses successfully
-- current profile logic source parses successfully
-- current tests parse successfully
-- the exact current pure source/test files were materialized from GitHub and executed with Node's built-in test runner after the final logic hardening: **48 tests passed, 0 failed**
-- current branch pure logic executes successfully for settings normalization, role capture, endpoint recreation, conservative Container ID + endpoint-name rebinding, proof that instance ID alone cannot authorize an automatic rebind, missing-device handling, Console/Multimedia drift detection, contradictory-state suppression, cycle recovery, exact-capture preflight, post-operation verification, backend-offline truthfulness, fail-closed status, Unicode rendering, and role-aware key labels
-- Rat Art V2 Python source compiles
-- Rat Art V2 renderer was exercised off-runner through all six required Marketplace outputs at the expected dimensions; exact canonical-logo release rendering still belongs to the official release gate
-- Rat Art V2 generates the required 480×240, 320×160, and 240×120 thumbnail review sheet
-- Marketplace cover/gallery outputs are distinct
+- manual PI WebSocket keeps callback UUID as `uiUuid`
+- selected action instance is carried separately as `payload.actionContext`
+- `getSettings`, `setSettings`, and `sendToPlugin` use the PI UUID envelope context
+- plugin receives PI commands on the canonical global `streamDeck.ui.onSendToPlugin` channel
+- request IDs correlate PI commands
+- duplicate request IDs are suppressed before mutations
+- PI responses use the global `streamDeck.ui.sendToPropertyInspector` channel
+- startup and PI command/failure logging added
+- Refresh / Capture / Save / Delete show visible progress/feedback
+- host audit checks the PI transport contract
+- regression tests lock the context/transport contract
 
-The branch has also been merged forward to current `main` so its canonical Rat Art / Marketplace V2 standards are no longer stale.
+The Audio Profile symptom is tested as part of the same chain:
 
-The Windows CI definition now performs both the helper executable self-test and a real JSON `snapshot` request through the helper stdin/stdout protocol, then verifies that the packaged `.streamDeckPlugin` actually contains the native helper.
+**Capture exactly one profile → Save → select it for the action → close/reopen → selection persists → hardware key applies that exact immutable profile ID → Delete a throwaway profile.**
 
-The product also exposes a read-only local host audit through `rat audit audio-manager-pro`. It snapshots the exact validated candidate and host environment without issuing any audio mutation commands. CI runs the same audit in `-StaticOnly` mode so PowerShell syntax and packaged-file assumptions are checked on the Windows runner.
+Do not debug profile storage or native audio separately until this chain passes.
 
-The official Elgato CLI validation/package gate is now green in Windows CI. These automated checks still do not replace the physical Windows / Stream Deck hardware gate.
+## Canonical Property Inspector visual refresh
+
+The old PI used a product-local green custom theme. The current candidate now follows the canonical PackRat Stream Deck design system:
+
+- page background `#080A0E`
+- card gradient `#151920 → #0D1015`
+- PackRat interaction/brand accent `#FFB21E`
+- green reserved for literal connected/success state
+- neutral charcoal secondary controls
+- semantic red destructive control
+- subtle top-right PackRat orange glow
+- local `PackRat ↗` maker link outside product cards
+- canonical local logo packaged at `imgs/plugin/packrat-logo.png`
+
+Audio Manager CI now consumes the current canonical shared:
+
+- `streamdeck-plugin-design-audit.mjs --require-canonical-pi`
+- `streamdeck-key-visual-audit.mjs`
+
+This prevents the visual or PI transport contract from silently drifting again.
 
 ## Device resilience contract
 
-Automatic matching order:
+Automatic endpoint matching order:
 
 1. exact active endpoint ID
 2. unique hardware Container ID + exact normalized friendly name
 3. otherwise stop and require explicit rebind
 
-Device Instance ID alone and friendly-name-only matches are intentionally insufficient. Ambiguous or missing devices must never silently apply to another endpoint.
+Device Instance ID alone and friendly-name-only matches are intentionally insufficient. Ambiguous or missing devices must never silently substitute another endpoint.
 
 ## Audio Profile result contract
 
 Every profile application returns:
 
-- **SUCCESS** when every requested operation succeeds
-- **PARTIAL** when at least one requested operation succeeds and at least one requested operation fails or cannot be safely resolved
+- **SUCCESS** when all requested operations succeed and final Windows state verifies
+- **PARTIAL** when some operations succeed but another operation/device/state cannot be safely completed or verified
 - **FAILED** when no requested operation succeeds
 
-The Audio Profile Status action is read-only. It refreshes current Windows audio state and reports whether the selected profile matches; it does not apply the profile.
+The user-facing Default role means both Windows Console + Multimedia. Profile Status only reports active when the complete saved state matches.
 
-If a profile requests saved volume or mute state and Windows cannot read that state, the profile does not count as active.
+Contradictory saved volume/mute values for the same endpoint are skipped and reported rather than arbitrarily choosing one.
 
-The user-facing Default role represents both Windows Console and Multimedia. A profile does not count as ACTIVE if either underlying role has drifted to a different endpoint.
+## Remaining physical gate
 
-If two roles target the same endpoint with contradictory saved volume or mute values, the conflicting state operation is omitted and surfaced as a profile failure rather than choosing one value.
+Use `REAL_WINDOWS_SMOKE.md` as the canonical checklist.
 
-## Rat Art V2 contract
+The immediate short smoke is:
 
-The current deterministic renderer:
+1. rerun `rat dev audio-manager-pro` for the current PI/profile candidate
+2. open an Apply Audio Profile action
+3. verify live Windows audio state appears
+4. Refresh
+5. Capture current setup
+6. rename + Save profile
+7. select that profile for the action
+8. leave/reopen the action and verify the selection persists
+9. press the hardware key and verify the saved profile applies
+10. rerun `rat audit audio-manager-pro`
 
-- uses the canonical repository PackRat mark
-- has no silent bitmap-font fallback
-- keeps the product/key cluster dominant
-- uses restrained V2 hero chrome
-- generates a thumbnail review sheet
-- keeps the six-file Rat Ship Marketplace contract
-- uses the listing sequence: hero → four-role value proof → saved-state proof → device resilience → Stream Deck + dial
+Only after that short PI/profile smoke passes continue with the deeper physical matrix:
 
-## Physical hardware boundary
-
-Final physical QA must cover:
-
-- USB headset
-- speakers
+- USB headset + speakers
 - two microphones
-- Bluetooth device
-- disconnect/reconnect
-- Windows reboot
-- real endpoint identity changes
-- Default vs Communications role separation
-- Console/Multimedia drift: move Multimedia away from the saved Default endpoint and confirm Status becomes INACTIVE
-- profile containing a missing device
-- rapid profile switching
-- partially failed profile
-- mute/volume restore
+- Default vs Communications separation
+- saved volume/mute restore
+- Bluetooth disconnect/reconnect
+- missing-device PARTIAL / explicit rebind
+- rapid Cycle presses
+- Stream Deck+ rotate / press / touch
 - Stream Deck restart
-- Windows sleep/wake with Audio Manager actions visible, then verify key presses, dial events, Property Inspector messages, and live state updates still arrive
-- long/Unicode device names
-- Stream Deck + dial
+- Windows reboot
+- Windows sleep/wake + PI/action recovery
+- real-hardware demonstration evidence if required
 
-Use `REAL_WINDOWS_SMOKE.md` as the canonical checklist. After it passes, record the real-hardware evidence in `DEMO_VIDEO.md` before Marketplace submission when the live review flow requires a demonstration video.
+## Catalog decisions
 
-
-## Elgato SDK sleep/wake caveat
-
-As of September 2026, Elgato's public SDK repository has an open report where action- and Property Inspector-scoped events can intermittently stop being delivered after Windows sleep/wake even though the plugin process and registration socket still appear healthy. Audio Manager Pro refreshes its Windows audio snapshot on wake, but there is no documented SDK liveness signal that can prove action-event routing survived.
-
-Do not add the issue reporter's exit-on-wake workaround unless physical QA reproduces the problem and PackRat explicitly accepts the undocumented Stream Deck respawn dependency. Treat sleep/wake event delivery as a physical release check.
-
-
-## Catalog profile and upsell decision
-
-PASS: Audio Manager Pro intentionally ships **without bundled Stream Deck profiles**. Its meaningful Audio Profiles contain user-specific Windows endpoint identities, so a prebuilt HEADSET / SPEAKERS / MEETING Stream Deck profile would contain unconfigured or invalid profile references and would not be a truthful ready-to-use preset.
-
-PASS: Audio Manager Pro is a standalone paid product, not a verified Lite→Pro edition pair. It is intentionally absent from `products/lite-pro-map.json`.
-
-PASS: no unrelated PackRat product is upsold inside the plugin or Marketplace description. Existing PackRat catalog behavior reserves explicit upgrade links for proven Lite→Pro pairs such as Better Hotkeys, Window Manager, Weather Timeline, Work Session Tracker, and PC Power Meter.
-
-The automated catalog regression test enforces no bundled Stream Deck profile directory/manifest entry, no Audio Manager Lite→Pro mapping, no unrelated Marketplace URL upsell, exact $9.99/version consistency, canonical source/submission paths, and the PackRat ecosystem footer.
+- no bundled `.streamDeckProfile` profiles: useful Audio Profiles contain machine-specific endpoint identities
+- no Audio Manager Lite edition
+- no unrelated in-product upsell
+- standalone paid product at $9.99
 
 ## Final promotion sequence
 
-After `REAL_WINDOWS_SMOKE.md` and any required real-hardware demo evidence pass:
+Only after `REAL_WINDOWS_SMOKE.md` and any required real-hardware demo evidence pass:
 
-1. change the product workflow state to `READY_TO_SHIP`
-2. merge `product/audio-manager-pro` into committed `main`
-3. run `rat ship audio-manager-pro`
+1. move `products/audio-manager-pro.json` to `READY_TO_SHIP`
+2. mark PR #174 ready
+3. reconcile current `main` carefully if required
+4. merge PR #174 to committed `main`
+5. run `rat ship audio-manager-pro`
 
-Do not run the final ship flow from an unmerged product branch. The canonical Marketplace router deliberately syncs and ships committed `main`.
-
-
-## Final merged-catalog Windows release run
-
-Current merged release candidate Windows run **34777162074**: **PASS**
-
-Exact evidence from the completed job:
-
-- npm suite: **48 tests, 48 pass, 0 fail**
-- canonical plugin release metadata preflight: **PASS**
-- complete PackRat Lite → Pro catalog audit: **PASS**
-- Audio Manager pre-hardware Rat Ship guard: **PASS**
-- static Audio Manager host audit: **PASS**
-- Windows helper snapshot protocol: **SUCCESS**
-- rejected-command request correlation: **PASS**
-- official Elgato validation/package: **PASS**
-- packaged release payload hygiene: **PASS**
-- packaged files: **41**
-- unpacked plugin size: **33.6 MiB**
-- packaged native debug symbols: **none**
-- deterministic Rat Art V2: **PASS**
-- release artifact ID: **10324202033**
-- release artifact ZIP SHA256: `a34a1e3b4427f336cbd992111dac2637536551d2cc2fe3b40fffa3d168b3722e`
-
-This run was executed after merging the current canonical `main` ship/catalog stack into the Audio Manager release branch.
+Rat Ship must package committed canonical `main`, not the unmerged product branch.
