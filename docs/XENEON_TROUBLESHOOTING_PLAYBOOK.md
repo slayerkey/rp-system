@@ -91,6 +91,9 @@ After official packaging, downstream tests must consume the exact package or exa
 The generated iCUE document is also consumed as XML-like markup by PackRat/CORSAIR tooling. Keep the non-script/non-style head well formed:
 
 - raw `&` in titles, attributes or metadata is invalid; use an XML-safe entity or simpler text
+- `<script type="application/json">` metadata such as `x-icue-groups` must satisfy both parsers: valid JSON and XML-safe text; `tools/xeneon/inline.py` validates both before generation
+- for display text inside JSON metadata, a JSON Unicode escape such as `\\u0026` preserves an ampersand after JSON parsing without leaving a raw `&` in the XML-like source
+- when real iCUE reports `JSON parsing error in meta parameters`, inspect `x-icue-groups` and other head metadata for raw XML characters before rewriting the widget or blaming ZIP corruption
 - do not trust a browser rendering as proof that the source is XML-safe
 - when translated `tr('...')` keys contain escaped entities, normalize deliberately or avoid creating a second accidental translation key
 - add a source verifier for translation-key coverage when a widget declares localized iCUE settings
