@@ -4,6 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+import { buildProfile, profileAction } from "../tools/streamdeck/profile-builder.mjs";
 
 const repoRoot=resolve(".");
 const designAudit=join(repoRoot,"tools","qa","streamdeck-plugin-design-audit.mjs");
@@ -136,6 +137,35 @@ function command(command){send({event:"sendToPlugin",action:actionUuid,context:u
     const result=run(keyAudit,[plugin]);
     assert.notEqual(result.status,0,"key audit must fail on a generic decorative orange top rail");
     assert.match(result.stderr,/decorative PackRat accent rail detected/);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
+    const manifestPath=join(plugin,"manifest.json");
+    const manifest=JSON.parse(readFileSync(manifestPath,"utf8"));
+    manifest.Nodejs={Version:"20",Debug:"disabled"};
+    write(manifestPath,JSON.stringify(manifest,null,2));
+    const result=run(designAudit,[root]);
+    assert.notEqual(result.status,0,"design audit must fail on fake Nodejs.Debug disabled sentinel");
+    assert.match(result.stderr,/Nodejs\.Debug contains a fake disabled\/off sentinel/);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
+    const manifestPath=join(plugin,"manifest.json");
+    const manifest=JSON.parse(readFileSync(manifestPath,"utf8"));
+    manifest.Profiles=[{Name:"demo-profile",DeviceType:0,AutoInstall:true,DontAutoSwitchWhenInstalled:true,Readonly:false}];
+    write(manifestPath,JSON.stringify(manifest,null,2));
+    const action=profileAction("demo:bad-title","com.packrat.demo.snap","Snap",{});
+    action.States[0].Title="SNAP";
+    write(join(plugin,"demo-profile.streamDeckProfile"),buildProfile({file:"demo-profile",name:"Demo Profile",keypad:{"0,0":action}}));
+    const result=run(keyAudit,[plugin]);
+    assert.notEqual(result.status,0,"key audit must fail when a bundled profile reintroduces host title text");
+    assert.match(result.stderr,/Title must be empty when PackRat owns the key face/);
   } finally { rmSync(root,{recursive:true,force:true}); }
 }
 
