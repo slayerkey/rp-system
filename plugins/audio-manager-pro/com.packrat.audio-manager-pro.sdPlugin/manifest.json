@@ -112,7 +112,7 @@
       "Encoder": {
         "Icon": "imgs/actions/volume/encoder",
         "layout": "$B1",
-        "StackColor": "#56F2A5",
+        "StackColor": "#FFB21E",
         "TriggerDescription": {
           "Push": "Apply audio profile",
           "Rotate": "Adjust profile output volume",
