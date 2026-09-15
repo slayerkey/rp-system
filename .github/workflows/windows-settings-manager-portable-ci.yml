@@ -80,6 +80,29 @@ jobs:
       - name: Render Pro Marketplace media
         run: python scripts/rat-art.py --flavor pro --output dist/marketplace-pro
 
+      - name: Apply canonical final Rat Ship hero to Lite
+        run: >
+          python ../../../tools/art/render_streamdeck_ship_hero.py
+          --product windows-settings-manager-lite
+          --plugin-dir out/com.packrat.windows-settings-manager-lite2.sdPlugin
+          --submission ../submission-lite.json
+          --out dist/marketplace-lite/02_cover.png
+          --keys-dir dist/marketplace-lite/rat-art-keys
+
+      - name: Apply canonical final Rat Ship hero to Pro
+        run: >
+          python ../../../tools/art/render_streamdeck_ship_hero.py
+          --product windows-settings-manager-pro
+          --plugin-dir out/com.packrat.windows-settings-manager-pro2.sdPlugin
+          --submission ../submission-pro.json
+          --out dist/marketplace-pro/02_cover.png
+          --keys-dir dist/marketplace-pro/rat-art-keys
+
+      - name: Build exact five-image review sheets
+        run: |
+          python ../../../tools/art/build_marketplace_contact_sheet.py --input dist/marketplace-lite --output dist/marketplace-lite/review-contact-sheet.png
+          python ../../../tools/art/build_marketplace_contact_sheet.py --input dist/marketplace-pro --output dist/marketplace-pro/review-contact-sheet.png
+
       - name: Verify Marketplace media dimensions
         run: |
           python - <<'PY'
@@ -110,4 +133,6 @@ jobs:
             products/windows-settings-manager/plugin/dist/*.streamDeckPlugin
             products/windows-settings-manager/plugin/dist/marketplace-lite/*.png
             products/windows-settings-manager/plugin/dist/marketplace-pro/*.png
+            products/windows-settings-manager/plugin/dist/marketplace-lite/streamdeck-ship-hero-report.json
+            products/windows-settings-manager/plugin/dist/marketplace-pro/streamdeck-ship-hero-report.json
           if-no-files-found: error
