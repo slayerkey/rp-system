@@ -4,25 +4,60 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 
 const root=new URL("../",import.meta.url);
+const repoRoot=new URL("../../",root);
 
-test("Lite property inspector source parses and required controls exist",async()=>{
-  const [html,js]=await Promise.all([
+test("Lite Property Inspector uses canonical PackRat UI and proven global transport",async()=>{
+  const [html,css,js,runtime,assets]=await Promise.all([
     readFile(new URL("ui/inspector.html",root),"utf8"),
+    readFile(new URL("ui/inspector.css",root),"utf8"),
     readFile(new URL("ui/inspector.js",root),"utf8"),
+    readFile(new URL("shared/macro-recorder/runtime.mjs",repoRoot),"utf8"),
+    readFile(new URL("scripts/build-assets.mjs",root),"utf8"),
   ]);
   new vm.Script(js);
-  for(const id of ["cancelRecording","stopPlayback","assignLatest","timeline","timelinePager","timelinePrev","timelineNext","timelinePageLabel","errorText"]){
+
+  for(const id of [
+    "packratLink","cancelRecording","stopPlayback","assignLatest","assignedSummary",
+    "recordedStepsDetails","timeline","timelinePager","timelinePrev","timelineNext",
+    "timelinePageLabel","runDiagnostic","copyDiagnostic","diagnosticStatus",
+    "diagnosticReport","errorText"
+  ]){
     assert.match(html,new RegExp(`id=["']${id}["']`),`missing inspector control ${id}`);
   }
+
+  for(const token of ["#080A0E","#151920","#0D1015","#FFB21E","#FF5D6C","#2BE86A"]){
+    assert.ok(css.includes(token),`missing canonical PackRat token ${token}`);
+  }
+  assert.match(css,/body::before/);
+  assert.match(html,/PackRat ↗/);
+  assert.match(html,/30 seconds and 60 keyboard events/);
+  assert.match(html,/mouse recording, 10-minute macros, playback speed, repeat modes/i);
+  assert.match(html,/<details id="recordedStepsDetails"/);
+  assert.match(html,/<summary>Troubleshooting<\/summary>/);
+
+  assert.match(js,/context:uiUuid/);
+  assert.match(js,/actionContext/);
+  assert.match(js,/type:"macroRecorder\.inspect",actionContext/);
+  assert.match(js,/type:"macroRecorder\.diagnostic",actionContext/);
   assert.match(js,/PAGE_SIZE=200/);
-  assert.match(js,/MAX_IMPORT_BYTES=16\*1024\*1024/);
-  assert.match(js,/durationLimit/);
-  assert.match(js,/otherDelay/);
-  assert.match(js,/macroRecorder\.status/);
-  assert.match(js,/function applyStatus/);
+  assert.match(js,/function runDiagnostic/);
+  assert.match(js,/no plugin diagnostic response within 2\.5 seconds/);
+  assert.match(js,/saveLiteMacro/);
+
+  assert.match(runtime,/if \(streamDeck\.ui\) \{/);
+  assert.match(runtime,/streamDeck\.ui\.onSendToPlugin/);
+  assert.match(runtime,/streamDeck\.ui\.sendToPropertyInspector/);
+  assert.match(runtime,/!pro && macro\?\.id\?\.startsWith\("starter-"\)/);
+  assert.match(runtime,/return !item\.settings\.macro/);
+  assert.match(runtime,/setImage\(packRatKeyImage\(record\.kind, title\)\)/);
+
+  assert.match(assets,/ratpack-icon-transparent\.png/);
+  assert.match(assets,/recordRed=\[255,93,108,255\]/);
+  assert.match(assets,/playGreen=\[43,232,106,255\]/);
+  assert.match(assets,/accent=\[255,178,30,255\]/);
 });
 
-test("Lite manifest keeps the intended platform and action contract",async()=>{
+test("Lite manifest keeps the intended platform and owns its key labels",async()=>{
   const raw=await readFile(new URL("com.packrat.macro-recorder-lite.sdPlugin/manifest.json",root),"utf8");
   const manifest=JSON.parse(raw);
   assert.equal(manifest.UUID,"com.packrat.macro-recorder-lite");
@@ -31,21 +66,13 @@ test("Lite manifest keeps the intended platform and action contract",async()=>{
   assert.deepEqual(manifest.OS,[{Platform:"windows",MinimumVersion:"10"}]);
   assert.equal(manifest.Profiles?.length,5);
   assert.deepEqual(manifest.Profiles.map(profile=>profile.DeviceType),[0,1,2,7,9]);
-  assert.deepEqual(manifest.Profiles.map(profile=>profile.Name),[
-    "profiles/macro-recorder-lite-starter-mk2",
-    "profiles/macro-recorder-lite-starter-mini",
-    "profiles/macro-recorder-lite-starter-xl",
-    "profiles/macro-recorder-lite-starter-plus",
-    "profiles/macro-recorder-lite-starter-neo"
-  ]);
-  for(const profile of manifest.Profiles) assert.ok(!profile.Name.endsWith(".streamDeckProfile"));
-  for(const action of manifest.Actions) assert.equal(action.UserTitleEnabled,false);
-  const record=manifest.Actions.find(action=>action.UUID.endsWith(".record"));
-  const stop=manifest.Actions.find(action=>action.UUID.endsWith(".stop"));
-  assert.equal(record?.SupportedInKeyLogicActions,false);
-  assert.equal(stop?.SupportedInKeyLogicActions,false);
-  const ids=manifest.Actions.map(action=>action.UUID);
-  assert.deepEqual(ids,[
+  for(const profile of manifest.Profiles)assert.ok(!profile.Name.endsWith(".streamDeckProfile"));
+  for(const action of manifest.Actions){
+    assert.equal(action.UserTitleEnabled,false);
+    assert.equal(action.States?.[0]?.ShowTitle,false);
+  }
+  assert.equal(manifest.Actions.find(action=>action.UUID.endsWith(".stop"))?.Name,"Stop");
+  assert.deepEqual(manifest.Actions.map(action=>action.UUID),[
     "com.packrat.macro-recorder-lite.record",
     "com.packrat.macro-recorder-lite.stop",
     "com.packrat.macro-recorder-lite.replay",
