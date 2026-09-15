@@ -17,6 +17,10 @@ while((line=Console.ReadLine()) is not null){
    var endpointId=RequiredOpaque(root,"endpointId");audio.SetDefault(AudioFlowKind.Output,AudioDefaultRole.Default,endpointId);var s=audio.Read();
    var ok=s.Error is null&&s.DefaultOutputId==endpointId&&s.MultimediaOutputId==endpointId;
    response=new(id,ok,ok?"SUCCESS":"FAILED",s,ok?null:"Windows did not verify the output switch.");
+  } else if(command=="set-default-input"){
+   var endpointId=RequiredOpaque(root,"endpointId");audio.SetDefault(AudioFlowKind.Input,AudioDefaultRole.Default,endpointId);var s=audio.Read();
+   var ok=s.Error is null&&s.DefaultInputId==endpointId&&s.MultimediaInputId==endpointId;
+   response=new(id,ok,ok?"SUCCESS":"FAILED",s,ok?null:"Windows did not verify the microphone switch.");
   } else throw new ArgumentException("Unknown helper command.");
  }catch(Exception e){response=new(id,false,"FAILED",null,Sanitize(e));}
  Console.WriteLine(JsonSerializer.Serialize(response,json));Console.Out.Flush();
