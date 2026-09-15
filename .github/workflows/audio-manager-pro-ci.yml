@@ -77,6 +77,10 @@ jobs:
           Write-Host 'AUDIO MANAGER RELEASE-STATE GUARD PASS'
       - run: npm run build
         working-directory: plugins/audio-manager-pro
+      - name: Audit PackRat Stream Deck plugin design contract
+        run: node tools/qa/streamdeck-plugin-design-audit.mjs plugins/audio-manager-pro --require-canonical-pi
+      - name: Audit Stream Deck key-face visuals
+        run: node tools/qa/streamdeck-key-visual-audit.mjs plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin
       - name: Run Audio Manager static host audit
         shell: pwsh
         working-directory: plugins/audio-manager-pro
