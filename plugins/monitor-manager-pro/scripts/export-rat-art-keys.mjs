@@ -59,5 +59,39 @@ for (let i = 0; i < specs.length; i++) {
   }
 }
 
+
+const stateDir = resolve(out, "..", "rat-art-states");
+rmSync(stateDir, { recursive: true, force: true });
+mkdirSync(stateDir, { recursive: true });
+
+const marketingStates = [
+  ["refresh-60", "refresh-rate", ["60 HZ"]],
+  ["refresh-144", "refresh-rate", ["144 HZ"]],
+  ["refresh-165", "refresh-rate", ["165 HZ"]],
+  ["refresh-240", "refresh-rate", ["240 HZ"]],
+  ["brightness-25", "brightness", ["25%"]],
+  ["brightness-65", "brightness", ["65%"]],
+  ["brightness-80", "brightness", ["80%"]],
+  ["contrast-40", "contrast", ["40%"]],
+  ["contrast-60", "contrast", ["60%"]],
+];
+
+for (const [name, kind, lines] of marketingStates) {
+  const dataUri = keyImage(kind, lines);
+  const prefix = "data:image/svg+xml;base64,";
+  if (!dataUri.startsWith(prefix)) throw new Error("Monitor Manager keyImage did not return an SVG data URI");
+  const svg = Buffer.from(dataUri.slice(prefix.length), "base64").toString("utf8");
+  const src = resolve(scratch, name + ".svg");
+  const dst = resolve(stateDir, name + ".png");
+  writeFileSync(src, svg, "utf8");
+  const result = spawnSync(process.execPath, [renderer, src, dst], {
+    cwd: repo,
+    stdio: "inherit",
+  });
+  if (result.status !== 0) {
+    throw new Error("Failed to rasterize exact Monitor Manager marketing state " + name);
+  }
+}
+
 rmSync(scratch, { recursive: true, force: true });
 console.log("MONITOR MANAGER EXACT RUNTIME KEY EXPORT PASS: " + out);
