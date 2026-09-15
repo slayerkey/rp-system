@@ -50,6 +50,8 @@ function check(label, source) {
     "Maker Console transient error during ' + phase + '; clicking Try again once and continuing.",
     "async function waitForPackageInputWithTransientRecovery(target)",
     "async function uploadPackageWithTransientRecovery(target)",
+    "await uploadPackageWithTransientRecovery(page);",
+    "state.transientRecoveries ||= [];",
     "Maker Console package upload input did not appear after transient Try again recovery"
   ];
 
