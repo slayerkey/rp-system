@@ -394,34 +394,29 @@ function Run-MakerConsole {
     )
 
     $noRetry = Join-Path $Kit "log\NO_RETRY.txt"
-    for ($attempt = 1; $attempt -le 3; $attempt++) {
-        $resume = $attempt -gt 1
-        if ($attempt -eq 1) {
-            Write-Host "Launching Maker Console for '$WidgetSlug'..." -ForegroundColor Cyan
-            Write-Host "Your local Maker Console login is reused automatically. If Elgato asks you to sign in, complete it once in the opened browser and Rat Ship will continue." -ForegroundColor Yellow
+
+    Write-Host "Launching Maker Console for '$WidgetSlug'..." -ForegroundColor Cyan
+    Write-Host "Your local Maker Console login is reused automatically. If Elgato asks you to sign in, complete it once in the opened browser and Rat Ship will continue." -ForegroundColor Yellow
+
+    $code = Invoke-MakerConsoleBridge -WidgetSlug $WidgetSlug -Kit $Kit -Submit:$Submit
+    if ($code -eq 0) {
+        if ($Submit) {
+            Write-Host "Rat Ship submitted '$WidgetSlug' to Maker Console." -ForegroundColor Green
         }
         else {
-            Write-Host "Maker Console attempt $($attempt - 1) stopped unexpectedly. Restarting the browser and resuming the same draft..." -ForegroundColor Yellow
-            Start-Sleep -Seconds 2
+            Write-Host "Rat Ship staged '$WidgetSlug' in Maker Console without submitting." -ForegroundColor Green
         }
+        return
+    }
 
-        $code = Invoke-MakerConsoleBridge -WidgetSlug $WidgetSlug -Kit $Kit -Submit:$Submit -Resume:$resume
-        if ($code -eq 0) {
-            if ($Submit) {
-                Write-Host "Rat Ship submitted '$WidgetSlug' to Maker Console." -ForegroundColor Green
-            }
-            else {
-                Write-Host "Rat Ship staged '$WidgetSlug' in Maker Console without submitting." -ForegroundColor Green
-            }
-            return
-        }
-
-        if (Test-Path $noRetry) {
-            $reason = (Get-Content $noRetry -Raw).Trim()
-            Write-Host "Rat Ship found a draft state that is unsafe to retry automatically." -ForegroundColor Red
-            if ($reason) { Write-Host $reason -ForegroundColor Yellow }
-            break
-        }
+    if (Test-Path $noRetry) {
+        $reason = (Get-Content $noRetry -Raw).Trim()
+        Write-Host "Rat Ship found a draft state that is unsafe to retry automatically." -ForegroundColor Red
+        if ($reason) { Write-Host $reason -ForegroundColor Yellow }
+    }
+    else {
+        Write-Host "Maker Console failed for '$WidgetSlug'. Rat Ship will NOT reopen or resume the same draft automatically." -ForegroundColor Red
+        Write-Host "The batch will record this product as failed and continue to the next slug." -ForegroundColor Yellow
     }
 
     Open-RecoveryLog -Kit $Kit
