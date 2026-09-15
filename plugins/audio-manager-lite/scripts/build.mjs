@@ -1,5 +1,6 @@
 import {cp,mkdir,rm,writeFile} from "node:fs/promises";import {resolve} from "node:path";
-const root=resolve(import.meta.dirname,".."),plugin=resolve(root,"com.packrat.audio-manager-lite.sdPlugin"),bin=resolve(plugin,"bin"),imgs=resolve(plugin,"imgs"),ui=resolve(plugin,"ui");
+const root=resolve(import.meta.dirname,".."),plugin=resolve(root,"com.packrat.audio-manager-lite.sdPlugin"),bin=resolve(plugin,"bin"),imgs=resolve(plugin,"imgs"),ui=resolve(plugin,"ui"),nativeOut=resolve(plugin,"native","win-x64");
+for(const name of ["PackRat.AudioCore.pdb","PackRat.AudioManagerLite.Helper.pdb"])await rm(resolve(nativeOut,name),{force:true});
 await rm(bin,{recursive:true,force:true});await rm(imgs,{recursive:true,force:true});await rm(ui,{recursive:true,force:true});await mkdir(bin,{recursive:true});await mkdir(ui,{recursive:true});
 for(const f of ["config.html","pi.css","pi.js"])await cp(resolve(root,"ui",f),resolve(ui,f));
 const pd=resolve(imgs,"plugin"),cd=resolve(imgs,"category"),ad=resolve(imgs,"actions","set-output");await mkdir(pd,{recursive:true});await mkdir(cd,{recursive:true});await mkdir(ad,{recursive:true});
