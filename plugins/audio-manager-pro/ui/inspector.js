@@ -153,6 +153,10 @@ function roleEndpoint(){
   const list=isOutput?snap.outputs||[]:snap.inputs||[];
   return list.find(x=>String(x.id)===String(id||""))||null;
 }
+function voiceMeeterDetected(){
+  const all=[...(snap?.inputs||[]),...(snap?.outputs||[])];
+  return all.some(item=>/voicemeeter/i.test(String(item?.name||"")));
+}
 function actionUI(){
   const usesProfile=["apply","status","volume"].includes(kind);
   $("profileAction").hidden=!usesProfile;
@@ -210,13 +214,13 @@ function actionUI(){
       $("currentMicHint").textContent="This Windows Default Input does not expose mute control.";
     }else if(defaultMic.muted){
       pill.textContent="MUTED";pill.classList.add("muted");
-      $("currentMicHint").textContent=/voicemeeter/i.test(name)
-        ?"This key is muting the VoiceMeeter endpoint Windows currently uses as Default Input."
+      $("currentMicHint").textContent=voiceMeeterDetected()
+        ?"Windows reports this endpoint muted. VoiceMeeter can capture or route audio outside Windows endpoint mute, so a VoiceMeeter path may still pass your mic."
         :"Press the key to unmute the Windows Default microphone.";
     }else{
       pill.textContent="LIVE";pill.classList.add("live");
-      $("currentMicHint").textContent=/voicemeeter/i.test(name)
-        ?"This key follows the VoiceMeeter endpoint Windows currently uses as Default Input."
+      $("currentMicHint").textContent=voiceMeeterDetected()
+        ?"This key controls the Windows Default Input endpoint. VoiceMeeter routes may bypass Windows endpoint mute."
         :"Press the key to mute the Windows Default microphone.";
     }
   }
@@ -282,7 +286,7 @@ function profileFromEditor(p){
   const n={
     schemaVersion:1,id:p.id,
     name:$("profileName").value.trim().slice(0,80)||p.name,
-    accent:$("profileAccent").value.toUpperCase(),
+    accent:/^#[0-9a-f]{6}$/i.test(String(p.accent||""))?String(p.accent).toUpperCase():"#FFB21E",
     slots:{},
   };
   for(const [k,l] of S)n.slots[k]=slot(k,l,p);
@@ -324,7 +328,6 @@ function editor(force=false){
   if(!p){clearEditorDraft();validateEditor();return}
   if(editorDirty&&editorDraft?.id===p.id&&!force){updateSaveLabel();validateEditor();return}
   $("profileName").value=p.name||"";
-  $("profileAccent").value=/^#[0-9a-f]{6}$/i.test(String(p.accent||""))?p.accent:"#FFB21E";
   for(const [k,listKey] of S){
     const st=p?.slots?.[k]||null;
     devices($(k+"Device"),Array.isArray(snap?.[listKey])?snap[listKey]:[],st?.device||null,true);
@@ -450,7 +453,6 @@ $("profileName").addEventListener("keydown",e=>{
   e.preventDefault();
   if(!$("saveProfile").disabled)saveProfile();
 });
-$("profileAccent").addEventListener("input",()=>{markEditorDirty();validateEditor()});
 for(const [k] of S){
   $(k+"Device").addEventListener("change",()=>{syncStateCtr(k);markEditorDirty();validateEditor()});
   $(k+"RestoreVolume").addEventListener("change",()=>{syncStateCtr(k);markEditorDirty();validateEditor()});
