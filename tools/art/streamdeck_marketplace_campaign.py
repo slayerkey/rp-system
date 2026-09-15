@@ -66,6 +66,8 @@ def resolve_campaign_config(product: str) -> CampaignConfig:
         raise SystemExit(f"Unsupported Stream Deck hero title style for {product}: {title_style}")
 
     campaign_style = str(art.get("campaign_style") or "warm-studio-glass-v1").strip().lower()
+    if campaign_style not in {"warm-studio-glass-v1"}:
+        raise SystemExit(f"Unsupported Stream Deck Marketplace campaign style for {product}: {campaign_style}")
     return CampaignConfig(
         product=product,
         hero_scene=hero_scene,
