@@ -30,7 +30,7 @@ test("Lite Property Inspector uses canonical PackRat UI and proven global transp
   }
   assert.match(css,/body::before/);
   assert.match(html,/PackRat ↗/);
-  assert.match(html,/30 seconds and 60 keyboard events/);
+  assert.match(html,/10 seconds and 50 keyboard events/);
   assert.match(html,/Upgrade to Pro ↗/);
   assert.match(html,/Open Macro Recorder Pro ↗/);
   assert.match(html,/mouse recording|Mouse \+ longer recording/i);
@@ -38,6 +38,10 @@ test("Lite Property Inspector uses canonical PackRat UI and proven global transp
   assert.match(html,/playback speed|Playback controls/i);
   assert.match(html,/<details id="recordedStepsDetails"/);
   assert.match(html,/<summary>Troubleshooting<\/summary>/);
+  assert.ok(
+    html.indexOf('<section class="group privacy">') < html.indexOf('<section class="upsell">'),
+    "Macro Recorder Pro upsell should render after Local by design at the bottom"
+  );
 
   assert.match(js,/context:uiUuid/);
   assert.match(js,/actionContext/);
