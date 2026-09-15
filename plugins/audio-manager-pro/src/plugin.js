@@ -529,16 +529,10 @@ async function toggleDefaultMic(record) {
   const ok = response?.results?.[0]?.ok === true;
   const expectedMute = !endpoint.muted;
   const verified = ok && endpointMuteMatches(response?.snapshot || null, endpoint.id, expectedMute);
-  const voiceMeeter = [...(snapshot.inputs || []), ...(snapshot.outputs || [])]
-    .some((item) => /voicemeeter/i.test(String(item?.name || "")));
   const result = {
     status: verified ? "SUCCESS" : ok ? "PARTIAL" : "FAILED",
     scope: "action",
-    message: verified
-      ? voiceMeeter
-        ? (expectedMute ? "Windows endpoint muted · VoiceMeeter may still pass audio" : "Windows endpoint live")
-        : (expectedMute ? "Default microphone muted" : "Default microphone live")
-      : "",
+    message: verified ? (expectedMute ? "Default microphone muted" : "Default microphone live") : "",
     failures: verified
       ? []
       : [{
