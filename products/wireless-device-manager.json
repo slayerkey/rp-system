@@ -11,7 +11,7 @@
   "plugin_uuid": "com.packrat.wireless-device-manager",
   "automated_feasibility": "GO",
   "hardware_smoke": "MAYA_X_PASS_BLUETOOTH_AUDIO_CONTROL_WAIVED",
-  "notes": "Free Lite edition. One selected device with sole-visible auto-selection. Battery/charging/control are capability-gated and battery percentages remain device-reported.",
+  "notes": "Free Lite edition. One selected device with sole-visible auto-selection. Battery/charging/control are capability-gated and battery percentages remain device-reported. Canonical top-right and bottom Pro upgrade surfaces are active and use the PackRat maker Marketplace page until the verified direct Pro listing exists.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json",
   "blocker": "Bluetooth hardware QA is waived for this release. Lite is code-complete. Its canonical top-right and bottom Pro upgrade surfaces are active now and default to the PackRat maker page. Final public Lite release still follows Pro-first publication: once the verified direct Pro Marketplace URL exists, record it, rebuild Lite so both CTAs route directly to Pro, and run the final Lite shipping gate.",
@@ -28,17 +28,23 @@
     "Bluetooth audio-control physical matrix explicitly waived by product owner for initial release"
   ],
   "automated_release_evidence": {
-    "candidate_commit": "ce134b6a8a1489645796ec3ff08521908a4fddbe",
-    "github_actions_run": 34902034110,
-    "windows_job": 104169985238,
+    "candidate_commit": "ed50419a8817be7049756a5734f910127cd9a77c",
+    "github_actions_run": 34924574105,
+    "windows_job": 104239784353,
     "status": "PASSED",
     "test_cases": 64,
     "test_failures": 0,
     "structural_key_visual_audit": "PASSED_0_WARNINGS",
-    "artifact_id": 10371077912,
-    "artifact_digest": "sha256:5a5159b2ebc5ad8a800c47fe02d7e40261c6f647a176590165f2c636177a7338",
+    "artifact_id": 10380100395,
+    "artifact_digest": "sha256:b447a8c23bd085101a04621157b7aec0df5e0f6a3b3410f153d1f95ffbf31f6b",
     "package_sha256": "B95BA4810F7F285F2AF33F308F81B2AE614A1B9EE4EF441DF828146FA9B5D55F",
-    "package_size_bytes": 70967724
+    "package_size_bytes": 70967724,
+    "dependency_audit": "PASS_0_VULNERABILITIES",
+    "official_elgato_validation": "PASS_LITE_AND_PRO",
+    "official_elgato_packaging": "PASS_LITE_AND_PRO",
+    "lite_package_sha256": "A94D4E194AAED8D8E52BFE9C4797F7C578EDC4B2BCBD2871D771B4746114CB0B",
+    "pro_package_sha256": "D4BE5570BEAF8B23637EAD6422A5F6E71EBE72F715CDDE7C59F2FDE880A6194F",
+    "lite_pro_upgrade_fallback": "PASS - Lite top-right Upgrade to Pro and bottom Pro feature card are always visible after Lite edition state is known; direct Pro /product/ URL is used when verified, otherwise both route to https://marketplace.elgato.com/maker/packrat."
   },
   "catalog_audit": {
     "profiles": {
