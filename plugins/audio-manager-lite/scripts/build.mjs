@@ -5,7 +5,7 @@ await rm(bin,{recursive:true,force:true});await rm(imgs,{recursive:true,force:tr
 for(const f of ["config.html","pi.css","pi.js"])await cp(resolve(root,"ui",f),resolve(ui,f));
 const pd=resolve(imgs,"plugin"),cd=resolve(imgs,"category"),outDir=resolve(imgs,"actions","set-output"),inDir=resolve(imgs,"actions","set-input");await mkdir(pd,{recursive:true});await mkdir(cd,{recursive:true});await mkdir(outDir,{recursive:true});await mkdir(inDir,{recursive:true});
 await cp(resolve(root,"..","..","tools","art","assets","ratpack-icon-transparent.png"),resolve(pd,"packrat-logo.png"));
-await cp(resolve(root,"..","..","tools","art","assets","ratpack-icon-transparent.png"),resolve(pd,"icon.png"));
+await cp(resolve(root,"..","..","tools","art","assets","ratpack-icon-transparent.png"),resolve(pd,"icon.png"));await cp(resolve(root,"..","..","tools","art","assets","ratpack-icon-transparent.png"),resolve(pd,"icon@2x.png"));
 const speaker=(accent="#FFB21E",fg="#F5F7FA")=>`<path d="M35 43h21l22-17v57L56 66H35z" fill="none" stroke="${fg}" stroke-width="6" stroke-linejoin="round"/><path d="M89 40c8 8 8 21 0 29M99 31c14 14 14 31 0 45" fill="none" stroke="${accent}" stroke-width="5" stroke-linecap="round"/>`;
 const mic=(accent="#FFB21E",fg="#F5F7FA")=>`<rect x="60" y="20" width="24" height="45" rx="12" fill="none" stroke="${fg}" stroke-width="6"/><path d="M49 55c0 16 9 25 23 25s23-9 23-25M72 80v14M58 95h28" fill="none" stroke="${accent}" stroke-width="6" stroke-linecap="round"/>`;
 await writeFile(resolve(cd,"icon.svg"),`<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 144 144">${speaker("#fff","#fff")}</svg>`);
