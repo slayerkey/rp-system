@@ -1,0 +1,74 @@
+name: Audio Manager Lite CI
+on:
+  push:
+    branches:
+      - product/audio-manager-lite
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: dotnet build companions/packrat-audio-core/src/PackRat.AudioCore/PackRat.AudioCore.csproj -c Release
+      - run: npm ci --no-fund --no-audit
+        working-directory: plugins/audio-manager-lite
+      - run: npm audit --audit-level=high
+        working-directory: plugins/audio-manager-lite
+      - run: npm test
+        working-directory: plugins/audio-manager-lite
+      - name: Audit canonical Lite to Pro catalog relationships
+        run: python tools/lite_pro_audit.py
+      - run: npm run build
+        working-directory: plugins/audio-manager-lite
+      - name: Fetch canonical Stream Deck QA tools
+        shell: pwsh
+        run: |
+          git fetch origin +refs/heads/main:refs/remotes/origin/main --depth=1
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\packrat-qa" | Out-Null
+          git show origin/main:tools/qa/streamdeck-plugin-design-audit.mjs | Set-Content -Path "$env:RUNNER_TEMP\packrat-qa\streamdeck-plugin-design-audit.mjs" -Encoding utf8
+          git show origin/main:tools/qa/streamdeck-key-visual-audit.mjs | Set-Content -Path "$env:RUNNER_TEMP\packrat-qa\streamdeck-key-visual-audit.mjs" -Encoding utf8
+      - name: Audit canonical PackRat Lite Property Inspector
+        shell: pwsh
+        run: node "$env:RUNNER_TEMP\packrat-qa\streamdeck-plugin-design-audit.mjs" plugins/audio-manager-lite --require-canonical-pi --require-lite-pro-upsell
+      - name: Audit key visuals and major-device profiles
+        shell: pwsh
+        run: node "$env:RUNNER_TEMP\packrat-qa\streamdeck-key-visual-audit.mjs" plugins/audio-manager-lite/com.packrat.audio-manager-lite.sdPlugin --require-major-profiles
+      - run: npm run native:selftest
+        working-directory: plugins/audio-manager-lite
+      - name: Smoke Windows output snapshot protocol
+        shell: pwsh
+        working-directory: plugins/audio-manager-lite
+        run: |
+          $helper = Resolve-Path "com.packrat.audio-manager-lite.sdPlugin/native/win-x64/PackRat.AudioManagerLite.Helper.exe"
+          $response = '{"id":"snapshot-smoke","command":"snapshot"}' | & $helper | Select-Object -First 1
+          if (-not $response) { throw "Audio helper returned no snapshot response." }
+          $json = $response | ConvertFrom-Json
+          if ($json.id -ne "snapshot-smoke" -or $null -eq $json.snapshot) { throw "Snapshot protocol smoke failed." }
+          Write-Host "Audio Manager Lite snapshot smoke: PASS"
+      - run: npm run validate
+        working-directory: plugins/audio-manager-lite
+      - run: npm run pack
+        working-directory: plugins/audio-manager-lite
+      - name: Verify packaged helper
+        shell: pwsh
+        working-directory: plugins/audio-manager-lite
+        run: |
+          $package = Get-ChildItem "dist" -Filter "*.streamDeckPlugin" | Select-Object -First 1
+          if (-not $package) { throw "Elgato package was not created." }
+          $entries = tar -tf $package.FullName
+          if (-not ($entries | Select-String -SimpleMatch "native/win-x64/PackRat.AudioManagerLite.Helper.exe")) { throw "Package is missing native helper." }
+          if ($entries | Select-String -Pattern "\.pdb$") { throw "Package contains debug symbols." }
+          Write-Host "Audio Manager Lite packaged helper: PASS"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audio-manager-lite-release-qa
+          path: plugins/audio-manager-lite/dist/*.streamDeckPlugin
+          if-no-files-found: error
