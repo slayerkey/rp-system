@@ -24,7 +24,6 @@ await mkdir(uiOut, { recursive: true });
 await cp(resolve(root, "ui", "inspector.html"), resolve(uiOut, "inspector.html"));
 await cp(resolve(root, "ui", "inspector.css"), resolve(uiOut, "inspector.css"));
 await cp(resolve(root, "ui", "inspector.js"), resolve(uiOut, "inspector.js"));
-await cp(resolve(root, "..", "..", "tools", "art", "assets", "ratpack-icon-transparent.png"), resolve(uiOut, "ratpack-icon-transparent.png"));
 
 function crc32(buffer) {
   let crc = 0xffffffff;
@@ -72,6 +71,7 @@ function iconPng(size) {
 
 const pluginDir=resolve(imgs,"plugin");
 await mkdir(pluginDir,{recursive:true});
+await cp(resolve(root, "..", "..", "tools", "art", "assets", "ratpack-icon-transparent.png"), resolve(pluginDir, "packrat-logo.png"));
 await writeFile(resolve(pluginDir,"icon.png"),iconPng(256));
 await writeFile(resolve(pluginDir,"icon@2x.png"),iconPng(512));
 
