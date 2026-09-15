@@ -168,14 +168,11 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       const macro = macroFor(record);
       if (playback?.actionId === record.id) title = "PLAYING";
       else if (saved && macro?.id === saved.macroId) title = "SAVED";
-      else if (macro && record.settings.seedMacro) title = shortTitle(macro.name, 12);
+      else if (!pro && macro?.id?.startsWith("starter-")) title = shortTitle(macro.name, 12);
+      else if (pro && macro && record.settings.seedMacro) title = shortTitle(macro.name, 12);
     }
-    if (pro) {
-      await record.action.setImage(packRatKeyImage(record.kind, title)).catch(() => {});
-      await record.action.setTitle("").catch(() => {});
-    } else {
-      await record.action.setTitle(title).catch(() => {});
-    }
+    await record.action.setImage(packRatKeyImage(record.kind, title)).catch(() => {});
+    await record.action.setTitle("").catch(() => {});
   }
 
   async function renderAll() {
@@ -218,7 +215,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   }
 
   async function sendPropertyInspector(payload, record = null) {
-    if (pro && streamDeck.ui?.sendToPropertyInspector) {
+    if (streamDeck.ui?.sendToPropertyInspector) {
       await streamDeck.ui.sendToPropertyInspector(payload).catch(() => {});
       return;
     }
@@ -233,7 +230,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   }
 
   async function broadcastInspectors() {
-    if (pro) {
+    if (streamDeck.ui) {
       const record = visible.get(activeInspectorId);
       if (record) await sendInspector(record);
       return;
@@ -243,7 +240,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
 
   async function broadcastStatus() {
     const status = inspectorStatus();
-    if (pro) {
+    if (streamDeck.ui) {
       const record = visible.get(activeInspectorId);
       if (record) await sendPropertyInspector(status, record);
       return;
@@ -254,14 +251,16 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   }
 
   async function assignNewRecordingToReplayKeys(macro) {
-    if (!pro || !macro?.id) return 0;
-    const targets = [...visible.values()].filter((item) =>
-      item.kind === "replay" &&
-      item.settings.autoLatest !== false &&
-      !item.settings.seedMacro
-    );
+    if (!macro?.id) return 0;
+    const targets = [...visible.values()].filter((item) => {
+      if (item.kind !== "replay") return false;
+      if (pro) return item.settings.autoLatest !== false && !item.settings.seedMacro;
+      return !item.settings.macro;
+    });
     await Promise.all(targets.map(async (item) => {
-      const next = { ...item.settings, macroId: macro.id, autoLatest: true };
+      const next = pro
+        ? { ...item.settings, macroId: macro.id, autoLatest: true }
+        : { ...item.settings, macro: normalizeMacro(macro, { pro:false, limits }) };
       delete next.seedMacro;
       await item.action.setSettings(next);
       item.settings = settingsFor("replay", next);
@@ -476,20 +475,22 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
 
     const selectedMacroId = String(record?.settings?.macroId || "");
-    const selectedMacro = selectedMacroId && pro ? library.get(selectedMacroId) : null;
+    const selectedMacro = pro ? (selectedMacroId ? library.get(selectedMacroId) : null) : macroFor(record);
     const checks = [
       { name:"PI request reached plugin", ok:true, detail:meta.transport || "unknown" },
       { name:"Selected action resolved", ok:Boolean(record), detail:record?.id || meta.requestedActionContext || "none" },
       { name:"Selected action is visible", ok:Boolean(record && visible.has(record.id)), detail:`${visible.size} visible actions` },
       { name:"Action settings readable", ok:Boolean(storedSettings && !settingsError), detail:settingsError || "settings read from Stream Deck" },
+      { name:"Assigned macro state coherent", ok:record?.kind !== "replay" || !record?.settings || Boolean(selectedMacro) || (!pro && !record.settings.macro) || (pro && !selectedMacroId), detail:selectedMacro ? `${selectedMacro.name} · ${selectedMacro.events?.length || 0} events` : "none assigned" },
+    ];
+    if (pro) checks.push(
       { name:"Macro Library has entries", ok:Boolean(disk?.inMemoryCount > 0), detail:`${disk?.inMemoryCount ?? 0} macros in memory` },
       { name:"Library file exists", ok:Boolean(disk?.disk?.exists), detail:disk?.disk?.error || disk?.file || "" },
       { name:"Library file readable", ok:Boolean(disk?.disk?.readable), detail:disk?.disk?.error || "" },
       { name:"Library file parseable", ok:Boolean(disk?.disk?.parseable), detail:disk?.disk?.error || "" },
       { name:"Disk matches memory", ok:Boolean(disk?.disk?.matchesMemory), detail:`disk=${disk?.disk?.macroCount ?? 0}, memory=${disk?.inMemoryCount ?? 0}` },
-      { name:"Library directory writable", ok:Boolean(disk?.writeProbe?.ok), detail:disk?.writeProbe?.error || "non-destructive write/read/delete probe passed" },
-      { name:"Assigned macro resolves", ok:!selectedMacroId || Boolean(selectedMacro), detail:selectedMacroId || "no macroId assigned" },
-    ];
+      { name:"Library directory writable", ok:Boolean(disk?.writeProbe?.ok), detail:disk?.writeProbe?.error || "non-destructive write/read/delete probe passed" }
+    );
     const failures = checks.filter((item) => !item.ok).map((item) => item.name);
     return {
       type:"macroRecorder.diagnostic",
@@ -673,7 +674,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
 
     async onPropertyInspectorDidAppear(ev) {
-      if (pro) return;
+      if (streamDeck.ui) return;
       const record = visible.get(String(ev.action?.id || ""));
       if (!record) return;
       record.inspectorOpen = true;
@@ -681,13 +682,13 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
 
     onPropertyInspectorDidDisappear(ev) {
-      if (pro) return;
+      if (streamDeck.ui) return;
       const record = visible.get(String(ev.action?.id || ""));
       if (record) record.inspectorOpen = false;
     }
 
     async onSendToPlugin(ev) {
-      if (pro) return;
+      if (streamDeck.ui) return;
       const record = visible.get(String(ev.action?.id || ""));
       await handleUiPayload(record, ev.payload || {}, {
         transport:"per-action",
@@ -711,7 +712,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     }
   }
 
-  if (pro && streamDeck.ui) {
+  if (streamDeck.ui) {
     streamDeck.ui.onDidAppear?.((ev) => {
       const id = String(ev.action?.id || "");
       activeInspectorId = id;
