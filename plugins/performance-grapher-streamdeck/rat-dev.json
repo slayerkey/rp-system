@@ -1,0 +1,11 @@
+{
+  "type": "streamdeck-plugin",
+  "repository": "https://github.com/slayerkey/rp-system.git",
+  "ref": "product/performance-grapher-streamdeck",
+  "source_root": "plugins/performance-grapher-streamdeck",
+  "plugin_dir": "com.packrat.performance-grapher.sdPlugin",
+  "plugin_uuid": "com.packrat.performance-grapher",
+  "open_profile_on_dev": true,
+  "dev_profile": "profiles/performance-dashboard-mk2.streamDeckProfile",
+  "open_dev_folder": false
+}
