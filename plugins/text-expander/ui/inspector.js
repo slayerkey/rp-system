@@ -353,9 +353,10 @@
         setSaveStatus("Saved");
       }
       if(message.event==="sendToPropertyInspector"&&message.payload?.type==="snippetList"){
-        renderList(message.payload);
+        if(!isManage())renderList(message.payload);
       }
       if(message.event==="sendToPropertyInspector"&&message.payload?.type==="snippetDetail"){
+        if(isManage())return;
         const detail=message.payload.snippet;
         if(detail?.id){
           const index=snippets.findIndex((snippet)=>snippet.id===detail.id);
