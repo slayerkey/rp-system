@@ -6,8 +6,8 @@ for(const f of ["config.html","pi.css","pi.js"])await cp(resolve(root,"ui",f),re
 const pd=resolve(imgs,"plugin"),cd=resolve(imgs,"category"),ad=resolve(imgs,"actions","set-output");await mkdir(pd,{recursive:true});await mkdir(cd,{recursive:true});await mkdir(ad,{recursive:true});
 await cp(resolve(root,"..","..","tools","art","assets","ratpack-icon-transparent.png"),resolve(pd,"packrat-logo.png"));
 await cp(resolve(root,"..","..","tools","art","assets","ratpack-icon-transparent.png"),resolve(pd,"icon.png"));
-const speaker=(stroke="#FFB21E")=>`<path d="M35 43h21l22-17v57L56 66H35z" fill="none" stroke="#F5F7FA" stroke-width="6" stroke-linejoin="round"/><path d="M89 40c8 8 8 21 0 29M99 31c14 14 14 31 0 45" fill="none" stroke="${stroke}" stroke-width="5" stroke-linecap="round"/>`;
-await writeFile(resolve(cd,"icon.svg"),`<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 144 144">${speaker("#fff")}</svg>`);
-await writeFile(resolve(ad,"icon.svg"),`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 144 144">${speaker("#fff")}</svg>`);
+const speaker=(accent="#FFB21E",fg="#F5F7FA")=>`<path d="M35 43h21l22-17v57L56 66H35z" fill="none" stroke="${fg}" stroke-width="6" stroke-linejoin="round"/><path d="M89 40c8 8 8 21 0 29M99 31c14 14 14 31 0 45" fill="none" stroke="${accent}" stroke-width="5" stroke-linecap="round"/>`;
+await writeFile(resolve(cd,"icon.svg"),`<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 144 144">${speaker("#fff","#fff")}</svg>`);
+await writeFile(resolve(ad,"icon.svg"),`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 144 144">${speaker("#fff","#fff")}</svg>`);
 await writeFile(resolve(ad,"key.svg"),`<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144"><rect width="144" height="144" rx="24" fill="#090C12"/>${speaker()}</svg>`);
 console.log("Built Audio Manager Lite UI and assets");
