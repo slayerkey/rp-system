@@ -183,10 +183,11 @@ The preview path must:
 1. resolve the registered product from canonical `products/<slug>.json`
 2. build the current product bundle when needed
 3. run product-local `rat-art.ps1`
-4. apply the same canonical `render_streamdeck_ship_hero.py` overwrite used by Rat Ship
-5. preserve product-owned `rat-art-keys/` or representative fixtures so the final cover uses truthful key faces
-6. build `review-contact-sheet.png` in Marketplace order: cover first, then the four gallery frames
-7. stop without staging or submitting anything to Maker Console
+4. apply the same canonical `apply_streamdeck_gallery_campaign.py` final gallery pass used by Rat Ship
+5. apply the same canonical `render_streamdeck_ship_hero.py` cover overwrite used by Rat Ship
+6. preserve product-owned `rat-art-keys/` or representative fixtures so the final cover uses truthful key faces
+7. build `review-contact-sheet.png` in Marketplace order: cover first, then the four gallery frames
+8. stop without staging or submitting anything to Maker Console
 
 The preview artifact is the visual approval surface. A product-local cover that has not received the final Rat Ship overwrite is not an exact preview.
 
@@ -208,6 +209,8 @@ The default approved campaign uses:
 
 Monitor Manager Pro is the approved reference product. Reuse the system, not its exact product-specific copy or feature composition.
 
+Rat Ship owns the final gallery handoff. Products that already render directly with these primitives set `marketplace_art.gallery_mode: "native"`. Legacy/custom/external products default to `gallery_mode: "wrap"`, which preserves their product-specific content while automatically applying the newest clean studio campaign at ship and preview time. No Stream Deck product may bypass this final campaign pass.
+
 For new or refreshed Stream Deck products, prefer product metadata in `products/<slug>.json`:
 
 ```json
@@ -215,7 +218,8 @@ For new or refreshed Stream Deck products, prefer product metadata in `products/
   "hero_scene": "tools/art/scenes/warm-studio-v1/base.png",
   "gallery_scene": "tools/art/scenes/warm-studio-clean-v1/base-v2.png",
   "hero_title_style": "monitor",
-  "campaign_style": "warm-studio-glass-v1"
+  "campaign_style": "warm-studio-glass-v1",
+  "gallery_mode": "native"
 }
 ```
 
