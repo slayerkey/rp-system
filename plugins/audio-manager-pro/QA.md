@@ -142,6 +142,21 @@ The layouts provide Apply Profile slots, Cycle, Status, Mute Default Mic, and di
 
 These bundled Stream Deck layouts do **not** invent Windows audio-device IDs. Audio Profiles remain user/machine-specific and are selected/configured through the Property Inspector.
 
+## Final usability polish boundary
+
+The latest physical review confirmed profile capture/save/apply and real Windows device switching work. Remaining product changes are quality-of-life only:
+
+- contextual PI surfaces: profile manager only on profile actions; Mute Default Mic only shows the current default mic/state
+- explicit configured-target versus current-live-state language
+- exact active-profile summary in the PI
+- profile mutation feedback co-located inside the profile manager
+- Enter saves a profile name
+- VoiceMeeter/default-mic behavior is named explicitly instead of implying physical mic identity
+- unconfigured profile key simplified to SELECT / PROFILE
+- profile/direct-device hardware text pulled further inside the safe area
+
+These changes must still pass exact-head CI and one short physical visual/usability pass before the workflow can advance.
+
 ## Device resilience contract
 
 Automatic endpoint matching order:
