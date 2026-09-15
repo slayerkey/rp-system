@@ -29,6 +29,8 @@ VSD means Virtual Stream Deck and is an 8 by 8 product target.
 
 Final import validation remains a Stream Deck application and hardware check.
 
+For development profile refreshes, prefer Rat Dev's installed-profile synchronization rather than repeated imports. Rat Dev should compare installed profile content semantically, replace stale same-name profiles in place with backup/rollback, preserve Stream Deck device binding, and refresh all same-name duplicates if older workflows created them.
+
 ## Icons
 
 Use approved deterministic icon sources and generators. Existing house rules prefer real icon libraries and prohibit AI generated key icons for the product itself.
@@ -40,3 +42,5 @@ Large product media libraries should not be copied into the system repository me
 ## Troubleshooting
 
 Use `docs/STREAMDECK_TROUBLESHOOTING_PLAYBOOK.md` as the shared symptom → diagnosis → fix index. Do not create product-local troubleshooting rules for a failure already covered globally.
+
+When a native host probe passes but the Stream Deck UI/Property Inspector still fails, do not infer the whole plugin is healthy. Trace launch, PI request delivery, runtime/native invocation, response delivery, and PI render separately. For Node plugins, verify `Nodejs.Debug` is not being misused as an off/disabled sentinel.
