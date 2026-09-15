@@ -20,6 +20,14 @@ For a stateful Property Inspector, add deterministic race regressions before har
 
 For stateful Property Inspectors, treat "settings persist but plugin-owned library/timeline/live state is blank" as a transport failure signature. Verify the canonical PackRat route end-to-end: PI websocket context = `uiUuid`, selected key = separate `actionContext` payload, plugin receives commands on `streamDeck.ui.onSendToPlugin`, and plugin-owned state returns on `streamDeck.ui.sendToPropertyInspector`. Do not accept a per-action response helper mixed into a global request path.
 
+If **all** PI commands are dead (Refresh/Create/Capture/Save/Delete) and an action-level profile/item selector also fails to persist, treat them as one bridge failure until disproven. Do not open separate bugs for every button or rewrite profile storage first. Compare the inspector against a known-good PackRat PI and verify the callback PI UUID and `actionInfo.context` are not being conflated.
+
+When both per-action and global PI event surfaces are supported for compatibility, require correlated request IDs plus duplicate-request suppression before mutating data. A deterministic PI transport test should prove one click produces exactly one backend mutation and one response.
+
+For profile/library-backed actions, the pre-hardware PI smoke must cover the full immutable-ID chain: create/capture exactly one item → save edits → select it in the action settings → close/reopen and verify persistence → invoke the hardware action and prove it uses that same ID → delete a throwaway item. This catches the class of bugs where the editor looks functional but the action never receives the selected profile/item.
+
+A plugin with a native/helper PASS but no plugin log after opening the PI and issuing Refresh is not fully diagnosed. Require startup/info logging plus PI command receipt/failure logging so Rat Audit can separate plugin-launch, PI-transport, runtime, and native failures.
+
 When a stateful PI has been difficult to diagnose, prefer a non-destructive, copyable deep diagnostic over repeated user guesses.
 
 If PI HTML renders but plugin-owned state never arrives, the diagnostic must separate **plugin launch** from **PI transport**. For Node plugins, verify the manifest does not misuse `Nodejs.Debug` as a boolean/off switch; it is Node command-line argument configuration. Log module load, Stream Deck connect, runtime start, PI command receipt, native refresh, PI response send, and process exit/exception before changing transport architecture again.
