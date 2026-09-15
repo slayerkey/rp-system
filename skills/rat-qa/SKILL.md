@@ -71,6 +71,20 @@ Do not preserve a stale `qa_passed` state after Marketplace or real-host evidenc
 
 The same invalidation rule applies when product scope or behavior changes after QA. A feature rollback, product-boundary reset, UUID/settings migration, or removal/addition of app-launch/profile/workspace behavior invalidates earlier final release evidence even when the old tests were green. Re-run deterministic tests, native smoke, vendor validation/package, relevant art, and exact-package evidence against the new exact source commit.
 
+
+Treat hard product limits as a synchronized release contract. If duration/event/device/feature limits change, QA should verify the same approved values across:
+
+- exported runtime/model constants
+- Property Inspector copy and fallback/default values
+- boundary tests immediately inside/outside the limit
+- product metadata
+- Marketplace description/release notes
+- deterministic art that prints the limit
+
+A stale test that blocks Rat Dev after an intentional limit change is useful evidence of contract drift. Update all truth surfaces; do not simply delete or weaken the assertion.
+
+For user-requested PI hierarchy/placement changes that affect conversion or comprehension, add a structural regression (DOM/order/class relationship), not just a screenshot or presence assertion. In Lite products, the large bottom Pro upsell should remain after normal Lite/setup/privacy content.
+
 For paid/private-source products, distinguish infrastructure failure from product failure. A private Actions run that fails before meaningful checkout/test steps because runner allocation is unavailable is not code evidence. Use the established public control-plane/private-source QA bridge when configured, pin the exact private SHA, keep paid source/packages out of public artifacts, and record the actual Windows/macOS job evidence.
 
 Report automated pass, warnings, blockers, and the smallest exact hardware or host test still required.
