@@ -241,6 +241,9 @@ function startSources() {
 
 var restart = rateLimit(startSources, 1500);
 
+/* Apply lexical iCUE style bindings immediately. packratBoot intentionally waits for
+ * iCUE_initialized, but real iCUE can expose property bindings before that flag flips. */
+applyPersonalization();
 packratEvents(function () { render(); restart(); });
 
 packratBoot(function () {
