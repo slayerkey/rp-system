@@ -290,6 +290,19 @@ def fixture_faces(
             fail(f"Stream Deck Rat Art key fixture {index} must be an object or null")
         action_uuid = str(spec.get("action_uuid") or "").strip()
         action = by_uuid.get(action_uuid)
+        if not action and "." in action_uuid:
+            # Rat Ship may rewrite a fresh Marketplace plugin UUID (for example,
+            # com.packrat.foo -> com.packrat.foo2) after product Rat Art authored
+            # its fixtures. Preserve the action-specific suffix and remap only
+            # when it resolves to exactly one manifest action.
+            suffix = action_uuid.rsplit(".", 1)[-1]
+            matches = [
+                candidate
+                for candidate_uuid, candidate in by_uuid.items()
+                if candidate_uuid.rsplit(".", 1)[-1] == suffix
+            ]
+            if len(matches) == 1:
+                action = matches[0]
         if not action:
             fail(f"Stream Deck Rat Art key fixture {index} references unknown action UUID: {action_uuid}")
 
