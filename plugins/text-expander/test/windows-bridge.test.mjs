@@ -16,10 +16,21 @@ test("Windows bridge compiles and returns local foreground context", { skip: pro
   assert.equal(typeof value.app, "string");
   assert.equal(typeof value.username, "string");
   assert.equal(typeof value.computer, "string");
+  assert.equal(value.inputStructSize, value.expectedInputStructSize);
+  assert.equal(value.inputStructSize, process.arch === "x64" ? 40 : 28);
 });
 
 test("Windows bridge safely rejects a zero foreground handle", { skip: process.platform !== "win32" }, async () => {
   assert.equal(await focusWindow("0"), false);
+});
+
+test("Windows bridge declares the full native INPUT union", async () => {
+  const source=await fs.readFile(bridgePath,"utf8");
+  assert.match(source,/struct MOUSEINPUT/);
+  assert.match(source,/struct KEYBDINPUT/);
+  assert.match(source,/struct HARDWAREINPUT/);
+  assert.match(source,/ExpectedInputStructSize/);
+  assert.match(source,/IntPtr\.Size == 8 \? 40 : 28/);
 });
 
 test("Windows bridge treats authored line breaks and tabs as text, not submit/navigation keys", async () => {
