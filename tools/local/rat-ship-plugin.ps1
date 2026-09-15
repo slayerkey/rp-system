@@ -47,6 +47,12 @@ $PlaywrightModule = Join-Path $DependencyToolsRoot "node_modules\playwright"
 $PlaywrightBinName = if ($env:OS -eq "Windows_NT") { "playwright.cmd" } else { "playwright" }
 $PlaywrightCmd = Join-Path $DependencyToolsRoot ("node_modules\.bin\" + $PlaywrightBinName)
 
+$marketplaceUuidTools = Join-Path $RepoRoot "tools\ship\streamdeck-marketplace-uuid.ps1"
+if (-not (Test-Path $marketplaceUuidTools -PathType Leaf)) {
+    throw "Stream Deck Marketplace UUID helper missing: $marketplaceUuidTools"
+}
+. $marketplaceUuidTools
+
 function Require-Command {
     param([string]$Name, [string]$Hint)
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
@@ -528,6 +534,16 @@ try {
 
     $pluginDir = Resolve-PluginDirectory -Product $product -SourceDir $sourceDir
     Write-Host "Local Rat Ship plugin: selected bundle $pluginDir" -ForegroundColor DarkGray
+
+    $marketplaceUuid = Get-RatStreamDeckMarketplaceUuidOverride -RepoRoot $RepoRoot -PluginSlug $PluginSlug
+    if ($marketplaceUuid) {
+        $beforeUuid = (Get-Content (Join-Path $pluginDir "manifest.json") -Raw | ConvertFrom-Json).UUID
+        $pluginDir = Convert-RatStreamDeckPluginIdentity -PluginDirectory $pluginDir -NewUuid $marketplaceUuid
+        if ([string]$beforeUuid -ne [string]$marketplaceUuid) {
+            Write-Host "Local Rat Ship plugin: fresh Marketplace UUID $beforeUuid -> $marketplaceUuid" -ForegroundColor Cyan
+        }
+    }
+
     Invoke-Step "official Elgato validation" { & npx streamdeck validate $pluginDir --no-update-check }
     Invoke-Step "official Elgato package" { & npx streamdeck pack $pluginDir --output $packageOut --force --no-update-check --no-file-list }
 }

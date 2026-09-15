@@ -21,6 +21,9 @@ on:
       - 'tools/ship/maker_console_core.mjs'
       - 'tools/ship/maker_console_runtime_patch*.mjs'
       - 'tools/ship/maker_console_patch_test.mjs'
+      - 'tools/ship/streamdeck-marketplace-uuid.ps1'
+      - 'tools/ship/streamdeck-marketplace-uuid-overrides.json'
+      - 'tests/check_rat_ship_uuid_override.ps1'
       - '.github/workflows/rat-ship-marketplace-routing-ci.yml'
   pull_request:
     branches: [main]
@@ -75,7 +78,8 @@ jobs:
             'tools/local/rat-maker-console.ps1',
             'tools/local/rat-ship-plugin.ps1',
             'tools/local/rat-ship-local.ps1',
-            'tools/local/rat-worktree.ps1'
+            'tools/local/rat-worktree.ps1',
+            'tools/ship/streamdeck-marketplace-uuid.ps1'
           )
           foreach ($file in $files) {
             $tokens = $null
@@ -87,6 +91,10 @@ jobs:
             }
             Write-Host "POWERSHELL PASS: $file"
           }
+
+      - name: Exercise fresh Marketplace plugin UUID rewrite
+        shell: pwsh
+        run: ./tests/check_rat_ship_uuid_override.ps1
 
       - name: Exercise Rat Dev source resolver behavior
         shell: pwsh
