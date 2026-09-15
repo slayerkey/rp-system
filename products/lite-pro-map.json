@@ -190,10 +190,10 @@
         "shared/macro-recorder",
         "shared/windows-input/PackRat.InputHost"
       ],
-      "source_status": "source_built_marketplace_urls_unverified",
-      "notes": "Lite is keyboard-only with 30-second / 60-event limits and one macro per Replay action. Pro adds mouse capture, 10-minute / 25,000-event recordings, speed, loops and a reusable Macro Library. No Lite-to-Pro URL is shipped until a verified direct Macro Recorder Pro Marketplace listing exists.",
-      "launch_sequence": "Publish/verify Pro direct listing first, then rebuild Lite from this canonical URL before public Lite launch.",
-      "upsell_build_source": "plugins/macro-recorder-lite/scripts/build-assets.mjs"
+      "source_status": "lite_release_ready_pro_url_deferred",
+      "notes": "Lite is a standalone useful keyboard recorder with 30-second / 60-event limits and one macro per Play action. Pro adds mouse capture, 10-minute / 25,000-event recordings, speed, loops, reusable Macro Library, full editing and import/export. Add a direct Lite-to-Pro CTA only after the real public Pro Marketplace listing is verified.",
+      "launch_sequence": "Lite may launch standalone. Add the verified direct Pro product URL in a later Lite update.",
+      "upsell_build_source": "deferred"
     }
   ],
   "standalone_free": [
