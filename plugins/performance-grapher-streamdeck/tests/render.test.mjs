@@ -160,3 +160,23 @@ test("common hardware labels are shortened before key rendering", () => {
   assert.match(svg, /RYZEN 7 5700X3D/);
   assert.doesNotMatch(svg, /AMD RYZEN/);
 });
+
+
+test("36 px reduced preview keeps bounded runtime text and square output", () => {
+  const image = renderKey({
+    label: "ExtremelyLongGameExecutableName",
+    value: 144,
+    unit: "FPS",
+    secondary: "1% 118",
+    points: [[1, 120], [2, 144], [3, 110], [4, 144]],
+    state: "ready",
+    mode: "min",
+  }, {}, 36);
+  const svg = decodeURIComponent(image);
+
+  assert.match(svg, /width="36"/);
+  assert.match(svg, /height="36"/);
+  assert.ok(svg.includes("EXTREMELYLONGGAM…"));
+  assert.ok(!svg.includes("EXTREMELYLONGGAMEEXECUTABLENAME"));
+  assert.ok(svg.includes("144"));
+});
