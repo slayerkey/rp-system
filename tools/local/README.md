@@ -43,6 +43,16 @@ Generated local output belongs under `out/` and is ignored by Git. It should not
 
 The authenticated Maker Console browser profile remains under `%LOCALAPPDATA%\PackRat\maker-console-profile` and is never committed or uploaded to GitHub.
 
+## Maker Console transient failures
+
+If Maker Console shows **Unexpected error** with **Try again**, treat it as a transient service/UI condition first when the package has already passed local tests and official Elgato validation.
+
+Rat Ship is allowed one in-place **Try again** recovery for that exact transient state. It should reacquire the current DOM step and continue without reopening the browser or replaying the whole draft.
+
+A very strong isolation signal is the same failure appearing on an unrelated plugin, especially during a manual upload. In that case, stop changing the product package. Preserve the package hash, screenshot/log evidence, wait for Maker Console to recover, and retry the unchanged package later.
+
+Do not respond to that platform symptom by changing UUIDs, versions, art, or otherwise manufacturing a new candidate.
+
 ## One time Windows setup
 
 If the repo is already cloned into `C:\Users\Key\Videos\Claude Projects\Ratpack-GitHub`, run:
