@@ -25,7 +25,7 @@
   ],
   "listing_summary": "Save reusable text snippets and insert dynamic text from Stream Deck. Lite supports up to 10 local snippets plus {date}, {time}, and {clipboard}, with Unicode, emoji, multiline text, URLs, and code snippets.",
   "pro_marketplace_url": null,
-  "pro_url_rule": "Do not show a Pro Marketplace button until the real Text Expander Pro listing URL has been created and verified.",
+  "pro_url_rule": "Show both canonical Lite→Pro conversion surfaces at all times. Use the exact verified direct Text Expander Pro Marketplace URL when available; otherwise fall back to https://marketplace.elgato.com/maker/packrat.",
   "submission_metadata": "plugins/text-expander/submission-lite.json",
   "release_gate": [
     "locked dependency install and deterministic build",
@@ -40,7 +40,7 @@
     "real Windows insertion smoke in Notepad, browser, Discord, multiline editor, and code editor",
     "clipboard restoration and blocked-synthetic-input fallback smoke"
   ],
-  "final_boundary": "Run plugins/text-expander/REAL_WINDOWS_SMOKE.md against the validated package bytes recorded in automated_release_evidence. Stage/publish Pro first; once its direct Marketplace URL is verified, add it to products/lite-pro-map.json, rebuild/revalidate Lite so its upgrade button becomes live, then ship Lite.",
+  "final_boundary": "Run plugins/text-expander/REAL_WINDOWS_SMOKE.md against the validated package bytes recorded in automated_release_evidence. Stage/publish Pro first; before that listing exists Lite uses the PackRat maker page fallback. Once the direct Pro Marketplace URL is verified, add it to products/lite-pro-map.json, rebuild/revalidate Lite so both upgrade CTAs route directly to Pro, then ship Lite.",
   "ship_plugin_dir": "dist/com.packrat.textexpanderlite.sdPlugin",
   "automated_tests": 37,
   "automated_release_evidence": {
@@ -83,5 +83,5 @@
     "physical_quick_smoke": "PENDING for Lite specifically - Pro hardware smoke proved the shared insertion engine, but Lite EMAIL + / CLIP + / LIBRARY still need a direct Lite hardware pass."
   },
   "blocker": "Lite-specific physical Stream Deck smoke is still required: EMAIL +, CLIP +, LIBRARY, 10-snippet cap, Lite variables, persistence, and Lite/Pro coexistence.",
-  "upsell_status": "Upgrade reasons are implemented, but the Pro button intentionally remains hidden until the real direct Text Expander Pro Marketplace URL is created and verified."
+  "upsell_status": "Top-right Upgrade to Pro and bottom Pro feature card are enabled for Lite. Before Pro publication both open the PackRat maker Marketplace page; after the verified direct Pro URL is recorded they open that direct listing."
 }
