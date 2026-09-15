@@ -35,6 +35,8 @@ LINK_RE = re.compile(r"""<link\b[^>]*\brel\s*=\s*["']stylesheet["'][^>]*>""", re
 SCRIPT_RE = re.compile(r"""<script\b([^>]*)\bsrc\s*=\s*["']([^"']+)["']([^>]*)>\s*</script>""", re.I)
 HREF_RE = re.compile(r"""\bhref\s*=\s*["']([^"']+)["']""", re.I)
 BLOCK_RE = re.compile(r"<script\b.*?</script>|<style\b.*?</style>", re.S | re.I)
+JSON_SCRIPT_RE = re.compile(r"""<script\b(?=[^>]*\btype\s*=\s*["']application/json["'])[^>]*>(.*?)</script>""", re.S | re.I)
+SCRIPT_ID_RE = re.compile(r"""\bid\s*=\s*["']([^"']+)["']""", re.I)
 META_RE = re.compile(r"<meta\b[^>]*>", re.I)
 NAME_RE = re.compile(r"""\bname\s*=\s*["']([^"']+)["']""", re.I)
 CONTENT_RE = re.compile(r"""\bcontent\s*=\s*["']([^"']+)["']""", re.I)
@@ -192,6 +194,38 @@ def binding_runtime_sync(html: str) -> str:
 </script>"""
 
 
+def validate_metadata_json_scripts(html: str) -> None:
+    """Validate iCUE JSON metadata as both JSON and strict-XML-safe text.
+
+    Real iCUE parses metadata in <head> more strictly than a browser. A raw '&' or
+    '<' inside x-icue-groups can therefore be valid JSON yet still make the importer
+    report an unsupported/corrupted widget with a meta-parameter JSON error.
+    """
+    for match in JSON_SCRIPT_RE.finditer(html):
+        block = match.group(0)
+        body = match.group(1)
+        start_tag = block.split(">", 1)[0]
+        id_match = SCRIPT_ID_RE.search(start_tag)
+        script_id = id_match.group(1) if id_match else "application/json metadata"
+
+        try:
+            json.loads(body)
+        except json.JSONDecodeError as exc:
+            die(
+                f"{script_id} contains invalid JSON at line {exc.lineno}, "
+                f"column {exc.colno}: {exc.msg}"
+            )
+
+        try:
+            ET.fromstring("<script>" + body + "</script>")
+        except ET.ParseError as exc:
+            die(
+                f"{script_id} metadata is not XML-safe: {exc}. "
+                "Escape raw XML characters inside metadata JSON; for example, "
+                "use \\u0026 when an ampersand must survive JSON parsing."
+            )
+
+
 def validate_control_attributes(html: str) -> None:
     for match in META_RE.finditer(html):
         tag = match.group(0)
@@ -216,6 +250,7 @@ def build(slug: str, check_only: bool) -> None:
         die(f"no widgets/{slug}/ package directory")
 
     html = entry.read_text(encoding="utf-8")
+    validate_metadata_json_scripts(html)
     validate_control_attributes(html)
 
     def inline_link(match):
