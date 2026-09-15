@@ -8,52 +8,43 @@ Price: Free
 
 ## Product boundary
 
-Lite intentionally does one useful job: **switch Windows Default Output**.
+Lite intentionally exposes exactly two direct Windows audio actions:
 
-It does not include Audio Profiles, input switching, Communications routing, cycle/status, mic control, restore state, or Stream Deck+ profile volume. Those are Pro features.
+- **Set Output Device**
+- **Set Input Device**
 
-## Automated QA
+Both switch the Windows **Default** role (Console + Multimedia). Lite does not expose Communications routing, Audio Profiles, profile workflow, microphone mute, restore state, or Stream Deck+ profile volume.
 
-GitHub Actions run **34930586864** on `421dd86407fdf4eab09a6802d21eaebd8dc1e36c`: **PASS**
+That is the conversion boundary: Lite switches one speaker or microphone at a time; Pro switches the whole audio setup.
 
-- 11/11 tests
-- PackRat canonical PI audit: PASS, 0 warnings
-- Stream Deck key/profile audit: PASS, 0 warnings
-- Lite→Pro catalog relationship audit: PASS
-- shared AudioCore Windows build: PASS
-- native helper self-test: PASS
-- real Windows snapshot protocol: PASS
-- Elgato validate: PASS
-- Elgato package: PASS
-- packaged helper / no-PDB hygiene: PASS
+## Current QA state
 
-## Global design contract
+The previous output-only green evidence is stale because the product boundary changed to include direct microphone switching.
 
-The Lite PI uses the current PackRat design system:
+Exact-head CI must prove:
 
-- #080A0E background
-- #151920 → #0D1015 cards
-- #FFB21E interaction accent
-- PackRat top-left maker link
-- persistent top-right **Upgrade to Pro ↗**
-- bottom Audio Manager Pro feature card
-- width-safe current-device display with no horizontal scrolling
-- configured target (`Switch to`) separated from live state (`Windows is using`)
-
-Until Pro has a verified public product URL, upgrade CTAs use the canonical PackRat maker fallback.
+- both manifest actions register
+- output and input helper commands verify against Windows
+- both key glyphs render correctly
+- bundled profiles contain both speaker and mic keys
+- stale PI refresh cannot overwrite either device selection
+- canonical PackRat PI + Lite→Pro audits pass
+- native helper smoke, Elgato validation/package, and payload hygiene pass
 
 ## Physical gate
 
 Run `rat dev audio-manager-lite`, then verify:
 
 1. bundled Audio Manager Lite profile imports/opens
-2. several Set Output Device keys are already laid out
-3. choose speakers/headphones for two different keys
-4. wait several seconds and confirm the selections do not snap back
-5. press each key and confirm Windows Default Output changes correctly
-6. key face shows the configured target and remains readable
-7. PI shows the actual current Windows output separately
-8. no horizontal scrollbar appears with long device names
-9. top **Upgrade to Pro ↗** and bottom **Open Audio Manager Pro ↗** are visible and open the PackRat Marketplace fallback
+2. the starter row visibly includes **speaker keys and microphone keys**
+3. bind one output key to speakers/headphones
+4. bind one input key to the microphone you actually use
+5. wait several seconds and confirm neither selection snaps back
+6. press the output key and confirm Windows Default Output changes
+7. press the input key and confirm Windows Default Input changes
+8. confirm each hardware key uses the correct speaker/mic glyph and target name
+9. confirm PI `Windows is using` follows the selected action's live output/input
+10. no horizontal scrollbar appears with long device names
+11. top **Upgrade to Pro ↗** and bottom **Open Audio Manager Pro ↗** remain visible and correct
 
-Do not mark READY_TO_SHIP until this physical pass is complete.
+Do not mark READY_TO_SHIP until the refreshed automated pass and this physical pass are complete.
