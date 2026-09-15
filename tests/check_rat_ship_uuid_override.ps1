@@ -22,7 +22,7 @@ $expected = @{
 }
 foreach ($slug in $expected.Keys) {
     $actual = Get-RatStreamDeckMarketplaceUuidOverride -RepoRoot $repo -PluginSlug $slug
-    if ($actual -ne $expected[$slug]) { throw "UUID override mismatch for $slug: $actual" }
+    if ($actual -ne $expected[$slug]) { throw "UUID override mismatch for ${slug}: $actual" }
 }
 if ($config.products.PSObject.Properties["window-manager-pro"]) {
     throw "Window Manager Pro must not receive a fresh UUID because it updates an existing published Marketplace product."
