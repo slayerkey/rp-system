@@ -864,6 +864,14 @@
       "version": "1.0.0.0"
     },
     {
+      "id": "audio-manager-lite",
+      "name": "Audio Manager Lite",
+      "type": "plugin",
+      "status": "testing",
+      "price_usd": 0,
+      "version": "1.0.0.0"
+    },
+    {
       "id": "audio-manager-pro",
       "name": "Audio Manager Pro",
       "type": "plugin",
