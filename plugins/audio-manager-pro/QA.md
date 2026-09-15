@@ -20,9 +20,9 @@ The current candidate is a focused Property Inspector/profile repair on top of a
 
 ## Current exact-head automated run
 
-GitHub Actions run **34929230647**: **PASS**
+GitHub Actions run **34930405696**: **PASS**
 
-On commit `d72b2aa8531af3a3b72013c790e8d7cc360257f6`, the final PI/profile/key usability scope passed:
+On commit `6b5ad22164111b9c728b33d3e2be2492124c1608`, the final PI/profile/key usability scope passed:
 
 - **62/62 tests**
 - shared AudioCore + XENEON bridge builds
