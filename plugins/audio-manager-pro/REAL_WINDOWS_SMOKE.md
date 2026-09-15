@@ -7,15 +7,18 @@ Run this on the exact release candidate after `rat dev audio-manager-pro`.
 
 ## Property Inspector usability polish
 
+- [ ] no horizontal scrollbar appears at normal PI width, including when `Windows is using` contains a long VoiceMeeter name
+- [ ] direct output/input hardware keys omit the gray DEFAULT/COMM footer and keep the orange device/status text inside the border
 - [ ] profile actions clearly distinguish **Audio Profile for this key** from **Profile to edit**
 - [ ] the PI shows **Currently active** using the exact profile that matches live Windows audio, or `Custom / no exact profile match`
 - [ ] Capture / Refresh / Save / Delete feedback appears inside the Audio Profiles manager instead of the global connection hero
-- [ ] rename a profile and press **Enter**; confirm it saves exactly like Save profile
-- [ ] Mute Default Mic Property Inspector hides the full Audio Profile editor and shows only the current Windows Default microphone plus LIVE / MUTED / unavailable state
-- [ ] if VoiceMeeter is Windows Default Input, the Mute Default Mic PI names the VoiceMeeter endpoint instead of implying a physical microphone
+- [ ] Rename profile sits beside Save/Delete; press **Enter** and confirm the rename saves
+- [ ] there is no user-facing Accent control
+- [ ] Mute Default Mic Property Inspector hides the full Audio Profile editor and shows only the current Windows Default microphone plus LIVE / MUTED / unavailable / SPLIT state
+- [ ] if VoiceMeeter is present and Windows mute verifies, the key/PI report Windows endpoint state without claiming the VoiceMeeter route is silent
 - [ ] direct input/output actions show both **Switch to** and **Windows is using** so configured target and live state are not confused
 - [ ] unconfigured profile keys show a centered two-line SELECT / PROFILE label with safe margins
-- [ ] DEFAULT/COMM input/output labels and device text stay comfortably inside the hardware key border
+
 
 ## Property Inspector + Audio Profile workflow
 
