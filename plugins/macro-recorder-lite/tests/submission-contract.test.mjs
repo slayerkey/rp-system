@@ -45,8 +45,8 @@ test("Lite submission matches its standalone free release contract",async()=>{
   assert.equal(submission.pro_marketplace_url,null);
   assert.match(submission.pro_url_policy,/Optional post-launch upgrade link/);
 
-  assert.deepEqual(product.limits,{recording_seconds:30,events:60,input:"keyboard only"});
-  assert.match(submission.description,/30 seconds and 60 keyboard events/);
+  assert.deepEqual(product.limits,{recording_seconds:10,events:50,input:"keyboard only"});
+  assert.match(submission.description,/10 seconds and 50 keyboard events/);
   assert.match(submission.description,/Macro Recorder Pro adds mouse recording/);
   assert.ok(Array.isArray(submission.limitations)&&submission.limitations.length>=2);
 
