@@ -31,6 +31,8 @@ const ACTIONS = {
   volume: "com.packrat.audio-manager-pro.profile-output-volume",
 };
 
+streamDeck.logger.setLevel("info");
+
 const helper = new AudioHelper({ log: logger });
 const visible = new Map();
 let globalSettings = emptyGlobalSettings();
@@ -42,6 +44,10 @@ let audioMutationQueue = Promise.resolve();
 
 function logger(message) {
   try { streamDeck.logger.error(String(message)); } catch {}
+}
+
+function logInfo(message) {
+  try { streamDeck.logger.info(String(message)); } catch {}
 }
 
 function enqueueAudioMutation(task) {
@@ -243,10 +249,18 @@ function inspectorPayload(record) {
   };
 }
 
-async function sendInspector(record) {
+async function sendInspectorPayload(record, payload) {
   try {
-    await record.action.sendToPropertyInspector(inspectorPayload(record));
+    await record.action.sendToPropertyInspector(payload);
+    return;
   } catch {}
+  try {
+    await streamDeck.ui.sendToPropertyInspector(payload);
+  } catch {}
+}
+
+async function sendInspector(record) {
+  await sendInspectorPayload(record, inspectorPayload(record));
 }
 
 function snapshotUnavailable(snapshot) {
@@ -634,6 +648,85 @@ async function deleteProfile(profileId) {
   });
 }
 
+
+const recentInspectorRequestIds = [];
+const recentInspectorRequestSet = new Set();
+
+function acceptInspectorRequest(requestId) {
+  const id = String(requestId || "");
+  if (!id) return true;
+  if (recentInspectorRequestSet.has(id)) return false;
+  recentInspectorRequestSet.add(id);
+  recentInspectorRequestIds.push(id);
+  while (recentInspectorRequestIds.length > 100) {
+    recentInspectorRequestSet.delete(recentInspectorRequestIds.shift());
+  }
+  return true;
+}
+
+function recordForInspectorEvent(ev, payload) {
+  const explicit = String(payload?.actionContext || "");
+  if (explicit && visible.has(explicit)) return visible.get(explicit);
+
+  const eventId = String(ev?.action?.id || "");
+  if (eventId && visible.has(eventId)) return visible.get(eventId);
+
+  const currentId = String(streamDeck.ui?.action?.id || "");
+  if (currentId && visible.has(currentId)) return visible.get(currentId);
+
+  return null;
+}
+
+async function handleInspectorEvent(ev) {
+  const payload = ev?.payload || {};
+  if (!acceptInspectorRequest(payload.requestId)) return;
+
+  const record = recordForInspectorEvent(ev, payload);
+  if (!record) {
+    logger(`Property Inspector request could not resolve an action instance. type=${String(payload.type || "unknown")} actionContext=${String(payload.actionContext || "")}`);
+    return;
+  }
+
+  record.inspectorOpen = true;
+  logInfo(`Property Inspector request: ${String(payload.type || "unknown")} / ${String(payload.command || "")}`);
+
+  if (payload.type === "audioManager.inspect") {
+    await refreshSnapshot({ quiet: true });
+    await sendInspector(record);
+    return;
+  }
+  if (payload.type !== "audioManager.command") return;
+
+  let createdProfileId = "";
+  try {
+    const command = String(payload.command || "");
+    if (command === "refresh") await refreshSnapshot({ quiet: false });
+    else if (command === "create-profile") {
+      const profile = await createProfile(payload.name);
+      createdProfileId = profile.id;
+      record.settings = { ...record.settings, profileId: profile.id };
+      if (["apply", "status", "volume"].includes(record.kind))
+        await record.action.setSettings(record.settings);
+    } else if (command === "save-profile") {
+      await upsertProfile(payload.profile);
+    } else if (command === "delete-profile") {
+      await deleteProfile(payload.profileId);
+    }
+    record.lastResult = null;
+  } catch (error) {
+    logger(`Property Inspector command failed: ${String(error?.message || error)}`);
+    record.lastResult = { status: "FAILED", failures: [{ error: String(error?.message || error) }] };
+  }
+
+  await sendInspector(record);
+  if (createdProfileId) {
+    await sendInspectorPayload(record, {
+      type: "audioManager.profile-created",
+      profileId: createdProfileId,
+    });
+  }
+}
+
 class AudioManagerAction extends SingletonAction {
   constructor(manifestId, kind) {
     super();
@@ -701,42 +794,7 @@ class AudioManagerAction extends SingletonAction {
   }
 
   async onSendToPlugin(ev) {
-    const record = visible.get(String(ev.action?.id || ""));
-    if (!record) return;
-    const payload = ev.payload || {};
-    if (payload.type === "audioManager.inspect") {
-      await refreshSnapshot({ quiet: true });
-      await sendInspector(record);
-      return;
-    }
-    if (payload.type !== "audioManager.command") return;
-
-    let createdProfileId = "";
-    try {
-      const command = String(payload.command || "");
-      if (command === "refresh") await refreshSnapshot({ quiet: false });
-      else if (command === "create-profile") {
-        const profile = await createProfile(payload.name);
-        createdProfileId = profile.id;
-        record.settings = { ...record.settings, profileId: profile.id };
-        if (["apply", "status", "volume"].includes(record.kind))
-          await record.action.setSettings(record.settings);
-      } else if (command === "save-profile") {
-        await upsertProfile(payload.profile);
-      } else if (command === "delete-profile") {
-        await deleteProfile(payload.profileId);
-      }
-      record.lastResult = null;
-    } catch (error) {
-      record.lastResult = { status: "FAILED", failures: [{ error: String(error?.message || error) }] };
-    }
-    await sendInspector(record);
-    if (createdProfileId) {
-      await record.action.sendToPropertyInspector({
-        type: "audioManager.profile-created",
-        profileId: createdProfileId,
-      }).catch(() => {});
-    }
+    return handleInspectorEvent(ev);
   }
 
   async onKeyDown(ev) {
@@ -779,6 +837,22 @@ for (const [kind, manifestId] of Object.entries(ACTIONS)) {
   streamDeck.actions.registerAction(new AudioManagerAction(manifestId, kind));
 }
 
+streamDeck.ui.onDidAppear(() => {
+  const id = String(streamDeck.ui?.action?.id || "");
+  const record = id ? visible.get(id) : null;
+  if (!record) return;
+  record.inspectorOpen = true;
+  void refreshSnapshot({ quiet: true }).then(() => sendInspector(record));
+});
+
+streamDeck.ui.onDidDisappear(() => {
+  for (const record of visible.values()) record.inspectorOpen = false;
+});
+
+streamDeck.ui.onSendToPlugin((ev) => {
+  void handleInspectorEvent(ev);
+});
+
 process.on("uncaughtException", (error) => logger(error?.stack || error));
 process.on("unhandledRejection", (error) => logger(error?.stack || error));
 process.on("exit", () => helper.shutdown());
@@ -793,6 +867,7 @@ process.on("SIGINT", () => {
 
 async function main() {
   await streamDeck.connect();
+  logInfo(`Audio Manager Pro ${BUILD_VERSION} connected to Stream Deck.`);
   globalSettings = normalizeGlobalSettings(await streamDeck.settings.getGlobalSettings());
   streamDeck.settings.onDidReceiveGlobalSettings((ev) => {
     globalSettings = normalizeGlobalSettings(ev.settings || ev.payload?.settings || ev);
