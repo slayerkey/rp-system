@@ -53,6 +53,16 @@ For a registered Stream Deck plugin, Rat Ship:
 12. Sets applicable metadata, pricing, media, release notes and publish policy.
 13. Submits the product.
 
+### Release notes
+
+Rat Ship treats Marketplace release notes as a compact value surface, not a raw changelog dump.
+
+The normal target is **2–4 short bullets**. Each bullet should communicate either:
+- what is new or improved in this version, or
+- a major product benefit worth reinforcing at release time.
+
+Rat Ship strips boilerplate such as `Initial release`, turns older long-form release-note paragraphs into scannable bullets when possible, and rebalances lists longer than four bullets before filling Maker Console. Product-authored 2–4 bullet notes remain the preferred source because they give the best control over which benefits are emphasized.
+
 `rat kit <slug>` is allowed before Marketplace pricing is chosen because it does not create a Maker Console product. `rat stage <slug>` and `rat ship <slug>` fail closed when required pricing is unset.
 
 ### XENEON widget release path
@@ -89,7 +99,7 @@ The cover is separate from the gallery. Stream Deck plugin products can provide 
 
 ### Crash and recovery behavior
 
-Recoverable Maker Console or Chromium failures are retried with saved resume state up to three times. Rat Ship does not blindly retry a draft whose irreversible state is wrong.
+Maker Console gets one automated attempt per product. If that attempt fails, Rat Ship preserves diagnostics, records that slug as failed, and continues the remaining batch instead of reopening or replaying the same draft automatically. This avoids duplicate package uploads and stale-draft loops.
 
 On a local Maker Console failure Rat Ship creates:
 
