@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v8.mjs';
+import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v9.mjs';
 
 const core = readFileSync(resolve('tools/ship/maker_console_core.mjs'), 'utf8').replace(/\r\n?/g, '\n');
 
@@ -35,7 +35,10 @@ function check(label, source) {
     "icon-identity",
     "ambiguous-parent",
     "if (section.match)",
-    "thumbnail upload was routed into the app icon field"
+    "thumbnail upload was routed into the app icon field",
+    "ordered-single-image-icon",
+    "Search/app icon: visible App Icon section",
+    "!used.has(info.index)"
   ];
 
   for (const needle of required) {
