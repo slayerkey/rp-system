@@ -85,6 +85,17 @@ foreach ($piFile in @("ui\inspector.html", "ui\inspector.js", "ui\inspector.css"
     Add-Check ("property inspector {0}" -f (Split-Path $piFile -Leaf)) $(if (Test-Path $path -PathType Leaf) { "PASS" } else { "FAIL" }) $path
 }
 
+$piSourcePath = Join-Path $Root "ui\inspector.js"
+$pluginSourcePath = Join-Path $Root "src\plugin.js"
+if ((Test-Path $piSourcePath -PathType Leaf) -and (Test-Path $pluginSourcePath -PathType Leaf)) {
+    $piSource = Get-Content $piSourcePath -Raw
+    $pluginSource = Get-Content $pluginSourcePath -Raw
+    $piContextOk = $piSource -match 'context:uiUuid' -and $piSource -match 'actionContext' -and $piSource -match 'requestId'
+    $pluginBridgeOk = $pluginSource -match 'streamDeck\.ui\.onSendToPlugin' -and $pluginSource -match 'recordForInspectorEvent' -and $pluginSource -match 'acceptInspectorRequest'
+    Add-Check "Property Inspector context contract" $(if ($piContextOk) { "PASS" } else { "FAIL" }) $(if ($piContextOk) { "PI UUID envelope + separate actionContext + request correlation present" } else { "Expected PI UUID/actionContext/request correlation contract is missing" })
+    Add-Check "Property Inspector plugin bridge" $(if ($pluginBridgeOk) { "PASS" } else { "FAIL" }) $(if ($pluginBridgeOk) { "Global UI receive path + action resolution + duplicate-request guard present" } else { "Expected global UI Property Inspector bridge is missing" })
+}
+
 $environment = [ordered]@{
     windows = $null
     stream_deck = $null
@@ -177,7 +188,7 @@ if (-not $StaticOnly) {
             Add-Check "recent plugin errors" $(if ($errorLines.Count) { "WARN" } else { "PASS" }) $(if ($errorLines.Count) { "{0} matching lines in latest 400" -f $errorLines.Count } else { "No matching failure lines in latest 400" })
         }
         else {
-            Add-Check "Audio Manager plugin log" "WARN" "No plugin log found yet. Start/restart Audio Manager Pro in Stream Deck first."
+            Add-Check "Audio Manager plugin log" "WARN" "No plugin log found yet. Open an Audio Manager Property Inspector and press Refresh once. If no log appears, inspect the PI page at http://localhost:23654/ before debugging the native audio helper."
         }
 
         $streamDeckLogDir = if ($env:APPDATA) { Join-Path $env:APPDATA "Elgato\StreamDeck\logs" } else { $null }
@@ -198,6 +209,7 @@ $failed = @($script:results | Where-Object status -eq "FAIL")
 $warned = @($script:results | Where-Object status -eq "WARN")
 $overall = if ($failed.Count) { "FAIL" } elseif ($warned.Count) { "WARN" } else { "PASS" }
 $manualEvidence = if ($StaticOnly) { @() } else { @(
+    "Open the Property Inspector; Refresh, Capture current setup, Save profile, select it for the action, reopen the action, and verify the selection persists.",
     "Apply one real Audio Profile and verify all configured Windows roles changed as intended.",
     "Disconnect one configured USB or Bluetooth endpoint and confirm PARTIAL / rebind behavior.",
     "Run the Stream Deck + rotate / press / touch smoke if a Stream Deck + is available.",
