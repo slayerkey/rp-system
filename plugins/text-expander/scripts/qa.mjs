@@ -251,6 +251,8 @@ if(!inspectorJs.includes('type:"getSnippet"')||!inspectorJs.includes('"Loading s
 if(!inspectorJs.includes('type:"openManager"'))fail("Property Inspector must wire the reusable/full-library manager.");
 if(!inspectorJs.includes("function renderManageShell")||!inspectorJs.includes('$("manageSettings").classList.remove("hidden")'))fail("Full Library Property Inspector must use its dedicated launcher-only shell.");
 if(!inspectorJs.includes('if(isManage())return;'))fail("Full Library Property Inspector must not request Insert Snippet settings/library rows on socket startup.");
+if(!inspectorJs.includes('if(!isManage())renderList(message.payload)'))fail("Full Library Property Inspector must ignore global snippet-list pushes.");
+if(!inspectorJs.includes('if(isManage())return;')||!inspectorJs.includes('message.payload?.type==="snippetDetail"'))fail("Full Library Property Inspector must ignore snippet-detail pushes too.");
 if(inspectorJs.includes('if(isManage()){\n      $("insertSettings").classList.add("hidden");\n      showEditor(true);'))fail("Full Library Property Inspector must never auto-open the inline snippet editor.");
 if(!inspectorJs.includes('$("manageOpenDashboard").addEventListener("click",openFullLibraryDashboard)'))fail("Full Library dashboard button must invoke the shared manager launcher.");
 if(!inspectorJs.includes('data-token')&&!inspectorJs.includes('format-token'))fail("Property Inspector must wire date/time format preset controls.");
