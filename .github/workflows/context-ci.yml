@@ -29,6 +29,9 @@ jobs:
 
       - name: Validate canonical context
         run: python tests/check_context.py
+
+      - name: Validate Stream Deck global audits
+        run: node tests/check_streamdeck_global_audits.mjs
       - name: Install deterministic art test dependency
         run: python -m pip install --disable-pip-version-check Pillow==12.3.0
 
@@ -81,9 +84,6 @@ jobs:
 
       - name: Validate Stream Deck profile builder
         run: node tests/check_streamdeck_profile_builder.mjs
-
-      - name: Validate Stream Deck global audits
-        run: node tests/check_streamdeck_global_audits.mjs
 
       - name: Validate Rat Dev source resolution
         shell: pwsh
