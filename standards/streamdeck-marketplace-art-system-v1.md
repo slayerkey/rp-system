@@ -35,12 +35,29 @@ A product may override scene choices in `products/<slug>.json`:
     "hero_scene": "tools/art/scenes/warm-studio-v1/base.png",
     "gallery_scene": "tools/art/scenes/warm-studio-clean-v1/base-v2.png",
     "hero_title_style": "monitor",
-    "campaign_style": "warm-studio-glass-v1"
+    "campaign_style": "warm-studio-glass-v1",
+    "gallery_mode": "native"
   }
 }
 ```
 
 The shared resolver is authoritative. Do not hardcode alternate scene paths in Rat Ship.
+
+### Final gallery normalization contract
+
+Rat Ship owns a final gallery campaign pass through `tools/art/apply_streamdeck_gallery_campaign.py`.
+
+Every Stream Deck product therefore has one of two gallery modes:
+
+- `native` — the product already renders directly with the shared campaign primitives. Rat Ship verifies and preserves those four galleries.
+- `wrap` — the product is legacy, custom, or comes from a pinned external release artifact. Rat Ship preserves the product-specific content but deterministically reframes all four galleries inside the newest approved clean studio / orange→blue campaign before submission.
+
+`wrap` is the safe default when `marketplace_art.gallery_mode` is absent. This is intentional: old products cannot silently bypass the latest global gallery system.
+
+New or intentionally refreshed products should use the shared primitives natively and set `gallery_mode: "native"` after visual approval.
+
+Both source-backed and validated external-artifact products receive this final pass. The plugin package itself is never modified by gallery normalization.
+
 
 ## 2. Five-frame sales funnel
 
@@ -156,11 +173,12 @@ rat preview-art <slug>
 The preview must:
 1. validate campaign config
 2. build current product source
-3. render product-local Rat Art
-4. apply the exact final Rat Ship hero overwrite
-5. create the five final Marketplace images
-6. create `review-contact-sheet.png`
-7. stop without opening or modifying Maker Console
+3. render product-local Rat Art, or recover the pinned validated media for an external-artifact product
+4. apply the exact final Rat Ship gallery campaign pass
+5. apply the exact final Rat Ship hero overwrite
+6. create the five final Marketplace images
+7. create `review-contact-sheet.png`
+8. stop without opening or modifying Maker Console
 
 A product-local `02_cover.png` before the Rat Ship overwrite is not approval evidence.
 
