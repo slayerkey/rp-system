@@ -215,8 +215,6 @@ For new or refreshed Stream Deck products, prefer product metadata in `products/
 
 ```json
 "marketplace_art": {
-  "hero_scene": "tools/art/scenes/warm-studio-v1/base.png",
-  "gallery_scene": "tools/art/scenes/warm-studio-clean-v1/base-v2.png",
   "hero_title_style": "monitor",
   "campaign_style": "warm-studio-glass-v1",
   "gallery_mode": "native"
