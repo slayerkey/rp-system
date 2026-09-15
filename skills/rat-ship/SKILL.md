@@ -11,6 +11,8 @@ Create the release candidate from canonical source and generated artifacts. Incl
 
 Final evidence must match the exact source commit and package being submitted. If product behavior, feature scope, or release boundary changed after an earlier green QA run, invalidate that earlier final evidence and regenerate the package/art/QA record before Rat Ship can proceed.
 
+A customer-visible limit change counts as a release-boundary change even when it is only one constant (for example 30s/60 events → 10s/50 events). The old artifact, package hash, Marketplace art and canonical pin are stale until regenerated on the new exact commit.
+
 
 ## Canonical registration and diverged product branches
 
@@ -33,6 +35,8 @@ When the product is developed on a separate branch, prefer canonical metadata on
 - exact media paths when the artifact owns immutable media
 
 Registration and readiness are separate concepts. Adding the canonical record fixes "not registered" but must not silently change `TESTING` to `READY_TO_SHIP`. Promote readiness only when the remaining gate is intentionally accepted/closed.
+
+When re-pinning an existing product after a new green run, read the **latest canonical main record first** and patch only the fields owned by the new evidence (source commit, run/artifact, package hash, synchronized release copy/state). Preserve concurrent approved control-plane changes rather than replacing the whole record from a stale product branch.
 
 ## Marketplace rejection versioning
 
@@ -115,10 +119,11 @@ For a Lite/free plugin with a direct Pro counterpart, add `--require-lite-pro-up
 
 The Lite→Pro ship gate must verify both conversion surfaces are packaged:
 
-- top PackRat chrome row with direct `Upgrade to Pro ↗`
-- bottom explanatory Pro feature card with direct `Open <Product> Pro ↗`
+- top PackRat chrome row with `Upgrade to Pro ↗`
+- bottom explanatory Pro feature card with `Open <Product> Pro ↗`
+- the bottom Pro feature card appears after normal Lite/setup/privacy content
 
-Both CTAs must resolve to the exact public Pro Marketplace `/product/` listing. A maker page, search route, guessed URL, placeholder URL, or unpublished Pro listing is not acceptable. If the Pro listing is not live, leave the Lite upsell release blocked rather than inventing a route.
+Use the exact public Pro Marketplace `/product/` listing when verified. Before that direct URL exists, the canonical PackRat maker page is the allowed explicit fallback. Marketplace search routes, guessed product URLs, and unrelated destinations are not acceptable. Replace the maker fallback with the direct Pro URL in a later Lite update once the public listing is verified.
 
 Product-specific shipping work consumes the canonical design standard; it must not rewrite `standards/streamdeck-plugin-design-system-v1.md` to match a local implementation.
 
