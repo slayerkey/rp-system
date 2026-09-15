@@ -75,6 +75,11 @@ if(!existsSync(manifestPath)){
 }
 const manifest=JSON.parse(readFileSync(manifestPath,"utf8"));
 
+const nodeDebug=manifest?.Nodejs?.Debug;
+if(typeof nodeDebug==="string"&&/^(?:disabled|false|off|none)$/i.test(nodeDebug.trim())){
+  errors.push("Nodejs.Debug contains a fake disabled/off sentinel. Nodejs.Debug is Node command-line argument configuration; omit it unless valid debug arguments are intentionally required.");
+}
+
 const sourceFiles=walk(root,(file)=>/\.(?:js|mjs|cjs|ts)$/i.test(file)&&!file.includes("node_modules"));
 const pluginSource=sourceFiles
   .filter(file=>/[\\/](?:src|bin)[\\/]/.test(file)||/[\\/]plugin\.(?:js|ts)$/i.test(file))
