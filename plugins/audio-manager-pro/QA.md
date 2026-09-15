@@ -92,6 +92,35 @@ Audio Manager CI now consumes the current canonical shared:
 
 This prevents the visual or PI transport contract from silently drifting again.
 
+## Live-refresh editor race repair
+
+Physical PI review found a second repeatable defect: the 1.5-second live Windows snapshot refresh called the editor renderer and overwrote unsaved local edits. Device choices, profile name, accent, volume and mute controls could visibly snap back before Save.
+
+The current candidate now:
+
+- keeps a dirty local Audio Profile draft until authoritative saved state matches it
+- prevents live snapshot renders from overwriting a dirty draft
+- protects action-level settings with a pending settings patch until Stream Deck acknowledges them
+- marks profile name, accent, device, restore-volume, restore-mute, volume and mute edits dirty immediately
+- prompts before switching profiles with unsaved changes
+- shows `Save profile · unsaved` while a draft is dirty
+- shows explicit Refresh / Capture / Save / Delete success acknowledgement
+
+Regression coverage must prove a user can change a device/name/accent, wait through multiple live refreshes, and still save the exact intended values.
+
+## Bundled Stream Deck profile contract
+
+Audio Manager now follows the PackRat major-device profile baseline instead of forcing the user to manually construct the Stream Deck layout:
+
+- DeviceType 0: standard / MK.2
+- DeviceType 2: XL
+- DeviceType 7: Plus
+- DeviceType 9: Neo
+
+The layouts provide Apply Profile slots, Cycle, Status, Mute Default Mic, and direct Default/Communications input/output controls. Plus includes encoder Profile Output Volume slots.
+
+These bundled Stream Deck layouts do **not** invent Windows audio-device IDs. Audio Profiles remain user/machine-specific and are selected/configured through the Property Inspector.
+
 ## Device resilience contract
 
 Automatic endpoint matching order:
@@ -148,7 +177,7 @@ Only after that short PI/profile smoke passes continue with the deeper physical 
 
 ## Catalog decisions
 
-- no bundled `.streamDeckProfile` profiles: useful Audio Profiles contain machine-specific endpoint identities
+- bundled Stream Deck layout profiles ship for standard/MK.2, XL, Plus, and Neo; they arrange the actions but do not fake machine-specific Windows endpoint IDs
 - no Audio Manager Lite edition
 - no unrelated in-product upsell
 - standalone paid product at $9.99
