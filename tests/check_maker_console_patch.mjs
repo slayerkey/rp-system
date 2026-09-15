@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v10.mjs';
+import { patchMakerConsoleSource } from '../tools/ship/maker_console_runtime_patch_v11.mjs';
 
 const core = readFileSync(resolve('tools/ship/maker_console_core.mjs'), 'utf8').replace(/\r\n?/g, '\n');
 
@@ -42,7 +42,10 @@ function check(label, source) {
     "Release notes: ' + items.length + ' value bullet",
     "while (items.length > 4)",
     "items.length === 1 && items[0].length > 180",
-    "Release notes are a second sales/value surface"
+    "Release notes are a second sales/value surface",
+    "exactId === 'media-app-icon'",
+    "waitFor({state:'attached',timeout:5000})",
+    "Search/app icon: late dedicated Maker Console field"
   ];
 
   for (const needle of required) {
