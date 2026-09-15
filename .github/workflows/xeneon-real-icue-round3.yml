@@ -1,0 +1,237 @@
+name: XENEON Real iCUE Round 3
+
+on:
+  push:
+    branches:
+      - 'recovery/network-polish-pcpower-pro-import-*'
+    paths:
+      - 'widgets/_src/net-dashboard/**'
+      - 'widgets/_src/pc-power-meter-pro/**'
+      - 'widgets/_shared/pc-power-meter/**'
+      - 'tools/xeneon/net-dashboard-ui-smoke.mjs'
+      - 'tools/xeneon/pc-power-pro-comparison-smoke.mjs'
+      - '.github/workflows/xeneon-real-icue-round3.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'widgets/_src/net-dashboard/**'
+      - 'widgets/_src/pc-power-meter-pro/**'
+      - 'widgets/_shared/pc-power-meter/**'
+      - 'tools/xeneon/net-dashboard-ui-smoke.mjs'
+      - 'tools/xeneon/pc-power-pro-comparison-smoke.mjs'
+      - '.github/workflows/xeneon-real-icue-round3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  round3:
+    name: Network polish and PC Power Pro importer recovery
+    runs-on: windows-latest
+    env:
+      SLUGS: 'net-dashboard pc-power-meter-pro'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Run authored source regressions
+        shell: pwsh
+        run: |
+          node widgets/_src/net-dashboard/verify.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Network authored regression failed' }
+          node widgets/_src/pc-power-meter-pro/unit-tests.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'PC Power Pro unit tests failed' }
+
+      - name: Generate validate package and extract exact archives
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/packages | Out-Null
+          New-Item -ItemType Directory -Force -Path artifacts/extracted | Out-Null
+          foreach ($slug in ($env:SLUGS -split ' ')) {
+            Get-ChildItem -Path widgets -Filter *.icuewidget -File -ErrorAction SilentlyContinue | Remove-Item -Force
+            python tools/xeneon/inline.py $slug
+            if ($LASTEXITCODE -ne 0) { throw "inline generation failed for $slug" }
+            python tools/xeneon/inline.py $slug --check
+            if ($LASTEXITCODE -ne 0) { throw "inline determinism failed for $slug" }
+            npx --yes icuewidget-cli@0.4.47 validate "widgets/$slug"
+            if ($LASTEXITCODE -ne 0) { throw "official validation failed for $slug" }
+            npx --yes icuewidget-cli@0.4.47 package "widgets/$slug"
+            if ($LASTEXITCODE -ne 0) { throw "official package failed for $slug" }
+            $pkg = Get-ChildItem -Path widgets -Filter *.icuewidget -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+            if (-not $pkg) { throw "official package missing for $slug" }
+            Copy-Item $pkg.FullName "artifacts/packages/$slug.icuewidget"
+            New-Item -ItemType Directory -Force -Path "artifacts/extracted/$slug" | Out-Null
+          }
+          @'
+          import pathlib, zipfile
+          root = pathlib.Path('artifacts')
+          for slug in ('net-dashboard', 'pc-power-meter-pro'):
+              package = root / 'packages' / f'{slug}.icuewidget'
+              out = root / 'extracted' / slug
+              if not zipfile.is_zipfile(package):
+                  raise SystemExit(f'{slug}: package is not ZIP compatible')
+              with zipfile.ZipFile(package) as archive:
+                  bad = archive.testzip()
+                  if bad:
+                      raise SystemExit(f'{slug}: corrupt package member {bad}')
+                  names = set(archive.namelist())
+                  for required in ('index.html', 'manifest.json'):
+                      if required not in names:
+                          raise SystemExit(f'{slug}: missing root {required}')
+                  archive.extractall(out)
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'exact package integrity failed' }
+
+      - name: Enforce real iCUE Round 3 package contracts
+        shell: pwsh
+        run: |
+          @'
+          import pathlib, re
+          root = pathlib.Path('artifacts/extracted')
+
+          power = (root / 'pc-power-meter-pro' / 'index.html').read_text(encoding='utf-8')
+          if re.search(r'data-type=["\']sensors-factory["\']', power, re.I):
+              raise SystemExit('pc-power-meter-pro: sensors-factory remains in exact package')
+          for name in ('comparisonSensor1','comparisonSensor2','comparisonSensor3'):
+              tag = re.search(rf'<meta[^>]+content=["\']{name}["\'][^>]+>', power, re.I)
+              if not tag or 'sensors-combobox' not in tag.group(0):
+                  raise SystemExit(f'pc-power-meter-pro: {name} is not a standard sensors-combobox')
+          if 'comparison-selectors.js' in power:
+              raise SystemExit('pc-power-meter-pro: comparison compatibility script was not inlined')
+          if '__pcPowerProComparisonTest' not in power:
+              raise SystemExit('pc-power-meter-pro: comparison adapter missing from exact package')
+          if 'content="comparisonSensors"' in power:
+              raise SystemExit('pc-power-meter-pro: legacy comparisonSensors meta still present')
+
+          net = (root / 'net-dashboard' / 'index.html').read_text(encoding='utf-8')
+          for name in ('customHeader','hostTextSize','transparency'):
+              if f'content="{name}"' not in net:
+                  raise SystemExit(f'net-dashboard: {name} setting missing from exact package')
+          if '__netDashboardUiTest' not in net:
+              raise SystemExit('net-dashboard: appearance runtime missing from exact package')
+          if '--net-background-factor' not in net or '--net-user-host-size' not in net:
+              raise SystemExit('net-dashboard: appearance CSS variables missing from exact package')
+          if 'opaque-https-timing' not in net or "mode: 'no-cors'" not in net:
+              raise SystemExit('net-dashboard: working file-origin probe transport regressed')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Round 3 exact-package contract failed' }
+
+      - name: Install Playwright
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+
+      - name: Prove Network Dashboard appearance controls
+        shell: pwsh
+        run: |
+          node tools/xeneon/net-dashboard-ui-smoke.mjs artifacts/extracted/net-dashboard/index.html artifacts/network-ui
+          if ($LASTEXITCODE -ne 0) { throw 'Network appearance regression failed' }
+
+      - name: Preserve Network file-origin latency transport
+        shell: pwsh
+        run: |
+          node tools/xeneon/net-dashboard-file-origin-smoke.mjs artifacts/extracted/net-dashboard/index.html artifacts/network-file-origin
+          if ($LASTEXITCODE -ne 0) { throw 'Network file-origin timing regression failed' }
+
+      - name: Prove PC Power Pro comparison adapter
+        shell: pwsh
+        run: |
+          node tools/xeneon/pc-power-pro-comparison-smoke.mjs artifacts/extracted/pc-power-meter-pro/index.html artifacts/power-comparisons
+          if ($LASTEXITCODE -ne 0) { throw 'PC Power Pro comparison selector regression failed' }
+
+      - name: Preserve PC Power Pro Custom Style and delayed Sensors lifecycle
+        shell: pwsh
+        run: |
+          node tools/xeneon/native-style-autosync-smoke.mjs artifacts/extracted/pc-power-meter-pro/index.html artifacts/power-style
+          if ($LASTEXITCODE -ne 0) { throw 'PC Power Pro no-callback Custom Style regression failed' }
+          node tools/xeneon/pc-power-sensor-init-smoke.mjs artifacts/extracted/pc-power-meter-pro/index.html artifacts/power-sensors
+          if ($LASTEXITCODE -ne 0) { throw 'PC Power Pro delayed Sensors lifecycle regression failed' }
+
+      - name: Clone Corsair Labs iCUE Widget Runner
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          if (Test-Path $runnerDir) { Remove-Item -Recurse -Force $runnerDir }
+          git clone --depth 1 https://github.com/Corsair-Labs/iCUE-widget-runner-windows.git $runnerDir
+          git -C $runnerDir rev-parse HEAD | Set-Content artifacts/corsair-runner-commit.txt
+          foreach ($slug in ($env:SLUGS -split ' ')) {
+            $target = Join-Path (Join-Path $runnerDir 'widgets') $slug
+            if (Test-Path $target) { Remove-Item -Recurse -Force $target }
+            Copy-Item -Recurse -Force "artifacts/extracted/$slug" $target
+          }
+
+      - name: Corsair Labs exact-package host smoke
+        shell: pwsh
+        run: |
+          $runnerDir = Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          $stdout = Join-Path $env:RUNNER_TEMP 'corsair-round3.out.log'
+          $stderr = Join-Path $env:RUNNER_TEMP 'corsair-round3.err.log'
+          $process = Start-Process node -ArgumentList 'web-server.js' -WorkingDirectory $runnerDir -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              try {
+                $response = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/api/widgets -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+              Start-Sleep -Seconds 1
+            }
+            if (-not $ready) { throw 'Corsair Labs runner did not become ready' }
+            foreach ($slug in ($env:SLUGS -split ' ')) {
+              node tools/xeneon/icue-runner-smoke.mjs http://127.0.0.1:8080/ $slug "artifacts/icue-runner/$slug"
+              if ($LASTEXITCODE -ne 0) { throw "Corsair runner failed for $slug" }
+            }
+          }
+          finally {
+            if ($process -and -not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
+            if (Test-Path $stdout) { Copy-Item $stdout artifacts/corsair-runner.stdout.log }
+            if (Test-Path $stderr) { Copy-Item $stderr artifacts/corsair-runner.stderr.log }
+          }
+
+      - name: Write tester note and hashes
+        shell: pwsh
+        run: |
+          @'
+          XENEON REAL iCUE ROUND 3
+
+          Network Dashboard
+          - Existing working HTTPS latency transport is unchanged.
+          - Added Custom Header.
+          - Added Monitored Hosts Text Size (12 to 24 px).
+          - Added Background Transparency without fading metric/content opacity.
+          - Please confirm readability on the small physical layout and that transparency reveals the page background as expected.
+
+          PC Power Meter Pro
+          - Installation is the only first gate.
+          - The Pro-only sensors-factory control has been removed entirely.
+          - Comparison sensors now use ordinary Sensors combobox controls, the same safer control family as the primary sensor.
+          - Actual watt telemetry still requires hardware that exposes an iCUE power sensor.
+
+          Please test these exact files rather than any older package.
+          '@ | Set-Content -Encoding UTF8 artifacts/packages/XENEON-ROUND-3-TESTER-NOTE.txt
+          Get-ChildItem artifacts/packages/*.icuewidget | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)"
+          } | Set-Content -Encoding ASCII artifacts/packages/SHA256SUMS.txt
+
+      - name: Upload tester packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: xeneon-real-icue-round3-tester-packages
+          path: artifacts/packages/
+          retention-days: 30
+
+      - name: Upload Round 3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xeneon-real-icue-round3-evidence
+          path: artifacts/
+          retention-days: 30

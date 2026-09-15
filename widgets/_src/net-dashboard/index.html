@@ -10,9 +10,14 @@
 <meta name="x-icue-property" content="probeInterval" data-label="tr('Primary Probe Interval')" data-type="slider" data-default="10" data-min="5" data-max="60" data-step="5" data-unit-label="'s'" />
 <meta name="x-icue-property" content="warnAt" data-label="tr('Latency Warning')" data-type="slider" data-default="100" data-min="25" data-max="500" data-step="5" data-unit-label="'ms'" />
 
+<meta name="x-icue-property" content="customHeader" data-label="'Custom Header'" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="headerTitleSize" data-label="'Custom Header Size'" data-type="slider" data-default="100" data-min="75" data-max="180" data-step="5" data-unit-label="'%'" />
+<meta name="x-icue-property" content="hostTextSize" data-label="'Monitored Hosts Text Size'" data-type="slider" data-default="15" data-min="12" data-max="24" data-step="1" data-unit-label="'px'" />
+<meta name="x-icue-property" content="fontChoice" data-label="tr('Font')" data-type="combobox" data-default="'system'" data-values="[{'key':'system','value':tr('System')},{'key':'bahnschriftSemi','value':tr('Bahnschrift SemiBold SemiCondensed')},{'key':'bahnschrift','value':tr('Bahnschrift')},{'key':'segoe','value':tr('Segoe UI')},{'key':'arial','value':tr('Arial')},{'key':'consolas','value':tr('Consolas')}]" />
 <meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F4F6F8'" />
 <meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'" />
 <meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#07090D'" />
+<meta name="x-icue-property" content="transparency" data-label="'Background Transparency'" data-type="slider" data-default="100" data-min="0" data-max="100" data-step="5" data-unit-label="'%'" />
 
 <script type="application/json" id="x-icue-groups">
 [
@@ -23,15 +28,23 @@
   },
   {
     "title": "tr('Appearance')",
-    "properties": ["textColor", "accentColor", "backgroundColor"]
+    "properties": ["customHeader", "headerTitleSize", "hostTextSize", "fontChoice", "textColor", "accentColor", "backgroundColor", "transparency"],
+    "info": "'Custom Header changes the product title at the top of the widget. Custom Header Size uses the same 75–180% range as Performance Grapher. Font uses the same system font choices as Performance Grapher. Leave Custom Header blank for NETWORK DASHBOARD. Background Transparency affects only the outer widget background; dashboard panels stay opaque and readable.'"
   }
 ]
 </script>
 
 <link rel="stylesheet" href="network.css" />
+<link rel="stylesheet" href="network-ui-patch.css" />
+<link rel="stylesheet" href="network-font-patch.css" />
 </head>
-<body data-slot="s-h" data-state="fresh">
+<body data-slot="s-h" data-state="fresh" data-font="system">
 <main id="stage" aria-label="Network Dashboard">
+  <header id="networkTopbar">
+    <span id="networkHeaderTitle">NETWORK DASHBOARD</span>
+    <span id="networkHeaderStatus">HTTPS TELEMETRY</span>
+  </header>
+
   <section id="metrics" aria-label="Network summary">
     <article class="metric-card metric-primary">
       <div class="metric-label" id="pingLabel">PING</div>
@@ -102,5 +115,7 @@
 </main>
 <script src="network.js"></script>
 <script src="network-transport-patch.js"></script>
+<script src="network-ui-patch.js"></script>
+<script src="network-font-patch.js"></script>
 </body>
 </html>

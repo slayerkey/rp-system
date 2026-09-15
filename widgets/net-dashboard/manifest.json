@@ -3,7 +3,7 @@
   "id": "com.packrat.netdashboard",
   "name": "Network Dashboard",
   "description": "A touch first network health dashboard for XENEON Edge. Track HTTPS response latency over time, see verified probe failures as gaps in the ribbon, compare up to five hosts, and run an on demand Cloudflare download and upload throughput test without a helper app. The widget clearly distinguishes HTTPS probe behavior from ICMP ping and keeps the last complete readings available when a fresh request fails.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "preview_icon": "resources/icon.svg",
   "min_framework_version": "1.0.0",
   "min_app_version": "5.47",

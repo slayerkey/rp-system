@@ -1,0 +1,11 @@
+/* Match Performance Grapher's user-selectable font family options. The System
+ * choice intentionally leaves Network Dashboard's existing default stack intact. */
+body[data-font="bahnschriftSemi"] {
+  font-family: "Bahnschrift SemiBold SemiCondensed", "Bahnschrift", "Segoe UI", sans-serif;
+  font-stretch: semi-condensed;
+  font-weight: 600;
+}
+body[data-font="bahnschrift"] { font-family: "Bahnschrift", "Segoe UI", sans-serif; }
+body[data-font="segoe"] { font-family: "Segoe UI", Arial, sans-serif; }
+body[data-font="arial"] { font-family: Arial, sans-serif; }
+body[data-font="consolas"] { font-family: Consolas, "Courier New", monospace; }

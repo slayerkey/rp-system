@@ -1,0 +1,101 @@
+name: XENEON Network Dashboard Font
+
+on:
+  push:
+    branches:
+      - 'recovery/xeneon-physical-round4-*'
+    paths:
+      - 'widgets/_src/net-dashboard/**'
+      - 'widgets/net-dashboard/**'
+      - 'tools/xeneon/net-dashboard-font-smoke.mjs'
+      - '.github/workflows/xeneon-net-dashboard-font.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate:
+    name: Exact package font selector regression
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Generate validate package and extract
+        shell: pwsh
+        run: |
+          node --check widgets/_src/net-dashboard/network-font-patch.js
+          if ($LASTEXITCODE -ne 0) { throw 'Font patch syntax failed' }
+          node --check tools/xeneon/net-dashboard-font-smoke.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Font smoke syntax failed' }
+          python tools/xeneon/inline.py net-dashboard
+          if ($LASTEXITCODE -ne 0) { throw 'Canonical inline generation failed' }
+          python tools/xeneon/inline.py net-dashboard --check
+          if ($LASTEXITCODE -ne 0) { throw 'Generated shipping index is stale' }
+          npx --yes icuewidget-cli@0.4.47 validate widgets/net-dashboard
+          if ($LASTEXITCODE -ne 0) { throw 'Official validation failed' }
+          npx --yes icuewidget-cli@0.4.47 package widgets/net-dashboard
+          if ($LASTEXITCODE -ne 0) { throw 'Official package failed' }
+
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          New-Item -ItemType Directory -Force -Path artifacts/extracted | Out-Null
+          $pkg = Get-ChildItem -Path widgets -Filter *.icuewidget -File |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $pkg) { throw 'No official .icuewidget package found' }
+          Copy-Item $pkg.FullName artifacts/package/net-dashboard.icuewidget
+
+          @'
+          import json, pathlib, zipfile
+          package = pathlib.Path('artifacts/package/net-dashboard.icuewidget')
+          if not zipfile.is_zipfile(package):
+              raise SystemExit('official package is not ZIP compatible')
+          with zipfile.ZipFile(package) as z:
+              bad = z.testzip()
+              if bad:
+                  raise SystemExit(f'corrupt package member: {bad}')
+              names = {n.replace('\\','/') for n in z.namelist()}
+              for required in ('index.html','manifest.json'):
+                  if required not in names:
+                      raise SystemExit(f'missing root {required}')
+              manifest = json.loads(z.read('manifest.json'))
+              if manifest.get('id') != 'com.packrat.netdashboard':
+                  raise SystemExit(f'published id changed: {manifest.get("id")}')
+              if manifest.get('version') != '1.0.1':
+                  raise SystemExit(f'candidate version changed: {manifest.get("version")}')
+              z.extractall('artifacts/extracted')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Exact package integrity failed' }
+
+      - name: Install Playwright
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+
+      - name: Prove Performance Grapher font selector behavior
+        shell: pwsh
+        run: |
+          node tools/xeneon/net-dashboard-font-smoke.mjs artifacts/extracted/index.html artifacts/font-evidence
+          if ($LASTEXITCODE -ne 0) { throw 'Network Dashboard font regression failed' }
+
+      - name: Upload exact Network Dashboard candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-dashboard-1.0.1-font-candidate
+          path: artifacts/package/net-dashboard.icuewidget
+          retention-days: 30
+
+      - name: Upload font evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-dashboard-1.0.1-font-evidence
+          path: artifacts/font-evidence/
+          retention-days: 30

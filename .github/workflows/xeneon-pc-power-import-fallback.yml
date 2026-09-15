@@ -1,0 +1,129 @@
+name: XENEON PC Power Pro Minimal Import Fallback
+
+on:
+  push:
+    branches:
+      - 'recovery/xeneon-physical-round4-*'
+    paths:
+      - 'tools/xeneon/pc-power-pro-minimal-import.mjs'
+      - '.github/workflows/xeneon-pc-power-import-fallback.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fallback:
+    name: Build minimal-settings PC Power Pro importer diagnostic
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Build exact full candidate first
+        shell: pwsh
+        run: |
+          python tools/xeneon/inline.py pc-power-meter-pro
+          if ($LASTEXITCODE -ne 0) { throw 'inline generation failed' }
+          python tools/xeneon/inline.py pc-power-meter-pro --check
+          if ($LASTEXITCODE -ne 0) { throw 'inline determinism failed' }
+          npx --yes icuewidget-cli@0.4.47 validate widgets/pc-power-meter-pro
+          if ($LASTEXITCODE -ne 0) { throw 'full official validation failed' }
+          npx --yes icuewidget-cli@0.4.47 package widgets/pc-power-meter-pro
+          if ($LASTEXITCODE -ne 0) { throw 'full official package failed' }
+          New-Item -ItemType Directory -Force -Path artifacts/full | Out-Null
+          New-Item -ItemType Directory -Force -Path artifacts/minimal | Out-Null
+          @'
+          import pathlib, zipfile
+          package = pathlib.Path('widgets/pc-power-meter-pro.icuewidget')
+          if not package.exists():
+              matches = sorted(pathlib.Path('widgets').glob('*.icuewidget'), key=lambda p: p.stat().st_mtime, reverse=True)
+              if not matches:
+                  raise SystemExit('full package missing')
+              package = matches[0]
+          with zipfile.ZipFile(package) as z:
+              bad = z.testzip()
+              if bad:
+                  raise SystemExit(f'full package corrupt member {bad}')
+              z.extractall('artifacts/full')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'full archive extraction failed' }
+
+      - name: Strip to Lite-like settings surface
+        shell: pwsh
+        run: |
+          Copy-Item -Recurse -Force artifacts/full/* artifacts/minimal/
+          node tools/xeneon/pc-power-pro-minimal-import.mjs artifacts/full/index.html artifacts/minimal/index.html
+          if ($LASTEXITCODE -ne 0) { throw 'minimal importer generation failed' }
+          npx --yes icuewidget-cli@0.4.47 validate artifacts/minimal
+          if ($LASTEXITCODE -ne 0) { throw 'minimal diagnostic official validation failed' }
+          Get-ChildItem -Path artifacts -Filter *.icuewidget -File -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force
+          npx --yes icuewidget-cli@0.4.47 package artifacts/minimal
+          if ($LASTEXITCODE -ne 0) { throw 'minimal diagnostic official package failed' }
+
+      - name: Collect and verify diagnostic package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/package | Out-Null
+          $pkg = Get-ChildItem -Path artifacts -Filter *.icuewidget -File -Recurse |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $pkg) { throw 'minimal diagnostic package missing' }
+          Copy-Item $pkg.FullName artifacts/package/pc-power-meter-pro-import-minimal.icuewidget
+          @'
+          import json, pathlib, re, zipfile
+          package = pathlib.Path('artifacts/package/pc-power-meter-pro-import-minimal.icuewidget')
+          if not zipfile.is_zipfile(package):
+              raise SystemExit('minimal package is not ZIP compatible')
+          with zipfile.ZipFile(package) as z:
+              bad = z.testzip()
+              if bad:
+                  raise SystemExit(f'minimal package corrupt member {bad}')
+              html = z.read('index.html').decode('utf-8')
+              manifest = json.loads(z.read('manifest.json'))
+          if manifest.get('id') != 'com.packrat.pcpowermeterpro':
+              raise SystemExit(f'published ID changed: {manifest.get("id")}')
+          controls = re.findall(r'<meta\s+name=["\']x-icue-property["\'][^>]*>', html, re.I)
+          names = []
+          for tag in controls:
+              m = re.search(r'content=["\']([^"\']+)["\']', tag, re.I)
+              if m: names.append(m.group(1))
+          expected = {'primarySensor','textColor','accentColor','backgroundColor','graphColor'}
+          if set(names) != expected:
+              raise SystemExit(f'unexpected minimal control surface: {names}')
+          if re.search(r'data-type=["\']slider["\']|\bdata-(?:min|max|step)=', html, re.I):
+              raise SystemExit('minimal package still contains numeric control metadata')
+          if 'ratpack-import-diagnostic' not in html:
+              raise SystemExit('minimal diagnostic marker missing')
+          print('OK minimal PC Power Pro import diagnostic')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'minimal package contract failed' }
+          Get-FileHash artifacts/package/pc-power-meter-pro-import-minimal.icuewidget -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  pc-power-meter-pro-import-minimal.icuewidget" } |
+            Set-Content -Encoding ASCII artifacts/package/SHA256SUMS.txt
+          @'
+          PC POWER METER PRO IMPORT DIAGNOSTIC FALLBACK
+
+          Do NOT try this first.
+          First try the normal pc-power-meter-pro.icuewidget from the Round 5 tester bundle.
+
+          Only if the normal candidate still fails to import, try this minimal-settings package.
+          It is the same PC Power Meter Pro runtime and published product ID, but the iCUE settings
+          surface is reduced to Primary Power Sensor plus four color controls.
+
+          If this imports while the normal candidate does not, the importer problem is isolated to
+          one of the additional Pro settings controls. If this also fails, the problem is deeper than
+          the additional settings metadata.
+          '@ | Set-Content -Encoding UTF8 artifacts/package/README.txt
+
+      - name: Upload minimal import fallback
+        uses: actions/upload-artifact@v4
+        with:
+          name: pc-power-meter-pro-minimal-import-fallback
+          path: artifacts/package/
+          retention-days: 30
