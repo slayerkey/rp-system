@@ -1,5 +1,8 @@
 (() => {
   let socket=null,uiUuid="",actionContext="",actionUuid="",kind="",settings={},state=null,stateConnected=false,stateRetryTimer=null,stateRetries=0,diagnostic=null,diagnosticTimer=null;
+  const PACKRAT_MAKER_URL="https://marketplace.elgato.com/maker/packrat";
+  const PRO_MARKETPLACE_URL="";
+  const upgradeUrl=()=>PRO_MARKETPLACE_URL||PACKRAT_MAKER_URL;
   const PAGE_SIZE=200;
   let timelinePage=0,timelineMacroId="";
   const $=id=>document.getElementById(id);
@@ -311,6 +314,8 @@
   });
   $("packratLink").addEventListener("click",event=>{
     event.preventDefault();
-    send({event:"openUrl",payload:{url:"https://marketplace.elgato.com/maker/packrat"}});
+    send({event:"openUrl",payload:{url:PACKRAT_MAKER_URL}});
   });
+  $("topProUpgrade").addEventListener("click",()=>send({event:"openUrl",payload:{url:upgradeUrl()}}));
+  $("proUpgrade").addEventListener("click",()=>send({event:"openUrl",payload:{url:upgradeUrl()}}));
 })();
