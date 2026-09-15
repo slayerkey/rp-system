@@ -129,13 +129,14 @@ function marketplacePng(size){
   ]);
 }
 
-function actionObject(actionUuid,keyDef,seed){
+function actionObject(actionUuids,keyDef,seed){
+  const manage=keyDef.action==="manage";
   return {
     ActionID:deterministicUuidV4(`packrat-text-expander-action-${seed}`,{upper:true}),
     LinkedTitle:true,
-    Name:"Insert Snippet",
-    UUID:actionUuid,
-    Settings:{snippetId:keyDef.snippetId,insertionMode:"auto",afterInsert:"none"},
+    Name:manage?"Full Library":"Insert Snippet",
+    UUID:manage?actionUuids.manage:actionUuids.insert,
+    Settings:manage?{}:{snippetId:keyDef.snippetId,insertionMode:"auto",afterInsert:"none"},
     State:0,
     States:[{
       Title:"",
@@ -150,7 +151,7 @@ function actionObject(actionUuid,keyDef,seed){
   };
 }
 
-function profileArchive(recipe,edition,actionUuid,deviceKey,columns){
+function profileArchive(recipe,edition,actionUuids,deviceKey,columns,rows){
   const rootId=deterministicUuidV4(`packrat-text-expander-${edition}-profile-${deviceKey}`,{upper:true});
   const pageIds=recipe.pages.map((p,i)=>deterministicUuidV4(`packrat-text-expander-${edition}-page-${deviceKey}-${i}-${p.name}`));
   const prefix=`${rootId}.sdProfile`;
@@ -161,9 +162,19 @@ function profileArchive(recipe,edition,actionUuid,deviceKey,columns){
   recipe.pages.forEach((page,index)=>{
     const actions={};
     const pageFolder=profileFolderId(pageIds[index]);
-    page.keys.forEach((key,i)=>{
+    const keys=[...page.keys];
+    if(edition==="lite"&&page.name==="STARTER"){
+      keys.push({label:"LIBRARY",action:"manage"});
+    }else if(edition==="pro"&&page.name==="QUICK"&&deviceKey!=="mini"){
+      keys.push({label:"LIBRARY",action:"manage"});
+    }else if(edition==="pro"&&page.name==="EMAIL"&&deviceKey==="mini"){
+      keys.push({label:"LIBRARY",action:"manage"});
+    }
+    if(keys.length>columns*rows)throw new Error(`Text Expander ${edition} ${deviceKey} page ${page.name} exceeds its ${columns}x${rows} grid.`);
+    keys.forEach((key,i)=>{
       const col=i%columns,row=Math.floor(i/columns);
-      actions[`${col},${row}`]=actionObject(actionUuid,key,`${edition}-${deviceKey}-${page.name}-${i}-${key.snippetId}`);
+      const identity=key.action==="manage"?"library":key.snippetId;
+      actions[`${col},${row}`]=actionObject(actionUuids,key,`${edition}-${deviceKey}-${page.name}-${i}-${identity}`);
     });
     entries.push({
       name:`${prefix}/Profiles/${pageFolder}/manifest.json`,
@@ -204,11 +215,11 @@ async function buildEdition(edition){
 
   const actionBase=cfg.uuid;
   const profileDevices=[
-    {key:"standard",type:0,columns:5},
-    {key:"mini",type:1,columns:3},
-    {key:"xl",type:2,columns:8},
-    {key:"plus",type:7,columns:4},
-    {key:"neo",type:9,columns:4}
+    {key:"standard",type:0,columns:5,rows:3},
+    {key:"mini",type:1,columns:3,rows:2},
+    {key:"xl",type:2,columns:8,rows:4},
+    {key:"plus",type:7,columns:4,rows:2},
+    {key:"neo",type:9,columns:4,rows:2}
   ];
 
   const manifest={
@@ -217,7 +228,7 @@ async function buildEdition(edition){
     Software:{MinimumVersion:"7.1"},OS:[{Platform:"windows",MinimumVersion:"10"}],Nodejs:{Version:"24"},UUID:cfg.uuid,
     Actions:[
       {Name:"Insert Snippet",UUID:`${actionBase}.insert`,Icon:"imgs/actions/insert/icon",Tooltip:"Insert a saved text snippet. Create and edit snippets directly in the Property Inspector.",PropertyInspectorPath:"ui/inspector.html",Controllers:["Keypad"],States:[{Image:"imgs/actions/insert/key",ShowTitle:false,TitleAlignment:"middle"}]},
-      {Name:"Snippet Library",UUID:`${actionBase}.manage`,Icon:"imgs/actions/manage/icon",Tooltip:"Legacy library shortcut. Edit snippets directly from Insert Snippet.",PropertyInspectorPath:"ui/inspector.html",Controllers:["Keypad"],VisibleInActionsList:false,States:[{Image:"imgs/actions/manage/key",ShowTitle:false,TitleAlignment:"middle"}]}
+      {Name:"Full Library",UUID:`${actionBase}.manage`,Icon:"imgs/actions/manage/icon",Tooltip:"Open the full local snippet library dashboard to edit snippets, reusable variables, and dynamic text formats.",PropertyInspectorPath:"ui/inspector.html",Controllers:["Keypad"],VisibleInActionsList:true,States:[{Image:"imgs/actions/manage/key",ShowTitle:false,TitleAlignment:"middle"}]}
     ],
     Profiles:profileDevices.map(device=>({
       Name:`profiles/${cfg.profile}-${device.key}`,
@@ -257,7 +268,7 @@ async function buildEdition(edition){
   for(const device of profileDevices){
     await write(
       path.join(out,"profiles",cfg.profile+"-"+device.key+".streamDeckProfile"),
-      profileArchive(profileRecipe,edition,actionBase+".insert",device.key,device.columns)
+      profileArchive(profileRecipe,edition,{insert:actionBase+".insert",manage:actionBase+".manage"},device.key,device.columns,device.rows)
     );
   }
 
