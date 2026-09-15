@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 export const MACRO_SCHEMA = 1;
-export const LITE_LIMITS = Object.freeze({ maxDurationMs: 30_000, maxEvents: 60 });
+export const LITE_LIMITS = Object.freeze({ maxDurationMs: 10_000, maxEvents: 50 });
 export const PRO_LIMITS = Object.freeze({ maxDurationMs: 600_000, maxEvents: 25_000 });
 
 const TYPES = new Set(["keyDown","keyUp","mouseMove","mouseDown","mouseUp","wheel"]);
