@@ -30,11 +30,11 @@
     "Stream Deck sleep/wake action and Property Inspector event smoke",
     "read-only Audio Manager host audit at meaningful diagnostic/final checkpoints"
   ],
-  "final_boundary": "Exact-head Windows CI run 34929230647 passed on d72b2aa8531af3a3b72013c790e8d7cc360257f6 with 62/62 tests plus canonical PI/key/profile/native/Elgato/package/art gates. Physical testing has already confirmed profile capture/save/apply and real Windows input/output switching. Remaining gate is the final visual/usability confirmation; VoiceMeeter strip silence is explicitly outside Windows endpoint mute semantics unless a future explicit VoiceMeeter Remote API strip target is added.",
+  "final_boundary": "Exact-head Windows CI run 34930405696 passed on 6b5ad22164111b9c728b33d3e2be2492124c1608 with 62/62 tests plus canonical PI/key/profile/native/Elgato/package/art gates. Physical testing confirmed profile capture/save/apply, Windows input/output switching, PI width safety, and simplified key faces. VoiceMeeter caveat is conditional PI help only; hardware keys remain MIC LIVE / MIC MUTED. Release state remains unchanged until explicitly promoted.",
   "automated_release_evidence": {
-    "latest_successful_windows_run": 34929230647,
+    "latest_successful_windows_run": 34930405696,
     "automated_gate": "PASS",
-    "exact_head_at_run": "d72b2aa8531af3a3b72013c790e8d7cc360257f6",
+    "exact_head_at_run": "6b5ad22164111b9c728b33d3e2be2492124c1608",
     "test_suite": "62/62 passing",
     "passed": [
       "shared PackRat AudioCore Windows build",
