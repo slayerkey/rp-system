@@ -20,14 +20,17 @@ The current candidate is a focused Property Inspector/profile repair on top of a
 
 ## Current exact-head automated run
 
-GitHub Actions run **34923537432**: **PASS**
+GitHub Actions run **34929230647**: **PASS**
 
-On commit `f94eaf3b327a0a323c170cbe430d41a7104893f1`, the changed PI/profile/key scope passed:
+On commit `d72b2aa8531af3a3b72013c790e8d7cc360257f6`, the final PI/profile/key usability scope passed:
 
-- **54/54 tests**
+- **62/62 tests**
 - shared AudioCore + XENEON bridge builds
 - profile generation for standard/MK.2, XL, Plus and Neo
 - canonical PackRat PI design audit
+- horizontal-overflow regression for long live device names
+- simplified direct-device key-face regression
+- VoiceMeeter Windows-endpoint mute-boundary regression
 - key visual audit with required major profiles
 - static host audit
 - native helper self-test + real Windows snapshot protocol smoke
