@@ -126,6 +126,8 @@ jobs:
           foreach ($name in @('01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png')) {
             Copy-Item (Join-Path $dest $name) (Join-Path $review $name) -Force
           }
+          python ./tools/art/build_marketplace_contact_sheet.py --input $dest --output (Join-Path $review 'review-contact-sheet.png')
+          if ($LASTEXITCODE -ne 0) { throw 'Monitor Manager Pro final contact sheet failed.' }
           Write-Host 'MONITOR MANAGER PRO RAT SHIP KIT PASS'
 
       - name: Upload release candidate
