@@ -202,6 +202,9 @@ function actionUI(){
     if(!defaultMic){
       pill.textContent="UNAVAILABLE";pill.classList.add("warn");
       $("currentMicHint").textContent="Windows does not currently expose a Default microphone.";
+    }else if(defaultMic.split){
+      pill.textContent="SPLIT";pill.classList.add("warn");
+      $("currentMicHint").textContent="Windows Console and Multimedia inputs are different. Align the Default inputs before using this mute key.";
     }else if(!defaultMic.muteAvailable){
       pill.textContent="MUTE N/A";pill.classList.add("warn");
       $("currentMicHint").textContent="This Windows Default Input does not expose mute control.";
