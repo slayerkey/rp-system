@@ -846,3 +846,147 @@ Rules:
 - for VoiceMeeter specifically, its Remote API exposes strip mute controls; mapping a Windows endpoint to a VoiceMeeter strip must be deterministic before automating it
 - never claim `MIC MUTED` from Windows state alone when the product knows a bypass-capable virtual mixer is in the signal path
 
+## Audio/profile lessons from Audio Manager
+
+### Property Inspector suddenly has a horizontal scrollbar
+
+Treat this as a layout containment bug, not a reason to shrink the whole PI.
+
+A strong signature is:
+
+- the PI looked correct with short fixture text
+- a real endpoint/profile name is much longer than the fixture
+- a row such as `Windows is using …` expands past the inspector width
+- Stream Deck shows a horizontal scrollbar even though the cards themselves look visually correct
+
+The common CSS cause is the default `min-width:auto` behavior of nested flex/grid children. A long unbroken dynamic value can force its parent wider than the WebView.
+
+Fix the containment contract:
+
+- `html, body { width:100%; max-width:100%; overflow-x:hidden; }`
+- root grids use `grid-template-columns:minmax(0,1fr)`
+- cards and nested flex/grid children use `min-width:0`
+- controls use `max-width:100%; min-width:0`
+- long live values use `overflow:hidden; text-overflow:ellipsis; white-space:nowrap`
+
+Do not solve this by globally reducing font size. Constrain the layout and ellipsize only the dynamic value.
+
+Add a regression using a deliberately long real-world device/profile name. Short fixture strings will not catch this class of bug.
+
+### Bundled Stream Deck profile vs machine-specific user profile
+
+Do not confuse these two kinds of "profile":
+
+- a **bundled Stream Deck profile/layout** is the deterministic button/page arrangement shipped with the plugin
+- a **user/device profile** is customer-specific data such as Windows endpoint IDs, saved devices, application paths, or other machine-local configuration
+
+The bundled layout should normally be generated and shipped for the supported major Stream Deck models when the product benefits from a default workflow.
+
+Do **not** invent machine-specific endpoint IDs just to preconfigure the bundled layout. Leave those action settings unbound and let the user select/capture their real local devices.
+
+A useful rule:
+
+- prebuild the workflow
+- never fake the host-specific identity
+
+If Rat Dev opens a blank/manual page and the product clearly depends on a known button arrangement, first verify manifest `Profiles`, generated archives, `dev_profile`, and `open_profile_on_dev` before telling the user to build the page manually.
+
+### Direct device actions: configured target is not live state
+
+For device-switch actions, keep these concepts separate in the PI:
+
+- **configured target**: what this key will switch to
+- **current live state**: what Windows/the app is using right now
+
+Use explicit labels such as `Switch to` and `Windows is using`.
+
+A selector that only shows the configured device does not prove the switch actually happened. A live-state row that only shows the current device does not tell the user what the key is configured to do.
+
+For Windows audio, the PackRat meaning of the normal **Default** role is Console + Multimedia together. Communications is a separate role and should only be exposed when the product explicitly supports it.
+
+### Rat Audit is a diagnostic checkpoint, not a normal edit loop
+
+Do not require `rat audit <slug>` after every successful `rat dev <slug>`.
+
+Use Rat Audit when:
+
+- Rat Dev or runtime behavior suggests a host/transport/native problem
+- a meaningful hardware-fix checkpoint needs evidence
+- final diagnostic/sign-off evidence is useful
+- a shared audit is the fastest way to distinguish host state from product state
+
+For ordinary visual/PI iteration, the normal loop is:
+
+1. edit/fix
+2. product tests
+3. canonical audits/validation
+4. `rat dev <slug>`
+5. inspect the changed behavior on hardware
+
+Running Rat Audit on every minor UI pass adds noise without increasing confidence.
+
+### Native helper package passes runtime smoke but ships debug/development payload
+
+A native helper can work correctly and still produce a bad Marketplace package.
+
+After self-contained .NET publish, inspect the final `.streamDeckPlugin`, not only the publish directory.
+
+Reject development payload such as:
+
+- `*.pdb`
+- source files
+- project files
+- source maps
+- test folders
+- development-only node_modules
+- secrets/certificates/environment files
+
+For native helpers, strip PDBs after publish and before Elgato packaging. Add a package-content gate that opens/lists the exact final archive and fails if debug symbols or forbidden development payload are present.
+
+A successful helper self-test is not package-hygiene evidence.
+
+### READY_TO_SHIP promotion breaks CI because the CI still expects pre-hardware state
+
+Release-state tests must validate the release-state machine, not hard-code one temporary development state forever.
+
+A common failure sequence is:
+
+1. the product correctly passes hardware QA
+2. metadata changes from `READY_FOR_HARDWARE_QA` to `READY_TO_SHIP`
+3. CI fails because a guard test still asserts that the product must equal `READY_FOR_HARDWARE_QA`
+
+That is stale QA logic, not a product regression.
+
+The release-state guard should cover both phases:
+
+- when state is pre-ship, prove Rat Ship is blocked
+- when state is `READY_TO_SHIP`, prove Rat Ship accepts it
+
+Do not weaken the real Rat Ship guard. Update the test so it exercises the current state truthfully.
+
+Also remember: any metadata commit made while promoting to `READY_TO_SHIP` changes the branch head. If exact-head QA is part of the release contract, rerun the final CI on that promoted head before calling the branch green.
+
+### Lite/Pro split: give Lite a complete small job, not a crippled Pro workflow
+
+When a Lite edition feels too empty, do not add random Pro workflow pieces just to make the free version look fuller.
+
+Choose the smallest complete customer job.
+
+For an audio-family example:
+
+- Lite can switch one output or one input device directly
+- Pro owns whole-setup profiles, Communications routing, capture/apply/cycle/status, restore state, mic mute, and richer hardware workflows
+
+This keeps Lite genuinely useful while preserving a clear upgrade reason.
+
+Whenever the Lite/Pro boundary changes, invalidate the old final QA evidence and rerun:
+
+- product tests
+- Lite→Pro catalog audit
+- design/key audits
+- native smoke where applicable
+- Elgato validate/package
+- exact-head release evidence
+
+Do not reuse an output-only green run after adding input switching, even if both actions share the same native engine.
+
