@@ -1,3 +1,4 @@
+const PACKRAT_MAKER_URL="https://marketplace.elgato.com/maker/packrat";
 let ws, uiUuid="", actionUuid="", actionContext="", actionInfo={}, settings={}, snapshot=null, responseTimer=null, requestSequence=0, lastRequestId="";
 const $=id=>document.getElementById(id);
 
@@ -173,12 +174,9 @@ function render(){
   $("device-fields").hidden=!isDevice;
   $("dashboard-fields").hidden=!isDashboard;
   $("cycle-fields").hidden=!isCycle;
-  $("lite-upsell").hidden=snapshot?.edition!=="lite";
-  const proLink=$("pro-link");
-  const proUrl=String(window.WIRELESS_PRO_MARKETPLACE_URL||"");
-  const directProUrl=/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9][a-z0-9-]*-[0-9a-f-]{36}\/?$/i.test(proUrl);
-  proLink.hidden=!(snapshot?.edition==="lite" && directProUrl);
-  if(!proLink.hidden)proLink.href=proUrl;
+  const liteEdition=snapshot?.edition==="lite";
+  $("lite-upsell").hidden=!liteEdition;
+  $("top-pro-link").hidden=!liteEdition;
 
   if(snapshot){
     const devices=snapshot.devices||[];
@@ -280,9 +278,21 @@ function render(){
 $("refresh")?.addEventListener("click",requestSnapshot);
 renderSafe();
 
+function resolvedProUrl(){
+  const candidate=String(window.WIRELESS_PRO_MARKETPLACE_URL||"").trim();
+  const direct=/^https:\/\/marketplace\.elgato\.com\/product\/[a-z0-9][a-z0-9-]*-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/?$/i.test(candidate);
+  return direct?candidate:PACKRAT_MAKER_URL;
+}
+function openMarketplace(url){
+  if(ws?.readyState!==WebSocket.OPEN)return false;
+  ws.send(JSON.stringify({event:"openUrl",payload:{url}}));
+  return true;
+}
+
 const packratBrand=$("packrat-brand");
 packratBrand?.addEventListener("click",e=>{
-  if(ws?.readyState!==WebSocket.OPEN)return;
   e.preventDefault();
-  ws.send(JSON.stringify({event:"openUrl",payload:{url:"https://marketplace.elgato.com/maker/packrat"}}));
+  openMarketplace(PACKRAT_MAKER_URL);
 });
+$("top-pro-link")?.addEventListener("click",()=>openMarketplace(resolvedProUrl()));
+$("pro-link")?.addEventListener("click",()=>openMarketplace(resolvedProUrl()));
