@@ -9,7 +9,7 @@ sys.path.insert(0,str(ROOT/"tools"/"art"))
 from marketplace_text import draw_fitted_text
 from streamdeck_photo import compose_device, alpha_crop_device
 RAT=ROOT/"tools"/"art"/"assets"/"ratpack-icon-transparent.png"
-SCENE=ROOT/"tools"/"art"/"scenes"/"warm-studio-v1"/"base.png"
+SCENE=ROOT/"tools"/"art"/"scenes"/"warm-studio-clean-v1"/"base-v2.png"
 PLUGIN_DIR=ROOT/"plugins"/"monitor-manager-pro"/"com.packrat.monitormanagerpro.sdPlugin"
 MANIFEST_PATH=PLUGIN_DIR/"manifest.json"
 W,H=1920,960
