@@ -378,7 +378,8 @@ function Build-FromValidatedExternalArtifact {
         }
         $remoteCommit = (($remoteLines | Select-Object -First 1) -split '\s+')[0].Trim()
         if ($remoteCommit -ne [string]$artifact.commit) {
-            throw "External source ref moved after validation. Expected $($artifact.commit), current ref resolves to $remoteCommit. Refuse to ship an unvalidated commit."
+            Write-Host "External source ref moved after validation: pinned artifact commit $($artifact.commit), current ref $remoteCommit." -ForegroundColor Yellow
+            Write-Host "Rat Ship will use the exact validated artifact because its run, commit and SHA256 are pinned. Branch drift does not mutate those bytes." -ForegroundColor DarkGray
         }
     }
 
