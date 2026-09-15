@@ -388,7 +388,7 @@ def profiles(path,faces):
     paste_face(im,r144,825,455,120)
     paste_face(im,r240,945,455,120)
 
-    glass_panel(im,(1110,300,1805,745),radius=36,fill=(7,11,18,214),border_alpha=205,glow_alpha=34,border_width=2)
+    glass_panel(im,(1110,300,1805,815),radius=36,fill=(7,11,18,214),border_alpha=205,glow_alpha=34,border_width=2)
     d.text((1160,345),"BRIGHTNESS + CONTRAST",font=font(22),fill=(*MUTED,255))
     d.text((1160,385),"Exact presets. No OSD menu.",font=font(34),fill=(*WHITE,255))
 
