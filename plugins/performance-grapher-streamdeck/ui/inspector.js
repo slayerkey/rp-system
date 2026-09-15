@@ -45,6 +45,8 @@
   ]);
 
   let kind = "graph";
+  let uiUuid = "";
+  let actionContext = "";
   let snapshot = null;
   let fpsSetup = { state: "idle", detail: null };
   let metricSetting = undefined;
@@ -333,15 +335,25 @@
     updateWarning();
   }
 
-  async function command(name) {
+  async function sendPlugin(payload) {
+    if (!uiUuid || !actionContext) return;
+    // SDPIComponents serializes streamDeckClient.send() with context: uiUuid;
+    // the selected key/action instance travels separately as actionContext.
     await streamDeckClient.send("sendToPlugin", {
+      ...payload,
+      actionContext,
+    });
+  }
+
+  async function command(name) {
+    await sendPlugin({
       type: "performanceGrapher.command",
       command: name,
     });
   }
 
   async function requestState() {
-    await streamDeckClient.send("sendToPlugin", {
+    await sendPlugin({
       type: "performanceGrapher.inspect",
     });
   }
@@ -373,6 +385,8 @@
   });
 
   void streamDeckClient.getConnectionInfo().then(async (connection) => {
+    uiUuid = String(connection?.propertyInspectorUUID || "");
+    actionContext = String(connection?.actionInfo?.context || "");
     const actionUuid = String(connection?.actionInfo?.action || "");
     kind = KINDS[actionUuid] || "graph";
     const savedMetric = await getMetricSetting();
