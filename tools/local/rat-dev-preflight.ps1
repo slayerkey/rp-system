@@ -206,20 +206,30 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     throw "Git is required for rat dev."
 }
 
-# Refresh refs so a first ever Rat Dev run can resolve external registrations
-# and product metadata before the local development checkout exists. Git writes
-# normal fetch progress to stderr, so capture only the actual process exit code
-# while ErrorActionPreference is relaxed.
+# Refresh the exact canonical refs Rat Dev resolves. Do not rely on
+# remote.origin.fetch here: older/main-only clones can report a successful
+# plain fetch while product refs stay stale, and malformed/stale configured
+# refspecs can make a plain fetch fail even though the explicit bootstrap fetch
+# of origin/main just succeeded.
+$fetchArgs = @(
+    "fetch", "--prune", "origin",
+    "+refs/heads/main:refs/remotes/origin/main",
+    "+refs/heads/product/*:refs/remotes/origin/product/*"
+)
 $previous = $ErrorActionPreference
 $ErrorActionPreference = "Continue"
 try {
-    & git -C $RepoRoot fetch --prune origin 1>$null 2>$null
+    $fetchOutput = & git -C $RepoRoot @fetchArgs 2>&1
     $fetchCode = $LASTEXITCODE
 }
 finally {
     $ErrorActionPreference = $previous
 }
 if ($fetchCode -ne 0) {
+    $fetchDetail = (($fetchOutput | ForEach-Object { [string]$_ }) -join " ").Trim()
+    if ($fetchDetail) {
+        throw "Could not fetch canonical RatPack refs before Rat Dev preflight. Git: $fetchDetail"
+    }
     throw "Could not fetch canonical RatPack refs before Rat Dev preflight."
 }
 
