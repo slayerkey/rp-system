@@ -84,6 +84,7 @@ export class AudioHelper {
 
   snapshot() { return this.request("snapshot"); }
   setDefaultOutput(endpointId) { return this.request("set-default-output", { endpointId }); }
+  setDefaultInput(endpointId) { return this.request("set-default-input", { endpointId }); }
 
   shutdown() {
     const child = this.child;
