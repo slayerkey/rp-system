@@ -168,9 +168,14 @@ if(requireLiteProUpsell){
   if(!/Upgrade to Pro\s*↗/.test(allUi))errors.push("Lite→Pro: top 'Upgrade to Pro ↗' CTA is missing.");
   if(!/(?:class=["'][^"']*\bupsell\b[^"']*["']|className\s*=\s*["']upsell["'])/.test(allUi))errors.push("Lite→Pro: bottom .upsell feature card is missing.");
   if(!/Open [^\n"'<>]{1,80} Pro\s*↗/.test(allUi))errors.push("Lite→Pro: bottom direct 'Open <Product> Pro ↗' CTA is missing.");
-  if(!/marketplace\.elgato\.com\/product\//i.test(allUi))errors.push("Lite→Pro: no direct Pro Marketplace /product/ URL was found.");
-  if(/marketplace\.elgato\.com\/(?:search|maker)\//i.test(allUi)&&!/marketplace\.elgato\.com\/product\//i.test(allUi)){
-    errors.push("Lite→Pro: generic maker/search URL found without a direct Pro product URL.");
+  const hasDirectPro=/marketplace\.elgato\.com\/product\//i.test(allUi);
+  const hasMakerFallback=/marketplace\.elgato\.com\/maker\/packrat/i.test(allUi);
+  if(!hasDirectPro&&!hasMakerFallback)errors.push("Lite→Pro: neither a verified direct Pro Marketplace URL nor the canonical PackRat maker fallback was found.");
+  if(/marketplace\.elgato\.com\/(?:search\/|\?search=)/i.test(allUi)){
+    errors.push("Lite→Pro: search URLs are not allowed as upgrade destinations.");
+  }
+  if(!hasDirectPro&&!/PACKRAT_MAKER_URL|makerFallback|upgradeUrl/i.test(allUi)){
+    warnings.push("Lite→Pro: maker URL exists, but the UI does not visibly expose an explicit maker-fallback upgrade resolver.");
   }
   if(!/justify-content\s*:\s*space-between/i.test(allUi))warnings.push("Lite→Pro: top bar does not visibly use the approved left/right space-between layout.");
   if(!/white-space\s*:\s*nowrap/i.test(allUi))warnings.push("Lite→Pro: top CTA should use white-space: nowrap.");
