@@ -85,6 +85,11 @@ jobs:
       - name: Render Pro Marketplace media
         run: python scripts/rat-art.py --flavor pro --output dist/marketplace-pro
 
+      - name: Apply canonical final gallery campaign
+        run: |
+          python ../../../tools/art/apply_streamdeck_gallery_campaign.py --product windows-settings-manager-lite --media-dir dist/marketplace-lite
+          python ../../../tools/art/apply_streamdeck_gallery_campaign.py --product windows-settings-manager-pro --media-dir dist/marketplace-pro
+
       - name: Apply canonical final Rat Ship hero to Lite
         run: >
           python ../../../tools/art/render_streamdeck_ship_hero.py
