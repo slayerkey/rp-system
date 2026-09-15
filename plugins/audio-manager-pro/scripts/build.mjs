@@ -94,8 +94,10 @@ for(const kind of kinds){
   const dir=resolve(imgs,"actions",kind); await mkdir(dir,{recursive:true});
   const small=(size)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 144 144">${glyph(kind)}</svg>`;
   const key=(size)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 144 144"><rect width="144" height="144" rx="25" fill="#090C12"/>${glyph(kind,"#FFB21E")}</svg>`;
-  await writeFile(resolve(dir,"icon.svg"),small(20)); await writeFile(resolve(dir,"icon@2x.svg"),small(40));
-  await writeFile(resolve(dir,"key.svg"),key(72)); await writeFile(resolve(dir,"key@2x.svg"),key(144));
-  if(kind==="volume"){ await writeFile(resolve(dir,"encoder.svg"),small(72)); await writeFile(resolve(dir,"encoder@2x.svg"),small(144)); }
+  // Keep one canonical file per extensionless manifest path. The PackRat key
+  // visual audit intentionally rejects icon.svg + icon@2x.svg ambiguity.
+  await writeFile(resolve(dir,"icon.svg"),small(40));
+  await writeFile(resolve(dir,"key.svg"),key(144));
+  if(kind==="volume") await writeFile(resolve(dir,"encoder.svg"),small(144));
 }
 console.log("Built Audio Manager Pro UI and Stream Deck assets");
