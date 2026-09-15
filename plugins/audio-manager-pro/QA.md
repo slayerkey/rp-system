@@ -10,9 +10,11 @@ Price: $9.99
 
 Workflow state: **READY_FOR_HARDWARE_QA**
 
+Legacy automated status is intentionally back to **testing** until the changed PI/profile/key scope has fresh exact-head CI plus physical confirmation.
+
 Do **not** mark `READY_TO_SHIP`, merge PR #174, or submit publicly until the remaining physical Windows + Stream Deck smoke passes.
 
-Current candidate: `bab5a0d2d1d26285c8e0f211529d44e015de3b94`
+Current candidate: **current `product/audio-manager-pro` head after the live-refresh, key-readability, and bundled-profile fixes**
 
 The current candidate is a focused Property Inspector/profile repair on top of a target-machine candidate whose audio/native/install path already passed.
 
