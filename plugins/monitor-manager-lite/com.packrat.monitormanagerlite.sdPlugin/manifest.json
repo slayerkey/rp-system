@@ -1,7 +1,7 @@
 {
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "Name": "Monitor Manager Lite",
-  "Version": "1.0.0.0",
+  "Version": "1.0.0.2",
   "Author": "Packrat",
   "Description": "Free one-monitor brightness control for Stream Deck with exact presets, up/down adjustment, and Stream Deck+ dial support.",
   "Category": "Monitor Manager Lite",
