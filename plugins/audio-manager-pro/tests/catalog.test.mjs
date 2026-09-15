@@ -71,12 +71,14 @@ test("Audio Manager Property Inspector keeps UI and action contexts distinct", (
   assert.match(pluginSource, /streamDeck\.ui\.onSendToPlugin/);
   assert.match(pluginSource, /recordForInspectorEvent/);
   assert.match(pluginSource, /acceptInspectorRequest/);
+  assert.match(pluginSource, /streamDeck\.ui\.sendToPropertyInspector/);
+  assert.doesNotMatch(pluginSource, /record\.action\.sendToPropertyInspector/);
 });
 
 
 test("Audio Manager Property Inspector follows the canonical PackRat visual system", () => {
   assert.match(inspectorHtml, /id="brandLink"/);
-  assert.match(inspectorHtml, /ratpack-icon-transparent\.png/);
+  assert.match(inspectorHtml, /packrat-logo\\.png/);
   assert.match(inspectorSource, /https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
   assert.match(inspectorCss, /--packrat-bg:#080A0E/i);
   assert.match(inspectorCss, /--packrat-accent:#FFB21E/i);
@@ -84,7 +86,7 @@ test("Audio Manager Property Inspector follows the canonical PackRat visual syst
   assert.match(inspectorCss, /button\.secondary/);
   assert.match(inspectorCss, /button\.danger/);
   assert.doesNotMatch(inspectorCss, /button\{background:#366b58/i);
-  assert.match(buildSource, /ratpack-icon-transparent\.png/);
+  assert.match(buildSource, /packrat-logo\\.png/);
 });
 
 test("Audio Manager listing follows current PackRat standalone paid conventions", () => {
