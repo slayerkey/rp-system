@@ -1,5 +1,39 @@
 # Performance Grapher for Stream Deck QA
 
+## Current authoritative release state — 2026-09-14
+
+Workflow state: **READY_FOR_HARDWARE_QA**
+
+The hosted-runner outage described later in this document is historical and superseded by a fully green Windows release pipeline.
+
+Latest fully green release run:
+
+- workflow: `Performance Grapher Stream Deck`
+- run: `34922330486`
+- job: `104232991925`
+- source head: `56b01584a9f615be6da8adfe4288d2bd100393c8`
+- Windows Node tests: **101 / 101 PASS**
+- JavaScript syntax: **30 / 30 PASS**
+- runtime npm license inventory: **5 packages**
+- resolved NuGet inventory: **28 packages**
+- PackRat plugin-design audit: **PASS — 0 errors / 0 warnings**
+- PackRat key-visual + major-profile audit: **PASS — 0 errors / 0 warnings**
+- native LHM provider probe: **PASS**
+- native helper CI sample: **0.456% normalized CPU / 49.3 MB working set**
+- official Elgato validation: **PASS**
+- official Elgato packaging: **PASS**
+- official package profiles: **exactly one each for MK.2, XL, Plus, and Neo**
+- deterministic Marketplace/Rat Art render: **PASS**
+- package size: **33,113,889 bytes (~31.6 MB)**
+- package SHA-256: `5b98f4b042a46e0c553e4231d5b9856593cf21423a58638541f656fa017fd87c`
+- release artifact: `performance-grapher-streamdeck-release-candidate`
+- artifact id: `10378697346`
+- artifact digest: `sha256:73346cb029f1582bb86335f576e72c874131649c4b4c1995cbe3bc5b29fbda31`
+
+The branch was subsequently rebased/reconciled onto current `main`, migrated to the shared PackRat profile builder, converted to the canonical global Property Inspector command transport, and given a 36 px reduced-preview regression. Those product changes are covered by the next exact-head CI run; none expand the physical release boundary below.
+
+**Remaining blocker:** physical Stream Deck + real-game Windows QA. Do not promote to `READY_TO_SHIP` until the real host smoke/A-B checks pass.
+
 ## Automated gates
 
 The release workflow must pass all of the following before the product can move to `READY_FOR_HARDWARE_QA`:
@@ -10,7 +44,7 @@ The release workflow must pass all of the following before the product can move 
 - PresentMon CSV parser fixtures
 - process change / game start / game stop session fixtures
 - corrupt history restore fixture
-- 72, 96, and 144 pixel renderer checks
+- 36, 72, 96, and 144 pixel renderer checks
 - self-contained .NET 8 sensor helper publish
 - sensor helper one-shot probe on a Windows runner with no assumption that a supported GPU exists
 - checksum verification of official PresentMon 2.5.1 x64 binary
@@ -54,7 +88,10 @@ Do not move this product to `READY_TO_SHIP` based only on GitHub Actions.
 - no meaningful repeatable 1% low or frametime regression in the real-game A/B run
 
 
-## Current build evidence — 2026-09-12
+## Historical build evidence — 2026-09-12
+
+> Historical record only. Any hosted-runner blocker or "still unverified" statement below is superseded by the current authoritative green Windows release evidence at the top of this file.
+
 
 ### Core automated smoke: PASS ON EARLIER HEAD — CURRENT HEAD RERUN REQUIRED
 
