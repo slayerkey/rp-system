@@ -4,18 +4,21 @@ import { readFile } from "node:fs/promises";
 
 const root=new URL("../",import.meta.url);
 
-test("Lite starter profile source includes REC STOP PLAY and safe examples",async()=>{
+test("Lite starter profiles stay focused on six useful keyboard actions",async()=>{
   const source=await readFile(new URL("scripts/build-profiles.mjs",root),"utf8");
-  for(const token of ["\"REC\"","\"STOP\"","\"PLAY\"","\"FIND\"","\"SAVE\"","\"NEXT x3\"","\"HOME\"","\"PAGE DOWN\""]){
+  for(const token of ['"RECORD"','"PLAY"','"STOP"','"FIND"','"SAVE"','"NEXT x3"']){
     assert.ok(source.includes(token),`missing ${token}`);
   }
-  assert.ok(source.includes('act("lite-play","replay","PLAY")'));
-  assert.ok(source.includes('const settings={macro:m,...extra}'));
-  assert.equal(source.includes('const settings={seedMacro:m,...extra}'),false);
-  for(const deviceType of ["deviceType:0","deviceType:1","deviceType:2","deviceType:7","deviceType:9"]) {
+  for(const removed of ['"HOME"','"PAGE DOWN"','"MENU OK"','"CLICK DEMO"','"SCROLL"']){
+    assert.equal(source.includes(removed),false,`unexpected old starter action ${removed}`);
+  }
+  assert.match(source,/Object\.keys\(built\.actions\)\.length!==6/);
+  assert.match(source,/Expected 30 unique bundled profile ActionIDs/);
+  assert.match(source,/actionId:item\.ActionID/);
+  assert.match(source,/ShowTitle:false/);
+  assert.match(source,/action:\$\{fileSeed\}:\$\{pageIndex\}:\$\{position\}/);
+  for(const deviceType of ["deviceType:0","deviceType:1","deviceType:2","deviceType:7","deviceType:9"]){
     assert.ok(source.includes(deviceType),`missing ${deviceType}`);
   }
-  assert.ok(source.includes("compactPages(basePages,3,2)"));
-  assert.ok(source.includes("compactPages(basePages,4)"));
   assert.equal(/anti[- ]?afk|cheat|farm/i.test(source),false);
 });
