@@ -105,9 +105,13 @@ Every generated action instance across all bundled device variants must also hav
 
 The automated audit is only a floor. Also review actual keys at 72 x 72 and a reduced 36 x 36 preview. Dynamic keys must be reviewed using representative rendered states, not only their manifest fallback image.
 
+For runtime-rendered data cards, explicitly include setup/permission/error/unavailable states in that review. State words such as `SETUP`, `NO DATA`, and `ERROR` must not inherit live numeric-value typography or metric units. When the renderer is scale-aware, deterministic tests should cover the state at 36, 72, and 144 px and verify it remains inside an explicit primary-text safe region.
+
 Use GitHub Actions for clean Node builds and vendor CLI work.
 
 Hardware telemetry must remain device-reported unless the product explicitly owns and labels an estimation model. A battery percentage that stays at the same number across **fresh** reads is not automatically stale. Where ambiguity matters, expose or log telemetry source, transport, and observation freshness. Do not smooth or invent a lower battery value simply because the hardware reports in coarse steps.
+
+Missing telemetry is also not numeric zero. Before numeric coercion, reject `null`, `undefined`, and empty strings so JavaScript cannot turn them into believable `0` readings. Canonical sensor aliases must drop stale/invalid sources, prefer a plausible alternate raw sensor when one exists, and render unavailable when none does. Product tests should cover both valid-fallback and all-unavailable paths.
 
 Physical Stream Deck testing is final confidence where actual hardware behavior matters, not the normal place to discover ordinary build or packaging failures. The hardware pass must explicitly cover readable 72 x 72 key faces, accent/state behavior, Property Inspector save/reopen persistence, selector switching without rollback, mutable text commands such as Rename/Create, visible `Saving… → Saved` acknowledgement, PI command buttons, live update cadence, and bundled profile appearance when profiles are promised.
 
@@ -203,6 +207,8 @@ Shared automation should catch, when applicable:
 - Lite→Pro top + bottom conversion surfaces with direct-Pro-first / PackRat-maker-fallback routing
 - profile coverage/generation mistakes, including unique ActionIDs across every bundled device variant
 - marketplace text overflow and reduced-size readability failures
+- runtime setup/error/unavailable text inheriting numeric typography or units
+- missing sensor values coercing to fake zeros such as `0°C`
 - stale QA/package evidence after behavior-scope changes
 
 Depending on product type, this can include:
@@ -244,6 +250,8 @@ Stream Deck hero titles use the same deterministic font resolver, warm-studio sc
 ## Shipping
 
 Rat Ship should prepare the complete marketplace candidate from canonical source and validated artifacts.
+
+If a long-lived product branch has accumulated large unrelated divergence from `main`, do not merge hundreds of historical commits merely to satisfy release registration. When the exact product commit already produced a green release artifact, prefer canonical `main` metadata that pins the source ref/commit, GitHub Actions run, package SHA-256, and Marketplace media mapping; Rat Ship can then verify/download that exact artifact. The pinned source ref must still resolve to the validated commit at ship time.
 
 Keep package, listing art, description, pricing evidence, compatibility, release notes, QA evidence, and gallery order together.
 
