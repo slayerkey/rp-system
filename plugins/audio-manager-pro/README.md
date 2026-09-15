@@ -31,6 +31,19 @@ A missing or recreated endpoint is never replaced by a friendly-name guess. Prof
 
 Applying a profile reports one of three outcomes: SUCCESS, PARTIAL, or FAILED. If two configured roles target the same physical endpoint but request contradictory saved volume or mute state, routing can still apply but the contradictory state restore is skipped and reported instead of arbitrarily choosing a winner.
 
+## Bundled Stream Deck profiles
+
+Audio Manager Pro ships deterministic Stream Deck layout profiles for:
+
+- standard / MK.2 (DeviceType 0)
+- XL (DeviceType 2)
+- Stream Deck + (DeviceType 7)
+- Neo (DeviceType 9)
+
+These are **hardware layouts**, not fake machine-specific Audio Profiles. They place the useful Apply / Cycle / Status / Mute / routing actions for you so the user does not have to build the Stream Deck page by hand. Apply/Status/Profile Volume slots still require the user to select one of their real Audio Profiles because Windows endpoint IDs differ by PC.
+
+`rat dev audio-manager-pro` opens the standard/MK.2 bundled profile for review automatically when appropriate. Plus also includes four encoder Profile Output Volume slots.
+
 ## Windows architecture
 
 The Stream Deck plugin is Node-based and launches a bundled, local-only C# helper over stdio.
