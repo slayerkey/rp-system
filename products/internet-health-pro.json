@@ -6,7 +6,7 @@
   "workflow_state": "READY_TO_SHIP",
   "blocker": null,
   "price_usd": 7.99,
-  "version": "1.0.0.0",
+  "version": "1.0.0.2",
   "platform": "Elgato Stream Deck / Windows + macOS",
   "source": "plugins/internet-health-pro",
   "submission_metadata": "plugins/internet-health-pro/submission.json",
