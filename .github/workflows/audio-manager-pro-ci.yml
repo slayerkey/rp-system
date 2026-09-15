@@ -89,7 +89,7 @@ jobs:
         run: node "$env:RUNNER_TEMP\packrat-qa\streamdeck-plugin-design-audit.mjs" plugins/audio-manager-pro --require-canonical-pi
       - name: Audit Stream Deck key-face visuals
         shell: pwsh
-        run: node "$env:RUNNER_TEMP\packrat-qa\streamdeck-key-visual-audit.mjs" plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin
+        run: node "$env:RUNNER_TEMP\packrat-qa\streamdeck-key-visual-audit.mjs" plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin --require-major-profiles
       - name: Run Audio Manager static host audit
         shell: pwsh
         working-directory: plugins/audio-manager-pro
