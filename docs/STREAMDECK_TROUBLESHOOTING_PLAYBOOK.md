@@ -356,6 +356,16 @@ Do not use muddy brown/gold as the base material for normal buttons/cards.
 
 ## 7. Static icon looks correct but the hardware key is wrong
 
+### Repeated yellow/orange rail variant
+
+If every hardware key shows the same decorative PackRat-orange line/rail at the top, side, or corner, treat that as a visual-system regression, not required branding.
+
+- PackRat orange on hardware keys must carry semantic meaning: `+`, active state, warning-safe highlight, or another intentional detail
+- do not reserve key-face space for a generic repeated accent bar/rail/stripe
+- remove the decorative rail and give the space back to the glyph/value/label
+- the shared `streamdeck-key-visual-audit.mjs` should reject long PackRat-orange top rails in static SVG key assets
+- runtime renderers need product regressions too; a clean static fallback does not prove runtime-generated keys removed the rail
+
 ### Likely causes
 
 - runtime renderer still uses old colors/layout
