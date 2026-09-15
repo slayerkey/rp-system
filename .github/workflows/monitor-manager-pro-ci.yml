@@ -105,6 +105,11 @@ jobs:
       - name: Exercise canonical Rat Ship plugin kit
         shell: pwsh
         run: |
+          # Earlier product build steps intentionally regenerate tracked bundle files.
+          # Rat Ship's public entry point requires a pristine canonical checkout before
+          # it creates its own isolated worktree, so restore tracked source first.
+          git reset --hard HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Could not restore canonical checkout before Rat Ship exercise.' }
           $dest = Join-Path $env:RUNNER_TEMP 'monitor-manager-pro-ship-kit'
           ./tools/local/rat-ship-plugin.ps1 -PluginSlug monitor-manager-pro -Destination $dest
           $required = @(
