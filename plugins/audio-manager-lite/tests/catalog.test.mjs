@@ -9,3 +9,5 @@ test("Lite to Pro family is registered",()=>{const pair=map.pairs.find(x=>x.lite
 test("Lite uses canonical PackRat design and both Pro conversion surfaces",()=>{assert.match(html,/PackRat ↗/);assert.match(html,/Upgrade to Pro ↗/);assert.match(html,/Open Audio Manager Pro ↗/);assert.match(css,/--bg:#080A0E/i);assert.match(css,/--accent:#FFB21E/i);assert.match(css,/overflow-x:hidden/);assert.match(css,/grid-template-columns:minmax\(0,1fr\)/);assert.match(js,/marketplace\.elgato\.com\/maker\/packrat/);});
 test("Lite copy makes the edition boundary explicit",()=>{assert.equal(product.price_usd,0);assert.match(submission.description,/output/i);assert.match(submission.description,/Audio Profiles/i);assert.match(submission.description,/Audio Manager Pro/i);});
 test("Lite PI keeps configured target separate from current Windows output",()=>{assert.match(html,/Switch to/);assert.match(html,/Windows is using/);assert.match(plugin,/currentOutput/);});
+
+test("Lite output selection survives stale live refresh",()=>{assert.match(js,/pendingDevice/);assert.match(js,/applyIncoming/);assert.match(js,/deviceSig/);});
