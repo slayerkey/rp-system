@@ -44,10 +44,10 @@
   "ship_plugin_dir": "dist/com.packrat.textexpanderlite.sdPlugin",
   "automated_tests": 37,
   "automated_release_evidence": {
-    "candidate_commit": "55ea00acdfb46204f5ad14f76065712fe93b0b68",
-    "github_actions_run": 34922471623,
-    "artifact_id": 10378078507,
-    "artifact_digest": "sha256:36f5e15ff5ea0fbbd9d44a1f26a2d247413c517f546f5cc1e6113f0d1871b7e9",
+    "candidate_commit": "77af3f0aa3267fb8efb5c8aa1705c87d79004ed0",
+    "github_actions_run": 34923090363,
+    "artifact_id": 10378628617,
+    "artifact_digest": "sha256:13d9718d3d2097366fcbbaad1ac6fd33593623e77f6cee16f38e4bc02d9d9241",
     "automated_tests": 37,
     "dependency_audit": "PASS - 0 vulnerabilities",
     "native_windows_bridge": "PASS - hosted Windows compiles and executes the corrected full Win32 INPUT union; Pro real-hardware QUICK smoke confirmed the shared insertion engine",
@@ -55,10 +55,10 @@
     "key_visual_audit": "PASS - Lite and Pro, 0 structural errors and 0 warnings",
     "official_cli_validation": "PASS - Lite and Pro",
     "official_packaging": "PASS - Lite and Pro",
-    "lite_package_sha256": "832768028e9cdc972d5c51265b35b5d848dc023588b9f66784c16d0edbb939f5",
-    "pro_package_sha256": "6bde61674851d84b6961b880dfe04f4c2e8684fc780c3aa781e5a834591eace0",
-    "lite_unpacked_content_sha256": "53bf7a20f126dcfa04ce9bc067f62a45afde92146de2bb08fa4dd06aee961f58",
-    "pro_unpacked_content_sha256": "b05deac813ad4867117b509ee67007b1846cda5f07b0f735d3452e31d927c20f",
+    "lite_package_sha256": "db68a333cc00a2751fbb4f65c890dd4c87117da87285c7387b1af4ced7d62e11",
+    "pro_package_sha256": "96c625c5f5e853088e82618586223aa269f057b3cca5b6e1a31532b9e2e8bebf",
+    "lite_unpacked_content_sha256": "8f57691814154c0014acd314d715edfd31047f3db4cbb3a65f5185432f9b07c6",
+    "pro_unpacked_content_sha256": "ce1ba4f0ed30d7cb581266c3b2b7f11734e5dfa4c9b72729ac3a9677b1dee503",
     "profile_coverage": [
       "Standard/MK.2",
       "Mini",
@@ -80,8 +80,9 @@
     ],
     "host_smoke_identity": "Local combined smoke uses the official Elgato packer, unpacks the temporary package, and compares stable relative-path/file-byte SHA256 content to the validated unpacked-content hash before linking.",
     "package_container_note": "Outer .streamDeckPlugin SHA256 can change across equivalent pack operations because ZIP metadata can vary. Use unpacked-content SHA256 for exact-content host QA.",
-    "physical_quick_smoke": "PENDING for Lite specifically - Pro hardware smoke proved the shared insertion engine, but Lite EMAIL + / CLIP + / LIBRARY still need a direct Lite hardware pass."
+    "physical_quick_smoke": "PENDING for Lite specifically - Pro hardware smoke proved the shared insertion engine, but Lite EMAIL + / CLIP + / LIBRARY still need a direct Lite hardware pass.",
+    "lite_pro_upgrade_fallback": "PASS - Lite top-right Upgrade to Pro and bottom Pro feature card are always visible. With no verified direct Pro URL, both route to https://marketplace.elgato.com/maker/packrat; once a verified direct Pro URL is injected, both route directly to Pro."
   },
-  "blocker": "Lite-specific physical Stream Deck smoke is still required: EMAIL +, CLIP +, LIBRARY, 10-snippet cap, Lite variables, persistence, and Lite/Pro coexistence.",
+  "blocker": "Lite-specific physical Stream Deck smoke remains required for EMAIL + / CLIP + / LIBRARY, 10-snippet cap, persistence, and coexistence. Upgrade surfaces are already active through the PackRat maker fallback.",
   "upsell_status": "Top-right Upgrade to Pro and bottom Pro feature card are enabled for Lite. Before Pro publication both open the PackRat maker Marketplace page; after the verified direct Pro URL is recorded they open that direct listing."
 }
