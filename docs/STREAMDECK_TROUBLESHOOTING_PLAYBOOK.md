@@ -68,6 +68,44 @@ Then inspect the actual per-action Property Inspector path declared in the manif
 - plugin commands and plugin-owned state use the global `streamDeck.ui` channel by default
 - responses use `streamDeck.ui.sendToPropertyInspector(...)`; do not mix a global request path with per-action response helpers
 
+### All PI buttons are dead and profile/configuration changes do not persist
+
+Treat this as one shared Property Inspector transport failure before debugging each button or the product's profile/library model separately.
+
+A particularly strong signature is:
+
+- the PI HTML/CSS renders normally
+- Refresh/Capture/Save/Delete all appear clickable but nothing changes
+- an action-level profile/device selector does not persist
+- the native/helper audit is healthy
+- the plugin can still be linked and validated successfully
+
+The first code review should compare the inspector against a **known-good current PackRat PI**, not against conversation memory.
+
+For PackRat's manual WebSocket inspectors, keep these identifiers distinct:
+
+- `uiUuid`: the UUID supplied directly to `connectElgatoStreamDeckSocket(...)`; use this for the PI WebSocket command envelope
+- `actionContext`: `actionInfo.context`; carry this separately in the payload when the plugin must resolve the exact visible key/dial
+
+Do not silently replace `uiUuid` with `actionInfo.context` just because both values look like opaque IDs. That mistake can leave the page rendered while the shared command path is effectively dead.
+
+If the plugin supports both per-action `onSendToPlugin` and global `streamDeck.ui.onSendToPlugin` for compatibility, add a correlated `requestId` and de-duplicate requests before executing mutations. Otherwise one click can create/save/delete twice when both SDK surfaces deliver the same command.
+
+A stateful PI should also write at least one normal startup/info log and log PI command receipt/failure. A healthy native helper with **no plugin log at all** is incomplete evidence; after opening the PI and pressing Refresh once, the audit should be able to distinguish "plugin never launched / PI never reached it" from "profile logic failed."
+
+For profile-backed actions, validate the complete chain as one smoke:
+
+1. PI opens and receives live plugin-owned state.
+2. Refresh returns visible acknowledgement.
+3. Capture/Create produces exactly one profile/item.
+4. Save persists edits.
+5. selecting that profile/item in the action-level selector persists across close/reopen.
+6. pressing the hardware key uses the persisted immutable profile/item ID.
+7. Delete removes only the intended profile/item.
+8. no command executes twice.
+
+If steps 2-5 all fail together, fix the PI bridge first. Do not rewrite profile storage, native routing, or hardware code until the shared transport is proven.
+
 ### The "half-working PI" signature
 
 Treat this combination as a transport bug until disproven:
