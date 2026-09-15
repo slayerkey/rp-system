@@ -89,6 +89,7 @@
     const hasContent=typeof snippet?.content==="string";
     $("editContent").value=hasContent?snippet.content:"";
     $("editContent").disabled=!!snippet&&!hasContent;
+    $("dateTimePresets").classList.toggle("hidden",edition!=="pro");
     $("deleteSnippet").disabled=!editingId;
     $("editorTarget").textContent=snippet
       ?(builtinIds.has(snippet.id)?"Editing built-in starter: ":"Editing local snippet: ")+snippet.name
@@ -226,6 +227,27 @@
     queueSave();
   });
   $("after").addEventListener("change",queueSave);
+  for(const button of document.querySelectorAll(".format-token")){
+    button.addEventListener("click",()=>{
+      const token=String(button.dataset.token||"");
+      const area=$("editContent");
+      if(!token||!area)return;
+      const current=area.value.trim();
+      const selectedId=editingId||$("snippet").value||"";
+      const dynamicBuiltin=["pro-quick-time","pro-quick-date","pro-timestamp"].includes(selectedId);
+      if(dynamicBuiltin&&/^\{(?:date|time|datetime)(?::[^}]+)?\}$/.test(current)){
+        area.value=token;
+        area.selectionStart=area.selectionEnd=token.length;
+      }else{
+        const start=Number.isInteger(area.selectionStart)?area.selectionStart:area.value.length;
+        const end=Number.isInteger(area.selectionEnd)?area.selectionEnd:start;
+        area.value=area.value.slice(0,start)+token+area.value.slice(end);
+        area.selectionStart=area.selectionEnd=start+token.length;
+      }
+      area.focus();
+      setStatus("Format inserted. Save changes to apply.");
+    });
+  }
   $("editToggle").addEventListener("click",()=>showEditor());
   $("newSnippet").addEventListener("click",()=>{
     fillEditor(null);
