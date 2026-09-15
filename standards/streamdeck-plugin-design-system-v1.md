@@ -415,7 +415,8 @@ Recent PackRat keys use:
 
 - dark rounded key background
 - simple geometric white line art
-- PackRat orange-yellow accent stroke/highlight
+- PackRat orange-yellow only for small semantic accents/highlights
+- no generic decorative orange top/side rails, bars, stripes, or corner strokes repeated across every hardware key
 - minimal text
 - strong readability at 72 x 72 hardware scale
 - no busy gradients or generated-looking lettermarks
