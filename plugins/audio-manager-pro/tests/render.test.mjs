@@ -105,8 +105,8 @@ test("direct device keys reserve readable text space below raised glyphs", () =>
     endpoint: { name: "Headset Earphone (USB Audio Device)" },
     role: "default",
   }));
-  assert.match(output, /font-size="13"/);
-  assert.match(output, /font-size="1[468]"/);
+  assert.match(output, /font-size="14"/);
+  assert.match(output, /font-size="1[579]"/);
   assert.match(output, /y="109"/);
   assert.match(output, /y="131"/);
   assert.doesNotMatch(output, /font-size="9"/);
