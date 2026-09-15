@@ -14,7 +14,7 @@
   "notes": "Free Lite edition. One selected device with sole-visible auto-selection. Battery/charging/control are capability-gated and battery percentages remain device-reported.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json",
-  "blocker": "Bluetooth hardware QA is waived for this release. Lite is code-complete, but final READY_TO_SHIP remains blocked only by the canonical Lite→Pro requirement: publish Pro first, record its exact public Marketplace product URL, rebuild Lite, and verify both upgrade CTAs resolve directly to Pro.",
+  "blocker": "Bluetooth hardware QA is waived for this release. Lite is code-complete. Its canonical top-right and bottom Pro upgrade surfaces are active now and default to the PackRat maker page. Final public Lite release still follows Pro-first publication: once the verified direct Pro Marketplace URL exists, record it, rebuild Lite so both CTAs route directly to Pro, and run the final Lite shipping gate.",
   "release_gate": [
     "locked dependency install and npm audit with 0 vulnerabilities",
     "64 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
@@ -65,8 +65,9 @@
       "pro_id": "wireless-device-manager-pro",
       "verified_against": "products/lite-pro-map.json",
       "current_public_pro_url": null,
-      "behavior": "Text upsell is visible now; clickable Marketplace link is generated only after a verified direct Pro URL exists in the canonical Lite/Pro map."
+      "fallback_marketplace_url": "https://marketplace.elgato.com/maker/packrat",
+      "behavior": "Top-right Upgrade to Pro and bottom Pro feature card are always visible in Lite. Both use the verified direct Pro /product/ URL when available; otherwise both open the PackRat maker page."
     }
   },
-  "final_boundary": "Bluetooth physical QA is waived. Publish Wireless Device Manager Pro first; once its exact public Marketplace URL is recorded in products/lite-pro-map.json, rebuild Lite and verify both direct upgrade CTAs, then set Lite READY_TO_SHIP."
+  "final_boundary": "Bluetooth physical QA is waived. Lite can use the PackRat maker fallback before Pro publication. Publish Wireless Device Manager Pro first; once its exact public Marketplace URL is recorded in products/lite-pro-map.json, rebuild/revalidate Lite so both upgrade CTAs route directly to Pro, then complete the final Lite shipping gate."
 }
