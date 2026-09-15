@@ -28,16 +28,16 @@ function compactDeviceName(value) {
 
 function deviceTextSize(value) {
   const length = Array.from(String(value || "")).length;
-  if (length <= 8) return 18;
-  if (length <= 11) return 16;
-  return 14;
+  if (length <= 8) return 19;
+  if (length <= 11) return 17;
+  return 15;
 }
 
 function profileTextSize(value) {
   const length = Array.from(String(value || "")).length;
-  if (length <= 10) return 19;
-  if (length <= 13) return 17;
-  return 15;
+  if (length <= 10) return 20;
+  if (length <= 13) return 18;
+  return 16;
 }
 
 function svgDataUri(body) {
