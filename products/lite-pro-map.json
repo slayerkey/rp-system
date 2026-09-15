@@ -188,7 +188,8 @@
         "plugins/text-expander"
       ],
       "source_status": "automated_qa_passed_hardware_smoke_pending",
-      "notes": "Automated Windows build/test, official Elgato validation/package, five-device profile QA, dependency audit, and deterministic art are PASS. Published PackRat Lite→Pro pairs use direct verified Pro Marketplace URLs, so Text Expander intentionally records no Pro URL/product ID until the real listing exists. Ship/stage Pro first, capture the direct Pro listing URL, then add that verified URL to Lite and rerun Lite QA before claiming the in-plugin upgrade button is live."
+      "notes": "Text Expander Lite always shows the canonical top-right and bottom Pro upgrade surfaces. Until the direct Pro Marketplace listing exists, both route to the PackRat maker page. After Pro publication, record the exact verified /product/ URL here and rebuild/revalidate Lite so both CTAs route directly to Pro.",
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
     }
   ],
   "standalone_free": [
