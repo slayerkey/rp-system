@@ -52,6 +52,22 @@ main {
   padding: 14px;
 }
 
+.packrat-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.packrat-upgrade {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 0;
+  padding: 7px 11px;
+  white-space: nowrap;
+  font-size: 10.5px;
+}
+
 .hero,
 .card,
 .privacy {
@@ -73,7 +89,7 @@ main {
   gap: 6px;
   width: auto;
   min-height: 0;
-  margin: 0 0 2px;
+  margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
@@ -271,6 +287,38 @@ button.small {
   color: var(--packrat-text);
   font-size: 11px;
 }
+
+.upsell {
+  background: linear-gradient(145deg, var(--packrat-card-start), var(--packrat-card-end));
+  border: 1px solid rgba(255,178,30,.38);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 0 22px rgba(255,178,30,.07);
+}
+
+.upsell-eyebrow {
+  color: var(--packrat-accent);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .09em;
+  margin-bottom: 5px;
+}
+
+.upsell-list {
+  list-style: none;
+  padding: 0;
+  margin: 9px 0;
+}
+
+.upsell-list li {
+  padding: 7px 0;
+  border-top: 1px solid #2B3038;
+  color: #CBD1DB;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.upsell-list strong { color: #FFFFFF; }
 
 .hidden { display: none !important; }
 
