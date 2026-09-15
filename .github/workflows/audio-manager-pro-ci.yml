@@ -3,6 +3,16 @@ on:
   push:
     branches:
       - product/audio-manager-pro
+      - main
+    paths:
+      - 'plugins/audio-manager-pro/**'
+      - 'companions/packrat-audio-core/**'
+      - 'companions/audio-control-center-bridge/**'
+      - 'products/audio-manager-pro.json'
+      - 'products/index.json'
+      - 'products/lite-pro-map.json'
+      - 'tools/streamdeck/profile-builder.mjs'
+      - '.github/workflows/audio-manager-pro-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read
