@@ -61,7 +61,7 @@ function save(settings){send({event:"setSettings",action:actionUuid,context:uiUu
 });`);
   write(join(plugin,"imgs","plugin","packrat-logo.png"),"png");
   write(join(plugin,"imgs","actions","snap","icon.svg"),`<svg viewBox="0 0 144 144"><path stroke="#fff" stroke-width="6"/></svg>`);
-  write(join(plugin,"imgs","actions","snap","key.svg"),`<svg viewBox="0 0 144 144"><path stroke="#FFB21E" stroke-width="6"/></svg>`);
+  write(join(plugin,"imgs","actions","snap","key.svg"),`<svg viewBox="0 0 144 144"><path d="M70 50v20M60 60h20" stroke="#FFB21E" stroke-width="6"/></svg>`);
   return {root,plugin};
 }
 
@@ -126,6 +126,16 @@ function command(command){send({event:"sendToPlugin",action:actionUuid,context:u
     const result=run(keyAudit,[plugin]);
     assert.notEqual(result.status,0,"key audit must fail on competing extensionless key assets");
     assert.match(result.stderr,/extensionless asset path is ambiguous/);
+  } finally { rmSync(root,{recursive:true,force:true}); }
+}
+
+{
+  const {root,plugin}=fixture();
+  try{
+    write(join(plugin,"imgs","actions","snap","key.svg"),`<svg viewBox="0 0 144 144"><path d="M22 12h100" stroke="#FFB21E" stroke-width="4" stroke-linecap="round"/><path d="M50 50h44" stroke="#fff" stroke-width="6"/></svg>`);
+    const result=run(keyAudit,[plugin]);
+    assert.notEqual(result.status,0,"key audit must fail on a generic decorative orange top rail");
+    assert.match(result.stderr,/decorative PackRat accent rail detected/);
   } finally { rmSync(root,{recursive:true,force:true}); }
 }
 
