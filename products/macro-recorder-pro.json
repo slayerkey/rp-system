@@ -2,11 +2,11 @@
   "id": "macro-recorder-pro",
   "name": "Macro Recorder Pro",
   "type": "plugin",
-  "status": "built",
-  "workflow_state": "TESTING",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
   "blocker_kind": "two_native_host_checks_and_physical_smoke",
-  "blocker": "Windows Actions closed 8/10 native blockers. Remaining: real >60-second recorded input timing, genuine non-injected Ctrl+Shift+F12 hook behavior, and the physical Windows/Stream Deck monitor-DPI smoke matrix.",
-  "final_boundary": "Do not move to READY_TO_SHIP until the two remaining native host checks and physical Windows/Stream Deck smoke pass.",
+  "blocker": null,
+  "final_boundary": "READY_TO_SHIP. Product-owner acceptance recorded Sep 14, 2026 after physical Stream Deck/Windows testing. Automated release QA, native safety harness, build/tests, Elgato validation/package, profiles, and Rat Art are already passing. No further hands-on QA is required before final art/release sync to main and Rat Ship.",
   "price_usd": 7.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -98,5 +98,10 @@
       "pro_records_single_idle_gap_over_60_seconds",
       "emergency_hotkey_only_intercepts_during_playback"
     ]
+  },
+  "owner_acceptance": {
+    "accepted_at": "2026-09-14",
+    "scope": "physical Stream Deck / Windows release acceptance",
+    "note": "User confirmed Macro Recorder Pro should be considered done and good to go."
   }
 }
