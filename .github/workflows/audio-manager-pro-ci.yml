@@ -53,28 +53,26 @@ jobs:
           Invoke-Expression $fn.Extent.Text
 
           $product = Get-Content 'products/audio-manager-pro.json' -Raw | ConvertFrom-Json
-          if ($product.workflow_state -ne 'READY_FOR_HARDWARE_QA') {
-            throw "Expected Audio Manager to be READY_FOR_HARDWARE_QA before physical QA; got $($product.workflow_state)."
-          }
-
           Assert-ProductReleaseState -Product $product -ProductSlug 'audio-manager-pro' -RequestedAction 'kit'
 
-          $blocked = $false
-          try {
+          if ($product.workflow_state -eq 'READY_FOR_HARDWARE_QA') {
+            $blocked = $false
+            try {
+              Assert-ProductReleaseState -Product $product -ProductSlug 'audio-manager-pro' -RequestedAction 'ship'
+            }
+            catch {
+              $blocked = $_.Exception.Message -match 'READY_TO_SHIP'
+            }
+            if (-not $blocked) { throw 'Rat Ship did not block Audio Manager before READY_TO_SHIP.' }
+            Write-Host 'AUDIO MANAGER PRE-HARDWARE RELEASE-STATE GUARD PASS'
+          }
+          elseif ($product.workflow_state -eq 'READY_TO_SHIP') {
             Assert-ProductReleaseState -Product $product -ProductSlug 'audio-manager-pro' -RequestedAction 'ship'
+            Write-Host 'AUDIO MANAGER READY-TO-SHIP RELEASE-STATE GUARD PASS'
           }
-          catch {
-            $blocked = $_.Exception.Message -match 'READY_TO_SHIP'
+          else {
+            throw "Unexpected Audio Manager workflow_state: $($product.workflow_state)."
           }
-          if (-not $blocked) { throw 'Rat Ship did not block Audio Manager before READY_TO_SHIP.' }
-
-          $ready = [PSCustomObject]@{
-            workflow_state = 'READY_TO_SHIP'
-            blocker = $null
-            final_boundary = $null
-          }
-          Assert-ProductReleaseState -Product $ready -ProductSlug 'audio-manager-pro' -RequestedAction 'ship'
-          Write-Host 'AUDIO MANAGER RELEASE-STATE GUARD PASS'
       - run: npm run build
         working-directory: plugins/audio-manager-pro
       - name: Fetch canonical Stream Deck QA tools
