@@ -10,6 +10,8 @@ on:
       - "products/windows-settings-manager-pro.json"
       - "products/index.json"
       - "products/lite-pro-map.json"
+      - "tools/art/**"
+      - "tools/local/rat-preview-art.ps1"
       - ".github/workflows/windows-settings-manager-portable-ci.yml"
   pull_request:
     paths:
@@ -18,6 +20,8 @@ on:
       - "products/windows-settings-manager-pro.json"
       - "products/index.json"
       - "products/lite-pro-map.json"
+      - "tools/art/**"
+      - "tools/local/rat-preview-art.ps1"
       - ".github/workflows/windows-settings-manager-portable-ci.yml"
   workflow_dispatch:
 
