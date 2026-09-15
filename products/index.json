@@ -408,6 +408,14 @@
       "version": "1.0.0"
     },
     {
+      "id": "macro-recorder-lite",
+      "name": "Macro Recorder Lite",
+      "type": "plugin",
+      "status": "qa_passed",
+      "price_usd": 0,
+      "version": "1.0.0.0"
+    },
+    {
       "id": "macro-recorder-pro",
       "name": "Macro Recorder Pro",
       "type": "plugin",
