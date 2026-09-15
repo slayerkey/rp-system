@@ -5,8 +5,8 @@
   "status": "built",
   "workflow_state": "TESTING",
   "blocker_kind": "fresh_lite_release_qa",
-  "blocker": "Fresh exact-commit Lite build/test/validation/package evidence is pending after the canonical UI/profile/runtime refresh.",
-  "final_boundary": "Run fresh Lite/family release QA on the updated candidate. If green, register the exact artifact on canonical main and move Lite to READY_TO_SHIP.",
+  "blocker": "Fresh exact-commit Lite/family release QA is required after changing Lite to 10 seconds / 50 keyboard events and moving the Pro upsell to the bottom.",
+  "final_boundary": "Run fresh exact-commit family QA. If green, re-pin canonical main to the new Lite artifact and return Lite to READY_TO_SHIP.",
   "price_usd": 0,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -25,8 +25,8 @@
   "upgrade_url": null,
   "upgrade_url_state": "deferred_until_verified_direct_pro_listing",
   "limits": {
-    "recording_seconds": 30,
-    "events": 60,
+    "recording_seconds": 10,
+    "events": 50,
     "input": "keyboard only"
   },
   "bundled_profiles": {
@@ -60,7 +60,7 @@
     "official Elgato CLI validation",
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media",
-    "30-second / 60-event keyboard-only limits verified",
+    "10-second / 50-event keyboard-only limits verified",
     "no public Pro URL required for initial Lite launch"
   ],
   "upsell_release_gate": {
@@ -70,8 +70,8 @@
     "policy": "Lite may launch standalone. Add the direct Pro upgrade surface only after the real public Pro listing is verified."
   },
   "automated_release_evidence": {
-    "status": "STALE_AFTER_LITE_REFRESH",
-    "note": "Previous family evidence predates the canonical Lite UI/profile/runtime refresh and is not final release evidence."
+    "status": "STALE_AFTER_LIMIT_CHANGE",
+    "note": "Previous exact-commit release evidence predates the owner-approved 10-second / 50-event Lite limit and final upsell placement."
   },
   "submission_metadata": "plugins/macro-recorder-lite/submission.json"
 }
