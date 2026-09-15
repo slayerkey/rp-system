@@ -6,86 +6,85 @@
   <title>Macro Recorder Lite</title>
   <link rel="stylesheet" href="inspector.css" />
 </head>
-<body data-edition="lite" data-pro-url="">
+<body data-edition="lite">
 <main>
+  <div class="packrat-topbar">
+    <a id="packratLink" class="brand-link" href="https://marketplace.elgato.com/maker/packrat">
+      <img src="packrat.png" alt="" />
+      <span>PackRat ↗</span>
+    </a>
+    <span class="lite-badge">LITE</span>
+  </div>
+
+  <section class="hero">
+    <h1>Macro Recorder Lite</h1>
+    <p class="muted">Record a short keyboard workflow once, then replay it from Stream Deck.</p>
+  </section>
+
   <section class="status-card">
     <div class="status-row"><span id="dot" class="dot"></span><strong id="statusTitle">Macro Recorder ready</strong></div>
-    <div id="statusDetail" class="muted">Everything stays on this PC.</div>
+    <div id="statusDetail" class="muted">Keyboard-only recording stays on this PC.</div>
+    <p id="errorText" class="error" hidden></p>
   </section>
 
   <section class="group" data-kind="record">
     <h3>Record a keyboard macro</h3>
-    <p class="hint">Press the Stream Deck key, perform the workflow once, then press STOP.</p>
-    <div class="pro-only">
-      <label class="check"><input id="captureMouseMovement" type="checkbox" /> Record mouse movement</label>
-      <p class="hint">Pro captures both screen and active-window-relative mouse coordinates. Choose which reference to use on each Replay Macro action.</p>
-    </div>
+    <p class="hint"><strong>Press Record once to start. Press the same Record key again to save.</strong></p>
+    <p class="hint">Lite captures keyboard shortcuts, key combinations and timing. Mouse recording is a Pro feature.</p>
     <p id="recordLimit" class="limit"></p>
-    <button id="cancelRecording" class="danger" type="button">Cancel current recording</button>
+    <button id="cancelRecording" class="danger" type="button">Cancel recording</button>
   </section>
 
   <section class="group" data-kind="stop">
-    <h3>Emergency stop</h3>
-    <p class="hint">This key stops recording or playback globally. Keyboard fallback: <strong>Ctrl + Shift + F12</strong>.</p>
-    <button id="stopPlayback" class="danger" type="button">Stop playback now</button>
+    <h3>Stop</h3>
+    <p class="hint">Stops any active recording or playback. Keyboard fallback: <strong>Ctrl + Shift + F12</strong>.</p>
+    <button id="stopPlayback" class="danger" type="button">Stop now</button>
   </section>
 
   <section class="group" data-kind="replay">
-    <h3>Assigned macro</h3>
-    <div class="lite-only">
-      <button id="assignLatest" type="button">Assign latest recording</button>
-      <p class="hint">Each Replay Macro key stores its own keyboard macro.</p>
-    </div>
-    <div class="pro-only">
-      <label for="macroSelect">Macro Library</label>
-      <select id="macroSelect"><option value="">Choose a macro</option></select>
-      <div class="button-row">
-        <button id="duplicateMacro" type="button" class="secondary">Duplicate</button>
-        <button id="deleteMacro" type="button" class="danger">Delete</button>
-      </div>
-      <div class="button-row">
-        <label class="file-button">Import<input id="importFile" type="file" accept=".json,.packrat-macro.json" /></label>
-        <button id="exportMacro" type="button" class="secondary">Export</button>
-      </div>
-    </div>
+    <h3>Play keyboard macro</h3>
+    <p id="assignedSummary" class="hint">No macro assigned yet. Record one first.</p>
+    <button id="assignLatest" class="primary" type="button">Assign latest recording</button>
+    <p class="hint">A new recording automatically fills an empty Play key. Use this button when you want to replace the macro already stored on this key.</p>
 
-    <div class="pro-only">
-      <label for="playbackSpeed">Playback speed</label>
-      <select id="playbackSpeed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4">4×</option></select>
-      <label for="playbackMode">Playback mode</label>
-      <select id="playbackMode"><option value="once">Once</option><option value="count">Repeat count</option><option value="while-held">Repeat while held</option><option value="toggle">Toggle repeat</option></select>
-      <div id="repeatRow"><label for="repeatCount">Repeat count</label><input id="repeatCount" type="number" min="1" max="100" /></div>
-      <label for="coordinateMode">Mouse playback</label>
-      <select id="coordinateMode"><option value="absolute">Recorded screen coordinates</option><option value="active-window">Relative to active window</option></select>
-    </div>
+    <details id="recordedStepsDetails" class="collapsible-section">
+      <summary><span>Recorded steps</span><span id="macroMeta" class="muted"></span></summary>
+      <div class="collapsible-content">
+        <p class="hint">See every keyboard event and adjust the delay before each step. Pro adds full timeline editing and a reusable Macro Library.</p>
+        <div id="timelinePager" class="timeline-pager" hidden>
+          <button id="timelinePrev" type="button" class="secondary">Previous</button>
+          <span id="timelinePageLabel" class="muted"></span>
+          <button id="timelineNext" type="button" class="secondary">Next</button>
+        </div>
+        <div id="timeline" class="timeline"></div>
+        <p id="timelineWarning" class="warning" hidden></p>
+      </div>
+    </details>
 
-    <div class="timeline-head">
-      <strong>Timeline</strong><span id="macroMeta" class="muted"></span>
-    </div>
-    <div id="timelinePager" class="timeline-pager" hidden>
-      <button id="timelinePrev" type="button" class="secondary">Previous</button>
-      <span id="timelinePageLabel" class="muted"></span>
-      <button id="timelineNext" type="button" class="secondary">Next</button>
-    </div>
-    <div id="timeline" class="timeline"></div>
-    <p id="timelineWarning" class="warning" hidden></p>
+    <details class="diagnostic-block">
+      <summary>Troubleshooting</summary>
+      <div class="collapsible-content">
+        <p class="hint">Checks the Property Inspector connection, selected Play key and locally stored macro settings without changing them.</p>
+        <div class="button-row">
+          <button id="runDiagnostic" type="button" class="primary">Run diagnostic</button>
+          <button id="copyDiagnostic" type="button" class="secondary" disabled>Copy report</button>
+        </div>
+        <p id="diagnosticStatus" class="hint">No diagnostic has been run yet.</p>
+        <pre id="diagnosticReport" class="diagnostic-report">No diagnostic has been run yet.</pre>
+      </div>
+    </details>
+  </section>
+
+  <section class="group">
+    <strong>Lite vs Pro</strong>
+    <p class="hint">Lite is for short keyboard macros: up to 30 seconds and 60 keyboard events.</p>
+    <p class="hint"><strong>Macro Recorder Pro</strong> adds mouse recording, 10-minute macros, playback speed, repeat modes, a reusable Macro Library, full editing and import/export. The direct upgrade link can be added after the Pro Marketplace listing is live.</p>
   </section>
 
   <section class="group privacy">
     <strong>Local by design</strong>
-    <p class="hint">Macro contents are never uploaded to PackRat. Do not deliberately record passwords. Windows secure-desktop input is outside the normal recording desktop, and Windows may block replay into apps running at a higher Administrator integrity level. Ordinary app password fields cannot be identified reliably.</p>
-    <p class="hint lite-only">Lite stores an assigned macro in that Stream Deck action's local settings. If you export or share a Stream Deck profile containing the action, those settings can be included in the exported profile.</p>
-    <p class="hint pro-only">Pro stores the reusable Macro Library in your local AppData. Macro contents leave the library only when you explicitly export a PackRat macro file.</p>
+    <p class="hint">Macro contents are never uploaded to PackRat. Lite stores the macro on the local Stream Deck Play action. Do not deliberately record passwords. Windows may block replay into apps running at a higher Administrator integrity level.</p>
   </section>
-
-  <section class="group upsell lite-only">
-    <strong>Macro Recorder Pro</strong>
-    <p>Unlock mouse recording, 10-minute macros, playback speed, loops, reusable Macro Library, and import/export.</p>
-    <button id="upgradePro" type="button" class="secondary" hidden>View Macro Recorder Pro</button>
-    <p id="upgradePending" class="hint">The upgrade button stays hidden until the exact Pro Marketplace listing is verified.</p>
-  </section>
-
-  <p id="errorText" class="error" hidden></p>
 </main>
 <script src="inspector.js"></script>
 </body>
