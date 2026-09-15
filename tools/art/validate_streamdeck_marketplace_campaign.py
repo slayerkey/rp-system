@@ -30,6 +30,7 @@ def main() -> None:
     print(f"  hero scene: {config.hero_scene}")
     print(f"  hero title: {config.hero_title_style}")
     print(f"  gallery scene: {config.gallery_scene}")
+    print(f"  gallery mode: {config.gallery_mode}")
 
 
 if __name__ == "__main__":
