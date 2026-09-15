@@ -105,9 +105,17 @@ The approved defaults are:
 - gallery scene: `warm-studio-clean-v1/base-v2.png`
 - campaign style: `warm-studio-glass-v1`
 
-Per-product overrides live in `products/<slug>.json` under `marketplace_art`. Rat Ship owns the final cover overwrite and must use the resolved `hero_scene` and `hero_title_style`. Product-local gallery renderers should use the resolved `gallery_scene` and shared campaign primitives.
+Per-product overrides live in `products/<slug>.json` under `marketplace_art`. Rat Ship owns both final Marketplace handoffs:
 
-Before shipping or staging visually sensitive Stream Deck products, `rat preview-art <slug>` is the canonical visual approval path. It validates campaign configuration, renders product-local art, applies the final Rat Ship hero, and produces the five-image contact sheet without touching Maker Console.
+1. `apply_streamdeck_gallery_campaign.py` normalizes all four galleries.
+2. `render_streamdeck_ship_hero.py` overwrites the final cover using the resolved `hero_scene` and `hero_title_style`.
+
+Gallery behavior is fail-safe:
+- `gallery_mode: native` preserves a product that already renders directly through the shared campaign primitives.
+- missing `gallery_mode`, or explicit `gallery_mode: wrap`, automatically reframes legacy/custom/external product galleries using the newest resolved `gallery_scene`.
+- validated external release artifacts keep their package bytes unchanged, but their Marketplace media still receives the current global gallery + hero passes before Maker Console.
+
+Before shipping or staging visually sensitive Stream Deck products, `rat preview-art <slug>` is the canonical visual approval path. It validates campaign configuration, renders or recovers product media, applies the exact same final gallery campaign and hero overwrite as Rat Ship, and produces the five-image contact sheet without touching Maker Console.
 
 Do not silently fall back to a different hero or gallery world when a configured scene is missing. Fail closed.
 
