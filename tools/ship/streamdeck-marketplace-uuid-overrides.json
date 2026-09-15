@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "purpose": "Fresh UUIDs for recreated/deleted Marketplace listings. Existing published product updates are intentionally excluded.",
+  "products": {
+    "internet-health-pro": "com.packrat.internet-health-pro2",
+    "monitor-manager-lite": "com.packrat.monitormanagerlite2",
+    "monitor-manager-pro": "com.packrat.monitormanagerpro2",
+    "windows-settings-manager-lite": "com.packrat.windows-settings-manager-lite2",
+    "windows-settings-manager-pro": "com.packrat.windows-settings-manager-pro2",
+    "macro-recorder-lite": "com.packrat.macro-recorder-lite2",
+    "macro-recorder-pro": "com.packrat.macro-recorder-pro2",
+    "text-expander": "com.packrat.textexpanderlite2",
+    "text-expander-pro": "com.packrat.textexpanderpro2",
+    "wireless-device-manager": "com.packrat.wireless-device-manager-lite2",
+    "wireless-device-manager-pro": "com.packrat.wireless-device-manager-pro2",
+    "audio-manager-pro": "com.packrat.audio-manager-pro2",
+    "performance-grapher-streamdeck": "com.packrat.performance-grapher2"
+  },
+  "exclusions": {
+    "window-manager-pro": "Already published Marketplace product update. UUID must remain com.packrat.windowmanagerpro."
+  }
+}
