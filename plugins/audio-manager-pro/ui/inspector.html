@@ -18,28 +18,57 @@
     <section class="hero">
       <div class="eyebrow">AUDIO MANAGER PRO</div>
       <div class="status-row"><span id="statusDot" class="dot"></span><strong id="statusTitle">Connecting to Windows audio…</strong></div>
-      <p id="statusDetail">Audio Profiles switch input, output, communications roles, volume and mute together.</p>
+      <p id="statusDetail">Reading the current Windows audio setup.</p>
       <div id="resultBox" class="result" hidden></div>
     </section>
 
     <section id="profileAction" class="card" hidden>
+      <div class="eyebrow">THIS KEY</div>
       <label for="actionProfile">Audio Profile</label>
       <select id="actionProfile"></select>
-      <p id="actionProfileHint" class="hint">Choose the profile this action should own.</p>
+      <p id="actionProfileHint" class="hint">Choose the Audio Profile this key should use.</p>
+      <div class="current-state">
+        <span>Currently active</span>
+        <strong id="activeProfileName">Checking…</strong>
+      </div>
+    </section>
+
+    <section id="cycleAction" class="card" hidden>
+      <div class="eyebrow">CYCLE AUDIO PROFILES</div>
+      <div class="current-state">
+        <span>Currently active</span>
+        <strong id="cycleActiveProfileName">Checking…</strong>
+      </div>
+      <p class="hint">Each press moves to the next saved Audio Profile.</p>
     </section>
 
     <section id="deviceAction" class="card" hidden>
+      <div class="eyebrow">THIS KEY</div>
       <label for="actionRole">Windows role</label>
       <select id="actionRole">
         <option value="default">Default</option>
         <option value="communications">Communications</option>
       </select>
-      <label for="actionDevice">Device</label>
+      <label for="actionDevice">Switch to</label>
       <select id="actionDevice"></select>
       <p id="actionDeviceHint" class="hint"></p>
+      <div class="current-state">
+        <span>Windows is using</span>
+        <strong id="currentRoleDevice">Checking…</strong>
+      </div>
+    </section>
+
+    <section id="micAction" class="card" hidden>
+      <div class="eyebrow">DEFAULT MICROPHONE</div>
+      <div class="device-summary">
+        <strong id="currentMicName">Checking…</strong>
+        <span id="currentMicState" class="state-pill">UNKNOWN</span>
+      </div>
+      <p id="currentMicHint" class="hint">Press the key to mute or unmute the Windows Default microphone.</p>
     </section>
 
     <section id="dialAction" class="card" hidden>
+      <div class="eyebrow">STREAM DECK + DIAL</div>
       <label for="dialStep">Dial step</label>
       <select id="dialStep">
         <option value="1">1% per tick</option>
@@ -50,22 +79,34 @@
       <p class="hint">Rotate adjusts the selected profile's live default-output volume. Press reapplies the profile. Touch toggles output mute.</p>
     </section>
 
-    <section class="card">
+    <section id="actionFeedbackCard" class="card feedback-card" hidden>
+      <div id="actionResultBox" class="result compact" hidden></div>
+    </section>
+
+    <section id="profileManager" class="card" hidden>
       <div class="section-head">
         <div>
           <div class="eyebrow">AUDIO PROFILES</div>
-          <strong>Whole setup presets</strong>
+          <strong>Create and edit whole-setup presets</strong>
         </div>
         <button id="refresh" class="secondary">Refresh</button>
       </div>
-      <p class="hint">One-headset setup: choose the headset playback device for both output rows, and its microphone device for both input rows. Windows exposes playback and microphone as separate endpoints.</p>
+      <p class="hint">One headset: use its headphone/playback endpoint for both outputs and its microphone endpoint for both inputs.</p>
+      <div id="profileResultBox" class="result" hidden></div>
+
       <div class="button-row">
         <button id="captureCurrent">Capture current setup</button>
       </div>
-      <label for="editorProfile">Edit profile</label>
+
+      <div class="editor-divider"><span>EDIT A PROFILE</span></div>
+
+      <label for="editorProfile">Profile to edit</label>
       <select id="editorProfile"></select>
+
       <label for="profileName">Profile name</label>
       <input id="profileName" maxlength="80" placeholder="Headset">
+      <p class="field-hint">Press Enter or use Save profile below.</p>
+
       <label for="profileAccent">Accent</label>
       <input id="profileAccent" type="color" value="#FFB21E">
 
@@ -118,12 +159,12 @@
         <button id="saveProfile">Save profile</button>
         <button id="deleteProfile" class="danger">Delete</button>
       </div>
-      <p class="hint">A profile can leave any role blank to preserve it. Device identity is saved with the Windows endpoint plus hardware-container metadata; instance metadata is retained only for diagnostics.</p>
+      <p class="hint">Leave a role blank to preserve it. Audio Manager saves the Windows endpoint identity so profiles can safely rebind only when the same hardware can be identified.</p>
     </section>
 
-    <section class="card note">
+    <section id="waveNote" class="card note">
       <strong>Wave Link</strong>
-      <p>Audio Manager Pro manages Windows audio roles. It does not use private Wave Link internals. If Wave Link Monitor Mix is set to Windows Default Output, it can follow these profile changes.</p>
+      <p>Audio Manager Pro manages Windows audio roles. If Wave Link Monitor Mix follows Windows Default Output, it can follow these profile changes.</p>
     </section>
   </main>
   <script src="inspector.js"></script>
