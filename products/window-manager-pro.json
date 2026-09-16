@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "published",
   "workflow_state": "BLOCKED",
-  "blocker": "Marketplace 1.2 is live (published 2026-09-15). Visual compatibility hotfix is implemented at private commit ff52fda649a2fad6bc6bf2bdbfbcf8eec238872b: saved layouts regain per-layout generated key imagery, the new PackRat Property Inspector design remains, saved-layout status is visible in the PI, and the published green Nudge dial color is restored. Fresh Windows + macOS exact-commit QA and local rat dev visual approval are required before shipping the hotfix.",
+  "blocker": "Marketplace 1.2 is live. Visual compatibility hotfix at ff52fda649a2fad6bc6bf2bdbfbcf8eec238872b has passed Windows + macOS automated QA. Remaining gate: local rat dev visual confirmation that saved Window Layout keys regain distinct layout imagery while the new dark/orange Property Inspector remains intact. Do not publish the hotfix until that visual check is approved.",
   "price_usd": 6.99,
   "live_price_usd": 6.99,
   "target_price_usd": 6.99,
@@ -23,22 +23,50 @@
   "lite_marketplace_product_id": "a7693b4c-4afd-4dce-925a-262fd23b1f23",
   "lite_marketplace_url": "https://marketplace.elgato.com/product/window-manager-lite-a7693b4c-4afd-4dce-925a-262fd23b1f23",
   "release_gate": [
-    "Visual compatibility hotfix source pinned to private commit ff52fda649a2fad6bc6bf2bdbfbcf8eec238872b.",
+    "Visual compatibility hotfix exact private commit ff52fda649a2fad6bc6bf2bdbfbcf8eec238872b: QA PASS.",
+    "49/49 deterministic tests: PASS on Windows + macOS.",
+    "Saved-layout generated key image tests: PASS; different arrangements produce different key images.",
+    "Published Nudge Stream Deck+ stack color #2be86a: compatibility test PASS.",
+    "Windows private QA bridge run 35038030117: PASS; package 888415 bytes; SHA256 6edb04dcca591db5efc4a2a6397168ff6b5c8e356c957152a3368de996631892.",
+    "Windows physical smoke: PASS; repeatedRestores=5, missing=0, minimizedGeometry=restore-rect, behavior=per-key-layout-no-app-launch.",
+    "Windows exact package/Koffi audit: PASS.",
+    "macOS private QA bridge run 35038030117: PASS; package 899985 bytes; SHA256 182a5973580f5905b3fd0dda8855a6027aca41548001a314d628b1c8494d1aed.",
+    "Official Elgato validate/package: PASS on Windows + macOS.",
+    "Deterministic Rat Art render: PASS on Windows.",
     "Published plugin/action UUID compatibility: PASS.",
     "Window Layout classic per-key contract (hold to record, press once to restore): PASS.",
     "Closed applications are skipped; no app-launch control path is present: PASS.",
     "Snap Window, Cycle Windows, Nudge Window, Windows + macOS, Stream Deck 6.9+, dial support, and Profiles: No remain preserved.",
     "Canonical PackRat Stream Deck design and PackRat maker branding are present.",
     "Existing Window Manager Lite -> Pro Marketplace relationship and exact Pro Marketplace ID remain preserved.",
-    "Windows physical smoke: PASS; repeatedRestores=5, missing=0, minimizedGeometry=restore-rect, behavior=per-key-layout-no-app-launch.",
-    "Fresh exact-commit Windows + macOS private QA: PENDING.",
-    "Official Elgato validate/package for hotfix: PENDING.",
     "Local rat dev visual QA of generated saved-layout key image and new PI: PENDING."
   ],
   "final_boundary": "Run fresh Windows + macOS QA against private commit ff52fda649a2fad6bc6bf2bdbfbcf8eec238872b. Then run rat dev window-manager-pro and verify the saved-layout key image changes with different arrangements while the new dark/orange Property Inspector remains intact. Only after that prepare a Marketplace hotfix version; do not alter the existing plugin/action UUIDs or $6.99 price.",
   "notes": "Paid source remains private in slayerkey/vcs. Window Manager Pro 1.2.0.0 is now live. The release preserved classic per-key layout behavior and reliability hardening, but the 1.2 visual standardization changed Stream Deck-facing key assets and removed prior layout-specific/custom icon behavior reported by a customer. Keep the new Property Inspector design; restore the pre-1.2 key visual behavior in a hotfix.",
   "automated_release_evidence": {
-    "status": "HOTFIX_QA_PENDING",
-    "private_source_commit": "ff52fda649a2fad6bc6bf2bdbfbcf8eec238872b"
+    "status": "PASSED_AWAITING_LOCAL_VISUAL_QA",
+    "private_source_commit": "ff52fda649a2fad6bc6bf2bdbfbcf8eec238872b",
+    "public_qa_bridge_run": 35038030117,
+    "deterministic_tests": {
+      "windows": "49/49",
+      "macos": "49/49"
+    },
+    "windows": {
+      "package_bytes": 888415,
+      "package_sha256": "6edb04dcca591db5efc4a2a6397168ff6b5c8e356c957152a3368de996631892",
+      "physical_smoke": {
+        "repeatedRestores": 5,
+        "missing": 0,
+        "minimizedGeometry": "restore-rect",
+        "behavior": "per-key-layout-no-app-launch"
+      },
+      "exact_package_audit": "PASS",
+      "rat_art_render": "PASS"
+    },
+    "macos": {
+      "package_bytes": 899985,
+      "package_sha256": "182a5973580f5905b3fd0dda8855a6027aca41548001a314d628b1c8494d1aed",
+      "compatibility_scope": "build + AppKit enumeration + platform isolation + validation/package; not physical Accessibility-driven movement"
+    }
   }
 }
