@@ -3,11 +3,16 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[3]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.art.marketplace_text import draw_fitted_text
 W, H = 1920, 960
 SAFE = 72
 BG = (6, 10, 15)
@@ -99,11 +104,17 @@ def footer(canvas: Image.Image, left: str = "WINDOWS AUDIO", right: str = "STREA
 
 def heading(canvas: Image.Image, headline: str, sub: str | None = None) -> None:
     d = ImageDraw.Draw(canvas)
-    f = fit_font(d, headline, 1500, 62, 36, True)
-    d.text((W // 2, 108), headline, font=f, fill=WHITE, anchor="mm")
+    draw_fitted_text(
+        d, (210, 82, W - 210, 138), headline, font,
+        fill=WHITE, max_size=62, min_size=36, bold=True,
+        max_lines=2, align="center", valign="middle",
+    )
     if sub:
-        sf = fit_font(d, sub, 1580, 27, 19, False)
-        d.text((W // 2, 165), sub, font=sf, fill=MUTED, anchor="mm")
+        draw_fitted_text(
+            d, (170, 142, W - 170, 194), sub, font,
+            fill=MUTED, max_size=27, min_size=19,
+            max_lines=2, align="center", valign="middle",
+        )
 
 
 def audio_key(d: ImageDraw.ImageDraw, x: int, y: int, size: int, label: str, out_name: str, in_name: str, accent=ACC, active: bool = False) -> None:
