@@ -1,6 +1,6 @@
 {
 	"Name": "Clipboard Manager",
-	"Version": "1.0.0.3",
+	"Version": "1.1.0.0",
 	"Author": "Packrat",
 	"Actions": [
 		{
@@ -16,6 +16,28 @@
 				{
 					"Image": "imgs/actions/slot/key",
 					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Clipboard Dial",
+			"UUID": "com.packrat.clipboard.dial",
+			"Icon": "imgs/actions/slot/icon",
+			"Tooltip": "Turn through your last four copies on Stream Deck+. Press to paste the selected copy. Tap the strip to jump back to the newest copy.",
+			"Controllers": [
+				"Encoder"
+			],
+			"Encoder": {
+				"layout": "$B1",
+				"TriggerDescription": {
+					"Rotate": "Previous or next copy",
+					"Push": "Paste selected copy",
+					"Touch": "Jump to newest copy"
+				}
+			},
+			"States": [
+				{
+					"Image": "imgs/actions/slot/key"
 				}
 			]
 		}
