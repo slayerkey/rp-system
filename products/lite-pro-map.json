@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-15",
+  "updated_at": "2026-09-20",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -192,7 +192,9 @@
       "source_status": "lite_output_and_input_scope_hardware_qa_pending",
       "notes": "Lite is the direct-device free edition: Set Output Device + Set Input Device. Pro expands the same Windows audio use case into complete Audio Profiles, Communications routing, capture/apply/cycle/status, mic mute, restore state, and Stream Deck+ profile volume. Until the verified direct Pro Marketplace URL is recorded, both canonical Lite CTAs use the PackRat maker fallback.",
       "upsell_surface": "Lite Property Inspector",
-      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1",
+      "pro_marketplace_product_id": "89fcd139-e8ce-4b42-a58b-0b25a3b38cf1"
     }
   ],
   "standalone_free": [
