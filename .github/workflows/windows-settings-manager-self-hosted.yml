@@ -153,6 +153,16 @@ jobs:
           print("WINDOWS SETTINGS PACKAGE + MEDIA PASS")
           '@ | python -
 
+      - name: Strict Lite-to-Pro release audit
+        shell: powershell
+        working-directory: ${{ github.workspace }}
+        run: |
+          python tools/lite_pro_audit.py --shipping windows-settings-manager-lite
+          node tools/qa/streamdeck-plugin-design-audit.mjs products/windows-settings-manager/plugin/out/com.packrat.windows-settings-manager-lite2.sdPlugin --require-canonical-pi --require-lite-pro-upsell
+          $expected = "https://marketplace.elgato.com/product/windows-settings-manager-pro-a95ddbd4-32bb-4d19-a8c8-e4b8c2f3360e"
+          $hits = Get-ChildItem products/windows-settings-manager/plugin/out/com.packrat.windows-settings-manager-lite2.sdPlugin -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
+          if (-not $hits) { throw "Verified Windows Settings Manager Pro URL was not found in rebuilt Lite output." }
+
       - name: Upload release evidence (best effort)
 
         continue-on-error: true
