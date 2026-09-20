@@ -153,7 +153,10 @@ jobs:
           print("WINDOWS SETTINGS PACKAGE + MEDIA PASS")
           '@ | python -
 
-      - name: Upload release evidence
+      - name: Upload release evidence (best effort)
+
+        continue-on-error: true
+
         uses: actions/upload-artifact@v4
         with:
           name: windows-settings-manager-self-hosted
