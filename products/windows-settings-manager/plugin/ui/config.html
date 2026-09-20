@@ -8,11 +8,15 @@
 </head>
 <body>
   <main>
-    <section class="hero">
+    <div class="packrat-topbar">
       <button id="packratMaker" class="brand-link" type="button" aria-label="Open PackRat Marketplace maker page">
-        <img src="packrat-icon.png" alt="">
+        <img src="../imgs/plugin/packrat-logo.png" alt="">
         <span>PackRat ↗</span>
       </button>
+      <button id="topProUpgrade" class="primary packrat-upgrade hidden" type="button">Upgrade to Pro ↗</button>
+    </div>
+
+    <section class="hero">
       <div class="eyebrow">WINDOWS CONTROL CENTER</div>
       <h1>Windows Settings Manager</h1>
       <p id="edition">Windows Control Center for Stream Deck</p>
@@ -177,18 +181,21 @@
       </div>
     </section>
 
-    <section id="liteUpsell" class="card hidden">
-      <div class="eyebrow">PRO</div>
-      <h2>Unlock the full Windows Control Center</h2>
-      <p>Pro adds Wi-Fi, Bluetooth, Hibernate, protected Restart and Shutdown, Light/Dark theme, and full virtual desktop create/close/status controls while keeping live Windows state visible on your keys.</p>
-      <div class="row" style="margin-top:10px">
-        <button id="proUpgrade" class="primary" type="button">View Windows Settings Manager Pro</button>
-      </div>
-    </section>
-
     <section class="privacy">
       <strong>Predictable by design</strong>
       <p>No coordinate clicking or Quick Settings automation. PackRat reads Windows state, performs a defined system action, and verifies state-changing controls when Windows exposes a readable result.</p>
+    </section>
+
+    <section id="liteUpsell" class="upsell hidden">
+      <div class="eyebrow">WINDOWS SETTINGS MANAGER PRO</div>
+      <h2>Unlock the full Windows Control Center</h2>
+      <p>Pro adds the controls that turn the Lite utility into a complete Windows command center while keeping live state visible on your keys.</p>
+      <ul class="upsell-list">
+        <li><strong>More Windows controls</strong> — Wi-Fi, Bluetooth, Hibernate, protected Restart and Shutdown, and Light/Dark theme.</li>
+        <li><strong>Full virtual desktop control</strong> — create, close, navigate, and show the current desktop.</li>
+        <li><strong>Advanced system workflows</strong> — HDR, display topology, screen/sleep timeouts, and optional PC Modes.</li>
+      </ul>
+      <button id="proUpgrade" class="primary pro-button" type="button">Open Windows Settings Manager Pro ↗</button>
     </section>
   </main>
   <script src="pi.js"></script>
