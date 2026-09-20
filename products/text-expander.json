@@ -45,7 +45,10 @@
     "lite_package_sha256": "a5303b3014f5d14de7bb8b6b8a9918f70d71b2942c2575c759d7cc557c6da7d4",
     "direct_pro_url_rebuild": "PASS",
     "lite_pro_upgrade_direct": "PASS",
-    "canonical_pi_audit": "PASS"
+    "canonical_pi_audit": "PASS",
+    "artifact_name": "text-expander-streamdeck-candidates",
+    "strict_lite_pro_gate": "PASS",
+    "direct_pro_routing": "PASS"
   },
   "final_boundary": "READY_TO_SHIP from exact validated artifact 03459fc0b374e287585b721eb0f93f7fb8e0179c. Both Text Expander Lite upgrade CTAs route directly to the verified Text Expander Pro Marketplace listing.",
   "pro_marketplace_url": "https://marketplace.elgato.com/product/text-expander-pro-7a939ada-53a5-49ae-99b5-2752c8e82f41",
