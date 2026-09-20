@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "qa_passed",
   "workflow_state": "READY_TO_SHIP",
-  "final_boundary": "READY_TO_SHIP on canonical main. Both Windows Settings Manager Lite upgrade surfaces route directly to the verified Pro listing; build, 53/53 tests, backend smoke, official validation/package, and strict Lite-to-Pro routing all pass.",
+  "final_boundary": "READY_TO_SHIP on canonical main at f16edeae761dba287f83152c3180484b140595d8. Both Windows Settings Manager Lite upgrade surfaces route directly to the verified Pro listing; build, 53/53 tests, backend smoke, official validation/package, and strict Lite-to-Pro routing all pass.",
   "price_usd": 0,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -58,7 +58,7 @@
     "url_source": "products/lite-pro-map.json",
     "routing": "verified direct Pro Marketplace URL",
     "hidden_until_verified": false,
-    "release_order": "Windows Settings Manager Pro is public and Lite now routes both canonical upgrade surfaces directly to it."
+    "release_order": "Direct Pro listing is verified and packaged on both canonical Lite upgrade surfaces."
   },
   "commercial_release_boundary": "Verified direct Pro routing is packaged and the strict Lite-to-Pro shipping audit passes on canonical main.",
   "current_direction": {
@@ -114,7 +114,7 @@
   },
   "automated_release_evidence": {
     "candidate_commit": "9845186013df5e6458f80f37bc9356fbffea2e73",
-    "status": "PASSED",
+    "status": "PASS",
     "windows_ci_run": 35537036828,
     "windows_ci_job": 104099104165,
     "windows_package_artifact": {
@@ -146,7 +146,16 @@
     "official_pro_package_sha256": "fb79611b141eea20419c22efb7ddec2ed372c23e6de9dd9a6e5295b27ba5b151",
     "strict_lite_pro_shipping_audit": "pass",
     "canonical_pi_audit": "pass",
-    "direct_pro_url_rebuild": "PASS"
+    "direct_pro_url_rebuild": "PASS",
+    "run_id": 35537384780,
+    "head_sha": "f16edeae761dba287f83152c3180484b140595d8",
+    "artifact_id": 10613647905,
+    "artifact_name": "windows-settings-manager-packages",
+    "artifact_digest": "sha256:2ec708f4f2f5ecf73b8954c2d0c9664c27446a9c71c283ae26f6d7abfc8e31d6",
+    "lite_package_sha256": "6f4fbd5cfeec43f8ae90b7ee3cbf82e1c260a64d6ad3f323635f172554400a90",
+    "strict_lite_pro_gate": "PASS",
+    "direct_pro_routing": "PASS",
+    "official_elgato_validation_package": "PASS"
   },
   "open_profile_on_dev": true,
   "physical_qa_evidence": {
@@ -163,5 +172,8 @@
   },
   "blocker": null,
   "pro_marketplace_url": "https://marketplace.elgato.com/product/windows-settings-manager-pro-a95ddbd4-32bb-4d19-a8c8-e4b8c2f3360e",
-  "validated_main_commit": "9845186013df5e6458f80f37bc9356fbffea2e73"
+  "validated_main_commit": "9845186013df5e6458f80f37bc9356fbffea2e73",
+  "source_repository": "https://github.com/slayerkey/rp-system.git",
+  "source_ref": "refs/heads/main",
+  "source_commit": "f16edeae761dba287f83152c3180484b140595d8"
 }
