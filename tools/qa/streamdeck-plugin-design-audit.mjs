@@ -6,6 +6,10 @@ const rootArg=process.argv[2];
 const flags=new Set(process.argv.slice(3));
 const requireCanonicalPi=flags.has("--require-canonical-pi");
 const requireLiteProUpsell=flags.has("--require-lite-pro-upsell");
+const extraPluginSourceArgs=process.argv.slice(3)
+  .filter((value)=>value.startsWith("--extra-plugin-source="))
+  .map((value)=>value.slice("--extra-plugin-source=".length))
+  .filter(Boolean);
 if(!rootArg){
   console.error("Usage: node tools/qa/streamdeck-plugin-design-audit.mjs <plugin-source-root> [--require-canonical-pi] [--require-lite-pro-upsell]");
   process.exit(2);
@@ -81,9 +85,19 @@ if(typeof nodeDebug==="string"&&/^(?:disabled|false|off|none)$/i.test(nodeDebug.
 }
 
 const sourceFiles=walk(root,(file)=>/\.(?:js|mjs|cjs|ts)$/i.test(file)&&!file.includes("node_modules"));
-const pluginSource=sourceFiles
-  .filter(file=>/[\\/](?:src|bin)[\\/]/.test(file)||/[\\/]plugin\.(?:js|ts)$/i.test(file))
-  .map(text).join("\n");
+const pluginSource=[
+  ...sourceFiles
+    .filter(file=>/[\\/](?:src|bin)[\\/]/.test(file)||/[\\/]plugin\.(?:js|ts)$/i.test(file))
+    .map(text),
+  ...extraPluginSourceArgs.map((value)=>{
+    const file=resolve(value);
+    if(!existsSync(file)){
+      errors.push("Extra plugin source is missing: "+value);
+      return "";
+    }
+    return text(file);
+  }),
+].join("\n");
 
 // Telemetry helpers must distinguish absence from numeric zero before coercion.
 // Number(null) and Number("") both become 0 in JavaScript, which can turn an
