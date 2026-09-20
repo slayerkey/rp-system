@@ -4,6 +4,16 @@ on:
     branches:
       - product/audio-manager-lite
       - main
+    paths:
+      - "plugins/audio-manager-lite/**"
+      - "companions/packrat-audio-core/**"
+      - "products/audio-manager-lite.json"
+      - "products/lite-pro-map.json"
+      - "products/index.json"
+      - "tools/lite_pro_audit.py"
+      - "tools/qa/streamdeck-plugin-design-audit.mjs"
+      - "tools/qa/streamdeck-key-visual-audit.mjs"
+      - ".github/workflows/audio-manager-lite-ci.yml"
   workflow_dispatch:
 permissions:
   contents: read
