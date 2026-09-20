@@ -24,8 +24,8 @@
     "Stream Deck"
   ],
   "listing_summary": "Save reusable text snippets and insert dynamic text from Stream Deck. Lite supports up to 10 local snippets plus {date}, {time}, and {clipboard}, with Unicode, emoji, multiline text, URLs, and code snippets.",
-  "pro_marketplace_url": null,
-  "pro_url_rule": "Show both canonical Lite→Pro conversion surfaces at all times. Use the exact verified direct Text Expander Pro Marketplace URL when available; otherwise fall back to https://marketplace.elgato.com/maker/packrat.",
+  "pro_marketplace_url": "https://marketplace.elgato.com/product/text-expander-pro-7a939ada-53a5-49ae-99b5-2752c8e82f41",
+  "pro_url_rule": "Text Expander Pro is public. Both canonical Lite→Pro conversion surfaces must route directly to the exact verified Text Expander Pro Marketplace URL.",
   "submission_metadata": "plugins/text-expander/submission-lite.json",
   "release_gate": [
     "locked dependency install and deterministic build",
@@ -40,7 +40,7 @@
     "real Windows insertion smoke in Notepad, browser, Discord, multiline editor, and code editor",
     "clipboard restoration and blocked-synthetic-input fallback smoke"
   ],
-  "final_boundary": "Run plugins/text-expander/REAL_WINDOWS_SMOKE.md against the validated package bytes recorded in automated_release_evidence. Stage/publish Pro first; before that listing exists Lite uses the PackRat maker page fallback. Once the direct Pro Marketplace URL is verified, add it to products/lite-pro-map.json, rebuild/revalidate Lite so both upgrade CTAs route directly to Pro, then ship Lite.",
+  "final_boundary": "The verified direct Text Expander Pro Marketplace URL is recorded. Rebuild/revalidate Lite so both upgrade CTAs route directly to Pro, then complete the remaining formal Lite release checks already listed in blocker before shipping.",
   "ship_plugin_dir": "dist/com.packrat.textexpanderlite.sdPlugin",
   "automated_tests": 37,
   "automated_release_evidence": {
@@ -82,8 +82,9 @@
     "package_container_note": "Outer .streamDeckPlugin SHA256 can change across equivalent pack operations because ZIP metadata can vary. Use unpacked-content SHA256 for exact-content host QA.",
     "physical_quick_smoke": "PENDING for Lite specifically - Pro hardware smoke proved the shared insertion engine, but Lite EMAIL + / CLIP + / LIBRARY still need a direct Lite hardware pass.",
     "lite_pro_upgrade_fallback": "PASS in validated package - top-right Upgrade to Pro and bottom Open Text Expander Pro CTAs are always present for Lite and resolve to the PackRat maker page until a verified direct Pro URL is injected.",
-    "physical_starter_smoke": "PASS on real Stream Deck - EMAIL + insertion works, CLIP + clipboard insertion works, and LIBRARY opens the Lite full dashboard."
+    "physical_starter_smoke": "PASS on real Stream Deck - EMAIL + insertion works, CLIP + clipboard insertion works, and LIBRARY opens the Lite full dashboard.",
+    "direct_pro_url_rebuild": "PENDING_AFTER_VERIFIED_PRO_URL"
   },
-  "blocker": "Starter hardware smoke is PASS. Remaining formal Lite release checks are the 10-snippet cap, Lite variable behavior, restart persistence, Lite/Pro storage coexistence, and final direct-Pro URL rebuild after Pro publication.",
-  "upsell_status": "Top-right Upgrade to Pro and bottom Pro feature card are enabled for Lite. Before Pro publication both open the PackRat maker Marketplace page; after the verified direct Pro URL is recorded they open that direct listing."
+  "blocker": "Starter hardware smoke is PASS. Remaining formal Lite release checks are the 10-snippet cap, Lite variable behavior, restart persistence, Lite/Pro storage coexistence, and fresh build/package validation with the verified direct Pro URL.",
+  "upsell_status": "Exact Text Expander Pro Marketplace URL is configured in the canonical map. Fresh Lite rebuild/package validation is pending; both canonical upgrade surfaces must route directly to Pro."
 }
