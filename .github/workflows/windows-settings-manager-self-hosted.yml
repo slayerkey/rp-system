@@ -10,6 +10,8 @@ on:
       - "products/windows-settings-manager-pro.json"
       - "products/index.json"
       - "products/lite-pro-map.json"
+      - "tools/lite_pro_audit.py"
+      - "tools/qa/streamdeck-plugin-design-audit.mjs"
       - ".github/workflows/windows-settings-manager-self-hosted.yml"
   workflow_dispatch:
 
