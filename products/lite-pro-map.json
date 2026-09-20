@@ -189,12 +189,14 @@
         "plugins/audio-manager-pro",
         "companions/packrat-audio-core"
       ],
-      "source_status": "pro_url_verified_direct_cta_source_updated_validation_pending",
+      "source_status": "lite_and_pro_urls_verified_direct_cta_source_updated_validation_pending",
       "notes": "Audio Manager Lite is the direct-device free edition: Set Output Device + Set Input Device. Audio Manager Pro is publicly verified; the exact direct Marketplace URL is recorded here and Lite must route both canonical upgrade surfaces directly to Pro. Fresh exact-commit CI, validation, and package evidence are required after the URL update.",
       "upsell_surface": "Lite Property Inspector",
       "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1",
-      "pro_marketplace_product_id": "89fcd139-e8ce-4b42-a58b-0b25a3b38cf1"
+      "pro_marketplace_product_id": "89fcd139-e8ce-4b42-a58b-0b25a3b38cf1",
+      "lite_marketplace_product_id": "886209d1-1edf-4e22-a72e-8686cdce5699",
+      "lite_marketplace_url": "https://marketplace.elgato.com/product/audio-manager-lite-886209d1-1edf-4e22-a72e-8686cdce5699"
     }
   ],
   "standalone_free": [
