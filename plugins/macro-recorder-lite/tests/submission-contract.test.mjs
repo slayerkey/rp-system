@@ -39,11 +39,12 @@ test("Lite submission matches its standalone free release contract",async()=>{
 
   assert.equal(product.workflow_state,"TESTING");
   assert.equal(product.blocker_kind,"fresh_lite_release_qa");
-  assert.equal(product.upgrade_url,null);
-  assert.equal(product.upgrade_url_state,"deferred_until_verified_direct_pro_listing");
-  assert.equal(product.upsell_release_gate.required_before_public_lite_launch,false);
-  assert.equal(submission.pro_marketplace_url,null);
-  assert.match(submission.pro_url_policy,/Optional post-launch upgrade link/);
+  const expectedProUrl="https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066";
+  assert.equal(product.upgrade_url,expectedProUrl);
+  assert.equal(product.upgrade_url_state,"verified_direct_pro_listing_validation_pending");
+  assert.equal(product.upsell_release_gate.required_before_public_lite_launch,true);
+  assert.equal(submission.pro_marketplace_url,expectedProUrl);
+  assert.match(submission.pro_url_policy,/Verified direct Macro Recorder Pro Marketplace listing/);
 
   assert.deepEqual(product.limits,{recording_seconds:10,events:50,input:"keyboard only"});
   assert.match(submission.description,/10 seconds and 50 keyboard events/);
