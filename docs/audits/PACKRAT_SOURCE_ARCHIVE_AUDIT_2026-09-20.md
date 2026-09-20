@@ -16,6 +16,12 @@ This PC was treated as the discovery source of truth. The scan covered Claude Pr
 - `packrat-icon-factory` has 16 local commits not present on its remote branch plus two untracked showcase scripts. Automatic approval review blocked that separate push, so it remains unresolved.
 - The `cs2-repair` worktree has hundreds of unstaged deletions and untracked build dependencies. Its HEAD commit is already contained by remote refs, but the dirty checkout is unresolved.
 
+## GitHub synchronization performed
+
+- `slayerkey/rp-system` branch `recovery/local-source-baselines-20260920`, commit `24d5f43a1568c83e394a38bffbc3699f3bfd9f8a`: recovered 80 factory directories, six standalone historical trees, shared build/source support, 14 exact packages, hashes, and this audit inventory.
+- `slayerkey/vcs` branch `archive/window-manager-pro-1.3-package-2026-09-20`, commit `5329b1798467f545f2ceda65ee43921ded898428`: records the exact 1.3 package identity and points to the exact preserved package and canonical editable 1.2 source.
+- No product behavior, manifest UUID, or action UUID was changed.
+
 ## Complete product inventory
 
 `Git` below refers to the newest matching manifest version found in fetched `rp-system` objects unless a product is catalog-only. Every recovered local row is committed on `slayerkey/rp-system` branch `recovery/local-source-baselines-20260920`; the repository/ref column records original or canonical provenance. Private Window Manager provenance is described separately above.
