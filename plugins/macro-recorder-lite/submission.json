@@ -45,8 +45,8 @@
     "platform": "Windows 10+",
     "stream_deck": "7.1+"
   },
-  "pro_marketplace_url": null,
-  "pro_url_policy": "Optional post-launch upgrade link. Populate only after the direct Macro Recorder Pro Marketplace product URL is verified.",
+  "pro_marketplace_url": "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066",
+  "pro_url_policy": "Verified direct Macro Recorder Pro Marketplace listing. Both Lite upgrade surfaces must route directly to this product.",
   "media": {
     "marketplace_app_icon": "artifacts/marketplace/macro-recorder-lite/00-app-icon.png",
     "thumbnail": "artifacts/marketplace/macro-recorder-lite/01-hero.png",
