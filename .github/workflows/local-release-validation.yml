@@ -1,0 +1,77 @@
+name: Wireless Device Manager Local Release Validation
+on:
+  push:
+    branches: [product/wireless-device-manager]
+    paths:
+      - "plugins/wireless-device-manager-family/**"
+      - "products/wireless-device-manager*.json"
+      - "products/lite-pro-map.json"
+      - ".github/workflows/local-release-validation.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-release:
+    runs-on: self-hosted
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: plugins/wireless-device-manager-family
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Use host Python
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $python = $null
+          $py = Get-Command py -ErrorAction SilentlyContinue
+          if ($py) {
+            foreach ($version in @("3.13", "3.12")) {
+              try {
+                $candidate = (& py "-$version" -c "import sys; print(sys.executable)" 2>$null | Select-Object -Last 1).Trim()
+                if ($LASTEXITCODE -eq 0 -and $candidate -and (Test-Path $candidate)) { $python = $candidate; break }
+              } catch {}
+            }
+          }
+          if (-not $python) {
+            $cmd = Get-Command python -ErrorAction SilentlyContinue
+            if ($cmd -and (Test-Path $cmd.Source)) { $python = $cmd.Source }
+          }
+          if (-not $python) { throw "No usable host Python found." }
+          $pythonDir = Split-Path $python -Parent
+          $scriptsDir = Join-Path $pythonDir "Scripts"
+          $pythonDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          if (Test-Path $scriptsDir) { $scriptsDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append }
+          & $python --version
+          & $python -m pip --version
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check pillow==12.3.0
+      - name: Build test validate package
+        shell: powershell
+        run: |
+          npm ci --no-fund --no-audit
+          npm audit --audit-level=high
+          npm run build
+          npm test
+          npm run validate
+          npm run pack
+      - name: Audit Lite-to-Pro routing
+        shell: powershell
+        working-directory: ${{ github.workspace }}
+        run: |
+          python tools/lite_pro_audit.py --shipping wireless-device-manager
+          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/wireless-device-manager-family --require-canonical-pi --require-lite-pro-upsell
+          $expected = "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f"
+          $hits = Get-ChildItem plugins/wireless-device-manager-family -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
+          if (-not $hits) { throw "Verified Wireless Device Manager Pro URL was not found in rebuilt family output." }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wireless-device-manager-local-release
+          path: plugins/wireless-device-manager-family/dist/**/*.streamDeckPlugin
+          if-no-files-found: error
