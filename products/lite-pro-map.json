@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-01",
+  "updated_at": "2026-09-20",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -192,7 +192,9 @@
       "source_status": "lite_and_pro_qa_passed_ready_to_ship_pro_first_marketplace_linking_pending",
       "notes": "Lite is the coherent free essentials edition for the broad use case of controlling Windows without opening Settings or leaving the current task: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, and Next Desktop. Pro expands the same use case into the complete 15-key Windows Control Center with Hibernate, protected Restart/Shutdown, Wi-Fi, Bluetooth, Light/Dark theme, New/Close/Current Desktop, plus advanced Windows controls. Both editions passed build/tests/validation/package/media gates and physical Stream Deck visual review. Release order remains Pro first. Lite may be generated/uploaded as a draft, but final public Lite submission requires the exact verified Pro and Lite Marketplace URLs/IDs and a passing strict shipping audit.",
       "upsell_surface": "Lite Property Inspector",
-      "url_injection": "Build reads pro_marketplace_url from this map. The Lite upgrade CTA remains hidden until a verified direct Pro Marketplace product URL exists."
+      "url_injection": "Build reads pro_marketplace_url from this map. The Lite upgrade CTA remains hidden until a verified direct Pro Marketplace product URL exists.",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/windows-settings-manager-pro-a95ddbd4-32bb-4d19-a8c8-e4b8c2f3360e",
+      "pro_marketplace_product_id": "a95ddbd4-32bb-4d19-a8c8-e4b8c2f3360e"
     }
   ],
   "standalone_free": [
