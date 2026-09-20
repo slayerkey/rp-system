@@ -215,7 +215,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   }
 
   async function sendPropertyInspector(payload) {
-    if (!streamDeck.ui?.sendToPropertyInspector) return;
+    if (!streamDeck.ui || typeof streamDeck.ui.sendToPropertyInspector !== "function") return;
     await streamDeck.ui.sendToPropertyInspector(payload).catch(() => {});
   }
 
@@ -711,7 +711,7 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
       if (record) record.inspectorOpen = false;
       if (activeInspectorId === id) activeInspectorId = "";
     });
-    streamDeck.ui.onSendToPlugin?.((ev) => {
+    if (typeof streamDeck.ui.onSendToPlugin === "function") streamDeck.ui.onSendToPlugin((ev) => {
       const payload = ev.payload || {};
       const requestedActionContext = String(payload.actionContext || "");
       const eventActionId = String(ev.action?.id || "");
