@@ -214,14 +214,9 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
     };
   }
 
-  async function sendPropertyInspector(payload, record = null) {
-    if (streamDeck.ui?.sendToPropertyInspector) {
-      await streamDeck.ui.sendToPropertyInspector(payload).catch(() => {});
-      return;
-    }
-    if (record?.action?.sendToPropertyInspector) {
-      await record.action.sendToPropertyInspector(payload).catch(() => {});
-    }
+  async function sendPropertyInspector(payload) {
+    if (!streamDeck.ui?.sendToPropertyInspector) return;
+    await streamDeck.ui.sendToPropertyInspector(payload).catch(() => {});
   }
 
   async function sendInspector(record) {
@@ -230,24 +225,14 @@ export async function startMacroRecorder({ streamDeck, SingletonAction, pro, pre
   }
 
   async function broadcastInspectors() {
-    if (streamDeck.ui) {
-      const record = visible.get(activeInspectorId);
-      if (record) await sendInspector(record);
-      return;
-    }
-    await Promise.all([...visible.values()].filter((record) => record.inspectorOpen).map(sendInspector));
+    const record = visible.get(activeInspectorId);
+    if (record) await sendInspector(record);
   }
 
   async function broadcastStatus() {
     const status = inspectorStatus();
-    if (streamDeck.ui) {
-      const record = visible.get(activeInspectorId);
-      if (record) await sendPropertyInspector(status, record);
-      return;
-    }
-    await Promise.all([...visible.values()]
-      .filter((record) => record.inspectorOpen && record.action?.sendToPropertyInspector)
-      .map((record) => record.action.sendToPropertyInspector(status).catch(() => {})));
+    const record = visible.get(activeInspectorId);
+    if (record) await sendPropertyInspector(status);
   }
 
   async function assignNewRecordingToReplayKeys(macro) {
