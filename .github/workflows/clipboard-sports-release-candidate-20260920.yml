@@ -1,0 +1,166 @@
+name: Clipboard + Sports Publish-Ready RC
+
+on:
+  push:
+    branches:
+      - fix/clipboard-dials-sports-tennessee-20260920
+    paths:
+      - 'plugins/clipboard-manager/**'
+      - 'plugins/clipboard-manager-pro/**'
+      - 'plugins/ultimate-sports/**'
+      - 'plugins/_shared/**'
+      - 'products/index.json'
+      - '.github/workflows/clipboard-sports-release-candidate-20260920.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build 3 publish-ready Stream Deck plugins
+    runs-on: [self-hosted, Windows, X64, packrat]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout update branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install shared sports test dependencies
+        shell: pwsh
+        run: npm ci --prefix plugins/_shared --no-fund --no-audit
+
+      - name: Install Clipboard Manager Lite dependencies
+        shell: pwsh
+        working-directory: plugins/clipboard-manager
+        run: |
+          npm ci --no-fund --no-audit
+          npm install --force --no-save --package-lock=false @koromix/koffi-win32-x64@3.1.4 @koromix/koffi-darwin-x64@3.1.4 @koromix/koffi-darwin-arm64@3.1.4
+
+      - name: Test Clipboard Manager Lite
+        shell: pwsh
+        working-directory: plugins/clipboard-manager
+        run: |
+          npm run test:history
+          npm run test:badge
+          npm run test:clipboard
+          npm run test:paste
+
+      - name: Build Clipboard Manager Lite
+        shell: pwsh
+        working-directory: plugins/clipboard-manager
+        run: npm run build
+
+      - name: Validate Clipboard Manager Lite
+        shell: pwsh
+        working-directory: plugins/clipboard-manager
+        run: npx streamdeck validate com.packrat.clipboard.sdPlugin --no-update-check
+
+      - name: Package Clipboard Manager Lite
+        shell: pwsh
+        working-directory: plugins/clipboard-manager
+        run: npx streamdeck pack com.packrat.clipboard.sdPlugin --output dist --force --no-update-check --no-file-list
+
+      - name: Install Clipboard Manager Pro dependencies
+        shell: pwsh
+        working-directory: plugins/clipboard-manager-pro
+        run: |
+          npm ci --no-fund --no-audit
+          npm install --force --no-save --package-lock=false @koromix/koffi-win32-x64@3.1.4 @koromix/koffi-darwin-x64@3.1.4 @koromix/koffi-darwin-arm64@3.1.4
+
+      - name: Test Clipboard Manager Pro
+        shell: pwsh
+        working-directory: plugins/clipboard-manager-pro
+        run: |
+          npm test
+          npm run typecheck
+
+      - name: Build Clipboard Manager Pro
+        shell: pwsh
+        working-directory: plugins/clipboard-manager-pro
+        run: npm run build
+
+      - name: Validate Clipboard Manager Pro
+        shell: pwsh
+        working-directory: plugins/clipboard-manager-pro
+        run: npx streamdeck validate com.packrat.clipboardpro.sdPlugin --no-update-check
+
+      - name: Package Clipboard Manager Pro
+        shell: pwsh
+        working-directory: plugins/clipboard-manager-pro
+        run: npx streamdeck pack com.packrat.clipboardpro.sdPlugin --output dist --force --no-update-check --no-file-list
+
+      - name: Install Sports Tracker Ultimate dependencies
+        shell: pwsh
+        working-directory: plugins/ultimate-sports
+        run: npm ci --no-fund --no-audit
+
+      - name: Test Sports Tracker Ultimate
+        shell: pwsh
+        working-directory: plugins/ultimate-sports
+        run: |
+          npm test
+          npm run typecheck
+
+      - name: Build Sports Tracker Ultimate
+        shell: pwsh
+        working-directory: plugins/ultimate-sports
+        run: npm run build
+
+      - name: Validate Sports Tracker Ultimate
+        shell: pwsh
+        working-directory: plugins/ultimate-sports
+        run: npx streamdeck validate com.packrat.ultimatesports.sdPlugin --no-update-check
+
+      - name: Package Sports Tracker Ultimate
+        shell: pwsh
+        working-directory: plugins/ultimate-sports
+        run: npx streamdeck pack com.packrat.ultimatesports.sdPlugin --output dist --force --no-update-check --no-file-list
+
+      - name: Verify exact versions and stage publish-ready files
+        shell: pwsh
+        run: |
+          $expected = @(
+            @{ Manifest = 'plugins/clipboard-manager/com.packrat.clipboard.sdPlugin/manifest.json'; Version = '1.1.0.0' },
+            @{ Manifest = 'plugins/clipboard-manager-pro/com.packrat.clipboardpro.sdPlugin/manifest.json'; Version = '1.1.0.0' },
+            @{ Manifest = 'plugins/ultimate-sports/com.packrat.ultimatesports.sdPlugin/manifest.json'; Version = '1.0.1.0' }
+          )
+          foreach ($item in $expected) {
+            $m = Get-Content $item.Manifest -Raw | ConvertFrom-Json
+            if ($m.Version -ne $item.Version) { throw "$($item.Manifest) is $($m.Version), expected $($item.Version)" }
+          }
+
+          $out = Join-Path $PWD 'publish-ready'
+          New-Item -ItemType Directory -Force $out | Out-Null
+
+          $lite = Get-ChildItem 'plugins/clipboard-manager/dist' -Filter '*.streamDeckPlugin' | Select-Object -First 1
+          $pro = Get-ChildItem 'plugins/clipboard-manager-pro/dist' -Filter '*.streamDeckPlugin' | Select-Object -First 1
+          $sports = Get-ChildItem 'plugins/ultimate-sports/dist' -Filter '*.streamDeckPlugin' | Select-Object -First 1
+
+          if (-not $lite -or -not $pro -or -not $sports) { throw 'One or more release packages are missing.' }
+
+          Copy-Item $lite.FullName (Join-Path $out 'Clipboard-Manager-1.1.0.0.streamDeckPlugin')
+          Copy-Item $pro.FullName (Join-Path $out 'Clipboard-Manager-Pro-1.1.0.0.streamDeckPlugin')
+          Copy-Item $sports.FullName (Join-Path $out 'Sports-Tracker-Ultimate-1.0.1.0.streamDeckPlugin')
+
+          $hashes = Get-ChildItem $out -Filter '*.streamDeckPlugin' | Get-FileHash -Algorithm SHA256
+          $hashes | ForEach-Object { "$($_.Hash)  $([IO.Path]::GetFileName($_.Path))" } | Set-Content (Join-Path $out 'SHA256SUMS.txt')
+
+          Get-ChildItem $out | Format-Table Name, Length
+
+      - name: Upload publish-ready plugins
+        uses: actions/upload-artifact@v4
+        with:
+          name: clipboard-sports-publish-ready-20260920
+          path: publish-ready/*
+          if-no-files-found: error
+          compression-level: 0
