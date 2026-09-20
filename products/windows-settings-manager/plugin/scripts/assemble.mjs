@@ -76,6 +76,7 @@ async function assemble(flavor) {
 
   await copyFile(BACKEND, path.join(plugin, "bin", "windows-settings-backend.ps1"));
   await copyFile(PACKRAT_LOGO, path.join(plugin, "ui", "packrat-icon.png"));
+  await copyFile(PACKRAT_LOGO, path.join(plugin, "imgs", "plugin", "packrat-logo.png"));
   await copyFile(path.join(ASSETS, "marketplace.png"), path.join(plugin, "imgs", "plugin", "marketplace.png"));
   await copyFile(path.join(ASSETS, "marketplace@2x.png"), path.join(plugin, "imgs", "plugin", "marketplace@2x.png"));
   for (const file of ["config.html", "pi.css", "pi.js"]) {
