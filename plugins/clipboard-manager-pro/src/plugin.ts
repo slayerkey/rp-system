@@ -2,6 +2,7 @@ import streamDeck from "@elgato/streamdeck";
 
 import { startWatcher } from "../../clipboard-manager/src/clipboard/watcher";
 import { assertLayout, inputSize } from "../../clipboard-manager/src/paste/input";
+import { ClipboardProDial } from "./actions/dial";
 import { ClipboardEntry } from "./actions/entry";
 import { HistoryPicker } from "./actions/picker";
 import { PRO_HISTORY_LIMIT } from "./history-pro";
@@ -13,5 +14,6 @@ streamDeck.logger.info(`Native input layer ready (node ${process.version}, ${pro
 
 streamDeck.actions.registerAction(new ClipboardEntry());
 streamDeck.actions.registerAction(new HistoryPicker());
+streamDeck.actions.registerAction(new ClipboardProDial());
 
 streamDeck.connect().then(() => startWatcher({ historyLimit: PRO_HISTORY_LIMIT }));
