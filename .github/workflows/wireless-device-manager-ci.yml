@@ -107,6 +107,18 @@ jobs:
           Get-FileHash $lite[0].FullName -Algorithm SHA256
           Get-FileHash $pro[0].FullName -Algorithm SHA256
           $lite[0],$pro[0] | Select-Object Name,Length,@{Name='MiB';Expression={[math]::Round($_.Length/1MB,2)}} | Format-Table -AutoSize
+      - name: Strict Lite-to-Pro release gate
+        shell: pwsh
+        working-directory: ${{ github.workspace }}
+        run: |
+          python tools/lite_pro_audit.py --shipping wireless-device-manager
+          if ($LASTEXITCODE -ne 0) { throw "Wireless Device Manager strict Lite-to-Pro audit failed." }
+          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin --require-canonical-pi --require-lite-pro-upsell --extra-plugin-source=plugins/wireless-device-manager-family/src/lite.ts
+          if ($LASTEXITCODE -ne 0) { throw "Wireless Device Manager canonical PI audit failed." }
+          $expected = "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f"
+          $hits = Get-ChildItem plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/ui -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
+          if (-not $hits) { throw "Verified Wireless Device Manager Pro URL is missing from Lite UI." }
+
       - uses: actions/upload-artifact@v4
         with:
           name: wireless-device-manager-family
