@@ -22,8 +22,8 @@
   "qa": "docs/MACRO_RECORDER_QA.md",
   "market_research": "docs/MACRO_RECORDER_MARKET_RESEARCH_2026-09-12.md",
   "submission": "plugins/macro-recorder-lite/submission.json",
-  "upgrade_url": null,
-  "upgrade_url_state": "deferred_until_verified_direct_pro_listing",
+  "upgrade_url": "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066",
+  "upgrade_url_state": "verified_direct_pro_listing_validation_pending",
   "limits": {
     "recording_seconds": 10,
     "events": 50,
@@ -61,17 +61,17 @@
     "official .streamDeckPlugin packaging",
     "deterministic Marketplace media",
     "10-second / 50-event keyboard-only limits verified",
-    "no public Pro URL required for initial Lite launch"
+    "verified direct Macro Recorder Pro URL on both canonical Lite upgrade surfaces"
   ],
   "upsell_release_gate": {
-    "required_before_public_lite_launch": false,
-    "current_state": "deferred_until_verified_direct_macro_recorder_pro_listing",
+    "required_before_public_lite_launch": true,
+    "current_state": "verified_direct_macro_recorder_pro_listing_validation_pending",
     "accepted_future_url_shape": "https://marketplace.elgato.com/product/<verified-pro-slug-and-id>",
-    "policy": "Lite may launch standalone. Add the direct Pro upgrade surface only after the real public Pro listing is verified."
+    "policy": "Macro Recorder Pro is public. Lite must route both canonical Pro upgrade surfaces directly to the verified Pro listing; fresh exact-commit family QA is required after this routing update."
   },
   "automated_release_evidence": {
-    "status": "STALE_AFTER_LIMIT_CHANGE",
-    "note": "Previous exact-commit release evidence predates the owner-approved 10-second / 50-event Lite limit and final upsell placement."
+    "status": "PENDING_AFTER_DIRECT_PRO_URL_UPDATE",
+    "note": "Previous release evidence predates the final Lite limits/upsell placement and the verified direct Pro routing. Fresh exact-commit family QA is required."
   },
   "submission_metadata": "plugins/macro-recorder-lite/submission.json"
 }
