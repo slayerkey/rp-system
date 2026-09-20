@@ -54,11 +54,28 @@ main {
 
 .hero,
 .card,
-.privacy {
+.privacy,
+.upsell {
   border: 1px solid var(--packrat-border);
   background: linear-gradient(145deg, var(--packrat-card-start), var(--packrat-card-end));
   border-radius: 12px;
   padding: 14px;
+}
+
+.packrat-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.packrat-upgrade {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 0;
+  padding: 7px 11px;
+  white-space: nowrap;
+  font-size: 10.5px;
 }
 
 .hero {
@@ -68,6 +85,7 @@ main {
 
 .brand-link {
   justify-self: start;
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -275,3 +293,30 @@ button.small {
 .hidden { display: none !important; }
 
 .action-fields { margin-top: 2px; }
+
+.upsell {
+  border-color: rgba(255,178,30,.38);
+  box-shadow: 0 0 22px rgba(255,178,30,.07);
+}
+
+.upsell h2 {
+  margin-bottom: 7px;
+  font-size: 14px;
+}
+
+.upsell-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.upsell-list li {
+  padding: 7px 0;
+  border-top: 1px solid #2B3038;
+  color: #CBD1DB;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.upsell-list strong { color: #FFFFFF; }
+.pro-button { width: 100%; }
