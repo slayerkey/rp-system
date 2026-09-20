@@ -1,0 +1,75 @@
+name: Audio Manager Lite Local Release Validation
+on:
+  push:
+    branches: [product/audio-manager-lite]
+    paths:
+      - "plugins/audio-manager-lite/**"
+      - "companions/packrat-audio-core/**"
+      - "products/audio-manager-lite.json"
+      - "products/lite-pro-map.json"
+      - ".github/workflows/local-release-validation.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-release:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Use host Python
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $python = $null
+          $py = Get-Command py -ErrorAction SilentlyContinue
+          if ($py) {
+            foreach ($version in @("3.13", "3.12")) {
+              try {
+                $candidate = (& py "-$version" -c "import sys; print(sys.executable)" 2>$null | Select-Object -Last 1).Trim()
+                if ($LASTEXITCODE -eq 0 -and $candidate -and (Test-Path $candidate)) { $python = $candidate; break }
+              } catch {}
+            }
+          }
+          if (-not $python) {
+            $cmd = Get-Command python -ErrorAction SilentlyContinue
+            if ($cmd -and (Test-Path $cmd.Source)) { $python = $cmd.Source }
+          }
+          if (-not $python) { throw "No usable host Python found." }
+          $pythonDir = Split-Path $python -Parent
+          $scriptsDir = Join-Path $pythonDir "Scripts"
+          $pythonDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          if (Test-Path $scriptsDir) { $scriptsDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append }
+          & $python --version
+          & $python -m pip --version
+      - name: Build shared AudioCore
+        run: dotnet build companions/packrat-audio-core/src/PackRat.AudioCore/PackRat.AudioCore.csproj -c Release
+      - name: Build test validate package Lite
+        working-directory: plugins/audio-manager-lite
+        run: |
+          npm ci --no-fund --no-audit
+          npm audit --audit-level=high
+          npm test
+          npm run build
+          npm run native:selftest
+          npm run validate
+          npm run pack
+      - name: Audit Lite-to-Pro routing
+        shell: powershell
+        run: |
+          python tools/lite_pro_audit.py --shipping audio-manager-lite
+          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/audio-manager-lite --require-canonical-pi --require-lite-pro-upsell
+          $expected = "https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1"
+          $hits = Get-ChildItem plugins/audio-manager-lite -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
+          if (-not $hits) { throw "Verified Audio Manager Pro URL was not found in rebuilt Lite output/source." }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audio-manager-lite-local-release
+          path: plugins/audio-manager-lite/dist/*.streamDeckPlugin
+          if-no-files-found: error
