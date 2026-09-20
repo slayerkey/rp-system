@@ -76,6 +76,10 @@ jobs:
         working-directory: plugins/monitor-manager-lite
         run: npx streamdeck pack com.packrat.monitormanagerlite.sdPlugin --output dist --force --no-update-check --no-file-list
 
+      - name: Record package SHA256
+        shell: pwsh
+        run: Get-FileHash plugins/monitor-manager-lite/dist/*.streamDeckPlugin -Algorithm SHA256 | Format-Table -AutoSize
+
       - name: Render deterministic Marketplace media
         shell: pwsh
         working-directory: plugins/monitor-manager-lite
