@@ -9,10 +9,18 @@ on:
     branches: ["product/text-expander"]
     paths:
       - "plugins/text-expander/**"
+      - "products/index.json"
+      - "products/lite-pro-map.json"
+      - "tools/lite_pro_audit.py"
+      - "tools/qa/streamdeck-plugin-design-audit.mjs"
       - ".github/workflows/text-expander-plugin.yml"
   pull_request:
     paths:
       - "plugins/text-expander/**"
+      - "products/index.json"
+      - "products/lite-pro-map.json"
+      - "tools/lite_pro_audit.py"
+      - "tools/qa/streamdeck-plugin-design-audit.mjs"
       - ".github/workflows/text-expander-plugin.yml"
 
 jobs:
@@ -76,6 +84,18 @@ jobs:
         run: |
           .\rat-art.ps1 -Destination release\art-lite -Edition lite
           .\rat-art.ps1 -Destination release\art-pro -Edition pro
+      - name: Strict Lite-to-Pro release gate
+        shell: pwsh
+        working-directory: ${{ github.workspace }}
+        run: |
+          python tools/lite_pro_audit.py --shipping text-expander
+          if ($LASTEXITCODE -ne 0) { throw "Text Expander strict Lite-to-Pro audit failed." }
+          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/text-expander/dist/com.packrat.textexpanderlite.sdPlugin --require-canonical-pi --require-lite-pro-upsell
+          if ($LASTEXITCODE -ne 0) { throw "Text Expander canonical PI audit failed." }
+          $expected = "https://marketplace.elgato.com/product/text-expander-pro-7a939ada-53a5-49ae-99b5-2752c8e82f41"
+          $hits = Get-ChildItem plugins/text-expander/dist/com.packrat.textexpanderlite.sdPlugin/ui -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
+          if (-not $hits) { throw "Verified Text Expander Pro URL is missing from rebuilt Lite UI." }
+
       - uses: actions/upload-artifact@v4
         with:
           name: text-expander-streamdeck-candidates
