@@ -1,0 +1,72 @@
+name: Monitor Manager Lite Local Release Validation
+on:
+  push:
+    branches: [product/monitor-manager-lite]
+    paths:
+      - "plugins/monitor-manager-lite/**"
+      - "plugins/_shared/monitor-manager/**"
+      - "products/monitor-manager-lite.json"
+      - "products/lite-pro-map.json"
+      - ".github/workflows/local-release-validation.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-release:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Use host Python
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $python = $null
+          $py = Get-Command py -ErrorAction SilentlyContinue
+          if ($py) {
+            foreach ($version in @("3.13", "3.12")) {
+              try {
+                $candidate = (& py "-$version" -c "import sys; print(sys.executable)" 2>$null | Select-Object -Last 1).Trim()
+                if ($LASTEXITCODE -eq 0 -and $candidate -and (Test-Path $candidate)) { $python = $candidate; break }
+              } catch {}
+            }
+          }
+          if (-not $python) {
+            $cmd = Get-Command python -ErrorAction SilentlyContinue
+            if ($cmd -and (Test-Path $cmd.Source)) { $python = $cmd.Source }
+          }
+          if (-not $python) { throw "No usable host Python found." }
+          $pythonDir = Split-Path $python -Parent
+          $scriptsDir = Join-Path $pythonDir "Scripts"
+          $pythonDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          if (Test-Path $scriptsDir) { $scriptsDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append }
+          & $python --version
+          & $python -m pip --version
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0
+      - name: Build test host-audit validate package
+        working-directory: plugins/monitor-manager-lite
+        shell: powershell
+        run: |
+          npm ci --no-fund --no-audit
+          npm test
+          npm run build
+          ./scripts/host-audit.ps1
+          npx streamdeck validate com.packrat.monitormanagerlite.sdPlugin --no-update-check
+          npx streamdeck pack com.packrat.monitormanagerlite.sdPlugin --output dist --force --no-update-check --no-file-list
+      - name: Audit Lite-to-Pro routing
+        shell: powershell
+        run: |
+          python tools/lite_pro_audit.py --shipping monitor-manager-lite
+          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/monitor-manager-lite --require-canonical-pi --require-lite-pro-upsell
+          $expected = "https://marketplace.elgato.com/product/monitor-manager-pro-d1f16ff0-2433-4b67-991d-8dd9fcddd425"
+          $hits = Get-ChildItem plugins/monitor-manager-lite -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
+          if (-not $hits) { throw "Verified Monitor Manager Pro URL was not found in rebuilt Lite output/source." }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: monitor-manager-lite-local-release
+          path: plugins/monitor-manager-lite/dist/*.streamDeckPlugin
+          if-no-files-found: error
