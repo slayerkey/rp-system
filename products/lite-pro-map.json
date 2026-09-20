@@ -190,10 +190,10 @@
         "shared/macro-recorder",
         "shared/windows-input/PackRat.InputHost"
       ],
-      "source_status": "lite_release_ready_pro_url_deferred",
-      "notes": "Lite is a standalone useful keyboard recorder with 30-second / 60-event limits and one macro per Play action. Pro adds mouse capture, 10-minute / 25,000-event recordings, speed, loops, reusable Macro Library, full editing and import/export. Add a direct Lite-to-Pro CTA only after the real public Pro Marketplace listing is verified.",
-      "launch_sequence": "Lite may launch standalone. Add the verified direct Pro product URL in a later Lite update.",
-      "upsell_build_source": "deferred",
+      "source_status": "pro_url_verified_direct_cta_source_updated_validation_pending",
+      "notes": "Lite is the standalone keyboard recorder with 10-second / 50-event limits and one macro per Play action. Macro Recorder Pro is publicly verified; the exact direct Pro Marketplace URL is recorded here. Lite must use that direct URL on the canonical top-right and bottom Pro upgrade surfaces. Fresh exact-commit build, validation, and package evidence are required after the URL update.",
+      "launch_sequence": "Pro listing verified. Rebuild and validate Lite with the exact direct Pro product URL before the next public Lite candidate.",
+      "upsell_build_source": "verified_direct_pro_marketplace_url",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066",
       "pro_marketplace_product_id": "ac9d547d-eb65-4e49-a6bb-a378fa596066"
     }
