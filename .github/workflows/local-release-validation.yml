@@ -72,7 +72,9 @@ jobs:
           $expected = "https://marketplace.elgato.com/product/monitor-manager-pro-d1f16ff0-2433-4b67-991d-8dd9fcddd425"
           $hits = Get-ChildItem plugins/monitor-manager-lite -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
           if (-not $hits) { throw "Verified Monitor Manager Pro URL was not found in rebuilt Lite output/source." }
-      - uses: actions/upload-artifact@v4
+      - name: Upload release evidence (best effort)
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
         with:
           name: monitor-manager-lite-local-release
           path: plugins/monitor-manager-lite/dist/*.streamDeckPlugin
