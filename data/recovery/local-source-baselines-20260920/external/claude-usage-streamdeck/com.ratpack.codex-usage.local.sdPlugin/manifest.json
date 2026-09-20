@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+	"Name": "Codex Usage (Local)",
+	"Version": "0.1.3.0",
+	"Author": "Ratpack",
+	"Description": "Know your Codex usage at a glance. Live limits, themeable, calm by design.",
+	"Category": "Codex Usage (Local)",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"Icon": "imgs/plugin/marketplace",
+	"CodePath": "bin/plugin.js",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20"
+	},
+	"UUID": "com.ratpack.codex-usage.local",
+	"Actions": [
+		{
+			"Name": "Codex Usage (Local)",
+			"UUID": "com.ratpack.codex-usage.local.monitor",
+			"Icon": "imgs/actions/usage/icon",
+			"Tooltip": "Show Codex usage. Short press: style · Long press: window.",
+			"PropertyInspectorPath": "ui/usage.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/usage/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	]
+}

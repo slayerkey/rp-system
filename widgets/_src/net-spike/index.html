@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg">
+<title>tr('Network Probe')</title>
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F2F5F7'">
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'">
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#0B0E11'">
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"],
+    "info": "tr('Diagnostic build. Checks which data sources this device can reach.')"
+  }
+]
+</script>
+
+<link rel="stylesheet" href="../../_shared/tokens.css">
+<link rel="stylesheet" href="probe.css">
+</head>
+<body>
+<div id="stage">
+    <div id="head">
+        <span id="title" class="label">Packrat network probe</span>
+        <span id="env" class="label"></span>
+    </div>
+    <div id="rows"></div>
+    <div id="foot">
+        <span id="summary" class="label"></span>
+        <button id="runBtn" class="interactive">Run again</button>
+    </div>
+</div>
+<script src="probe.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+{
+	"Name": "Clipboard Manager Pro",
+	"Version": "1.0.0.0",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Clipboard Entry",
+			"UUID": "com.packrat.clipboardpro.slot",
+			"Icon": "imgs/actions/slot/icon",
+			"Tooltip": "Shows a recent or pinned copy on a named key. Press to paste it. Hold to pin or unpin it.",
+			"PropertyInspectorPath": "ui/entry.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/slot/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "History Picker",
+			"UUID": "com.packrat.clipboardpro.picker",
+			"Icon": "imgs/actions/picker/icon",
+			"Tooltip": "Search up to 50 recent copies, choose a result, and paste it from one key. Hold to step through matches.",
+			"PropertyInspectorPath": "ui/picker.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/picker/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "Clipboard Manager Pro",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Find and paste anything from your last 50 copies without breaking focus. Search the full rolling history, choose a result, and keep it ready on a key. Pin entries that must stay, give important slots clear names, or force a clean plain-text paste when formatting would get in the way. Empty, duplicate, long, and non-text clipboard content is handled safely. History stays on this machine and survives a restart.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "24",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.clipboardpro"
+}

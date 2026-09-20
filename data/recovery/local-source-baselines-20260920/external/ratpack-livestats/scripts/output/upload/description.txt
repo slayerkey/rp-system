@@ -1,0 +1,20 @@
+Real-time YouTube and Twitch creator analytics on your Stream Deck. Subscriber count, live viewers, milestone progress, total views, and growth trends always at a glance.
+
+Your numbers. On your desk. Always.
+
+Creator Stats puts your most important YouTube and Twitch numbers on your Stream Deck keys. Enter your YouTube API key and channel ID, connect your Twitch account, and stats start loading immediately.
+
+Subscribers, live viewers, follower count, total views, video count, upload streak, and milestone progress. Six display styles per key. Short press to cycle styles. Long press to switch metrics.
+
+**Features**
+- YouTube and Twitch stats in one plugin, no extra apps needed
+- Six display styles: big number, milestone ring, sparkline trend, delta, streak, and multi-stat overview
+- Milestone mode: progress ring to any target with a days-to-goal estimate
+- Live mode: viewer count updates every 90 seconds while you stream, switches to followers when you go offline
+- Upload streak: consecutive upload days tracked automatically from your YouTube activity
+- Multi-stat overview: four key stats on one key, TW followers, YT subs, live viewers, and new follows today
+- Short press cycles display style, long press cycles the metric shown
+
+Part of the Ratpack creator toolkit. Check out Kick Stats for Stream Deck for Kick.com channel analytics.
+
+creator stats stream deck youtube subscribers twitch followers live viewers milestone progress analytics streaming

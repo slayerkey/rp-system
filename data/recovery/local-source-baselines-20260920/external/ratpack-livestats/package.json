@@ -1,0 +1,33 @@
+{
+  "name": "ratpack-livestats",
+  "version": "1.0.0",
+  "description": "Creator analytics for Stream Deck — YouTube, Twitch, and more on your desk.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "icons": "node scripts/gen-icons.mjs",
+    "showcase": "node scripts/gen-showcase.mjs",
+    "preview": "node scripts/gen-preview.mjs",
+    "profile": "node scripts/gen-profile.mjs",
+    "build": "npm run icons && rollup -c && node scripts/copy-ui.mjs",
+    "watch": "cross-env ROLLUP_WATCH=true rollup -c -w",
+    "pack": "streamdeck pack com.ratpack.livestats.sdPlugin --output dist --force",
+    "dist": "npm run build && npm run pack && npm run showcase && npm run preview && npm run profile"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^2.1.0"
+  },
+  "devDependencies": {
+    "@elgato/cli": "^1.4.0",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node": "^22.10.0",
+    "archiver": "^7.0.1",
+    "cross-env": "^10.1.0",
+    "pngjs": "^7.0.0",
+    "rollup": "^4.28.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.7.2"
+  }
+}

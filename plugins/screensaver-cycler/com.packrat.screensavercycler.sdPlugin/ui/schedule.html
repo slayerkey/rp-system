@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Scheduled</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="schedule">
+		<h2>Screensaver by time of day</h2>
+		<div id="rules"></div>
+		<button type="button" id="add-rule" class="add">+ Add a time</button>
+		<p class="hint">At each time, the screensaver switches to the one you picked. Press the key to arm the schedule, press again to turn it off.</p>
+
+		<details>
+			<summary>Add a folder of your own screensavers</summary>
+			<div class="row">
+				<label class="key" for="folder">Folder</label>
+				<div class="field"><input type="text" id="folder" placeholder="C:\Screensavers" /></div>
+			</div>
+			<p class="hint">Any .scr files in this folder become choices in the dropdowns above.</p>
+		</details>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

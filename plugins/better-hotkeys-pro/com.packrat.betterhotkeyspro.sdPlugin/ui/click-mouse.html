@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Click Mouse</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-kind="click" data-verb="Clicks">
+		<div class="row">
+			<label class="key" for="button">Button</label>
+			<div class="field">
+				<select id="button">
+					<option value="left">Left</option>
+					<option value="right">Right</option>
+					<option value="middle">Middle</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="group">
+			<label class="mod standalone">
+				<input type="checkbox" id="atpoint" />
+				Click at a specific spot
+			</label>
+			<p class="hint">Off means it clicks wherever your cursor already is.</p>
+		</div>
+
+		<div id="point-fields">
+			<div class="row">
+				<label class="key" for="area">Area</label>
+				<div class="field">
+					<select id="area">
+						<option value="primary">Primary monitor</option>
+						<option value="virtual">All monitors</option>
+						<option value="monitor">Pick a monitor…</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="row" id="monitor-row">
+				<label class="key" for="monitor">Monitor</label>
+				<div class="field"><select id="monitor"></select></div>
+			</div>
+
+			<div class="row">
+				<label class="key" for="x">X</label>
+				<div class="field slider">
+					<input type="range" id="x" min="0" max="100" step="0.1" />
+					<input type="number" id="xnum" min="0" max="100" step="0.1" class="num" />
+					<span class="unit">%</span>
+				</div>
+			</div>
+
+			<div class="row">
+				<label class="key" for="y">Y</label>
+				<div class="field slider">
+					<input type="range" id="y" min="0" max="100" step="0.1" />
+					<input type="number" id="ynum" min="0" max="100" step="0.1" class="num" />
+					<span class="unit">%</span>
+				</div>
+			</div>
+
+			<button id="capture" type="button" class="record secondary">Capture cursor position</button>
+			<p id="capture-note" class="hint"></p>
+		</div>
+
+		<div id="summary" class="summary"></div>
+
+		<p class="hint">
+			Positions are a percentage of the screen, so a button set up on one monitor size still lands correctly
+			on another.
+		</p>
+
+		<script src="mouse.js"></script>
+	</body>
+</html>

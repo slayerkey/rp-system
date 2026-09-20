@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><title>Plan Value</title><link rel="stylesheet" href="pi.css" /></head>
+<body data-kind="value">
+<h2>What does your plan cost?</h2>
+<div class="row"><label class="key" for="plan">Plan per month</label><div class="field"><select id="plan"><option value="20">$20</option><option value="100">$100</option><option value="200">$200</option><option value="250">$250</option></select></div></div><div class="row"><label class="key" for="scope">Include</label><div class="field"><select id="scope"><option value="all">Claude Code and Codex</option><option value="claude">Claude Code only</option><option value="codex">Codex only</option></select></div></div><p class="hint">The key divides the last 30 days of usage, priced at token rates, by this figure. 1x means the plan broke even. Green means it paid for itself.</p>
+<p class="disclaimer">Not affiliated with or endorsed by Anthropic or OpenAI. Costs are an estimate worked out from published token rates and your own local session files, and will not match a bill exactly.</p>
+<script src="pi.js"></script>
+		<script src="store-footer.js"></script>
+</body>
+</html>

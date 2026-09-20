@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg">
+<title>tr('Ultimate Sports Tracker')</title>
+
+<meta name="x-icue-property" content="teams" data-label="tr('Teams')" data-type="textfield" data-default="'NFL:KC, NBA:LAL, MLB:NYY'">
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F2F5F7'">
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'">
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#0B0E11'">
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('My Teams')",
+    "properties": ["teams"],
+    "info": "tr('Team and event abbreviations, comma separated. Add a league when two share one, like NFL:KC. Name a sport for UFC, NASCAR or F1.')"
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"]
+  }
+]
+</script>
+
+<link rel="stylesheet" href="../../_shared/tokens.css">
+<link rel="stylesheet" href="sports.css">
+</head>
+<body>
+<div id="stage">
+    <div id="head">
+        <span id="title">Sports</span>
+        <span id="status" class="label"></span>
+    </div>
+    <div id="rail"></div>
+</div>
+<script src="../../_shared/boot.js"></script>
+<script src="../../_shared/net.js"></script>
+<script src="lib/sports-data.js"></script>
+<script src="sports.js"></script>
+</body>
+</html>

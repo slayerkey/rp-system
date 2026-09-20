@@ -1,0 +1,166 @@
+{
+	"Name": "Sports Tracker Ultimate",
+	"Version": "1.0.0.0",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "My Teams",
+			"UUID": "com.packrat.ultimatesports.myteams",
+			"Icon": "imgs/actions/myteams/icon",
+			"Tooltip": "Every team you follow on one key, across every sport, live games first. Press for the next one.",
+			"PropertyInspectorPath": "ui/myteams.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/myteams/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Team Score",
+			"UUID": "com.packrat.ultimatesports.score",
+			"Icon": "imgs/actions/score/icon",
+			"Tooltip": "Live score for one team in any sport, with a countdown to the next game when none is on.",
+			"PropertyInspectorPath": "ui/score.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/score/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Standings",
+			"UUID": "com.packrat.ultimatesports.standings",
+			"Icon": "imgs/actions/standings/icon",
+			"Tooltip": "Where a team sits in its conference or division. Press to swap the view.",
+			"PropertyInspectorPath": "ui/standings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/standings/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "League Games",
+			"UUID": "com.packrat.ultimatesports.scoreboard",
+			"Icon": "imgs/actions/scoreboard/icon",
+			"Tooltip": "Every game on a league's current slate, one at a time, live games first. Shows the date for fixtures that have not started yet.",
+			"PropertyInspectorPath": "ui/scoreboard.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/scoreboard/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Next Event",
+			"UUID": "com.packrat.ultimatesports.event",
+			"Icon": "imgs/actions/event/icon",
+			"Tooltip": "The next fight card or race, with a countdown once it is close.",
+			"PropertyInspectorPath": "ui/event.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/event/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Card and Field",
+			"UUID": "com.packrat.ultimatesports.card",
+			"Icon": "imgs/actions/card/icon",
+			"Tooltip": "Every bout on the card or every driver in the field, one at a time. Press to walk the list.",
+			"PropertyInspectorPath": "ui/card.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/card/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Driver Standings",
+			"UUID": "com.packrat.ultimatesports.rankings",
+			"Icon": "imgs/actions/rankings/icon",
+			"Tooltip": "The championship table for a racing series, one driver per press.",
+			"PropertyInspectorPath": "ui/rankings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/rankings/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Score Dial",
+			"UUID": "com.packrat.ultimatesports.dial",
+			"Icon": "imgs/actions/dial/icon",
+			"Tooltip": "Turn to scroll every game across every sport you follow. Press to open the one on screen.",
+			"PropertyInspectorPath": "ui/dial.html",
+			"Controllers": [
+				"Encoder"
+			],
+			"Encoder": {
+				"layout": "$B1",
+				"TriggerDescription": {
+					"Rotate": "Next or previous game",
+					"Push": "Open the game page",
+					"Touch": "Open the game page"
+				}
+			},
+			"States": [
+				{
+					"Image": "imgs/actions/dial/key"
+				}
+			]
+		}
+	],
+	"Category": "Sports Tracker Ultimate",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Live sports scores on your Stream Deck. Follow every team you care about across football, basketball, hockey, baseball, soccer, college, UFC, NASCAR and Formula 1, all from one key. Scoreboards, standings and next-game countdowns update on their own while you play or stream. No alt-tabbing to check the score. Not affiliated with or endorsed by any league, team or governing body.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.ultimatesports"
+}

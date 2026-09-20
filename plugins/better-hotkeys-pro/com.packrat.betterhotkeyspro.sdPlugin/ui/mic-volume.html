@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Mic Volume</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-kind="volume">
+		<div class="row first">
+			<label class="key" for="device">Microphone</label>
+			<div class="field"><select id="device"></select></div>
+		</div>
+
+		<div class="row">
+			<label class="key" for="volMode">Action</label>
+			<div class="field">
+				<select id="volMode">
+					<option value="set">Set to a level</option>
+					<option value="nudge">Nudge up/down</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="row" id="set-row">
+			<label class="key" for="level">Level</label>
+			<div class="field slider"><input type="number" id="level" min="0" max="100" step="1" class="num" /><span class="unit">%</span></div>
+		</div>
+
+		<div class="row" id="nudge-row">
+			<label class="key" for="delta">Step</label>
+			<div class="field slider"><input type="number" id="delta" min="-100" max="100" step="1" class="num" /><span class="unit">%</span></div>
+		</div>
+
+		<p class="hint">A negative step turns the mic down. The key briefly shows the new level.</p>
+
+		<p id="targets" class="hint"></p>
+		<script src="mic.js"></script>
+	</body>
+</html>

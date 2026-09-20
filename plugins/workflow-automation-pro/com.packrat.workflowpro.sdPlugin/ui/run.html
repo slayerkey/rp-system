@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Run Sequence</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body>
+		<div class="row">
+			<label class="key" for="name">Name</label>
+			<div class="field">
+				<input id="name" type="text" placeholder="Routine" maxlength="24" />
+			</div>
+		</div>
+
+		<h2 id="stepsHeading">Steps</h2>
+		<div id="steps"></div>
+
+		<div class="row addRow">
+			<div class="field">
+				<button id="add" type="button">Add a step</button>
+			</div>
+		</div>
+		<p class="hint" id="limitHint"></p>
+
+		<p class="hint">Steps run top to bottom. Drag is not needed, use the arrows to move one up or down.</p>
+		<p class="hint">
+			A wait is worth putting after anything slow to open. It is the difference between typing into the program you
+			meant and typing into whatever was in front when it had not finished loading yet.
+		</p>
+		<p class="hint">If a step goes wrong the routine stops there and the key tells you which one, rather than carrying on.</p>
+
+		<p class="disclaimer">
+			One press runs one sequence. Keystrokes are sent to whatever window has focus at that moment. On a Mac, allow
+			Stream Deck under System Settings, Privacy and Security, Accessibility before key steps can work.
+		</p>
+
+		<script src="run.js"></script>
+	</body>
+</html>

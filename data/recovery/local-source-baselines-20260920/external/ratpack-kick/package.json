@@ -1,0 +1,29 @@
+{
+  "name": "ratpack-kick",
+  "version": "1.0.0",
+  "description": "Kick creator stats for Stream Deck — followers, live viewers, and milestone tracking on your desk.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "icons": "node scripts/gen-icons.mjs",
+    "build": "npm run icons && rollup -c && node scripts/copy-ui.mjs",
+    "watch": "cross-env ROLLUP_WATCH=true rollup -c -w",
+    "pack": "streamdeck pack com.ratpack.kick.sdPlugin --output dist --force",
+    "dist": "npm run build && npm run pack"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^1.2.0"
+  },
+  "devDependencies": {
+    "@elgato/cli": "^1.4.0",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node": "^22.10.0",
+    "cross-env": "^10.1.0",
+    "pngjs": "^7.0.0",
+    "rollup": "^4.28.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.7.2"
+  }
+}

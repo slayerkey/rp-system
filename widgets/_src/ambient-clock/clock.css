@@ -1,0 +1,76 @@
+/* Ambient clock: canvas art behind, DOM time in front.
+ * The time is DOM rather than canvas so it always honours the readability floors
+ * and stays crisp at every slot size without manual font scaling. */
+
+#stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+#art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+#face {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--layout-unit) * 0.6);
+    padding: var(--space-pad);
+    text-align: center;
+}
+
+.time-row { display: flex; align-items: baseline; gap: calc(var(--layout-unit) * 1.4); min-width: 0; }
+
+#time {
+    font-size: min(calc(var(--layout-unit) * 17), 34vh, 22vw);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+}
+
+#suffix {
+    font-size: min(calc(var(--layout-unit) * 4), 8vh);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    opacity: 0.55;
+}
+
+#date {
+    font-size: max(11px, min(calc(var(--layout-unit) * 3.2), 4.4vh));
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    font-weight: 600;
+}
+
+/* The matrix face needs the time to sit above the rain, not compete with it. */
+body[data-face="matrix"] #time { font-family: "Consolas","SF Mono",monospace; font-weight: 400; }
+body[data-face="matrix"] #face { text-shadow: 0 0 calc(var(--layout-unit) * 3) var(--bg); }
+
+body[data-face="minimal"] #time { font-weight: 200; }
+
+/* Ultra-wide: the date moves beside the time so a 2536x696 slot is a composition
+ * rather than a small block in a big void.
+ *
+ * NOT for Orbit and Pulse. Those faces draw their art centred on the canvas and the
+ * time is meant to sit INSIDE it; putting the date alongside shifts the time off
+ * centre and the rings then cut straight through the digits. Only the two faces with
+ * no centred art get the row treatment. */
+@media (min-aspect-ratio: 5/2) {
+    #time { font-size: min(calc(var(--layout-unit) * 20), 62vh); }
+    body[data-face="minimal"] #face,
+    body[data-face="matrix"] #face {
+        flex-direction: row;
+        align-items: baseline;
+        gap: calc(var(--layout-unit) * 6);
+    }
+    /* Give the centred faces room: the art should frame the time, not crowd it. */
+    body[data-face="orbit"] #time,
+    body[data-face="pulse"] #time { font-size: min(calc(var(--layout-unit) * 13), 42vh); }
+}
+
+/* Tall portrait: stack and let the type breathe. */
+@media (max-aspect-ratio: 3/5) {
+    #time { font-size: min(calc(var(--layout-unit) * 14), 16vh, 40vw); }
+    #face { gap: calc(var(--layout-unit) * 2); }
+}

@@ -1,0 +1,11 @@
+node_modules/
+
+# Build output: bundled code, the copied koffi runtime, and plugin logs.
+com.packrat.betterhotkeys.sdPlugin/bin/
+com.packrat.betterhotkeys.sdPlugin/node_modules/
+com.packrat.betterhotkeys.sdPlugin/logs/
+
+# Packaged artifact -- rebuild with `streamdeck pack`.
+*.streamDeckPlugin
+
+__pycache__/

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Hold Key</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-verb="Holds">
+		<button id="record" type="button" class="record">Click to record</button>
+
+		<div id="preview" class="preview"></div>
+
+		<div class="actions">
+			<button id="clear" type="button" class="link">Clear</button>
+		</div>
+
+		<div class="group">
+			<div class="group-label">Modifiers</div>
+			<div class="mods" id="mods"></div>
+		</div>
+
+		<div class="group">
+			<div class="row">
+				<label class="key" for="fallback">Key</label>
+				<div class="field"><select id="fallback"></select></div>
+			</div>
+		</div>
+
+		<div id="summary" class="summary"></div>
+
+		<p class="hint">Keys stay down for as long as you hold the Stream Deck key.</p>
+
+		<details>
+			<summary>Advanced</summary>
+			<div class="row">
+				<label class="key" for="mode">Send as</label>
+				<div class="field">
+					<select id="mode">
+						<option value="scancode">Scan code (recommended)</option>
+						<option value="both">Scan code + virtual key</option>
+						<option value="vk">Virtual key only</option>
+					</select>
+				</div>
+			</div>
+			<p class="hint">
+				Most games read scan codes and ignore virtual keys. Only change this if a key does nothing in
+				something that isn't a game.
+			</p>
+		</details>
+
+		<script src="keys.js"></script>
+		<script src="pro-footer.js"></script>
+	</body>
+</html>

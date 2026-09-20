@@ -1,0 +1,18 @@
+{
+  "slug": "epic-pen-pro",
+  "errors": 0,
+  "warnings": 2,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'hardware-unverified:pro-tools-untested' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.devices",
+      "message": "no SHIP_KIT upload zip; device tags (Stream Deck MK, Stream Deck XL, Stream Deck +) cannot be verified"
+    }
+  ]
+}

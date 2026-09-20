@@ -1,0 +1,38 @@
+{
+  "slug": "foundry-vtt",
+  "errors": 2,
+  "warnings": 4,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'competition:material-deck-owns-this-off-marketplace' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'build-fit:demand-needs-live-plugin-not-static-profile' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'naming:collision-with-foundry-nuke-modo-mari' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "ERROR",
+      "check": "assets.kit",
+      "message": "marketing dir missing: C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\foundry-vtt\\marketing"
+    },
+    {
+      "severity": "ERROR",
+      "check": "copy.description",
+      "message": "marketing/description.txt missing"
+    }
+  ]
+}

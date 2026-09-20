@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Next Screensaver</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="next">
+		<h2>Screensavers to flip through</h2>
+		<div id="list" class="list"></div>
+		<p class="hint">Check the ones to include. Leave them all unchecked to cycle every screensaver Windows has.</p>
+
+		<label class="mod" for="preview">
+			<input type="checkbox" id="preview" />
+			<span>Show it on screen the moment I press the key</span>
+		</label>
+
+		<details>
+			<summary>Add a folder of your own screensavers</summary>
+			<div class="row">
+				<label class="key" for="folder">Folder</label>
+				<div class="field"><input type="text" id="folder" placeholder="C:\Screensavers" /></div>
+			</div>
+			<p class="hint">Any .scr files in this folder show up in the list above, alongside the Windows ones.</p>
+		</details>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>ISS Overhead</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+		<style>
+			.hint { color: #9aa6c4; font-size: 11px; padding: 4px 6px 8px; line-height: 1.45; }
+			.hint a { color: #7da9ff; }
+			.sec { color: #7da9ff; font-size: 11px; font-weight: 700; padding: 8px 6px 2px; letter-spacing: 1px; }
+		</style>
+	</head>
+	<body>
+		<sdpi-item label="Location">
+			<sdpi-select setting="location" global default="losangeles">
+				<option value="losangeles">🇺🇸 Los Angeles</option>
+				<option value="newyork">🇺🇸 New York</option>
+				<option value="toronto">🇨🇦 Toronto</option>
+				<option value="london">🇬🇧 London</option>
+				<option value="rome">🇮🇹 Rome</option>
+				<option value="tokyo">🇯🇵 Tokyo</option>
+				<option value="sydney">🇦🇺 Sydney</option>
+				<option value="saopaulo">🇧🇷 São Paulo</option>
+				<option value="custom">📍 Custom coordinates…</option>
+			</sdpi-select>
+		</sdpi-item>
+		<div class="hint">Try different cities to see where the ISS is relative to each. Your choice is shared across all ISS keys.</div>
+
+		<sdpi-item label="Distance units">
+			<sdpi-select setting="units" global default="km">
+				<option value="km">Kilometres</option>
+				<option value="mi">Miles</option>
+			</sdpi-select>
+		</sdpi-item>
+
+		<sdpi-item label="Overhead range">
+			<sdpi-range setting="visibleKm" global min="500" max="2500" step="100" default="2000" showlabels></sdpi-range>
+		</sdpi-item>
+		<div class="hint">How close (km) the ISS must be before the key pulses <b>OVERHEAD</b>. The compass arrow always shows which way to look.</div>
+
+		<div class="sec">ONLY FOR “📍 CUSTOM”</div>
+		<sdpi-item label="Latitude">
+			<sdpi-textfield setting="homeLat" global type="number" placeholder="34.0522"></sdpi-textfield>
+		</sdpi-item>
+		<sdpi-item label="Longitude">
+			<sdpi-textfield setting="homeLon" global type="number" placeholder="-118.2437"></sdpi-textfield>
+		</sdpi-item>
+		<div class="hint">Find your coordinates at <a href="https://www.latlong.net" target="_blank" rel="noopener">latlong.net</a> and paste them above.</div>
+	</body>
+</html>

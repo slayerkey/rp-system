@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Football Team Tracker Settings</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 13px; color: #d0d0d0; background: #1e1e1e; padding: 10px; }
+    label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #777; margin-bottom: 4px; margin-top: 12px; }
+    label:first-child { margin-top: 0; }
+    input[type="text"], input[type="password"], select { width: 100%; padding: 7px 10px; background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 5px; color: #e0e0e0; font-size: 13px; outline: none; }
+    input:focus, select:focus { border-color: #00e5a0; }
+    .divider { height: 1px; background: #2a2a2a; margin: 12px 0; }
+    .hint { font-size: 11px; color: #555; margin-top: 5px; line-height: 1.4; }
+    .hint a { color: #00e5a0; text-decoration: none; }
+    .status { font-size: 11px; margin-top: 4px; min-height: 15px; }
+    .ok { color: #00e5a0; } .err { color: #e53935; }
+    .results { margin-top: 6px; background: #222; border: 1px solid #333; border-radius: 5px; display: none; max-height: 220px; overflow-y: auto; }
+    .results.show { display: block; }
+    .group-header { padding: 4px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #555; background: #1a1a1a; border-bottom: 1px solid #2a2a2a; position: sticky; top: 0; }
+    .result-item { padding: 7px 10px; cursor: pointer; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 8px; }
+    .result-item:last-child { border-bottom: none; }
+    .result-item:hover { background: #2a2a2a; }
+    .flag { font-size: 18px; width: 24px; text-align: center; line-height: 1; }
+    .tla { font-weight: bold; color: #00e5a0; min-width: 34px; font-size: 12px; }
+    .team-name { color: #ccc; flex: 1; }
+    .area { color: #555; font-size: 11px; }
+    .flag-swatch { display: inline-block; width: 22px; height: 15px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+    .flag-swatch-empty { background: #333; }
+    .flag-swatch-lg { width: 34px; height: 23px; border-radius: 3px; }
+    .crest-img { width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; }
+    .crest-img-lg { width: 34px; height: 34px; object-fit: contain; flex-shrink: 0; }
+    .selected-box { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #182318; border: 1px solid #00e5a033; border-radius: 5px; margin-top: 6px; }
+    .sel-flag { font-size: 26px; }
+    .sel-tla { font-size: 18px; font-weight: bold; color: #00e5a0; min-width: 34px; }
+    .sel-info { flex: 1; }
+    .sel-name { font-weight: 500; color: #e0e0e0; }
+    .sel-area { font-size: 11px; color: #555; margin-top: 2px; }
+    .clear { background: none; border: none; color: #444; cursor: pointer; font-size: 18px; padding: 2px; }
+    .clear:hover { color: #888; }
+  </style>
+</head>
+<body>
+
+<label>football-data.org API Key</label>
+<input type="password" id="apiKey" placeholder="Paste your API key..." autocomplete="off" />
+<div class="hint">Free key: <a id="apiLink" href="#">football-data.org/client/register</a> — verify the email they send or the key won't work</div>
+<div class="status" id="apiStatus"></div>
+
+<div class="divider"></div>
+
+<label>Your Team</label>
+
+<div id="selectedBox" style="display:none">
+  <div class="selected-box">
+    <div class="sel-flag" id="selFlag"></div>
+    <div class="sel-info">
+      <div class="sel-name" id="selName"></div>
+      <div class="sel-area" id="selArea"></div>
+    </div>
+    <button class="clear" id="clearBtn" title="Change team">✕</button>
+  </div>
+</div>
+
+<div id="searchBox">
+  <input type="text" id="searchInput" placeholder="Type team name — e.g. Poland, Arsenal, Real Madrid..." autocomplete="off" />
+  <div class="results" id="results"></div>
+  <div class="status" id="searchStatus">Type to search — no internet needed</div>
+</div>
+
+<div class="divider"></div>
+
+<label>Display Mode</label>
+<select id="viewMode">
+  <option value="auto">Auto (live → next match → last result)</option>
+  <option value="next_match">Always show next match</option>
+  <option value="flag_only">Flag only</option>
+</select>
+<div class="hint">Auto is the smart default. "Always show next match" skips past results and shows the countdown instead. "Flag only" just displays your team's flag — no API calls, so it never hits a rate limit.</div>
+
+<label>Competitions</label>
+<select id="competitionFilter">
+  <option value="ALL">All competitions</option>
+  <option value="WC">World Cup</option>
+  <option value="EC">Euros</option>
+  <option value="PL">Premier League</option>
+  <option value="CL">Champions League</option>
+  <option value="PD">La Liga</option>
+  <option value="BL1">Bundesliga</option>
+  <option value="SA">Serie A</option>
+  <option value="FL1">Ligue 1</option>
+  <option value="ELC">Championship</option>
+</select>
+<div class="hint">Limit to one competition (ignores everything else your team plays, like friendlies/qualifiers). Useful for World Cup now, and for league play once the tournament ends.</div>
+
+<div class="divider"></div>
+
+<label style="display:flex; align-items:center; gap:6px; cursor:pointer; text-transform:none; font-size:13px; color:#ccc;">
+  <input type="checkbox" id="previewMode" style="width:auto;" />
+  Preview Mode
+</label>
+<div class="hint">When on, pressing the button cycles through every visual state (live, goal, half-time, penalties, full-time, pre-match, etc.) using fake data, so you can check how each one looks. Turn off to go back to your real team's live scores.</div>
+
+<script>
+// ── Bundled team data (no API calls needed for search) ──────────────────────
+const NATIONAL = [
+  {id:758,name:"Uruguay",tla:"URU",area:"Uruguay",ac:"URY"},
+  {id:759,name:"Germany",tla:"GER",area:"Germany",ac:"DEU"},
+  {id:760,name:"Spain",tla:"ESP",area:"Spain",ac:"ESP"},
+  {id:761,name:"Paraguay",tla:"PAR",area:"Paraguay",ac:"PRY"},
+  {id:762,name:"Argentina",tla:"ARG",area:"Argentina",ac:"ARG"},
+  {id:763,name:"Ghana",tla:"GHA",area:"Ghana",ac:"GHA"},
+  {id:764,name:"Brazil",tla:"BRA",area:"Brazil",ac:"BRA"},
+  {id:765,name:"Portugal",tla:"POR",area:"Portugal",ac:"POR"},
+  {id:766,name:"Japan",tla:"JPN",area:"Japan",ac:"JPN"},
+  {id:769,name:"Mexico",tla:"MEX",area:"Mexico",ac:"MEX"},
+  {id:770,name:"England",tla:"ENG",area:"England",ac:"ENG"},
+  {id:771,name:"United States",tla:"USA",area:"United States",ac:"USA"},
+  {id:772,name:"South Korea",tla:"KOR",area:"South Korea",ac:"KOR"},
+  {id:773,name:"France",tla:"FRA",area:"France",ac:"FRA"},
+  {id:774,name:"South Africa",tla:"RSA",area:"South Africa",ac:"RSA"},
+  {id:778,name:"Algeria",tla:"ALG",area:"Algeria",ac:"DZA"},
+  {id:779,name:"Australia",tla:"AUS",area:"Australia",ac:"AUS"},
+  {id:783,name:"New Zealand",tla:"NZL",area:"New Zealand",ac:"NZL"},
+  {id:788,name:"Switzerland",tla:"SUI",area:"Switzerland",ac:"CHE"},
+  {id:790,name:"Ukraine",tla:"UKR",area:"Ukraine",ac:"UKR"},
+  {id:791,name:"Ecuador",tla:"ECU",area:"Ecuador",ac:"ECU"},
+  {id:792,name:"Sweden",tla:"SWE",area:"Sweden",ac:"SWE"},
+  {id:794,name:"Poland",tla:"POL",area:"Poland",ac:"POL"},
+  {id:798,name:"Czechia",tla:"CZE",area:"Czech Republic",ac:"CZE"},
+  {id:799,name:"Croatia",tla:"CRO",area:"Croatia",ac:"HRV"},
+  {id:801,name:"Saudi Arabia",tla:"KSA",area:"Saudi Arabia",ac:"SAU"},
+  {id:802,name:"Tunisia",tla:"TUN",area:"Tunisia",ac:"TUN"},
+  {id:803,name:"Turkey",tla:"TUR",area:"Turkey",ac:"TUR"},
+  {id:804,name:"Senegal",tla:"SEN",area:"Senegal",ac:"SEN"},
+  {id:805,name:"Belgium",tla:"BEL",area:"Belgium",ac:"BEL"},
+  {id:811,name:"Romania",tla:"ROU",area:"Romania",ac:"ROU"},
+  {id:815,name:"Morocco",tla:"MAR",area:"Morocco",ac:"MAR"},
+  {id:816,name:"Austria",tla:"AUT",area:"Austria",ac:"AUT"},
+  {id:818,name:"Colombia",tla:"COL",area:"Colombia",ac:"COL"},
+  {id:825,name:"Egypt",tla:"EGY",area:"Egypt",ac:"EGY"},
+  {id:827,name:"Hungary",tla:"HUN",area:"Hungary",ac:"HUN"},
+  {id:828,name:"Canada",tla:"CAN",area:"Canada",ac:"CAN"},
+  {id:836,name:"Haiti",tla:"HAI",area:"Haiti",ac:"HTI"},
+  {id:840,name:"Iran",tla:"IRN",area:"Iran",ac:"IRN"},
+  {id:768,name:"Slovakia",tla:"SVK",area:"Slovakia",ac:"SVK"},
+  {id:777,name:"Slovenia",tla:"SVN",area:"Slovenia",ac:"SVN"},
+  {id:780,name:"Serbia",tla:"SRB",area:"Serbia",ac:"SRB"},
+  {id:782,name:"Denmark",tla:"DEN",area:"Denmark",ac:"DNK"},
+  {id:784,name:"Italy",tla:"ITA",area:"Italy",ac:"ITA"},
+  {id:1060,name:"Bosnia-Herzegovina",tla:"BIH",area:"Bosnia & Herzegovina",ac:"BIH"},
+  {id:1065,name:"Albania",tla:"ALB",area:"Albania",ac:"ALB"},
+  {id:1836,name:"Panama",tla:"PAN",area:"Panama",ac:"PAN"},
+  {id:1930,name:"Cape Verde",tla:"CPV",area:"Cape Verde",ac:"CPV"},
+  {id:1934,name:"Congo DR",tla:"COD",area:"Congo DR",ac:"COD"},
+  {id:1935,name:"Ivory Coast",tla:"CIV",area:"Ivory Coast",ac:"CIV"},
+  {id:1978,name:"Georgia",tla:"GEO",area:"Georgia",ac:"GEO"},
+  {id:8030,name:"Qatar",tla:"QAT",area:"Qatar",ac:"QAT"},
+  {id:8049,name:"Jordan",tla:"JOR",area:"Jordan",ac:"JOR"},
+  {id:8062,name:"Iraq",tla:"IRQ",area:"Iraq",ac:"IRQ"},
+  {id:8070,name:"Uzbekistan",tla:"UZB",area:"Uzbekistan",ac:"UZB"},
+  {id:8601,name:"Netherlands",tla:"NED",area:"Netherlands",ac:"NLD"},
+  {id:8872,name:"Norway",tla:"NOR",area:"Norway",ac:"NOR"},
+  {id:8873,name:"Scotland",tla:"SCO",area:"Scotland",ac:"SCO"},
+  {id:9460,name:"Curaçao",tla:"CUW",area:"Curaçao",ac:"CUW"},
+];
+
+const CLUBS = [
+  // Premier League
+  {id:57,name:"Arsenal",tla:"ARS",area:"England",ac:"ENG"},{id:58,name:"Aston Villa",tla:"AVL",area:"England",ac:"ENG"},{id:61,name:"Chelsea",tla:"CHE",area:"England",ac:"ENG"},{id:62,name:"Everton",tla:"EVE",area:"England",ac:"ENG"},{id:63,name:"Fulham",tla:"FUL",area:"England",ac:"ENG"},{id:64,name:"Liverpool",tla:"LIV",area:"England",ac:"ENG"},{id:65,name:"Manchester City",tla:"MCI",area:"England",ac:"ENG"},{id:66,name:"Manchester United",tla:"MUN",area:"England",ac:"ENG"},{id:67,name:"Newcastle United",tla:"NEW",area:"England",ac:"ENG"},{id:73,name:"Tottenham Hotspur",tla:"TOT",area:"England",ac:"ENG"},{id:351,name:"Nottingham Forest",tla:"NOT",area:"England",ac:"ENG"},{id:354,name:"Crystal Palace",tla:"CRY",area:"England",ac:"ENG"},{id:397,name:"Brighton",tla:"BHA",area:"England",ac:"ENG"},{id:402,name:"Brentford",tla:"BRE",area:"England",ac:"ENG"},{id:1044,name:"Bournemouth",tla:"BOU",area:"England",ac:"ENG"},{id:341,name:"Leeds United",tla:"LEE",area:"England",ac:"ENG"},{id:563,name:"West Ham United",tla:"WHU",area:"England",ac:"ENG"},
+  // La Liga
+  {id:81,name:"FC Barcelona",tla:"FCB",area:"Spain",ac:"ESP"},{id:86,name:"Real Madrid",tla:"RMA",area:"Spain",ac:"ESP"},{id:78,name:"Atlético de Madrid",tla:"ATL",area:"Spain",ac:"ESP"},{id:94,name:"Villarreal",tla:"VIL",area:"Spain",ac:"ESP"},{id:92,name:"Real Sociedad",tla:"RSO",area:"Spain",ac:"ESP"},{id:90,name:"Real Betis",tla:"BET",area:"Spain",ac:"ESP"},{id:559,name:"Sevilla",tla:"SEV",area:"Spain",ac:"ESP"},{id:77,name:"Athletic Bilbao",tla:"ATH",area:"Spain",ac:"ESP"},
+  // Bundesliga
+  {id:5,name:"Bayern Munich",tla:"FCB",area:"Germany",ac:"DEU"},{id:4,name:"Borussia Dortmund",tla:"BVB",area:"Germany",ac:"DEU"},{id:3,name:"Bayer Leverkusen",tla:"B04",area:"Germany",ac:"DEU"},{id:721,name:"RB Leipzig",tla:"RBL",area:"Germany",ac:"DEU"},{id:19,name:"Eintracht Frankfurt",tla:"SGE",area:"Germany",ac:"DEU"},{id:18,name:"Borussia M'gladbach",tla:"BMG",area:"Germany",ac:"DEU"},{id:10,name:"Stuttgart",tla:"VFB",area:"Germany",ac:"DEU"},
+  // Serie A
+  {id:108,name:"Inter Milan",tla:"INT",area:"Italy",ac:"ITA"},{id:98,name:"AC Milan",tla:"MIL",area:"Italy",ac:"ITA"},{id:109,name:"Juventus",tla:"JUV",area:"Italy",ac:"ITA"},{id:100,name:"AS Roma",tla:"ROM",area:"Italy",ac:"ITA"},{id:102,name:"Atalanta",tla:"ATA",area:"Italy",ac:"ITA"},{id:113,name:"Napoli",tla:"NAP",area:"Italy",ac:"ITA"},{id:110,name:"Lazio",tla:"LAZ",area:"Italy",ac:"ITA"},
+  // Ligue 1
+  {id:524,name:"Paris Saint-Germain",tla:"PSG",area:"France",ac:"FRA"},{id:516,name:"Marseille",tla:"MAR",area:"France",ac:"FRA"},{id:523,name:"Lyon",tla:"LYO",area:"France",ac:"FRA"},{id:521,name:"Lille",tla:"LIL",area:"France",ac:"FRA"},{id:548,name:"Monaco",tla:"ASM",area:"Monaco",ac:"MCO"},
+  // Champions League extras
+  {id:1903,name:"Benfica",tla:"BEN",area:"Portugal",ac:"POR"},{id:498,name:"Sporting CP",tla:"SPO",area:"Portugal",ac:"POR"},{id:674,name:"PSV",tla:"PSV",area:"Netherlands",ac:"NLD"},{id:678,name:"Ajax",tla:"AJA",area:"Netherlands",ac:"NLD"},
+];
+
+// Flag colors keyed by TLA (same data as the button renderer) -- drawn as CSS
+// gradients instead of emoji glyphs, since emoji flags don't render reliably
+// in every environment.
+const FLAG_COLORS = {
+  URU:["#0038A8","#FFFFFF"], GER:["#000000","#DD0000","#FFCE00"], ESP:["#AA151B","#F1BF00","#AA151B"],
+  PAR:["#D52B1E","#FFFFFF","#0038A8"], ARG:["#74ACDF","#FFFFFF","#74ACDF"], GHA:["#CE1126","#FCD116","#006B3F"],
+  BRA:["#009739","#FEDD00","#009739"], POR:["#046A38","#DA291C"], JPN:["#FFFFFF","#BC002D"],
+  MEX:["#006847","#FFFFFF","#CE1126"], ENG:["#FFFFFF","#CE1124"], USA:["#B22234","#FFFFFF","#3C3B6E"],
+  KOR:["#FFFFFF","#CD2E3A"], FRA:["#0055A4","#FFFFFF","#EF4135"], RSA:["#007A4D","#FFB81C","#000000"],
+  ALG:["#006233","#FFFFFF"], AUS:["#00247D"], NZL:["#0033A0"], SUI:["#FF0000","#FFFFFF"],
+  UKR:["#0057B7","#FFD700"], ECU:["#FFD100","#034EA2","#EF3340"], SWE:["#006AA7","#FECC02"],
+  POL:["#FFFFFF","#DC143C"], CZE:["#FFFFFF","#D7141A"], CRO:["#FF0000","#FFFFFF","#0093DD"],
+  KSA:["#006C35"], TUN:["#E70013"], TUR:["#E30A17"], SEN:["#00853F","#FDEF42","#E31B23"],
+  BEL:["#000000","#FAE042","#ED2939"], ROU:["#002B7F","#FCD116","#CE1126"], MAR:["#C1272D"],
+  AUT:["#ED2939","#FFFFFF","#ED2939"], COL:["#FCD116","#003893","#CE1126"], EGY:["#CE1126","#FFFFFF","#000000"],
+  HUN:["#CD2A3E","#FFFFFF","#436F4D"], CAN:["#FF0000","#FFFFFF","#FF0000"], HAI:["#00209F","#D21034"],
+  IRN:["#239F40","#FFFFFF","#DA0000"], SVK:["#FFFFFF","#0B4EA2","#EE1C25"], SVN:["#FFFFFF","#005CE6","#ED1C24"],
+  SRB:["#C6363C","#0C4076","#FFFFFF"], DEN:["#C8102E","#FFFFFF"], ITA:["#009246","#FFFFFF","#CE2B37"],
+  BIH:["#002395"], ALB:["#E41E20"], PAN:["#DA121A","#FFFFFF","#072357"], CPV:["#003893","#FFFFFF","#CF2027"],
+  COD:["#007FFF","#F7D618","#CE1021"], CIV:["#FF8200","#FFFFFF","#009E60"], GEO:["#FFFFFF","#FF0000"],
+  QAT:["#8D1B3D"], JOR:["#000000","#FFFFFF","#007A3D"], IRQ:["#CE1126","#FFFFFF","#000000"],
+  UZB:["#0099B5","#FFFFFF","#1EB53A"], NED:["#AE1C28","#FFFFFF","#21468B"], NOR:["#BA0C2F","#FFFFFF"],
+  SCO:["#0065BD","#FFFFFF"], CUW:["#002B7F","#FFD100"], WAL:["#FFFFFF","#00B140"],
+};
+
+function flagSwatch(tla, large) {
+  const colors = FLAG_COLORS[tla];
+  const cls = "flag-swatch" + (large ? " flag-swatch-lg" : "");
+  if (!colors) return `<span class="${cls} flag-swatch-empty"></span>`;
+  const n = colors.length;
+  const stops = colors.map((c, i) => `${c} ${Math.round((i * 100) / n)}%, ${c} ${Math.round(((i + 1) * 100) / n)}%`).join(", ");
+  return `<span class="${cls}" style="background: linear-gradient(to bottom, ${stops});"></span>`;
+}
+
+// Teams whose crest IDs are confirmed 404 on crests.football-data.org.
+// Skipping the <img> entirely avoids a visible broken-image placeholder
+// while the browser waits for the network response and fires onerror.
+const NO_CREST_IDS = new Set([828, 771, 9460]); // Canada, USA, Curaçao
+
+// Real crest/flag images from football-data.org's CDN. Not every team has
+// one there, so onerror swaps in the drawn color swatch as a fallback.
+function crestFallback(img) {
+  const tla = img.dataset.tla || "";
+  const large = img.classList.contains("crest-img-lg");
+  const wrapper = document.createElement("span");
+  wrapper.innerHTML = flagSwatch(tla, large);
+  img.replaceWith(wrapper.firstElementChild);
+}
+
+function badgeHtml(id, tla, large) {
+  if (NO_CREST_IDS.has(id)) return flagSwatch(tla, large);
+  const imgCls = large ? "crest-img-lg" : "crest-img";
+  return `<img src="https://crests.football-data.org/${id}.svg" class="${imgCls}" data-tla="${esc(tla)}" onerror="crestFallback(this)" />`;
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let _ws, _uuid, settings = {}, globalSettings = {};
+
+function connectElgatoStreamDeckSocket(port, puuid, reg, info, actionInfo) {
+  _uuid = puuid;
+  settings = JSON.parse(actionInfo)?.payload?.settings ?? {};
+  const ws = new WebSocket("ws://127.0.0.1:" + port);
+  _ws = ws;
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ event: reg, uuid: puuid }));
+    ws.send(JSON.stringify({ event: "getSettings", context: puuid }));
+    ws.send(JSON.stringify({ event: "getGlobalSettings", context: puuid }));
+  };
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.event === "didReceiveSettings") { settings = msg.payload?.settings ?? {}; applySettings(); }
+    if (msg.event === "didReceiveGlobalSettings") { globalSettings = msg.payload?.settings ?? {}; applyGlobal(); }
+  };
+}
+
+function send(event, payload) {
+  if (_ws) _ws.send(JSON.stringify({ event, context: _uuid, payload }));
+}
+function saveSettings() { send("setSettings", settings); }
+function saveGlobal()   { send("setGlobalSettings", globalSettings); }
+
+function applySettings() {
+  const k = settings.apiKey ?? "";
+  if (k) document.getElementById("apiKey").value = k;
+  if (settings.teamId) showSelected(); else showSearch();
+  document.getElementById("previewMode").checked = !!settings.previewMode;
+  document.getElementById("viewMode").value = settings.viewMode || "auto";
+  document.getElementById("competitionFilter").value = settings.competitionFilter || "ALL";
+}
+function applyGlobal() {
+  const k = globalSettings.apiKey ?? "";
+  if (!k) return;
+  if (!document.getElementById("apiKey").value) document.getElementById("apiKey").value = k;
+  if (!settings.apiKey) {
+    settings.apiKey = k;
+    saveSettings();
+  }
+}
+
+// ── API key ──────────────────────────────────────────────────────────────────
+document.getElementById("apiKey").addEventListener("input", function() {
+  clearTimeout(window._kt);
+  window._kt = setTimeout(() => {
+    const v = this.value.trim();
+    settings.apiKey = v; globalSettings.apiKey = v;
+    saveSettings(); saveGlobal();
+    const el = document.getElementById("apiStatus");
+    el.textContent = v ? "Saved" : "";
+    el.className = "status " + (v ? "ok" : "");
+  }, 700);
+});
+document.getElementById("apiLink").addEventListener("click", e => {
+  e.preventDefault();
+  send("openUrl", { url: "https://www.football-data.org/client/register" });
+});
+
+// ── Team search (instant, offline) ──────────────────────────────────────────
+document.getElementById("searchInput").addEventListener("input", function() {
+  filterTeams(this.value.trim());
+});
+
+function filterTeams(q) {
+  const el = document.getElementById("results");
+  const status = document.getElementById("searchStatus");
+  if (q.length < 1) {
+    el.classList.remove("show");
+    status.textContent = "Type to search — no internet needed";
+    status.className = "status";
+    return;
+  }
+  const lq = q.toLowerCase();
+  const matchNat = NATIONAL.filter(t =>
+    t.name.toLowerCase().includes(lq) || t.tla.toLowerCase().includes(lq) || t.area.toLowerCase().includes(lq)
+  ).sort((a,b) => a.name.localeCompare(b.name));
+  const matchClub = CLUBS.filter(t =>
+    t.name.toLowerCase().includes(lq) || t.tla.toLowerCase().includes(lq) || t.area.toLowerCase().includes(lq)
+  ).sort((a,b) => a.name.localeCompare(b.name));
+
+  const total = matchNat.length + matchClub.length;
+  if (total === 0) {
+    el.classList.remove("show");
+    status.textContent = "No results for \"" + q + "\"";
+    status.className = "status";
+    return;
+  }
+
+  let html = "";
+  if (matchNat.length) {
+    html += '<div class="group-header">National Teams</div>';
+    html += matchNat.map(teamRow).join("");
+  }
+  if (matchClub.length) {
+    html += '<div class="group-header">Club Teams</div>';
+    html += matchClub.map(teamRow).join("");
+  }
+  el.innerHTML = html;
+  el.querySelectorAll(".result-item").forEach(item => {
+    item.addEventListener("click", () =>
+      selectTeam(+item.dataset.id, item.dataset.name, item.dataset.tla, item.dataset.area, item.dataset.ac)
+    );
+  });
+  el.classList.add("show");
+  status.textContent = total + " result" + (total === 1 ? "" : "s");
+  status.className = "status ok";
+}
+
+function teamRow(t) {
+  return `<div class="result-item" data-id="${t.id}" data-name="${esc(t.name)}" data-tla="${esc(t.tla)}" data-area="${esc(t.area)}" data-ac="${esc(t.ac)}">
+    ${badgeHtml(t.id, t.tla, false)}
+    <span class="team-name">${esc(t.name)}</span>
+    <span class="area">${esc(t.area)}</span>
+  </div>`;
+}
+
+function selectTeam(id, name, tla, area, ac) {
+  settings.teamId = id; settings.teamName = name; settings.teamTla = tla;
+  settings.teamArea = area; settings.teamAreaCode = ac;
+  saveSettings();
+  showSelected();
+  document.getElementById("results").classList.remove("show");
+  document.getElementById("searchInput").value = "";
+  document.getElementById("searchStatus").textContent = "";
+}
+
+function showSelected() {
+  document.getElementById("selFlag").innerHTML = badgeHtml(settings.teamId, settings.teamTla, true);
+  document.getElementById("selName").textContent = settings.teamName ?? "";
+  document.getElementById("selArea").textContent = settings.teamArea ?? "";
+  document.getElementById("selectedBox").style.display = "block";
+  document.getElementById("searchBox").style.display = "none";
+}
+
+function showSearch() {
+  document.getElementById("selectedBox").style.display = "none";
+  document.getElementById("searchBox").style.display = "block";
+}
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  settings.teamId = null; settings.teamName = null; settings.teamTla = null;
+  settings.teamArea = null; settings.teamAreaCode = null;
+  saveSettings();
+  showSearch();
+});
+
+document.getElementById("previewMode").addEventListener("change", function() {
+  settings.previewMode = this.checked;
+  saveSettings();
+});
+
+document.getElementById("viewMode").addEventListener("change", function() {
+  settings.viewMode = this.value;
+  saveSettings();
+});
+
+document.getElementById("competitionFilter").addEventListener("change", function() {
+  settings.competitionFilter = this.value;
+  saveSettings();
+});
+
+function esc(s) {
+  return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+	"Name": "Creator Stats",
+	"Version": "1.0.6.0",
+	"Author": "Ratpack",
+	"Description": "YouTube and Twitch creator stats on your Stream Deck. Subscriber count, live viewers, milestone progress, and growth trends at a glance.",
+	"Category": "Creator Stats",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"Icon": "imgs/plugin/marketplace",
+	"CodePath": "bin/plugin.js",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20"
+	},
+	"UUID": "com.ratpack.livestats",
+	"Actions": [
+		{
+			"Name": "Creator Stats",
+			"UUID": "com.ratpack.livestats.stats",
+			"Icon": "imgs/actions/stats/icon",
+			"Tooltip": "Show creator stats. Short press: cycle display mode · Long press: cycle metric.",
+			"PropertyInspectorPath": "ui/stats.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/stats/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	]
+}

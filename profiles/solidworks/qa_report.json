@@ -1,0 +1,23 @@
+{
+  "slug": "solidworks",
+  "errors": 0,
+  "warnings": 3,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'monetization:unproven-no-comps-anywhere' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'intent:searchers-may-want-plugin-not-profile' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "SOLIDWORKS.streamDeckProfile [std_win]: page 'SOLIDWORKS' fills all 15 slots (house rule: leave breathing room)"
+    }
+  ]
+}

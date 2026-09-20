@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Roshan Timer</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	</head>
+	<body>
+		<sdpi-item label="Window opens (min)">
+			<sdpi-range setting="minWindow" min="5" max="10" step="1" default="8" showlabels></sdpi-range>
+		</sdpi-item>
+		<sdpi-item label="Hard respawn (min)">
+			<sdpi-range setting="maxWindow" min="9" max="13" step="1" default="11" showlabels></sdpi-range>
+		</sdpi-item>
+		<sdpi-item label="How to use">
+			<sdpi-text>Press the key the moment Roshan dies. It counts up, glows red when the respawn window opens, and pulses at the hard respawn. Press again to reset.</sdpi-text>
+		</sdpi-item>
+	</body>
+</html>

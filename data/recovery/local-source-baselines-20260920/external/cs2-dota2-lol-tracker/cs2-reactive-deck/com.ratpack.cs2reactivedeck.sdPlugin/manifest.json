@@ -1,0 +1,181 @@
+{
+	"Name": "CS2 Live Stats",
+	"Version": "1.0.1.0",
+	"Author": "Ratpack",
+	"URL": "https://marketplace.elgato.com",
+	"Profiles": [
+		{
+			"Name": "profiles/cs2-live-stats-standard",
+			"DeviceType": 0,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/cs2-live-stats-mini",
+			"DeviceType": 1,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/cs2-live-stats-xl",
+			"DeviceType": 2,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/cs2-live-stats-plus",
+			"DeviceType": 7,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/cs2-live-stats-neo",
+			"DeviceType": 9,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		}
+	],
+	"Actions": [
+		{
+			"Name": "Health Monitor",
+			"UUID": "com.ratpack.cs2reactivedeck.health",
+			"Icon": "imgs/actions/health/icon",
+			"Tooltip": "Live HP. Background turns green > 80, yellow 50-80, red < 50, and flashes red below 20.",
+			"PropertyInspectorPath": "ui/health.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/health/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Ammo Counter",
+			"UUID": "com.ratpack.cs2reactivedeck.ammo",
+			"Icon": "imgs/actions/ammo/icon",
+			"Tooltip": "Clip / reserve for your active weapon. Pulses orange when the clip is empty.",
+			"PropertyInspectorPath": "ui/ammo.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/ammo/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Kill Feed",
+			"UUID": "com.ratpack.cs2reactivedeck.killfeed",
+			"Icon": "imgs/actions/killfeed/icon",
+			"Tooltip": "Flashes bright green on every kill and shows your kill count for the current round. Press to reset.",
+			"PropertyInspectorPath": "ui/killfeed.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/killfeed/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Round Phase",
+			"UUID": "com.ratpack.cs2reactivedeck.phase",
+			"Icon": "imgs/actions/phase/icon",
+			"Tooltip": "Freezetime = blue, live = green, bomb planted = pulsing orange, round over = grey.",
+			"PropertyInspectorPath": "ui/phase.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/phase/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Economy",
+			"UUID": "com.ratpack.cs2reactivedeck.money",
+			"Icon": "imgs/actions/money/icon",
+			"Tooltip": "Your money. Red = eco, yellow = partial, green = full-buy. Flashes when cash jumps.",
+			"PropertyInspectorPath": "ui/money.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/money/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Match KDA",
+			"UUID": "com.ratpack.cs2reactivedeck.kda",
+			"Icon": "imgs/actions/kda/icon",
+			"Tooltip": "Match kills / deaths / assists, plus MVP stars.",
+			"PropertyInspectorPath": "ui/kda.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/kda/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Round Score",
+			"UUID": "com.ratpack.cs2reactivedeck.score",
+			"Icon": "imgs/actions/score/icon",
+			"Tooltip": "Live CT vs T round score with your side highlighted.",
+			"PropertyInspectorPath": "ui/score.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/score/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "CS2 Live Stats",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Stream Deck buttons that react in real time to Counter-Strike 2 using Game State Integration. HP, ammo, kills, and round phase — live on your deck.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.ratpack.cs2reactivedeck"
+}

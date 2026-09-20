@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Clipboard Slot</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body>
+		<h2>Which copy does this key hold?</h2>
+		<div class="row">
+			<label class="key" for="slot">Slot</label>
+			<div class="field">
+				<select id="slot">
+					<option value="">Pick a slot…</option>
+					<option value="1">1, most recent</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4, oldest</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<label class="key" for="press">On press</label>
+			<div class="field">
+				<select id="press">
+					<option value="direct">Paste it straight in</option>
+					<option value="restore">Put it back on the clipboard</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<label class="key" for="preview">Preview</label>
+			<div class="field">
+				<select id="preview">
+					<option value="20">Short</option>
+					<option value="40">Normal</option>
+					<option value="45">Long</option>
+				</select>
+			</div>
+		</div>
+		<p class="hint">
+			Give four keys slots 1 to 4 and you have your last four copies laid out in order. Slot 1 is whatever you copied
+			most recently, so the row shifts along as you copy.
+		</p>
+		<p class="hint">
+			Pasting straight in drops the text into whatever window you are working in. Putting it back on the clipboard
+			leaves you to paste it yourself, which is handy when the window you want is not the one in front.
+		</p>
+		<p class="hint">The key shows a shortened preview, but a press always gives you the whole thing.</p>
+		<p id="history-limit-hint" class="hint" hidden>That is all four slots.</p>
+
+		<p class="disclaimer">
+			Text you copy is kept on this machine so the slots survive a restart. Images and copied files are skipped.
+		</p>
+
+		<script src="slot.js"></script>
+		<script src="pro-footer.js"></script>
+	</body>
+</html>

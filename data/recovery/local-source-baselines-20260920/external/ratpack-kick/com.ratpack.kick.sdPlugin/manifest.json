@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+	"Name": "Kick Stats",
+	"Version": "1.0.1.0",
+	"Author": "Ratpack",
+	"Description": "Kick creator stats on your Stream Deck. Follower count, live viewer count, milestone progress, always at a glance.",
+	"Category": "Kick Stats",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"Icon": "imgs/plugin/marketplace",
+	"CodePath": "bin/plugin.js",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20"
+	},
+	"UUID": "com.ratpack.kick",
+	"Actions": [
+		{
+			"Name": "Kick Stats",
+			"UUID": "com.ratpack.kick.stats",
+			"Icon": "imgs/actions/stats/icon",
+			"Tooltip": "Kick stats. Short press: cycle display mode · Long press: cycle metric.",
+			"PropertyInspectorPath": "ui/stats.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/stats/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	]
+}

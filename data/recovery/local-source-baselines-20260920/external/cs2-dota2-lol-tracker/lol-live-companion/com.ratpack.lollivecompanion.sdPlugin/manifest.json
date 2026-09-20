@@ -1,0 +1,165 @@
+{
+	"Name": "LoL Live Stats",
+	"Version": "1.0.1.0",
+	"Author": "Ratpack",
+	"URL": "https://marketplace.elgato.com",
+	"Profiles": [
+		{
+			"Name": "profiles/lol-live-stats-standard",
+			"DeviceType": 0,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/lol-live-stats-mini",
+			"DeviceType": 1,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/lol-live-stats-xl",
+			"DeviceType": 2,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/lol-live-stats-plus",
+			"DeviceType": 7,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/lol-live-stats-neo",
+			"DeviceType": 9,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		}
+	],
+	"Actions": [
+		{
+			"Name": "Gold Tracker",
+			"UUID": "com.ratpack.lollivecompanion.gold",
+			"Icon": "imgs/actions/gold/icon",
+			"Tooltip": "Live gold from the League client. Flashes gold-yellow when your gold increases.",
+			"PropertyInspectorPath": "ui/gold.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/gold/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Health Display",
+			"UUID": "com.ratpack.lollivecompanion.health",
+			"Icon": "imgs/actions/health/icon",
+			"Tooltip": "Champion health percentage. Colour shifts green to red as you take damage.",
+			"PropertyInspectorPath": "ui/health.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/health/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Item Afford Alert",
+			"UUID": "com.ratpack.lollivecompanion.afford",
+			"Icon": "imgs/actions/afford/icon",
+			"Tooltip": "Set an item gold cost; the button glows bright green when you can afford it.",
+			"PropertyInspectorPath": "ui/afford.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/afford/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "KDA Display",
+			"UUID": "com.ratpack.lollivecompanion.kda",
+			"Icon": "imgs/actions/kda/icon",
+			"Tooltip": "Live kills / deaths / assists and creep score.",
+			"PropertyInspectorPath": "ui/kda.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/kda/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Level",
+			"UUID": "com.ratpack.lollivecompanion.level",
+			"Icon": "imgs/actions/level/icon",
+			"Tooltip": "Champion level (1-18).",
+			"PropertyInspectorPath": "ui/level.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/level/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "CS",
+			"UUID": "com.ratpack.lollivecompanion.cs",
+			"Icon": "imgs/actions/cs/icon",
+			"Tooltip": "Creep score with CS per minute.",
+			"PropertyInspectorPath": "ui/cs.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/cs/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "LoL Live Stats",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Stream Deck buttons driven by the League of Legends Live Client Data API. Gold, health, item-afford alerts, and KDA — live, local, and no API key.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.ratpack.lollivecompanion"
+}

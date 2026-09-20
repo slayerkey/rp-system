@@ -1,0 +1,4 @@
+node_modules/
+com.packrat.code-cost-pro.sdPlugin/logs/
+com.packrat.code-cost-pro.sdPlugin/bin/
+*.streamDeckPlugin

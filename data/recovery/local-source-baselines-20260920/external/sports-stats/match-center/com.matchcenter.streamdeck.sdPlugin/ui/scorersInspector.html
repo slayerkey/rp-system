@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Top Scorers Settings</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 13px; color: #d0d0d0; background: #1e1e1e; padding: 10px; }
+    label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #777; margin-bottom: 4px; margin-top: 12px; }
+    label:first-child { margin-top: 0; }
+    input[type="password"], select { width: 100%; padding: 7px 10px; background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 5px; color: #e0e0e0; font-size: 13px; outline: none; }
+    input:focus, select:focus { border-color: #00e5a0; }
+    .divider { height: 1px; background: #2a2a2a; margin: 12px 0; }
+    .hint { font-size: 11px; color: #555; margin-top: 5px; line-height: 1.4; }
+    .hint a { color: #00e5a0; text-decoration: none; }
+    .status { font-size: 11px; margin-top: 4px; min-height: 15px; }
+    .ok { color: #00e5a0; }
+    .info-box { background: #1a1f1a; border: 1px solid #2a3a2a; border-radius: 5px; padding: 8px 10px; margin-top: 8px; font-size: 11px; color: #666; line-height: 1.5; }
+    .info-box strong { color: #00e5a0; }
+    .note { font-size: 11px; color: #e5a000; margin-top: 6px; line-height: 1.4; }
+  </style>
+</head>
+<body>
+
+<label>football-data.org API Key</label>
+<input type="password" id="apiKey" placeholder="Paste your API key..." autocomplete="off" />
+<div class="hint">Same key as your other Football Team Tracker buttons. <a id="apiLink" href="#">Get a free key</a></div>
+<div class="status" id="apiStatus"></div>
+
+<div class="divider"></div>
+
+<label>Competition</label>
+<select id="competitionCode">
+  <option value="">-- Select a competition --</option>
+  <optgroup label="Domestic Leagues">
+    <option value="PL">Premier League (England)</option>
+    <option value="ELC">Championship (England)</option>
+    <option value="PD">La Liga (Spain)</option>
+    <option value="BL1">Bundesliga (Germany)</option>
+    <option value="SA">Serie A (Italy)</option>
+    <option value="FL1">Ligue 1 (France)</option>
+    <option value="PPL">Primeira Liga (Portugal)</option>
+    <option value="DED">Eredivisie (Netherlands)</option>
+    <option value="BSA">Série A (Brazil)</option>
+  </optgroup>
+  <optgroup label="International / Cups">
+    <option value="CL">Champions League</option>
+    <option value="EL">Europa League</option>
+    <option value="WC">FIFA World Cup 2026</option>
+    <option value="EC">UEFA Euros</option>
+    <option value="CLI">Copa Libertadores</option>
+  </optgroup>
+</select>
+<div class="hint">Shows the top 5 goal scorers in the selected competition. Updates every 10 minutes. Press the button to open Google search for the latest standings.</div>
+
+<div class="note">Note: Top scorers data may not be available for all competitions on the free API tier.</div>
+
+<div class="info-box">
+  <strong>What you'll see:</strong> Rank, player last name, team, and goals. Gold/silver/bronze colors for top 3. Press the button to open a Google search for the current Golden Boot race.
+</div>
+
+<script>
+let _ws, _uuid, settings = {}, globalSettings = {};
+
+function connectElgatoStreamDeckSocket(port, puuid, reg, info, actionInfo) {
+  _uuid = puuid; settings = JSON.parse(actionInfo)?.payload?.settings ?? {};
+  const ws = new WebSocket("ws://127.0.0.1:" + port); _ws = ws;
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ event: reg, uuid: puuid }));
+    ws.send(JSON.stringify({ event: "getSettings", context: puuid }));
+    ws.send(JSON.stringify({ event: "getGlobalSettings", context: puuid }));
+  };
+  ws.onmessage = (e) => {
+    const m = JSON.parse(e.data);
+    if (m.event === "didReceiveSettings") { settings = m.payload?.settings ?? {}; applySettings(); }
+    if (m.event === "didReceiveGlobalSettings") { globalSettings = m.payload?.settings ?? {}; applyGlobal(); }
+  };
+}
+
+function send(ev, p) { if (_ws) _ws.send(JSON.stringify({ event: ev, context: _uuid, payload: p })); }
+function saveSettings() { send("setSettings", settings); }
+function saveGlobal() { send("setGlobalSettings", globalSettings); }
+
+function applySettings() {
+  const k = settings.apiKey ?? "";
+  if (k) document.getElementById("apiKey").value = k;
+  if (settings.competitionCode) {
+    document.getElementById("competitionCode").value = settings.competitionCode;
+  } else {
+    // Default to the World Cup so the button works immediately without
+    // requiring the user to open the dropdown first.
+    settings.competitionCode = "WC";
+    settings.competitionName = "FIFA World Cup 2026";
+    document.getElementById("competitionCode").value = "WC";
+    saveSettings();
+  }
+}
+function applyGlobal() {
+  const k = globalSettings.apiKey ?? "";
+  if (!k) return;
+  if (!document.getElementById("apiKey").value) document.getElementById("apiKey").value = k;
+  if (!settings.apiKey) { settings.apiKey = k; saveSettings(); }
+}
+
+document.getElementById("apiKey").addEventListener("input", function () {
+  clearTimeout(window._kt);
+  window._kt = setTimeout(() => {
+    const v = this.value.trim();
+    settings.apiKey = v; globalSettings.apiKey = v;
+    saveSettings(); saveGlobal();
+    const el = document.getElementById("apiStatus");
+    el.textContent = v ? "Saved" : ""; el.className = "status " + (v ? "ok" : "");
+  }, 700);
+});
+document.getElementById("apiLink").addEventListener("click", e => {
+  e.preventDefault(); send("openUrl", { url: "https://www.football-data.org/client/register" });
+});
+
+document.getElementById("competitionCode").addEventListener("change", function () {
+  settings.competitionCode = this.value;
+  // Store the visible label as competitionName for the renderer
+  const opt = this.options[this.selectedIndex];
+  settings.competitionName = opt ? opt.text.split(" (")[0] : this.value;
+  saveSettings();
+});
+</script>
+</body>
+</html>

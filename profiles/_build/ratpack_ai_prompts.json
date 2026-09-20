@@ -1,0 +1,511 @@
+{
+  "product": "RatPack AI",
+  "version": "1.0.0",
+  "description": "56 pre-built AI workflow prompts for Stream Deck. One button press, prompt on your clipboard.",
+  "mechanism": "Each button is an Elgato Text action in paste mode: pressing it puts the full prompt on the clipboard and pastes it wherever the cursor is. No plugin, no API key, no UI automation. Works in ChatGPT, Claude, Gemini, Perplexity, Copilot or any local model.",
+  "folders": [
+    {
+      "id": "creator",
+      "name": "Creator Studio",
+      "color": "#E53E3E",
+      "icon_color": "red",
+      "description": "YouTube and content creation workflows",
+      "prompts": [
+        {
+          "id": "hook-generator",
+          "button_name": "Hook Gen",
+          "outcome": "3 ready-to-film opening hooks in under 30 seconds",
+          "why_repeated": "Every video needs a hook. Creators stare at blank pages for 20-30 min. This collapses that to editing an output.",
+          "prompt": "I'm making a YouTube video about [PASTE TOPIC HERE]. Write 3 different opening hooks.\nHook 1: Start with a surprising statistic or counterintuitive claim.\nHook 2: Put the viewer in a specific scenario with \"Imagine you...\"\nHook 3: Start with a bold contrarian statement most people disagree with.\nEach hook: 2-3 sentences, conversational tone, ends on a tension beat that demands the viewer keep watching. No filler. No \"In today's video...\"",
+          "icon": "fish-hook"
+        },
+        {
+          "id": "title-optimizer",
+          "button_name": "10 Titles",
+          "outcome": "10 title variations with CTR psychology baked in",
+          "why_repeated": "Title is the #1 lever for view count. Tested before every upload.",
+          "prompt": "My YouTube video is about: [PASTE TOPIC/SUMMARY].\nGenerate 10 title variations:\n- 3 using specific numbers + timeframe + outcome\n- 2 using confession/story format (\"I tried X for 30 days...\")\n- 2 using \"Why X Actually Does Y\" pattern\n- 2 using identity framing (\"If you do X: watch this\")\n- 1 ultra-short punchy title (5 words max)\nRank them by estimated CTR. Note which audience segment each targets.\nNo titles that misrepresent the content.",
+          "icon": "pin"
+        },
+        {
+          "id": "script-skeleton",
+          "button_name": "Script",
+          "outcome": "Full video structure with hooks, sections, transitions, and B-roll notes",
+          "why_repeated": "Structuring a video from scratch is the hardest creative task. This turns 2 hours into 30 min of editing.",
+          "prompt": "Topic: [PASTE TOPIC]\nAudience: [PASTE AUDIENCE]\nTarget length: [X] minutes\n\nBuild a complete video script skeleton:\n1. Opening hook (30 sec): use the most counterintuitive angle\n2. Problem setup (60-90 sec): establish the stakes\n3. Section 1: [label] with 2 sub-points + one story or analogy\n4. Section 2: [label] with 2 sub-points + one story or analogy\n5. Section 3: [label] with 2 sub-points + one story or analogy\n6. Recap (30 sec), 3 bullet takeaways\n7. CTA (20 sec): one ask, not three\n\nMark B-roll opportunities with [B-ROLL: brief description].\nConversational tone, not lecture-style.",
+          "icon": "clipboard-text"
+        },
+        {
+          "id": "yt-seo-description",
+          "button_name": "YT Desc",
+          "outcome": "SEO-optimized YouTube description ready to paste",
+          "why_repeated": "Every upload requires a description. SEO optimization directly affects discoverability.",
+          "prompt": "Write a YouTube description for a video titled: [PASTE TITLE]\nSummary: [PASTE 2-3 sentences about the video]\n\nRequirements:\n- First 2 sentences must hook without clicking \"Show more\"\n- Include 5-7 natural keyword phrases (no keyword stuffing)\n- Add a [TIMESTAMPS] placeholder section\n- CTA for subscribe + one related video\n- End with 5 hashtags\n- Total: 250-350 words",
+          "icon": "seo"
+        },
+        {
+          "id": "thumbnail-brief",
+          "button_name": "Thumbnail",
+          "outcome": "3 thumbnail concepts ready to brief a designer or Midjourney",
+          "why_repeated": "Thumbnails are A/B tested constantly. A fast briefing system is critical at scale.",
+          "prompt": "Create 3 thumbnail concepts for: [PASTE VIDEO TITLE]\n\nFor each concept:\n1. Main focal element (face expression + emotion OR object + context)\n2. Background (color or scene: be specific)\n3. Text overlay: max 4 words, write the exact words\n4. Why it creates curiosity or urgency in 5 seconds\n5. Score 1-10 on click-worthiness\n\nFormat as a Midjourney-ready brief for each.",
+          "icon": "photo"
+        },
+        {
+          "id": "comment-reply",
+          "button_name": "Reply",
+          "outcome": "3 ready-to-post comment reply options",
+          "why_repeated": "Engaged creators reply to comments daily. Doing it authentically at speed is a competitive edge.",
+          "prompt": "YouTube comment on my channel: [PASTE COMMENT]\n\nWrite 3 reply options:\nOption A: Short and warm (1-2 sentences)\nOption B: Adds value with a follow-up insight or question to deepen the conversation\nOption C: Turns it into a discussion for other viewers\n\nMatch the tone of the comment. Be genuine, not sycophantic.\nIf the comment is critical: be gracious and honest, don't be defensive.",
+          "icon": "message-circle"
+        },
+        {
+          "id": "shorts-hook",
+          "button_name": "Shorts",
+          "outcome": "3 scroll-stopping 3-second hooks for vertical short-form video",
+          "why_repeated": "Shorts and Reels require a different hook structure than long-form, the scroll window is under 1 second. Creators remake long-form content constantly but struggle with the vertical format.",
+          "prompt": "I'm making a YouTube Short / Instagram Reel about: [PASTE TOPIC]\n\nWrite 3 opening hooks (first 3 seconds) for vertical short-form video:\n\nHook 1: Curiosity: tease an outcome or result the viewer must watch to see resolved\nHook 2: Shock/challenge: bold statement most people disagree with\nHook 3: Visual action: opens mid-motion, no verbal setup needed\n\nFor each:\n- The exact on-screen text or spoken line (under 15 words)\n- What should be visually happening in frame\n- Why a viewer mid-scroll would stop\n\nRules: No \"Hey guys,\" no \"Welcome back,\" no \"In this video.\" Start in the middle of something. Assume zero context.",
+          "icon": "device-mobile"
+        },
+        {
+          "id": "brand-outreach",
+          "button_name": "Brand Email",
+          "outcome": "Short, specific brand pitch email that doesn't get ignored",
+          "why_repeated": "Brand deals are a primary revenue stream for mid-size creators. Most pitch emails fail because they're generic. This forces specificity.",
+          "prompt": "Write a brand partnership pitch email for a creator reaching out to a potential sponsor.\n\nMy channel: [PASTE NICHE / SUBSCRIBER COUNT / AUDIENCE]\nBrand I'm pitching: [PASTE BRAND NAME + WHAT THEY SELL]\nWhy we're a fit: [PASTE 1-2 SPECIFIC REASONS]\n\nEmail requirements:\n- Subject: personalized: under 8 words, not \"collab opportunity\"\n- Opening: one line that shows you know their brand (use [SPECIFIC OBSERVATION] as placeholder)\n- Why my audience is their buyer: 2 sentences, specific to their product\n- What I'm offering: one clear deliverable\n- CTA: one question: not \"let me know if you're interested\"\n- Total: under 150 words",
+          "icon": "mail-star"
+        },
+        {
+          "id": "sponsor-script",
+          "button_name": "Sponsor",
+          "outcome": "60-second sponsor read script with natural transitions",
+          "why_repeated": "Every sponsored video needs a sponsor segment. Ad reads that feel native to the creator's voice convert better and keep viewers watching.",
+          "prompt": "Write a 60-second sponsor read script for my YouTube video.\n\nSponsor: [PASTE BRAND + PRODUCT]\nKey benefit to highlight: [PASTE]\nOffer/CTA: [PASTE DISCOUNT CODE OR LINK]\nMy channel vibe: [DESCRIBE IN 2 WORDS, e.g. \"casual tech\" or \"motivational fitness\"]\n\nScript requirements:\n- Natural transition from video content (write [TRANSITION] as placeholder)\n- No \"today's sponsor\" opener: start with a genuine observation or personal story\n- Benefit in plain English: not marketing speak\n- Urgency on the offer without being pushy\n- Outro that returns to video content naturally\n- Time markers: [0s] [15s] [30s] [45s] [60s]",
+          "icon": "coin"
+        },
+        {
+          "id": "community-post",
+          "button_name": "Community",
+          "outcome": "3 community post options ready to publish",
+          "why_repeated": "YouTube Community posts are under-used despite being a free distribution channel. Consistent posting requires a fast drafting system.",
+          "prompt": "Write 3 YouTube Community post options for: [PASTE PURPOSE: e.g., \"tease upcoming video\", \"ask audience a question\", \"share a behind-the-scenes update\"]\n\nFor each post:\n- Opening line that stops scrolling (not \"Hey everyone!\")\n- Core content in 2-4 short paragraphs or bullet points\n- One question or poll prompt to drive comments\n- Optional: one image prompt describing what to pair it with\n\nRules: First-person, matches creator voice (not corporate), under 150 words per post.",
+          "icon": "building-community"
+        },
+        {
+          "id": "ab-test-analysis",
+          "button_name": "A/B Test",
+          "outcome": "Analysis of A/B test results with a concrete next hypothesis",
+          "why_repeated": "Creators running title and thumbnail tests often don't know what to make of results. Structured analysis turns raw data into a repeatable learning loop.",
+          "prompt": "Help me analyze this A/B test result for my YouTube content.\n\nWhat I tested: [PASTE: e.g., \"two thumbnails\", \"two titles\", \"two intro lengths\"]\nVariant A: [PASTE DESCRIPTION + RESULT: e.g., \"Red thumbnail, 6.2% CTR\"]\nVariant B: [PASTE DESCRIPTION + RESULT: e.g., \"Blue thumbnail, 4.8% CTR\"]\nSample size / duration: [PASTE]\n\nAnalysis I need:\n1. Is this result statistically meaningful? (rough yes/no with reasoning)\n2. What specific element likely drove the difference?\n3. What to keep from the winner and what to test next\n4. One concrete hypothesis for my next test\n\nBe specific, no vague \"test more\" advice.",
+          "icon": "test-pipe"
+        },
+        {
+          "id": "repurpose",
+          "button_name": "Repurpose",
+          "outcome": "One video turned into 5 platform-ready content pieces",
+          "why_repeated": "Multi-platform distribution is the highest-leverage creator habit. Doing it manually takes 2+ hours. One button collapses it.",
+          "prompt": "Take the following YouTube video summary and repurpose it into 5 platform-ready pieces:\n\nVideo title: [PASTE TITLE]\nKey points (3-5 bullets): [PASTE]\nBest quote or moment: [PASTE]\n\nDeliver:\n1. Newsletter section (150 words: first-person, hook + 3 insights + CTA)\n2. LinkedIn post (hook line + 3 points + question, under 1200 chars)\n3. Tweet thread opener + 3 tweet summary (4 tweets total)\n4. YouTube Shorts/Reels hook (first 3 seconds spoken line + what's on screen)\n5. Email to existing subscribers (subject line + 3 sentences, treat them as insiders)\n\nEach piece should feel native to its platform, not copy-pasted from the same source.",
+          "icon": "recycle"
+        }
+      ]
+    },
+    {
+      "id": "developer",
+      "name": "Dev Tools",
+      "color": "#3182CE",
+      "icon_color": "blue",
+      "description": "Software development workflows",
+      "prompts": [
+        {
+          "id": "code-review",
+          "button_name": "Review",
+          "outcome": "Structured code review from a senior engineer perspective",
+          "why_repeated": "Code review is a multiple-times-daily task. A consistent review lens is faster than freestyling it.",
+          "prompt": "Review the following code as a senior engineer who cares about correctness, edge cases, and security. Do NOT praise it.\n\nIdentify:\n1. Bugs or logic errors\n2. Missing edge case handling\n3. Security issues (injection: auth, data exposure, insecure defaults)\n4. Performance problems\n5. One readability improvement\n\nFormat: numbered list, direct and specific. Skip issues that don't exist.\n\n[PASTE CODE]",
+          "icon": "search"
+        },
+        {
+          "id": "explain-code",
+          "button_name": "Explain",
+          "outcome": "Plain-English explanation of unfamiliar code",
+          "why_repeated": "Reading unfamiliar code is a daily task for every developer. Faster than StackOverflow.",
+          "prompt": "Explain what the following code does to a competent developer unfamiliar with this codebase.\n\nInclude:\n1. What it does in one sentence\n2. How it does it: step by step\n3. Non-obvious behavior or hidden assumptions\n4. What breaks if this is deleted or changed\n\nBe specific. Avoid generic statements like \"this handles errors.\"\n\n[PASTE CODE]",
+          "icon": "help"
+        },
+        {
+          "id": "debug-consultant",
+          "button_name": "Debug",
+          "outcome": "Ranked list of probable causes with specific diagnostic steps",
+          "why_repeated": "Debugging is where developers lose hours. Structured triage saves real time.",
+          "prompt": "I'm debugging this error. Give me:\n- 3 most likely causes: ranked by probability\n- For each: what to check first + one command or code snippet to investigate\n\nNo long explanations. Just the diagnostic plan.\n\nError: [PASTE ERROR MESSAGE]\nContext: [PASTE RELEVANT CODE OR STACK TRACE]",
+          "icon": "bug"
+        },
+        {
+          "id": "test-writer",
+          "button_name": "Write Tests",
+          "outcome": "Complete unit test suite for a function",
+          "why_repeated": "Writing tests is the most-skipped step in development because setup cost feels high. This removes the friction.",
+          "prompt": "Write unit tests for the following function using [PASTE FRAMEWORK: e.g., Jest, pytest, JUnit, Go testing].\n\nCoverage requirements:\n- Happy path\n- Empty/null/undefined inputs\n- Boundary values and edge cases\n- Error conditions and exceptions\n\nTests must be: readable, independent, fast. Add a one-line comment explaining what each test validates.\n\n[PASTE FUNCTION]",
+          "icon": "checkbox"
+        },
+        {
+          "id": "commit-message",
+          "button_name": "Commit",
+          "outcome": "Conventional commit message with proper type, scope, and body",
+          "why_repeated": "Commits happen 10-20x per day. Good messages save hours during code review and git blame later.",
+          "prompt": "Write a conventional commit message for these changes.\n\nFormat:\ntype(scope): short description (50 chars max)\n\nBody: explain WHY, not WHAT. 72-char line limit.\nFooter: reference issue numbers if mentioned.\n\nTypes: feat, fix, refactor, docs, test, chore, perf\n\nChanges: [PASTE DIFF SUMMARY OR DESCRIPTION]",
+          "icon": "git-commit"
+        },
+        {
+          "id": "pr-description",
+          "button_name": "PR Desc",
+          "outcome": "Clean pull request description under 200 words",
+          "why_repeated": "PRs are written multiple times per week. A good description reduces review cycles.",
+          "prompt": "Write a pull request description for these changes.\n\n## Summary\n(3 bullet points max, the intent, not a list of files)\n\n## What changed and why\n(2-3 sentences explaining the decision)\n\n## Testing done\n(what was tested manually or in CI)\n\n## Notes for reviewer\n(anything non-obvious to flag)\n\nKeep it under 200 words. Be direct.\n\nChanges: [PASTE DESCRIPTION OR DIFF SUMMARY]",
+          "icon": "git-pull-request"
+        },
+        {
+          "id": "refactor",
+          "button_name": "Refactor",
+          "outcome": "Cleaner code with a short changelog of what was improved and why",
+          "why_repeated": "Refactoring is a daily task that gets skipped because the cost of thinking through it feels high. A consistent framework makes it fast.",
+          "prompt": "Refactor the following code. Do NOT change behavior, only improve the implementation.\n\nGoals (apply only what's relevant):\n1. Reduce duplication: extract repeated patterns\n2. Improve naming: variables and functions should be self-documenting\n3. Reduce cognitive load: flatten nesting, simplify conditionals\n4. Remove dead code\n\nFormat:\n- Show the refactored version\n- Bullet list of what you changed and why (max 5 bullets)\n- Flag anything you weren't sure about\n\n[PASTE CODE]",
+          "icon": "recycle"
+        },
+        {
+          "id": "regex-builder",
+          "button_name": "Regex",
+          "outcome": "Regex pattern with plain-English explanation and test cases",
+          "why_repeated": "Regex is written infrequently enough that most developers re-derive it every time. A structured output also catches edge cases that are usually missed.",
+          "prompt": "Build a regex pattern for: [DESCRIBE WHAT IT SHOULD MATCH]\n\nLanguage/flavor: [e.g., JavaScript, Python, Go, PCRE]\n\nProvide:\n1. The pattern\n2. Explain each part in plain English\n3. 3 strings it SHOULD match (with explanation)\n4. 3 strings it should NOT match (with explanation)\n5. Edge cases to watch out for\n\nIf there's a simpler non-regex solution, say so.",
+          "icon": "regex"
+        },
+        {
+          "id": "sql-query",
+          "button_name": "SQL",
+          "outcome": "Correct SQL query with performance notes and test data",
+          "why_repeated": "SQL is written across all backend work. Starting from natural language and getting a working query + performance check is faster than starting from syntax.",
+          "prompt": "Write a SQL query for this task:\n\nTask: [DESCRIBE WHAT YOU NEED IN PLAIN ENGLISH]\nTables involved: [PASTE SCHEMA OR TABLE/COLUMN NAMES]\nDatabase: [e.g., PostgreSQL, MySQL, SQLite, BigQuery]\n\nProvide:\n- The correct query with explanation of each clause\n- Flag potential performance issues (missing index, full table scan, N+1)\n- Alternative approach if a simpler one exists\n- 2-3 example rows as test data to verify the query",
+          "icon": "database"
+        },
+        {
+          "id": "error-message",
+          "button_name": "Error",
+          "outcome": "Clear, actionable error messages for developers and end users",
+          "why_repeated": "Error messages are written for every failure path. Bad error messages waste hours in debugging and support. Good ones are a product quality signal.",
+          "prompt": "Write clear, actionable error messages for this scenario.\n\nContext: [PASTE: what operation failed, what system this is in]\nCurrent error message (if any): [PASTE or \"none\"]\nUser type: [developer / end user / both]\n\nWrite 3 error message variants:\n1. Technical (for logs/developers): exact failure, relevant values, what to check\n2. User-facing: what happened in plain language + what to do next\n3. Short UI version: max 10 words: no jargon, not scary\n\nRules: No \"something went wrong.\" No \"unexpected error.\" Be specific about what failed and what the user can do.",
+          "icon": "alert-triangle"
+        },
+        {
+          "id": "api-design",
+          "button_name": "API Design",
+          "outcome": "Concise API contract with request/response shapes and error cases",
+          "why_repeated": "API design decisions made in 20 minutes get lived with for years. A structured review at the start catches breaking changes before they're baked in.",
+          "prompt": "Review or design the API contract for: [DESCRIBE THE FEATURE OR ENDPOINT]\n\nIf reviewing existing: [PASTE CURRENT ENDPOINT SPEC]\nIf designing from scratch: [PASTE USE CASE AND REQUIREMENTS]\n\nCover:\n1. Endpoint(s) with HTTP method: path, and purpose\n2. Request: required fields: types, validation rules\n3. Response: shape: status codes (success + each error case)\n4. Edge cases and how the API should handle them\n5. One thing that would break existing clients if changed later\n\nFormat as a concise OpenAPI-style spec. Flag any design smells.",
+          "icon": "plug"
+        },
+        {
+          "id": "tech-design-doc",
+          "button_name": "Arch Doc",
+          "outcome": "One-page technical design document from a feature requirement",
+          "why_repeated": "Tech design decisions made without a written artifact get relitigated in code review. A fast first draft removes the blank-page problem.",
+          "prompt": "Write a concise technical design document for this feature.\n\nFeature: [DESCRIBE WHAT IT DOES FOR THE USER]\nSystem context: [PASTE RELEVANT TECH STACK OR EXISTING COMPONENTS]\nConstraints: [PASTE: e.g., must be backward compatible, no new services, under X ms]\n\nCover:\n1. Problem statement (2 sentences)\n2. Proposed approach (3-5 sentences: the how, not the what)\n3. Data model changes (table/schema changes or new fields, be specific)\n4. API changes (new endpoints or changed contracts)\n5. Key decisions and the tradeoff made for each (format: Decision | Option A | Option B | Chosen | Why)\n6. What this design explicitly does NOT handle\n\nUnder 300 words. Write for an engineer who will implement it, not a product manager.",
+          "icon": "building-arch"
+        },
+        {
+          "id": "security-audit",
+          "button_name": "Sec Audit",
+          "outcome": "Security audit findings list formatted as a pre-deploy checklist",
+          "why_repeated": "Security review before deployment catches issues code review misses. A dedicated audit lens is faster than asking a general review to also catch OWASP issues.",
+          "prompt": "Perform a security audit on the following code or system description. Format findings as a penetration tester would.\n\nFor each finding:\n- Severity: Critical / High / Medium / Low\n- Category: OWASP category or attack type\n- What's vulnerable and why\n- How it could be exploited (1 sentence: be specific)\n- Fix: what to change\n\nCheck explicitly: authentication and session management, input validation and injection, secrets and credentials in code, authorization (can user A access user B's data?), insecure defaults, error messages that leak information.\n\nIf nothing is found in a category, skip it, don't write 'None found.'\n\n[PASTE CODE OR SYSTEM DESCRIPTION]",
+          "icon": "shield-lock"
+        }
+      ]
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing",
+      "color": "#DD6B20",
+      "icon_color": "orange",
+      "description": "Social media and marketing workflows",
+      "prompts": [
+        {
+          "id": "tweet-thread",
+          "button_name": "Thread",
+          "outcome": "8-tweet thread formatted and ready to post",
+          "why_repeated": "Twitter/X is a primary distribution channel for founders and marketers. Threading is high-effort to do well.",
+          "prompt": "Turn this idea into a high-engagement Twitter/X thread.\n\nTweet 1: Bold hook: unexpected claim or provocative question. No \"🧵 Thread:\"\nTweets 2-6: One insight per tweet. Short sentences. Specific examples or data.\nTweet 7: Counterintuitive twist or nuance most people miss.\nTweet 8: CTA: follow, reply with your take, or link.\n\nMax 280 chars per tweet. No fluff. No generic advice. No corporate tone.\n\nIdea: [PASTE CORE IDEA OR ARGUMENT]",
+          "icon": "brand-x"
+        },
+        {
+          "id": "linkedin-post",
+          "button_name": "LinkedIn",
+          "outcome": "Formatted LinkedIn post with hook and CTA",
+          "why_repeated": "LinkedIn is the primary B2B distribution channel. Most posts take 30-60 min to write well.",
+          "prompt": "Write a LinkedIn post about: [PASTE TOPIC]\n\nLine 1: One powerful sentence, makes people click \"see more\" (no question, no cliché opener)\nLines 2-6: 3-4 key points, one per short paragraph, line breaks between each\nFinal line: One question to drive comments\n\nRules: First-person, conversational, no corporate jargon, no \"Excited to share...\"\nMax 1,300 characters. Add 3 relevant hashtags at the end.",
+          "icon": "brand-linkedin"
+        },
+        {
+          "id": "cold-email",
+          "button_name": "Cold Email",
+          "outcome": "Short, specific cold outreach email ready to send",
+          "why_repeated": "Cold outreach is volume work for founders and sales. A repeatable system turns hours into minutes.",
+          "prompt": "Write a cold email for this context:\nProduct/service: [PASTE]\nTarget: [PASTE their role or company type]\nTheir likely pain: [PASTE]\nMy proof or credential: [PASTE]\n\nRequirements:\n- Subject line: under 8 words: no \"Quick question\" or \"Following up\"\n- Opening: reference something specific about them, write [SPECIFIC DETAIL] as a placeholder\n- Body: 3 sentences max\n- CTA: one specific question: not \"let me know if interested\"\n- No buzzwords. No fake personalization.",
+          "icon": "mail"
+        },
+        {
+          "id": "ad-copy-variants",
+          "button_name": "Ad Copy",
+          "outcome": "3 platform-ready ad copy variants across different angles",
+          "why_repeated": "Ad creative is tested and iterated constantly. Variant systems are a core creative workflow.",
+          "prompt": "Write 3 Facebook/Meta ad copy variants.\n\nProduct: [PASTE]\nTarget audience: [PASTE]\nMain benefit: [PASTE]\n\nVariant 1: Lead with the pain or problem\nVariant 2: Lead with a social proof or transformation outcome\nVariant 3: Lead with a bold claim or specific statistic\n\nFor each:\n- Headline (6 words max)\n- Primary text (3 sentences)\n- CTA text (2-3 words)\n- Note which audience segment this variant is best for",
+          "icon": "speakerphone"
+        },
+        {
+          "id": "email-subject-lines",
+          "button_name": "15 Subjects",
+          "outcome": "15 subject line variations across psychological triggers",
+          "why_repeated": "Email subject lines directly determine open rates. Marketers test dozens per campaign.",
+          "prompt": "Generate 15 email subject lines for:\nCampaign: [PASTE TOPIC OR OFFER]\nAudience: [PASTE]\n\nInclude:\n- 4 curiosity-gap subjects\n- 3 benefit-driven subjects\n- 3 urgency or scarcity subjects\n- 2 question-format subjects\n- 2 ultra-short subjects (under 5 words)\n- 1 controversial or contrarian subject\n\nFor each: brief note on why it would work.\nFlag any that might trigger spam filters.",
+          "icon": "mail-forward"
+        },
+        {
+          "id": "seo-meta",
+          "button_name": "SEO Meta",
+          "outcome": "Title tag, meta description, URL slug, and alt text ready to paste",
+          "why_repeated": "SEO metadata is written for every new page or post. Most marketers do it in 20 seconds and leave significant search traffic on the table.",
+          "prompt": "Write SEO metadata for this page:\n\nPage topic: [PASTE TOPIC]\nTarget keyword: [PASTE PRIMARY KEYWORD]\nSecondary keywords (if any): [PASTE OR SKIP]\nPage type: [e.g., blog post, product page, landing page]\n\nWrite:\n1. Title tag: under 60 characters: keyword near the front, compelling to click\n2. Meta description: 140-160 characters: includes keyword, ends with a benefit or CTA\n3. 3 alt-text examples for images likely on this page\n4. Suggested URL slug (hyphenated: no stop words)\n5. One internal linking suggestion: what existing page should link TO this one",
+          "icon": "world-www"
+        },
+        {
+          "id": "case-study",
+          "button_name": "Case Study",
+          "outcome": "Formatted client case study under 300 words from raw notes",
+          "why_repeated": "Case studies are the highest-converting B2B sales asset. Writing them from scratch is slow; converting raw notes takes 15 minutes with this.",
+          "prompt": "Write a client case study from these raw notes:\n\nClient background: [PASTE]\nProblem they came to us with: [PASTE]\nWhat we did: [PASTE]\nResults: [PASTE METRICS OR OUTCOMES]\n\nStructure:\n## The Challenge\n(2-3 sentences: who they are, what wasn't working)\n## The Approach\n(3-5 bullet points: what was done, keep the HOW high-level)\n## The Results\n(lead with the numbers, make it scannable)\n## Quote\n(write a placeholder in the client's likely voice, \"[CLIENT QUOTE GOES HERE]\")\n\nTone: professional, specific, no buzzwords. Under 300 words.",
+          "icon": "chart-bar"
+        },
+        {
+          "id": "product-desc",
+          "button_name": "Product",
+          "outcome": "Headline, bullets, 50-word description, and social caption for any product",
+          "why_repeated": "Product copy is rewritten constantly, new SKUs, new channels, new campaigns. A single button generates all the variants at once.",
+          "prompt": "Write product copy for: [PASTE PRODUCT NAME AND WHAT IT IS]\n\nTarget buyer: [PASTE who they are and what they care about]\nTop 3 features: [PASTE]\nMain advantage over alternatives: [PASTE]\n\nWrite:\n1. Headline: under 10 words: outcome or transformation, not a feature name\n2. Subheadline: 1 sentence: who it's for + the key benefit\n3. 3-bullet feature-to-benefit block (feature → what it means for the buyer)\n4. 50-word product description for e-commerce or marketplace listing\n5. Short social caption: under 150 chars: ends with CTA",
+          "icon": "tag"
+        },
+        {
+          "id": "newsletter-intro",
+          "button_name": "News Intro",
+          "outcome": "Subject line, preview text, and opening paragraph for a newsletter issue",
+          "why_repeated": "Newsletter intros set the open rate and the read rate. Most are generic. A consistent hook system compounds over time.",
+          "prompt": "Write the opening section for a newsletter issue about: [PASTE TOPIC OR THIS WEEK'S THEME]\n\nAudience: [PASTE WHO READS THIS]\n\nWrite:\n1. Subject line: under 50 chars: no clickbait, no \"Issue #X\"\n2. Preview text: under 90 chars: continues the subject line idea\n3. Opening paragraph: 3-5 sentences: first-person, hook without announcing \"in this issue...\"\n4. One sentence transition into the body\n\nRules: Conversational, not corporate. Like a smart friend sharing something interesting. No \"Welcome to this week's edition.\"",
+          "icon": "news"
+        },
+        {
+          "id": "testimonial-request",
+          "button_name": "Testim.",
+          "outcome": "Short email that makes it easy for a happy client to write a testimonial",
+          "why_repeated": "Most satisfied clients would write a review if asked the right way. Marketers know to ask but procrastinate on writing the email. One button fixes that.",
+          "prompt": "Write an email asking a satisfied client or customer for a testimonial or review.\n\nClient context: [PASTE: what you did for them, result if known]\nWhere the review will go: [e.g., Google, LinkedIn, website, Trustpilot]\n\nWrite:\n- Subject line: low-pressure: under 8 words\n- Opening: reference the specific work or outcome (use [SPECIFIC WIN] as placeholder)\n- Ask: one clear ask: tell them exactly what to write about\n- Make it easy: 3 bullet prompts they can answer to form a review\n- Close: \"reply to this email or [LINK]\"\n\nUnder 150 words. No groveling. Make them feel good about saying yes.",
+          "icon": "star"
+        },
+        {
+          "id": "positioning-statement",
+          "button_name": "Position",
+          "outcome": "One-sentence positioning statement plus competitive differentiation framework",
+          "why_repeated": "Positioning gets rewritten every time the market shifts, a competitor appears, or the ICP changes. Getting it crisp fast is a strategic primitive.",
+          "prompt": "Write a positioning statement for this product.\n\nProduct: [PASTE NAME + WHAT IT DOES]\nTarget customer: [PASTE: specific role, company size, or situation]\nAlternatives they use today: [PASTE: what would they do without this]\nKey differentiator: [PASTE: one thing only you do or do best]\n\nOutput:\n1. One-sentence positioning statement (under 20 words, no jargon, a real person could say it)\n2. The 'For X who Y' framework: For [target customer] who [have this problem], [product name] is [category] that [key benefit]. Unlike [alternatives], we [differentiator].\n3. Three words your best customer would use to describe you (not three you'd use about yourself)\n4. One thing this positioning makes it hard to say yes to, what you're deliberately excluding",
+          "icon": "target"
+        }
+      ]
+    },
+    {
+      "id": "freelancer",
+      "name": "Freelancer Ops",
+      "color": "#805AD5",
+      "icon_color": "purple",
+      "description": "Freelancer and founder operational workflows",
+      "prompts": [
+        {
+          "id": "proposal-polisher",
+          "button_name": "Polish",
+          "outcome": "Tighter, more confident proposal copy",
+          "why_repeated": "Proposals win or lose clients. Polishing copy is a high-ROI weekly task.",
+          "prompt": "Rewrite this proposal section to sound more confident and specific.\n\nRules:\n- Remove all hedging language (might: could, hope to, try to, should be able to)\n- Replace passive voice with active voice\n- Replace vague claims with specific outcomes or metrics where possible\n- Make it 20% shorter without losing substance\n- Do not change the core offer: only sharpen the language\n\n[PASTE PROPOSAL TEXT]",
+          "icon": "pencil"
+        },
+        {
+          "id": "meeting-summary",
+          "button_name": "Meeting Notes",
+          "outcome": "Structured meeting summary with clear action items",
+          "why_repeated": "Post-meeting summaries are sent after every meeting. Manually takes 15-20 min. This takes 30 seconds.",
+          "prompt": "Turn these raw meeting notes into a structured summary.\n\nFormat:\n## Attendees\n## Key Decisions Made\n## Action Items (Person | Task | Deadline)\n## Open Questions\n## Next Steps\n\nRules: Be specific about WHO owns each action item. Remove filler. If deadline not mentioned, write [TBD]. Under 200 words.\n\nNotes: [PASTE RAW NOTES]",
+          "icon": "notes"
+        },
+        {
+          "id": "client-update",
+          "button_name": "Client Update",
+          "outcome": "Professional weekly project update under 150 words",
+          "why_repeated": "Client updates are sent weekly or more. Consistent, professional communication builds trust and reduces anxiety on both sides.",
+          "prompt": "Write a professional project update email to a client.\n\nContext: [PASTE PROJECT STATUS]\n\nInclude:\n- What was completed this week\n- What's in progress\n- Any blockers and what you're doing about them\n- Next milestone and expected date\n\nRules: Under 150 words. Confident but honest tone. Don't bury bad news. Don't open with \"I hope this email finds you well.\"",
+          "icon": "send"
+        },
+        {
+          "id": "scope-creep-response",
+          "button_name": "Out of Scope",
+          "outcome": "Firm but warm out-of-scope response that preserves the relationship",
+          "why_repeated": "Scope creep is a constant freelancer problem. Templating the response removes emotional friction and protects margins.",
+          "prompt": "Draft a professional response to a client requesting something outside our agreed scope.\n\nOriginal scope: [PASTE]\nWhat they're now asking for: [PASTE]\n\nResponse must:\n1. Acknowledge the request positively (1 sentence)\n2. Clearly explain it's outside the original scope (1 sentence)\n3. Offer two options: handle as a separate engagement (with a placeholder for pricing) OR defer to a future phase\n4. Maintain the relationship: warm but clear\n\nUnder 100 words.",
+          "icon": "ban"
+        },
+        {
+          "id": "invoice-line-items",
+          "button_name": "Invoice",
+          "outcome": "Professional invoice line items from rough notes",
+          "why_repeated": "Invoicing is a regular task that takes longer than it should. Professional line items justify higher rates.",
+          "prompt": "Turn these project notes into professional invoice line items.\n\nFor each item:\n- Description: specific: professional, sounds like a deliverable not a task\n- Quantity\n- Rate: [PASTE YOUR RATE or leave as [RATE]]\n- Total\n\nFormat as a table. Avoid internal project jargon. Make descriptions justify the rate.\n\nNotes: [PASTE RAW NOTES OR TIME LOG]",
+          "icon": "receipt"
+        },
+        {
+          "id": "contract-clause",
+          "button_name": "Contract",
+          "outcome": "Plain-English contract clause covering the specific scenario",
+          "why_repeated": "Freelancers encounter the same recurring contract gaps: revision limits, IP ownership, late payment, kill fees. Having a clause on demand is faster than hunting through templates.",
+          "prompt": "Write a contract clause for this scenario:\n\nSituation: [PASTE: e.g., \"client keeps requesting revisions beyond the agreed 2 rounds\", \"payment terms for a new client\", \"IP ownership for custom work\"]\n\nWrite:\n1. Plain-English clause (1-2 paragraphs: professional and enforceable-sounding)\n2. What this clause protects you from\n3. One thing a client might push back on + how to respond\n\nNote: This is a starting point, have a lawyer review before using in a real contract.",
+          "icon": "file-text"
+        },
+        {
+          "id": "rate-increase",
+          "button_name": "Rate Raise",
+          "outcome": "Direct, professional rate increase email that doesn't apologize",
+          "why_repeated": "Freelancers raise rates too infrequently because they dread writing the email. A template that's direct and warm removes the emotional block.",
+          "prompt": "Write an email announcing a rate increase to an existing client.\n\nCurrent rate: [PASTE]\nNew rate: [PASTE]\nEffective date: [PASTE: give at least 30 days notice]\nReason (optional): [PASTE OR LEAVE BLANK]\n\nEmail requirements:\n- Direct opener: announce it in the first sentence\n- Short reason if included (1 sentence: confident not apologetic)\n- What stays the same: quality: relationship, priority access\n- CTA: confirm they want to continue: or lock in current rate before the change\n- Under 150 words\n- No \"I've been meaning to do this\" or \"I hope you understand\"",
+          "icon": "trending-up"
+        },
+        {
+          "id": "portfolio-bio",
+          "button_name": "Portfolio",
+          "outcome": "Long bio, short bio, and one-liner for portfolio or LinkedIn",
+          "why_repeated": "Freelancers rewrite their bio for every platform, proposal, and conference. Having 3 lengths ready means never starting from scratch.",
+          "prompt": "Write a professional bio for a freelancer's portfolio or LinkedIn.\n\nMy work: [PASTE what you do: skills, services, specializations]\nYears of experience: [PASTE]\nNotable clients or results: [PASTE or \"N/A\"]\nTone target: [e.g., confident, warm, technical, creative]\n\nWrite 3 versions:\n1. Long bio: 100-150 words: full context, credibility, CTA\n2. Short bio: under 60 words: punchy, scannable\n3. One-liner: under 20 words: for profile headlines or email signatures\n\nNo clichés: no \"passionate about,\" \"help businesses grow,\" or \"results-driven.\"",
+          "icon": "folder"
+        },
+        {
+          "id": "discovery-questions",
+          "button_name": "Discovery",
+          "outcome": "10 discovery questions across situation, problem, and decision categories",
+          "why_repeated": "Sales calls without structured discovery lose deals. Freelancers wing it when questions should be prepared. This generates a call guide in under 30 seconds.",
+          "prompt": "Generate discovery questions for a sales or client onboarding call.\n\nService I provide: [PASTE]\nType of client: [PASTE: size, industry, role]\nStage: [initial discovery call / follow-up / project kickoff]\n\nGenerate 10 questions in 3 categories:\n1. Situation (3 questions): understand their current state\n2. Problem (4 questions): uncover the real pain, not the stated one\n3. Decision (3 questions): budget: timeline, stakeholders, urgency\n\nFor each: note what the answer reveals and what to follow up with if they give a vague response.",
+          "icon": "zoom-scan"
+        },
+        {
+          "id": "rejection-response",
+          "button_name": "Rejection",
+          "outcome": "Two gracious rejection responses: keep-the-door-open and ask-for-feedback",
+          "why_repeated": "How a freelancer responds to a no determines whether that prospect comes back. Most people either ignore it or over-apologize. Neither works.",
+          "prompt": "Write a professional response to a client who rejected my proposal or said no.\n\nContext: [PASTE: what you proposed, what they said, reason if given]\n\nWrite 2 response options:\n\nOption A: Keep the door open (timing or budget issue)\n- Acknowledge the decision without pushback\n- Leave one seed for the future\n- Under 75 words\n\nOption B: Ask for insight (they chose someone else)\n- Thank them graciously\n- One question to understand why (phrased to get a real answer)\n- Under 75 words\n\nRules: No begging. No discounting yourself. No \"I understand but...\"",
+          "icon": "mood-sad"
+        }
+      ]
+    },
+    {
+      "id": "coaching",
+      "name": "Coach Mode",
+      "color": "#2F855A",
+      "icon_color": "green",
+      "description": "An AI thinking partner for high performers, diagnose, decide, and unblock",
+      "prompts": [
+        {
+          "id": "full-coach-session",
+          "button_name": "Coach",
+          "outcome": "A full multi-phase coaching session that finds your one binding constraint and a 90-day plan",
+          "why_repeated": "The flagship. A structured, no-fluff performance diagnostic that works for any domain, career, business, fitness, creative, studies, or life direction. Run it whenever you feel stuck or plateaued.",
+          "prompt": "You are a high-performance coach. You are calm, grounded, and non-judgmental. You do not give surface-level tips. You help me understand what is actually limiting my performance and what to do about it.\n\nThe area I want to work on: [PASTE: e.g., my career, my business, my fitness, my content/creative work, my studies, a specific skill, my life direction]\n\nStart by saying: \"I'm going to walk through how you're approaching this, your mindset, habits, decisions, consistency, and how you handle pressure. I'll push on anything vague. The more honest you are, the more useful this is. Ready?\" Then wait for my answer.\n\nRULES (follow these the entire time):\n- Ask ONE or TWO questions at a time: then wait for my reply. Never dump all questions at once.\n- Never accept vague answers. If I say \"I don't know\" or stay general, push: ask what I'm actually doing, not what I think I should do.\n- Help me articulate what I feel but can't yet put into words.\n- Summarize what you heard at the end of each phase before moving on.\n\nPHASE 1, BASELINE:\n1. Where are you now: and where do you want to be in 6 months?\n2. Walk me through a normal day or week of working on this.\n3. What's your biggest frustration with yourself here?\n4. What have you been telling yourself is \"fine\" that actually isn't?\n\nThen say: \"Now let's go deeper into 6 areas.\"\n\nAREA 1, MINDSET & PRESSURE: When you're at your best, what does it feel like? When things go wrong, what happens in your head? How does pressure change how you perform?\n\nAREA 2, DECISIONS: Walk me through a recent good decision. Now a bad one. When things go wrong, can you usually tell why?\n\nAREA 3, CONSISTENCY: How consistent are you week to week? What's different on good days vs bad days? What are your habits around preparation?\n\nAREA 4, IDENTITY: How do you see yourself? What are you actually chasing, outcome, growth, status, peace? Does how you're operating move you toward that?\n\nAREA 5, FOCUS: What are you trying to improve right now? How much of your effort is intentional vs just going through the motions? What should you focus on but have been avoiding?\n\nAREA 6, YOUR ROLE: What percent of your problems here come from something YOU did? What's the one thing you're doing that's holding you back? What would this look like if you stopped waiting for conditions to be perfect?\n\nAsk every question in each area before moving to the next. Summarize after each area.\n\nPHASE 3, DIAGNOSIS (only after all 6 areas):\n- The binding constraint: the ONE thing most limiting me, in one paragraph.\n- The real problem: the belief: behavior, or avoidance I'm not seeing.\n- What's at stake: where I'll be in 3, 6, and 12 months if nothing changes.\n\nPHASE 4, THE PLAN:\n- Anti-vision: one sentence: where I end up if nothing changes.\n- Vision: two sentences: where I'm headed if I fix the constraint.\n- 90-day focus: one priority with a success metric.\n- 30-day build: one specific mindset shift: one habit, one system.\n- Weekly rhythm: 3 things to review every week.\n- 3 things to stop doing immediately.\n\nEnd by asking which part I want to go deeper on first.",
+          "icon": "compass"
+        },
+        {
+          "id": "performance-diagnostic",
+          "button_name": "Diagnose",
+          "outcome": "Top 3 root causes of your plateau, ranked, each with an experiment to run this week",
+          "why_repeated": "A fast single-shot version of the full session. Use it when you're stuck and want a quick, honest diagnosis instead of a full hour.",
+          "prompt": "Run a quick performance diagnostic with me. I'll describe where I'm stuck and you find the real cause.\n\nWhere I'm plateaued or stuck: [DESCRIBE]\nWhat I've already tried: [DESCRIBE]\n\nGive me:\n1. The top 3 likely root causes: ranked (consider: mindset, environment, system/process, skill gap, identity conflict)\n2. For each cause: the evidence that points to it + one concrete experiment to test it this week\n3. The single most likely binding constraint, stated plainly\n\nBe direct. Don't reassure me, diagnose me. Ask me up to 3 clarifying questions first if you need them.",
+          "icon": "stethoscope"
+        },
+        {
+          "id": "goal-clarity",
+          "button_name": "Goal Clarity",
+          "outcome": "A vague goal sharpened into something specific enough to act on",
+          "why_repeated": "Most goals fail because they were never clear enough to start. Run any goal through this before committing time to it.",
+          "prompt": "Stress-test this goal with me so it's sharp enough to act on.\n\nMy goal: [PASTE: as vague as it currently is]\n\nRun it through 5 lenses:\n1. Specificity: what exactly does done look like?\n2. Timeline: by when, and is that realistic?\n3. Motivation source: is this driven by desire or by fear/should? Name it honestly.\n4. Conflict: what current commitment or habit does this collide with?\n5. \"Good enough\": what's the minimum version that would still count as a win?\n\nOutput: a sharpened one-sentence goal statement + the single biggest assumption I'm making that could be wrong.",
+          "icon": "target"
+        },
+        {
+          "id": "decision-frame",
+          "button_name": "Decide",
+          "outcome": "A hard decision structured into a clear recommendation",
+          "why_repeated": "Big decisions get made on emotion or get endlessly delayed. A repeatable frame cuts through both.",
+          "prompt": "Help me make this decision clearly.\n\nThe decision: [DESCRIBE]\nWhat's pulling me each way: [DESCRIBE]\n\nStructure it:\n1. The actual decision being made (cut through to the real fork)\n2. What's reversible vs irreversible here\n3. What I'd regret more at 80: acting or not acting\n4. What a trusted advisor with no emotional stake would tell me\n5. The minimum viable test I could run before committing fully\n\nThen give me your honest read on what the structure points toward, not a hedge.",
+          "icon": "scale"
+        },
+        {
+          "id": "belief-audit",
+          "button_name": "Belief Audit",
+          "outcome": "A limiting belief examined and replaced with a more accurate, useful one",
+          "why_repeated": "The stories we tell ourselves quietly cap our ceiling. Auditing them is high-leverage and rarely done.",
+          "prompt": "Audit a belief I'm holding about myself or my situation.\n\nThe belief: [STATE IT: e.g., \"I'm not consistent enough to succeed at this\"]\n\nChallenge it honestly:\n1. 3 pieces of evidence that support it\n2. 3 pieces of evidence that contradict it\n3. Where this belief most likely came from\n4. What someone who succeeded despite this exact belief did differently\n5. A more accurate: more useful belief to replace it with, one I'd actually believe, not a platitude\n\nDon't just cheerlead. If the belief has truth in it, say so, then show me what to do about it.",
+          "icon": "brain"
+        },
+        {
+          "id": "blocker-interrogation",
+          "button_name": "Blocker",
+          "outcome": "The real reason you're procrastinating plus a 15-minute action that breaks the inertia",
+          "why_repeated": "Procrastination is a daily tax. Naming the real cause and taking one tiny action is the reliable way through it.",
+          "prompt": "I'm procrastinating on something. Help me break it.\n\nWhat I'm avoiding: [DESCRIBE]\nWhat I tell myself about why: [DESCRIBE]\n\nGive me:\n1. The REAL reason for the block (not my stated one)\n2. Which type it is: clarity problem / fear problem / energy problem / priority problem\n3. One specific action under 15 minutes that breaks the inertia, small enough that I can't say no to it\n4. What to do the moment I feel the urge to avoid it again\n\nBe specific. No \"just get started\" advice.",
+          "icon": "lock-open"
+        },
+        {
+          "id": "weekly-review",
+          "button_name": "Week Review",
+          "outcome": "A structured weekly review that finds the WHY behind wins and gaps",
+          "why_repeated": "A weekly review compounds over a year. Doing it with structure beats journaling that drifts into venting.",
+          "prompt": "Run my weekly review with me.\n\nMy week (rough bullets, wins, misses, what happened): [PASTE]\n\nOutput:\n1. Top 3 wins: and WHY each actually happened (the cause, not the event)\n2. Top 3 gaps: and WHY each happened (root cause, not what went wrong)\n3. One pattern across the week that needs to change\n4. The single priority for next week that this week's data says should be the focus\n\nKeep it honest and specific. End with one question that will make next week's review better.",
+          "icon": "calendar"
+        }
+      ]
+    },
+    {
+      "id": "universal",
+      "name": "Universal",
+      "color": "#718096",
+      "icon_color": "grey",
+      "description": "Works for every niche, always visible on the home page",
+      "prompts": [
+        {
+          "id": "shrink-it",
+          "button_name": "Shrink 30%",
+          "outcome": "Same content at exactly 70% of the original length",
+          "why_repeated": "Over-writing is universal. Used on emails, docs, proposals, video scripts, Slack messages, anything. The most universally useful button in the pack.",
+          "prompt": "Rewrite the following text at exactly 70% of its original length.\n\nRules:\n- Keep all key information\n- Cut filler phrases: redundant points, and weak transitions\n- Use shorter sentences\n- Do not add anything new\n- Do not use bullet points unless they were already there\n- Do not change the tone or voice\n\n[PASTE TEXT]",
+          "icon": "scissors"
+        },
+        {
+          "id": "tone-fix",
+          "button_name": "Tone Fix",
+          "outcome": "Same message with calibrated tone",
+          "why_repeated": "Tone calibration is needed across all written communication. Used by everyone, multiple times per day.",
+          "prompt": "Rewrite the following message to sound [CHOOSE ONE: more direct / warmer and friendlier / more formal / less aggressive / more confident].\n\nDo not change the core content or intent. Only adjust the tone.\nShow the rewritten version only, no explanation needed.\n\n[PASTE MESSAGE]",
+          "icon": "adjustments"
+        },
+        {
+          "id": "rapid-brainstorm",
+          "button_name": "Ideas",
+          "outcome": "20 concrete, diverse ideas using constraint-based thinking",
+          "why_repeated": "Ideation is the starting point for creative and strategic work across all roles. The constraint framework forces genuinely diverse thinking vs. the first-idea trap.",
+          "prompt": "Generate 20 ideas for: [PASTE PROBLEM OR GOAL]\n\nStructure:\n- 5 obvious: solid ideas (execute immediately)\n- 5 unusual ideas (unexpected angle)\n- 5 ideas combining two unrelated concepts\n- 5 ideas that assume a 10x constraint (10x faster, 10x cheaper, 10x bigger, 10x simpler)\n\nRules: Ideas must be concrete and actionable. No vague suggestions. Just list them, do not explain yet. I will ask you to develop the best ones.",
+          "icon": "bulb"
+        }
+      ]
+    }
+  ],
+  "source": "ported from ratpack-profiles/prompts/index.json 2026-08-21"
+}

@@ -1,0 +1,23 @@
+{
+  "slug": "screensaver-cycler",
+  "errors": 1,
+  "warnings": 2,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'compat-risk:windows-gpo' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'platform-risk:macos-permissions' is open; resolve before submission"
+    },
+    {
+      "severity": "ERROR",
+      "check": "registry.changelog",
+      "message": "CHANGELOG.md has no entry for registry version 1.0.0.0"
+    }
+  ]
+}

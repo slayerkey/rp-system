@@ -1,0 +1,89 @@
+{
+	"Name": "Screensaver Scheduler",
+	"Version": "1.0.0.0",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Next Screensaver",
+			"UUID": "com.packrat.screensavercycler.next",
+			"Icon": "imgs/actions/next/icon",
+			"Tooltip": "Switch to the next screensaver and show it right now. One press, one change.",
+			"PropertyInspectorPath": "ui/next.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/next/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Auto Cycle",
+			"UUID": "com.packrat.screensavercycler.cycle",
+			"Icon": "imgs/actions/cycle/icon",
+			"Tooltip": "Rotate the screensaver through your list on a timer. Press to start, press to stop.",
+			"PropertyInspectorPath": "ui/cycle.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/cycle/key",
+					"Name": "Off",
+					"TitleAlignment": "bottom"
+				},
+				{
+					"Image": "imgs/actions/cycle/key_on",
+					"Name": "On",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Scheduled",
+			"UUID": "com.packrat.screensavercycler.schedule",
+			"Icon": "imgs/actions/schedule/icon",
+			"Tooltip": "Set specific screensavers for specific times of day. Press to arm, press to disarm.",
+			"PropertyInspectorPath": "ui/schedule.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/schedule/key",
+					"Name": "Off",
+					"TitleAlignment": "bottom"
+				},
+				{
+					"Image": "imgs/actions/schedule/key_on",
+					"Name": "On",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "Screensaver Scheduler",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Put your screensavers on a schedule. Set them by time of day, rotate through them on a timer, or flip to the next one with a single press.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.screensavercycler"
+}

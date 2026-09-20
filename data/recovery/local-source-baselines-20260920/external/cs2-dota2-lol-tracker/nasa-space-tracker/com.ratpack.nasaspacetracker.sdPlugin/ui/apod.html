@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Picture of the Day</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+		<style>
+			.hint { color: #9aa6c4; font-size: 11px; padding: 4px 0 8px 0; line-height: 1.4; }
+			.hint a { color: #7da9ff; }
+			ol { margin: 4px 0 0 16px; padding: 0; }
+		</style>
+	</head>
+	<body>
+		<sdpi-item label="NASA API key">
+			<sdpi-textfield setting="apiKey" placeholder="paste your key (or leave blank)"></sdpi-textfield>
+		</sdpi-item>
+		<div class="hint">
+			Works right away with NASA's shared <b>DEMO_KEY</b>, but that's rate-limited and often
+			fails. For a reliable image, get your own free key (takes ~30 seconds):
+			<ol>
+				<li>Open <a href="https://api.nasa.gov" target="_blank" rel="noopener">api.nasa.gov</a></li>
+				<li>Enter your first name, last name, and email under "Generate API Key"</li>
+				<li>The key appears on screen instantly (also emailed to you)</li>
+				<li>Paste it above</li>
+			</ol>
+			Tip: press the key on your Stream Deck to open today's picture full-size.
+		</div>
+	</body>
+</html>

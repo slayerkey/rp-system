@@ -1,0 +1,302 @@
+{
+	"Name": "Better Hotkeys & Mouse Pro",
+	"Version": "1.2.1.0",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Hold Key",
+			"UUID": "com.packrat.betterhotkeyspro.holdkey",
+			"Icon": "imgs/actions/holdkey/icon",
+			"Tooltip": "Holds one or more keys down for exactly as long as you hold the Stream Deck key.",
+			"PropertyInspectorPath": "ui/hold-key.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/holdkey/key",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/holdkey/key_on",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Toggle Key",
+			"UUID": "com.packrat.betterhotkeyspro.togglekey",
+			"Icon": "imgs/actions/togglekey/icon",
+			"Tooltip": "Press once to hold keys down, press again to release them.",
+			"PropertyInspectorPath": "ui/toggle-key.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/togglekey/key",
+					"Name": "Off",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/togglekey/key_on",
+					"Name": "On",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Click Mouse",
+			"UUID": "com.packrat.betterhotkeyspro.clickmouse",
+			"Icon": "imgs/actions/clickmouse/icon",
+			"Tooltip": "Left, right or middle click — where the cursor is, or at a spot on screen.",
+			"PropertyInspectorPath": "ui/click-mouse.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/clickmouse/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Move Mouse",
+			"UUID": "com.packrat.betterhotkeyspro.movemouse",
+			"Icon": "imgs/actions/movemouse/icon",
+			"Tooltip": "Move the cursor to a spot on screen, or nudge it by an offset.",
+			"PropertyInspectorPath": "ui/move-mouse.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/movemouse/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Hold Mouse Button",
+			"UUID": "com.packrat.betterhotkeyspro.holdmouse",
+			"Icon": "imgs/actions/holdmouse/icon",
+			"Tooltip": "Holds a mouse button down for as long as you hold the Stream Deck key.",
+			"PropertyInspectorPath": "ui/hold-mouse.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/holdmouse/key",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/holdmouse/key_on",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Toggle Mouse Button",
+			"UUID": "com.packrat.betterhotkeyspro.togglemouse",
+			"Icon": "imgs/actions/togglemouse/icon",
+			"Tooltip": "Press once to hold a mouse button down, press again to let go.",
+			"PropertyInspectorPath": "ui/toggle-mouse.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/togglemouse/key",
+					"Name": "Off",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/togglemouse/key_on",
+					"Name": "On",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Radial Select",
+			"UUID": "com.packrat.betterhotkeyspro.radialselect",
+			"Icon": "imgs/actions/radialselect/icon",
+			"Tooltip": "Pick one slot from an in-game wheel menu: open it, flick to an angle, optionally confirm.",
+			"PropertyInspectorPath": "ui/radial-select.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/radialselect/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Auto-Repeat",
+			"UUID": "com.packrat.betterhotkeyspro.autorepeat",
+			"Icon": "imgs/actions/autorepeat/icon",
+			"Tooltip": "Repeat a key or click at a set rate while toggled on.",
+			"PropertyInspectorPath": "ui/auto-repeat.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/autorepeat/key",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/autorepeat/key_on",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Mouse Drag",
+			"UUID": "com.packrat.betterhotkeyspro.mousedrag",
+			"Icon": "imgs/actions/mousedrag/icon",
+			"Tooltip": "Press at one point, drag to another, release. Sliders and paint strokes.",
+			"PropertyInspectorPath": "ui/mouse-drag.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/mousedrag/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Scroll",
+			"UUID": "com.packrat.betterhotkeyspro.scroll",
+			"Icon": "imgs/actions/scroll/icon",
+			"Tooltip": "Turn the mouse wheel up or down by a set number of notches.",
+			"PropertyInspectorPath": "ui/scroll.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/scroll/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Mute Mic",
+			"UUID": "com.packrat.betterhotkeyspro.mutemic",
+			"Icon": "imgs/actions/mutemic/icon",
+			"Tooltip": "Mute or unmute your mic for every app at once. Covers both Windows default mics, or pick a source.",
+			"PropertyInspectorPath": "ui/mute-mic.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/mutemic/key",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/mutemic/key_on",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Push to Talk",
+			"UUID": "com.packrat.betterhotkeyspro.pushtotalk",
+			"Icon": "imgs/actions/pushtotalk/icon",
+			"Tooltip": "Hold to talk, release to mute — or the reverse. A real push-to-talk button.",
+			"PropertyInspectorPath": "ui/push-to-talk.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/pushtotalk/key",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/pushtotalk/key_on",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Mic Volume",
+			"UUID": "com.packrat.betterhotkeyspro.micvolume",
+			"Icon": "imgs/actions/micvolume/icon",
+			"Tooltip": "Set or nudge a microphone's input level.",
+			"PropertyInspectorPath": "ui/mic-volume.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/micvolume/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Dial Control",
+			"UUID": "com.packrat.betterhotkeyspro.encoderhotkey",
+			"Icon": "imgs/actions/encoderhotkey/icon",
+			"Tooltip": "Stream Deck + dials only. Turn to send a hotkey or the scroll wheel; push and tap send their own.",
+			"PropertyInspectorPath": "ui/encoder-hotkey.html",
+			"Controllers": [
+				"Encoder"
+			],
+			"Encoder": {
+				"layout": "$B1",
+				"TriggerDescription": {
+					"Rotate": "Hotkey or scroll",
+					"Push": "Send hotkey",
+					"Touch": "Send hotkey"
+				}
+			},
+			"States": [
+				{
+					"Image": "imgs/actions/encoderhotkey/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "Better Hotkeys & Mouse Pro",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Every Better Hotkeys & Mouse action in one plugin: held keys, held mouse buttons, radial wheel select, auto-repeat, mouse drag, scroll, mic controls, and Stream Deck + dials that send hotkeys or the scroll wheel.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "11"
+		}
+	],
+	"Nodejs": {
+		"Version": "24",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.betterhotkeyspro"
+}

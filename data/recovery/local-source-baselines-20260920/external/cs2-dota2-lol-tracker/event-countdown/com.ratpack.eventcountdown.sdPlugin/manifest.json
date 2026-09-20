@@ -1,0 +1,48 @@
+{
+	"Name": "Event Countdown",
+	"Version": "1.0.0.0",
+	"Author": "Ratpack",
+	"URL": "https://marketplace.elgato.com",
+	"Actions": [
+		{
+			"Name": "Countdown",
+			"UUID": "com.ratpack.eventcountdown.countdown",
+			"Icon": "imgs/actions/countdown/icon",
+			"Tooltip": "Counts down to any date. Turns amber under 24h, pulses red under 1h, and celebrates when it arrives.",
+			"PropertyInspectorPath": "ui/countdown.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/countdown/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "Event Countdown",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Beautiful per-key countdowns to any future date — game launches, holidays, stream anniversaries. Amber under a day, pulsing red under an hour, a celebration when it lands. No internet required.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.ratpack.eventcountdown"
+}

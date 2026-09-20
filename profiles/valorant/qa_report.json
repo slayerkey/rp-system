@@ -1,0 +1,28 @@
+{
+  "slug": "valorant",
+  "errors": 0,
+  "warnings": 4,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'game-ip:riot' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.blocklist",
+      "message": "README.md contains banned token '—' (em dash is the number one AI tell; never ship it) [internal doc]"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.blocklist",
+      "message": "README.md contains banned token 'free' (the word 'free' never appears in a paid listing) [internal doc]"
+    }
+  ]
+}

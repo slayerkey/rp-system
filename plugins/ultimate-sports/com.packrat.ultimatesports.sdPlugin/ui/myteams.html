@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>My Teams</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="myteams">
+		<h2>Which teams do you follow?</h2>
+		<p class="hint">This list is shared by every key in this plugin, so you only build it once.</p>
+		<div class="row">
+			<label class="key" for="sport-filter">Sport</label>
+			<div class="field"><select id="sport-filter"><option value="">All sports</option></select></div>
+		</div>
+		<div class="row">
+			<label class="key" for="search">Search</label>
+			<div class="field"><input type="search" id="search" placeholder="Type part of a team name" /></div>
+		</div>
+		<div class="row">
+			<label class="key" for="team">Add a team</label>
+			<div class="field add-row">
+				<select id="team"></select>
+				<button type="button" id="add">Add</button>
+			</div>
+		</div>
+		<ul id="favs"></ul>
+		<div class="row">
+			<label class="key" for="press">On tap</label>
+			<div class="field">
+				<select id="press">
+					<option value="cycle">Show the next team</option>
+					<option value="open">Open the game page</option>
+				</select>
+			</div>
+		</div>
+		<p class="hint"><strong>Tap shows the next team. Hold to open that game on ESPN.</strong> A hold always does the opposite of a tap, so swapping the setting below swaps both.</p>
+		<p class="hint">
+			One key holds every team on the list. It shows whatever is most urgent first: a live game, then anything
+			about to start, then the rest of today, then finals. Press to walk through the rest.
+		</p>
+		<p class="hint">A green frame means a score just changed. An amber bar along the bottom means the score could not be refreshed, so you are seeing the last one it got.</p>
+		<p class="disclaimer">Not affiliated with or endorsed by any league, team or governing body. Team names and colors identify the teams whose scores you chose to follow.</p>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

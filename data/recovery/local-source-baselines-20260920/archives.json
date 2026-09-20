@@ -1,0 +1,878 @@
+[
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\packrat-discord-bridge-poc-v0.1.0.1.zip",
+    "size": 54165,
+    "mtime": 1787542708.5754716,
+    "sha256": "6e5d45877a892b12bd0e065605aef7c481360fb66118f39bf2778028bb1442c6"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\packrat-discord-bridge-poc-v0.1.0.2.zip",
+    "size": 21584,
+    "mtime": 1787545037.4135973,
+    "sha256": "d53b7b47bc2d65b7298631b9702d3abbb271bba378d58fb5609fa6626aa9d701"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\packrat-premiere-project-health-build-initial-project-health.zip",
+    "size": 13945,
+    "mtime": 1787365516.439329,
+    "sha256": "d12456e2527990cb3a146ef3b2feebd885565a554bc6c03045e1b6c5c2cbc48f"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\packrat-premiere-project-health-main.zip",
+    "size": 14741,
+    "mtime": 1787568844.5370417,
+    "sha256": "91784330b8fe6f24c9e22bb0b9288ec1f0fdb416bcd1025ae4758b6438585753"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\packrat-premiere-project-health-release-adobe-listing-31030997.zip",
+    "size": 14117,
+    "mtime": 1787367988.1957147,
+    "sha256": "41876644d9e519e36435dbebd26884bee83d34fb3bee88ffa8779432d9711aa3"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\PackRat-Voice-Deck-for-Discord-FINAL.zip",
+    "size": 493034,
+    "mtime": 1788150883.2537713,
+    "sha256": "dc670f37909477423b9ab38169c6540bc0331c32309ede9b196310a10def01ee"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\PackRat-Voice-Deck-for-Discord-Rat-Art-V4.zip",
+    "size": 508733,
+    "mtime": 1788151431.2115996,
+    "sha256": "f4e18e759436c5e739ee05b564d44a3644f3d7943df15b1b14f014e576f0e17b"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\sports_tracker_premium_marketing_batch.zip",
+    "size": 4875168,
+    "mtime": 1787361330.5143437,
+    "sha256": "ee7e3f1a93117cdae68d73f998c5e42c2b5f90fca5c80cc7591f7e9a1d003710"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\xeneon-edge-ultimate-1.0.0-ship-kit.zip",
+    "size": 1647965,
+    "mtime": 1788064496.8727522,
+    "sha256": "40141ff644c06569f92ae26c681fb572b027308958a3c1aa94885591fdd18250"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\xeneon-marketplace-flat-upload-pack-2026-08-30.zip",
+    "size": 191512,
+    "mtime": 1788112280.3738945,
+    "sha256": "36a7f4a356c13203f8e5e4c280689a6c1d69461cf558b6f2a9e24ff23557e415"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\xeneon-marketplace-resubmission-complete-2026-08-27.zip",
+    "size": 100237,
+    "mtime": 1787888087.7626247,
+    "sha256": "9cb16b97e958f4a4efc3a59e4bdcb6a36555b2c4d7834e22d3cab2d23855200f"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\xeneon-marketplace-resubmission-missed-2026-08-27.zip",
+    "size": 46750,
+    "mtime": 1787940705.2285986,
+    "sha256": "1b5c714ce420e4495c6e61da124279760d0223b3f697ef7a45c8f6a93d59e362"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\xeneon-real-icue-final-refresh-2026-08-28.zip",
+    "size": 118986,
+    "mtime": 1787946754.696718,
+    "sha256": "8ed55c4bea44b2f83f8b0bf3b5bca7a607369caa512f971b519460cb1d44e4b5"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\xeneon-real-icue-retest-2026-08-28.zip",
+    "size": 98222,
+    "mtime": 1787940664.263733,
+    "sha256": "5e8212b669d6a13b8533e726511ff25f527624773b5cb8a4f35f185987b5eee0"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\xeneon-reviewer-round5-complete-2026-08-29.zip",
+    "size": 81831,
+    "mtime": 1788064711.5233822,
+    "sha256": "d81cf1a9a91690dea18ec4165f36e079446950cb5fc6a4d87081fb4e19b3540f"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\xeneon-reviewer-round5-complete-with-home-assistant-2026-08-29.zip",
+    "size": 89477,
+    "mtime": 1788065140.7053385,
+    "sha256": "a02e417b4c04782529258c63c7e080a98ff011646afcf7d3827e61ea3b68c463"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\xeneon-round4-2026-08-28.zip",
+    "size": 61525,
+    "mtime": 1787968684.8483088,
+    "sha256": "9bacf48310e49a514eb91650105fa45b5fc7c01c6eebddb27eed0e1a0a1ccf1c"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\_sorted\\archives\\XENEON_Marketplace_Rejected_Resubmission_1.0.0.zip",
+    "size": 116450,
+    "mtime": 1787713256.2037764,
+    "sha256": "78d10b51d7985e39d0953c4f8acb0df9a6f451e155240417813a05ebbd9d0a91"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\packrat-valorant-tracker-marketplace-art.zip",
+    "size": 1156623,
+    "mtime": 1788537256.411665,
+    "sha256": "809f493f5d1656b88fa8db7250060bfacf23ad34b5c7d7a473bf41bc36e744b2"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\packrat-voice-deck-marketplace-art.zip",
+    "size": 418901,
+    "mtime": 1788537227.726499,
+    "sha256": "fde4d66edafe9dc945ead90d200c5509221bcfca34beeeb36c28e550684b69ab"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\packrat-xeneon-all-heroes.zip",
+    "size": 17165408,
+    "mtime": 1788566823.7661827,
+    "sha256": "f1e1abcb05d0d2131bf077b913f99ba5cfdd1d0db9191566de300f7a1e17b7a1"
+  },
+  {
+    "path": "C:\\Users\\Key\\Downloads\\packrat-xeneon-lite-pro-1.0.1-final.zip",
+    "size": 60874,
+    "mtime": 1788290502.1866672,
+    "sha256": "9bc2c7b813373bfbbd018c1396144db47af1a93dc417ff2e3a8ac49bb92e6e76"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\cs2-reactive-deck\\cs2 live tracker.zip",
+    "size": 19115549,
+    "mtime": 1787627142.4963856,
+    "sha256": "9873dbb73a34601e4e2019144035255bc8ecba8796347ea7b6b74441d3f3f5a7"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-icon-factory.zip",
+    "size": 231571889,
+    "mtime": 1788544523.2405427,
+    "sha256": "1a3c2c6408e5d5d1710055bf50876cd433a501abe6350f343795f4d74fac46c8"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Anime\\Anime_by_Packrat.zip",
+    "size": 95731992,
+    "mtime": 1784074813.0601,
+    "sha256": "85d2b004f6cd39c9667ed9625fccc8916e9aac54f1d350e28d0c0e1ed2a7fdea"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Anime\\Anime_single\\Anime_single_by_Packrat.zip",
+    "size": 12472490,
+    "mtime": 1784074813.47884,
+    "sha256": "620f9344f0b8f028ab577628407c77d9ebba11bea2837718127b8fdd13530ec6"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Cyberpunk\\Cyberpunk_by_Packrat.zip",
+    "size": 135946177,
+    "mtime": 1784074813.7057023,
+    "sha256": "96134142f82cae37c620a498ed2dc8988d92996ef4e76b082a20ae08eacb7e72"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Cyberpunk\\Cyberpunk_single\\Cyberpunk_single_by_Packrat.zip",
+    "size": 32774480,
+    "mtime": 1784074814.770097,
+    "sha256": "9bbbcaa804bf3cda6081bf0c5548658aee326210ded4134f4a3a56eb8b860461"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Galaxy\\Galaxy_by_Packrat.zip",
+    "size": 275990015,
+    "mtime": 1784074823.6126983,
+    "sha256": "f7661581473a0536cc842c846bc63e1e92a01c5a5cb48bc744c5770fdbb2ccfe"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Galaxy\\Galaxy_single\\Galaxy_single_by_Packrat.zip",
+    "size": 14509177,
+    "mtime": 1784074824.1432555,
+    "sha256": "54ab6483eed5574d8a642e9fc42e31c5737560ba223c70e121c10356f637b45d"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Gaming\\Gaming_by_Packrat.zip",
+    "size": 46936668,
+    "mtime": 1784074824.2690308,
+    "sha256": "d7bdcbf41a93014f87f6ce7e6ec78e6175d8a6c3074d0af530b64162ce41110f"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Gaming\\Gaming_single\\Gaming_single_by_Packrat.zip",
+    "size": 2895181,
+    "mtime": 1784074824.3830843,
+    "sha256": "e57b869958b3d871103e0aa839f63e9c30374d2543133e9c6140fa42a3a1e6ad"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Nature\\Nature_by_Packrat.zip",
+    "size": 49262253,
+    "mtime": 1784074824.4576418,
+    "sha256": "a809e581bfc433399d69380c7639cdbddc931ac83e61e56998cb26e2373d9344"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Nature\\Nature_single\\Nature_single_by_Packrat.zip",
+    "size": 8067569,
+    "mtime": 1784074824.7247725,
+    "sha256": "f3142595bc0c51fa7212a94c4bb36ce9a5cf1caba929fbe49abbc05e1299eedd"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Pixel_Art\\Pixel_Art_by_Packrat.zip",
+    "size": 7914639,
+    "mtime": 1784074824.7432103,
+    "sha256": "8a30592c35f0245e6a44dd51281ac0bd23e1bbd44fb0055af89ee143c1e294c1"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Pixel_Art\\Pixel_Art_single\\Pixel_Art_single_by_Packrat.zip",
+    "size": 7424423,
+    "mtime": 1784074825.0199125,
+    "sha256": "dacda7753a8b03484fd80c9f0dd60ca47953bc958b3a27999d2121d7179e5c20"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Rain\\Rain_by_Packrat.zip",
+    "size": 40131612,
+    "mtime": 1784074825.093115,
+    "sha256": "cf24e89bf9b7cb96eb427add53a91358063f4f66715ea8deeafa4285051bf4f0"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\packrat-screensavers\\finished-screensavers\\Rain\\Rain_single\\Rain_single_by_Packrat.zip",
+    "size": 4085560,
+    "mtime": 1784074825.2350028,
+    "sha256": "3b897d504a0b36b5376507d7909e87b7833fa997889837e1a12b7bf6e417fbf8"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\internet-health-pro\\log.zip",
+    "size": 462197,
+    "mtime": 1789447643.7505155,
+    "sha256": "9e63f9761f13bf6f32ea7582d177acc6747ee14077566d18d3f4eab59137ef36"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\slayerkey-homepage-reliability\\artifacts\\php-runtime\\php.zip",
+    "size": 35081597,
+    "mtime": 1788993984.7506306,
+    "sha256": "43a8f67ed2e5223fafb21293c85976361808855405278cef2cf3037c3ae2529c"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\icons\\ultimate-minimals.zip",
+    "size": 98710092,
+    "mtime": 1788544663.4975784,
+    "sha256": "a227d27b5d5d897f6c8957dadcf026f1a47dce1a4e1c28ad57fa605d0527b426"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\jetbrains\\_sandbox\\hello-status-bar\\build\\distributions\\hello-status-bar-0.0.1.zip",
+    "size": 3232,
+    "mtime": 1787105433.4253447,
+    "sha256": "7f9c6b5828c60340cb246352f0d7b4ab2437091b89d8fdf76da9c643e1932d0e"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\jetbrains\\ai-usage-meter\\build\\distributions\\ai-usage-meter-1.0.0.zip",
+    "size": 81755,
+    "mtime": 1787106325.6843207,
+    "sha256": "fb9a24e6f07ec3107e2cd659511ab6f0cf46043286ed76fe1c5f4005436ad2b4"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\jetbrains\\prod-guard\\build\\distributions\\prod-guard-1.0.0.zip",
+    "size": 38900,
+    "mtime": 1787540119.8529582,
+    "sha256": "d8764394592da24f1673800fad882032f8bc85ce243388968b52891dca1307d0"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\marketing_review\\rat-art\\clipboard-pro-20260823\\clipboard-manager-pro\\candidate\\clipboard-manager-pro-v1.0.0.0.zip",
+    "size": 1616033,
+    "mtime": 1787547305.4236767,
+    "sha256": "546d02075a72700e3a8cf97a85606d6c1109ec1ccde3adfceca658efeeed3f0f"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\marketing_review\\rat-art\\poc-20260816\\fortnite\\baseline\\fortnite-v1.0.0.zip",
+    "size": 192398,
+    "mtime": 1786748597.541632,
+    "sha256": "80b3a32e47133bf809b3f973f72c5ac51c182e7364357ad0e39ca57a4ee17590"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\marketing_review\\rat-art\\poc-20260816\\fortnite\\candidate\\fortnite-v1.0.0.zip",
+    "size": 192398,
+    "mtime": 1786914288.5787766,
+    "sha256": "80b3a32e47133bf809b3f973f72c5ac51c182e7364357ad0e39ca57a4ee17590"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\marketing_review\\rat-art\\poc-20260816\\solidworks\\baseline\\solidworks-v1.0.0.zip",
+    "size": 205320,
+    "mtime": 1786748607.7288787,
+    "sha256": "401dbbd88a1aa9949976e559f0ac8ae49f019009d6103d6275f6d502c4a79a07"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\marketing_review\\rat-art\\poc-20260816\\solidworks\\candidate\\solidworks-v1.0.0.zip",
+    "size": 205320,
+    "mtime": 1786914291.3043559,
+    "sha256": "401dbbd88a1aa9949976e559f0ac8ae49f019009d6103d6275f6d502c4a79a07"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\marketing_review\\rat-art\\v2-system-20260816\\fortnite\\baseline\\fortnite-v1.0.0.zip",
+    "size": 192398,
+    "mtime": 1786748597.541632,
+    "sha256": "80b3a32e47133bf809b3f973f72c5ac51c182e7364357ad0e39ca57a4ee17590"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\marketing_review\\rat-art\\v2-system-20260816\\fortnite\\candidate\\fortnite-v1.0.0.zip",
+    "size": 192398,
+    "mtime": 1786916864.170426,
+    "sha256": "80b3a32e47133bf809b3f973f72c5ac51c182e7364357ad0e39ca57a4ee17590"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\marketing_review\\rat-art\\v2-system-20260816\\solidworks\\baseline\\solidworks-v1.0.0.zip",
+    "size": 205320,
+    "mtime": 1786748607.7288787,
+    "sha256": "401dbbd88a1aa9949976e559f0ac8ae49f019009d6103d6275f6d502c4a79a07"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\marketing_review\\rat-art\\v2-system-20260816\\solidworks\\candidate\\solidworks-v1.0.0.zip",
+    "size": 205320,
+    "mtime": 1786916872.2906997,
+    "sha256": "401dbbd88a1aa9949976e559f0ac8ae49f019009d6103d6275f6d502c4a79a07"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\calendar\\SHIP_KIT-log-backup-2026-08-23.zip",
+    "size": 2251858,
+    "mtime": 1787545658.3063104,
+    "sha256": "45151d010adb559869d377ec7bd2c0e1cc657804715f92785020ca5642b84b09"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\clipboard-manager-pro\\marketing\\clipboard-manager-pro-v1.0.0.0.zip",
+    "size": 1616033,
+    "mtime": 1787547305.4236767,
+    "sha256": "546d02075a72700e3a8cf97a85606d6c1109ec1ccde3adfceca658efeeed3f0f"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\clipboard-manager\\SHIP_KIT-log-backup-2026-08-23.zip",
+    "size": 1747966,
+    "mtime": 1787545657.8911886,
+    "sha256": "e9af0af358d6705251dd2e7133d59f97e8ffc495be3eb1e950c20f8db4d535f7"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\stream-deck-ultimate\\marketing\\stream-deck-ultimate-v1.0.0.0.zip",
+    "size": 731782,
+    "mtime": 1788405071.5685408,
+    "sha256": "f9c6ac28b67fc4b6d4f8ffe0f2bb40716d6992fe6517b76048c7db7fa944cdd2"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompt-toolkit\\marketing\\ai-prompt-toolkit-v1.0.0.zip",
+    "size": 1907669,
+    "mtime": 1787360357.2672186,
+    "sha256": "8f33b006cd48c06fd4069a7f8f1a358fab17df72122565cd15ef8ebd836473ed"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompt-toolkit\\SHIP_KIT\\ai-prompt-toolkit-v1.0.0.zip",
+    "size": 1907669,
+    "mtime": 1787360444.3509645,
+    "sha256": "8f33b006cd48c06fd4069a7f8f1a358fab17df72122565cd15ef8ebd836473ed"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-coach\\marketing\\ai-prompts-coach-v1.0.0.zip",
+    "size": 81661,
+    "mtime": 1787360407.239219,
+    "sha256": "441a07c1ce8cfd430bd4a5298eff1a6775189074260792ee061e741ccfcc1a8b"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-coach\\SHIP_KIT\\ai-prompts-coach-v1.0.0.zip",
+    "size": 81661,
+    "mtime": 1787360443.524015,
+    "sha256": "441a07c1ce8cfd430bd4a5298eff1a6775189074260792ee061e741ccfcc1a8b"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-creator\\marketing\\ai-prompts-creator-v1.0.0.zip",
+    "size": 96285,
+    "mtime": 1787360344.9457908,
+    "sha256": "4537ae5f0d77f62c99567f288fd85a44be1612c0f6a735e384d3143bf71f6ea5"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-creator\\SHIP_KIT\\ai-prompts-creator-v1.0.0.zip",
+    "size": 96285,
+    "mtime": 1787360440.5039597,
+    "sha256": "4537ae5f0d77f62c99567f288fd85a44be1612c0f6a735e384d3143bf71f6ea5"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-developer\\marketing\\ai-prompts-developer-v1.0.0.zip",
+    "size": 101882,
+    "mtime": 1787360347.3799014,
+    "sha256": "d2986e7a0d39dd5a922533d21daefd952287957ee662a4fafde24e068d342c20"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-developer\\SHIP_KIT\\ai-prompts-developer-v1.0.0.zip",
+    "size": 101882,
+    "mtime": 1787360441.2680748,
+    "sha256": "d2986e7a0d39dd5a922533d21daefd952287957ee662a4fafde24e068d342c20"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-freelancer\\marketing\\ai-prompts-freelancer-v1.0.0.zip",
+    "size": 86172,
+    "mtime": 1787360352.3413117,
+    "sha256": "37a55dbc5806cd2cf2662889ae91e86c60a6f08268ab2dad5d1850d7e7142db8"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-freelancer\\SHIP_KIT\\ai-prompts-freelancer-v1.0.0.zip",
+    "size": 86172,
+    "mtime": 1787360442.7896442,
+    "sha256": "37a55dbc5806cd2cf2662889ae91e86c60a6f08268ab2dad5d1850d7e7142db8"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-lite\\marketing\\ai-prompts-lite-v1.0.0.zip",
+    "size": 58795,
+    "mtime": 1787360342.4960413,
+    "sha256": "c828ee8c85fe5adf3548a4b0d88e14c7252775e4d5a56c7a807085119176fae6"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-lite\\SHIP_KIT\\ai-prompts-lite-v1.0.0.zip",
+    "size": 58795,
+    "mtime": 1787360439.7497,
+    "sha256": "c828ee8c85fe5adf3548a4b0d88e14c7252775e4d5a56c7a807085119176fae6"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-marketing\\marketing\\ai-prompts-marketing-v1.0.0.zip",
+    "size": 95471,
+    "mtime": 1787360349.8746417,
+    "sha256": "fb3450942c68218bd5bc3cd3729a23dff78ee29771828f3152fc6a87c4bd1bac"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\ai-prompts-marketing\\SHIP_KIT\\ai-prompts-marketing-v1.0.0.zip",
+    "size": 95471,
+    "mtime": 1787360442.025388,
+    "sha256": "fb3450942c68218bd5bc3cd3729a23dff78ee29771828f3152fc6a87c4bd1bac"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\cs2\\marketing\\cs2-v1.0.0.zip",
+    "size": 18762,
+    "mtime": 1786722649.8895674,
+    "sha256": "bdece35296adb554c07d06a421b5f901aefe84bc83ca2826be29b28615f19c50"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\davinci-resolve-lite\\marketing\\davinci-resolve-lite-v1.1.0.zip",
+    "size": 67765,
+    "mtime": 1788822376.9510212,
+    "sha256": "4747b53c6356ebb1b7445baa893eb299e85037c2b69fae9f26e4a1fc7ef696c0"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\davinci-resolve-lite\\SHIP_KIT-log-backup-2026-08-23.zip",
+    "size": 2214652,
+    "mtime": 1787545659.0806537,
+    "sha256": "cdfb9ff68020231b6eb33d46bfce6959ce85831b0d816240e4894c06c161f9c7"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\davinci-resolve-lite\\SHIP_KIT\\davinci-resolve-lite-v1.1.0.zip",
+    "size": 67765,
+    "mtime": 1788822406.8051062,
+    "sha256": "4747b53c6356ebb1b7445baa893eb299e85037c2b69fae9f26e4a1fc7ef696c0"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\davinci-resolve-pro\\marketing\\davinci-resolve-pro-v1.0.0.zip",
+    "size": 1614263,
+    "mtime": 1786327203.562819,
+    "sha256": "4d4dad2d7fae7b3c47a9e17932c377b35b0b43d7893d6c5ed75f5d6b1dc32622"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\davinci-resolve-pro\\SHIP_KIT\\davinci-resolve-pro-v1.0.0.zip",
+    "size": 1614263,
+    "mtime": 1786327272.9167738,
+    "sha256": "4d4dad2d7fae7b3c47a9e17932c377b35b0b43d7893d6c5ed75f5d6b1dc32622"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\davinci-resolve\\davinci-resolve-v1.0.0.zip",
+    "size": 566224,
+    "mtime": 1784678383.8012931,
+    "sha256": "26fdbcbb444a7417c3ff0592ba62461be574bf024c6e79464a405f59dab5e9eb"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\davinci-resolve\\marketing\\DaVinci Resolve (Mac).zip",
+    "size": 158466,
+    "mtime": 1785906624.258091,
+    "sha256": "8937c3d22a649815d19e26c0afcc566234fff1656f727be536ad5f752c9dd0a1"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\davinci-resolve\\marketing\\DaVinci Resolve.zip",
+    "size": 163008,
+    "mtime": 1784678383.7187858,
+    "sha256": "8168114b026ef04bee100414649af00cd23c696736deabb35a3d75adf778e5fe"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\davinci-resolve\\UPLOAD\\DaVinci Resolve.zip",
+    "size": 567723,
+    "mtime": 1784690585.8290794,
+    "sha256": "5b64336399f7c3cefc6e88fa7138a21d892eaa3ca75831637fc6a7b49b7f4592"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\discord-essentials\\marketing\\Discord (Mac).zip",
+    "size": 22522,
+    "mtime": 1784690604.7599852,
+    "sha256": "cb1bde4c5f6142fae99b43bd1e16df2fd116c2f3752a323815f2fbd56045d015"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\discord-essentials\\marketing\\Discord.zip",
+    "size": 22513,
+    "mtime": 1784678383.7228281,
+    "sha256": "588e910e9165edacf6c77531119328ced6d4ddeada8fd9fbc7b681c1fb3be165"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\discord-essentials\\SHIP_KIT\\discord-essentials-v1.0.0.zip",
+    "size": 83379,
+    "mtime": 1784678383.7603095,
+    "sha256": "3151f9f55d5b57eb62bef4ff951c253e3937a9e5d24e1b778df5940e38122071"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\discord-essentials\\UPLOAD\\Discord Essentials.zip",
+    "size": 84865,
+    "mtime": 1784690585.7993863,
+    "sha256": "7427d9c18a66e75bb367a9e4f0db94341902fe8fc1ce13d536786a0723f37da3"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\dota2\\marketing\\dota2-v1.0.0.zip",
+    "size": 29399,
+    "mtime": 1786722683.4352782,
+    "sha256": "b7cc2df912a2b649d620ce22a4b2342a56e23b21f3a99ee90d3f4e7042094e74"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\dota2\\SHIP_KIT\\dota2-v1.0.0.zip",
+    "size": 29399,
+    "mtime": 1786328045.9873774,
+    "sha256": "b7cc2df912a2b649d620ce22a4b2342a56e23b21f3a99ee90d3f4e7042094e74"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\elite-dangerous\\marketing\\elite-dangerous-v1.0.0.zip",
+    "size": 191756,
+    "mtime": 1786748594.9164987,
+    "sha256": "fd34db4d9e9cb034da323ad25d2f7c9422eb40063f7ca598992294276e29dfba"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\elite-dangerous\\SHIP_KIT\\elite-dangerous-v1.0.0.zip",
+    "size": 191553,
+    "mtime": 1785621402.459097,
+    "sha256": "3a70189a8db4be7981ed643daa76d478a1a30509162bdd5c37dbf3b847f2e7a3"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\epic-pen-pro\\marketing\\epic-pen-pro-v1.0.0.zip",
+    "size": 340016,
+    "mtime": 1787028679.9694204,
+    "sha256": "9a451b16922e2a43e853927fe08337e25e3b0fc4d873dd3ab1e1cb10190e1e14"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\epic-pen-pro\\SHIP_KIT\\epic-pen-pro-v1.0.0.zip",
+    "size": 340016,
+    "mtime": 1787029310.413709,
+    "sha256": "9a451b16922e2a43e853927fe08337e25e3b0fc4d873dd3ab1e1cb10190e1e14"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\epic-pen\\marketing\\epic-pen-v1.0.0.zip",
+    "size": 105266,
+    "mtime": 1787028677.4922433,
+    "sha256": "4f958a61a754dcb7648599a7dde6c643649cc2eb6351bccb126d4a31b9c9dbff"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\epic-pen\\SHIP_KIT\\epic-pen-v1.0.1.zip",
+    "size": 105509,
+    "mtime": 1788305440.938547,
+    "sha256": "036e6899a974f30053749e5d043cc81b6fa87ed1d75cbbb7977decf685042131"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\fl-studio\\marketing\\fl-studio-v1.0.0.zip",
+    "size": 33350,
+    "mtime": 1786722690.8069327,
+    "sha256": "d7b2bdc991b3a8933e661e09a61a3ea8c77e1d8d8c1d19576da36f4578c99e76"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\fl-studio\\SHIP_KIT\\fl-studio-v1.0.0.zip",
+    "size": 33350,
+    "mtime": 1786328046.1248624,
+    "sha256": "d7b2bdc991b3a8933e661e09a61a3ea8c77e1d8d8c1d19576da36f4578c99e76"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\fortnite\\marketing\\fortnite-v1.0.1.zip",
+    "size": 194585,
+    "mtime": 1788203865.7842314,
+    "sha256": "edff4432d5a0319f86da5e7bae2f2668e3b89ed8a3f17a9394a6ffbff9ae9b59"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\fortnite\\SHIP_KIT\\fortnite-v1.0.0.zip",
+    "size": 192398,
+    "mtime": 1786476330.7610962,
+    "sha256": "80b3a32e47133bf809b3f973f72c5ac51c182e7364357ad0e39ca57a4ee17590"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\forza\\marketing\\forza-v1.0.0.zip",
+    "size": 52820,
+    "mtime": 1786752450.490771,
+    "sha256": "80ce4f05a35236ea94abc1684bf26471d65fa033fd6675345d6416255b7c5569"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\forza\\SHIP_KIT\\forza-v1.0.0.zip",
+    "size": 52646,
+    "mtime": 1785621403.500995,
+    "sha256": "f808441aebf5bc9e93f8bed96b4878777f2805881ad88acc24837e351afe0e2e"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\league-of-legends\\marketing\\league-of-legends-v1.0.0.zip",
+    "size": 43262,
+    "mtime": 1786722685.856604,
+    "sha256": "6f113097852c50291a3a7fcdd6c0eef10bfbb652cc7ad3b507628c71022ee75a"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\league-of-legends\\SHIP_KIT\\league-of-legends-v1.0.0.zip",
+    "size": 43262,
+    "mtime": 1786328045.8468719,
+    "sha256": "6f113097852c50291a3a7fcdd6c0eef10bfbb652cc7ad3b507628c71022ee75a"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\minecraft\\marketing\\minecraft-v1.0.0.zip",
+    "size": 117564,
+    "mtime": 1786722688.5070853,
+    "sha256": "400559729999552ad0e009062a8bf734a03a3c68e8fcf0ab14184a038d16c3b5"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\minecraft\\SHIP_KIT\\minecraft-v1.0.0.zip",
+    "size": 117564,
+    "mtime": 1786328045.5675974,
+    "sha256": "400559729999552ad0e009062a8bf734a03a3c68e8fcf0ab14184a038d16c3b5"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\osrs-vsd\\marketing\\osrs-vsd-v1.0.0.zip",
+    "size": 65685,
+    "mtime": 1787026395.2971728,
+    "sha256": "9689af80da9b574190632f988af2e266d76a35a091a9abbac4e4545cb40bd3f5"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\osrs-vsd\\SHIP_KIT\\osrs-vsd-v1.0.0.zip",
+    "size": 65685,
+    "mtime": 1787026445.8055248,
+    "sha256": "9689af80da9b574190632f988af2e266d76a35a091a9abbac4e4545cb40bd3f5"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\osrs\\marketing\\osrs-v1.0.0.zip",
+    "size": 190581,
+    "mtime": 1787026400.8544223,
+    "sha256": "ff295c17cda3fad5a8b692be5a15c1335bb91d93e3b7152958cf79500ac8df53"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\osrs\\SHIP_KIT\\osrs-v1.0.0.zip",
+    "size": 190581,
+    "mtime": 1787026446.0858164,
+    "sha256": "ff295c17cda3fad5a8b692be5a15c1335bb91d93e3b7152958cf79500ac8df53"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\palworld\\marketing\\Palworld (Mac).zip",
+    "size": 26078,
+    "mtime": 1784690597.3864033,
+    "sha256": "f9eaabe255d9e15433d1f6503559956825e81722a8c97127200003e4837741c3"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\palworld\\marketing\\Palworld.zip",
+    "size": 26059,
+    "mtime": 1784678383.727388,
+    "sha256": "9fbeef81e79bcf60a1acb550783a692704ff28d9581389bfceb571ce20575454"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\palworld\\palworld-v1.0.0.zip",
+    "size": 95016,
+    "mtime": 1784678383.7785888,
+    "sha256": "1e4bb466848fed5f2f0fddfda88a1bfb4ae43c96bdc8407dd6122663da2a1489"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\palworld\\UPLOAD\\Palworld.zip",
+    "size": 96579,
+    "mtime": 1784690585.7862506,
+    "sha256": "bbdae61bbfebe31b415bb2f96f6fccff9c644d5b73437ce6c999765496d8b817"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\satisfactory\\marketing\\satisfactory-v1.0.0.zip",
+    "size": 178357,
+    "mtime": 1786748605.2046852,
+    "sha256": "4ca5354e2019bfa9b09ee0d37bfa7b1b211ee5a100644c8589f486d749f67d12"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\satisfactory\\SHIP_KIT\\satisfactory-v1.0.0.zip",
+    "size": 178196,
+    "mtime": 1785621401.3876433,
+    "sha256": "e312b0129060ba8912ec73a8c82cd6d36f326d1a7456384be14d3135723c3413"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\solidworks\\marketing\\solidworks-v1.0.0.zip",
+    "size": 205320,
+    "mtime": 1786748607.7288787,
+    "sha256": "401dbbd88a1aa9949976e559f0ac8ae49f019009d6103d6275f6d502c4a79a07"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\solidworks\\SHIP_KIT\\solidworks-v1.0.0.zip",
+    "size": 205124,
+    "mtime": 1785637141.686949,
+    "sha256": "884e7ccdf888c4c8c3657326e5db96d2a23c58fcf56fb7b8186a15fa7c19dbac"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\streamer-starter-pack\\marketing\\Streamer Starter Pack (Mac).zip",
+    "size": 19790,
+    "mtime": 1784690599.819126,
+    "sha256": "eae8a439f0c8ec0249946564a01285a4cfd8f7f691224e7a565de63b9905c86d"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\streamer-starter-pack\\marketing\\Streamer Starter Pack.zip",
+    "size": 19767,
+    "mtime": 1784678383.7309911,
+    "sha256": "93be0f9376d8a29303ffe5d4c0495a0f820c56ca89e536a50aac86c0238eb045"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\streamer-starter-pack\\streamer-starter-pack-v1.0.0.zip",
+    "size": 70449,
+    "mtime": 1784678383.7724857,
+    "sha256": "d4da05b941cb7da664b093d920aee45b6f016593a3d6239fb6e61960063ec137"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\streamer-starter-pack\\UPLOAD\\Streamer Starter Pack.zip",
+    "size": 71943,
+    "mtime": 1784690585.8421948,
+    "sha256": "b8e685e7e3fb64acf8fc4ee45018f75ea7e1e2a8974a36c08cf87c2781d8822b"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\streamer-university\\marketing\\Streamer University (Mac).zip",
+    "size": 32435,
+    "mtime": 1784690602.5308192,
+    "sha256": "0ba5021467c336678e5c4bdf4e037122002d5c627e4443eded56bb57cf26ddd5"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\streamer-university\\marketing\\Streamer University.zip",
+    "size": 32434,
+    "mtime": 1784678383.7355273,
+    "sha256": "ada996a75b78b11b009dd5a28952381787bc7901905782fb4ea167ac6e82c98e"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\streamer-university\\streamer-university-v1.0.0.zip",
+    "size": 116966,
+    "mtime": 1784678383.7684422,
+    "sha256": "a651535099a8f82587d704eaf29273aed55fb2c1f8529dc49262f657c99df1d8"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\streamer-university\\UPLOAD\\Streamer University.zip",
+    "size": 118714,
+    "mtime": 1784690585.857866,
+    "sha256": "979036d2e585bbf1b2e3a8ca0b0e747c42491515973739a8d622201d1258361f"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\valorant\\marketing\\valorant-v1.0.0.zip",
+    "size": 190025,
+    "mtime": 1787028483.7993705,
+    "sha256": "17136f644066f4f4cc1a3d0b296fd0f57347173bb7ee4daf5d40f870851a13d8"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\valorant\\UPLOAD\\Valorant.zip",
+    "size": 198007,
+    "mtime": 1784690585.7700458,
+    "sha256": "34cc0419055da8f1c648d7a25bf7bc761af0c645bde45ab6c8da03dff3a59498"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\valorant\\valorant-v1.0.0.zip",
+    "size": 196747,
+    "mtime": 1784678383.8094277,
+    "sha256": "0985bfda3386fadc0d7bf97095ca1a591a986e95c9840d52865e7b9c37485a75"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\vectorworks\\marketing\\vectorworks-v1.0.0.zip",
+    "size": 568731,
+    "mtime": 1787028477.4490976,
+    "sha256": "573efcfb7aa81cbe48f791e1c665a37485266294a60ce6f05a571bb93148523e"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\vectorworks\\SHIP_KIT\\vectorworks-v1.0.0.zip",
+    "size": 568519,
+    "mtime": 1785621400.2986557,
+    "sha256": "5c53c5ded9c93bb7393c798107172686ca3482ba1acf5b4d3491eebfa88f506d"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\world-of-warcraft-vsd\\marketing\\world-of-warcraft-vsd-v1.0.0.zip",
+    "size": 112380,
+    "mtime": 1787026392.8941023,
+    "sha256": "60bffa79bc2aa34642a0f7ba7c70ccb7f706e5d6c635ebc203b696779b9f55d9"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\world-of-warcraft-vsd\\SHIP_KIT\\world-of-warcraft-vsd-v1.0.0.zip",
+    "size": 112380,
+    "mtime": 1787026445.6692858,
+    "sha256": "60bffa79bc2aa34642a0f7ba7c70ccb7f706e5d6c635ebc203b696779b9f55d9"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\world-of-warcraft\\marketing\\world-of-warcraft-v1.0.0.zip",
+    "size": 381961,
+    "mtime": 1787026398.0975206,
+    "sha256": "196558203ad82ec5cb56f1845e1f277787c4ea652b7595bd264e4cdf6f597d94"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\profiles\\world-of-warcraft\\SHIP_KIT\\world-of-warcraft-v1.0.0.zip",
+    "size": 381961,
+    "mtime": 1787026445.9482987,
+    "sha256": "196558203ad82ec5cb56f1845e1f277787c4ea652b7595bd264e4cdf6f597d94"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\ratpack-context-export.zip",
+    "size": 90123862,
+    "mtime": 1787413367.3597786,
+    "sha256": "3b7fca761c4646c0afa8a951faab383af262c8225a4e9b4e1f07d69169663d51"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\ratpack-context-export\\repo-mirror\\ratpack-projects\\profiles\\davinci-resolve\\davinci-resolve-v1.0.0.zip",
+    "size": 566224,
+    "mtime": 1784678383.8012931,
+    "sha256": "26fdbcbb444a7417c3ff0592ba62461be574bf024c6e79464a405f59dab5e9eb"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\ratpack-context-export\\repo-mirror\\ratpack-projects\\profiles\\davinci-resolve\\marketing\\davinci-resolve-v1.0.0.zip",
+    "size": 699015,
+    "mtime": 1787400279.2019835,
+    "sha256": "29784b4df323803b512590986788d19f8fcb62dbf2ca33236d7e2a0005962369"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\ratpack-context-export\\repo-mirror\\ratpack-projects\\profiles\\davinci-resolve\\UPLOAD\\DaVinci Resolve.zip",
+    "size": 567723,
+    "mtime": 1784690585.8290794,
+    "sha256": "5b64336399f7c3cefc6e88fa7138a21d892eaa3ca75831637fc6a7b49b7f4592"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\ratpack-context-export\\repo-mirror\\ratpack-projects\\streamdeck-mymarketplace-sold\\analytics-all-products-6ca8662c-1988-4901-8058-f5929450a596-2025-10-01-2026-07-27.zip",
+    "size": 69084,
+    "mtime": 1785263880.3717432,
+    "sha256": "5ef572afc796296caad282c8c49535e293e38700be4700df67498e8192f3a7e9"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\RESUBMIT\\osrs-vsd\\osrs-vsd-v1.0.0.zip",
+    "size": 65685,
+    "mtime": 1787026445.8055248,
+    "sha256": "9689af80da9b574190632f988af2e266d76a35a091a9abbac4e4545cb40bd3f5"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\RESUBMIT\\osrs\\osrs-v1.0.0.zip",
+    "size": 190581,
+    "mtime": 1787026446.0858164,
+    "sha256": "ff295c17cda3fad5a8b692be5a15c1335bb91d93e3b7152958cf79500ac8df53"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\RESUBMIT\\world-of-warcraft-vsd\\world-of-warcraft-vsd-v1.0.0.zip",
+    "size": 112380,
+    "mtime": 1787026445.6692858,
+    "sha256": "60bffa79bc2aa34642a0f7ba7c70ccb7f706e5d6c635ebc203b696779b9f55d9"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\RESUBMIT\\world-of-warcraft\\world-of-warcraft-v1.0.0.zip",
+    "size": 381961,
+    "mtime": 1787026445.9482987,
+    "sha256": "196558203ad82ec5cb56f1845e1f277787c4ea652b7595bd264e4cdf6f597d94"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\streamdeck-mymarketplace-sold\\analytics-all-products-6ca8662c-1988-4901-8058-f5929450a596-2025-10-01-2026-07-27.zip",
+    "size": 69084,
+    "mtime": 1785263880.3717432,
+    "sha256": "5ef572afc796296caad282c8c49535e293e38700be4700df67498e8192f3a7e9"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\UPLOAD_READY\\customer-fixes-2026-08-31\\03-Fortnite-v1.0.1.zip",
+    "size": 194585,
+    "mtime": 1788203917.3108099,
+    "sha256": "edff4432d5a0319f86da5e7bae2f2668e3b89ed8a3f17a9394a6ffbff9ae9b59"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\UPLOAD_READY\\lite-pro-links-2026-09-01\\03-Epic-Pen-Profile-v1.0.1.zip",
+    "size": 105509,
+    "mtime": 1788305482.9736085,
+    "sha256": "036e6899a974f30053749e5d043cc81b6fa87ed1d75cbbb7977decf685042131"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\home-assistnat.zip",
+    "size": 9697,
+    "mtime": 1787965256.0625174,
+    "sha256": "f58d3bce445fee7d40207afa0afe476cfa9414a8c61ef36331c79cc54f271507"
+  },
+  {
+    "path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\perf-grapher.zip",
+    "size": 22301,
+    "mtime": 1787966391.7067797,
+    "sha256": "af39666a2f54f4b669bf04e75ec5228d9e60d39fe11c39a5157f19e62baa9bc8"
+  }
+]

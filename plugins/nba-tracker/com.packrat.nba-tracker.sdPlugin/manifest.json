@@ -1,0 +1,79 @@
+{
+	"Name": "NBA Tracker",
+	"Version": "1.0.0.0",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Team Score",
+			"UUID": "com.packrat.nba-tracker.score",
+			"Icon": "imgs/actions/score/icon",
+			"Tooltip": "Live score for your team, with a countdown to the next game when none is on. Press to refresh, or set it to open the game page.",
+			"PropertyInspectorPath": "ui/score.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/score/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Standings",
+			"UUID": "com.packrat.nba-tracker.standings",
+			"Icon": "imgs/actions/standings/icon",
+			"Tooltip": "Where your team sits in the conference or its division. Press to swap the view.",
+			"PropertyInspectorPath": "ui/standings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/standings/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "League Scoreboard",
+			"UUID": "com.packrat.nba-tracker.scoreboard",
+			"Icon": "imgs/actions/scoreboard/icon",
+			"Tooltip": "Every game playing today on one key, live games first. Press for the next one.",
+			"PropertyInspectorPath": "ui/scoreboard.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/scoreboard/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "NBA Tracker",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Keep the game on your deck. Live scores, tip-off times, and where your team stands, updating on their own while you play or stream. No alt-tabbing to check the score. Not affiliated with or endorsed by the NBA or any team.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.nba-tracker"
+}

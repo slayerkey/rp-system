@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg">
+<title>tr('Ambient Clock Pack')</title>
+
+<meta name="x-icue-property" content="face" data-label="tr('Face')" data-type="combobox" data-values="[{'key':'orbit','value':tr('Orbit')},{'key':'matrix','value':tr('Matrix')},{'key':'pulse','value':tr('Pulse')},{'key':'minimal','value':tr('Minimal')}]" data-default="'orbit'">
+<meta name="x-icue-property" content="use24Hour" data-label="tr('24 Hour Time')" data-type="switch" data-default="true">
+<meta name="x-icue-property" content="showSeconds" data-label="tr('Show Seconds')" data-type="switch" data-default="true">
+<meta name="x-icue-property" content="showDate" data-label="tr('Show Date')" data-type="switch" data-default="true">
+<meta name="x-icue-property" content="intensity" data-label="tr('Animation Intensity')" data-type="slider" data-min="0" data-max="100" data-step="5" data-unit-label="'%'" data-default="60">
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F2F5F7'">
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'">
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#0B0E11'">
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Clock')",
+    "properties": ["face", "use24Hour", "showSeconds", "showDate", "intensity"],
+    "info": "tr('Four faces. All artwork is drawn live, nothing is downloaded.')"
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"]
+  }
+]
+</script>
+
+<link rel="stylesheet" href="../../_shared/tokens.css">
+<link rel="stylesheet" href="clock.css">
+</head>
+<body data-face="orbit">
+<div id="stage">
+    <canvas id="art"></canvas>
+    <div id="face">
+        <span class="time-row"><span id="time">00:00</span><span id="suffix"></span></span>
+        <span id="date"></span>
+    </div>
+</div>
+<script src="../../_shared/boot.js"></script>
+<script src="../../_shared/anim.js"></script>
+<script src="clock.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Health Display</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	</head>
+	<body>
+		<sdpi-item label="Display">
+			<sdpi-select setting="mode" default="both">
+				<option value="both">HP + Mana (one key)</option>
+				<option value="hp">HP only</option>
+				<option value="mana">Mana only</option>
+			</sdpi-select>
+		</sdpi-item>
+		<p style="font-size:11px;color:#9aa6c4;margin:2px 6px 8px;line-height:1.4;">Put two keys down — one <b>HP only</b>, one <b>Mana only</b> — for separate bars. Manaless champs show HP.</p>
+		<sdpi-item label="Healthy (&gt; high)">
+			<sdpi-color setting="good" default="#30e27b"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="Hurt (mid)">
+			<sdpi-color setting="mid" default="#ffd60a"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="Low (&lt; low)">
+			<sdpi-color setting="bad" default="#ff3b30"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="High threshold %">
+			<sdpi-range setting="highCut" min="40" max="90" step="5" default="60" showlabels></sdpi-range>
+		</sdpi-item>
+		<sdpi-item label="Low threshold %">
+			<sdpi-range setting="lowCut" min="10" max="60" step="5" default="30" showlabels></sdpi-range>
+		</sdpi-item>
+	</body>
+</html>

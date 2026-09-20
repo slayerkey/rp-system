@@ -1,0 +1,2064 @@
+[
+  {
+    "blob": "576fd52dc13527b3e27e0b63a4a07ffefb3b7c52",
+    "paths": [
+      "widgets/audio-control-center/manifest.json"
+    ],
+    "name": "Audio Control Center",
+    "version": "1.0.0",
+    "uuid": "com.packrat.audiocontrolcenter",
+    "action_uuids": []
+  },
+  {
+    "blob": "5bce57c208ef60a59f82e4f18ca88a45a6258f32",
+    "paths": [
+      "plugins/audio-manager-lite/com.packrat.audio-manager-lite.sdPlugin/manifest.json"
+    ],
+    "name": "Audio Manager Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.audio-manager-lite",
+    "action_uuids": [
+      "com.packrat.audio-manager-lite.set-output",
+      "com.packrat.audio-manager-lite.set-input"
+    ]
+  },
+  {
+    "blob": "93c2d170c3a88a1661e723c6ed1d00c388190388",
+    "paths": [
+      "plugins/audio-manager-lite/com.packrat.audio-manager-lite.sdPlugin/manifest.json"
+    ],
+    "name": "Audio Manager Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.audio-manager-lite",
+    "action_uuids": [
+      "com.packrat.audio-manager-lite.set-output"
+    ]
+  },
+  {
+    "blob": "1fa747f4859067ee995755d90acf1f7fa054d4f4",
+    "paths": [
+      "plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Audio Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.audio-manager-pro",
+    "action_uuids": [
+      "com.packrat.audio-manager-pro.apply-profile",
+      "com.packrat.audio-manager-pro.set-output",
+      "com.packrat.audio-manager-pro.set-input",
+      "com.packrat.audio-manager-pro.cycle-profile",
+      "com.packrat.audio-manager-pro.profile-status",
+      "com.packrat.audio-manager-pro.mute-default-mic",
+      "com.packrat.audio-manager-pro.profile-output-volume"
+    ]
+  },
+  {
+    "blob": "25a8efa6c562c7a7950d2f72d09acf7372ab12c9",
+    "paths": [
+      "plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Audio Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.audio-manager-pro",
+    "action_uuids": [
+      "com.packrat.audio-manager-pro.apply-profile",
+      "com.packrat.audio-manager-pro.set-output",
+      "com.packrat.audio-manager-pro.set-input",
+      "com.packrat.audio-manager-pro.cycle-profile",
+      "com.packrat.audio-manager-pro.profile-status",
+      "com.packrat.audio-manager-pro.mute-default-mic",
+      "com.packrat.audio-manager-pro.profile-output-volume"
+    ]
+  },
+  {
+    "blob": "e300e1b0ef4c9ee45b7c228c4ab240b29178411f",
+    "paths": [
+      "plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Audio Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.audio-manager-pro",
+    "action_uuids": [
+      "com.packrat.audio-manager-pro.apply-profile",
+      "com.packrat.audio-manager-pro.set-output",
+      "com.packrat.audio-manager-pro.set-input",
+      "com.packrat.audio-manager-pro.cycle-profile",
+      "com.packrat.audio-manager-pro.profile-status",
+      "com.packrat.audio-manager-pro.mute-default-mic",
+      "com.packrat.audio-manager-pro.profile-output-volume"
+    ]
+  },
+  {
+    "blob": "fd0072b343aa7830bd2183bb809b8546ef343815",
+    "paths": [
+      "plugins/audio-manager-pro/com.packrat.audio-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Audio Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.audio-manager-pro",
+    "action_uuids": [
+      "com.packrat.audio-manager-pro.apply-profile",
+      "com.packrat.audio-manager-pro.set-output",
+      "com.packrat.audio-manager-pro.set-input",
+      "com.packrat.audio-manager-pro.cycle-profile",
+      "com.packrat.audio-manager-pro.profile-status",
+      "com.packrat.audio-manager-pro.mute-default-mic",
+      "com.packrat.audio-manager-pro.profile-output-volume"
+    ]
+  },
+  {
+    "blob": "c6d5db2dc7111261ae4460162932b525e0891abe",
+    "paths": [
+      "plugins/claude-auto-queue/com.packrat.claude-auto-queue.sdPlugin/manifest.json"
+    ],
+    "name": "Auto Queue for Claude Code",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.claude-auto-queue",
+    "action_uuids": [
+      "com.packrat.claude-auto-queue.status",
+      "com.packrat.claude-auto-queue.queue-prompt",
+      "com.packrat.claude-auto-queue.next-prompt",
+      "com.packrat.claude-auto-queue.queue-control"
+    ]
+  },
+  {
+    "blob": "e6ff91cc5ac28b0823ccbd1e72fb2c9833608fe1",
+    "paths": [
+      "plugins/claude-auto-queue/com.packrat.claude-auto-queue.sdPlugin/manifest.json"
+    ],
+    "name": "Auto Queue for Claude Code",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.claude-auto-queue",
+    "action_uuids": [
+      "com.packrat.claude-auto-queue.status",
+      "com.packrat.claude-auto-queue.queue-prompt",
+      "com.packrat.claude-auto-queue.next-prompt",
+      "com.packrat.claude-auto-queue.queue-control"
+    ]
+  },
+  {
+    "blob": "6d7506cb9c857c44772ee1ddf0510f647ea7a042",
+    "paths": [
+      "widgets/agenda-panel/manifest.json"
+    ],
+    "name": "Calendar Panel",
+    "version": "1.0.0",
+    "uuid": "com.packrat.agendapanel",
+    "action_uuids": []
+  },
+  {
+    "blob": "01f8d4f71c52432b14e1b2f36e3a168f8fd2c199",
+    "paths": [
+      "widgets/agenda-panel/manifest.json"
+    ],
+    "name": "Calendar Panel",
+    "version": "1.0.1",
+    "uuid": "com.packrat.agendapanel",
+    "action_uuids": []
+  },
+  {
+    "blob": "867bf1593ef1cfd3a1cafce75c910661a402c657",
+    "paths": [
+      "widgets/agenda-panel/manifest.json"
+    ],
+    "name": "Calendar Panel",
+    "version": "1.0.1",
+    "uuid": "com.packrat.agendapanel",
+    "action_uuids": []
+  },
+  {
+    "blob": "efdd63937d0d67a61881222f6e56c4764fb220b0",
+    "paths": [
+      "widgets/agenda-panel/manifest.json"
+    ],
+    "name": "Calendar Panel",
+    "version": "1.0.1",
+    "uuid": "com.packrat.agendapanel",
+    "action_uuids": []
+  },
+  {
+    "blob": "f21a40bcadeeaa8b292b2c5f59ffd1107b355322",
+    "paths": [
+      "plugins/calendar/recovered-manifest.json"
+    ],
+    "name": "Calendar Sync Lite",
+    "version": "1.0.0.1",
+    "uuid": "com.packrat.calendarsynclite",
+    "action_uuids": [
+      "com.packrat.calendarsynclite.next",
+      "com.packrat.calendarsynclite.agenda"
+    ]
+  },
+  {
+    "blob": "48717aed9180c4cc9675f3535c8479f2627b46d9",
+    "paths": [
+      "plugins/calendar-pro/manifest-1.2.0.0.json"
+    ],
+    "name": "Calendar Sync Pro",
+    "version": "1.2.0.0",
+    "uuid": "com.packrat.calendarsyncpro",
+    "action_uuids": [
+      "com.packrat.calendarsyncpro.next",
+      "com.packrat.calendarsyncpro.agenda",
+      "com.packrat.calendarsyncpro.join"
+    ]
+  },
+  {
+    "blob": "ba7807de07160f464fbc096fb676be7e97e1b6d2",
+    "paths": [
+      "plugins/claude-auto-queue/com.packrat.claude-auto-queue.sdPlugin/manifest.json"
+    ],
+    "name": "Claude Auto Queue",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.claude-auto-queue",
+    "action_uuids": [
+      "com.packrat.claude-auto-queue.status",
+      "com.packrat.claude-auto-queue.queue-prompt",
+      "com.packrat.claude-auto-queue.next-prompt",
+      "com.packrat.claude-auto-queue.queue-control"
+    ]
+  },
+  {
+    "blob": "1315b3ced06e0f38bc385d40e160d0282bf8b39c",
+    "paths": [
+      "widgets/clipboard-shelf/manifest.json"
+    ],
+    "name": "Clipboard Shelf",
+    "version": "1.0.0",
+    "uuid": "com.packrat.clipboardshelf",
+    "action_uuids": []
+  },
+  {
+    "blob": "0eb2bfa85edd865cf407c3ea12c1b613f757ca63",
+    "paths": [
+      "widgets/desk-notes/manifest.json"
+    ],
+    "name": "Desk Notes Lite",
+    "version": "1.0.0",
+    "uuid": "com.packrat.desknotes",
+    "action_uuids": []
+  },
+  {
+    "blob": "6ccc6b4315188c97f5d2398ff65a00656f8672b1",
+    "paths": [
+      "widgets/desk-notes/manifest.json"
+    ],
+    "name": "Desk Notes Lite",
+    "version": "1.0.1",
+    "uuid": "com.packrat.desknotes",
+    "action_uuids": []
+  },
+  {
+    "blob": "f6d15dbce9c26f3201b81877d43d978e281a40c0",
+    "paths": [
+      "widgets/desk-notes-pro/manifest.json"
+    ],
+    "name": "Desk Notes Pro",
+    "version": "1.0.0",
+    "uuid": "com.packrat.desknotespro",
+    "action_uuids": []
+  },
+  {
+    "blob": "6b6534bef359c4bba6fc6b4d3134922558aa14e3",
+    "paths": [
+      "plugins/discord-bridge/com.packrat.discord-bridge.sdPlugin/manifest.json"
+    ],
+    "name": "Discord Voice Bridge",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.discord-bridge",
+    "action_uuids": [
+      "com.packrat.discord-bridge.status"
+    ]
+  },
+  {
+    "blob": "1904869ff6d6a8daf6a8185ccbd860123eb102de",
+    "paths": [
+      "plugins/voice-deck/com.packrat.voice-deck.sdPlugin/manifest.json"
+    ],
+    "name": "Discord Voice Deck for Stream Deck",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.voice-deck",
+    "action_uuids": [
+      "com.packrat.voice-deck.status",
+      "com.packrat.voice-deck.mute",
+      "com.packrat.voice-deck.deafen",
+      "com.packrat.voice-deck.mute-deafen",
+      "com.packrat.voice-deck.channel",
+      "com.packrat.voice-deck.member",
+      "com.packrat.voice-deck.member-slot",
+      "com.packrat.voice-deck.spotlight",
+      "com.packrat.voice-deck.activity",
+      "com.packrat.voice-deck.member-count",
+      "com.packrat.voice-deck.connection",
+      "com.packrat.voice-deck.navigator"
+    ]
+  },
+  {
+    "blob": "b9973531f706edb5c5909c7da0264646d5e6e2c8",
+    "paths": [
+      "widgets/discord-panel/manifest.json"
+    ],
+    "name": "Discord Voice Panel",
+    "version": "0.1.0",
+    "uuid": "com.packrat.discordpanel",
+    "action_uuids": []
+  },
+  {
+    "blob": "ff3c5865d982ca4ccf98445155ecf44ba7ae148f",
+    "paths": [
+      "widgets/discord-panel/manifest.json"
+    ],
+    "name": "Discord Voice Panel",
+    "version": "0.2.0",
+    "uuid": "com.packrat.discordpanel",
+    "action_uuids": []
+  },
+  {
+    "blob": "c6b125fc1d7c630125852979377c40cf43532900",
+    "paths": [
+      "widgets/helldivers/manifest.json"
+    ],
+    "name": "Helldivers 2 Galactic War",
+    "version": "1.0.0",
+    "uuid": "com.packrat.helldivers",
+    "action_uuids": []
+  },
+  {
+    "blob": "be1c5b892b46b541d527e7a242c2d17d1f31200c",
+    "paths": [
+      "widgets/helldivers/manifest.json"
+    ],
+    "name": "Helldivers 2 Panel",
+    "version": "1.0.0",
+    "uuid": "com.packrat.helldivers",
+    "action_uuids": []
+  },
+  {
+    "blob": "818ca4064c1ec0bc8f93fa2fc97108a20e879ac4",
+    "paths": [
+      "widgets/helldivers/manifest.json"
+    ],
+    "name": "Helldivers 2 Panel",
+    "version": "1.0.1",
+    "uuid": "com.packrat.helldivers",
+    "action_uuids": []
+  },
+  {
+    "blob": "3bef67d4eef8fa512d5bf5c4226803162b3da6db",
+    "paths": [
+      "tools/xeneon/home-assistant-diagnostic/manifest.json"
+    ],
+    "name": "Home Assistant Diagnostic",
+    "version": "1.0.0",
+    "uuid": "com.packrat.homeassistantdiagnostic",
+    "action_uuids": []
+  },
+  {
+    "blob": "2983d628ff946e9d871b6894d39a7168cfb2cfa1",
+    "paths": [
+      "widgets/home-assistant/manifest.json"
+    ],
+    "name": "Home Assistant Panel",
+    "version": "1.0.2",
+    "uuid": "com.packrat.homeassistant",
+    "action_uuids": []
+  },
+  {
+    "blob": "8e81f1ddf590721a75c07978255bd47cb1e21dca",
+    "paths": [
+      "widgets/home-assistant/manifest.json"
+    ],
+    "name": "Home Assistant Panel",
+    "version": "1.0.3",
+    "uuid": "com.packrat.homeassistant",
+    "action_uuids": []
+  },
+  {
+    "blob": "abec79d65848bee6c5de6153f85732d8307071c3",
+    "paths": [
+      "widgets/smart-lighting-control/manifest.json"
+    ],
+    "name": "Hue & Govee Lighting Control",
+    "version": "1.0.0",
+    "uuid": "com.packrat.smartlightingcontrol",
+    "action_uuids": []
+  },
+  {
+    "blob": "0ee25aa5e9e4fa14d9cbb162eabb1eb574572b0f",
+    "paths": [
+      "plugins/internet-health-pro/com.packrat.internet-health-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Internet Health Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.internet-health-pro",
+    "action_uuids": [
+      "com.packrat.internet-health-pro.health",
+      "com.packrat.internet-health-pro.latency",
+      "com.packrat.internet-health-pro.jitter-loss",
+      "com.packrat.internet-health-pro.outage",
+      "com.packrat.internet-health-pro.target",
+      "com.packrat.internet-health-pro.speed-test",
+      "com.packrat.internet-health-pro.summary"
+    ]
+  },
+  {
+    "blob": "1156446c12991c525e48b103fe276a4c40d22109",
+    "paths": [
+      "plugins/internet-health-pro/com.packrat.internet-health-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Internet Health Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.internet-health-pro",
+    "action_uuids": [
+      "com.packrat.internet-health-pro.health",
+      "com.packrat.internet-health-pro.latency",
+      "com.packrat.internet-health-pro.jitter-loss",
+      "com.packrat.internet-health-pro.outage",
+      "com.packrat.internet-health-pro.target",
+      "com.packrat.internet-health-pro.speed-test",
+      "com.packrat.internet-health-pro.summary"
+    ]
+  },
+  {
+    "blob": "35cb6af87d2afd84220645a2df15c9ff9f38fcc6",
+    "paths": [
+      "plugins/internet-health-pro/com.packrat.internet-health-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Internet Health Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.internet-health-pro",
+    "action_uuids": [
+      "com.packrat.internet-health-pro.health",
+      "com.packrat.internet-health-pro.latency",
+      "com.packrat.internet-health-pro.jitter-loss",
+      "com.packrat.internet-health-pro.outage",
+      "com.packrat.internet-health-pro.target",
+      "com.packrat.internet-health-pro.speed-test",
+      "com.packrat.internet-health-pro.summary"
+    ]
+  },
+  {
+    "blob": "6027b5832ccdebc479d54f010f46a2bd6cb84c7d",
+    "paths": [
+      "plugins/internet-health-pro/com.packrat.internet-health-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Internet Health Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.internet-health-pro",
+    "action_uuids": [
+      "com.packrat.internet-health-pro.health",
+      "com.packrat.internet-health-pro.latency",
+      "com.packrat.internet-health-pro.jitter-loss",
+      "com.packrat.internet-health-pro.outage",
+      "com.packrat.internet-health-pro.target",
+      "com.packrat.internet-health-pro.speed-test",
+      "com.packrat.internet-health-pro.summary"
+    ]
+  },
+  {
+    "blob": "925ae13639b5d7d2c6135edada2205600aae9aab",
+    "paths": [
+      "plugins/internet-health-pro/com.packrat.internet-health-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Internet Health Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.internet-health-pro",
+    "action_uuids": [
+      "com.packrat.internet-health-pro.health",
+      "com.packrat.internet-health-pro.latency",
+      "com.packrat.internet-health-pro.jitter-loss",
+      "com.packrat.internet-health-pro.outage",
+      "com.packrat.internet-health-pro.target",
+      "com.packrat.internet-health-pro.speed-test",
+      "com.packrat.internet-health-pro.summary"
+    ]
+  },
+  {
+    "blob": "55ef732494730da7507c36627535d6e7659adfd8",
+    "paths": [
+      "plugins/internet-health-pro/com.packrat.internet-health-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Internet Health Pro",
+    "version": "1.0.0.2",
+    "uuid": "com.packrat.internet-health-pro",
+    "action_uuids": [
+      "com.packrat.internet-health-pro.health",
+      "com.packrat.internet-health-pro.latency",
+      "com.packrat.internet-health-pro.jitter-loss",
+      "com.packrat.internet-health-pro.outage",
+      "com.packrat.internet-health-pro.target",
+      "com.packrat.internet-health-pro.speed-test",
+      "com.packrat.internet-health-pro.summary"
+    ]
+  },
+  {
+    "blob": "142723f82f0ce0fb5060cc85482475468f7130e5",
+    "paths": [
+      "plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-lite",
+    "action_uuids": [
+      "com.packrat.macro-recorder-lite.record",
+      "com.packrat.macro-recorder-lite.stop",
+      "com.packrat.macro-recorder-lite.replay"
+    ]
+  },
+  {
+    "blob": "169a9f982692ddce3007698c2b7c49388c212830",
+    "paths": [
+      "plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-lite",
+    "action_uuids": [
+      "com.packrat.macro-recorder-lite.record",
+      "com.packrat.macro-recorder-lite.stop",
+      "com.packrat.macro-recorder-lite.replay"
+    ]
+  },
+  {
+    "blob": "7185c09cc493ad165cda3b1dbe1df9f8d8120e04",
+    "paths": [
+      "plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-lite",
+    "action_uuids": [
+      "com.packrat.macro-recorder-lite.record",
+      "com.packrat.macro-recorder-lite.stop",
+      "com.packrat.macro-recorder-lite.replay"
+    ]
+  },
+  {
+    "blob": "7361a461d6bf77e437f4521901a7603e1ce12a3e",
+    "paths": [
+      "plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-lite",
+    "action_uuids": [
+      "com.packrat.macro-recorder-lite.record",
+      "com.packrat.macro-recorder-lite.stop",
+      "com.packrat.macro-recorder-lite.replay"
+    ]
+  },
+  {
+    "blob": "7f182740f3ef1c4471fedcd1d28b7c848783d62e",
+    "paths": [
+      "plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-lite",
+    "action_uuids": [
+      "com.packrat.macro-recorder-lite.record",
+      "com.packrat.macro-recorder-lite.stop",
+      "com.packrat.macro-recorder-lite.replay"
+    ]
+  },
+  {
+    "blob": "c78c23af03cd9553afffc21b8f51608c5aa4ea3d",
+    "paths": [
+      "plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-lite",
+    "action_uuids": [
+      "com.packrat.macro-recorder-lite.record",
+      "com.packrat.macro-recorder-lite.stop",
+      "com.packrat.macro-recorder-lite.replay"
+    ]
+  },
+  {
+    "blob": "ea9cefd355e8c1c9686e20774620fcc08f50b2a7",
+    "paths": [
+      "plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-lite",
+    "action_uuids": [
+      "com.packrat.macro-recorder-lite.record",
+      "com.packrat.macro-recorder-lite.stop",
+      "com.packrat.macro-recorder-lite.replay"
+    ]
+  },
+  {
+    "blob": "01cd8e256443cb8622ad2ecb64b47fe82f48e502",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "11cb34f11b97e8988094fd2a8778a808c83504b5",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "452100ed150d03475d53c640a000f3073c39f98e",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "4b1d24f9a24d9b888f71640f580effe5810ae5ee",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "4b31d6618fd33afdb1bffaaba7bd721de9590b30",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "6518c9d39fb02fdadd478ce063fcd0fec9596315",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "7e0d2f8105fb41276590f1f7b9f1710a2d651409",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "8209962f1aa68677463035dd3b0016052e12d46b",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "832ae3daf73a435ff3c1ef48b035700751d0cf4d",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "ebf3756b9f63b021dbe9536fe9bf442fc239f0b2",
+    "paths": [
+      "plugins/macro-recorder-pro/com.packrat.macro-recorder-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Macro Recorder Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "action_uuids": [
+      "com.packrat.macro-recorder-pro.record",
+      "com.packrat.macro-recorder-pro.stop",
+      "com.packrat.macro-recorder-pro.replay"
+    ]
+  },
+  {
+    "blob": "4492fa865ae02314a3121d9b03d7a50e1c6f03ec",
+    "paths": [
+      "widgets/market-command-center/manifest.json"
+    ],
+    "name": "Market Command Center",
+    "version": "1.0.2",
+    "uuid": "com.packrat.marketcommandcenter",
+    "action_uuids": []
+  },
+  {
+    "blob": "36d5969635669a944a425837d26c64963eeaab78",
+    "paths": [
+      "widgets/market-command-center/manifest.json"
+    ],
+    "name": "Market Command Center",
+    "version": "1.0.3",
+    "uuid": "com.packrat.marketcommandcenter",
+    "action_uuids": []
+  },
+  {
+    "blob": "194318fd4a9b7ed690d75d2be84474a9643d08ea",
+    "paths": [
+      "plugins/monitor-manager-lite/com.packrat.monitormanagerlite.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerlite",
+    "action_uuids": [
+      "com.packrat.monitormanagerlite.brightness"
+    ]
+  },
+  {
+    "blob": "4552992fa5d16e8592e019e5000afe6bfd523b50",
+    "paths": [
+      "plugins/monitor-manager-lite/com.packrat.monitormanagerlite.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerlite",
+    "action_uuids": [
+      "com.packrat.monitormanagerlite.brightness",
+      "com.packrat.monitormanagerlite.power",
+      "com.packrat.monitormanagerlite.refresh-rate",
+      "com.packrat.monitormanagerlite.status"
+    ]
+  },
+  {
+    "blob": "5deb638cee43f3c64a8c54fc1e44a13d2fd82d9f",
+    "paths": [
+      "plugins/monitor-manager-lite/com.packrat.monitormanagerlite.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerlite",
+    "action_uuids": [
+      "com.packrat.monitormanagerlite.brightness"
+    ]
+  },
+  {
+    "blob": "aec9592b736192461a5aef90ca5758763586d2f9",
+    "paths": [
+      "plugins/monitor-manager-lite/com.packrat.monitormanagerlite.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerlite",
+    "action_uuids": [
+      "com.packrat.monitormanagerlite.brightness",
+      "com.packrat.monitormanagerlite.power",
+      "com.packrat.monitormanagerlite.refresh-rate",
+      "com.packrat.monitormanagerlite.status"
+    ]
+  },
+  {
+    "blob": "d1aa13c76c0dce6818f63c7740df2d885dc2a09f",
+    "paths": [
+      "plugins/monitor-manager-lite/com.packrat.monitormanagerlite.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Lite",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerlite",
+    "action_uuids": [
+      "com.packrat.monitormanagerlite.brightness",
+      "com.packrat.monitormanagerlite.power",
+      "com.packrat.monitormanagerlite.refresh-rate",
+      "com.packrat.monitormanagerlite.status"
+    ]
+  },
+  {
+    "blob": "d2329d0655f14e2554a134a197c720c03433ce13",
+    "paths": [
+      "plugins/monitor-manager-lite/com.packrat.monitormanagerlite.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Lite",
+    "version": "1.0.0.2",
+    "uuid": "com.packrat.monitormanagerlite",
+    "action_uuids": [
+      "com.packrat.monitormanagerlite.brightness"
+    ]
+  },
+  {
+    "blob": "12c07d4a15005c666616afc439389ef2f16f269b",
+    "paths": [
+      "plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerpro",
+    "action_uuids": [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume",
+      "com.packrat.monitormanagerpro.power",
+      "com.packrat.monitormanagerpro.input",
+      "com.packrat.monitormanagerpro.refresh-rate",
+      "com.packrat.monitormanagerpro.resolution",
+      "com.packrat.monitormanagerpro.hdr",
+      "com.packrat.monitormanagerpro.topology",
+      "com.packrat.monitormanagerpro.primary",
+      "com.packrat.monitormanagerpro.orientation",
+      "com.packrat.monitormanagerpro.save-profile",
+      "com.packrat.monitormanagerpro.apply-profile",
+      "com.packrat.monitormanagerpro.status"
+    ]
+  },
+  {
+    "blob": "14b6ccfe565e20f5d56efddbbd8e277c24c3cabd",
+    "paths": [
+      "plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerpro",
+    "action_uuids": [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume",
+      "com.packrat.monitormanagerpro.power",
+      "com.packrat.monitormanagerpro.input",
+      "com.packrat.monitormanagerpro.refresh-rate",
+      "com.packrat.monitormanagerpro.resolution",
+      "com.packrat.monitormanagerpro.hdr",
+      "com.packrat.monitormanagerpro.topology",
+      "com.packrat.monitormanagerpro.primary",
+      "com.packrat.monitormanagerpro.orientation",
+      "com.packrat.monitormanagerpro.save-profile",
+      "com.packrat.monitormanagerpro.apply-profile",
+      "com.packrat.monitormanagerpro.status"
+    ]
+  },
+  {
+    "blob": "3f4688159a7e7a457b9f4faacb9b8fa7a4f3402e",
+    "paths": [
+      "plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerpro",
+    "action_uuids": [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume",
+      "com.packrat.monitormanagerpro.power",
+      "com.packrat.monitormanagerpro.input",
+      "com.packrat.monitormanagerpro.refresh-rate",
+      "com.packrat.monitormanagerpro.resolution",
+      "com.packrat.monitormanagerpro.hdr",
+      "com.packrat.monitormanagerpro.topology",
+      "com.packrat.monitormanagerpro.primary",
+      "com.packrat.monitormanagerpro.orientation",
+      "com.packrat.monitormanagerpro.save-profile",
+      "com.packrat.monitormanagerpro.apply-profile",
+      "com.packrat.monitormanagerpro.status"
+    ]
+  },
+  {
+    "blob": "93db7618b80fd688230dd8f20f60c9a53fcb983a",
+    "paths": [
+      "plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerpro",
+    "action_uuids": [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume",
+      "com.packrat.monitormanagerpro.power",
+      "com.packrat.monitormanagerpro.input",
+      "com.packrat.monitormanagerpro.refresh-rate",
+      "com.packrat.monitormanagerpro.resolution",
+      "com.packrat.monitormanagerpro.hdr",
+      "com.packrat.monitormanagerpro.topology",
+      "com.packrat.monitormanagerpro.primary",
+      "com.packrat.monitormanagerpro.orientation",
+      "com.packrat.monitormanagerpro.save-profile",
+      "com.packrat.monitormanagerpro.apply-profile",
+      "com.packrat.monitormanagerpro.status"
+    ]
+  },
+  {
+    "blob": "b2d625b050d48545c47d6f0981c5970d5fc1bb9c",
+    "paths": [
+      "plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerpro",
+    "action_uuids": [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume",
+      "com.packrat.monitormanagerpro.power",
+      "com.packrat.monitormanagerpro.input",
+      "com.packrat.monitormanagerpro.refresh-rate",
+      "com.packrat.monitormanagerpro.resolution",
+      "com.packrat.monitormanagerpro.hdr",
+      "com.packrat.monitormanagerpro.topology",
+      "com.packrat.monitormanagerpro.primary",
+      "com.packrat.monitormanagerpro.orientation",
+      "com.packrat.monitormanagerpro.save-profile",
+      "com.packrat.monitormanagerpro.apply-profile",
+      "com.packrat.monitormanagerpro.status"
+    ]
+  },
+  {
+    "blob": "c43d5c2df265ab4e9aab362a7b2ce440a6a645d2",
+    "paths": [
+      "plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerpro",
+    "action_uuids": [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume",
+      "com.packrat.monitormanagerpro.power",
+      "com.packrat.monitormanagerpro.input",
+      "com.packrat.monitormanagerpro.refresh-rate",
+      "com.packrat.monitormanagerpro.resolution",
+      "com.packrat.monitormanagerpro.hdr",
+      "com.packrat.monitormanagerpro.topology",
+      "com.packrat.monitormanagerpro.primary",
+      "com.packrat.monitormanagerpro.orientation",
+      "com.packrat.monitormanagerpro.save-profile",
+      "com.packrat.monitormanagerpro.apply-profile",
+      "com.packrat.monitormanagerpro.status"
+    ]
+  },
+  {
+    "blob": "e1c094474502977051a392707c1b2024e5443ab4",
+    "paths": [
+      "plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerpro",
+    "action_uuids": [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume",
+      "com.packrat.monitormanagerpro.power",
+      "com.packrat.monitormanagerpro.input",
+      "com.packrat.monitormanagerpro.refresh-rate",
+      "com.packrat.monitormanagerpro.resolution",
+      "com.packrat.monitormanagerpro.hdr",
+      "com.packrat.monitormanagerpro.topology",
+      "com.packrat.monitormanagerpro.primary",
+      "com.packrat.monitormanagerpro.orientation",
+      "com.packrat.monitormanagerpro.save-profile",
+      "com.packrat.monitormanagerpro.apply-profile",
+      "com.packrat.monitormanagerpro.status"
+    ]
+  },
+  {
+    "blob": "ed78380f6e32bedb0db8aa88ad37a33285edc2e0",
+    "paths": [
+      "plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Pro",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.monitormanagerpro",
+    "action_uuids": [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume",
+      "com.packrat.monitormanagerpro.power",
+      "com.packrat.monitormanagerpro.input",
+      "com.packrat.monitormanagerpro.refresh-rate",
+      "com.packrat.monitormanagerpro.resolution",
+      "com.packrat.monitormanagerpro.hdr",
+      "com.packrat.monitormanagerpro.topology",
+      "com.packrat.monitormanagerpro.primary",
+      "com.packrat.monitormanagerpro.orientation",
+      "com.packrat.monitormanagerpro.save-profile",
+      "com.packrat.monitormanagerpro.apply-profile",
+      "com.packrat.monitormanagerpro.status"
+    ]
+  },
+  {
+    "blob": "975300330188132da93af9e637fe98b19d0aa4f2",
+    "paths": [
+      "plugins/monitor-manager-pro/com.packrat.monitormanagerpro.sdPlugin/manifest.json"
+    ],
+    "name": "Monitor Manager Pro",
+    "version": "1.0.0.2",
+    "uuid": "com.packrat.monitormanagerpro",
+    "action_uuids": [
+      "com.packrat.monitormanagerpro.brightness",
+      "com.packrat.monitormanagerpro.contrast",
+      "com.packrat.monitormanagerpro.volume",
+      "com.packrat.monitormanagerpro.power",
+      "com.packrat.monitormanagerpro.input",
+      "com.packrat.monitormanagerpro.refresh-rate",
+      "com.packrat.monitormanagerpro.resolution",
+      "com.packrat.monitormanagerpro.hdr",
+      "com.packrat.monitormanagerpro.topology",
+      "com.packrat.monitormanagerpro.primary",
+      "com.packrat.monitormanagerpro.orientation",
+      "com.packrat.monitormanagerpro.save-profile",
+      "com.packrat.monitormanagerpro.apply-profile",
+      "com.packrat.monitormanagerpro.status"
+    ]
+  },
+  {
+    "blob": "6b7b88822d9409efee52c3ae5da68b6691ac0521",
+    "paths": [
+      "widgets/net-dashboard/manifest.json"
+    ],
+    "name": "Network Dashboard",
+    "version": "1.0.0",
+    "uuid": "com.packrat.netdashboard",
+    "action_uuids": []
+  },
+  {
+    "blob": "59770e175749db6e93353b83433c2e0435887367",
+    "paths": [
+      "widgets/net-dashboard/manifest.json"
+    ],
+    "name": "Network Dashboard",
+    "version": "1.0.1",
+    "uuid": "com.packrat.netdashboard",
+    "action_uuids": []
+  },
+  {
+    "blob": "14db8e910732476c50c3d8ca3e0b5d837d7c27d7",
+    "paths": [
+      "widgets/now-playing/manifest.json"
+    ],
+    "name": "Now Playing Panel",
+    "version": "1.0.0",
+    "uuid": "com.packrat.nowplaying",
+    "action_uuids": []
+  },
+  {
+    "blob": "77e6b7e0301a169325ba4fd8a49f0f28523322d9",
+    "paths": [
+      "widgets/now-playing/manifest.json"
+    ],
+    "name": "Now Playing Panel",
+    "version": "1.0.1",
+    "uuid": "com.packrat.nowplaying",
+    "action_uuids": []
+  },
+  {
+    "blob": "5238c68a52b6e04268ed3d96ab1109635ca7aaf2",
+    "paths": [
+      "plugins/discord-bridge/com.packrat.discord-bridge.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Discord Bridge",
+    "version": "0.1.0.4",
+    "uuid": "com.packrat.discord-bridge",
+    "action_uuids": [
+      "com.packrat.discord-bridge.status"
+    ]
+  },
+  {
+    "blob": "c074be3a6afb8962e3a66743b7f518fdb8a64379",
+    "paths": [
+      "plugins/discord-bridge/com.packrat.discord-bridge.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Discord Bridge",
+    "version": "0.2.0.0",
+    "uuid": "com.packrat.discord-bridge",
+    "action_uuids": [
+      "com.packrat.discord-bridge.status"
+    ]
+  },
+  {
+    "blob": "ac337fe0147af8703eb18cbfc73dd40eb894e959",
+    "paths": [
+      "plugins/discord-bridge/com.packrat.discord-bridge.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Discord Bridge",
+    "version": "0.3.0.0",
+    "uuid": "com.packrat.discord-bridge",
+    "action_uuids": [
+      "com.packrat.discord-bridge.status"
+    ]
+  },
+  {
+    "blob": "6dbe6e1f0e6eba408d8f9660dee42bacc9d94ef9",
+    "paths": [
+      "plugins/discord-bridge/com.packrat.discord-bridge.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Discord Bridge",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.discord-bridge",
+    "action_uuids": [
+      "com.packrat.discord-bridge.status"
+    ]
+  },
+  {
+    "blob": "c3d5a4f26c4bfc53c71e0d8a73ae9ae348728123",
+    "paths": [
+      "plugins/discord-bridge/com.packrat.discord-bridge.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Discord Bridge",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.discord-bridge",
+    "action_uuids": [
+      "com.packrat.discord-bridge.status"
+    ]
+  },
+  {
+    "blob": "ecabba3ba1e7c4a3dcbb3597c8f94e45d5b0c58d",
+    "paths": [
+      "plugins/voice-deck/com.packrat.voice-deck.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Discord Voice Deck",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.voice-deck",
+    "action_uuids": [
+      "com.packrat.voice-deck.status",
+      "com.packrat.voice-deck.mute",
+      "com.packrat.voice-deck.deafen",
+      "com.packrat.voice-deck.mute-deafen",
+      "com.packrat.voice-deck.channel",
+      "com.packrat.voice-deck.member",
+      "com.packrat.voice-deck.member-slot",
+      "com.packrat.voice-deck.spotlight",
+      "com.packrat.voice-deck.activity",
+      "com.packrat.voice-deck.member-count",
+      "com.packrat.voice-deck.connection",
+      "com.packrat.voice-deck.navigator"
+    ]
+  },
+  {
+    "blob": "7184c43039ce4eee9b0d3d89f4fc4f0b3f57423e",
+    "paths": [
+      "plugins/discord-bridge/com.packrat.discord-bridge.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Voice Bridge",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.discord-bridge",
+    "action_uuids": [
+      "com.packrat.discord-bridge.status"
+    ]
+  },
+  {
+    "blob": "0b5f2173bc2d6c5967219af9b92605f1cf71c14f",
+    "paths": [
+      "plugins/voice-deck/com.packrat.voice-deck.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Voice Deck",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.voice-deck",
+    "action_uuids": [
+      "com.packrat.voice-deck.status",
+      "com.packrat.voice-deck.mute",
+      "com.packrat.voice-deck.deafen",
+      "com.packrat.voice-deck.mute-deafen",
+      "com.packrat.voice-deck.channel",
+      "com.packrat.voice-deck.member",
+      "com.packrat.voice-deck.member-slot",
+      "com.packrat.voice-deck.spotlight",
+      "com.packrat.voice-deck.activity",
+      "com.packrat.voice-deck.member-count",
+      "com.packrat.voice-deck.connection",
+      "com.packrat.voice-deck.navigator"
+    ]
+  },
+  {
+    "blob": "2d4cc7976e4d2658304a2db2809e49ccc01e773d",
+    "paths": [
+      "plugins/voice-deck/com.packrat.voice-deck.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Voice Deck for Discord",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.voice-deck",
+    "action_uuids": [
+      "com.packrat.voice-deck.status",
+      "com.packrat.voice-deck.mute",
+      "com.packrat.voice-deck.deafen",
+      "com.packrat.voice-deck.mute-deafen",
+      "com.packrat.voice-deck.channel",
+      "com.packrat.voice-deck.member",
+      "com.packrat.voice-deck.member-slot",
+      "com.packrat.voice-deck.spotlight",
+      "com.packrat.voice-deck.activity",
+      "com.packrat.voice-deck.member-count",
+      "com.packrat.voice-deck.connection",
+      "com.packrat.voice-deck.navigator"
+    ]
+  },
+  {
+    "blob": "e46dfe9c91eb18e6b52733d3530fddc1c38ac815",
+    "paths": [
+      "plugins/voice-deck/com.packrat.voice-deck.sdPlugin/manifest.json"
+    ],
+    "name": "PackRat Voice Deck for Discord",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.voice-deck",
+    "action_uuids": [
+      "com.packrat.voice-deck.status",
+      "com.packrat.voice-deck.mute",
+      "com.packrat.voice-deck.deafen",
+      "com.packrat.voice-deck.mute-deafen",
+      "com.packrat.voice-deck.channel",
+      "com.packrat.voice-deck.member",
+      "com.packrat.voice-deck.member-slot",
+      "com.packrat.voice-deck.spotlight",
+      "com.packrat.voice-deck.activity",
+      "com.packrat.voice-deck.member-count",
+      "com.packrat.voice-deck.connection",
+      "com.packrat.voice-deck.navigator"
+    ]
+  },
+  {
+    "blob": "35089fcf96544117fa93893fe73688f5b7eea9f0",
+    "paths": [
+      "widgets/discord-panel/manifest.json"
+    ],
+    "name": "PackRat Voice Panel",
+    "version": "1.0.0",
+    "uuid": "com.packrat.discordpanel",
+    "action_uuids": []
+  },
+  {
+    "blob": "77fef0c350cffbdc051f1cc69d776cb3f31c5f8a",
+    "paths": [
+      "widgets/pc-power-meter/manifest.json"
+    ],
+    "name": "PC Power Meter Lite",
+    "version": "1.0.0",
+    "uuid": "com.packrat.pcpowermeter",
+    "action_uuids": []
+  },
+  {
+    "blob": "bf00ee541e3fec61d14258fb369b44c170af5b19",
+    "paths": [
+      "widgets/pc-power-meter/manifest.json"
+    ],
+    "name": "PC Power Meter Lite",
+    "version": "1.0.0",
+    "uuid": "com.packrat.pcpowermeter",
+    "action_uuids": []
+  },
+  {
+    "blob": "fe1be9aa885dc0fcfa72f305ee6da89cad698d0a",
+    "paths": [
+      "widgets/pc-power-meter/manifest.json"
+    ],
+    "name": "PC Power Meter Lite",
+    "version": "1.0.1",
+    "uuid": "com.packrat.pcpowermeter",
+    "action_uuids": []
+  },
+  {
+    "blob": "eac3e2d8bb9cfd4f41fe1e9358003a7f0fcd99ed",
+    "paths": [
+      "widgets/pc-power-meter/manifest.json"
+    ],
+    "name": "PC Power Meter Lite",
+    "version": "1.0.2",
+    "uuid": "com.packrat.pcpowermeter",
+    "action_uuids": []
+  },
+  {
+    "blob": "2d5950ff3e725a88ff08025d1ff52aed83f9fc97",
+    "paths": [
+      "widgets/pc-power-meter-pro/manifest.json"
+    ],
+    "name": "PC Power Meter Pro",
+    "version": "1.0.0",
+    "uuid": "com.packrat.pcpowermeterpro",
+    "action_uuids": []
+  },
+  {
+    "blob": "41b32d3bc18765280d5235517a6f712306521538",
+    "paths": [
+      "widgets/pc-power-meter-pro/manifest.json"
+    ],
+    "name": "PC Power Meter Pro",
+    "version": "1.0.0",
+    "uuid": "com.packrat.pcpowermeterpro",
+    "action_uuids": []
+  },
+  {
+    "blob": "b6798d0e534b16191821eae2dc68b217a5fae9ba",
+    "paths": [
+      "widgets/pc-power-meter-pro/manifest.json"
+    ],
+    "name": "PC Power Meter Pro",
+    "version": "1.0.0",
+    "uuid": "com.packrat.pcpowermeterpro",
+    "action_uuids": []
+  },
+  {
+    "blob": "28c89f6d0c230001e0422d8d5b132fe0c30bfdb8",
+    "paths": [
+      "widgets/perf-grapher/manifest.json"
+    ],
+    "name": "Performance Grapher",
+    "version": "1.4.1",
+    "uuid": "com.packrat.perfgrapher",
+    "action_uuids": []
+  },
+  {
+    "blob": "87bc1fd54f898116789908994f1476440a596ea3",
+    "paths": [
+      "widgets/_src/perf-grapher/manifest.json"
+    ],
+    "name": "Performance Grapher",
+    "version": "1.4.2",
+    "uuid": "com.packrat.perfgrapher",
+    "action_uuids": []
+  },
+  {
+    "blob": "7fe9291ba7cdd538edd6a28e28c5cfd3e8b2235c",
+    "paths": [
+      "plugins/performance-grapher-streamdeck/com.packrat.performance-grapher.sdPlugin/manifest.json"
+    ],
+    "name": "Performance Grapher for Stream Deck",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.performance-grapher",
+    "action_uuids": [
+      "com.packrat.performance-grapher.graph",
+      "com.packrat.performance-grapher.fps",
+      "com.packrat.performance-grapher.session",
+      "com.packrat.performance-grapher.metric",
+      "com.packrat.performance-grapher.alert"
+    ]
+  },
+  {
+    "blob": "874adc1933d00d6a5f74c10cfd791799e4ab7e1c",
+    "paths": [
+      "plugins/performance-grapher-streamdeck/com.packrat.performance-grapher.sdPlugin/manifest.json"
+    ],
+    "name": "Performance Grapher for Stream Deck",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.performance-grapher",
+    "action_uuids": [
+      "com.packrat.performance-grapher.graph",
+      "com.packrat.performance-grapher.fps",
+      "com.packrat.performance-grapher.session",
+      "com.packrat.performance-grapher.metric",
+      "com.packrat.performance-grapher.alert"
+    ]
+  },
+  {
+    "blob": "a43ac43da4a54ff8b46626ae00336ddd551e4952",
+    "paths": [
+      "plugins/performance-grapher-streamdeck/com.packrat.performance-grapher.sdPlugin/manifest.json"
+    ],
+    "name": "Performance Grapher for Stream Deck",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.performance-grapher",
+    "action_uuids": [
+      "com.packrat.performance-grapher.graph",
+      "com.packrat.performance-grapher.fps",
+      "com.packrat.performance-grapher.session",
+      "com.packrat.performance-grapher.metric",
+      "com.packrat.performance-grapher.alert"
+    ]
+  },
+  {
+    "blob": "b5d086208913e3d11122333d5e490b8595124973",
+    "paths": [
+      "plugins/performance-grapher-streamdeck/com.packrat.performance-grapher.sdPlugin/manifest.json"
+    ],
+    "name": "Performance Grapher for Stream Deck",
+    "version": "1.0.0.0",
+    "uuid": "com.packrat.performance-grapher",
+    "action_uuids": [
+      "com.packrat.performance-grapher.graph",
+      "com.packrat.performance-grapher.fps",
+      "com.packrat.performance-grapher.session",
+      "com.packrat.performance-grapher.metric",
+      "com.packrat.performance-grapher.alert"
+    ]
+  },
+  {
+    "blob": "b28e1a81da034cd7c358939dfc36e898e423d1f6",
+    "paths": [
+      "widgets/rig-battery/manifest.json"
+    ],
+    "name": "Peripheral Battery Panel",
+    "version": "1.0.0",
+    "uuid": "com.packrat.rigbattery",
+    "action_uuids": []
+  },
+  {
+    "blob": "7599af692f52665983af5c4e87ec4126e5a8633c",
+    "paths": [
+      "widgets/rig-battery/manifest.json"
+    ],
+    "name": "Peripheral Battery Panel",
+    "version": "1.0.1",
+    "uuid": "com.packrat.rigbattery",
+    "action_uuids": []
+  },
+  {
+    "blob": "515781e7e49ac30ecebd0061191134119e71514f",
+    "paths": [
+      "widgets/retro-terminal-pro/manifest.json"
+    ],
+    "name": "Retro Terminal Pro",
+    "version": "1.0.0",
+    "uuid": "com.packrat.retro-terminal-pro",
+    "action_uuids": []
+  },
+  {
+    "blob": "30dfb8efb421799eb3ed2f067ead7d2fac723a91",
+    "paths": [
+      "widgets/smart-lighting-control/manifest.json"
+    ],
+    "name": "Smart Lighting Control for Hue & Govee",
+    "version": "1.0.0",
+    "uuid": "com.packrat.smartlightingcontrol",
+    "action_uuids": []
+  },
+  {
+    "blob": "08b4025757e0c691d03fb36f29fa5cb68625c1d2",
+    "paths": [
+      "widgets/smart-lighting-control/manifest.json"
+    ],
+    "name": "Smart Lighting Control for Hue + Govee",
+    "version": "1.0.0",
+    "uuid": "com.packrat.smartlightingcontrol",
+    "action_uuids": []
+  },
+  {
+    "blob": "e14e5f45828db1ae599f73b4cb92fa326ba21982",
+    "paths": [
+      "widgets/snake/manifest.json"
+    ],
+    "name": "Snake",
+    "version": "1.0.0",
+    "uuid": "com.packrat.snake",
+    "action_uuids": []
+  },
+  {
+    "blob": "85d6ccaf563d6242382ad9a6f2578fd0155f6efa",
+    "paths": [
+      "widgets/snake/manifest.json"
+    ],
+    "name": "Snake",
+    "version": "1.0.1",
+    "uuid": "com.packrat.snake",
+    "action_uuids": []
+  },
+  {
+    "blob": "ffef4f6d819b64da164bbf236c835c6bbb2dc982",
+    "paths": [
+      "widgets/obs-dashboard/manifest.json"
+    ],
+    "name": "Stream Dashboard",
+    "version": "1.0.0",
+    "uuid": "com.packrat.obsdashboard",
+    "action_uuids": []
+  },
+  {
+    "blob": "bef3ce4b97f7df584ffa33035c547be1dcf0e1be",
+    "paths": [
+      "widgets/obs-dashboard/manifest.json"
+    ],
+    "name": "Stream Dashboard",
+    "version": "1.0.1",
+    "uuid": "com.packrat.obsdashboard",
+    "action_uuids": []
+  },
+  {
+    "blob": "04cc3c4ea49dd1b3305b33f1f7f2a07a86bb4c72",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media"
+    ]
+  },
+  {
+    "blob": "3ab271ce13378a076f12a82c9e3d66d682cbdaba",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media"
+    ]
+  },
+  {
+    "blob": "891354bd55c9c1dd2f663216b98f252b26cbbbda",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media"
+    ]
+  },
+  {
+    "blob": "904cb467297a78c6a5345488315d30981002529d",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.2.0.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media"
+    ]
+  },
+  {
+    "blob": "7d3726fa89ba642df6ea9d7bb4c71eb0abfe5adb",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.3.0.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media"
+    ]
+  },
+  {
+    "blob": "af16401b5eedc7be6a05e6de46d824951c748637",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.4.0.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.snippet",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media",
+      "com.packrat.stream-deck-ultimate-bundle.system",
+      "com.packrat.stream-deck-ultimate-bundle.navigation"
+    ]
+  },
+  {
+    "blob": "047e1ac065fe8282fde8e5758cb4ace1f248557e",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.5.0.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.snippet",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media",
+      "com.packrat.stream-deck-ultimate-bundle.system",
+      "com.packrat.stream-deck-ultimate-bundle.navigation",
+      "com.packrat.stream-deck-ultimate-bundle.audio",
+      "com.packrat.stream-deck-ultimate-bundle.audio-preset",
+      "com.packrat.stream-deck-ultimate-bundle.routine",
+      "com.packrat.stream-deck-ultimate-bundle.setup"
+    ]
+  },
+  {
+    "blob": "8bc57174d9b0832d0da06d60940fc69b5b5c8a68",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.6.0.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.snippet",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media",
+      "com.packrat.stream-deck-ultimate-bundle.system",
+      "com.packrat.stream-deck-ultimate-bundle.navigation",
+      "com.packrat.stream-deck-ultimate-bundle.audio",
+      "com.packrat.stream-deck-ultimate-bundle.audio-preset",
+      "com.packrat.stream-deck-ultimate-bundle.routine",
+      "com.packrat.stream-deck-ultimate-bundle.setup"
+    ]
+  },
+  {
+    "blob": "8ccc68db00c9ff5e1baba7cddd359d889ac8021e",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.7.0.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.context",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.snippet",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media",
+      "com.packrat.stream-deck-ultimate-bundle.system",
+      "com.packrat.stream-deck-ultimate-bundle.navigation",
+      "com.packrat.stream-deck-ultimate-bundle.audio",
+      "com.packrat.stream-deck-ultimate-bundle.audio-preset",
+      "com.packrat.stream-deck-ultimate-bundle.routine",
+      "com.packrat.stream-deck-ultimate-bundle.setup"
+    ]
+  },
+  {
+    "blob": "8c5b38ecb137b63ee5843ef2064bb5e5c193dd60",
+    "paths": [
+      "products/stream-deck-ultimate-bundle/prototype/com.packrat.stream-deck-ultimate-bundle.sdPlugin/manifest.json"
+    ],
+    "name": "Stream Deck Ultimate Bundle",
+    "version": "0.7.1.0",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "action_uuids": [
+      "com.packrat.stream-deck-ultimate-bundle.smart-app",
+      "com.packrat.stream-deck-ultimate-bundle.context",
+      "com.packrat.stream-deck-ultimate-bundle.workspace",
+      "com.packrat.stream-deck-ultimate-bundle.window",
+      "com.packrat.stream-deck-ultimate-bundle.clipboard",
+      "com.packrat.stream-deck-ultimate-bundle.snippet",
+      "com.packrat.stream-deck-ultimate-bundle.capture",
+      "com.packrat.stream-deck-ultimate-bundle.media",
+      "com.packrat.stream-deck-ultimate-bundle.system",
+      "com.packrat.stream-deck-ultimate-bundle.navigation",
+      "com.packrat.stream-deck-ultimate-bundle.audio",
+      "com.packrat.stream-deck-ultimate-bundle.audio-preset",
+      "com.packrat.stream-deck-ultimate-bundle.routine",
+      "com.packrat.stream-deck-ultimate-bundle.setup",
+      "com.packrat.stream-deck-ultimate-bundle.diagnostics"
+    ]
+  },
+  {
+    "blob": "364e2e815e414663cf1f72ffca3c0b1ca8889ad3",
+    "paths": [
+      "widgets/weather-timeline/manifest.json"
+    ],
+    "name": "Weather Timeline Lite",
+    "version": "1.0.0",
+    "uuid": "com.packrat.weathertimeline",
+    "action_uuids": []
+  },
+  {
+    "blob": "6e10b07a689b69913fcff7ef1cba32b2a2efbb01",
+    "paths": [
+      "widgets/weather-timeline/manifest.json"
+    ],
+    "name": "Weather Timeline Lite",
+    "version": "1.0.1",
+    "uuid": "com.packrat.weathertimeline",
+    "action_uuids": []
+  },
+  {
+    "blob": "dd2f350f6445d3e7139437f3913ac2616c8c876f",
+    "paths": [
+      "widgets/weather-timeline-pro/manifest.json"
+    ],
+    "name": "Weather Timeline Pro",
+    "version": "1.0.0",
+    "uuid": "com.packrat.weathertimelinepro",
+    "action_uuids": []
+  },
+  {
+    "blob": "11152e7247487cd228fe541381a7f87e281e8a93",
+    "paths": [
+      "widgets/window-manager-xeneon/manifest.json"
+    ],
+    "name": "Window Manager for XENEON",
+    "version": "1.0.0",
+    "uuid": "com.packrat.window-manager-xeneon",
+    "action_uuids": []
+  },
+  {
+    "blob": "616ea9d409fbec0fdc94a5ee437186b2001a986d",
+    "paths": [
+      "widgets/window-manager-xeneon/manifest.json"
+    ],
+    "name": "Window Manager for XENEON",
+    "version": "1.0.0",
+    "uuid": "com.packrat.window-manager-xeneon",
+    "action_uuids": []
+  },
+  {
+    "blob": "fe40d10bdc26cdbe168496d5ea31f6a1118410f9",
+    "paths": [
+      "widgets/window-manager-xeneon/manifest.json"
+    ],
+    "name": "Window Manager for XENEON",
+    "version": "1.0.0",
+    "uuid": "com.packrat.window-manager-xeneon",
+    "action_uuids": []
+  },
+  {
+    "blob": "176d73d6214d1ace0623eefb6d4f2ed0992d2678",
+    "paths": [
+      "plugins/window-manager/com.packrat.windowmanager.sdPlugin/manifest.json"
+    ],
+    "name": "Window Manager Lite",
+    "version": "1.0.0.3",
+    "uuid": "com.packrat.windowmanager",
+    "action_uuids": [
+      "com.packrat.windowmanager.snap",
+      "com.packrat.windowmanager.cycle"
+    ]
+  },
+  {
+    "blob": "fe91d21718ef86c00d6433d9417d807e94856df2",
+    "paths": [
+      "plugins/window-manager/com.packrat.windowmanager.sdPlugin/manifest.json"
+    ],
+    "name": "Window Manager Lite",
+    "version": "1.0.0.4",
+    "uuid": "com.packrat.windowmanager",
+    "action_uuids": [
+      "com.packrat.windowmanager.snap",
+      "com.packrat.windowmanager.cycle"
+    ]
+  },
+  {
+    "blob": "75bde562842c4088e74b6358e11b7b916a033f9a",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager.device"
+    ]
+  },
+  {
+    "blob": "9258dce9bc3d903b8ff3c128448170a8daa42110",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager.device"
+    ]
+  },
+  {
+    "blob": "b48f1f40947d9c6fbca987a02b815abb4ec37f99",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager.device"
+    ]
+  },
+  {
+    "blob": "d3652697e46c0965ff3a738e1c157f72e6b8b791",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager.device"
+    ]
+  },
+  {
+    "blob": "f2be4532c2dca156cc7d1e9730602ddac9a433f3",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager.device"
+    ]
+  },
+  {
+    "blob": "f6b7c28cab61ac98d1b822b90155c3eaacd581f6",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager.device"
+    ]
+  },
+  {
+    "blob": "14a5b8b51cee7c4075b1b38050abcd461cbd3cf9",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager Lite",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager.device"
+    ]
+  },
+  {
+    "blob": "066208af404d4ece9c5973d1173733988bd82ad4",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager Pro",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager-pro",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager-pro.device",
+      "com.packrat.wireless-device-manager-pro.dashboard",
+      "com.packrat.wireless-device-manager-pro.cycle"
+    ]
+  },
+  {
+    "blob": "4b3d05c39f354cd275e3c4b3a2155237d4f5eefa",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager Pro",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager-pro",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager-pro.device",
+      "com.packrat.wireless-device-manager-pro.dashboard",
+      "com.packrat.wireless-device-manager-pro.cycle"
+    ]
+  },
+  {
+    "blob": "70ca37a000f32db1104139b4b46cf966b0d09cf9",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager Pro",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager-pro",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager-pro.device",
+      "com.packrat.wireless-device-manager-pro.dashboard",
+      "com.packrat.wireless-device-manager-pro.cycle"
+    ]
+  },
+  {
+    "blob": "97d3d7296c1c8a8a1e30e6da35397265217499fe",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager Pro",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager-pro",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager-pro.device",
+      "com.packrat.wireless-device-manager-pro.dashboard",
+      "com.packrat.wireless-device-manager-pro.cycle"
+    ]
+  },
+  {
+    "blob": "ad0cfa8b011b1c02aec61c3720e5780e0e1feb59",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager Pro",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager-pro",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager-pro.device",
+      "com.packrat.wireless-device-manager-pro.dashboard",
+      "com.packrat.wireless-device-manager-pro.cycle"
+    ]
+  },
+  {
+    "blob": "c944e89851710cb1c9231c5d22a7a1361671fd53",
+    "paths": [
+      "plugins/wireless-device-manager-family/com.packrat.wireless-device-manager-pro.sdPlugin/manifest.json"
+    ],
+    "name": "Wireless Device Manager Pro",
+    "version": "0.1.0.0",
+    "uuid": "com.packrat.wireless-device-manager-pro",
+    "action_uuids": [
+      "com.packrat.wireless-device-manager-pro.device",
+      "com.packrat.wireless-device-manager-pro.dashboard",
+      "com.packrat.wireless-device-manager-pro.cycle"
+    ]
+  },
+  {
+    "blob": "5847725feaf0b6a17d7200e0bac605b32117f278",
+    "paths": [
+      "widgets/work-session-tracker/manifest.json"
+    ],
+    "name": "Work Session Tracker Lite",
+    "version": "1.0.0",
+    "uuid": "com.packrat.worksessiontracker",
+    "action_uuids": []
+  },
+  {
+    "blob": "7e1044425996baf148480d5fe1430f6457ffb9b3",
+    "paths": [
+      "widgets/work-session-tracker/manifest.json"
+    ],
+    "name": "Work Session Tracker Lite",
+    "version": "1.0.1",
+    "uuid": "com.packrat.worksessiontracker",
+    "action_uuids": []
+  },
+  {
+    "blob": "513d8fdb6de6a2cefe01ac7bcca49b751c50b92c",
+    "paths": [
+      "widgets/work-session-tracker/manifest.json"
+    ],
+    "name": "Work Session Tracker Lite",
+    "version": "1.0.2",
+    "uuid": "com.packrat.worksessiontracker",
+    "action_uuids": []
+  },
+  {
+    "blob": "6792e92296aa79101b6e3c77c0b874133687e6ab",
+    "paths": [
+      "widgets/work-session-tracker-pro/manifest.json"
+    ],
+    "name": "Work Session Tracker Pro",
+    "version": "1.0.0",
+    "uuid": "com.packrat.worksessiontrackerpro",
+    "action_uuids": []
+  },
+  {
+    "blob": "ca3e0870e634368ea45cde3a8dfb2448e044e796",
+    "paths": [
+      "widgets/xeneon-edge-ultimate/manifest.json"
+    ],
+    "name": "XENEON EDGE Ultimate",
+    "version": "0.9.0",
+    "uuid": "com.packrat.xeneon-edge-ultimate",
+    "action_uuids": []
+  },
+  {
+    "blob": "527e6fdf4d45f174ae61096a1fb5de42be5702d8",
+    "paths": [
+      "widgets/xeneon-edge-ultimate/manifest.json"
+    ],
+    "name": "XENEON EDGE Ultimate",
+    "version": "1.0.0",
+    "uuid": "com.packrat.xeneon-edge-ultimate",
+    "action_uuids": []
+  },
+  {
+    "blob": "30d1d48146aebb05672e2eb57e10875d449d6746",
+    "paths": [
+      "widgets/xeneon-edge-ultimate/manifest.json"
+    ],
+    "name": "XENEON EDGE Ultimate",
+    "version": "1.0.1",
+    "uuid": "com.packrat.xeneon-edge-ultimate",
+    "action_uuids": []
+  },
+  {
+    "blob": "a25d37912ddde66bafb74f46cc25309afd8d39c6",
+    "paths": [
+      "widgets/xeneon-edge-ultimate/manifest.json"
+    ],
+    "name": "XENEON EDGE Ultimate",
+    "version": "1.0.1",
+    "uuid": "com.packrat.xeneon-edge-ultimate",
+    "action_uuids": []
+  },
+  {
+    "blob": "86a655f3c8ab4355be1fd50f920cbcd8c55fc973",
+    "paths": [
+      "widgets/xeneon-edge-ultimate/manifest.json"
+    ],
+    "name": "XENEON EDGE Ultimate",
+    "version": "1.0.2",
+    "uuid": "com.packrat.xeneon-edge-ultimate",
+    "action_uuids": []
+  }
+]

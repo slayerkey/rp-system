@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Kill Feed</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	</head>
+	<body>
+		<sdpi-item label="Flash colour">
+			<sdpi-color setting="flashColor" default="#5dff9b"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="GSI Port">
+			<sdpi-textfield setting="port" global default="3000" placeholder="3000"></sdpi-textfield>
+		</sdpi-item>
+		<p style="font-size:11px;color:#9aa6c4;margin:4px 6px;line-height:1.4;">Leave this at <b>3000</b> — it already matches the included config file and works automatically. No setup needed unless you changed the port in the .cfg.</p>
+		<sdpi-item label="Tip">
+			<sdpi-text>Press the key to reset the counter to zero.</sdpi-text>
+		</sdpi-item>
+	</body>
+</html>

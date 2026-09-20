@@ -1,0 +1,233 @@
+/* Sports Tracker layout.
+ *
+ * A Stream Deck key showed one game. The advantage of this surface is a rail of them
+ * side by side, so the favourites sit in one glance. Cells run across the wide slots
+ * and stack down the tall ones; nothing shrinks below the readability floors.
+ *
+ * The colour spine is carried over from the key renderer (plugins/_shared/src/badge.ts)
+ * along with the reason for it: a cell filled with the team colour forces the text to
+ * flip between black and white per team, and a 6px edge does the same identifying job
+ * with one text colour.
+ */
+
+:root {
+    /* The score is this widget's hero, so it outgrows the shared --fs-value. The vh
+     * cap is what protects the short slots: 840x344 has width to spare and no height,
+     * so the answer has to be sized off the shorter axis there. */
+    --fs-cell-score: min(calc(var(--layout-unit) * 11), 9vh);
+    --fs-cell-abbr: min(calc(var(--layout-unit) * 4.4), 4.4vh);
+    --fs-cell-name: min(calc(var(--layout-unit) * 4.6), 5vh);
+    /* badge.ts TRAILING: the side that is behind. tokens.css has no equivalent. */
+    --sp-trailing: #78849C;
+    --sp-spine-width: calc(var(--layout-unit) * 1.3);
+    /* Narrowest a cell may get before the grid drops it to the next row. The count of
+     * favourites is a user setting, so the track count has to come from the space
+     * available rather than from a number baked into the stylesheet. */
+    --sp-cell-min: calc(var(--layout-unit) * 42);
+}
+
+#stage {
+    width: 100%;
+    height: 100%;
+    padding: var(--space-pad);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--layout-unit) * 1.4);
+}
+
+#head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-gap);
+    flex: 0 0 auto;
+}
+
+#title {
+    font-size: max(11px, var(--fs-label));
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+#status { opacity: 0.55; }
+#status.stale { color: var(--warn); opacity: 0.9; }
+
+#rail {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--sp-cell-min), 100%), 1fr));
+    grid-auto-rows: 1fr;
+    gap: var(--space-gap);
+}
+
+/* Tall portrait slots (M/L/XL vertical). Columns down a 696px-wide canvas would be
+ * slivers, so the cells take the full width and stack instead. S vertical is
+ * 696x416, wider than it is tall, and keeps its columns. */
+@media (max-aspect-ratio: 1/1) {
+    :root { --sp-cell-min: 100%; }
+}
+
+.empty {
+    margin: auto;
+    text-align: center;
+    opacity: 0.55;
+    font-size: max(11px, var(--fs-label));
+}
+
+/* --- one favourite ---------------------------------------------------------- */
+
+.cell {
+    position: relative;
+    /* Each cell answers for its own height. How short a cell gets depends on how many
+     * teams the user picked as well as on the slot, so a viewport media query cannot
+     * see it: six teams stacked in a 696x840 slot leaves ~119px a cell, the same
+     * height a two-row wide slot gives them. Chromium 130 on the device supports this. */
+    container-type: size;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: calc(var(--layout-unit) * 0.9);
+    padding: var(--space-pad);
+    padding-left: calc(var(--space-pad) + var(--sp-spine-width));
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--radius-tile);
+    overflow: hidden;
+}
+
+/* The spine. --cell-spine is set per cell from the team colour. */
+.cell::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sp-spine-width);
+    background: var(--cell-spine, var(--panel-line));
+}
+
+.cell-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-gap);
+}
+
+.cell-league {
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+    opacity: 0.55;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.live-dot {
+    flex: 0 0 auto;
+    width: calc(var(--layout-unit) * 1.5);
+    height: calc(var(--layout-unit) * 1.5);
+    border-radius: 999px;
+    background: var(--accent);
+}
+
+/* --- the score, this cell's answer ----------------------------------------- */
+
+.side {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-gap);
+    white-space: nowrap;
+}
+
+.side-abbr {
+    font-size: max(12px, var(--fs-cell-abbr));
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.side-score {
+    font-size: max(12px, var(--fs-cell-score));
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+}
+
+/* Who is ahead is white, carried over from the key faces. */
+.side.trailing .side-abbr,
+.side.trailing .side-score { color: var(--sp-trailing); }
+
+/* --- pre-game: the countdown is the answer instead -------------------------- */
+
+/* The favourite's own abbreviation. A score face carries identity in its rows; a
+ * pre-game face has no rows, and the colour spine alone does not say which team
+ * this is to anyone who does not already know the palette. */
+.cell-team {
+    font-size: max(12px, var(--fs-cell-abbr));
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.matchup {
+    font-size: max(11px, var(--fs-label));
+    letter-spacing: 0.06em;
+    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.countdown {
+    font-size: max(12px, var(--fs-cell-score));
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* The answer on an event cell is a name, not a number, so it cannot take the score
+ * size. Two lines are allowed because a bout is two fighters joined by "vs". */
+.event-lead {
+    font-size: max(12px, var(--fs-cell-name));
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: 0.02em;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+.cell-status {
+    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cell-status.idle { opacity: 0.4; }
+
+/* Hide, then shrink, in that order. The context line is the first thing a short cell
+ * can lose; the score is the last, because it is the answer. */
+@container (max-height: 200px) {
+    .cell-status { display: none; }
+}
+
+@container (max-height: 160px) {
+    .side-score, .countdown { font-size: max(12px, calc(var(--layout-unit) * 6)); }
+    .side-abbr, .cell-team { font-size: max(11px, calc(var(--layout-unit) * 2.8)); }
+    .event-lead {
+        font-size: max(12px, calc(var(--layout-unit) * 3.4));
+        -webkit-line-clamp: 1;
+    }
+}

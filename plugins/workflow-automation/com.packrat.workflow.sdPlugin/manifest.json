@@ -1,0 +1,47 @@
+{
+	"Name": "Workflow Automation Lite",
+	"Version": "1.0.0.2",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Run Sequence",
+			"UUID": "com.packrat.workflow.run",
+			"Icon": "imgs/actions/run/icon",
+			"Tooltip": "Runs a list of steps in order on one press. Open programs, press keys, wait, and open links.",
+			"PropertyInspectorPath": "ui/run.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/run/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "Workflow Automation Lite",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Turn the same five things you do every morning into one press. Build a list of steps in order, up to five of them: open a program, press a key combination, wait a moment for something to load, open a link. Then press once and watch it work. The key counts the steps off as it goes, so you can see how far along it is at a glance, and if a step goes wrong it stops there and tells you which one instead of carrying on regardless. Waiting is a real step rather than a guess, which is what makes it possible to open something slow and then type into it once it is actually ready.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.workflow"
+}

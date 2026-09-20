@@ -1,0 +1,4 @@
+node_modules/
+com.packrat.nfl-tracker.sdPlugin/logs/
+com.packrat.nfl-tracker.sdPlugin/bin/
+*.streamDeckPlugin

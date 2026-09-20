@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg">
+<title>tr('Retro Terminal')</title>
+
+<meta name="x-icue-property" content="label" data-label="tr('Prompt Name')" data-type="textfield" data-default="'PACKRAT'">
+<meta name="x-icue-property" content="use24Hour" data-label="tr('24 Hour Time')" data-type="switch" data-default="true">
+<meta name="x-icue-property" content="showDate" data-label="tr('Show Date')" data-type="switch" data-default="true">
+<meta name="x-icue-property" content="scanlines" data-label="tr('Scanlines')" data-type="switch" data-default="true">
+<meta name="x-icue-property" content="flicker" data-label="tr('CRT Flicker')" data-type="switch" data-default="true">
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F2F5F7'">
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'">
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#05070A'">
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Terminal')",
+    "properties": ["label", "use24Hour", "showDate", "scanlines", "flicker"],
+    "info": "tr('Boots once, then keeps time. Nothing leaves your PC.')"
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"]
+  }
+]
+</script>
+
+<link rel="stylesheet" href="../../_shared/tokens.css">
+<link rel="stylesheet" href="terminal.css">
+</head>
+<body>
+<div id="stage">
+    <div id="screen" data-mode="boot">
+        <div id="log"></div>
+        <div id="clockLine">
+            <span id="prompt">PACKRAT@edge:~$</span>
+            <span id="time">00:00:00</span>
+            <span id="cursor"></span>
+            <span id="date"></span>
+        </div>
+    </div>
+    <canvas id="crt"></canvas>
+</div>
+<script src="../../_shared/boot.js"></script>
+<script src="../../_shared/anim.js"></script>
+<script src="terminal.js"></script>
+</body>
+</html>

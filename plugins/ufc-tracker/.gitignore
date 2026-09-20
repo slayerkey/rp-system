@@ -1,0 +1,4 @@
+node_modules/
+com.packrat.ufc-tracker.sdPlugin/logs/
+com.packrat.ufc-tracker.sdPlugin/bin/
+*.streamDeckPlugin

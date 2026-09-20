@@ -1,0 +1,80 @@
+{
+	"Name": "NASA Space Live Tracker",
+	"Version": "1.0.0.0",
+	"Author": "Ratpack",
+	"URL": "https://marketplace.elgato.com",
+	"Actions": [
+		{
+			"Name": "ISS Overhead",
+			"UUID": "com.ratpack.nasaspacetracker.iss",
+			"Icon": "imgs/actions/iss/icon",
+			"Tooltip": "Tracks the International Space Station. Pulses white and says OVERHEAD when it passes near you.",
+			"PropertyInspectorPath": "ui/iss.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/iss/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Next Launch",
+			"UUID": "com.ratpack.nasaspacetracker.launch",
+			"Icon": "imgs/actions/launch/icon",
+			"Tooltip": "Countdown to the next orbital rocket launch. Press to cycle the next three launches.",
+			"PropertyInspectorPath": "ui/launch.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/launch/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Picture of the Day",
+			"UUID": "com.ratpack.nasaspacetracker.apod",
+			"Icon": "imgs/actions/apod/icon",
+			"Tooltip": "NASA's Astronomy Picture of the Day, refreshed each morning. Press to open it full size.",
+			"PropertyInspectorPath": "ui/apod.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/apod/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "NASA Space Live Tracker",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Track the ISS overhead, count down to the next rocket launch, and see NASA's Astronomy Picture of the Day — right on your Stream Deck.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.ratpack.nasaspacetracker"
+}

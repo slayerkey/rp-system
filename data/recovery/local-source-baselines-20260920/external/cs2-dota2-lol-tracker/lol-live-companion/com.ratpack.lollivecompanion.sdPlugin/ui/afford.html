@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Item Afford Alert</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	</head>
+	<body>
+		<sdpi-item label="Item name">
+			<sdpi-textfield setting="itemName" placeholder="e.g. Infinity Edge" maxlength="16"></sdpi-textfield>
+		</sdpi-item>
+		<sdpi-item label="Item cost (gold)">
+			<sdpi-textfield setting="target" type="number" default="3000" placeholder="3000"></sdpi-textfield>
+		</sdpi-item>
+		<sdpi-item label="Afford colour">
+			<sdpi-color setting="affordColor" default="#30e27b"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="Tip">
+			<sdpi-text>The button shows your progress and glows green the moment you can buy it.</sdpi-text>
+		</sdpi-item>
+	</body>
+</html>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Toggle Mouse Button</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-kind="hold" data-verb="Toggles">
+		<div class="row first">
+			<label class="key" for="button">Button</label>
+			<div class="field">
+				<select id="button">
+					<option value="left">Left</option>
+					<option value="right">Right</option>
+					<option value="middle">Middle</option>
+				</select>
+			</div>
+		</div>
+
+		<div id="summary" class="summary"></div>
+
+		<p class="hint">
+			Press once to hold the button down, press again to let go. The key lights up while it's held.
+		</p>
+
+		<p class="hint">
+			With Left held, your PC acts like you're mid-drag everywhere — including in this window. Press the
+			Stream Deck key again to let go; that key still works because it isn't the mouse.
+		</p>
+
+		<script src="mouse.js"></script>
+		<script src="pro-footer.js"></script>
+	</body>
+</html>

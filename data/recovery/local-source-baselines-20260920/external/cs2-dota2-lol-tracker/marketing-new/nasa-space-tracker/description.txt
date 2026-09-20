@@ -1,0 +1,17 @@
+NASA Space Live Tracker turns your Stream Deck into a live window on space. Watch the International Space Station cross the sky, count down to the next rocket launch, and see NASA's photo of the day, all without opening a browser.
+
+*Space, on your desk.*
+
+**ISS Tracker** - A little Earth globe with a bright arrow shows which way to look for the station and how far it is from your city, updating every few seconds as it orbits. The key pulses white and reads OVERHEAD when the ISS is passing above you, and a tap opens NASA's live Spot the Station map.
+**Pick Your City** - Choose your location from a list of cities, or drop in your own coordinates, and switch between kilometers and miles. Every ISS key shares the setting.
+**Next Launch** - A live T-minus countdown to the next rocket launch, with the mission name, ticking down from days out to the final seconds.
+**Picture of the Day** - NASA's astronomy picture of the day on a key, refreshed daily, with the big photos scaled down to fit cleanly. On video days it shows a play card instead.
+**Set and Forget** - Everything refreshes on its own in the background. No API key for the ISS, nothing to sign in to, nothing to babysit.
+
+Pulls live data straight from NASA and open space data sources. Great for streamers, classrooms, space fans and anyone who likes looking up.
+
+---
+
+Part of the Ratpack collection for Stream Deck. Whether you game, stream or track your stats, there is something in the lineup for you. See the full Ratpack collection on the marketplace.
+
+NASA, ISS, space, International Space Station, rocket launch, Stream Deck, APOD, astronomy, space tracker, SpaceX, Spot the Station, stargazing, science, education

@@ -1,0 +1,63 @@
+{
+	"Name": "UFC Tracker",
+	"Version": "1.0.0.0",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Next Event",
+			"UUID": "com.packrat.ufc-tracker.event",
+			"Icon": "imgs/actions/event/icon",
+			"Tooltip": "The next card, its main event, and a countdown once it is close. Press to refresh.",
+			"PropertyInspectorPath": "ui/event.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/event/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Fight Card",
+			"UUID": "com.packrat.ufc-tracker.card",
+			"Icon": "imgs/actions/card/icon",
+			"Tooltip": "Every bout on the card, one at a time, main event first. Press for the next bout.",
+			"PropertyInspectorPath": "ui/card.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/card/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "UFC Tracker",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Fight night on your deck. The next card, who is fighting, and how the night is going, updating on its own while you play or stream. No alt-tabbing to check the card. Not affiliated with or endorsed by UFC or any promotion or fighter.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.ufc-tracker"
+}

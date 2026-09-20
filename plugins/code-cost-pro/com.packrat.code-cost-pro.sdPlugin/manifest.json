@@ -1,0 +1,115 @@
+{
+	"Name": "Claude & Codex Cost Pro",
+	"Version": "1.0.0.0",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Plan Value",
+			"UUID": "com.packrat.code-cost-pro.value",
+			"Icon": "imgs/actions/value/icon",
+			"Tooltip": "What your usage was worth against what your plan costs. Green once the plan has paid for itself.",
+			"PropertyInspectorPath": "ui/value.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/value/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Cost",
+			"UUID": "com.packrat.code-cost-pro.cost",
+			"Icon": "imgs/actions/cost/icon",
+			"Tooltip": "Spend for today, 7 days or 30 days, with an optional monthly budget bar. Press or turn the dial to change the period.",
+			"PropertyInspectorPath": "ui/cost.html",
+			"Controllers": [
+				"Keypad",
+				"Encoder"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/cost/key",
+					"TitleAlignment": "bottom"
+				}
+			],
+			"Encoder": {
+				"Icon": "imgs/actions/cost/icon"
+			}
+		},
+		{
+			"Name": "Breakdown",
+			"UUID": "com.packrat.code-cost-pro.breakdown",
+			"Icon": "imgs/actions/breakdown/icon",
+			"Tooltip": "Where the money went. Top three by model, or by project. Press to swap.",
+			"PropertyInspectorPath": "ui/breakdown.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/breakdown/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Cache Hit",
+			"UUID": "com.packrat.code-cost-pro.cache",
+			"Icon": "imgs/actions/cache/icon",
+			"Tooltip": "How much of your input was served from cache, and what that discount was worth.",
+			"PropertyInspectorPath": "ui/cache.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/cache/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Trend",
+			"UUID": "com.packrat.code-cost-pro.trend",
+			"Icon": "imgs/actions/trend/icon",
+			"Tooltip": "Daily spend as a bar chart, so a bad week is visible before the month ends.",
+			"PropertyInspectorPath": "ui/trend.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/trend/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "Claude & Codex Cost Pro",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Know what your AI coding is worth, not just what it costs. Plan Value shows what your usage would have cost at token rates against what you actually pay, so you can see at a glance whether your plan is earning its keep. Plus spend for today, this week and this month, a breakdown by model and by project, cache hit rate, a daily trend chart, and a budget bar that turns red when you go over. Everything is read from the session files Claude Code and Codex already save on your computer, so there is nothing to sign in to and nothing leaves your machine. Not affiliated with or endorsed by Anthropic or OpenAI.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.code-cost-pro"
+}

@@ -1,0 +1,28 @@
+{
+  "slug": "ufc-tracker",
+  "errors": 0,
+  "warnings": 4,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:ufc-octagon-word-marks' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'likeness:fighter-ancillary-rights-clause' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'api-risk:unofficial-mma-data' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'positioning-risk:live-vs-event-cadence' is open; resolve before submission"
+    }
+  ]
+}

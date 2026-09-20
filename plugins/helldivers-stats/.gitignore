@@ -1,0 +1,5 @@
+node_modules/
+com.packrat.helldivers-stats.sdPlugin/logs/
+com.packrat.helldivers-stats.sdPlugin/bin/
+*.streamDeckPlugin
+

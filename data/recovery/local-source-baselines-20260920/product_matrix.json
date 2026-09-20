@@ -1,0 +1,1514 @@
+[
+  {
+    "name": "Calendar Panel",
+    "uuid": "com.packrat.agendapanel",
+    "source_version": "1.0.1",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\agenda-panel\\manifest.json",
+    "package_version": "1.0.1",
+    "package_path": "C:\\Users\\Key\\Downloads\\Calendar-Panel-1.0.1-Standalone.icuewidget",
+    "package_sha256": "24249f924b4184b2f18cccb7ecd09efcb2bebc2d2780b7a531418b730e283b7a",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "github_latest": "1.0.1",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "AI Usage Tracker",
+    "uuid": "com.packrat.ai-usage-tracker",
+    "source_version": "1.0.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.packrat.ai-usage-tracker.sdPlugin\\manifest.json",
+    "package_version": "1.0.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.packrat.ai-usage-tracker.streamDeckPlugin",
+    "package_sha256": "bac2eb859c83aa75076f835cb4f330b0c7c4de34764d25565211a8211f81a379",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.ai-usage-tracker.monitor"
+  },
+  {
+    "name": "AI Usage Dashboard",
+    "uuid": "com.packrat.aiusage",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\ai-usage\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\ai-usage-dashboard.icuewidget",
+    "package_sha256": "2f03d3f3dbf2f66109bb4e82010d78b0f80184bd433b15cc1b807a8d15553caa",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": ""
+  },
+  {
+    "name": "Ambient Clock Pack",
+    "uuid": "com.packrat.ambientclock",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\ambient-clock\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\ambient-clock-pack.icuewidget",
+    "package_sha256": "dc2417325814125f4a38ba4816964ac82e0a70401497d746449cdb5acbf96024",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": ""
+  },
+  {
+    "name": "Audio Manager Lite",
+    "uuid": "com.packrat.audio-manager-lite",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\plugins\\audio-manager-lite\\com.packrat.audio-manager-lite.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\audio-manager-lite\\audio-manager-lite.streamDeckPlugin",
+    "package_sha256": "d65f426efadcf1c6067e490b24eab779f090a572dec737ea511601b04757a3e4",
+    "github_versions": [
+      "1.0.0.0"
+    ],
+    "github_latest": "1.0.0.0",
+    "state": "same-version",
+    "action_uuids": "com.packrat.audio-manager-lite.set-output;com.packrat.audio-manager-lite.set-input"
+  },
+  {
+    "name": "Audio Manager Pro",
+    "uuid": "com.packrat.audio-manager-pro",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\plugins\\audio-manager-pro\\com.packrat.audio-manager-pro.sdPlugin\\manifest.json",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [
+      "1.0.0.0"
+    ],
+    "github_latest": "1.0.0.0",
+    "state": "same-version",
+    "action_uuids": "com.packrat.audio-manager-pro.apply-profile;com.packrat.audio-manager-pro.set-output;com.packrat.audio-manager-pro.set-input;com.packrat.audio-manager-pro.cycle-profile;com.packrat.audio-manager-pro.profile-status;com.packrat.audio-manager-pro.mute-default-mic;com.packrat.audio-manager-pro.profile-output-volume"
+  },
+  {
+    "name": "Audio Manager Pro",
+    "uuid": "com.packrat.audio-manager-pro2",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\audio-manager-pro\\audio-manager-pro.streamDeckPlugin",
+    "package_sha256": "72c9c8094ae686be03b8c13f657defd585f1d5bfe6c1cc4b81fb18bf756201f0",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.audio-manager-pro2.apply-profile;com.packrat.audio-manager-pro2.set-output;com.packrat.audio-manager-pro2.set-input;com.packrat.audio-manager-pro2.cycle-profile;com.packrat.audio-manager-pro2.profile-status;com.packrat.audio-manager-pro2.mute-default-mic;com.packrat.audio-manager-pro2.profile-output-volume"
+  },
+  {
+    "name": "Audio Control Center",
+    "uuid": "com.packrat.audiocontrolcenter",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\audio-control-center\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\audio-control-center\\audio-control-center.icuewidget",
+    "package_sha256": "44d117b7c3dd6f4fca5f2cbac6d7b9eacdf672d57ea3e16a38b7f0832fca9894",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Better Hotkeys & Mouse",
+    "uuid": "com.packrat.betterhotkeys",
+    "source_version": "0.2.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\free\\better-hotkeys-mouse\\com.packrat.betterhotkeys.sdPlugin\\manifest.json",
+    "package_version": "0.2.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\free\\better-hotkeys-mouse\\com.packrat.betterhotkeys.streamDeckPlugin",
+    "package_sha256": "aff23f8e58d50f53c9f03702d646b433a3ba18bd12c558aa3449558c44703eb2",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.betterhotkeys.holdkey;com.packrat.betterhotkeys.togglekey;com.packrat.betterhotkeys.clickmouse;com.packrat.betterhotkeys.togglemouse"
+  },
+  {
+    "name": "Better Hotkeys & Mouse Pro",
+    "uuid": "com.packrat.betterhotkeyspro",
+    "source_version": "1.2.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\better-hotkeys-pro\\com.packrat.betterhotkeyspro.sdPlugin\\manifest.json",
+    "package_version": "1.2.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\better-hotkeys-pro\\dist\\com.packrat.betterhotkeyspro.streamDeckPlugin",
+    "package_sha256": "ca37398867bc0691e299de03eaa22cc877ef994b8c22efa59a1b894e9c7e44ec",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.betterhotkeyspro.holdkey;com.packrat.betterhotkeyspro.togglekey;com.packrat.betterhotkeyspro.clickmouse;com.packrat.betterhotkeyspro.movemouse;com.packrat.betterhotkeyspro.holdmouse;com.packrat.betterhotkeyspro.togglemouse;com.packrat.betterhotkeyspro.radialselect;com.packrat.betterhotkeyspro.autorepeat;com.packrat.betterhotkeyspro.mousedrag;com.packrat.betterhotkeyspro.scroll;com.packrat.betterhotkeyspro.mutemic;com.packrat.betterhotkeyspro.pushtotalk;com.packrat.betterhotkeyspro.micvolume;com.packrat.betterhotkeyspro.encoderhotkey"
+  },
+  {
+    "name": "Calendar Sync Lite",
+    "uuid": "com.packrat.calendarsynclite",
+    "source_version": "1.0.0.1",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\calendar\\com.packrat.calendarsynclite.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.1",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\calendar\\SHIP_KIT\\com.packrat.calendarsynclite.streamDeckPlugin",
+    "package_sha256": "c5aade11acfcf7c15660c3fd4b01434224d5782e7bc872a19521c66f3d8e2f8b",
+    "github_versions": [
+      "1.0.0.1"
+    ],
+    "github_latest": "1.0.0.1",
+    "state": "same-version",
+    "action_uuids": "com.packrat.calendarsynclite.next;com.packrat.calendarsynclite.agenda"
+  },
+  {
+    "name": "Calendar Sync Pro",
+    "uuid": "com.packrat.calendarsyncpro",
+    "source_version": "1.1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\calendar-sync-pro\\com.packrat.calendarsyncpro.sdPlugin\\manifest.json",
+    "package_version": "1.2.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\plugins\\calendar-pro\\artifacts\\com.packrat.calendarsyncpro-v1.2.0.0.streamDeckPlugin",
+    "package_sha256": "61b5fa8d58044aad5caf3542f19911b3acec89d35b6de5e75d684b3cc1c8bfd1",
+    "github_versions": [
+      "1.2.0.0"
+    ],
+    "github_latest": "1.2.0.0",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.calendarsyncpro.next;com.packrat.calendarsyncpro.agenda;com.packrat.calendarsyncpro.join"
+  },
+  {
+    "name": "Auto Queue for Claude Code",
+    "uuid": "com.packrat.claude-auto-queue",
+    "source_version": "0.1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\plugins\\claude-auto-queue\\com.packrat.claude-auto-queue.sdPlugin\\manifest.json",
+    "package_version": "0.1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\claude-auto-queue\\claude-auto-queue.streamDeckPlugin",
+    "package_sha256": "974aab18b0144108c62ca8b8912f293dc55bdb6ed5e3b8481c52b85990e69104",
+    "github_versions": [
+      "0.1.0.0"
+    ],
+    "github_latest": "0.1.0.0",
+    "state": "same-version",
+    "action_uuids": "com.packrat.claude-auto-queue.status;com.packrat.claude-auto-queue.queue-prompt;com.packrat.claude-auto-queue.next-prompt;com.packrat.claude-auto-queue.queue-control"
+  },
+  {
+    "name": "Clipboard Manager",
+    "uuid": "com.packrat.clipboard",
+    "source_version": "1.0.0.3",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\clipboard-manager\\com.packrat.clipboard.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.3",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\clipboard-manager\\com.packrat.clipboard.streamDeckPlugin",
+    "package_sha256": "a7f3b47e195ae6480791e9e526ab9df5534c02635834f30d3dfeb1946b9fad33",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.clipboard.slot"
+  },
+  {
+    "name": "Clipboard Manager Pro",
+    "uuid": "com.packrat.clipboardpro",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\clipboard-manager-pro\\com.packrat.clipboardpro.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\clipboard-manager-pro\\SHIP_KIT\\com.packrat.clipboardpro.streamDeckPlugin",
+    "package_sha256": "c5972cf1f406f488a24958126d108fdec02b723325b0c0e4fe7974a48dc39cf2",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.clipboardpro.slot;com.packrat.clipboardpro.picker"
+  },
+  {
+    "name": "Clipboard Shelf",
+    "uuid": "com.packrat.clipboardshelf",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\clipboard-shelf\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\clipboard-shelf\\clipboard-shelf.icuewidget",
+    "package_sha256": "a30661221809bfcb93fe1e195b528a8452fdbe4ddf0ebeb49358c02c5067a633",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Claude & Codex Cost Lite",
+    "uuid": "com.packrat.code-cost",
+    "source_version": "1.0.0.2",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\code-cost\\com.packrat.code-cost.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.2",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\code-cost\\marketing\\com.packrat.code-cost.streamDeckPlugin",
+    "package_sha256": "04d1b3f78992df52c2c1ad2702b498163d191314d4d0f1e4428fea2e0bb839a8",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.code-cost.cost"
+  },
+  {
+    "name": "Claude & Codex Cost Pro",
+    "uuid": "com.packrat.code-cost-pro",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\code-cost-pro\\com.packrat.code-cost-pro.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\code-cost-pro\\SHIP_KIT\\com.packrat.code-cost-pro.streamDeckPlugin",
+    "package_sha256": "1d706e089b70af702a15a51ad08aa5d41a1b7db2e7e33f85f7b6b4a2701bcae5",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.code-cost-pro.value;com.packrat.code-cost-pro.cost;com.packrat.code-cost-pro.breakdown;com.packrat.code-cost-pro.cache;com.packrat.code-cost-pro.trend"
+  },
+  {
+    "name": "Crypto Portfolio",
+    "uuid": "com.packrat.cryptoportfolio",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\crypto-portfolio\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\crypto-portfolio.icuewidget",
+    "package_sha256": "11ab646fc481494c6f4f5ab6a90c380dc7b3ea55ed88f8f682dfd7b754f25439",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": ""
+  },
+  {
+    "name": "",
+    "uuid": "com.packrat.cs2-competitive-dashboard-lite",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "unresolved",
+    "action_uuids": ""
+  },
+  {
+    "name": "CS2 Competitive Dashboard Pro",
+    "uuid": "com.packrat.cs2-competitive-dashboard-pro",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "0.1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\cs2-competitive-dashboard-pro\\cs2-competitive-dashboard-pro.streamDeckPlugin",
+    "package_sha256": "59df59f25f23c18ac04f0f6e8019e8d0eae47ddc346c80421b31838c5a85304e",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.cs2-competitive-dashboard-pro.live;com.packrat.cs2-competitive-dashboard-pro.session;com.packrat.cs2-competitive-dashboard-pro.competitive;com.packrat.cs2-competitive-dashboard-pro.faceit;com.packrat.cs2-competitive-dashboard-pro.status"
+  },
+  {
+    "name": "Desk Notes Lite",
+    "uuid": "com.packrat.desknotes",
+    "source_version": "1.0.1",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\desk-notes\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship-local\\desk-notes\\package\\desk-notes.icuewidget",
+    "package_sha256": "cd05f874c835f7bde9d9161a49dac5d3d3a5f18f13c414aadeaf318982174e62",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "github_latest": "1.0.1",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Desk Notes Pro",
+    "uuid": "com.packrat.desknotespro",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\desk-notes-pro\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship-local\\desk-notes-pro\\package\\desk-notes-pro.icuewidget",
+    "package_sha256": "fbaa580b7e8c2c412671ab44b1bd24f3b7f1b575b68a7f2fc4233b9ba274363e",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "PackRat Voice Bridge",
+    "uuid": "com.packrat.discord-bridge",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\plugins\\discord-bridge\\com.packrat.discord-bridge.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\discord-bridge\\discord-bridge.streamDeckPlugin",
+    "package_sha256": "dd7adcbc95c0f9d9f488905dcc0a238e2301dbb567013d51160ecedbf4c737fa",
+    "github_versions": [
+      "0.1.0.4",
+      "0.2.0.0",
+      "0.3.0.0",
+      "1.0.0.0"
+    ],
+    "github_latest": "1.0.0.0",
+    "state": "same-version",
+    "action_uuids": "com.packrat.discord-bridge.status"
+  },
+  {
+    "name": "PackRat Voice Panel",
+    "uuid": "com.packrat.discordpanel",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\discord-panel\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship-local\\discord-panel\\package\\discord-panel.icuewidget",
+    "package_sha256": "4ae28f8ab149ed76ed2344ec39493f00677679a642fdf4d0fbeca730b6854a32",
+    "github_versions": [
+      "0.1.0",
+      "0.2.0",
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Helldivers 2 Panel",
+    "uuid": "com.packrat.helldivers",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\helldivers\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\helldivers\\helldivers.icuewidget",
+    "package_sha256": "1961f5b6e4f2c123f580a1d40bb99a1e44a56f41d30af37bc03fd340e572d7db",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "github_latest": "1.0.1",
+    "state": "github-newer",
+    "action_uuids": ""
+  },
+  {
+    "name": "Home Assistant Panel",
+    "uuid": "com.packrat.homeassistant",
+    "source_version": "1.0.3",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\home-assistant\\manifest.json",
+    "package_version": "1.0.3",
+    "package_path": "C:\\Users\\Key\\Downloads\\home-assistant-panel-1.0.3.icuewidget",
+    "package_sha256": "efa0cd52f70ea53efdedb21e806cb5aa8a4ead9875c1aa1f6e9ac604408882a8",
+    "github_versions": [
+      "1.0.2",
+      "1.0.3"
+    ],
+    "github_latest": "1.0.3",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Home Assistant Diagnostic",
+    "uuid": "com.packrat.homeassistantdiagnostic",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\tools\\xeneon\\home-assistant-diagnostic\\manifest.json",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Internet Health Pro",
+    "uuid": "com.packrat.internet-health-pro",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\plugins\\internet-health-pro\\com.packrat.internet-health-pro.sdPlugin\\manifest.json",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [
+      "1.0.0.0",
+      "1.0.0.2"
+    ],
+    "github_latest": "1.0.0.2",
+    "state": "github-newer",
+    "action_uuids": "com.packrat.internet-health-pro.health;com.packrat.internet-health-pro.latency;com.packrat.internet-health-pro.jitter-loss;com.packrat.internet-health-pro.outage;com.packrat.internet-health-pro.target;com.packrat.internet-health-pro.speed-test;com.packrat.internet-health-pro.summary"
+  },
+  {
+    "name": "Internet Health Pro",
+    "uuid": "com.packrat.internet-health-pro2",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\internet-health-pro\\internet-health-pro.streamDeckPlugin",
+    "package_sha256": "d4e716ed163a73e2356b2034fc05c25962818995ee52a3830867fb99b993bac1",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.internet-health-pro2.health;com.packrat.internet-health-pro2.latency;com.packrat.internet-health-pro2.jitter-loss;com.packrat.internet-health-pro2.outage;com.packrat.internet-health-pro2.target;com.packrat.internet-health-pro2.speed-test;com.packrat.internet-health-pro2.summary"
+  },
+  {
+    "name": "Macro Recorder Lite",
+    "uuid": "com.packrat.macro-recorder-lite",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\macro-recorder-lite\\macro-recorder-lite.streamDeckPlugin",
+    "package_sha256": "313ce438a28fc3a4aa52833e16632668f92a8831a84219ea838d1e086970b998",
+    "github_versions": [
+      "1.0.0.0"
+    ],
+    "github_latest": "1.0.0.0",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.macro-recorder-lite.record;com.packrat.macro-recorder-lite.stop;com.packrat.macro-recorder-lite.replay"
+  },
+  {
+    "name": "Macro Recorder Pro",
+    "uuid": "com.packrat.macro-recorder-pro",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\macro-recorder-pro\\macro-recorder-pro.streamDeckPlugin",
+    "package_sha256": "a42fd3496cad0d1cb0602df4f61de3df91b5c4fc0eb3d4228d7b46190cd744a8",
+    "github_versions": [
+      "1.0.0.0"
+    ],
+    "github_latest": "1.0.0.0",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.macro-recorder-pro.record;com.packrat.macro-recorder-pro.stop;com.packrat.macro-recorder-pro.replay"
+  },
+  {
+    "name": "Market Command Center",
+    "uuid": "com.packrat.marketcommandcenter",
+    "source_version": "1.0.3",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\market-command-center\\manifest.json",
+    "package_version": "1.0.3",
+    "package_path": "C:\\Users\\Key\\Downloads\\Market-Command-Center-v1.0.3.icuewidget",
+    "package_sha256": "d909f20f4231f40fdcf4b1cc4db3039b1b7277455a5045e3430a01b13140b524",
+    "github_versions": [
+      "1.0.2",
+      "1.0.3"
+    ],
+    "github_latest": "1.0.3",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Monitor Manager Lite",
+    "uuid": "com.packrat.monitormanagerlite",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\plugins\\monitor-manager-lite\\com.packrat.monitormanagerlite.sdPlugin\\manifest.json",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [
+      "1.0.0.0",
+      "1.0.0.2"
+    ],
+    "github_latest": "1.0.0.2",
+    "state": "github-newer",
+    "action_uuids": "com.packrat.monitormanagerlite.brightness"
+  },
+  {
+    "name": "Monitor Manager Lite",
+    "uuid": "com.packrat.monitormanagerlite2",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\monitor-manager-lite\\monitor-manager-lite.streamDeckPlugin",
+    "package_sha256": "cce0dd77881660bf9c005929ad9191413302e71b25b22ef6e37859f3e12b19ec",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.monitormanagerlite2.brightness"
+  },
+  {
+    "name": "Monitor Manager Pro",
+    "uuid": "com.packrat.monitormanagerpro",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\plugins\\monitor-manager-pro\\com.packrat.monitormanagerpro.sdPlugin\\manifest.json",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [
+      "1.0.0.0",
+      "1.0.0.2"
+    ],
+    "github_latest": "1.0.0.2",
+    "state": "github-newer",
+    "action_uuids": "com.packrat.monitormanagerpro.brightness;com.packrat.monitormanagerpro.contrast;com.packrat.monitormanagerpro.volume;com.packrat.monitormanagerpro.power;com.packrat.monitormanagerpro.input;com.packrat.monitormanagerpro.refresh-rate;com.packrat.monitormanagerpro.resolution;com.packrat.monitormanagerpro.hdr;com.packrat.monitormanagerpro.topology;com.packrat.monitormanagerpro.primary;com.packrat.monitormanagerpro.orientation;com.packrat.monitormanagerpro.save-profile;com.packrat.monitormanagerpro.apply-profile;com.packrat.monitormanagerpro.status"
+  },
+  {
+    "name": "Monitor Manager Pro",
+    "uuid": "com.packrat.monitormanagerpro2",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\monitor-manager-pro\\monitor-manager-pro.streamDeckPlugin",
+    "package_sha256": "c5eaacd22aed6b8868d81e98ac6e63ed2363422cc8fd58826a23bf1f5daa9145",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.monitormanagerpro2.brightness;com.packrat.monitormanagerpro2.contrast;com.packrat.monitormanagerpro2.volume;com.packrat.monitormanagerpro2.power;com.packrat.monitormanagerpro2.input;com.packrat.monitormanagerpro2.refresh-rate;com.packrat.monitormanagerpro2.resolution;com.packrat.monitormanagerpro2.hdr;com.packrat.monitormanagerpro2.topology;com.packrat.monitormanagerpro2.primary;com.packrat.monitormanagerpro2.orientation;com.packrat.monitormanagerpro2.save-profile;com.packrat.monitormanagerpro2.apply-profile;com.packrat.monitormanagerpro2.status"
+  },
+  {
+    "name": "NASCAR Tracker",
+    "uuid": "com.packrat.nascar-tracker",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\nascar-tracker\\com.packrat.nascar-tracker.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\nascar-tracker\\SHIP_KIT\\com.packrat.nascar-tracker.streamDeckPlugin",
+    "package_sha256": "56e089d483d5310a26a23eab1bfb6735cfa6555ea4e1256a5a5ce7e6cf6f263f",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.nascar-tracker.event;com.packrat.nascar-tracker.card;com.packrat.nascar-tracker.standings"
+  },
+  {
+    "name": "NBA Tracker",
+    "uuid": "com.packrat.nba-tracker",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\nba-tracker\\com.packrat.nba-tracker.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\nba-tracker\\SHIP_KIT\\com.packrat.nba-tracker.streamDeckPlugin",
+    "package_sha256": "ef24d5a63df6a54e8ad2e24175dd50723385ebea5a73ba9ff61392671e855a15",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.nba-tracker.score;com.packrat.nba-tracker.standings;com.packrat.nba-tracker.scoreboard"
+  },
+  {
+    "name": "Network Dashboard",
+    "uuid": "com.packrat.netdashboard",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\net-dashboard\\manifest.json",
+    "package_version": "1.0.1",
+    "package_path": "C:\\Users\\Key\\Downloads\\Network-Dashboard-1.0.1-Font-Selector.icuewidget",
+    "package_sha256": "5c15588c623f754753c47a78f69d870b1059fdfc4a4e616f9d1bebb7448ccfeb",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "github_latest": "1.0.1",
+    "state": "package-newer-than-source",
+    "action_uuids": ""
+  },
+  {
+    "name": "Packrat Network Probe",
+    "uuid": "com.packrat.netspike",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\net-spike\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\packrat-network-probe.icuewidget",
+    "package_sha256": "b090da93361716d86965d57f0e2187dd32988a08540ea0ac83492fa2353695bb",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": ""
+  },
+  {
+    "name": "NFL Tracker",
+    "uuid": "com.packrat.nfl-tracker",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\nfl-tracker\\com.packrat.nfl-tracker.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\nfl-tracker\\SHIP_KIT\\com.packrat.nfl-tracker.streamDeckPlugin",
+    "package_sha256": "b299ac20c94ca5570f51d517f566a16bcb3b60c54878a3de99478a63c8c20b2e",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.nfl-tracker.score;com.packrat.nfl-tracker.standings;com.packrat.nfl-tracker.scoreboard"
+  },
+  {
+    "name": "NHL Tracker",
+    "uuid": "com.packrat.nhl-tracker",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\nhl-tracker\\com.packrat.nhl-tracker.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\nhl-tracker\\SHIP_KIT\\com.packrat.nhl-tracker.streamDeckPlugin",
+    "package_sha256": "af01a94322de3472f8395281b57689c22bca6146ca6b1122c63f717784116067",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.nhl-tracker.score;com.packrat.nhl-tracker.standings;com.packrat.nhl-tracker.scoreboard"
+  },
+  {
+    "name": "Now Playing Panel",
+    "uuid": "com.packrat.nowplaying",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\now-playing\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Downloads\\rat-ship-now-playing-final\\now-playing.icuewidget",
+    "package_sha256": "5f563bed024ff9b2fda37d51339992971467de9a64d66959b78d6394e915af2a",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "github_latest": "1.0.1",
+    "state": "github-newer",
+    "action_uuids": ""
+  },
+  {
+    "name": "Stream Dashboard",
+    "uuid": "com.packrat.obsdashboard",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\obs-dashboard\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\obs-dashboard\\obs-dashboard.icuewidget",
+    "package_sha256": "49e3e475e303b41f8181f428ce233871c736417b1d4d76f9e79dc4d5412f62c9",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "github_latest": "1.0.1",
+    "state": "github-newer",
+    "action_uuids": ""
+  },
+  {
+    "name": "PC Power Meter Lite",
+    "uuid": "com.packrat.pcpowermeter",
+    "source_version": "1.0.2",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\pc-power-meter\\manifest.json",
+    "package_version": "1.0.2",
+    "package_path": "C:\\Users\\Key\\Downloads\\PC-Power-Meter-Lite-1.0.2.icuewidget",
+    "package_sha256": "418a0883e71f0b27e1549d8d16c4b4aa67f37246c42c0a1ae1203abb08dc4c64",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1",
+      "1.0.2"
+    ],
+    "github_latest": "1.0.2",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "PC Power Meter Pro",
+    "uuid": "com.packrat.pcpowermeterpro",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\pc-power-meter-pro\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\pc-power-meter-pro\\pc-power-meter-pro.icuewidget",
+    "package_sha256": "dc06198a2725cfd0446d0743b18fd01f220132024891670e41782259f41931db",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Performance Grapher",
+    "uuid": "com.packrat.perfgrapher",
+    "source_version": "1.4.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\perf-grapher\\manifest.json",
+    "package_version": "1.4.2",
+    "package_path": "C:\\Users\\Key\\Downloads\\Performance-Grapher-1.4.2.icuewidget",
+    "package_sha256": "c019eee4a2d85c7175a8ec45d811c7d941b38c88e1f2eb0cfed772c156562b70",
+    "github_versions": [
+      "1.4.1",
+      "1.4.2"
+    ],
+    "github_latest": "1.4.2",
+    "state": "package-newer-than-source",
+    "action_uuids": ""
+  },
+  {
+    "name": "Performance Grapher for Stream Deck",
+    "uuid": "com.packrat.performance-grapher",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\performance-grapher-streamdeck\\performance-grapher-streamdeck.streamDeckPlugin",
+    "package_sha256": "566283efaa68f48647be755b2e9d801896d907bf2a0583961458209142b5f729",
+    "github_versions": [
+      "1.0.0.0"
+    ],
+    "github_latest": "1.0.0.0",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.performance-grapher.graph;com.packrat.performance-grapher.fps;com.packrat.performance-grapher.session;com.packrat.performance-grapher.metric;com.packrat.performance-grapher.alert"
+  },
+  {
+    "name": "Packrat Project Health Check",
+    "uuid": "com.packrat.projecthealthcheck.dev",
+    "source_version": "0.1.0",
+    "source_path": "C:\\Users\\Key\\Downloads\\packrat-premiere-project-health-build-initial-project-health\\packrat-premiere-project-health-build-initial-project-health\\manifest.json",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": ""
+  },
+  {
+    "name": "Retro Terminal Pro",
+    "uuid": "com.packrat.retro-terminal-pro",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\retro-terminal-pro\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\retro-terminal-pro\\retro-terminal-pro.icuewidget",
+    "package_sha256": "ee00cff47c1873aab6af72031ca91574a4255e99d44854da7b12be958187c819",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Retro Terminal",
+    "uuid": "com.packrat.retroterminal",
+    "source_version": "1.0.1",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\retro-terminal\\manifest.json",
+    "package_version": "1.0.2",
+    "package_path": "C:\\Users\\Key\\Downloads\\retro-terminal-1.0.2.icuewidget",
+    "package_sha256": "4bf7d08402965691c74441e9aa36154ba1889b6ef8c21f10c711f4cead1845a9",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": ""
+  },
+  {
+    "name": "Peripheral Battery Panel",
+    "uuid": "com.packrat.rigbattery",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\rig-battery\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\rig-battery\\rig-battery.icuewidget",
+    "package_sha256": "36b867bfba81c277d435779b3ba5b9f7d7bcf8ab020145a697f12eed661df8c8",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "github_latest": "1.0.1",
+    "state": "github-newer",
+    "action_uuids": ""
+  },
+  {
+    "name": "Riot Rank Tracker",
+    "uuid": "com.packrat.riot-tracker",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\riot-tracker\\com.packrat.riot-tracker.sdPlugin\\manifest.json",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.riot-tracker.lol-rank;com.packrat.riot-tracker.tft-rank"
+  },
+  {
+    "name": "Screensaver Scheduler",
+    "uuid": "com.packrat.screensavercycler",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\screensaver-cycler\\com.packrat.screensavercycler.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\screensaver-cycler\\marketing\\com.packrat.screensavercycler.streamDeckPlugin",
+    "package_sha256": "d3357f4ff37d46425e14e9172af34b871aec85f7df90a6bbbd019757a0721f62",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.screensavercycler.next;com.packrat.screensavercycler.cycle;com.packrat.screensavercycler.schedule"
+  },
+  {
+    "name": "Slot Machine",
+    "uuid": "com.packrat.slotmachine",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\slot-machine\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\slot-machine.icuewidget",
+    "package_sha256": "8a8097a81e6db9eb0f5b4954ee8f1ba6033a620d526b73f4ad1be4242a9b303a",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": ""
+  },
+  {
+    "name": "Smart Lighting Control for Hue & Govee",
+    "uuid": "com.packrat.smartlightingcontrol",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\smart-lighting-control\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\smart-lighting-control\\smart-lighting-control.icuewidget",
+    "package_sha256": "ac059886fd5021062219bd802aa0440978018ce74119309781c681a90d3d5795",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Snake",
+    "uuid": "com.packrat.snake",
+    "source_version": "1.0.1",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\snake\\manifest.json",
+    "package_version": "1.0.1",
+    "package_path": "C:\\Users\\Key\\Downloads\\snake-1.0.1.icuewidget",
+    "package_sha256": "e655b5afe0b5dcfc8a4c003a519ff5120ce117bac0219dcf52d50d73ffb61f6c",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "github_latest": "1.0.1",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Soccer Tracker",
+    "uuid": "com.packrat.soccer-tracker",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\soccer-tracker\\com.packrat.soccer-tracker.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\soccer-tracker\\SHIP_KIT\\com.packrat.soccer-tracker.streamDeckPlugin",
+    "package_sha256": "19d444f932dfd89c801306796df143b5ea77d02ee942e4e844af1d964ae04d62",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.soccer-tracker.score;com.packrat.soccer-tracker.standings;com.packrat.soccer-tracker.scoreboard"
+  },
+  {
+    "name": "Ultimate App Volume Lab",
+    "uuid": "com.packrat.stream-deck-ultimate-app-volume-lab",
+    "source_version": "0.8.0.1",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\_sd-acceptance-backup\\2026-08-31_185716\\REMOVED\\lab-uninstalled\\manifest.json",
+    "package_version": "0.8.0.1",
+    "package_path": "C:\\Users\\Key\\Documents\\SD-Ultimate-Acceptance\\Stream-Deck-Ultimate-Desktop-Handoff\\02-App-Volume-Lab-COINSTALL.streamDeckPlugin",
+    "package_sha256": "a1f993c74ec0c4b9145b5df59b53dae0f98ffb55ae8b0a5886a4d113064df992",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.stream-deck-ultimate-app-volume-lab.app-audio"
+  },
+  {
+    "name": "Stream Deck Ultimate",
+    "uuid": "com.packrat.stream-deck-ultimate-bundle",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\stream-deck-ultimate\\com.packrat.stream-deck-ultimate-bundle.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\stream-deck-ultimate\\com.packrat.stream-deck-ultimate-bundle.streamDeckPlugin",
+    "package_sha256": "e57ea95450d5e76b74fb3abfda72a63a7358585b0af6790ed7c9877d4054ccee",
+    "github_versions": [
+      "0.1.0.0",
+      "0.2.0.0",
+      "0.3.0.0",
+      "0.4.0.0",
+      "0.5.0.0",
+      "0.6.0.0",
+      "0.7.0.0",
+      "0.7.1.0"
+    ],
+    "github_latest": "0.7.1.0",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.stream-deck-ultimate-bundle.smart-app;com.packrat.stream-deck-ultimate-bundle.context;com.packrat.stream-deck-ultimate-bundle.workspace;com.packrat.stream-deck-ultimate-bundle.window;com.packrat.stream-deck-ultimate-bundle.clipboard;com.packrat.stream-deck-ultimate-bundle.snippet;com.packrat.stream-deck-ultimate-bundle.capture;com.packrat.stream-deck-ultimate-bundle.media;com.packrat.stream-deck-ultimate-bundle.system;com.packrat.stream-deck-ultimate-bundle.navigation;com.packrat.stream-deck-ultimate-bundle.audio;com.packrat.stream-deck-ultimate-bundle.audio-preset;com.packrat.stream-deck-ultimate-bundle.routine;com.packrat.stream-deck-ultimate-bundle.setup;com.packrat.stream-deck-ultimate-bundle.diagnostics;com.packrat.stream-deck-ultimate-bundle.app-audio"
+  },
+  {
+    "name": "Text Expander Lite",
+    "uuid": "com.packrat.textexpanderlite",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\text-expander\\text-expander.streamDeckPlugin",
+    "package_sha256": "db68a333cc00a2751fbb4f65c890dd4c87117da87285c7387b1af4ced7d62e11",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.textexpanderlite.insert;com.packrat.textexpanderlite.manage"
+  },
+  {
+    "name": "Text Expander Pro",
+    "uuid": "com.packrat.textexpanderpro",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\text-expander-pro\\text-expander-pro.streamDeckPlugin",
+    "package_sha256": "96c625c5f5e853088e82618586223aa269f057b3cca5b6e1a31532b9e2e8bebf",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.textexpanderpro.insert;com.packrat.textexpanderpro.manage"
+  },
+  {
+    "name": "UFC Tracker",
+    "uuid": "com.packrat.ufc-tracker",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\ufc-tracker\\com.packrat.ufc-tracker.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\ufc-tracker\\SHIP_KIT\\com.packrat.ufc-tracker.streamDeckPlugin",
+    "package_sha256": "f419c2e040a1cd791f459067480058a026e11f048d902a334b5072de70d1212a",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.ufc-tracker.event;com.packrat.ufc-tracker.card"
+  },
+  {
+    "name": "Sports Tracker Ultimate",
+    "uuid": "com.packrat.ultimatesports",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\ultimate-sports\\com.packrat.ultimatesports.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\ultimate-sports\\SHIP_KIT\\com.packrat.ultimatesports.streamDeckPlugin",
+    "package_sha256": "b1752a8c878e6f03eb38a177cfc1c97f12f827299c7f1074f4d15deb8b8940ac",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.ultimatesports.myteams;com.packrat.ultimatesports.score;com.packrat.ultimatesports.standings;com.packrat.ultimatesports.scoreboard;com.packrat.ultimatesports.event;com.packrat.ultimatesports.card;com.packrat.ultimatesports.rankings;com.packrat.ultimatesports.dial"
+  },
+  {
+    "name": "Ultimate Sports Tracker",
+    "uuid": "com.packrat.ultimatesportstracker",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\sports\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\widgets\\_marketing\\sports\\SHIP_KIT\\ultimate-sports-tracker.icuewidget",
+    "package_sha256": "297637ad478052c58753162a3781b7efc3c1285495fb9b2d7f0a498745c26449",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": ""
+  },
+  {
+    "name": "Valorant Tracker",
+    "uuid": "com.packrat.valorant-tracker",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\dev\\builds\\valorant-tracker\\3b3347f356f2-20260831023128257\\com.packrat.valorant-tracker.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\valorant-tracker\\valorant-tracker.streamDeckPlugin",
+    "package_sha256": "515d73e25292502379a03c2c8c447935fc887f8add9572048216e8a2fc478006",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.valorant-tracker.rank;com.packrat.valorant-tracker.rr;com.packrat.valorant-tracker.session-rr;com.packrat.valorant-tracker.session-record;com.packrat.valorant-tracker.last-match;com.packrat.valorant-tracker.headshot;com.packrat.valorant-tracker.top-agent;com.packrat.valorant-tracker.agent-kd;com.packrat.valorant-tracker.agent-win-rate;com.packrat.valorant-tracker.damage;com.packrat.valorant-tracker.top-map;com.packrat.valorant-tracker.map-win-rate;com.packrat.valorant-tracker.acs;com.packrat.valorant-tracker.recent-match;com.packrat.valorant-tracker.act-countdown;com.packrat.valorant-tracker.spike-timer;com.packrat.valorant-tracker.log-win;com.packrat.valorant-tracker.log-loss;com.packrat.valorant-tracker.session-reset;com.packrat.valorant-tracker.refresh"
+  },
+  {
+    "name": "PackRat Voice Deck for Discord",
+    "uuid": "com.packrat.voice-deck",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\plugins\\voice-deck\\com.packrat.voice-deck.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\voice-deck\\voice-deck.streamDeckPlugin",
+    "package_sha256": "bcadabc0a936131621bbd5f5f414f32d873853f10cac2f18ce2ce4f0de6e472f",
+    "github_versions": [
+      "1.0.0.0"
+    ],
+    "github_latest": "1.0.0.0",
+    "state": "same-version",
+    "action_uuids": "com.packrat.voice-deck.status;com.packrat.voice-deck.mute;com.packrat.voice-deck.deafen;com.packrat.voice-deck.mute-deafen;com.packrat.voice-deck.channel;com.packrat.voice-deck.member;com.packrat.voice-deck.member-slot;com.packrat.voice-deck.spotlight;com.packrat.voice-deck.activity;com.packrat.voice-deck.member-count;com.packrat.voice-deck.connection;com.packrat.voice-deck.navigator"
+  },
+  {
+    "name": "Weather Timeline Lite",
+    "uuid": "com.packrat.weathertimeline",
+    "source_version": "1.0.1",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\weather-timeline\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\weather-timeline\\weather-timeline.icuewidget",
+    "package_sha256": "10bdf21dada011d374caa163c7aefbc3b4354f309ccbae89a4efb18dc4ac94f2",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "github_latest": "1.0.1",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Weather Timeline Pro",
+    "uuid": "com.packrat.weathertimelinepro",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\weather-timeline-pro\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\weather-timeline-pro\\weather-timeline-pro.icuewidget",
+    "package_sha256": "75bb6718a88810d4b2cd309b82fd23bb0ed2b46671542d206ff1f4342014e26a",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Window Manager for XENEON",
+    "uuid": "com.packrat.window-manager-xeneon",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\window-manager-xeneon\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\window-manager-xeneon\\window-manager-xeneon.icuewidget",
+    "package_sha256": "2f5f75207a5112053d5ae787bff700a6cb567d2b8df031133b59fae0077f1cd8",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Window Manager Lite",
+    "uuid": "com.packrat.windowmanager",
+    "source_version": "1.0.0.2",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\window-manager\\com.packrat.windowmanager.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.4",
+    "package_path": "C:\\Users\\Key\\Downloads\\Window-Manager-Lite-1.0.0.4.streamDeckPlugin",
+    "package_sha256": "11a7316b4e58c3dc86770457d514101c256a629b809d9a0b4ae30102e8264c2b",
+    "github_versions": [
+      "1.0.0.3",
+      "1.0.0.4"
+    ],
+    "github_latest": "1.0.0.4",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.windowmanager.snap;com.packrat.windowmanager.cycle"
+  },
+  {
+    "name": "Window Manager Pro",
+    "uuid": "com.packrat.windowmanagerpro",
+    "source_version": "1.2.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\dev\\builds\\window-manager-pro\\ff52fda649a2-20260916001531728\\streamdeck\\window-manager-pro\\1.2.0.0\\source\\com.packrat.windowmanagerpro.sdPlugin\\manifest.json",
+    "package_version": "1.3.0.0",
+    "package_path": "C:\\Users\\Key\\Downloads\\com.packrat.windowmanagerpro-v1.3.0.0.streamDeckPlugin",
+    "package_sha256": "1aa7e954ed7e5a85d10c3db369a0bcc4bc211658aeab25fe2b8fa725ed25fe8e",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.windowmanagerpro.layout;com.packrat.windowmanagerpro.snap;com.packrat.windowmanagerpro.cycle;com.packrat.windowmanagerpro.nudge"
+  },
+  {
+    "name": "",
+    "uuid": "com.packrat.windows-settings-manager-lite",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "unresolved",
+    "action_uuids": ""
+  },
+  {
+    "name": "Windows Settings Manager Lite",
+    "uuid": "com.packrat.windows-settings-manager-lite2",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "0.1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\windows-settings-manager-lite\\windows-settings-manager-lite.streamDeckPlugin",
+    "package_sha256": "f307a459f71a0a375eed7b2c3e345b84795e1c0b4e096c97142d6d6bbf6dfeb1",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.windows-settings-manager-lite2.lock;com.packrat.windows-settings-manager-lite2.sleep;com.packrat.windows-settings-manager-lite2.power;com.packrat.windows-settings-manager-lite2.awake;com.packrat.windows-settings-manager-lite2.desktop-previous;com.packrat.windows-settings-manager-lite2.desktop-next"
+  },
+  {
+    "name": "",
+    "uuid": "com.packrat.windows-settings-manager-pro",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "unresolved",
+    "action_uuids": ""
+  },
+  {
+    "name": "Windows Settings Manager Pro",
+    "uuid": "com.packrat.windows-settings-manager-pro2",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "0.1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\windows-settings-manager-pro\\windows-settings-manager-pro.streamDeckPlugin",
+    "package_sha256": "42dcb63bd0ac2f6f606a7f4c3733c15bfcfc4e27d0b602719d04c8170dfe288b",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.windows-settings-manager-pro2.lock;com.packrat.windows-settings-manager-pro2.sleep;com.packrat.windows-settings-manager-pro2.hibernate;com.packrat.windows-settings-manager-pro2.restart;com.packrat.windows-settings-manager-pro2.shutdown;com.packrat.windows-settings-manager-pro2.wifi;com.packrat.windows-settings-manager-pro2.bluetooth;com.packrat.windows-settings-manager-pro2.power;com.packrat.windows-settings-manager-pro2.awake;com.packrat.windows-settings-manager-pro2.theme;com.packrat.windows-settings-manager-pro2.desktop-previous;com.packrat.windows-settings-manager-pro2.desktop-next;com.packrat.windows-settings-manager-pro2.desktop-new;com.packrat.windows-settings-manager-pro2.desktop-close;com.packrat.windows-settings-manager-pro2.desktop-current;com.packrat.windows-settings-manager-pro2.status;com.packrat.windows-settings-manager-pro2.hdr;com.packrat.windows-settings-manager-pro2.display;com.packrat.windows-settings-manager-pro2.timeout;com.packrat.windows-settings-manager-pro2.apply-mode;com.packrat.windows-settings-manager-pro2.cycle-mode;com.packrat.windows-settings-manager-pro2.current-mode;com.packrat.windows-settings-manager-pro2.save-mode;com.packrat.windows-settings-manager-pro2.profile-page"
+  },
+  {
+    "name": "Wireless Device Manager",
+    "uuid": "com.packrat.wireless-device-manager",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "0.1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\wireless-device-manager\\wireless-device-manager.streamDeckPlugin",
+    "package_sha256": "a94d4e194aaed8d8e52bfe9c4797f7c578edc4b2bcbd2871d771b4746114cb0b",
+    "github_versions": [
+      "0.1.0.0"
+    ],
+    "github_latest": "0.1.0.0",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.wireless-device-manager.device"
+  },
+  {
+    "name": "Wireless Device Manager Pro",
+    "uuid": "com.packrat.wireless-device-manager-pro",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "0.1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\wireless-device-manager-pro\\wireless-device-manager-pro.streamDeckPlugin",
+    "package_sha256": "d4be5570beaf8b23637ead6422a5f6e71ebe72f715cdde7c59f2fde880a6194f",
+    "github_versions": [
+      "0.1.0.0"
+    ],
+    "github_latest": "0.1.0.0",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packrat.wireless-device-manager-pro.device;com.packrat.wireless-device-manager-pro.dashboard;com.packrat.wireless-device-manager-pro.cycle"
+  },
+  {
+    "name": "Workflow Automation Lite",
+    "uuid": "com.packrat.workflow",
+    "source_version": "1.0.0.2",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\workflow-automation\\com.packrat.workflow.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.2",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\workflow-automation\\SHIP_KIT\\com.packrat.workflow.streamDeckPlugin",
+    "package_sha256": "6535c9ee80632bcca99fbe510f48962d18e6d15a6f9d5e58a9c300df272300af",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.workflow.run"
+  },
+  {
+    "name": "Workflow Automation Pro",
+    "uuid": "com.packrat.workflowpro",
+    "source_version": "1.0.0.1",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\workflow-automation-pro\\com.packrat.workflowpro.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.1",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\workflow-automation-pro\\com.packrat.workflowpro.streamDeckPlugin",
+    "package_sha256": "98214cce169e02e3e43b34397b5034f9f4a482ea8a82b7e37b04e7c1a1230288",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.workflowpro.run"
+  },
+  {
+    "name": "Work Session Tracker Lite",
+    "uuid": "com.packrat.worksessiontracker",
+    "source_version": "1.0.2",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\work-session-tracker\\manifest.json",
+    "package_version": "1.0.2",
+    "package_path": "C:\\Users\\Key\\Downloads\\Work-Session-Tracker-Lite-1.0.2.icuewidget",
+    "package_sha256": "48fd50f46c447ef9f036dde466958986e2f2dc41efb699b0d95a654713e13a0a",
+    "github_versions": [
+      "1.0.0",
+      "1.0.1",
+      "1.0.2"
+    ],
+    "github_latest": "1.0.2",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Work Session Tracker Pro",
+    "uuid": "com.packrat.worksessiontrackerpro",
+    "source_version": "1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\work-session-tracker-pro\\manifest.json",
+    "package_version": "1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\work-session-tracker-pro\\work-session-tracker-pro.icuewidget",
+    "package_sha256": "ee3c5001391a64cad5827c8a02c7037cd20c48d087e8dc20ee5795c100479c46",
+    "github_versions": [
+      "1.0.0"
+    ],
+    "github_latest": "1.0.0",
+    "state": "same-version",
+    "action_uuids": ""
+  },
+  {
+    "name": "Workspace Manager Pro",
+    "uuid": "com.packrat.workspacemanagerpro",
+    "source_version": "0.1.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\dev\\builds\\workspace-manager-pro\\dfc05adab8a2-20260914214354863\\streamdeck\\workspace-manager-pro\\0.1.0.0\\source\\com.packrat.workspacemanagerpro.sdPlugin\\manifest.json",
+    "package_version": "",
+    "package_path": "",
+    "package_sha256": "",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.packrat.workspacemanagerpro.workspace"
+  },
+  {
+    "name": "XENEON EDGE Ultimate",
+    "uuid": "com.packrat.xeneon-edge-ultimate",
+    "source_version": "1.0.1",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.worktrees\\packrat-source-audit-20260920\\widgets\\xeneon-edge-ultimate\\manifest.json",
+    "package_version": "1.0.2",
+    "package_path": "C:\\Users\\Key\\Downloads\\XENEON-EDGE-Ultimate-1.0.2-main.icuewidget",
+    "package_sha256": "0922c7c8a3d4dcf2942b6e19a371acb75019c28ab61bb32bfb9b8f506d3326fa",
+    "github_versions": [
+      "0.9.0",
+      "1.0.0",
+      "1.0.1",
+      "1.0.2"
+    ],
+    "github_latest": "1.0.2",
+    "state": "package-newer-than-source",
+    "action_uuids": ""
+  },
+  {
+    "name": "RatDeck",
+    "uuid": "com.packratpet.streamdeck",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.1.0",
+    "package_path": "C:\\Users\\Key\\Desktop\\RatDeck.streamDeckPlugin",
+    "package_sha256": "f80622ca988254fc6599edfe57c0f3fff1b6e7bd1185cba7dcb259f67be8c1ce",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packratpet.streamdeck.ratpet;com.packratpet.streamdeck.ratdial"
+  },
+  {
+    "name": "RatDeck DEV",
+    "uuid": "com.packratpet.streamdeck.dev",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "1.0.1.0",
+    "package_path": "C:\\Users\\Key\\Desktop\\com.packratpet.streamdeck.dev.streamDeckPlugin",
+    "package_sha256": "6be525fae3b655c00a02f3d16f3e64f4f71677f8099a634def53409dfb53596e",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.packratpet.streamdeck.dev.ratpet;com.packratpet.streamdeck.dev.ratdial"
+  },
+  {
+    "name": "ChatGPT Usage",
+    "uuid": "com.ratpack.chatgpt-usage",
+    "source_version": "0.1.6.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.chatgpt-usage.sdPlugin\\manifest.json",
+    "package_version": "0.1.6.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.chatgpt-usage.streamDeckPlugin",
+    "package_sha256": "79b2200bf5ea29e3bf39cbcf676a1989c36466320d03248a5c8843356cc37ab9",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.chatgpt-usage.monitor"
+  },
+  {
+    "name": "ChatGPT Usage (Local)",
+    "uuid": "com.ratpack.chatgpt-usage.local",
+    "source_version": "0.1.5.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.chatgpt-usage.local.sdPlugin\\manifest.json",
+    "package_version": "0.1.5.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.chatgpt-usage.local.streamDeckPlugin",
+    "package_sha256": "92f4b15e3c2b7dd9c1e4b10802b72a97b2a4a6db5f06718cfbee36254a0f3090",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.chatgpt-usage.local.monitor"
+  },
+  {
+    "name": "Claude Usage",
+    "uuid": "com.ratpack.claude-usage",
+    "source_version": "0.1.3.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.claude-usage.sdPlugin\\manifest.json",
+    "package_version": "0.1.3.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.claude-usage.streamDeckPlugin",
+    "package_sha256": "2b0374fb7407c79533eca3704c10928d79158b9215834dae55c530df9e543513",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.claude-usage.monitor"
+  },
+  {
+    "name": "Claude Usage (Dev)",
+    "uuid": "com.ratpack.claude-usage.dev",
+    "source_version": "",
+    "source_path": "",
+    "package_version": "0.1.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.claude-usage.dev.streamDeckPlugin",
+    "package_sha256": "a14a294702e3efe0e596a67aeefda92dfa0676126dc33d2b2b3b76db8c0fb001",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "package-newer-than-source",
+    "action_uuids": "com.ratpack.claude-usage.dev.monitor"
+  },
+  {
+    "name": "Claude Usage (Local)",
+    "uuid": "com.ratpack.claude-usage.local",
+    "source_version": "0.1.3.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.claude-usage.local.sdPlugin\\manifest.json",
+    "package_version": "0.1.3.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.claude-usage.local.streamDeckPlugin",
+    "package_sha256": "096c727a539e9e97e2f8efe71fc85ead2aa5e5fb908c805ad871714c8ac5ef32",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.claude-usage.local.monitor"
+  },
+  {
+    "name": "Codex Usage",
+    "uuid": "com.ratpack.codex-usage",
+    "source_version": "0.1.3.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.codex-usage.sdPlugin\\manifest.json",
+    "package_version": "0.1.3.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\UPLOAD_READY\\customer-fixes-2026-08-31\\04-Codex-Usage-v0.1.3.0.streamDeckPlugin",
+    "package_sha256": "9684aafc91937482bd80abc9074d620f40965d5ad85d620dfe3cc04c7b9c12be",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.codex-usage.monitor"
+  },
+  {
+    "name": "Codex Usage (Local)",
+    "uuid": "com.ratpack.codex-usage.local",
+    "source_version": "0.1.3.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.codex-usage.local.sdPlugin\\manifest.json",
+    "package_version": "0.1.3.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.codex-usage.local.streamDeckPlugin",
+    "package_sha256": "6b93fae2d4f93a8c27b6c8fe2da96e2f5a3f4ecc819868829b06f0d8332b51fb",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.codex-usage.local.monitor"
+  },
+  {
+    "name": "Copilot Usage",
+    "uuid": "com.ratpack.copilot-usage",
+    "source_version": "0.2.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.copilot-usage.sdPlugin\\manifest.json",
+    "package_version": "0.2.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.copilot-usage.streamDeckPlugin",
+    "package_sha256": "8f86c483255928aea34a83f9ae7b562cb13bd515489f871a28b8277972e5a0eb",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.copilot-usage.monitor"
+  },
+  {
+    "name": "CS2 Live Stats",
+    "uuid": "com.ratpack.cs2reactivedeck",
+    "source_version": "1.0.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\cs2-reactive-deck\\com.ratpack.cs2reactivedeck.sdPlugin\\manifest.json",
+    "package_version": "1.0.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\distribution\\cs2-reactive-deck.streamDeckPlugin",
+    "package_sha256": "2a0381579d92c7d22369f44090144456d8924f4e1177c948477f1d5fce423e1a",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.cs2reactivedeck.health;com.ratpack.cs2reactivedeck.ammo;com.ratpack.cs2reactivedeck.killfeed;com.ratpack.cs2reactivedeck.phase;com.ratpack.cs2reactivedeck.money;com.ratpack.cs2reactivedeck.kda;com.ratpack.cs2reactivedeck.score"
+  },
+  {
+    "name": "Cursor Usage",
+    "uuid": "com.ratpack.cursor-usage",
+    "source_version": "0.1.2.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\manifest.json",
+    "package_version": "0.1.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.cursor-usage.streamDeckPlugin",
+    "package_sha256": "76ca7acfc10146ff23ea9444cdca76cc462004073ff736803b6d6d9836df792b",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.cursor-usage.monitor"
+  },
+  {
+    "name": "Dota 2 Live Stats",
+    "uuid": "com.ratpack.dota2reactivedeck",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\dota2-reactive-deck\\com.ratpack.dota2reactivedeck.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\release\\dota2-live-stats\\dota2-live-stats.streamDeckPlugin",
+    "package_sha256": "f3417e66de1a3fc36feb41ea122593ef21642c58c1535c121033fca964a458cc",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.dota2reactivedeck.hpmana;com.ratpack.dota2reactivedeck.gold;com.ratpack.dota2reactivedeck.roshan;com.ratpack.dota2reactivedeck.kda;com.ratpack.dota2reactivedeck.respawn;com.ratpack.dota2reactivedeck.matchtimer;com.ratpack.dota2reactivedeck.networth"
+  },
+  {
+    "name": "Event Countdown",
+    "uuid": "com.ratpack.eventcountdown",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\event-countdown\\com.ratpack.eventcountdown.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\distribution\\event-countdown.streamDeckPlugin",
+    "package_sha256": "044dc38f0a0620795dcbfcccac44117f00c047093d10702b60acf083dd7451bb",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.eventcountdown.countdown"
+  },
+  {
+    "name": "Gemini Usage",
+    "uuid": "com.ratpack.gemini-usage",
+    "source_version": "0.1.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.gemini-usage.sdPlugin\\manifest.json",
+    "package_version": "0.1.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.gemini-usage.streamDeckPlugin",
+    "package_sha256": "86ff59423c3f362ef5a7c807157a31a3151f514b767a1c8f49dcd16c2e485fd3",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.gemini-usage.monitor"
+  },
+  {
+    "name": "Grok Usage",
+    "uuid": "com.ratpack.grok-usage",
+    "source_version": "0.1.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.grok-usage.sdPlugin\\manifest.json",
+    "package_version": "0.1.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.grok-usage.streamDeckPlugin",
+    "package_sha256": "a75b569bbdd3fc1a69ee90debc8c9ff3c4e8ebff524fb060ec9780ee0f7385f2",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.grok-usage.monitor"
+  },
+  {
+    "name": "Kick Stats",
+    "uuid": "com.ratpack.kick",
+    "source_version": "1.0.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-kick\\com.ratpack.kick.sdPlugin\\manifest.json",
+    "package_version": "1.0.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-kick\\dist\\com.ratpack.kick.streamDeckPlugin",
+    "package_sha256": "2200c4110f4afde32a40721db9d159530183f0e1376d14c908583cd54c4f850c",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.kick.stats"
+  },
+  {
+    "name": "Creator Stats",
+    "uuid": "com.ratpack.livestats",
+    "source_version": "1.0.6.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-livestats\\com.ratpack.livestats.sdPlugin\\manifest.json",
+    "package_version": "1.0.6.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-livestats\\dist\\com.ratpack.livestats.streamDeckPlugin",
+    "package_sha256": "59683416b47fdbe6d628e22f7ae1c6b71ffe21c8ddabe78d4b12452fc883aa10",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.livestats.stats"
+  },
+  {
+    "name": "LoL Live Stats",
+    "uuid": "com.ratpack.lollivecompanion",
+    "source_version": "1.0.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\lol-live-companion\\com.ratpack.lollivecompanion.sdPlugin\\manifest.json",
+    "package_version": "1.0.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\distribution\\lol-live-companion.streamDeckPlugin",
+    "package_sha256": "95fbe34959b9375812e0d563b121108fd69374506458c51a208f6c62951e9627",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.lollivecompanion.gold;com.ratpack.lollivecompanion.health;com.ratpack.lollivecompanion.afford;com.ratpack.lollivecompanion.kda;com.ratpack.lollivecompanion.level;com.ratpack.lollivecompanion.cs"
+  },
+  {
+    "name": "Stocks & Crypto Market Tracker",
+    "uuid": "com.ratpack.marketcommandcenter",
+    "source_version": "0.1.1.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\stock-checker\\com.ratpack.marketcommandcenter.sdPlugin\\manifest.json",
+    "package_version": "0.1.1.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\UPLOAD_READY\\starter-dashboard-updates-2026-08-30\\03-Market-Command-Center-v0.1.1.streamDeckPlugin",
+    "package_sha256": "f0203808f92e850f1479197cc7ddf2982c22a6cf5742f9bd306f9732c6d383e8",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.marketcommandcenter.ticker;com.ratpack.marketcommandcenter.crypto;com.ratpack.marketcommandcenter.clock;com.ratpack.marketcommandcenter.heatmap;com.ratpack.marketcommandcenter.feargreed;com.ratpack.marketcommandcenter.earnings"
+  },
+  {
+    "name": "NASA Space Live Tracker",
+    "uuid": "com.ratpack.nasaspacetracker",
+    "source_version": "1.0.0.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\nasa-space-tracker\\com.ratpack.nasaspacetracker.sdPlugin\\manifest.json",
+    "package_version": "1.0.0.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker\\distribution\\nasa-space-tracker.streamDeckPlugin",
+    "package_sha256": "ffc45e95006c6920f7a1158d493c5b122dac8d3b1362514185b5467fcd626832",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.nasaspacetracker.iss;com.ratpack.nasaspacetracker.launch;com.ratpack.nasaspacetracker.apod"
+  },
+  {
+    "name": "Perplexity Usage",
+    "uuid": "com.ratpack.perplexity-usage",
+    "source_version": "0.1.2.0",
+    "source_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\com.ratpack.perplexity-usage.sdPlugin\\manifest.json",
+    "package_version": "0.1.2.0",
+    "package_path": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.perplexity-usage.streamDeckPlugin",
+    "package_sha256": "535b965435679747b4eea8122c1314f2eb6c7cf60588425433ec952f871458f6",
+    "github_versions": [],
+    "github_latest": "",
+    "state": "local-source-newer-or-missing-in-github",
+    "action_uuids": "com.ratpack.perplexity-usage.monitor"
+  }
+]

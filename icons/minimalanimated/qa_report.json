@@ -1,0 +1,28 @@
+{
+  "slug": "minimalanimated",
+  "errors": 0,
+  "warnings": 4,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'Gallery image 3-brands.png shows third-party marks. The cover carries none, which is the house rule, but a reviewer may still object to the gallery.' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'The console media step asks whether the product is animated. This one IS, unlike every previous PackRat icon pack, so the answer is YES.' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "assets.video",
+      "message": "no preview.mp4 (video listings convert better; required for some product types)"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.release",
+      "message": "description.txt has no release-notes divider block"
+    }
+  ]
+}

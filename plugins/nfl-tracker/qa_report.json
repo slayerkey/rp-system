@@ -1,0 +1,23 @@
+{
+  "slug": "nfl-tracker",
+  "errors": 0,
+  "warnings": 3,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:nfl-team-marks' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'api-risk:unofficial-espn' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'seasonal-demand:nfl-season' is open; resolve before submission"
+    }
+  ]
+}

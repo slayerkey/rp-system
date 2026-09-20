@@ -1,0 +1,28 @@
+{
+  "slug": "nascar-tracker",
+  "errors": 0,
+  "warnings": 4,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:nascar-marks-liveries-sponsor-logos' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'publicity-rights:driver-likeness' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'api-risk:unofficial-nascar-feed-no-affordable-commercial-tier' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'demand-risk:fanbase-demographic-skew' is open; resolve before submission"
+    }
+  ]
+}

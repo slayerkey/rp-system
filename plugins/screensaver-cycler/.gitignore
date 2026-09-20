@@ -1,0 +1,4 @@
+node_modules/
+com.packrat.screensavercycler.sdPlugin/logs/
+com.packrat.screensavercycler.sdPlugin/bin/
+*.streamDeckPlugin

@@ -1,0 +1,5 @@
+node_modules/
+com.packrat.clipboard.sdPlugin/logs/
+com.packrat.clipboard.sdPlugin/bin/
+com.packrat.clipboard.sdPlugin/node_modules/
+*.streamDeckPlugin

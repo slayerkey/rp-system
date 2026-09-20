@@ -1,0 +1,50 @@
+{
+ "_note": "Synthetic in-progress fixture, derived from nba-scoreboard-post.json by rewriting status to STATUS_IN_PROGRESS. ESPN has no live NBA game during the offseason, so the in state is covered here rather than from a live capture.",
+ "events": [
+  {
+   "id": "401859966",
+   "date": "2026-06-11T00:30Z",
+   "name": "San Antonio Spurs at New York Knicks",
+   "shortName": "SA @ NY",
+   "competitions": [
+    {
+     "id": "401859966",
+     "competitors": [
+      {
+       "homeAway": "home",
+       "score": "78",
+       "team": {
+        "id": "18",
+        "abbreviation": "NY",
+        "displayName": "New York Knicks"
+       }
+      },
+      {
+       "homeAway": "away",
+       "score": "81",
+       "team": {
+        "id": "24",
+        "abbreviation": "SA",
+        "displayName": "San Antonio Spurs"
+       }
+      }
+     ]
+    }
+   ],
+   "status": {
+    "clock": 332.0,
+    "displayClock": "5:32",
+    "period": 3,
+    "type": {
+     "id": "2",
+     "name": "STATUS_IN_PROGRESS",
+     "state": "in",
+     "completed": false,
+     "description": "In Progress",
+     "detail": "5:32 - 3rd Quarter",
+     "shortDetail": "Q3 - 5:32"
+    }
+   }
+  }
+ ]
+}

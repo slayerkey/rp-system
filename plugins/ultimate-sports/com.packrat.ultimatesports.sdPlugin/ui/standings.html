@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Standings</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="standings">
+		<h2>Which team's standing?</h2>
+		<div class="row">
+			<label class="key" for="sport-filter">Sport</label>
+			<div class="field"><select id="sport-filter"><option value="">All sports</option></select></div>
+		</div>
+		<div class="row">
+			<label class="key" for="search">Search</label>
+			<div class="field"><input type="search" id="search" placeholder="Type part of a team name" /></div>
+		</div>
+		<div class="row">
+			<label class="key" for="team">Team</label>
+			<div class="field"><select id="team"></select></div>
+		</div>
+		<p class="hint">
+			Shows the seed, the record, games behind and current form. Press the key to swap between the conference
+			table and the division one. Soccer clubs show league points instead of a playoff seed.
+		</p>
+		<p class="disclaimer">Not affiliated with or endorsed by any league, team or governing body. Team names and colors identify the teams whose scores you chose to follow.</p>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

@@ -1,0 +1,4 @@
+node_modules/
+com.packrat.ultimatesports.sdPlugin/logs/
+com.packrat.ultimatesports.sdPlugin/bin/
+*.streamDeckPlugin

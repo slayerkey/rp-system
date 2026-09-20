@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Mute Mic</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-kind="mute">
+		<div class="row first">
+			<label class="key" for="device">Microphone</label>
+			<div class="field"><select id="device"></select></div>
+		</div>
+
+		<p class="hint">
+			Mutes at the Windows level, so every app sees it at once — Discord, OBS, your game. The key shows a red
+			slash while muted. Leave it on <b>Default</b> to always control whatever mic Windows is using.
+		</p>
+
+		<p id="targets" class="hint"></p>
+		<script src="mic.js"></script>
+	</body>
+</html>

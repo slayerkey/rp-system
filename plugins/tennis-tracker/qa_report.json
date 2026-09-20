@@ -1,0 +1,53 @@
+{
+  "slug": "tennis-tracker",
+  "errors": 4,
+  "warnings": 5,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:atp-wta-grand-slam-marks' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:wimbledon-color-mark' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'api-risk:unofficial-tennis-data' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'seasonal-demand:grand-slam-spikes' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "ERROR",
+      "check": "package.plugin",
+      "message": "packaged plugin missing: com.packrat.tennis-tracker.streamDeckPlugin"
+    },
+    {
+      "severity": "ERROR",
+      "check": "package.plugin",
+      "message": "no *.sdPlugin/manifest.json source tree"
+    },
+    {
+      "severity": "ERROR",
+      "check": "assets.kit",
+      "message": "marketing dir missing: C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\tennis-tracker\\marketing"
+    },
+    {
+      "severity": "ERROR",
+      "check": "copy.description",
+      "message": "marketing/description.txt missing"
+    }
+  ]
+}

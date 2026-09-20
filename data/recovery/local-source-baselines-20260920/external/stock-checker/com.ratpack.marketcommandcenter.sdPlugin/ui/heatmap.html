@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+	<title>Watchlist Heatmap Settings</title>
+	<meta charset="utf-8" />
+	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	<style>
+		.mcc-note {
+			color: #cfcfcf;
+			font-size: 11px;
+			line-height: 1.5;
+			padding: 6px 8px 0;
+		}
+	</style>
+</head>
+
+<body>
+	<sdpi-item label="Market">
+		<sdpi-select setting="market" default="stocks">
+			<option value="stocks">Stocks</option>
+			<option value="crypto">Crypto</option>
+		</sdpi-select>
+	</sdpi-item>
+	<sdpi-item label="Symbols">
+		<sdpi-textarea setting="symbols" placeholder="AAPL, MSFT, NVDA, AMZN, GOOGL, TSLA" rows="3"></sdpi-textarea>
+	</sdpi-item>
+	<sdpi-item label="Theme">
+		<sdpi-select setting="theme" default="dark">
+			<option value="dark">Dark</option>
+			<option value="minimal">Minimal</option>
+			<option value="pro">On-Stream Pro</option>
+		</sdpi-select>
+	</sdpi-item>
+	<div class="mcc-note">
+		Up to 9 symbols, separated by commas. Each tile is shaded from red to green by daily move, brightest at
+		+/-3% or more. Shares the same rate-limited connection as your other stock or crypto keys, so a big
+		watchlist here counts toward that shared budget.
+	</div>
+</body>
+
+</html>

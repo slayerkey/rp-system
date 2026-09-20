@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Radial Select</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-kind="radial">
+		<div class="dial-wrap">
+			<svg id="dial" width="180" height="180" viewBox="0 0 180 180">
+				<circle cx="90" cy="90" r="78" fill="#2d2c29" stroke="#46443f" stroke-width="1" />
+				<circle cx="90" cy="90" r="52" fill="none" stroke="#3a3936" stroke-width="1" />
+				<line x1="90" y1="90" x2="90" y2="12" stroke="#46443f" stroke-width="1" />
+				<line x1="90" y1="90" x2="90" y2="90" id="dial-line" stroke="#e8791a" stroke-width="2" />
+				<circle cx="90" cy="90" r="4" fill="#8b877f" />
+				<circle cx="90" cy="12" r="6" id="dial-handle" fill="#e8791a" stroke="#1c1b19" stroke-width="2" />
+			</svg>
+			<p class="hint center">Click a clock number for a quick preset, or drag anywhere for fine control.</p>
+		</div>
+
+		<div class="row">
+			<label class="key" for="angle">Angle</label>
+			<div class="field slider">
+				<input type="number" id="angle" min="0" max="359" step="1" class="num" />
+				<span class="unit">°</span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="key" for="distance">Distance</label>
+			<div class="field slider">
+				<input type="number" id="distance" min="0" max="100" step="1" class="num" />
+				<span class="unit">%</span>
+			</div>
+		</div>
+
+		<div class="group">
+			<div class="row" style="margin-top: 0">
+				<label class="key">Open key</label>
+				<div class="field record-inline">
+					<button id="record-open" type="button" class="record small">Set open key (optional)</button>
+					<button id="clear-open" type="button" class="link">Clear</button>
+				</div>
+			</div>
+			<p class="hint">The key that opens the wheel (e.g. R). Held while aiming, released after.</p>
+		</div>
+
+		<div class="row">
+			<label class="key" for="moveStyle">Aim by</label>
+			<div class="field">
+				<select id="moveStyle">
+					<option value="point">Moving cursor to the spot</option>
+					<option value="flick">Flicking from centre (raw-input games)</option>
+				</select>
+			</div>
+		</div>
+		<p class="hint">
+			If the wheel ignores the cursor and nothing gets selected in-game, switch to <b>Flick</b> — some games
+			read raw mouse motion and hide the pointer.
+		</p>
+
+		<label class="mod standalone"><input type="checkbox" id="confirmClick" /> Click to confirm the slot</label>
+		<label class="mod standalone"><input type="checkbox" id="returnCursor" /> Put the cursor back afterward</label>
+
+		<div id="summary" class="summary"></div>
+
+		<details>
+			<summary>Where the wheel is centred</summary>
+			<div class="row">
+				<label class="key" for="area">Screen</label>
+				<div class="field">
+					<select id="area">
+						<option value="primary">Primary monitor</option>
+						<option value="virtual">All monitors</option>
+						<option value="monitor">Pick a monitor…</option>
+					</select>
+				</div>
+			</div>
+			<div class="row" id="monitor-row">
+				<label class="key" for="monitor">Monitor</label>
+				<div class="field"><select id="monitor"></select></div>
+			</div>
+			<label class="mod standalone"><input type="checkbox" id="useCustomOrigin" /> Centre somewhere other than the middle</label>
+			<div id="origin-fields">
+				<div class="row">
+					<label class="key" for="originXPct">Origin X</label>
+					<div class="field slider"><input type="number" id="originXPct" min="0" max="100" step="1" class="num" /><span class="unit">%</span></div>
+				</div>
+				<div class="row">
+					<label class="key" for="originYPct">Origin Y</label>
+					<div class="field slider"><input type="number" id="originYPct" min="0" max="100" step="1" class="num" /><span class="unit">%</span></div>
+				</div>
+			</div>
+			<div class="row">
+				<label class="key" for="openDelayMs">Open wait</label>
+				<div class="field slider"><input type="number" id="openDelayMs" min="0" max="1000" step="10" class="num" /><span class="unit">ms</span></div>
+			</div>
+			<div class="row">
+				<label class="key" for="holdMs">Hold on slot</label>
+				<div class="field slider"><input type="number" id="holdMs" min="0" max="1000" step="10" class="num" /><span class="unit">ms</span></div>
+			</div>
+			<div class="row">
+				<label class="key" for="stepDelayMs">Step delay</label>
+				<div class="field slider"><input type="number" id="stepDelayMs" min="0" max="500" step="5" class="num" /><span class="unit">ms</span></div>
+			</div>
+			<p class="hint">
+				Raise <b>Open wait</b> so the wheel has time to appear, and <b>Hold on slot</b> so the game
+				registers the hover before it commits.
+			</p>
+		</details>
+
+		<script src="phase3.js"></script>
+	</body>
+</html>

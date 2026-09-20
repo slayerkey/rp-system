@@ -1,0 +1,23 @@
+{
+  "slug": "fortnite",
+  "errors": 0,
+  "warnings": 3,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'game-ip:epic' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'patch-churn:seasonal-meta' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.blocklist",
+      "message": "README.md contains banned token 'free' (the word 'free' never appears in a paid listing) [internal doc]"
+    }
+  ]
+}

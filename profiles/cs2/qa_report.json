@@ -1,0 +1,33 @@
+{
+  "slug": "cs2",
+  "errors": 0,
+  "warnings": 5,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'hardware-unverified:not-install-tested' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'monetization:unproven-no-live-validation' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'device-exclusive:vsd-only-no-mk2-xl-variant' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'content-scope:radio-binds-cut-conflicting-sources' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.devices",
+      "message": "no SHIP_KIT upload zip; device tags (NIGHTSWORD v2 WL SD, SCIMITAR ELITE) cannot be verified"
+    }
+  ]
+}

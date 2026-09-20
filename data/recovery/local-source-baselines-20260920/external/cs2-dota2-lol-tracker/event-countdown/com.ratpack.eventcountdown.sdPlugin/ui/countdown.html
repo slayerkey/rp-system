@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Countdown</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+		<style>
+			.hint { color: #b6a9cc; font-size: 11px; padding: 2px 6px 10px; line-height: 1.45; }
+			.sec { color: #c79bff; font-size: 11px; font-weight: 700; padding: 10px 6px 2px; letter-spacing: 1px; }
+		</style>
+	</head>
+	<body>
+		<sdpi-item label="Occasion">
+			<sdpi-select setting="preset" default="christmas">
+				<option value="christmas">🎄 Christmas (Dec 25)</option>
+				<option value="newyear">🎉 New Year (Jan 1)</option>
+				<option value="nye">🥂 New Year's Eve (Dec 31)</option>
+				<option value="valentines">❤️ Valentine's Day (Feb 14)</option>
+				<option value="halloween">🎃 Halloween (Oct 31)</option>
+				<option value="july4">🎆 July 4th</option>
+				<option value="thanksgiving">🦃 Thanksgiving (US)</option>
+				<option value="mothersday">💐 Mother's Day (US)</option>
+				<option value="fathersday">👔 Father's Day (US)</option>
+				<option value="birthday">🎂 Birthday</option>
+				<option value="custom">📅 Custom date…</option>
+			</sdpi-select>
+		</sdpi-item>
+		<div class="hint">Holidays roll to the next occurrence automatically.</div>
+
+		<sdpi-item label="Label (optional)">
+			<sdpi-textfield setting="eventName" placeholder="defaults to the occasion name" maxlength="12"></sdpi-textfield>
+		</sdpi-item>
+
+		<sdpi-item label="Show">
+			<sdpi-select setting="format" default="d">
+				<option value="d">Days only (default) — big day count</option>
+				<option value="dh">Days + hours — e.g. 12d 5h</option>
+				<option value="dhm">Days + hours + minutes — e.g. 12d 5h 30m</option>
+			</sdpi-select>
+		</sdpi-item>
+
+		<div class="sec">ONLY FOR “🎂 BIRTHDAY”</div>
+		<sdpi-item label="Birthday">
+			<sdpi-textfield setting="birthday" placeholder="MM/DD  (e.g. 07/04)"></sdpi-textfield>
+		</sdpi-item>
+		<div class="hint">Type the month and day as <b>MM/DD</b> — for example <b>03/21</b> for March 21st. The year is automatic.</div>
+
+		<div class="sec">ONLY FOR “📅 CUSTOM DATE”</div>
+		<sdpi-item label="Date">
+			<sdpi-textfield setting="dateStr" placeholder="MM/DD/YYYY  (e.g. 12/31/2026)"></sdpi-textfield>
+		</sdpi-item>
+		<sdpi-item label="Time (optional)">
+			<sdpi-textfield setting="timeStr" placeholder="9:00 PM  (blank = midnight)"></sdpi-textfield>
+		</sdpi-item>
+		<div class="hint">
+			Date format: <b>MM/DD/YYYY</b> (e.g. <b>12/31/2026</b>). Time is optional —
+			use <b>9:00 PM</b> or 24-hour <b>21:00</b>. Leave time blank to count to midnight.
+		</div>
+	</body>
+</html>

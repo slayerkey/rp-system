@@ -1,0 +1,4 @@
+node_modules/
+com.packrat.nascar-tracker.sdPlugin/logs/
+com.packrat.nascar-tracker.sdPlugin/bin/
+*.streamDeckPlugin

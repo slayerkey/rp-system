@@ -1,0 +1,5 @@
+node_modules/
+com.packrat.workflow.sdPlugin/logs/
+com.packrat.workflow.sdPlugin/bin/
+com.packrat.workflow.sdPlugin/node_modules/
+*.streamDeckPlugin

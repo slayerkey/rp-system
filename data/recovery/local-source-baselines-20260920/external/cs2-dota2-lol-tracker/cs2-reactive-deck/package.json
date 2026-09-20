@@ -1,0 +1,29 @@
+{
+	"name": "cs2-reactive-deck",
+	"version": "1.0.1",
+	"description": "Ratpack CS2 Reactive Deck — Stream Deck buttons that react live to Counter-Strike 2 via Game State Integration.",
+	"author": "Ratpack",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build:profiles": "node scripts/build-profiles.mjs",
+		"build": "npm run build:profiles && rollup -c",
+		"test": "node --test --test-isolation=none tests/profiles.test.mjs",
+		"watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.ratpack.cs2reactivedeck\""
+	},
+	"devDependencies": {
+		"@elgato/cli": "^1.7.4",
+		"@rollup/plugin-commonjs": "^29.0.2",
+		"@rollup/plugin-node-resolve": "^15.2.2",
+		"@rollup/plugin-terser": "^1.0.0",
+		"@rollup/plugin-typescript": "^12.1.0",
+		"@tsconfig/node20": "^20.1.2",
+		"@types/node": "~24.1.0",
+		"rollup": "^4.0.2",
+		"tslib": "^2.6.2",
+		"typescript": "^5.2.2"
+	},
+	"dependencies": {
+		"@elgato/streamdeck": "^2.1.0"
+	}
+}

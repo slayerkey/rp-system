@@ -1,0 +1,43 @@
+{
+  "slug": "hwinfo",
+  "errors": 3,
+  "warnings": 4,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'competition:incumbent-holds-identical-feature-set-unpublished' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'platform:hwinfo-free-tier-12h-shared-memory-limit' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'license:gpl-adjacent-clean-room-required' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "ERROR",
+      "check": "package.plugin",
+      "message": "no *.sdPlugin/manifest.json source tree"
+    },
+    {
+      "severity": "ERROR",
+      "check": "assets.kit",
+      "message": "marketing dir missing: C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\hwinfo\\marketing"
+    },
+    {
+      "severity": "ERROR",
+      "check": "copy.description",
+      "message": "marketing/description.txt missing"
+    }
+  ]
+}

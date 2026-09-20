@@ -1,0 +1,85 @@
+:root {
+	--charcoal: #1c1b19;
+	--panel: #2d2c29;
+	--accent: #2be86a;
+	--text: #d8d4cc;
+	--text-dim: #8b877f;
+	--border: #46443f;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 14px;
+	background: var(--charcoal);
+	color: var(--text);
+	font-family: "Segoe UI", system-ui, sans-serif;
+	font-size: 12px;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+h2 {
+	margin: 0 0 8px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 10px;
+}
+
+.row > label {
+	flex: 0 0 74px;
+	text-align: right;
+	color: var(--text-dim);
+	font-size: 11px;
+}
+
+.field {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+select,
+input {
+	width: 100%;
+	padding: 5px 6px;
+	background: var(--panel);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	font: inherit;
+}
+
+select:focus,
+input:focus {
+	outline: none;
+	border-color: var(--accent);
+}
+
+.hint,
+.status,
+.disclaimer {
+	margin: 8px 0 0;
+	color: var(--text-dim);
+	font-size: 11px;
+	line-height: 1.5;
+}
+
+.status {
+	color: var(--accent);
+}
+
+.disclaimer {
+	margin-top: 14px;
+	padding-top: 9px;
+	border-top: 1px solid var(--border);
+	font-size: 10px;
+}

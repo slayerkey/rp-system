@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+	<title>Fear &amp; Greed Gauge Settings</title>
+	<meta charset="utf-8" />
+	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	<style>
+		.mcc-note {
+			color: #cfcfcf;
+			font-size: 11px;
+			line-height: 1.5;
+			padding: 6px 8px 0;
+		}
+	</style>
+</head>
+
+<body>
+	<sdpi-item label="Theme">
+		<sdpi-select setting="theme" default="dark">
+			<option value="dark">Dark</option>
+			<option value="minimal">Minimal</option>
+			<option value="pro">On-Stream Pro</option>
+		</sdpi-select>
+	</sdpi-item>
+	<div class="mcc-note">
+		The crypto market's Fear &amp; Greed Index (0 = Extreme Fear, 100 = Extreme Greed), shown as a live gauge.
+		No API key needed. Updates roughly once a day. On a Stream Deck+, this key's dial shows the same reading.
+	</div>
+</body>
+
+</html>

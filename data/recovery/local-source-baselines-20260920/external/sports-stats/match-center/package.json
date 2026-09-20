@@ -1,0 +1,20 @@
+{
+  "name": "football-team-tracker-streamdeck",
+  "version": "1.0.0",
+  "description": "Live football scores, league table, lineups, top scorers and match stats on your Stream Deck",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "pack": "npx streamdeck pack com.matchcenter.streamdeck.sdPlugin",
+    "validate": "npx streamdeck validate com.matchcenter.streamdeck.sdPlugin"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^2.1.0",
+    "@napi-rs/canvas": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Team Score</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="score">
+		<h2>Which team is this key watching?</h2>
+		<div class="row">
+			<label class="key" for="team">Team</label>
+			<div class="field"><select id="team"></select></div>
+		</div>
+		<div class="row">
+			<label class="key" for="press">On press</label>
+			<div class="field">
+				<select id="press">
+					<option value="refresh">Refresh now</option>
+					<option value="open">Open the game page</option>
+				</select>
+			</div>
+		</div>
+		<p class="hint">
+			The key shows the live score while the game is on, and the countdown to the next matchup when it is not. It
+			updates on its own. A green frame means your team just scored or the game tipped off.
+		</p>
+		<p class="hint">An amber bar along the bottom means the score could not be refreshed, so you are seeing the last one it got, with its age in the corner.</p>
+
+		<p class="disclaimer">Not affiliated with or endorsed by the NHL or any team. Team names and colors identify the teams whose scores you chose to follow.</p>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

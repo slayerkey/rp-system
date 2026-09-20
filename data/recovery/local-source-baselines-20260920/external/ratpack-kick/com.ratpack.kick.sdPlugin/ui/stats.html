@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<style>
+		:root { --kick: #53FC18; }
+		body { font-family: -apple-system, "Segoe UI", sans-serif; background: #0a0f0a; color: #dfdfdf; margin: 0; padding: 10px 12px 20px; font-size: 13px; }
+		h3 { font-size: 13px; font-weight: 700; color: #fff; margin: 14px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #1a2e1a; }
+		.row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+		.row > label { width: 84px; font-size: 12px; color: #7aaa7a; flex-shrink: 0; }
+		select, input[type=text] {
+			background: #0f1a0f; color: #fff; border: 1px solid #1a3a1a; border-radius: 5px;
+			padding: 5px 8px; font-size: 12px; box-sizing: border-box; width: 100%;
+		}
+		select:focus, input:focus { outline: none; border-color: var(--kick); }
+		.btn { background: var(--kick); color: #000; border: none; border-radius: 5px;
+			padding: 7px 14px; cursor: pointer; font-weight: 700; font-size: 12px; width: 100%; margin-top: 4px; }
+		.btn:hover { filter: brightness(1.1); }
+		.hint { font-size: 11px; color: #5a8a5a; line-height: 1.5; margin: 4px 0; }
+		.badge { font-size: 11px; border-radius: 10px; padding: 2px 8px; display: inline-block; margin: 4px 0; }
+		.badge.ok { color: #53FC18; background: rgba(83,252,24,.1); border: 1px solid rgba(83,252,24,.3); }
+	</style>
+</head>
+<body>
+
+<h3>Kick Channel</h3>
+<div class="hint">Enter your Kick channel username — no API key or login needed.</div>
+<div class="row">
+	<label>Username</label>
+	<input type="text" id="kick-username" placeholder="yourchannelname"/>
+</div>
+<button class="btn" onclick="saveKick()">Save Channel</button>
+<div id="kick-status" class="hint"></div>
+
+<h3>This Key</h3>
+<div class="row">
+	<label>Display Mode</label>
+	<select id="displayMode">
+		<option value="number">Big Number</option>
+		<option value="full">Full Number (exact)</option>
+		<option value="milestone">Milestone Progress</option>
+		<option value="trend">Trend + Sparkline</option>
+		<option value="live">Live Viewers</option>
+		<option value="platform_icon">Kick Logo Key</option>
+	</select>
+</div>
+<div class="row">
+	<label>Metric</label>
+	<select id="metric">
+		<option value="followers">Followers</option>
+		<option value="live_viewers">Live Viewers</option>
+		<option value="followers_today">New Follows Today</option>
+	</select>
+</div>
+<div class="row">
+	<label>Theme</label>
+	<select id="theme">
+		<option value="oled">OLED (true black)</option>
+		<option value="creator">Creator (dark green)</option>
+	</select>
+</div>
+
+<div id="milestone-section">
+	<div class="row">
+		<label>Milestone</label>
+		<input type="number" id="milestoneTarget" placeholder="e.g. 10000"/>
+	</div>
+	<div class="row">
+		<label></label>
+		<label style="width:auto;font-size:12px">
+			<input type="checkbox" id="milestoneAuto" style="width:auto;margin-right:5px"/>
+			Auto-detect next round number
+		</label>
+	</div>
+</div>
+
+<div class="row">
+	<label>Delta</label>
+	<select id="deltaWindow">
+		<option value="today">Since midnight (today)</option>
+		<option value="7d">Last 7 days</option>
+	</select>
+</div>
+
+<script>
+var ws, ctx, actionId = "com.ratpack.kick.stats";
+var action = {}, globalSettings = {};
+
+function send(o) { ws.send(JSON.stringify(o)); }
+function toPlugin(p) {
+	if (!ws || ws.readyState !== 1) return;
+	send({ action: actionId, event: 'sendToPlugin', context: ctx, payload: p });
+}
+function saveAction() { if (ws && ws.readyState === 1) send({ event: 'setSettings', context: ctx, payload: action }); }
+function setVal(id, v) { var el = document.getElementById(id); if (el && v !== undefined) el.value = v; }
+function setChecked(id, v) { var el = document.getElementById(id); if (el) el.checked = !!v; }
+
+function saveKick() {
+	var username = document.getElementById('kick-username').value.trim().toLowerCase();
+	if (!username) { document.getElementById('kick-status').textContent = 'Enter your channel username.'; return; }
+	toPlugin({ event: 'saveKick', username: username });
+	document.getElementById('kick-status').innerHTML = '<span class="badge ok">✓ Saved — loading stats…</span>';
+}
+
+function renderFromGlobal(gs) {
+	if (gs.kick && gs.kick.username) {
+		document.getElementById('kick-username').value = gs.kick.username;
+		document.getElementById('kick-status').innerHTML = '<span class="badge ok">✓ Channel: ' + gs.kick.username + '</span>';
+	}
+}
+
+function renderAction() {
+	setVal('displayMode', action.displayMode || 'number');
+	setVal('metric', action.metric || 'followers');
+	setVal('theme', action.theme || 'oled');
+	setVal('milestoneTarget', action.milestoneTarget);
+	setChecked('milestoneAuto', action.milestoneAuto !== false);
+	setVal('deltaWindow', action.deltaWindow || 'today');
+}
+
+document.getElementById('displayMode').onchange = function() { action.displayMode = this.value; saveAction(); };
+document.getElementById('metric').onchange = function() { action.metric = this.value; saveAction(); };
+document.getElementById('theme').onchange = function() { action.theme = this.value; saveAction(); };
+document.getElementById('milestoneTarget').onchange = function() { action.milestoneTarget = parseInt(this.value) || undefined; saveAction(); };
+document.getElementById('milestoneAuto').onchange = function() { action.milestoneAuto = this.checked; saveAction(); };
+document.getElementById('deltaWindow').onchange = function() { action.deltaWindow = this.value; saveAction(); };
+
+window.connectElgatoStreamDeckSocket = function(port, uuid, registerEvent, info, actionInfo) {
+	ctx = uuid;
+	try { var ai = JSON.parse(actionInfo); action = ai.payload.settings || {}; actionId = ai.action || actionId; } catch(e) {}
+	ws = new WebSocket('ws://127.0.0.1:' + port);
+	ws.onopen = function() {
+		send({ event: registerEvent, uuid: uuid });
+		toPlugin({ event: 'getGlobalSettings' });
+		renderAction();
+	};
+	ws.onmessage = function(e) {
+		var m = JSON.parse(e.data);
+		if (m.event === 'sendToPropertyInspector' && m.payload && m.payload.event === 'globalSettings') {
+			globalSettings = m.payload.payload || {};
+			renderFromGlobal(globalSettings);
+		}
+		if (m.event === 'didReceiveSettings') {
+			action = m.payload.settings || {};
+			renderAction();
+		}
+	};
+};
+</script>
+</body>
+</html>

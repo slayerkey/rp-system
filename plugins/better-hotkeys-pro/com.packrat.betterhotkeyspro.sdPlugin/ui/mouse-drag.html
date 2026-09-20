@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Mouse Drag</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-kind="drag">
+		<div class="row first">
+			<label class="key" for="button">Button</label>
+			<div class="field">
+				<select id="button">
+					<option value="left">Left</option>
+					<option value="right">Right</option>
+					<option value="middle">Middle</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="group">
+			<div class="group-label">From</div>
+			<button id="capture-from" type="button" class="record secondary">Capture cursor as start</button>
+			<div class="row">
+				<label class="key" for="fromXPct">X</label>
+				<div class="field slider"><input type="range" id="fromXPct" min="0" max="100" step="1" /><span class="unit">%</span></div>
+			</div>
+			<div class="row">
+				<label class="key" for="fromYPct">Y</label>
+				<div class="field slider"><input type="range" id="fromYPct" min="0" max="100" step="1" /><span class="unit">%</span></div>
+			</div>
+		</div>
+
+		<div class="group">
+			<div class="group-label">To</div>
+			<button id="capture-to" type="button" class="record secondary">Capture cursor as end</button>
+			<div class="row">
+				<label class="key" for="toXPct">X</label>
+				<div class="field slider"><input type="range" id="toXPct" min="0" max="100" step="1" /><span class="unit">%</span></div>
+			</div>
+			<div class="row">
+				<label class="key" for="toYPct">Y</label>
+				<div class="field slider"><input type="range" id="toYPct" min="0" max="100" step="1" /><span class="unit">%</span></div>
+			</div>
+		</div>
+
+		<p id="capture-note" class="hint"></p>
+		<div id="summary" class="summary"></div>
+
+		<details>
+			<summary>More</summary>
+			<div class="row">
+				<label class="key" for="area">Screen</label>
+				<div class="field">
+					<select id="area">
+						<option value="primary">Primary monitor</option>
+						<option value="virtual">All monitors</option>
+						<option value="monitor">Pick a monitor…</option>
+					</select>
+				</div>
+			</div>
+			<div class="row" id="monitor-row">
+				<label class="key" for="monitor">Monitor</label>
+				<div class="field"><select id="monitor"></select></div>
+			</div>
+			<div class="row">
+				<label class="key" for="durationMs">Duration</label>
+				<div class="field slider"><input type="number" id="durationMs" min="0" max="5000" step="50" class="num" /><span class="unit">ms</span></div>
+			</div>
+			<p class="hint">A slower drag is more reliable in apps that ignore a fast one.</p>
+		</details>
+
+		<script src="phase3.js"></script>
+	</body>
+</html>

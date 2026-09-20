@@ -1,0 +1,28 @@
+{
+  "slug": "code-cost-pro",
+  "errors": 0,
+  "warnings": 4,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'platform-risk:undocumented-claude-code-jsonl-schema' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'maintenance:per-model-price-table-drift' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'competition:incumbent-already-shows-block-cost' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'evergreen-risk:trend-linked-category' is open; resolve before submission"
+    }
+  ]
+}

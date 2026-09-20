@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Dial Control</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body>
+		<div class="group first">
+			<div class="group-label">Turning the dial</div>
+			<div class="row">
+				<label class="key" for="rotateMode">Sends</label>
+				<div class="field">
+					<select id="rotateMode">
+						<option value="hotkey">A hotkey</option>
+						<option value="scroll">Mouse scroll wheel</option>
+					</select>
+				</div>
+			</div>
+			<div id="hotkey-slots">
+				<div class="record-inline">
+					<button id="record-cw" type="button" class="record small">Set clockwise</button>
+				</div>
+				<div class="record-inline" style="margin-top: 6px">
+					<button id="record-ccw" type="button" class="record small">Set counter-clockwise</button>
+				</div>
+			</div>
+			<div id="scroll-opts" class="mod standalone" hidden>
+				<input type="checkbox" id="invertScroll" />
+				<label for="invertScroll">Invert direction (clockwise scrolls down)</label>
+				<div class="row" style="margin-top: 8px">
+					<label class="key" for="scrollAxis">Axis</label>
+					<div class="field">
+						<select id="scrollAxis">
+							<option value="vertical">Up and down</option>
+							<option value="horizontal">Left and right</option>
+						</select>
+					</div>
+				</div>
+				<div class="row">
+					<label class="key" for="scrollTarget">Scrolls</label>
+					<div class="field">
+						<select id="scrollTarget">
+							<option value="pointer">Where my mouse is</option>
+							<option value="active">The window in front</option>
+						</select>
+					</div>
+				</div>
+				<p class="hint">
+					Windows sends the wheel to whatever your mouse pointer is sitting on. If turning the dial does
+					nothing, park the pointer over the thing you want to scroll, or switch <b>Scrolls</b> to the
+					window in front. That option is Windows only.
+				</p>
+			</div>
+			<div class="row">
+				<label class="key" for="stepSize">Steps</label>
+				<div class="field slider"><input type="number" id="stepSize" min="1" max="50" step="1" class="num" /><span class="unit">per tick</span></div>
+			</div>
+			<div class="mod standalone">
+				<input type="checkbox" id="acceleration" />
+				<label for="acceleration">Faster spins send extra steps</label>
+			</div>
+		</div>
+
+		<div class="group">
+			<div class="group-label">Push (optional)</div>
+			<div class="record-inline">
+				<button id="record-push" type="button" class="record small">Set push key</button>
+				<button id="clear-push" type="button" class="link">Clear</button>
+			</div>
+		</div>
+
+		<div class="group">
+			<div class="group-label">Touch tap (optional)</div>
+			<div class="record-inline">
+				<button id="record-touch" type="button" class="record small">Set tap key</button>
+				<button id="clear-touch" type="button" class="link">Clear</button>
+			</div>
+		</div>
+
+		<div id="summary" class="summary"></div>
+
+		<p class="hint">Click a "Set" button, then hold any modifiers and press the key you want -- e.g. hold Shift and press Right for Shift+Right.</p>
+
+		<script src="encoder-hotkey.js"></script>
+	</body>
+</html>

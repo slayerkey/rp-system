@@ -1,0 +1,38 @@
+{
+  "slug": "streamer-university",
+  "errors": 0,
+  "warnings": 6,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:streamer-university' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.blocklist",
+      "message": "description.txt contains banned token 'University' (trademark-sensitive term (Streamer University case))"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.blocklist",
+      "message": "README.md contains banned token '—' (em dash is the number one AI tell; never ship it) [internal doc]"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.blocklist",
+      "message": "README.md contains banned token 'local' (backend jargon; sell the benefit, not the architecture) [internal doc]"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.blocklist",
+      "message": "README.md contains banned token 'University' (trademark-sensitive term (Streamer University case)) [internal doc]"
+    }
+  ]
+}

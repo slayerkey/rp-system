@@ -1,0 +1,63 @@
+{
+  "slug": "golf-tracker",
+  "errors": 4,
+  "warnings": 7,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:pga-tour-anti-scraping-clause' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:augusta-national-aggressive-enforcement' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:major-body-multi-regime' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'data-tos:no-affordable-commercial-golf-feed' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'build-complexity:large-concurrent-field-state' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'demand-signal:no-golf-specific-query-match' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "ERROR",
+      "check": "package.plugin",
+      "message": "packaged plugin missing: com.packrat.golf-tracker.streamDeckPlugin"
+    },
+    {
+      "severity": "ERROR",
+      "check": "package.plugin",
+      "message": "no *.sdPlugin/manifest.json source tree"
+    },
+    {
+      "severity": "ERROR",
+      "check": "assets.kit",
+      "message": "marketing dir missing: C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\golf-tracker\\marketing"
+    },
+    {
+      "severity": "ERROR",
+      "check": "copy.description",
+      "message": "marketing/description.txt missing"
+    }
+  ]
+}

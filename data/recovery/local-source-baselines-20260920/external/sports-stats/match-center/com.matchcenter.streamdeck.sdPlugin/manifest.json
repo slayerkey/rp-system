@@ -1,0 +1,110 @@
+{
+  "Name": "Football Team Tracker",
+  "Version": "1.0.0.0",
+  "Author": "Ratpack",
+  "SDKVersion": 3,
+  "UUID": "com.matchcenter.streamdeck",
+  "Description": "Live football scores, league table, lineups, top scorers and match stats on your Stream Deck. Pick your team, forget about it.",
+  "Category": "Football Team Tracker",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "CodePath": "bin/plugin.js",
+  "Icon": "imgs/plugin/marketplace",
+  "Nodejs": {
+    "Version": "20"
+  },
+  "Actions": [
+    {
+      "Icon": "imgs/actions/livescore/icon",
+      "Name": "Live Score",
+      "UUID": "com.matchcenter.streamdeck.livescore",
+      "Tooltip": "Display live football scores for your favorite team",
+      "PropertyInspectorPath": "ui/propertyInspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/livescore/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
+    },
+    {
+      "Icon": "imgs/actions/table/icon",
+      "Name": "League Table",
+      "UUID": "com.matchcenter.streamdeck.table",
+      "Tooltip": "Display your team's current league table position and form",
+      "PropertyInspectorPath": "ui/tableInspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/table/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
+    },
+    {
+      "Icon": "imgs/actions/lineup/icon",
+      "Name": "Team Lineup",
+      "UUID": "com.matchcenter.streamdeck.lineup",
+      "Tooltip": "Show confirmed formation and lineup for your team's next match",
+      "PropertyInspectorPath": "ui/lineupInspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/lineup/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
+    },
+    {
+      "Icon": "imgs/actions/scorers/icon",
+      "Name": "Top Scorers",
+      "UUID": "com.matchcenter.streamdeck.scorers",
+      "Tooltip": "Show the Golden Boot race — top 5 scorers in any competition",
+      "PropertyInspectorPath": "ui/scorersInspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/scorers/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
+    },
+    {
+      "Icon": "imgs/actions/stats/icon",
+      "Name": "Match Stats",
+      "UUID": "com.matchcenter.streamdeck.stats",
+      "Tooltip": "Show live match statistics — possession, shots, corners during a live game",
+      "PropertyInspectorPath": "ui/statsInspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/stats/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
+    }
+  ],
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "10.15"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Software": {
+    "MinimumVersion": "6.9"
+  }
+}

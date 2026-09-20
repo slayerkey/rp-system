@@ -1,0 +1,23 @@
+{
+  "slug": "codex-usage",
+  "errors": 2,
+  "warnings": 1,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'platform-risk:undocumented-provider-endpoints' is open; resolve before submission"
+    },
+    {
+      "severity": "ERROR",
+      "check": "assets.kit",
+      "message": "marketing dir missing: C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\..\\claude-usage-streamdeck\\marketing\\codex-usage"
+    },
+    {
+      "severity": "ERROR",
+      "check": "copy.description",
+      "message": "marketing/description.txt missing"
+    }
+  ]
+}

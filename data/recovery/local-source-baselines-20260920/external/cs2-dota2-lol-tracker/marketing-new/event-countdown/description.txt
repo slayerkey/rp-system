@@ -1,0 +1,17 @@
+Event Countdown turns any Stream Deck key into a live countdown. Christmas, a game launch, a birthday, a stream goal, or any date and time you choose. Each key counts down on its own and updates every second.
+
+*Every moment that matters.*
+
+**Built-in Occasions** - Christmas, New Year, Halloween, Valentine's, the Fourth of July, Thanksgiving, birthdays and more come ready to pick, each with its own art and colors. Annual ones roll over to next year on their own.
+**Any Custom Date** - Set your own date and time for anything: a release, an exam, a trip, a launch stream. Pick days, hours and minutes, or pack it all into one line.
+**One Per Key** - Give every key its own event and watch them all at once. Track a whole month of dates across your deck.
+**It Escalates** - The key stays calm while the date is far off, turns amber in the final day, and pulses a red alarm in the last hour, so you feel the deadline coming.
+**Fireworks On the Day** - When the moment arrives the key bursts into themed fireworks and reads IT'S HERE, then quietly resets afterward.
+
+Pure local date math. No internet, no account, nothing to sign in to. Great for streamers counting to a milestone and anyone who likes a deadline they can see.
+
+---
+
+Part of the Ratpack collection for Stream Deck. Whether you game, stream or track your stats, there is something in the lineup for you. See the full Ratpack collection on the marketplace.
+
+countdown, timer, event countdown, Stream Deck, holiday countdown, birthday, release date, stream goal, reminder, days until, New Year, Christmas, Twitch, streaming

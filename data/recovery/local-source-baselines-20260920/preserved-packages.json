@@ -1,0 +1,128 @@
+[
+  {
+    "name": "Audio Manager Pro",
+    "uuid": "com.packrat.audio-manager-pro2",
+    "version": "1.0.0.0",
+    "sha256": "72c9c8094ae686be03b8c13f657defd585f1d5bfe6c1cc4b81fb18bf756201f0",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\audio-manager-pro\\audio-manager-pro.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\audio-manager-pro\\audio-manager-pro.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "CS2 Competitive Dashboard Pro",
+    "uuid": "com.packrat.cs2-competitive-dashboard-pro",
+    "version": "0.1.0.0",
+    "sha256": "59df59f25f23c18ac04f0f6e8019e8d0eae47ddc346c80421b31838c5a85304e",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\cs2-competitive-dashboard-pro\\cs2-competitive-dashboard-pro.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\cs2-competitive-dashboard-pro\\cs2-competitive-dashboard-pro.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Internet Health Pro",
+    "uuid": "com.packrat.internet-health-pro2",
+    "version": "1.0.0.0",
+    "sha256": "d4e716ed163a73e2356b2034fc05c25962818995ee52a3830867fb99b993bac1",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\internet-health-pro\\internet-health-pro.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\internet-health-pro\\internet-health-pro.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Monitor Manager Lite",
+    "uuid": "com.packrat.monitormanagerlite2",
+    "version": "1.0.0.0",
+    "sha256": "cce0dd77881660bf9c005929ad9191413302e71b25b22ef6e37859f3e12b19ec",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\monitor-manager-lite\\monitor-manager-lite.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\monitor-manager-lite\\monitor-manager-lite.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Monitor Manager Pro",
+    "uuid": "com.packrat.monitormanagerpro2",
+    "version": "1.0.0.0",
+    "sha256": "c5eaacd22aed6b8868d81e98ac6e63ed2363422cc8fd58826a23bf1f5daa9145",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\monitor-manager-pro\\monitor-manager-pro.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\monitor-manager-pro\\monitor-manager-pro.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Retro Terminal",
+    "uuid": "com.packrat.retroterminal",
+    "version": "1.0.2",
+    "sha256": "4bf7d08402965691c74441e9aa36154ba1889b6ef8c21f10c711f4cead1845a9",
+    "source": "C:\\Users\\Key\\Downloads\\retro-terminal-1.0.2.icuewidget",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\retro-terminal\\retro-terminal-1.0.2.icuewidget",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Text Expander Lite",
+    "uuid": "com.packrat.textexpanderlite",
+    "version": "1.0.0.0",
+    "sha256": "db68a333cc00a2751fbb4f65c890dd4c87117da87285c7387b1af4ced7d62e11",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\text-expander\\text-expander.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\text-expander-lite\\text-expander.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Text Expander Pro",
+    "uuid": "com.packrat.textexpanderpro",
+    "version": "1.0.0.0",
+    "sha256": "96c625c5f5e853088e82618586223aa269f057b3cca5b6e1a31532b9e2e8bebf",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\text-expander-pro\\text-expander-pro.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\text-expander-pro\\text-expander-pro.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Window Manager Pro",
+    "uuid": "com.packrat.windowmanagerpro",
+    "version": "1.3.0.0",
+    "sha256": "1aa7e954ed7e5a85d10c3db369a0bcc4bc211658aeab25fe2b8fa725ed25fe8e",
+    "source": "C:\\Users\\Key\\Downloads\\com.packrat.windowmanagerpro-v1.3.0.0.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\window-manager-pro\\com.packrat.windowmanagerpro-v1.3.0.0.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Windows Settings Manager Lite",
+    "uuid": "com.packrat.windows-settings-manager-lite2",
+    "version": "0.1.0.0",
+    "sha256": "f307a459f71a0a375eed7b2c3e345b84795e1c0b4e096c97142d6d6bbf6dfeb1",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\windows-settings-manager-lite\\windows-settings-manager-lite.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\windows-settings-manager-lite\\windows-settings-manager-lite.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Windows Settings Manager Pro",
+    "uuid": "com.packrat.windows-settings-manager-pro2",
+    "version": "0.1.0.0",
+    "sha256": "42dcb63bd0ac2f6f606a7f4c3733c15bfcfc4e27d0b602719d04c8170dfe288b",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\Ratpack-GitHub\\out\\ship\\windows-settings-manager-pro\\windows-settings-manager-pro.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\windows-settings-manager-pro\\windows-settings-manager-pro.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "RatDeck",
+    "uuid": "com.packratpet.streamdeck",
+    "version": "1.0.1.0",
+    "sha256": "f80622ca988254fc6599edfe57c0f3fff1b6e7bd1185cba7dcb259f67be8c1ce",
+    "source": "C:\\Users\\Key\\Desktop\\RatDeck.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\ratdeck\\RatDeck.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "RatDeck DEV",
+    "uuid": "com.packratpet.streamdeck.dev",
+    "version": "1.0.1.0",
+    "sha256": "6be525fae3b655c00a02f3d16f3e64f4f71677f8099a634def53409dfb53596e",
+    "source": "C:\\Users\\Key\\Desktop\\com.packratpet.streamdeck.dev.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\ratdeck-dev\\com.packratpet.streamdeck.dev.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  },
+  {
+    "name": "Claude Usage (Dev)",
+    "uuid": "com.ratpack.claude-usage.dev",
+    "version": "0.1.0.0",
+    "sha256": "a14a294702e3efe0e596a67aeefda92dfa0676126dc33d2b2b3b76db8c0fb001",
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck\\dist\\com.ratpack.claude-usage.dev.streamDeckPlugin",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\packages\\claude-usage-dev\\com.ratpack.claude-usage.dev.streamDeckPlugin",
+    "state": "package-newer-than-source"
+  }
+]

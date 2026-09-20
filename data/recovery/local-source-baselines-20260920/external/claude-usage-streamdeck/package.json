@@ -1,0 +1,29 @@
+{
+  "name": "claude-usage-streamdeck",
+  "version": "0.1.0",
+  "description": "Premium Claude usage monitor for Stream Deck — know if you're safe to keep going, at a glance.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "icons": "node scripts/gen-icons.mjs",
+    "build": "npm run icons && rollup -c",
+    "pack": "streamdeck pack com.ratpack.claude-usage.sdPlugin --output dist --force",
+    "dist": "node scripts/build-provider.mjs claude",
+    "dist:all": "node scripts/build-provider.mjs claude && node scripts/build-provider.mjs openai && node scripts/build-provider.mjs codex && node scripts/build-provider.mjs cursor && node scripts/build-provider.mjs gemini && node scripts/build-provider.mjs copilot && node scripts/build-provider.mjs grok && node scripts/build-provider.mjs perplexity",
+    "dist:tracker": "node scripts/build-tracker.mjs"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^2.1.0"
+  },
+  "devDependencies": {
+    "@elgato/cli": "^1.7.4",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node": "^22.10.0",
+    "pngjs": "^7.0.0",
+    "rollup": "^4.28.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.7.2"
+  }
+}

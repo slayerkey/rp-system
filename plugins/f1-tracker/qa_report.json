@@ -1,0 +1,53 @@
+{
+  "slug": "f1-tracker",
+  "errors": 4,
+  "warnings": 5,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:f1-brand-name-cd-precedent' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:team-driver-livery-logos' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'data-tos:jolpica-openf1-noncommercial-history' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'positioning-risk:live-tracker-framing-mismatch' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "ERROR",
+      "check": "package.plugin",
+      "message": "packaged plugin missing: com.packrat.f1-tracker.streamDeckPlugin"
+    },
+    {
+      "severity": "ERROR",
+      "check": "package.plugin",
+      "message": "no *.sdPlugin/manifest.json source tree"
+    },
+    {
+      "severity": "ERROR",
+      "check": "assets.kit",
+      "message": "marketing dir missing: C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\f1-tracker\\marketing"
+    },
+    {
+      "severity": "ERROR",
+      "check": "copy.description",
+      "message": "marketing/description.txt missing"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Clipboard Entry</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body>
+		<h2>Put a recent or pinned copy on this key</h2>
+		<div class="row">
+			<label for="source">Show</label>
+			<div class="field">
+				<select id="source">
+					<option value="recent">Recent history</option>
+					<option value="pinned">Pinned entries</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<label for="slot">Position</label>
+			<div class="field"><select id="slot"></select></div>
+		</div>
+		<div class="row">
+			<label for="name">Key name</label>
+			<div class="field"><input id="name" maxlength="16" placeholder="Optional" /></div>
+		</div>
+		<div class="row">
+			<label for="press">On press</label>
+			<div class="field">
+				<select id="press">
+					<option value="direct">Standard paste</option>
+					<option value="plain">Paste as plain text</option>
+					<option value="restore">Clipboard only</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<label for="preview">Preview</label>
+			<div class="field">
+				<select id="preview">
+					<option value="20">Short</option>
+					<option value="40">Normal</option>
+					<option value="45">Long</option>
+				</select>
+			</div>
+		</div>
+		<p id="count" class="status"></p>
+		<p class="hint">Press to paste. Hold for 0.6 seconds to pin a recent entry or unpin a pinned entry.</p>
+		<p class="hint">Plain text always removes rich formatting. The full text is pasted even when the key preview is shortened.</p>
+		<p class="disclaimer">Text history stays in Clipboard Manager Pro settings on this machine. Images and copied files are skipped safely.</p>
+		<script src="entry.js"></script>
+	</body>
+</html>

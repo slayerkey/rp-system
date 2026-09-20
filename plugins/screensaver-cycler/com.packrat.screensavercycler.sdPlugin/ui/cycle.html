@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Auto Cycle</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="cycle">
+		<h2>Screensavers to rotate</h2>
+		<div id="list" class="list"></div>
+		<p class="hint">Check the ones to rotate. Leave them all unchecked to rotate every screensaver Windows has.</p>
+
+		<div class="row">
+			<label class="key" for="interval">Change every</label>
+			<div class="field">
+				<input type="number" id="interval" min="1" max="1440" step="1" /> <span class="hint">minutes</span>
+			</div>
+		</div>
+		<p class="hint">Press the key to start cycling, press again to stop. It keeps going in the background while Stream Deck is open.</p>
+
+		<details>
+			<summary>Add a folder of your own screensavers</summary>
+			<div class="row">
+				<label class="key" for="folder">Folder</label>
+				<div class="field"><input type="text" id="folder" placeholder="C:\Screensavers" /></div>
+			</div>
+		</details>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

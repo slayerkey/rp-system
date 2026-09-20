@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg">
+<title>tr('AI Usage Dashboard')</title>
+
+<meta name="x-icue-property" content="bridgeUrl" data-label="tr('Bridge Address')" data-type="textfield" data-default="'http://127.0.0.1:8787'">
+<meta name="x-icue-property" content="refreshMinutes" data-label="tr('Refresh')" data-type="slider" data-min="1" data-max="30" data-step="1" data-unit-label="'min'" data-default="5">
+<meta name="x-icue-property" content="warnAt" data-label="tr('Warn Above')" data-type="slider" data-min="50" data-max="100" data-step="1" data-unit-label="'%'" data-default="80">
+<meta name="x-icue-property" content="ringCount" data-label="tr('Providers As Rings')" data-type="slider" data-min="0" data-max="6" data-step="1" data-default="3">
+<meta name="x-icue-property" content="showReset" data-label="tr('Show Reset Time')" data-type="switch" data-default="true">
+<meta name="x-icue-property" content="compact" data-label="tr('Compact')" data-type="switch" data-default="false">
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F2F5F7'">
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'">
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#0B0E11'">
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Usage')",
+    "properties": ["bridgeUrl", "refreshMinutes", "warnAt", "ringCount", "showReset", "compact"],
+    "info": "tr('Reads from the Packrat Stream Deck plugin on this PC.')"
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"]
+  }
+]
+</script>
+
+<link rel="stylesheet" href="../../_shared/tokens.css">
+<link rel="stylesheet" href="usage.css">
+</head>
+<body data-compact="0">
+<div id="stage">
+    <div id="head">
+        <span id="title">AI Usage</span>
+        <span id="status" class="status"></span>
+    </div>
+    <div id="providers"></div>
+    <div id="secondary"></div>
+</div>
+<script src="../../_shared/boot.js"></script>
+<script src="../../_shared/net.js"></script>
+<script src="usage.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Hold Mouse Button</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-kind="hold" data-verb="Holds">
+		<div class="row first">
+			<label class="key" for="button">Button</label>
+			<div class="field">
+				<select id="button">
+					<option value="left">Left</option>
+					<option value="right">Right</option>
+					<option value="middle">Middle</option>
+				</select>
+			</div>
+		</div>
+
+		<div id="summary" class="summary"></div>
+
+		<p class="hint">
+			The button stays down for as long as you hold the Stream Deck key. Good for rotate-lock, drag-panning
+			and hold-to-aim.
+		</p>
+
+		<script src="mouse.js"></script>
+	</body>
+</html>

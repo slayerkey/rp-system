@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Ammo Counter</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	</head>
+	<body>
+		<sdpi-item label="Accent">
+			<sdpi-color setting="accent" default="#de9b35"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="Empty / reload">
+			<sdpi-color setting="emptyColor" default="#ff9d2e"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="GSI Port">
+			<sdpi-textfield setting="port" global default="3000" placeholder="3000"></sdpi-textfield>
+		</sdpi-item>
+		<p style="font-size:11px;color:#9aa6c4;margin:4px 6px;line-height:1.4;">Leave this at <b>3000</b> — it already matches the included config file and works automatically. No setup needed unless you changed the port in the .cfg.</p>
+	</body>
+</html>

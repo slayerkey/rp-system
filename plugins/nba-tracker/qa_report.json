@@ -1,0 +1,18 @@
+{
+  "slug": "nba-tracker",
+  "errors": 0,
+  "warnings": 2,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'sports-ip:nba' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'platform-risk:unofficial-espn-api' is open; resolve before submission"
+    }
+  ]
+}

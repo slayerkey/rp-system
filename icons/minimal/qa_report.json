@@ -1,0 +1,18 @@
+{
+  "slug": "minimal",
+  "errors": 0,
+  "warnings": 2,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "assets.video",
+      "message": "no preview.mp4 (video listings convert better; required for some product types)"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.release",
+      "message": "description.txt has no release-notes divider block"
+    }
+  ]
+}

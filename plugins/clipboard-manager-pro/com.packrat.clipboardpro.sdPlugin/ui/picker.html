@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>History Picker</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body>
+		<h2>Search up to 50 recent copies</h2>
+		<div class="row">
+			<label for="query">Search</label>
+			<div class="field"><input id="query" placeholder="Words in the copy" /></div>
+		</div>
+		<div class="row">
+			<label for="results">Result</label>
+			<div class="field"><select id="results"></select></div>
+		</div>
+		<div class="row">
+			<label for="name">Key name</label>
+			<div class="field"><input id="name" maxlength="16" placeholder="Optional" /></div>
+		</div>
+		<div class="row">
+			<label for="press">On press</label>
+			<div class="field">
+				<select id="press">
+					<option value="direct">Standard paste</option>
+					<option value="plain">Paste as plain text</option>
+					<option value="restore">Clipboard only</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<label for="preview">Preview</label>
+			<div class="field">
+				<select id="preview">
+					<option value="20">Short</option>
+					<option value="40">Normal</option>
+					<option value="45">Long</option>
+				</select>
+			</div>
+		</div>
+		<p id="match-count" class="status"></p>
+		<p class="hint">Type here to filter the saved history and choose a result. Press the deck key to paste it. Hold for 0.6 seconds to move to the next match without opening settings.</p>
+		<p class="hint">Pinned entries appear first and remain searchable after recent history rotates.</p>
+		<p class="disclaimer">The picker reads only this plugin's local text history. It never reads Clipboard Manager Lite settings.</p>
+		<script src="picker.js"></script>
+	</body>
+</html>

@@ -1,0 +1,5 @@
+node_modules/
+com.packrat.betterhotkeyspro.sdPlugin/logs/
+com.packrat.betterhotkeyspro.sdPlugin/bin/
+com.packrat.betterhotkeyspro.sdPlugin/node_modules/
+*.streamDeckPlugin

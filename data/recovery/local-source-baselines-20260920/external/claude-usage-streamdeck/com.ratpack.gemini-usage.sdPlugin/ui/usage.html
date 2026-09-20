@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<style>
+			:root { --accent: #4285F4; }
+			body { font-family: -apple-system, "Segoe UI", sans-serif; background: #2d2d2d; color: #dfdfdf; margin: 0; padding: 10px; font-size: 13px; }
+			.label { font-size: 11px; color: #9a9aa2; text-transform: uppercase; letter-spacing: .3px; margin: 12px 0 5px; }
+			.acct { display: flex; gap: 6px; margin-bottom: 6px; }
+			.acct .name { width: 36%; }
+			.acct .tok { flex: 1; }
+			input, select { background: #3d3d3d; color: #fff; border: 1px solid #1c1c1f; border-radius: 4px; padding: 6px; font-size: 13px; box-sizing: border-box; }
+			input:focus, select:focus { outline: none; border-color: var(--accent); }
+			.acct .rm { background: #3d3d3d; color: #ff6b6b; border: 1px solid #1c1c1f; border-radius: 4px; cursor: pointer; width: 30px; padding: 0; }
+			#add { background: var(--accent); color: #111; border: none; border-radius: 4px; padding: 7px 12px; cursor: pointer; font-weight: 700; font-size: 12px; margin-top: 2px; }
+			.row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+			.row > label { width: 78px; font-size: 12px; color: #cfcfcf; }
+			.row select, .row input[type=text] { flex: 1; }
+			.badge { font-size: 11px; color: #9fe0a0; background: rgba(48,226,123,.12); border: 1px solid rgba(48,226,123,.35); border-radius: 10px; padding: 2px 8px; display: inline-block; margin-top: 8px; }
+			.warn { font-size: 11px; color: #ffd60a; margin-top: 5px; }
+			details { background: #262626; border-radius: 6px; margin: 8px 0; padding: 2px 10px; }
+			summary { cursor: pointer; font-weight: 600; padding: 7px 0; color: #fff; }
+			.browser summary { font-size: 12px; }
+			ol { font-size: 12px; line-height: 1.6; color: #cfcfcf; padding-left: 18px; margin: 4px 0; }
+			code { background: #1c1c1f; border: 1px solid #3a3a3a; border-radius: 4px; padding: 1px 5px; color: var(--accent); font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
+			.hint { font-size: 11px; color: #9a9aa2; line-height: 1.5; margin: 6px 0; }
+			p { font-size: 12px; color: #cfcfcf; line-height: 1.5; margin: 6px 0; }
+		</style>
+	</head>
+	<body>
+		<details id="setup"><summary>Accounts &amp; setup</summary>
+			<div class="hint">By default this auto-detects your local Gemini login — usually nothing to paste. Add a session token only if usage isn't updating or you hit rate limits.</div>
+			<div id="accounts"></div>
+			<button id="add">+ Add account</button>
+			<div><span class="badge">🔒 100% local · never shared · only used to read your own usage.</span></div>
+			<div class="warn">⚠️ Treat these tokens like passwords.</div>
+			<details><summary>How do I get a token?</summary><div class="hint"><p>Install the <b>Gemini CLI</b> and run <code>gemini auth</code> once — your token is then auto-detected with nothing to paste. If auto-detect isn't working, paste your Google access token below.</p>
+			<details class="browser"><summary>Get your Gemini CLI access token manually</summary><ol>
+				<li>Make sure <code>gemini</code> CLI is installed and you've run <code>gemini auth</code></li>
+				<li>Open <code>~/.gemini/oauth_creds.json</code> in any text editor</li>
+				<li>Copy the value of <code>"token"</code> (starts with <code>ya29.</code>)</li>
+				<li>Paste it below — note Google tokens expire after 1 hour; run <code>gemini auth</code> again to refresh</li></ol></details>
+			<details class="browser"><summary>Install Gemini CLI</summary><ol>
+				<li>Requires Node.js 18+ installed</li>
+				<li>Run: <code>npm install -g @google/gemini-cli</code></li>
+				<li>Then run: <code>gemini auth</code> and follow the browser prompt</li></ol></details></div></details>
+		</details>
+		<div class="hint">Tip: <b>short-press</b> a key to change style · <b>long-press</b> to switch type.</div>
+
+		<div class="label">This key</div>
+		<div class="row"><label>Account</label><select id="account"></select></div>
+		<div class="row"><label>Type</label><select id="window"><option value="gemini-2.5-pro">Gemini 2.5 Pro</option><option value="gemini-2.5-flash">Gemini 2.5 Flash</option></select></div>
+		<div class="row"><label>Style</label><select id="style"><option value="ring">Ring</option><option value="full">Full (fills up)</option><option value="number">Big Number</option><option value="bigdate">Big Time</option><option value="countdown">Countdown (time left)</option><option value="sparkline">Sparkline (history)</option><option value="heatmap">Weekly Heatmap</option><option value="status">Status</option></select></div>
+		<div class="row"><label>Theme</label><select id="theme"><option value="oled">OLED (true black)</option><option value="midnight">Midnight</option><option value="light">Light</option></select></div>
+		<div class="row"><label>Refresh</label><select id="interval"><option value="10">Every 10 sec</option><option value="30">Every 30 sec</option><option value="60">Every 1 min</option><option value="120">Every 2 min</option><option value="300">Every 5 min</option></select></div>
+		<div class="row"><label>Display</label><label style="width:auto;font-size:12px"><input type="checkbox" id="showRemaining" style="width:auto;margin-right:6px" />Show remaining % (off = used)</label></div>
+
+		<div class="label">Demo</div>
+		<div class="row"><label>Demo mode</label><label style="width:auto;font-size:12px"><input type="checkbox" id="demo" style="width:auto;margin-right:6px" />Show sample data on every key</label></div>
+		<div class="hint">Try the styles, or show Gemini Usage working, without an account. Sample values sweep through every colour state. Turn this off to go back to your real usage.</div>
+
+		<script>
+			var ws, ctx, action = {}, global = { accounts: [], interval: "120" };
+			function send(o) { ws.send(JSON.stringify(o)); }
+			function saveGlobal() { send({ event: "setGlobalSettings", context: ctx, payload: global }); }
+			function saveAction() { send({ event: "setSettings", context: ctx, payload: action }); }
+			function setVal(elid, v) { var el = document.getElementById(elid); if (el) el.value = v; }
+
+			function renderAccounts() {
+				var c = document.getElementById("accounts"); c.innerHTML = "";
+				global.accounts.forEach(function (a, i) {
+					var row = document.createElement("div"); row.className = "acct";
+					var name = document.createElement("input"); name.className = "name"; name.placeholder = "Name"; name.value = a.name || "";
+					name.oninput = function () { a.name = name.value; saveGlobal(); renderAccountSelect(); };
+					var tok = document.createElement("input"); tok.className = "tok"; tok.type = "password"; tok.placeholder = "session token"; tok.value = a.token || "";
+					tok.oninput = function () { a.token = tok.value; saveGlobal(); };
+					var rm = document.createElement("button"); rm.className = "rm"; rm.textContent = "✕";
+					rm.onclick = function () { global.accounts.splice(i, 1); saveGlobal(); renderAccounts(); renderAccountSelect(); };
+					row.appendChild(name); row.appendChild(tok); row.appendChild(rm); c.appendChild(row);
+				});
+			}
+			function renderAccountSelect() {
+				var sel = document.getElementById("account"); sel.innerHTML = "";
+				var def = document.createElement("option"); def.value = ""; def.textContent = "Default (first account)"; sel.appendChild(def);
+				global.accounts.forEach(function (a) { var o = document.createElement("option"); o.value = a.name; o.textContent = a.name || "(unnamed)"; sel.appendChild(o); });
+				sel.value = action.account || "";
+			}
+			function renderAction() {
+				setVal("window", action.window || "gemini-2.5-pro");
+				setVal("style", action.style || "ring");
+				setVal("theme", action.theme || "oled");
+				document.getElementById("showRemaining").checked = !!action.showRemaining;
+				renderAccountSelect();
+			}
+
+			document.getElementById("add").onclick = function () {
+				global.accounts.push({ name: "Account " + (global.accounts.length + 1), token: "" });
+				saveGlobal(); renderAccounts(); renderAccountSelect();
+			};
+			document.getElementById("account").onchange = function () { action.account = this.value; saveAction(); };
+			document.getElementById("window").onchange = function () { action.window = this.value; saveAction(); };
+			document.getElementById("style").onchange = function () { action.style = this.value; saveAction(); };
+			document.getElementById("theme").onchange = function () { action.theme = this.value; saveAction(); };
+			document.getElementById("showRemaining").onchange = function () { action.showRemaining = this.checked; saveAction(); };
+			document.getElementById("interval").onchange = function () { global.interval = this.value; saveGlobal(); };
+			document.getElementById("demo").onchange = function () { global.demo = this.checked; saveGlobal(); };
+
+			window.connectElgatoStreamDeckSocket = function (port, uuid, registerEvent, info, actionInfo) {
+				ctx = uuid;
+				try { action = JSON.parse(actionInfo).payload.settings || {}; } catch (e) {}
+				ws = new WebSocket("ws://127.0.0.1:" + port);
+				ws.onopen = function () {
+					send({ event: registerEvent, uuid: uuid });
+					send({ event: "getGlobalSettings", context: uuid });
+					renderAction();
+				};
+				ws.onmessage = function (e) {
+					var m = JSON.parse(e.data);
+					if (m.event === "didReceiveGlobalSettings") {
+						global = m.payload.settings || {};
+						if (!Array.isArray(global.accounts)) global.accounts = [];
+						if (global.accounts.length === 0 && global.token) global.accounts = [{ name: "Default", token: global.token }];
+						if (global.accounts.length === 0) { global.accounts.push({ name: "Default", token: "" }); saveGlobal(); }
+						setVal("interval", global.interval || "120");
+						document.getElementById("demo").checked = !!global.demo;
+						renderAccounts(); renderAccountSelect();
+						document.getElementById("setup").open = !global.demo && !global.accounts.some(function (a) { return a.token; });
+					} else if (m.event === "didReceiveSettings") {
+						action = m.payload.settings || {};
+						renderAction();
+					}
+				};
+			};
+		</script>
+	</body>
+</html>

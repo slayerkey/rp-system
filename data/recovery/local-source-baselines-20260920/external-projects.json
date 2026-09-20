@@ -1,0 +1,26 @@
+[
+  {
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\claude-usage-streamdeck",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\external\\claude-usage-streamdeck"
+  },
+  {
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\cs2-dota2-lol-tracker",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\external\\cs2-dota2-lol-tracker"
+  },
+  {
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-livestats",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\external\\ratpack-livestats"
+  },
+  {
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-kick",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\external\\ratpack-kick"
+  },
+  {
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\stock-checker",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\external\\stock-checker"
+  },
+  {
+    "source": "C:\\Users\\Key\\Videos\\Claude Projects\\sports-stats",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\data\\recovery\\local-source-baselines-20260920\\external\\sports-stats"
+  }
+]

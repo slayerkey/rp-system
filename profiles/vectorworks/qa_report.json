@@ -1,0 +1,38 @@
+{
+  "slug": "vectorworks",
+  "errors": 0,
+  "warnings": 6,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "Vectorworks.streamDeckProfile [std_win]: page '3D & Views' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "Vectorworks.streamDeckProfile [std_win]: page 'Modify' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "Vectorworks.streamDeckProfile [std_win]: page 'Draw' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "Vectorworks (Mac).streamDeckProfile [std_mac]: page 'Draw' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "Vectorworks (Mac).streamDeckProfile [std_mac]: page '3D & Views' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "Vectorworks (Mac).streamDeckProfile [std_mac]: page 'Modify' fills all 15 slots (house rule: leave breathing room)"
+    }
+  ]
+}

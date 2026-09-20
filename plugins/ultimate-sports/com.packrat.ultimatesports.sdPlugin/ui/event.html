@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Next Event</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="event">
+		<h2>Which series?</h2>
+		<div class="row">
+			<label class="key" for="sport">Sport</label>
+			<div class="field"><select id="sport"></select></div>
+		</div>		<div class="row">
+			<label class="key" for="press">On tap</label>
+			<div class="field">
+				<select id="press">
+					<option value="open">Open the game page</option>
+					<option value="refresh">Refresh now</option>
+				</select>
+			</div>
+		</div>
+		<p class="hint"><strong>Tap opens the game on ESPN. Hold to refresh instead.</strong> A hold always does the opposite of a tap, so swapping the setting below swaps both.</p>
+		<p class="hint">
+			The next card or race, its headline bout or name, and a countdown once it is close enough to matter.
+		</p>
+		<p class="disclaimer">Not affiliated with or endorsed by any league, team or governing body. Team names and colors identify the teams whose scores you chose to follow.</p>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

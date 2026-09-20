@@ -1,0 +1,28 @@
+{
+  "slug": "soccer-tracker",
+  "errors": 0,
+  "warnings": 4,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:fifa-uefa-club-marks' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:fifa-world-cup-phrase' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'api-risk:unofficial-soccer-data' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'seasonal-demand:club-season-plus-tournament-cycle' is open; resolve before submission"
+    }
+  ]
+}

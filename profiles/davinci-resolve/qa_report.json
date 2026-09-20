@@ -1,0 +1,18 @@
+{
+  "slug": "davinci-resolve",
+  "errors": 0,
+  "warnings": 2,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "WARN",
+      "check": "copy.blocklist",
+      "message": "README.md contains banned token '—' (em dash is the number one AI tell; never ship it) [internal doc]"
+    }
+  ]
+}

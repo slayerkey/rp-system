@@ -1,0 +1,188 @@
+{
+	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+	"Name": "Stocks & Crypto Market Tracker",
+	"Version": "0.1.1.0",
+	"Author": "RatPack",
+	"UUID": "com.ratpack.marketcommandcenter",
+	"Profiles": [
+		{
+			"Name": "profiles/market-command-center-standard",
+			"DeviceType": 0,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/market-command-center-mini",
+			"DeviceType": 1,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/market-command-center-xl",
+			"DeviceType": 2,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/market-command-center-plus",
+			"DeviceType": 7,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		},
+		{
+			"Name": "profiles/market-command-center-neo",
+			"DeviceType": 9,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true,
+			"AutoInstall": true
+		}
+	],
+	"Description": "A premium, glanceable finance dashboard for Stream Deck. Live stocks, crypto, indices and market timing at a glance.",
+	"Icon": "imgs/plugin/marketplace",
+	"Category": "Stocks & Crypto Market Tracker",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "24",
+		"Debug": "enabled"
+	},
+	"Actions": [
+		{
+			"Name": "Stock / Index",
+			"UUID": "com.ratpack.marketcommandcenter.ticker",
+			"Icon": "imgs/actions/ticker/icon",
+			"Tooltip": "Live stock, ETF or index price with daily change and sparkline. Supports the Stream Deck + dial: rotate to scrub the timeframe, press to switch symbols.",
+			"PropertyInspectorPath": "ui/ticker.html",
+			"Controllers": [
+				"Keypad",
+				"Encoder"
+			],
+			"Encoder": {
+				"Icon": "imgs/actions/ticker/encoder-icon",
+				"layout": "$B1",
+				"TriggerDescription": {
+					"Rotate": "Change timeframe",
+					"Push": "Next symbol (when rotating several)"
+				}
+			},
+			"States": [
+				{
+					"Image": "imgs/actions/ticker/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Crypto",
+			"UUID": "com.ratpack.marketcommandcenter.crypto",
+			"Icon": "imgs/actions/crypto/icon",
+			"Tooltip": "Live cryptocurrency price with daily change and sparkline. Supports the Stream Deck + dial: rotate to scrub the timeframe, press to switch coins.",
+			"PropertyInspectorPath": "ui/crypto.html",
+			"Controllers": [
+				"Keypad",
+				"Encoder"
+			],
+			"Encoder": {
+				"Icon": "imgs/actions/crypto/encoder-icon",
+				"layout": "$B1",
+				"TriggerDescription": {
+					"Rotate": "Change timeframe",
+					"Push": "Next coin (when rotating several)"
+				}
+			},
+			"States": [
+				{
+					"Image": "imgs/actions/crypto/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Market Clock",
+			"UUID": "com.ratpack.marketcommandcenter.clock",
+			"Icon": "imgs/actions/clock/icon",
+			"Tooltip": "Market session and countdown for a chosen exchange (US, London, Tokyo and more).",
+			"PropertyInspectorPath": "ui/market-clock.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/clock/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Watchlist Heatmap",
+			"UUID": "com.ratpack.marketcommandcenter.heatmap",
+			"Icon": "imgs/actions/heatmap/icon",
+			"Tooltip": "Your whole watchlist as one color-coded grid, shaded red to green by daily move.",
+			"PropertyInspectorPath": "ui/heatmap.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/heatmap/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Fear & Greed Gauge",
+			"UUID": "com.ratpack.marketcommandcenter.feargreed",
+			"Icon": "imgs/actions/feargreed/icon",
+			"Tooltip": "Crypto Fear & Greed Index as a live speedometer gauge. No API key needed.",
+			"PropertyInspectorPath": "ui/feargreed.html",
+			"Controllers": [
+				"Keypad",
+				"Encoder"
+			],
+			"Encoder": {
+				"Icon": "imgs/actions/feargreed/icon",
+				"layout": "$B1"
+			},
+			"States": [
+				{
+					"Image": "imgs/actions/feargreed/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Earnings Countdown",
+			"UUID": "com.ratpack.marketcommandcenter.earnings",
+			"Icon": "imgs/actions/earnings/icon",
+			"Tooltip": "Countdown to a company's next scheduled earnings report.",
+			"PropertyInspectorPath": "ui/earnings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/earnings/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	]
+}

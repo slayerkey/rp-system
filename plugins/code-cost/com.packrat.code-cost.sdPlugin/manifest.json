@@ -1,0 +1,47 @@
+{
+	"Name": "Claude & Codex Cost Lite",
+	"Version": "1.0.0.2",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Cost",
+			"UUID": "com.packrat.code-cost.cost",
+			"Icon": "imgs/actions/cost/icon",
+			"Tooltip": "What Claude Code and Codex have cost you today, this week, or this month. Press to change the period. Reads the session logs already on your computer.",
+			"PropertyInspectorPath": "ui/cost.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/cost/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "Claude & Codex Cost Lite",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "See what your AI coding actually costs, without leaving your editor. Live spend for Claude Code and Codex on a single key: today, this week, this month. Press to switch. Everything is read from the session files already on your computer, so there is nothing to sign in to and nothing leaves your machine. Works alongside a Claude Pro or Max plan and a ChatGPT Plus or Pro plan. Claude & Codex Cost Pro adds Plan Value, which shows whether your plan is paying for itself, plus all time totals, a breakdown by model and by project, a budget alarm, cache hit rate and a daily trend. Not affiliated with or endorsed by Anthropic or OpenAI.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.code-cost"
+}

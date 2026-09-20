@@ -1,0 +1,53 @@
+{
+  "slug": "mlb-tracker",
+  "errors": 4,
+  "warnings": 5,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'data-tos:mlb-espn-commercial-use' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'trademark:mlb-team-logos' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'platform-risk:unofficial-api' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'seasonality:mlb-offseason' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "ERROR",
+      "check": "package.plugin",
+      "message": "packaged plugin missing: com.packrat.mlb-tracker.streamDeckPlugin"
+    },
+    {
+      "severity": "ERROR",
+      "check": "package.plugin",
+      "message": "no *.sdPlugin/manifest.json source tree"
+    },
+    {
+      "severity": "ERROR",
+      "check": "assets.kit",
+      "message": "marketing dir missing: C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\plugins\\mlb-tracker\\marketing"
+    },
+    {
+      "severity": "ERROR",
+      "check": "copy.description",
+      "message": "marketing/description.txt missing"
+    }
+  ]
+}

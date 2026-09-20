@@ -1,0 +1,144 @@
+{
+	"Name": "Dota 2 Live Stats",
+	"Version": "1.0.0.0",
+	"Author": "Ratpack",
+	"URL": "https://marketplace.elgato.com",
+	"Actions": [
+		{
+			"Name": "Hero HP / Mana",
+			"UUID": "com.ratpack.dota2reactivedeck.hpmana",
+			"Icon": "imgs/actions/hpmana/icon",
+			"Tooltip": "Two-line hero HP and mana. HP colour shifts green to red; a blue bar tracks mana.",
+			"PropertyInspectorPath": "ui/hpmana.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/hpmana/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Gold Counter",
+			"UUID": "com.ratpack.dota2reactivedeck.gold",
+			"Icon": "imgs/actions/gold/icon",
+			"Tooltip": "Live gold. Flashes yellow whenever your gold jumps (kill or bounty).",
+			"PropertyInspectorPath": "ui/gold.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/gold/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Roshan Timer",
+			"UUID": "com.ratpack.dota2reactivedeck.roshan",
+			"Icon": "imgs/actions/roshan/icon",
+			"Tooltip": "Press when you kill Roshan. Counts up, glows red at the 8-min window and bright red at the 11-min hard respawn.",
+			"PropertyInspectorPath": "ui/roshan.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/roshan/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "KDA",
+			"UUID": "com.ratpack.dota2reactivedeck.kda",
+			"Icon": "imgs/actions/kda/icon",
+			"Tooltip": "Live kills / deaths / assists.",
+			"PropertyInspectorPath": "ui/kda.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/kda/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Respawn Timer",
+			"UUID": "com.ratpack.dota2reactivedeck.respawn",
+			"Icon": "imgs/actions/respawn/icon",
+			"Tooltip": "Auto-detected respawn countdown when you die; shows ALIVE otherwise.",
+			"PropertyInspectorPath": "ui/respawn.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/respawn/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Match Timer",
+			"UUID": "com.ratpack.dota2reactivedeck.matchtimer",
+			"Icon": "imgs/actions/matchtimer/icon",
+			"Tooltip": "Game clock with a day/night marker.",
+			"PropertyInspectorPath": "ui/matchtimer.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/matchtimer/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Net Worth",
+			"UUID": "com.ratpack.dota2reactivedeck.networth",
+			"Icon": "imgs/actions/networth/icon",
+			"Tooltip": "Your total net worth (gold + items).",
+			"PropertyInspectorPath": "ui/networth.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/networth/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "Dota 2 Live Stats",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Stream Deck buttons that react in real time to Dota 2 using Game State Integration. Hero HP and mana, gold, Roshan timer, and KDA — live on your deck.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.ratpack.dota2reactivedeck"
+}

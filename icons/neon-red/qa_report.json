@@ -1,0 +1,28 @@
+{
+  "slug": "neon-red",
+  "errors": 3,
+  "warnings": 1,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "ERROR",
+      "check": "copy.blocklist",
+      "message": "pack manifest.json contains banned token '–' (en dash; same rule as em dash)"
+    },
+    {
+      "severity": "ERROR",
+      "check": "assets.kit",
+      "message": "marketing dir missing: C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\icons\\neon-red\\marketing"
+    },
+    {
+      "severity": "ERROR",
+      "check": "copy.description",
+      "message": "marketing/description.txt missing"
+    }
+  ]
+}

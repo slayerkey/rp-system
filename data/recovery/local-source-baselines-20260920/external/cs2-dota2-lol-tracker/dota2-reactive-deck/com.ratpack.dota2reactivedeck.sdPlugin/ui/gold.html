@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Gold Counter</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	</head>
+	<body>
+		<sdpi-item label="Flash colour">
+			<sdpi-color setting="flashColor" default="#ffe08a"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="Flash on jump ≥">
+			<sdpi-range setting="jump" min="40" max="400" step="10" default="90" showlabels></sdpi-range>
+		</sdpi-item>
+		<sdpi-item label="GSI Port">
+			<sdpi-textfield setting="port" global default="3001" placeholder="3001"></sdpi-textfield>
+		</sdpi-item>
+		<p style="font-size:11px;color:#9aa6c4;margin:4px 6px;line-height:1.4;">Leave this at <b>3001</b> — it already matches the included config file and works automatically. No setup needed unless you changed the port in the .cfg (Dota uses 3001 so it never clashes with CS2).</p>
+		<sdpi-item label="Tip">
+			<sdpi-text>A higher jump value flashes only on kills/bounties, not passive gold.</sdpi-text>
+		</sdpi-item>
+	</body>
+</html>

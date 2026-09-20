@@ -1,0 +1,47 @@
+{
+	"Name": "Workflow Automation Pro",
+	"Version": "1.0.0.1",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Run Sequence",
+			"UUID": "com.packrat.workflowpro.run",
+			"Icon": "imgs/actions/run/icon",
+			"Tooltip": "Runs a list of steps in order on one press, with conditions that can stop it and web requests it can send.",
+			"PropertyInspectorPath": "ui/run.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/run/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "Workflow Automation Pro",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Build a routine that thinks before it acts. Open programs, press key combinations, wait for something to load and open links, with room for twenty five steps on a single key. Add a condition and the routine only carries on when it makes sense, so a key can check that your recorder is already running and stop quietly if it is not, rather than piling a second copy on top. Add a web request and one press can also tell something else that you have started, whether that is a home automation hook, a chat notice, or your own script. The key counts the steps off as it runs, and if something fails it stops there and names the step, so you know exactly where to look.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.workflowpro"
+}

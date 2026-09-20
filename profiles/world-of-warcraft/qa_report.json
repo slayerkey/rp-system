@@ -1,0 +1,28 @@
+{
+  "slug": "world-of-warcraft",
+  "errors": 0,
+  "warnings": 4,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'game-ip:blizzard-noncommercial-clause' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'anti-automation:strict-enforcement' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "World of Warcraft.streamDeckProfile [std_win]: page 'Warcraft' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "World of Warcraft (Mac).streamDeckProfile [std_mac]: page 'Warcraft' fills all 15 slots (house rule: leave breathing room)"
+    }
+  ]
+}

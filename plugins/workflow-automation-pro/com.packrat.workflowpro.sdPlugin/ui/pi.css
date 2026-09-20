@@ -1,0 +1,173 @@
+/* Packrat property inspector: charcoal base, brass accent. Same family as Clipboard Manager. */
+:root {
+	--charcoal: #1c1b19;
+	--panel: #2d2c29;
+	--brass: #e8791a;
+	--text: #d8d4cc;
+	--text-dim: #8b877f;
+	--border: #46443f;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 14px;
+	background: var(--charcoal);
+	color: var(--text);
+	font-family: "Segoe UI", system-ui, sans-serif;
+	font-size: 12px;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+h2 {
+	margin: 0 0 8px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.hint {
+	margin: 8px 0 0;
+	color: var(--text-dim);
+	font-size: 11px;
+	line-height: 1.5;
+}
+
+.row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 10px;
+}
+
+.row > label.key {
+	flex: 0 0 70px;
+	text-align: right;
+	color: var(--text-dim);
+	font-size: 11px;
+}
+
+.row > .field {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+select,
+input[type="text"] {
+	width: 100%;
+	padding: 5px 6px;
+	background: var(--panel);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	font-size: 12px;
+	font-family: inherit;
+}
+
+select:focus,
+input[type="text"]:focus {
+	outline: none;
+	border-color: var(--brass);
+}
+
+.disclaimer {
+	margin-top: 14px;
+	padding-top: 9px;
+	border-top: 1px solid var(--border);
+	color: var(--text-dim);
+	font-size: 10px;
+	line-height: 1.5;
+}
+
+/* --- sequence builder ---------------------------------------------------- */
+
+.step {
+	margin-top: 10px;
+	padding: 8px;
+	background: rgba(0, 0, 0, 0.22);
+	border: 1px solid var(--border);
+	border-radius: 4px;
+}
+
+.stepHead {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.stepHead > select {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.stepNum {
+	flex: 0 0 18px;
+	color: var(--text-dim);
+	font-size: 11px;
+	text-align: center;
+}
+
+.stepBody .row {
+	margin-top: 7px;
+}
+
+button {
+	padding: 5px 9px;
+	background: var(--panel);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	font-size: 12px;
+	font-family: inherit;
+	cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+	border-color: var(--brass);
+}
+
+button:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.iconBtn {
+	flex: 0 0 auto;
+	padding: 4px 7px;
+	line-height: 1;
+}
+
+.iconBtn.danger:hover:not(:disabled) {
+	border-color: #c2483a;
+	color: #e8796d;
+}
+
+.addRow {
+	margin-top: 10px;
+}
+
+.addRow .field > button {
+	width: 100%;
+}
+
+.mods {
+	display: flex;
+	gap: 10px;
+}
+
+.modOpt {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--text-dim);
+	font-size: 11px;
+	cursor: pointer;
+}
+
+.modOpt > input {
+	margin: 0;
+	accent-color: var(--brass);
+}

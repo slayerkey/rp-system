@@ -1,0 +1,13 @@
+{
+  "slug": "forza",
+  "errors": 0,
+  "warnings": 1,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'competition:freshly-contested-2026-06' is open; resolve before submission"
+    }
+  ]
+}

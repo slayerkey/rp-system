@@ -1,0 +1,269 @@
+/* Packrat property inspector: charcoal base, brass accent. Same family as Better Hotkeys. */
+:root {
+	--charcoal: #1c1b19;
+	--panel: #2d2c29;
+	--panel-hi: #3a3936;
+	--brass: #e8791a;
+	--brass-deep: #b25a10;
+	--text: #d8d4cc;
+	--text-dim: #8b877f;
+	--border: #46443f;
+	--red: #c4432b;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 14px;
+	background: var(--charcoal);
+	color: var(--text);
+	font-family: "Segoe UI", system-ui, sans-serif;
+	font-size: 12px;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+h2 {
+	margin: 0 0 8px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--text);
+}
+
+.hint {
+	margin: 8px 0 0;
+	color: var(--text-dim);
+	font-size: 11px;
+	line-height: 1.5;
+}
+
+/* --- screensaver checklist ---------------------------------------------- */
+
+.list {
+	max-height: 190px;
+	overflow-y: auto;
+	margin-top: 4px;
+	padding: 4px;
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-radius: 4px;
+}
+
+.check {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 5px;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+.check:hover {
+	background: var(--panel-hi);
+}
+
+.check input {
+	appearance: none;
+	width: 13px;
+	height: 13px;
+	margin: 0;
+	flex: 0 0 auto;
+	position: relative;
+	background: var(--panel-hi);
+	border: 1px solid var(--border);
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.check input:checked {
+	background: var(--brass);
+	border-color: var(--brass);
+}
+
+.check input:checked::after {
+	content: "";
+	position: absolute;
+	left: 3.5px;
+	top: 0.5px;
+	width: 3px;
+	height: 7px;
+	border: solid var(--charcoal);
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+/* --- rows / fields ------------------------------------------------------ */
+
+.row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 10px;
+}
+
+.row > label.key {
+	flex: 0 0 70px;
+	text-align: right;
+	color: var(--text-dim);
+	font-size: 11px;
+}
+
+.row > .field {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+select,
+input[type="text"] {
+	width: 100%;
+	padding: 5px 6px;
+	background: var(--panel);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	font-size: 12px;
+	font-family: inherit;
+}
+
+input[type="number"],
+input[type="time"] {
+	padding: 4px 5px;
+	background: var(--panel);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	font-family: inherit;
+	font-size: 12px;
+}
+
+input[type="number"] {
+	width: 60px;
+}
+
+select:focus,
+input:focus {
+	outline: none;
+	border-color: var(--brass);
+}
+
+.mod {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 10px;
+	cursor: pointer;
+}
+
+.mod input {
+	appearance: none;
+	width: 13px;
+	height: 13px;
+	margin: 0;
+	position: relative;
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.mod input:checked {
+	background: var(--brass);
+	border-color: var(--brass);
+}
+
+.mod input:checked::after {
+	content: "";
+	position: absolute;
+	left: 3.5px;
+	top: 0.5px;
+	width: 3px;
+	height: 7px;
+	border: solid var(--charcoal);
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+/* --- schedule rules ----------------------------------------------------- */
+
+.rule {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.rule select {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.rule input[type="time"] {
+	flex: 0 0 auto;
+}
+
+button.add {
+	margin-top: 10px;
+	width: 100%;
+	padding: 8px;
+	background: linear-gradient(180deg, var(--brass) 0%, var(--brass-deep) 100%);
+	color: #1a1512;
+	border: 1px solid var(--brass-deep);
+	border-radius: 4px;
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+button.add:hover {
+	filter: brightness(1.1);
+}
+
+.link {
+	padding: 2px 4px;
+	background: none;
+	border: none;
+	color: var(--text-dim);
+	font-family: inherit;
+	font-size: 11px;
+	text-decoration: underline;
+	cursor: pointer;
+	flex: 0 0 auto;
+}
+
+.link:hover {
+	color: var(--brass);
+}
+
+details {
+	margin-top: 14px;
+	border-top: 1px solid var(--border);
+	padding-top: 9px;
+}
+
+summary {
+	cursor: pointer;
+	color: var(--text-dim);
+	font-size: 11px;
+	list-style: none;
+}
+
+summary:hover {
+	color: var(--text);
+}
+
+summary::-webkit-details-marker {
+	display: none;
+}
+
+summary::before {
+	content: "▸ ";
+	color: var(--brass-deep);
+}
+
+details[open] summary::before {
+	content: "▾ ";
+}

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Scroll</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-kind="scroll">
+		<div class="row first">
+			<label class="key" for="direction">Direction</label>
+			<div class="field">
+				<select id="direction">
+					<option value="down">Down</option>
+					<option value="up">Up</option>
+					<option value="right">Right</option>
+					<option value="left">Left</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="row">
+			<label class="key" for="amount">Notches</label>
+			<div class="field slider"><input type="number" id="amount" min="1" max="50" step="1" class="num" /></div>
+		</div>
+
+		<div class="row">
+			<label class="key" for="target">Scrolls</label>
+			<div class="field">
+				<select id="target">
+					<option value="pointer">Where my mouse is</option>
+					<option value="active">The window in front</option>
+				</select>
+			</div>
+		</div>
+
+		<div id="summary" class="summary"></div>
+
+		<p class="hint">One notch is one "click" of the wheel. Some menus want several.</p>
+
+		<p class="hint">
+			Windows sends the wheel to whatever your mouse pointer is sitting on, not to the window you are
+			looking at. If nothing moves, park the pointer over the thing you want to scroll, or switch
+			<b>Scrolls</b> to the window in front.
+		</p>
+
+		<p class="hint" id="target-note" hidden>
+			Aims at the app in front no matter where your mouse is. Windows only. A few games read the
+			mouse directly and only answer to the normal setting.
+		</p>
+
+		<p class="hint" id="axis-note" hidden>Sideways scrolling. Handy for timelines and wide sheets, though not every app listens for it.</p>
+
+		<details>
+			<summary>Throw it in bursts</summary>
+			<div class="row">
+				<label class="key" for="repeat">Repeat</label>
+				<div class="field slider"><input type="number" id="repeat" min="1" max="100" step="1" class="num" /><span class="unit">×</span></div>
+			</div>
+			<div class="row">
+				<label class="key" for="interval">Gap</label>
+				<div class="field slider"><input type="number" id="interval" min="0" max="500" step="10" class="num" /><span class="unit">ms</span></div>
+			</div>
+			<p class="hint">Sends the scroll several times with a gap, for menus that ignore one big jump.</p>
+		</details>
+
+		<script src="phase3.js"></script>
+	</body>
+</html>

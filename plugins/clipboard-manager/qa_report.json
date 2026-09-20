@@ -1,0 +1,18 @@
+{
+  "slug": "clipboard-manager",
+  "errors": 0,
+  "warnings": 2,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'compat-risk:dlp-av' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'overlap-risk:builtin-text' is open; resolve before submission"
+    }
+  ]
+}

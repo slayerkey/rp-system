@@ -1,0 +1,79 @@
+{
+	"Name": "NASCAR Tracker",
+	"Version": "1.0.0.0",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Next Race",
+			"UUID": "com.packrat.nascar-tracker.event",
+			"Icon": "imgs/actions/event/icon",
+			"Tooltip": "The next race and a countdown once it is close. Press to refresh.",
+			"PropertyInspectorPath": "ui/event.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/event/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Race Field",
+			"UUID": "com.packrat.nascar-tracker.card",
+			"Icon": "imgs/actions/card/icon",
+			"Tooltip": "The running order, one driver at a time. Press for the next position.",
+			"PropertyInspectorPath": "ui/card.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/card/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Driver Standings",
+			"UUID": "com.packrat.nascar-tracker.standings",
+			"Icon": "imgs/actions/standings/icon",
+			"Tooltip": "The championship table, one driver at a time. Press to walk down the order.",
+			"PropertyInspectorPath": "ui/standings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/standings/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "NASCAR Tracker",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Race day on your deck. The next race, the running order, and the championship table, updating on their own while you play or stream. No alt-tabbing to check the race. Not affiliated with or endorsed by NASCAR, any team or any driver.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.nascar-tracker"
+}

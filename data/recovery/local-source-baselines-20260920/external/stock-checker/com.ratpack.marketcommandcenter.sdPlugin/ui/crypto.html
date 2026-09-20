@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+	<title>Crypto Settings</title>
+	<meta charset="utf-8" />
+	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	<style>
+		.mcc-heading {
+			color: #d8d8d8;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.06em;
+			text-transform: uppercase;
+			padding: 10px 8px 2px;
+		}
+		.mcc-note {
+			color: #cfcfcf;
+			font-size: 11px;
+			line-height: 1.5;
+			padding: 6px 8px 0;
+		}
+	</style>
+</head>
+
+<body>
+	<sdpi-item label="Popular">
+		<sdpi-select setting="preset" default="BTC">
+			<option value="BTC">Bitcoin (BTC)</option>
+			<option value="ETH">Ethereum (ETH)</option>
+			<option value="SOL">Solana (SOL)</option>
+			<option value="XRP">XRP (XRP)</option>
+			<option value="DOGE">Dogecoin (DOGE)</option>
+			<option value="ADA">Cardano (ADA)</option>
+			<option value="BNB">BNB (BNB)</option>
+			<option value="AVAX">Avalanche (AVAX)</option>
+			<option value="LINK">Chainlink (LINK)</option>
+			<option value="DOT">Polkadot (DOT)</option>
+			<option value="MATIC">Polygon (MATIC)</option>
+			<option value="LTC">Litecoin (LTC)</option>
+		</sdpi-select>
+	</sdpi-item>
+	<sdpi-item label="Custom coin">
+		<sdpi-textfield setting="symbol" placeholder="BTC  or  BTC, ETH, SOL"></sdpi-textfield>
+	</sdpi-item>
+	<div class="mcc-note">Type one coin, or several separated by commas to rotate them, or to fill a heatmap below.</div>
+
+	<sdpi-item label="Display style">
+		<sdpi-select setting="displayStyle" default="price">
+			<option value="price">Live Price (sparkline)</option>
+			<option value="heatmap">Heatmap Grid</option>
+		</sdpi-select>
+	</sdpi-item>
+	<div class="mcc-note">
+		Heatmap Grid shows every coin above as one color-coded grid instead of rotating through them.
+		Timeframe, sparkline, holdings and alerts below don't apply in this mode.
+	</div>
+
+	<sdpi-item label="Rotate (sec)">
+		<sdpi-select setting="rotateSeconds" default="6">
+			<option value="4">4 seconds</option>
+			<option value="6">6 seconds</option>
+			<option value="10">10 seconds</option>
+			<option value="15">15 seconds</option>
+		</sdpi-select>
+	</sdpi-item>
+
+	<sdpi-item label="Timeframe">
+		<sdpi-select setting="timeframe" default="1D">
+			<option value="1D">24 hours</option>
+			<option value="1W">Week (1W)</option>
+			<option value="1M">Month (1M)</option>
+			<option value="1Y">Year (1Y)</option>
+		</sdpi-select>
+	</sdpi-item>
+	<sdpi-item label="Theme">
+		<sdpi-select setting="theme" default="dark">
+			<option value="dark">Dark</option>
+			<option value="minimal">Minimal</option>
+			<option value="pro">On-Stream Pro</option>
+		</sdpi-select>
+	</sdpi-item>
+	<sdpi-item label="Sparkline">
+		<sdpi-checkbox setting="showSparkline" default="true"></sdpi-checkbox>
+	</sdpi-item>
+
+	<div class="mcc-heading">Holdings (optional)</div>
+	<sdpi-item label="Amount held">
+		<sdpi-textfield setting="shares" placeholder="e.g. 0.5"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="Avg buy price">
+		<sdpi-textfield setting="avgCost" placeholder="Average cost per coin"></sdpi-textfield>
+	</sdpi-item>
+	<div class="mcc-note">Fill both to show your position's profit/loss on the key.</div>
+
+	<div class="mcc-heading">Alerts (optional)</div>
+	<sdpi-item label="Alert above">
+		<sdpi-textfield setting="alertAbove" placeholder="Price"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="Alert below">
+		<sdpi-textfield setting="alertBelow" placeholder="Price"></sdpi-textfield>
+	</sdpi-item>
+
+	<div class="mcc-note">No API key needed. Type any coin in the custom field. Press a key to cycle timeframe.</div>
+</body>
+
+</html>

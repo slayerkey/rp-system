@@ -1,0 +1,114 @@
+{
+	"Name": "Better Hotkeys & Mouse",
+	"Version": "0.2.1.0",
+	"Author": "Packrat",
+	"Actions": [
+		{
+			"Name": "Hold Key",
+			"UUID": "com.packrat.betterhotkeys.holdkey",
+			"Icon": "imgs/actions/holdkey/icon",
+			"Tooltip": "Holds one or more keys down for exactly as long as you hold the Stream Deck key.",
+			"PropertyInspectorPath": "ui/hold-key.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/holdkey/key",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/holdkey/key_on",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Toggle Key",
+			"UUID": "com.packrat.betterhotkeys.togglekey",
+			"Icon": "imgs/actions/togglekey/icon",
+			"Tooltip": "Press once to hold keys down, press again to release them.",
+			"PropertyInspectorPath": "ui/toggle-key.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/togglekey/key",
+					"Name": "Off",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/togglekey/key_on",
+					"Name": "On",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Click Mouse",
+			"UUID": "com.packrat.betterhotkeys.clickmouse",
+			"Icon": "imgs/actions/clickmouse/icon",
+			"Tooltip": "Left, right or middle click — where the cursor is, or at a spot on screen.",
+			"PropertyInspectorPath": "ui/click-mouse.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/clickmouse/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Toggle Mouse Button",
+			"UUID": "com.packrat.betterhotkeys.togglemouse",
+			"Icon": "imgs/actions/togglemouse/icon",
+			"Tooltip": "Press once to hold a mouse button down, press again to let go.",
+			"PropertyInspectorPath": "ui/toggle-mouse.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/actions/togglemouse/key",
+					"Name": "Off",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/togglemouse/key_on",
+					"Name": "On",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "Better Hotkeys & Mouse",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Hotkeys that stay down. Hold a key for exactly as long as you hold the Stream Deck key, or toggle it down and leave it there.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "11"
+		}
+	],
+	"Nodejs": {
+		"Version": "24",
+		"Debug": "enabled"
+	},
+	"UUID": "com.packrat.betterhotkeys"
+}

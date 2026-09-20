@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Cost</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="cost">
+		<h2>What should this key show?</h2>
+		<div class="row">
+			<label class="key" for="period">Period</label>
+			<div class="field">
+				<select id="period">
+					<option value="today">Today</option>
+					<option value="7d">Last 7 days</option>
+					<option value="30d">Last 30 days</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<label class="key" for="scope">Include</label>
+			<div class="field">
+				<select id="scope">
+					<option value="all">Claude Code and Codex</option>
+					<option value="claude">Claude Code only</option>
+					<option value="codex">Codex only</option>
+				</select>
+			</div>
+		</div>
+		<p class="hint">Press the key to move between today, 7 days and 30 days without opening this panel.</p>
+		<p class="hint">
+			The figure is worked out from the session files Claude Code and Codex already save on this computer. There
+			is nothing to sign in to, no key to paste, and nothing leaves your machine.
+		</p>
+		<p class="hint">
+			A red dot in the corner means one of the models you used has no price on file yet, so the real figure is
+			higher than the one shown.
+		</p>
+
+		<p class="disclaimer">
+			Not affiliated with or endorsed by Anthropic or OpenAI. Costs are an estimate worked out from published
+			token rates and your own local session files, and will not match a bill exactly.
+		</p>
+
+		<script src="pi.js"></script>
+		<script src="pro-footer.js"></script>
+	</body>
+</html>

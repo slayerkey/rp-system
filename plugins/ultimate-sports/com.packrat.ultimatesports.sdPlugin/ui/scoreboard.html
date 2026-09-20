@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>League Games</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="scoreboard">
+		<h2>One league's games, one key</h2>
+		<div class="row">
+			<label class="key" for="sport">Sport</label>
+			<div class="field"><select id="sport"></select></div>
+		</div>		<div class="row" id="league-row">
+			<label class="key" for="league">Competition</label>
+			<div class="field"><select id="league"></select></div>
+		</div>
+		<div class="row">
+			<label class="key" for="press">On tap</label>
+			<div class="field">
+				<select id="press">
+					<option value="cycle">Show the next game</option>
+					<option value="open">Open the game page</option>
+				</select>
+			</div>
+		</div>
+		<p class="hint"><strong>Tap shows the next game. Hold to open that game on ESPN.</strong> A hold always does the opposite of a tap, so swapping the setting below swaps both.</p>
+		<p class="hint">
+			Every game on the league's current slate, one at a time, live games first, with its position in the list
+			shown in the corner. In season that is today's fixtures; out of season it is the next match day, so
+			anything not yet started shows its date as well as its time. This is a list of games, not the league
+			table: for where a team sits, use a Standings key. It costs no extra updates, since it reads the same
+			data your team keys already do.
+		</p>
+		<p class="disclaimer">Not affiliated with or endorsed by any league, team or governing body. Team names and colors identify the teams whose scores you chose to follow.</p>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

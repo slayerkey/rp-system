@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+	<title>Market Clock Settings</title>
+	<meta charset="utf-8" />
+	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	<style>
+		.mcc-note {
+			color: #cfcfcf;
+			font-size: 11px;
+			line-height: 1.5;
+			padding: 6px 8px 0;
+		}
+	</style>
+</head>
+
+<body>
+	<sdpi-item label="Exchange">
+		<sdpi-select setting="exchange" default="US">
+			<option value="US">US (NYSE / Nasdaq)</option>
+			<option value="TSX">Toronto (TSX)</option>
+			<option value="LSE">London (LSE)</option>
+			<option value="XETRA">Frankfurt (Xetra)</option>
+			<option value="EURONEXT">Paris (Euronext)</option>
+			<option value="TSE">Tokyo (TSE)</option>
+			<option value="HKEX">Hong Kong (HKEX)</option>
+			<option value="SGX">Singapore (SGX)</option>
+			<option value="ASX">Sydney (ASX)</option>
+		</sdpi-select>
+	</sdpi-item>
+	<sdpi-item label="Candle timer">
+		<sdpi-select setting="candleMinutes" default="0">
+			<option value="0">Off</option>
+			<option value="1">1 minute</option>
+			<option value="5">5 minutes</option>
+			<option value="15">15 minutes</option>
+		</sdpi-select>
+	</sdpi-item>
+	<div class="mcc-note">
+		<strong>For chart watchers:</strong> candlestick charts are built from fixed time blocks (e.g. a
+		"5-minute candle"). This adds a small progress bar showing how far into the current block you are, so you
+		know when the next candle will form without tabbing over to your charting app. If you don't watch
+		candlestick charts, leave this Off.
+	</div>
+	<sdpi-item label="Theme">
+		<sdpi-select setting="theme" default="dark">
+			<option value="dark">Dark</option>
+			<option value="minimal">Minimal</option>
+			<option value="pro">On-Stream Pro</option>
+		</sdpi-select>
+	</sdpi-item>
+	<div class="mcc-note">
+		Shows the exchange's session — pre-market, open, lunch break (Tokyo, Hong Kong, Singapore), after-hours, or
+		closed — with a live countdown to the next change, color-coded by session. No API key required.
+	</div>
+</body>
+
+</html>

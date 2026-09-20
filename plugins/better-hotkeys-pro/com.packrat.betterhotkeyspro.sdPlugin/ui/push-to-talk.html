@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Push to Talk</title>
+		<link rel="stylesheet" href="keys.css" />
+	</head>
+	<body data-kind="ptt">
+		<div class="row first">
+			<label class="key" for="device">Microphone</label>
+			<div class="field"><select id="device"></select></div>
+		</div>
+
+		<div class="row">
+			<label class="key" for="mode">While held</label>
+			<div class="field">
+				<select id="mode">
+					<option value="talk">Talk (hold to speak)</option>
+					<option value="mute">Mute (hold to silence)</option>
+				</select>
+			</div>
+		</div>
+
+		<p class="hint">
+			<b>Talk</b> keeps the mic muted and opens it only while you hold the key — classic push-to-talk.
+			<b>Mute</b> is the reverse: live normally, silenced while you hold (a cough button).
+		</p>
+
+		<p id="targets" class="hint"></p>
+		<script src="mic.js"></script>
+	</body>
+</html>

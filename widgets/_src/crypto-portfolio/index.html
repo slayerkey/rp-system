@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg">
+<title>tr('Crypto Portfolio')</title>
+
+<meta name="x-icue-property" content="holdings" data-label="tr('Holdings')" data-type="textfield" data-default="'bitcoin:0.5, ethereum:4'">
+<meta name="x-icue-property" content="coingeckoKey" data-label="tr('CoinGecko Key (optional)')" data-type="textfield" data-default="''">
+<meta name="x-icue-property" content="refreshMinutes" data-label="tr('Refresh')" data-type="slider" data-min="1" data-max="60" data-step="1" data-unit-label="'min'" data-default="15">
+<meta name="x-icue-property" content="showAllocation" data-label="tr('Show Allocation')" data-type="switch" data-default="true">
+<meta name="x-icue-property" content="hideValue" data-label="tr('Hide Amounts')" data-type="switch" data-default="false">
+
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F2F5F7'">
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'">
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#0B0E11'">
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Portfolio')",
+    "properties": ["holdings", "coingeckoKey", "refreshMinutes", "showAllocation", "hideValue"],
+    "info": "tr('One coin per entry, like bitcoin:0.5. Amounts stay on this PC.')"
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor"]
+  }
+]
+</script>
+
+<link rel="stylesheet" href="../../_shared/tokens.css">
+<link rel="stylesheet" href="portfolio.css">
+</head>
+<body>
+<div id="stage">
+    <div id="head">
+        <span class="head-left">
+            <span id="total">$0</span>
+            <span id="totalChange" class="total-change"></span>
+        </span>
+        <span id="status" class="status"></span>
+    </div>
+    <div id="rows"></div>
+</div>
+<script src="../../_shared/boot.js"></script>
+<script src="../../_shared/net.js"></script>
+<script src="portfolio.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>League Scoreboard</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="scoreboard">
+		<h2>Every game playing today</h2>
+		<div class="row">
+			<label class="key" for="press">On press</label>
+			<div class="field">
+				<select id="press">
+					<option value="cycle">Show the next game</option>
+					<option value="open">Open the game page</option>
+				</select>
+			</div>
+		</div>
+		<p class="hint">
+			One key, the whole league. Games in progress come first, then what has not started, then the finals. The
+			corner shows which game you are on. Nothing to configure: it follows today's schedule.
+		</p>
+
+		<p class="disclaimer">Not affiliated with or endorsed by the NFL or any team. Team names and colors identify the teams playing.</p>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

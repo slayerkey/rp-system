@@ -1,0 +1,290 @@
+{
+  "activePlayer": {
+    "currentGold": 500,
+    "level": 3,
+    "riotId": "boots#fur",
+    "riotIdGameName": "boots",
+    "riotIdTagLine": "fur",
+    "summonerName": "boots#fur",
+    "teamRelativeColors": true
+  },
+  "allPlayers": [
+    {
+      "isBot": false,
+      "isDead": false,
+      "items": [],
+      "level": 3,
+      "position": "NONE",
+      "respawnTimer": 0,
+      "riotId": "boots#fur",
+      "riotIdGameName": "boots",
+      "riotIdTagLine": "fur",
+      "runes": null,
+      "scores": {
+        "assists": 0,
+        "creepScore": 0,
+        "deaths": 0,
+        "kills": 0,
+        "wardScore": 0
+      },
+      "skinID": 0,
+      "summonerName": "boots#fur",
+      "summonerSpells": {},
+      "team": "ORDER"
+    },
+    {
+      "isBot": true,
+      "isDead": false,
+      "items": [],
+      "level": 3,
+      "position": "",
+      "respawnTimer": 0,
+      "riotId": "SweatlordTFT#1745",
+      "riotIdGameName": "SweatlordTFT",
+      "riotIdTagLine": "1745",
+      "runes": null,
+      "scores": {
+        "assists": 0,
+        "creepScore": 0,
+        "deaths": 0,
+        "kills": 0,
+        "wardScore": 0
+      },
+      "skinID": 0,
+      "summonerName": "SweatlordTFT#1745",
+      "summonerSpells": {
+        "summonerSpellOne": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        },
+        "summonerSpellTwo": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        }
+      },
+      "team": "ORDER"
+    },
+    {
+      "isBot": true,
+      "isDead": false,
+      "items": [],
+      "level": 3,
+      "position": "",
+      "respawnTimer": 0,
+      "riotId": "oppagangnam#3749",
+      "riotIdGameName": "oppagangnam",
+      "riotIdTagLine": "3749",
+      "runes": null,
+      "scores": {
+        "assists": 0,
+        "creepScore": 0,
+        "deaths": 0,
+        "kills": 0,
+        "wardScore": 0
+      },
+      "skinID": 0,
+      "summonerName": "oppagangnam#3749",
+      "summonerSpells": {
+        "summonerSpellOne": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        },
+        "summonerSpellTwo": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        }
+      },
+      "team": "ORDER"
+    },
+    {
+      "isBot": true,
+      "isDead": false,
+      "items": [],
+      "level": 3,
+      "position": "",
+      "respawnTimer": 0,
+      "riotId": "AlfieGuy#1220",
+      "riotIdGameName": "AlfieGuy",
+      "riotIdTagLine": "1220",
+      "runes": null,
+      "scores": {
+        "assists": 0,
+        "creepScore": 0,
+        "deaths": 0,
+        "kills": 0,
+        "wardScore": 0
+      },
+      "skinID": 0,
+      "summonerName": "AlfieGuy#1220",
+      "summonerSpells": {
+        "summonerSpellOne": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        },
+        "summonerSpellTwo": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        }
+      },
+      "team": "ORDER"
+    },
+    {
+      "isBot": true,
+      "isDead": false,
+      "items": [],
+      "level": 3,
+      "position": "",
+      "respawnTimer": 0,
+      "riotId": "DumplingFan#nine",
+      "riotIdGameName": "DumplingFan",
+      "riotIdTagLine": "nine",
+      "runes": null,
+      "scores": {
+        "assists": 0,
+        "creepScore": 0,
+        "deaths": 0,
+        "kills": 0,
+        "wardScore": 0
+      },
+      "skinID": 0,
+      "summonerName": "DumplingFan#nine",
+      "summonerSpells": {
+        "summonerSpellOne": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        },
+        "summonerSpellTwo": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        }
+      },
+      "team": "ORDER"
+    },
+    {
+      "isBot": true,
+      "isDead": false,
+      "items": [],
+      "level": 3,
+      "position": "",
+      "respawnTimer": 0,
+      "riotId": "Sir Lags A Lot#2343",
+      "riotIdGameName": "Sir Lags A Lot",
+      "riotIdTagLine": "2343",
+      "runes": null,
+      "scores": {
+        "assists": 0,
+        "creepScore": 0,
+        "deaths": 0,
+        "kills": 0,
+        "wardScore": 0
+      },
+      "skinID": 0,
+      "summonerName": "Sir Lags A Lot#2343",
+      "summonerSpells": {
+        "summonerSpellOne": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        },
+        "summonerSpellTwo": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        }
+      },
+      "team": "ORDER"
+    },
+    {
+      "isBot": true,
+      "isDead": false,
+      "items": [],
+      "level": 3,
+      "position": "",
+      "respawnTimer": 0,
+      "riotId": "AzAlways#3664",
+      "riotIdGameName": "AzAlways",
+      "riotIdTagLine": "3664",
+      "runes": null,
+      "scores": {
+        "assists": 0,
+        "creepScore": 0,
+        "deaths": 0,
+        "kills": 0,
+        "wardScore": 0
+      },
+      "skinID": 0,
+      "summonerName": "AzAlways#3664",
+      "summonerSpells": {
+        "summonerSpellOne": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        },
+        "summonerSpellTwo": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        }
+      },
+      "team": "ORDER"
+    },
+    {
+      "isBot": true,
+      "isDead": false,
+      "items": [],
+      "level": 3,
+      "position": "",
+      "respawnTimer": 0,
+      "riotId": "Nyuuwin#7712",
+      "riotIdGameName": "Nyuuwin",
+      "riotIdTagLine": "7712",
+      "runes": null,
+      "scores": {
+        "assists": 0,
+        "creepScore": 0,
+        "deaths": 0,
+        "kills": 0,
+        "wardScore": 0
+      },
+      "skinID": 0,
+      "summonerName": "Nyuuwin#7712",
+      "summonerSpells": {
+        "summonerSpellOne": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        },
+        "summonerSpellTwo": {
+          "displayName": "",
+          "rawDescription": "",
+          "rawDisplayName": ""
+        }
+      },
+      "team": "ORDER"
+    }
+  ],
+  "events": {
+    "Events": [
+      {
+        "EventID": 0,
+        "EventName": "GameStart",
+        "EventTime": 0.04189709946513176
+      }
+    ]
+  },
+  "gameData": {
+    "gameMode": "TFT",
+    "gameTime": 94.19715118408203,
+    "mapName": "Map22",
+    "mapNumber": 22,
+    "mapTerrain": "Default"
+  }
+}

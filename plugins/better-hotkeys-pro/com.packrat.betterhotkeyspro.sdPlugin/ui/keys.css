@@ -1,0 +1,465 @@
+/* Packrat property inspector: charcoal base, brass accent.
+   The recorder is the hero -- everything else is folded away behind disclosures. */
+:root {
+	--charcoal: #1c1b19;
+	--panel: #2d2c29;
+	--panel-hi: #3a3936;
+	--brass: #e8791a;
+	--brass-deep: #b25a10;
+	--brass-dim: #7a4413;
+	--text: #d8d4cc;
+	--text-dim: #8b877f;
+	--border: #46443f;
+	--red: #c4432b;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 14px;
+	background: var(--charcoal);
+	color: var(--text);
+	font-family: "Segoe UI", system-ui, sans-serif;
+	font-size: 12px;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+/* --- the recorder ------------------------------------------------------- */
+
+.record {
+	display: block;
+	width: 100%;
+	padding: 13px 12px;
+	background: linear-gradient(180deg, var(--brass) 0%, var(--brass-deep) 100%);
+	color: #1a1512;
+	border: 1px solid var(--brass-deep);
+	border-radius: 4px;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.record:hover {
+	filter: brightness(1.1);
+}
+
+.record:active {
+	filter: brightness(0.92);
+}
+
+.record.recording {
+	background: var(--panel);
+	color: var(--brass);
+	border: 1px dashed var(--brass);
+	animation: listening 1.1s ease-in-out infinite;
+}
+
+@keyframes listening {
+	0%,
+	100% {
+		border-color: var(--brass-dim);
+		color: var(--brass-dim);
+	}
+	50% {
+		border-color: var(--brass);
+		color: var(--brass);
+	}
+}
+
+/* --- recorded keys ------------------------------------------------------ */
+
+.preview {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 3px;
+	min-height: 40px;
+	margin: 10px 0 2px;
+}
+
+kbd {
+	display: inline-block;
+	min-width: 24px;
+	padding: 5px 8px;
+	background: var(--panel-hi);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-bottom-width: 2px;
+	border-radius: 3px;
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	text-align: center;
+}
+
+.plus {
+	color: var(--text-dim);
+	margin: 0 1px;
+}
+
+.empty {
+	color: var(--text-dim);
+	font-style: italic;
+}
+
+/* --- summary ------------------------------------------------------------ */
+
+.summary {
+	margin-top: 8px;
+	padding: 8px 10px;
+	background: var(--panel);
+	border-left: 2px solid var(--brass);
+	border-radius: 0 3px 3px 0;
+	color: var(--text-dim);
+	line-height: 1.5;
+}
+
+.summary b {
+	color: var(--brass);
+	font-weight: 600;
+}
+
+.summary.error {
+	border-left-color: var(--red);
+}
+
+.summary.error b {
+	color: #e06a52;
+}
+
+.summary.hidden {
+	display: none;
+}
+
+.hint {
+	margin: 8px 0 0;
+	color: var(--text-dim);
+	font-size: 11px;
+	line-height: 1.5;
+}
+
+/* --- secondary controls ------------------------------------------------- */
+
+/* Sits directly under the recorded keys, centred: it acts on what's above it. */
+.actions {
+	display: flex;
+	justify-content: center;
+	margin-top: 2px;
+}
+
+.group {
+	margin-top: 12px;
+	border-top: 1px solid var(--border);
+	padding-top: 10px;
+}
+
+.group-label {
+	margin-bottom: 6px;
+	color: var(--text-dim);
+	font-size: 11px;
+}
+
+/* Two columns filled row by row, so every Left modifier stacks in the left column
+   and every Right one in the right. */
+.mods {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2px 8px;
+}
+
+.mod {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 5px;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+.mod:hover {
+	background: var(--panel);
+}
+
+/* Filled brass when on, hollow when off -- same tell as the key art. */
+.mod input {
+	appearance: none;
+	width: 13px;
+	height: 13px;
+	margin: 0;
+	flex: 0 0 auto;
+	position: relative;
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.mod input:checked {
+	background: var(--brass);
+	border-color: var(--brass);
+}
+
+.mod input:checked::after {
+	content: "";
+	position: absolute;
+	left: 3.5px;
+	top: 0.5px;
+	width: 3px;
+	height: 7px;
+	border: solid var(--charcoal);
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.link {
+	padding: 2px 4px;
+	background: none;
+	border: none;
+	color: var(--text-dim);
+	font-family: inherit;
+	font-size: 11px;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.link:hover {
+	color: var(--brass);
+}
+
+select {
+	width: 100%;
+	margin-top: 6px;
+	padding: 5px 6px;
+	background: var(--panel);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	font-size: 12px;
+	font-family: inherit;
+}
+
+select:focus {
+	outline: none;
+	border-color: var(--brass);
+}
+
+.row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.row > label.key {
+	flex: 0 0 60px;
+	text-align: right;
+	color: var(--text-dim);
+	font-size: 11px;
+}
+
+.row > .field {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.row > .field select {
+	margin-top: 0;
+}
+
+/* --- mouse pages -------------------------------------------------------- */
+
+.record.secondary {
+	margin-top: 10px;
+	padding: 8px 10px;
+	background: var(--panel-hi);
+	color: var(--text);
+	border: 1px solid var(--border);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.record.secondary:hover {
+	border-color: var(--brass);
+	color: var(--brass);
+	filter: none;
+}
+
+.group.first,
+.row.first {
+	margin-top: 0;
+	border-top: none;
+	padding-top: 0;
+}
+
+.mod.standalone {
+	padding-left: 0;
+}
+
+.mod.standalone:hover {
+	background: none;
+}
+
+.field.slider {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+input[type="range"] {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 4px;
+	appearance: none;
+	background: var(--panel-hi);
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+	appearance: none;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: var(--brass);
+	cursor: pointer;
+}
+
+input[type="number"] {
+	width: 52px;
+	flex: 0 0 auto;
+	padding: 4px 5px;
+	background: var(--panel);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	font-family: inherit;
+	font-size: 12px;
+}
+
+input[type="number"].wide {
+	width: 72px;
+}
+
+input[type="number"]:focus {
+	outline: none;
+	border-color: var(--brass);
+}
+
+.unit {
+	flex: 0 0 auto;
+	color: var(--text-dim);
+	font-size: 11px;
+}
+
+.hint.warn {
+	color: #e0a052;
+}
+
+.hint.center {
+	text-align: center;
+}
+
+/* --- radial dial -------------------------------------------------------- */
+
+.dial-wrap {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+#dial {
+	cursor: pointer;
+	touch-action: none;
+}
+
+#dial-handle {
+	cursor: grab;
+}
+
+.clock-dot {
+	fill: #46443f;
+	cursor: pointer;
+}
+
+.clock-dot:hover {
+	fill: #8b877f;
+}
+
+.clock-dot.active {
+	fill: var(--brass);
+}
+
+.clock-label {
+	fill: #8b877f;
+	font: 600 11px "Segoe UI", sans-serif;
+	pointer-events: none;
+}
+
+.record.small {
+	margin-top: 0;
+	padding: 6px 10px;
+	font-size: 12px;
+	font-weight: 500;
+	background: var(--panel-hi);
+	color: var(--text);
+	border: 1px solid var(--border);
+}
+
+.record.small:hover {
+	filter: none;
+	border-color: var(--brass);
+	color: var(--brass);
+}
+
+.record.small.recording {
+	background: var(--panel);
+	color: var(--brass);
+	border: 1px dashed var(--brass);
+}
+
+.record-inline {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.record-inline .record.small {
+	flex: 1 1 auto;
+}
+
+details {
+	margin-top: 12px;
+	border-top: 1px solid var(--border);
+	padding-top: 9px;
+}
+
+summary {
+	cursor: pointer;
+	color: var(--text-dim);
+	font-size: 11px;
+	list-style: none;
+}
+
+summary:hover {
+	color: var(--text);
+}
+
+summary::-webkit-details-marker {
+	display: none;
+}
+
+summary::before {
+	content: "▸ ";
+	color: var(--brass-dim);
+}
+
+details[open] summary::before {
+	content: "▾ ";
+}

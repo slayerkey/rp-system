@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Standings</title>
+		<link rel="stylesheet" href="pi.css" />
+	</head>
+	<body data-kind="standings">
+		<h2>Where does your team sit?</h2>
+		<div class="row">
+			<label class="key" for="team">Team</label>
+			<div class="field"><select id="team"></select></div>
+		</div>
+		<div class="row">
+			<label class="key" for="view">Show</label>
+			<div class="field">
+				<select id="view">
+					<option value="conference">Conference</option>
+					<option value="division">Division</option>
+				</select>
+			</div>
+		</div>
+		<p class="hint">The key shows the rank, the record, and how many games back. Press the key to swap between conference and division.</p>
+
+		<p class="disclaimer">Not affiliated with or endorsed by the NBA or any team. Team names and colors identify the teams whose standings you chose to follow.</p>
+
+		<script src="pi.js"></script>
+	</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "slug": "fl-studio",
+  "errors": 0,
+  "warnings": 3,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'hardware-unverified:not-install-tested' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'monetization:unproven-no-live-validation' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'device-exclusive:vsd-only-no-mk2-xl-variant' is open; resolve before submission"
+    }
+  ]
+}

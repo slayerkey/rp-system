@@ -1,0 +1,18 @@
+{
+  "slug": "nhl-tracker",
+  "errors": 0,
+  "warnings": 2,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'sports-ip:nhl' is open; resolve before submission"
+    },
+    {
+      "severity": "WARN",
+      "check": "registry.risk",
+      "message": "risk flag 'api-dependency:unofficial-nhl-api' is open; resolve before submission"
+    }
+  ]
+}

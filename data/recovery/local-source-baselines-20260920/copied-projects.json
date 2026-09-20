@@ -1,0 +1,802 @@
+[
+  {
+    "Category": "free",
+    "Slug": "better-hotkeys-mouse",
+    "LocalVersion": "0.2.1.0",
+    "UUID": "com.packrat.betterhotkeys",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\free\\better-hotkeys-mouse"
+  },
+  {
+    "Category": "icons",
+    "Slug": "minimal",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\minimal"
+  },
+  {
+    "Category": "icons",
+    "Slug": "minimalanimated",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\minimalanimated"
+  },
+  {
+    "Category": "icons",
+    "Slug": "neon-black",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\neon-black"
+  },
+  {
+    "Category": "icons",
+    "Slug": "neon-blue",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\neon-blue"
+  },
+  {
+    "Category": "icons",
+    "Slug": "neon-green",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\neon-green"
+  },
+  {
+    "Category": "icons",
+    "Slug": "neon-pink",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\neon-pink"
+  },
+  {
+    "Category": "icons",
+    "Slug": "neon-purple",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\neon-purple"
+  },
+  {
+    "Category": "icons",
+    "Slug": "neon-red",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\neon-red"
+  },
+  {
+    "Category": "icons",
+    "Slug": "neon-white",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\neon-white"
+  },
+  {
+    "Category": "icons",
+    "Slug": "neon-yellow",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\neon-yellow"
+  },
+  {
+    "Category": "icons",
+    "Slug": "ultimate-rgb",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\icons\\ultimate-rgb"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "ai-usage-tracker",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\ai-usage-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "api-spend",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\api-spend"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "better-hotkeys-pro",
+    "LocalVersion": "1.2.1.0",
+    "UUID": "com.packrat.betterhotkeyspro",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\better-hotkeys-pro"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "clipboard-manager",
+    "LocalVersion": "1.0.0.3",
+    "UUID": "com.packrat.clipboard",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\clipboard-manager"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "clipboard-manager-pro",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.clipboardpro",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\clipboard-manager-pro"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "cloud-bill",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\cloud-bill"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "code-cost",
+    "LocalVersion": "1.0.0.2",
+    "UUID": "com.packrat.code-cost",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\code-cost"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "code-cost-pro",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.code-cost-pro",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\code-cost-pro"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "drawdown-alarm",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\drawdown-alarm"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "f1-tracker",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\f1-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "golf-tracker",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\golf-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "grid-price",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\grid-price"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "helldivers-stats",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\helldivers-stats"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "hwinfo",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\hwinfo"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "mlb-tracker",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\mlb-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "nascar-tracker",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.nascar-tracker",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\nascar-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "nba-tracker",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.nba-tracker",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\nba-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "nfl-tracker",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.nfl-tracker",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\nfl-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "nhl-tracker",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.nhl-tracker",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\nhl-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "rig-cost",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\rig-cost"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "riot-tracker",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.riot-tracker",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\riot-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "screensaver-cycler",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.screensavercycler",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\screensaver-cycler"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "soccer-tracker",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.soccer-tracker",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\soccer-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "tennis-tracker",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\tennis-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "todo-list",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\todo-list"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "ufc-tracker",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.ufc-tracker",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\ufc-tracker"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "ultimate-sports",
+    "LocalVersion": "1.0.0.0",
+    "UUID": "com.packrat.ultimatesports",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\ultimate-sports"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "workflow-automation",
+    "LocalVersion": "1.0.0.2",
+    "UUID": "com.packrat.workflow",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\workflow-automation"
+  },
+  {
+    "Category": "plugins",
+    "Slug": "workflow-automation-pro",
+    "LocalVersion": "1.0.0.1",
+    "UUID": "com.packrat.workflowpro",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\plugins\\workflow-automation-pro"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "ai-prompts-coach",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\ai-prompts-coach"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "ai-prompts-creator",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\ai-prompts-creator"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "ai-prompts-developer",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\ai-prompts-developer"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "ai-prompts-freelancer",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\ai-prompts-freelancer"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "ai-prompts-lite",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\ai-prompts-lite"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "ai-prompts-marketing",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\ai-prompts-marketing"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "ai-prompt-toolkit",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\ai-prompt-toolkit"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "cs2",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\cs2"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "davinci-resolve",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\davinci-resolve"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "davinci-resolve-lite",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\davinci-resolve-lite"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "davinci-resolve-pro",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\davinci-resolve-pro"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "discord-essentials",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\discord-essentials"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "dota2",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\dota2"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "elite-dangerous",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\elite-dangerous"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "epic-pen",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\epic-pen"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "epic-pen-pro",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\epic-pen-pro"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "fl-studio",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\fl-studio"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "fortnite",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\fortnite"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "forza",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\forza"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "foundry-vtt",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\foundry-vtt"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "league-of-legends",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\league-of-legends"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "minecraft",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\minecraft"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "osrs",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\osrs"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "osrs-vsd",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\osrs-vsd"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "palworld",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\palworld"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "satisfactory",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\satisfactory"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "solidworks",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\solidworks"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "streamer-starter-pack",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\streamer-starter-pack"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "streamer-university",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\streamer-university"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "valorant",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\valorant"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "vectorworks",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\vectorworks"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "world-of-warcraft",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\world-of-warcraft"
+  },
+  {
+    "Category": "profiles",
+    "Slug": "world-of-warcraft-vsd",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\profiles\\world-of-warcraft-vsd"
+  },
+  {
+    "Category": "widgets/_src",
+    "Slug": "ai-usage",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\widgets\\_src\\ai-usage"
+  },
+  {
+    "Category": "widgets/_src",
+    "Slug": "ambient-clock",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\widgets\\_src\\ambient-clock"
+  },
+  {
+    "Category": "widgets/_src",
+    "Slug": "crypto-portfolio",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\widgets\\_src\\crypto-portfolio"
+  },
+  {
+    "Category": "widgets/_src",
+    "Slug": "net-spike",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\widgets\\_src\\net-spike"
+  },
+  {
+    "Category": "widgets/_src",
+    "Slug": "retro-terminal",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\widgets\\_src\\retro-terminal"
+  },
+  {
+    "Category": "widgets/_src",
+    "Slug": "sports",
+    "LocalVersion": "",
+    "UUID": "",
+    "PathInAnyRef": "False",
+    "GitVersions": "",
+    "Decision": "missing-source",
+    "destination": "C:\\Users\\Key\\Videos\\Claude Projects\\ratpack-projects\\.audit\\rp-system-sync\\widgets\\_src\\sports"
+  }
+]

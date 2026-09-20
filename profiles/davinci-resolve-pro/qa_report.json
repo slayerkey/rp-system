@@ -1,0 +1,93 @@
+{
+  "slug": "davinci-resolve-pro",
+  "errors": 0,
+  "warnings": 17,
+  "clean": false,
+  "findings": [
+    {
+      "severity": "WARN",
+      "check": "registry.changelog",
+      "message": "no CHANGELOG.md (visible version history is a trust signal; required from Phase 6 on)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro.streamDeckProfile [std_win]: page 'Color' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro.streamDeckProfile [std_win]: page 'Resolve Pro' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (XL).streamDeckProfile [xl_win]: page 'Resolve Pro' fills all 32 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus).streamDeckProfile [plus_win]: page 'Edit' fills all 8 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus).streamDeckProfile [plus_win]: page 'Grade' fills all 8 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus).streamDeckProfile [plus_win]: page 'Resolve Pro' fills all 8 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus).streamDeckProfile [plus_win]: page 'Assembly' fills all 8 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus).streamDeckProfile [plus_win]: page 'Color' fills all 8 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Mac).streamDeckProfile [std_mac]: page 'Resolve Pro' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Mac).streamDeckProfile [std_mac]: page 'Color' fills all 15 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (XL Mac).streamDeckProfile [xl_mac]: page 'Resolve Pro' fills all 32 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus Mac).streamDeckProfile [plus_mac]: page 'Resolve Pro' fills all 8 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus Mac).streamDeckProfile [plus_mac]: page 'Color' fills all 8 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus Mac).streamDeckProfile [plus_mac]: page 'Edit' fills all 8 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus Mac).streamDeckProfile [plus_mac]: page 'Assembly' fills all 8 slots (house rule: leave breathing room)"
+    },
+    {
+      "severity": "WARN",
+      "check": "package.grid",
+      "message": "DaVinci Resolve Pro (Plus Mac).streamDeckProfile [plus_mac]: page 'Grade' fills all 8 slots (house rule: leave breathing room)"
+    }
+  ]
+}

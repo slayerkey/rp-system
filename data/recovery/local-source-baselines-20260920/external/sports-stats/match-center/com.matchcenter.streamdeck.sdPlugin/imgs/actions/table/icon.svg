@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
+  <!-- League table: ranked rows, top row highlighted by weight not color -->
+  <rect x="2" y="4" width="16" height="2.6" rx="0.8" fill="white"/>
+  <rect x="2" y="8.7" width="16" height="2.6" rx="0.8" fill="white" opacity="0.55"/>
+  <rect x="2" y="13.4" width="16" height="2.6" rx="0.8" fill="white" opacity="0.3"/>
+  <text x="4.3" y="5.9" font-size="2.2" text-anchor="middle" fill="black" font-family="Arial" font-weight="bold">1</text>
+</svg>

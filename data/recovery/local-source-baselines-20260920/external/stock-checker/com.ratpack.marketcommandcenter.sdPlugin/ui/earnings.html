@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+	<title>Earnings Countdown Settings</title>
+	<meta charset="utf-8" />
+	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	<style>
+		.mcc-note {
+			color: #cfcfcf;
+			font-size: 11px;
+			line-height: 1.5;
+			padding: 6px 8px 0;
+		}
+	</style>
+</head>
+
+<body>
+	<sdpi-item label="Popular">
+		<sdpi-select setting="preset" default="AAPL">
+			<option value="AAPL">Apple (AAPL)</option>
+			<option value="MSFT">Microsoft (MSFT)</option>
+			<option value="NVDA">NVIDIA (NVDA)</option>
+			<option value="GOOGL">Alphabet (GOOGL)</option>
+			<option value="AMZN">Amazon (AMZN)</option>
+			<option value="META">Meta (META)</option>
+			<option value="TSLA">Tesla (TSLA)</option>
+			<option value="NFLX">Netflix (NFLX)</option>
+			<option value="AMD">AMD (AMD)</option>
+			<option value="JPM">JPMorgan (JPM)</option>
+		</sdpi-select>
+	</sdpi-item>
+	<sdpi-item label="Custom symbol">
+		<sdpi-textfield setting="symbol" placeholder="Type any ticker to override"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="Theme">
+		<sdpi-select setting="theme" default="dark">
+			<option value="dark">Dark</option>
+			<option value="minimal">Minimal</option>
+			<option value="pro">On-Stream Pro</option>
+		</sdpi-select>
+	</sdpi-item>
+	<div class="mcc-note">
+		Counts down to the company's next scheduled earnings report, with a "before open / after close" note and
+		a highlighted ring inside the final 3 days. Uses your Finnhub key (set on any Stock key's settings).
+	</div>
+</body>
+
+</html>

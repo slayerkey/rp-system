@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <!-- Football -->
+  <circle cx="128" cy="108" r="72" stroke="white" stroke-width="10"/>
+  <polygon points="128,62 161,85 149,122 107,122 95,85" fill="white"/>
+  <line x1="128" y1="36" x2="128" y2="62" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <line x1="161" y1="85" x2="194" y2="70" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <line x1="149" y1="122" x2="172" y2="152" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <line x1="107" y1="122" x2="84" y2="152" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <line x1="95" y1="85" x2="62" y2="70" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <!-- Score display bar -->
+  <rect x="40" y="196" width="176" height="40" rx="8" fill="white" opacity="0.15" stroke="white" stroke-width="2"/>
+  <text x="128" y="222" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="white" text-anchor="middle" letter-spacing="4">LIVE</text>
+</svg>

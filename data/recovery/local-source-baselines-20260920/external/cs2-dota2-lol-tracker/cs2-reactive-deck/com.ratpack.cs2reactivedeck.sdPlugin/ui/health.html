@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Health Monitor</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	</head>
+	<body>
+		<sdpi-item label="Healthy (&gt; high)">
+			<sdpi-color setting="good" default="#30e27b"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="Hurt (mid)">
+			<sdpi-color setting="mid" default="#ffd60a"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="Low (&lt; low)">
+			<sdpi-color setting="bad" default="#ff3b30"></sdpi-color>
+		</sdpi-item>
+		<sdpi-item label="High threshold">
+			<sdpi-range setting="highCut" min="50" max="100" step="5" default="80" showlabels></sdpi-range>
+		</sdpi-item>
+		<sdpi-item label="Low threshold">
+			<sdpi-range setting="lowCut" min="10" max="90" step="5" default="50" showlabels></sdpi-range>
+		</sdpi-item>
+		<sdpi-item label="Flash below">
+			<sdpi-range setting="criticalCut" min="0" max="50" step="5" default="20" showlabels></sdpi-range>
+		</sdpi-item>
+		<sdpi-item label="GSI Port">
+			<sdpi-textfield setting="port" global default="3000" placeholder="3000"></sdpi-textfield>
+		</sdpi-item>
+		<p style="font-size:11px;color:#9aa6c4;margin:4px 6px;line-height:1.4;">Leave this at <b>3000</b> — it already matches the included config file and works automatically. No setup needed unless you changed the port in the .cfg.</p>
+	</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<style>
+		:root { --yt: #FF0000; --tw: #9146FF; --accent: #9146FF; }
+		body { font-family: -apple-system, "Segoe UI", sans-serif; background: #1a1a2e; color: #dfdfdf; margin: 0; padding: 10px 12px 20px; font-size: 13px; }
+		h3 { font-size: 13px; font-weight: 700; color: #fff; margin: 14px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #2c2c3e; }
+		.row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+		.row > label { width: 84px; font-size: 12px; color: #aaa; flex-shrink: 0; }
+		select, input[type=text], input[type=number], input[type=password] {
+			background: #252540; color: #fff; border: 1px solid #3a3a5c; border-radius: 5px;
+			padding: 5px 8px; font-size: 12px; box-sizing: border-box; width: 100%;
+		}
+		select:focus, input:focus { outline: none; border-color: var(--accent); }
+		.btn { background: var(--accent); color: #fff; border: none; border-radius: 5px;
+			padding: 7px 14px; cursor: pointer; font-weight: 700; font-size: 12px; width: 100%; margin-top: 4px; }
+		.btn:hover { filter: brightness(1.15); }
+		.btn.yt { background: var(--yt); }
+		.btn.tw { background: var(--tw); }
+		.btn.sm { width: auto; padding: 3px 10px; margin: 2px 0; font-size: 11px; }
+		.hint { font-size: 11px; color: #7a7a9a; line-height: 1.5; margin: 4px 0; }
+		.badge { font-size: 11px; border-radius: 10px; padding: 2px 8px; display: inline-block; margin: 4px 0; }
+		.badge.ok { color: #30e27b; background: rgba(48,226,123,.12); border: 1px solid rgba(48,226,123,.3); }
+		.badge.warn { color: #FFD60A; background: rgba(255,214,10,.1); border: 1px solid rgba(255,214,10,.3); }
+		.badge.err { color: #ff6060; background: rgba(255,96,96,.1); border: 1px solid rgba(255,96,96,.3); }
+		.platform-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+		.tab { flex: 1; padding: 6px; text-align: center; border-radius: 5px; cursor: pointer;
+			border: 1px solid #3a3a5c; font-size: 12px; font-weight: 700; color: #aaa; background: #252540; }
+		.tab.active.yt { border-color: var(--yt); color: var(--yt); background: rgba(255,0,0,.08); }
+		.tab.active.tw { border-color: var(--tw); color: var(--tw); background: rgba(145,70,255,.08); }
+		details { background: #252540; border-radius: 6px; margin: 8px 0; padding: 0 10px; border: 1px solid #3a3a5c; }
+		summary { cursor: pointer; font-weight: 700; padding: 8px 0; color: #fff; font-size: 12px; }
+		.section { display: none; }
+		.section.visible { display: block; }
+		code { background: #1c1c2e; border-radius: 3px; padding: 1px 5px; color: #9146FF; font-size: 11px; font-family: monospace; }
+		.dbg-box { background: #0d0d18; border: 1px solid #2c2c3e; border-radius: 5px; padding: 7px 10px; margin: 8px 0; font-size: 11px; color: #666; font-family: monospace; }
+		.dbg-box span { color: #30E27B; }
+		.dbg-box.bad span { color: #FF4444; }
+		.dbg-box.warn span { color: #FFD60A; }
+		#plugin-offline-banner { display:none; background: rgba(255,96,60,.08); border: 1px solid rgba(255,96,60,.3); border-radius: 6px; padding: 8px 10px; margin: 0 0 10px; font-size: 11px; color: #ff9060; line-height: 1.5; }
+	</style>
+</head>
+<body>
+
+<div id="plugin-offline-banner">
+	&#9888; Plugin is not running — keys show default icons until Stream Deck is restarted.<br/>
+	Saved credentials are still intact and will load automatically on restart.
+</div>
+
+<h3>Platform</h3>
+<div class="platform-tabs">
+	<div class="tab yt" id="tab-yt" onclick="selectPlatform('youtube')">▶ YouTube</div>
+	<div class="tab tw" id="tab-tw" onclick="selectPlatform('twitch')">♦ Twitch</div>
+</div>
+
+<!-- YouTube credentials -->
+<div class="section" id="section-youtube">
+	<details id="yt-setup">
+		<summary>YouTube Setup</summary>
+		<div class="hint">
+			<b>Step 1 — Get an API key (free, takes ~2 min):</b><br/>
+			1. Open <a href="#" onclick="return openExternal('https://console.cloud.google.com/projectcreate')" style="color:#FF0000">Google Cloud Console</a> and sign in with your Google account.<br/>
+			2. Create a new project (name it anything, e.g. "Creator Stats").<br/>
+			3. Click <b>Enable APIs &amp; Services</b> → search <b>YouTube Data API v3</b> → click Enable.<br/>
+			4. Go to <b>Credentials</b> (left sidebar) → <b>Create Credentials</b> → <b>API Key</b>.<br/>
+			5. Copy the key that appears and paste it below.<br/><br/>
+			<b>Step 2 — Find your Channel ID:</b><br/>
+			Open <a href="#" onclick="return openExternal('https://studio.youtube.com')" style="color:#FF0000">YouTube Studio</a> — look at the URL in your browser. It will contain <code>/channel/UCxxxxxxx</code>. The part starting with <b>UC…</b> is your Channel ID.
+		</div>
+		<div class="row"><label>API Key</label><input type="password" id="yt-apikey" placeholder="AIza… (leave blank to keep existing)"/></div>
+		<div class="row"><label>Channel ID</label><input type="text" id="yt-channelid" placeholder="UCxxxxxxxx"/></div>
+		<button class="btn yt" onclick="saveYouTube()">Save YouTube Credentials</button>
+	</details>
+	<div id="yt-status" class="hint"></div>
+</div>
+
+<!-- Twitch credentials -->
+<div class="section" id="section-twitch">
+	<details id="tw-setup">
+		<summary>Twitch Setup</summary>
+		<div class="hint">
+			1. Open <a href="#" onclick="return openExternal('https://dev.twitch.tv/console/apps/create')" style="color:#9146FF">dev.twitch.tv/console</a> → <b>Register Your Application</b><br/>
+			&nbsp;&nbsp;• <b>Name:</b> Creator Stats (any name works)<br/>
+			&nbsp;&nbsp;• <b>OAuth Redirect URL:</b> <code>http://localhost:7734/callback</code><br/>
+			&nbsp;&nbsp;• <b>Category:</b> Analytics Tool<br/>
+			&nbsp;&nbsp;• <b>Client Type:</b> Confidential<br/>
+			2. Click <b>Create</b>, then click <b>New Secret</b> to generate a Client Secret.<br/>
+			3. Copy both the <b>Client ID</b> and <b>Client Secret</b> below.
+		</div>
+		<div class="row"><label>Client ID</label><input type="text" id="tw-clientid" placeholder="abc123…"/></div>
+		<div class="row"><label>Client Secret</label><input type="password" id="tw-secret" placeholder="••••••••"/></div>
+		<button class="btn tw" onclick="connectTwitch()">Connect Twitch Account</button>
+	</details>
+	<div id="tw-status" class="hint"></div>
+</div>
+
+<h3>This Key</h3>
+<div class="row"><label>Display Mode</label>
+	<select id="displayMode">
+		<option value="number">Big Number</option>
+		<option value="full">Full Number (exact)</option>
+		<option value="milestone">Milestone Progress</option>
+		<option value="trend">Trend + Sparkline</option>
+		<option value="live">Live Viewers</option>
+		<option value="streak" class="yt-only">Upload Streak</option>
+		<option value="multi">Multi-Stat Overview</option>
+	</select>
+</div>
+<div class="row"><label>Metric</label>
+	<select id="metric"></select>
+</div>
+<div class="row"><label>Theme</label>
+	<select id="theme">
+		<option value="oled">OLED (true black)</option>
+		<option value="creator">Creator (dark blue)</option>
+	</select>
+</div>
+
+<div id="milestone-section">
+	<div class="row">
+		<label>Milestone</label>
+		<input type="number" id="milestoneTarget" placeholder="e.g. 10000"/>
+	</div>
+	<div class="row">
+		<label></label>
+		<label style="width:auto;font-size:12px">
+			<input type="checkbox" id="milestoneAuto" style="width:auto;margin-right:5px"/>
+			Auto-detect next round number
+		</label>
+	</div>
+</div>
+
+<div class="row">
+	<label>Delta</label>
+	<select id="deltaWindow">
+		<option value="today">Since midnight (today)</option>
+		<option value="7d">Last 7 days</option>
+	</select>
+</div>
+
+<details style="margin-top:12px">
+	<summary style="font-size:11px;color:#555">Debug</summary>
+	<div class="dbg-box" id="dbg-ws-box">WS: <span id="dbg-ws-val">waiting…</span></div>
+	<div class="dbg-box" id="dbg-plug-box">Plugin: <span id="dbg-plug-val">no ack yet</span></div>
+	<button class="btn" style="background:#252540;color:#aaa;margin-top:4px" onclick="testConnection()">Send Test Ping to Plugin</button>
+	<div class="hint" style="margin-top:4px">If "Plugin" shows an ack, the round-trip works. Check Desktop for ratpack-debug.txt.</div>
+</details>
+<div style="text-align:right;font-size:9px;color:#2c2c3e;padding-top:6px">ratpack-livestats v0.6</div>
+
+<script>
+var ws, ctx, actionId = "com.ratpack.livestats.stats";
+var action = {}, global = {};
+var currentPlatform = 'youtube';
+var pluginOnline = false;
+var pluginPingTimer = null;
+
+var METRICS = {
+	youtube: [
+		{ value: 'subscribers', label: 'Subscribers' },
+		{ value: 'total_views', label: 'Total Views (Lifetime)' },
+		{ value: 'video_count', label: 'Total Videos' },
+		{ value: 'live_viewers', label: 'Live Viewers' },
+		{ value: 'upload_streak', label: 'Upload Streak' },
+	],
+	twitch: [
+		{ value: 'followers', label: 'Followers' },
+		{ value: 'followers_today', label: 'New Followers Today' },
+		{ value: 'live_viewers', label: 'Live Viewers' },
+		{ value: 'twitch_subs', label: 'Subscribers' },
+	],
+};
+
+function send(o) { ws.send(JSON.stringify(o)); }
+function toPlugin(p) {
+	if (!ws || ws.readyState !== 1) return;
+	send({ action: actionId, event: 'sendToPlugin', context: ctx, payload: p });
+}
+function saveAction() { if (ws && ws.readyState === 1) send({ event: 'setSettings', context: ctx, payload: action }); }
+function setVal(id, v) { var el = document.getElementById(id); if (el && v !== undefined) el.value = v; }
+function setChecked(id, v) { var el = document.getElementById(id); if (el) el.checked = !!v; }
+function setWsDbg(msg, ok) {
+	var el = document.getElementById('dbg-ws-val');
+	var box = document.getElementById('dbg-ws-box');
+	if (el) el.textContent = msg;
+	if (box) { box.className = 'dbg-box' + (ok === false ? ' bad' : ok === true ? '' : ' warn'); }
+}
+function setPlugDbg(msg, ok) {
+	var el = document.getElementById('dbg-plug-val');
+	var box = document.getElementById('dbg-plug-box');
+	if (el) el.textContent = msg;
+	if (box) { box.className = 'dbg-box' + (ok === false ? ' bad' : ok === true ? '' : ' warn'); }
+}
+function testConnection() {
+	if (!ws || ws.readyState !== 1) { setWsDbg('not open', false); return; }
+	setPlugDbg('sent ping…', null);
+	toPlugin({ event: 'ping' });
+}
+function openExternal(url) {
+	if (ws && ws.readyState === 1) ws.send(JSON.stringify({ event: 'openUrl', payload: { url: url } }));
+	return false;
+}
+
+function setPluginOnline(online) {
+	pluginOnline = online;
+	document.getElementById('plugin-offline-banner').style.display = online ? 'none' : 'block';
+}
+
+function selectPlatform(p) {
+	currentPlatform = p;
+	action.platform = p;
+	document.getElementById('tab-yt').className = 'tab yt' + (p === 'youtube' ? ' active' : '');
+	document.getElementById('tab-tw').className = 'tab tw' + (p === 'twitch' ? ' active' : '');
+	document.getElementById('section-youtube').className = 'section' + (p === 'youtube' ? ' visible' : '');
+	document.getElementById('section-twitch').className = 'section' + (p === 'twitch' ? ' visible' : '');
+	populateMetrics(p);
+	document.querySelectorAll('.yt-only').forEach(function(el) {
+		el.style.display = p === 'youtube' ? '' : 'none';
+	});
+	saveAction();
+}
+
+function populateMetrics(platform) {
+	var sel = document.getElementById('metric');
+	sel.innerHTML = '';
+	(METRICS[platform] || []).forEach(function(m) {
+		var o = document.createElement('option');
+		o.value = m.value; o.textContent = m.label;
+		sel.appendChild(o);
+	});
+	if (action.metric) sel.value = action.metric;
+}
+
+function saveYouTube() {
+	var apiKeyEl = document.getElementById('yt-apikey');
+	var channelId = document.getElementById('yt-channelid').value.trim();
+	var apiKey = apiKeyEl.value.trim();
+
+	// Allow updating channel ID without re-entering API key
+	if (!apiKey && global.youtube && global.youtube.apiKey) {
+		apiKey = global.youtube.apiKey;
+	}
+	if (!apiKey || !channelId) {
+		document.getElementById('yt-status').textContent = 'Please fill in both fields.';
+		return;
+	}
+
+	// Update local global cache
+	global.youtube = { apiKey: apiKey, channelId: channelId };
+
+	// Save directly to Stream Deck (works even if plugin is disabled)
+	send({ event: 'setGlobalSettings', context: ctx, payload: global });
+
+	// Also notify plugin to re-subscribe immediately (if running)
+	toPlugin({ event: 'saveYouTube', apiKey: apiKey, channelId: channelId });
+
+	document.getElementById('yt-status').innerHTML = '<span class="badge ok">&#10003; Saved</span>';
+	document.getElementById('yt-setup').open = false;
+	apiKeyEl.value = '';
+	apiKeyEl.placeholder = 'AIza… (saved — leave blank to keep)';
+}
+
+// PKCE helpers
+function b64url(bytes) {
+	return btoa(String.fromCharCode.apply(null, bytes))
+		.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+function randBytes(n) { var a = new Uint8Array(n); crypto.getRandomValues(a); return a; }
+async function pkceChallenge(verifier) {
+	var data = new TextEncoder().encode(verifier);
+	var hash = await crypto.subtle.digest('SHA-256', data);
+	return b64url(new Uint8Array(hash));
+}
+
+async function connectTwitch() {
+	var clientId = document.getElementById('tw-clientid').value.trim();
+	var clientSecret = document.getElementById('tw-secret').value.trim();
+	if (!clientId) { document.getElementById('tw-status').textContent = 'Enter your Client ID first.'; return; }
+
+	// Save client credentials immediately (so they survive restarts)
+	if (!global.twitch) global.twitch = {};
+	global.twitch.clientId = clientId;
+	if (clientSecret) global.twitch.clientSecret = clientSecret;
+	send({ event: 'setGlobalSettings', context: ctx, payload: global });
+
+	if (!pluginOnline) {
+		document.getElementById('tw-status').innerHTML =
+			'<span class="badge err">&#9888; Plugin not running</span><br/>' +
+			'<span class="hint">Client ID saved. Restart Stream Deck, then click Connect again to finish OAuth.</span>';
+		return;
+	}
+
+	var verifier = b64url(randBytes(32));
+	var challenge = await pkceChallenge(verifier);
+	var state = Array.from(randBytes(8)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+
+	var redirectUri = 'http://localhost:7734/callback';
+	var scopes = 'moderator:read:followers channel:read:subscriptions';
+	var authUrl = 'https://id.twitch.tv/oauth2/authorize'
+		+ '?client_id=' + encodeURIComponent(clientId)
+		+ '&redirect_uri=' + encodeURIComponent(redirectUri)
+		+ '&response_type=code'
+		+ '&scope=' + encodeURIComponent(scopes)
+		+ '&state=' + encodeURIComponent(state)
+		+ '&code_challenge=' + encodeURIComponent(challenge)
+		+ '&code_challenge_method=S256';
+
+	ws.send(JSON.stringify({ event: 'openUrl', payload: { url: authUrl } }));
+	document.getElementById('tw-status').innerHTML = '<span class="badge warn">&#8987; Browser opened — authorize on Twitch, then return here</span>';
+	toPlugin({ event: 'startOAuthServer', clientId: clientId, clientSecret: clientSecret, verifier: verifier, state: state });
+}
+
+function renderFromGlobal(gs) {
+	if (gs.youtube) {
+		if (gs.youtube.apiKey) {
+			document.getElementById('yt-apikey').value = '';
+			document.getElementById('yt-apikey').placeholder = 'AIza… (saved — leave blank to keep)';
+		}
+		if (gs.youtube.channelId) {
+			document.getElementById('yt-channelid').value = gs.youtube.channelId;
+		}
+		if (gs.youtube.apiKey && gs.youtube.channelId) {
+			document.getElementById('yt-status').innerHTML = '<span class="badge ok">&#10003; YouTube connected</span>';
+			document.getElementById('yt-setup').open = false;
+		}
+	}
+	if (gs.twitch) {
+		if (gs.twitch.clientId) document.getElementById('tw-clientid').value = gs.twitch.clientId;
+		if (gs.twitch.clientSecret) document.getElementById('tw-secret').value = gs.twitch.clientSecret;
+		if (gs.twitch.username) {
+			document.getElementById('tw-status').innerHTML =
+				'<span class="badge ok">&#10003; Connected as @' + gs.twitch.username + '</span> ' +
+				'<button class="btn tw sm" onclick="connectTwitch()">Reconnect</button>';
+			document.getElementById('tw-setup').open = false;
+		} else if (gs.twitch.clientId) {
+			document.getElementById('tw-status').innerHTML =
+				'<span class="badge warn">Client ID saved — click Connect to authorize</span>';
+		}
+	}
+}
+
+function renderAction() {
+	var p = action.platform || 'youtube';
+	selectPlatform(p);
+	setVal('displayMode', action.displayMode || 'number');
+	setVal('metric', action.metric);
+	setVal('theme', action.theme || 'oled');
+	setVal('milestoneTarget', action.milestoneTarget);
+	setChecked('milestoneAuto', action.milestoneAuto !== false);
+	setVal('deltaWindow', action.deltaWindow || 'today');
+}
+
+document.getElementById('displayMode').onchange = function() { action.displayMode = this.value; saveAction(); };
+document.getElementById('metric').onchange = function() { action.metric = this.value; saveAction(); };
+document.getElementById('theme').onchange = function() { action.theme = this.value; saveAction(); };
+document.getElementById('milestoneTarget').onchange = function() { action.milestoneTarget = parseInt(this.value) || undefined; saveAction(); };
+document.getElementById('milestoneAuto').onchange = function() { action.milestoneAuto = this.checked; saveAction(); };
+document.getElementById('deltaWindow').onchange = function() { action.deltaWindow = this.value; saveAction(); };
+
+window.connectElgatoStreamDeckSocket = function(port, uuid, registerEvent, info, actionInfo) {
+	ctx = uuid;
+	try { var ai = JSON.parse(actionInfo); action = ai.payload.settings || {}; actionId = ai.action || actionId; } catch(e) {}
+	setWsDbg('connecting…', null);
+	ws = new WebSocket('ws://127.0.0.1:' + port);
+	ws.onopen = function() {
+		setWsDbg('open ✓', true);
+		send({ event: registerEvent, uuid: uuid });
+
+		// 1. Request global settings DIRECTLY from Stream Deck — works even if plugin is disabled
+		send({ event: 'getGlobalSettings', context: uuid });
+
+		// 2. After 2s, check if plugin responded; if not, mark offline
+		pluginPingTimer = setTimeout(function() {
+			if (!pluginOnline) setPluginOnline(false);
+		}, 2000);
+
+		// 3. Also ask the plugin (if running) for fresh settings
+		toPlugin({ event: 'getGlobalSettings' });
+
+		renderAction();
+	};
+	ws.onerror = function() { setWsDbg('error', false); };
+	ws.onclose = function() { setWsDbg('closed', false); };
+	ws.onmessage = function(e) {
+		var m = JSON.parse(e.data);
+
+		// Direct response from Stream Deck (no plugin needed)
+		if (m.event === 'didReceiveGlobalSettings') {
+			global = (m.payload && m.payload.settings) || {};
+			renderFromGlobal(global);
+		}
+
+		if (m.event === 'sendToPropertyInspector' && m.payload) {
+			var pl = m.payload;
+			// Plugin responded — it's online
+			setPluginOnline(true);
+			if (pluginPingTimer) { clearTimeout(pluginPingTimer); pluginPingTimer = null; }
+
+			if (pl.event === 'globalSettings') {
+				global = pl.payload || {};
+				renderFromGlobal(global);
+				setPlugDbg('globalSettings received ✓', true);
+			}
+			if (pl.event === 'debug_ack') {
+				setPlugDbg('ack: ' + pl.received + ' ✓', true);
+			}
+		}
+		if (m.event === 'didReceiveSettings') {
+			action = m.payload.settings || {};
+			renderAction();
+		}
+	};
+};
+</script>
+</body>
+</html>
