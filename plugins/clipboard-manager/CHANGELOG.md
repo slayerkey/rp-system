@@ -4,6 +4,12 @@
 The top entry is pasted into the marketplace release notes verbatim: buyer
 language, no internal jargon, no em dashes. -->
 
+## v1.1.0.0 - 2026-09-20
+
+- Added Stream Deck+ dial support for scrolling through your last four copied items.
+- Press the dial to paste the selected copy, or tap the touch strip to jump straight back to the newest item.
+- Existing four-key clipboard slots and local history behavior stay unchanged.
+
 ## v1.0.0.3 - 2026-09-01
 
 - The upgrade link at the bottom of the settings panel now opens the Clipboard Manager Pro listing directly instead of the general Packrat storefront.
