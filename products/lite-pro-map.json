@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-14",
+  "updated_at": "2026-09-20",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below must be exact verified public Elgato Marketplace product URLs; no search, creator, generic, or placeholder URLs are accepted. For Stream Deck Lite→Pro Property Inspector UX, the canonical pattern lives in standards/streamdeck-plugin-design-system-v1.md and Window Manager Lite is the approved reference implementation.",
   "pairs": [
     {
@@ -210,7 +210,9 @@
         "plugins/_shared/monitor-manager"
       ],
       "source_status": "source_built_marketplace_pending",
-      "notes": "Lite is the brightness-only free edition. Pro is the full display-control edition. Direct Marketplace URLs and product IDs stay absent until public listings exist; Lite keeps its Pro CTA hidden until the exact verified public Pro URL is committed."
+      "notes": "Lite is the brightness-only free edition. Pro is the full display-control edition. Direct Marketplace URLs and product IDs stay absent until public listings exist; Lite keeps its Pro CTA hidden until the exact verified public Pro URL is committed.",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/monitor-manager-pro-d1f16ff0-2433-4b67-991d-8dd9fcddd425",
+      "pro_marketplace_product_id": "d1f16ff0-2433-4b67-991d-8dd9fcddd425"
     }
   ],
   "standalone_free": [
