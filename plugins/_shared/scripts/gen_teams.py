@@ -22,6 +22,13 @@ FIXTURES = os.path.join(ROOT, "plugins", "_shared", "test-fixtures")
 SITE = "https://site.api.espn.com/apis/site/v2/sports"
 CORE = "https://site.api.espn.com/apis/v2/sports"
 
+# ESPN's team feed and level=3 standings can briefly disagree about conference placement.
+# Repairs are intentionally tiny and keyed by stable ESPN team IDs so --only-grouped does not
+# silently delete a real FBS team when the standings payload omits it.
+GROUP_REPAIRS = {
+    ("football", "college-football", "2633"): ("sec", "Southeastern Conference"),  # Tennessee
+}
+
 
 def fetch(url):
     req = urllib.request.Request(url, headers={"accept": "application/json"})
@@ -82,6 +89,11 @@ def main():
         if t.get("isActive") is False:
             continue
         conference, division = groups.get(t["id"], (args.group, ""))
+        if not conference:
+            conference, division = GROUP_REPAIRS.get(
+                (args.sport, args.league, t["id"]),
+                (conference, division),
+            )
         rows.append({
             "id": t["id"],
             "abbr": t.get("abbreviation") or t.get("shortDisplayName", "")[:4].upper(),
