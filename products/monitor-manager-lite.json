@@ -45,8 +45,5 @@
     "artifact_name": "monitor-manager-lite",
     "lite_package_sha256": "980e7de67a7b0329cbf1a107f8ad109cadfe72ee95bfe4e0d269d929024ba5bb",
     "strict_lite_pro_gate": "PASS"
-  },
-  "source_repository": "https://github.com/slayerkey/rp-system.git",
-  "source_ref": "refs/heads/main",
-  "source_commit": "f16edeae761dba287f83152c3180484b140595d8"
+  }
 }
