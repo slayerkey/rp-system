@@ -9,7 +9,7 @@ This PC was treated as the discovery source of truth. The scan covered Claude Pr
 - 80 local factory product directories were absent by path from every fetched `rp-system` ref and were copied verbatim into this recovery branch, excluding dependencies, caches, logs, build output, and generated marketing output.
 - Six standalone historical source trees were retained under `data/recovery/local-source-baselines-20260920/external/`.
 - `clipboard-dial.rar` was not found in any searched location.
-- Calendar Sync Pro 1.2.0.0 source and exact package already exist in GitHub. The package SHA-256 is `61b5fa8d58044aad5caf3542f19911b3acec89d35b6de5e75d684b3cc1c8bfd1`.
+- Calendar Sync Pro 1.2.0.0 is preserved in GitHub as the exact package, manifest, tests, and recovery patch reference. It is not a complete editable source tree. The package SHA-256 is `61b5fa8d58044aad5caf3542f19911b3acec89d35b6de5e75d684b3cc1c8bfd1`; the last complete editable local tree found is the 1.1 line.
 - Window Manager Pro 1.2.0.0 source already exists in private `slayerkey/vcs`; a newer 1.3.0.0 package exists locally with no 1.3 editable source found. It remains package-only.
 - Retro Terminal 1.0.2 exists as a local package; editable source found is 1.0.1. It remains package-only at 1.0.2.
 - The original `ratpack-projects` checkout has no Git remote and contains extensive uncommitted/untracked source. It was not modified or committed directly.
@@ -49,7 +49,7 @@ This PC was treated as the discovery source of truth. The scan covered Claude Pr
 | Better Hotkeys & Mouse Pro | better-hotkeys-pro | `com.packrat.betterhotkeyspro` | 1.2.1.0 | 1.2.1.0 |  | local-source-newer-or-missing-in-github | local source; recovered on slayerkey/rp-system recovery/local-source-baselines-20260920 | `Claude Projects\ratpack-projects\plugins\better-hotkeys-pro\com.packrat.betterhotkeyspro.sdPlugin\manifest.json` |
 | Calendar Panel | discovered outside registry | `com.packrat.agendapanel` | 1.0.1 | 1.0.1 | 1.0.1 | same-version | slayerkey/rp-system origin/main @ 61df5d18 | `Claude Projects\ratpack-projects\.worktrees\packrat-source-audit-20260920\widgets\agenda-panel\manifest.json` |
 | Calendar Sync Lite | calendar | `com.packrat.calendarsynclite` | 1.0.0.1 | 1.0.0.1 | 1.0.0.1 | same-version | local source; recovered on slayerkey/rp-system recovery/local-source-baselines-20260920 | `Claude Projects\ratpack-projects\plugins\calendar\com.packrat.calendarsynclite.sdPlugin\manifest.json` |
-| Calendar Sync Pro | calendar-pro | `com.packrat.calendarsyncpro` | 1.2.0.0 | 1.2.0.0 | 1.2.0.0 | same-version; canonical 1.2 source already in GitHub | slayerkey/rp-system origin/main @ 61df5d18 | `Claude Projects\ratpack-projects\.worktrees\packrat-source-audit-20260920\plugins\calendar-pro` |
+| Calendar Sync Pro | calendar-pro | `com.packrat.calendarsyncpro` | 1.2.0.0 | 1.2.0.0 | 1.2.0.0 | same-version baseline; exact package + manifest + tests + recovery patch, not a complete editable source tree | slayerkey/rp-system origin/main @ 61df5d18 | `Claude Projects\ratpack-projects\.worktrees\packrat-source-audit-20260920\plugins\calendar-pro` |
 | ChatGPT Usage | chatgpt-usage | `com.ratpack.chatgpt-usage` | 0.1.6.0 | 0.1.6.0 |  | local-source-newer-or-missing-in-github | local source; recovered on slayerkey/rp-system recovery/local-source-baselines-20260920 | `Claude Projects\claude-usage-streamdeck\com.ratpack.chatgpt-usage.sdPlugin\manifest.json` |
 | ChatGPT Usage (Local) | discovered outside registry | `com.ratpack.chatgpt-usage.local` | 0.1.5.0 | 0.1.5.0 |  | local-source-newer-or-missing-in-github | local source; recovered on slayerkey/rp-system recovery/local-source-baselines-20260920 | `Claude Projects\claude-usage-streamdeck\com.ratpack.chatgpt-usage.local.sdPlugin\manifest.json` |
 | Claude & Codex Cost Lite | code-cost | `com.packrat.code-cost` | 1.0.0.2 | 1.0.0.2 |  | local-source-newer-or-missing-in-github | local source; recovered on slayerkey/rp-system recovery/local-source-baselines-20260920 | `Claude Projects\ratpack-projects\plugins\code-cost\com.packrat.code-cost.sdPlugin\manifest.json` |
@@ -203,7 +203,8 @@ This PC was treated as the discovery source of truth. The scan covered Claude Pr
 - Clipboard Shelf: `C:\Users\Key\Videos\Claude Projects\ratpack-projects\.worktrees\packrat-source-audit-20260920\widgets\_src\clipboard-shelf`
 - Clipboard Manager Lite: `C:\Users\Key\Videos\Claude Projects\ratpack-projects\plugins\clipboard-manager`
 - Clipboard Manager Pro: `C:\Users\Key\Videos\Claude Projects\ratpack-projects\plugins\clipboard-manager-pro`
-- Calendar Sync Pro 1.2: `C:\Users\Key\Videos\Claude Projects\ratpack-projects\.worktrees\packrat-source-audit-20260920\plugins\calendar-pro`
+- Calendar Sync Pro 1.2 verified baseline (package, manifest, tests, patch reference): `C:\Users\Key\Videos\Claude Projects\ratpack-projects\.worktrees\packrat-source-audit-20260920\plugins\calendar-pro`
+- Calendar Sync Pro last complete editable source found (1.1 line): `C:\Users\Key\Videos\Claude Projects\ratpack-projects\plugins\calendar-sync-pro`
 - College Football / Sports Tracker Stream Deck source: `C:\Users\Key\Videos\Claude Projects\ratpack-projects\plugins\ultimate-sports`
 - College Football / Sports Tracker shared core: `C:\Users\Key\Videos\Claude Projects\ratpack-projects\plugins\_shared`
 - XENEON Ultimate Sports Tracker: `C:\Users\Key\Videos\Claude Projects\ratpack-projects\widgets\_src\sports`
