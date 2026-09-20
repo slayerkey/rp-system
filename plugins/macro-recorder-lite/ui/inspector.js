@@ -1,7 +1,7 @@
 (() => {
   let socket=null,uiUuid="",actionContext="",actionUuid="",kind="",settings={},state=null,stateConnected=false,stateRetryTimer=null,stateRetries=0,diagnostic=null,diagnosticTimer=null;
   const PACKRAT_MAKER_URL="https://marketplace.elgato.com/maker/packrat";
-  const PRO_MARKETPLACE_URL="";
+  const PRO_MARKETPLACE_URL="https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066";
   const upgradeUrl=()=>PRO_MARKETPLACE_URL||PACKRAT_MAKER_URL;
   const PAGE_SIZE=200;
   let timelinePage=0,timelineMacroId="";
