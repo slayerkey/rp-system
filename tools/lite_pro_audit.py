@@ -30,7 +30,7 @@ BAD_URL_MARKERS = (
     "marketplace.elgato.com/icue",
     "marketplace.elgato.com/@packrat",
 )
-SOURCE_SUFFIXES = {".html", ".js", ".mjs", ".json", ".ts", ".tsx", ".jsx"}
+SOURCE_SUFFIXES = {".html", ".js", ".mjs", ".json", ".ts", ".tsx", ".jsx"}\nIGNORED_SOURCE_DIRS = {"node_modules", ".git", "dist", "build", "coverage", ".cache"}
 
 
 def load_json(path: pathlib.Path):
@@ -60,7 +60,7 @@ def scan_path(relative: str):
     root = ROOT / relative
     if not root.exists():
         return [(relative, "missing source path")]
-    files = [root] if root.is_file() else [p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in SOURCE_SUFFIXES]
+    files = [root] if root.is_file() else [\n        p for p in root.rglob("*")\n        if p.is_file()\n        and p.suffix.lower() in SOURCE_SUFFIXES\n        and not any(part in IGNORED_SOURCE_DIRS for part in p.relative_to(root).parts)\n    ]
     findings = []
     for path in files:
         try:
