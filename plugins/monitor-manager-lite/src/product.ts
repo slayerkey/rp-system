@@ -1,4 +1,4 @@
-export const PRO_MARKETPLACE_URL: string | null = null;
+export const PRO_MARKETPLACE_URL: string | null = "https://marketplace.elgato.com/product/monitor-manager-pro-d1f16ff0-2433-4b67-991d-8dd9fcddd425";
 
 export function verifiedProMarketplaceUrl(): string | null {
   if (!PRO_MARKETPLACE_URL) return null;

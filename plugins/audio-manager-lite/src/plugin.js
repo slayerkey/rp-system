@@ -6,7 +6,7 @@ const ACTIONS={
   "set-output":"com.packrat.audio-manager-lite.set-output",
   "set-input":"com.packrat.audio-manager-lite.set-input",
 };
-const PRO_URL="https://marketplace.elgato.com/maker/packrat";
+const PRO_URL="https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1";
 const visible=new Map();
 const helper=new AudioHelper({log});
 let snapshot=null,lastError="",pollTimer=null,renderTimer=null;

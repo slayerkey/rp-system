@@ -81,6 +81,8 @@ export async function startPlugin(flavor: Flavor): Promise<void> {
   streamDeck.ui.onDidAppear(() => void sendInspectorContext());
   streamDeck.ui.onSendToPlugin((ev) => {
     const payload = ev.payload as any;
+    const actionContext = String(payload?.actionContext || "");
+    if (actionContext) streamDeck.logger.debug?.(`PI command for action ${actionContext}`);
     if (payload?.type === "get-context") void sendInspectorContext();
     if (payload?.type === "refresh") void runtime.state.refresh().then(sendInspectorContext);
     if (payload?.type === "save-mode" && flavor === "pro") {

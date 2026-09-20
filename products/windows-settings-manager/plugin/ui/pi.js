@@ -1,28 +1,30 @@
 let websocket = null;
-let uuid = null;
+let uiUuid = "";
 let actionUuid = "";
+let actionContext = "";
 let settings = {};
 let context = { flavor: "lite", snapshot: null, modes: [] };
 let built = false;
 let modeDirty = false;
 const PRO_MARKETPLACE_URL = "";
 const PACKRAT_MAKER_URL = "https://marketplace.elgato.com/maker/packrat";
-const upgradeUrl = () => PRO_MARKETPLACE_URL || PACKRAT_MAKER_URL;
 
 function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
-  uuid = inUUID;
+  uiUuid = inUUID;
   try {
     const info = JSON.parse(inActionInfo);
     actionUuid = info.action ?? "";
+    actionContext = info.context ?? "";
     settings = info.payload?.settings ?? {};
   } catch {
     actionUuid = "";
+    actionContext = "";
     settings = {};
   }
 
   websocket = new WebSocket(`ws://127.0.0.1:${inPort}`);
   websocket.onopen = () => {
-    websocket.send(JSON.stringify({ event: inRegisterEvent, uuid: inUUID }));
+    websocket.send(JSON.stringify({ event: inRegisterEvent, uuid: uiUuid }));
     if (!built) { build(); built = true; }
     renderActionSettings();
     requestContext();
@@ -46,7 +48,7 @@ function saveActionSettings(next) {
   websocket.send(JSON.stringify({
     event: "setSettings",
     action: actionUuid,
-    context: uuid,
+    context: uiUuid,
     payload: settings
   }));
 }
@@ -56,8 +58,8 @@ function sendPlugin(payload) {
   websocket.send(JSON.stringify({
     event: "sendToPlugin",
     action: actionUuid,
-    context: uuid,
-    payload
+    context: uiUuid,
+    payload: { ...payload, actionContext }
   }));
 }
 
@@ -71,8 +73,8 @@ function requestContext() { sendPlugin({ type: "get-context" }); }
 function build() {
   document.getElementById("refresh").addEventListener("click", () => sendPlugin({ type: "refresh" }));
   document.getElementById("packratMaker").addEventListener("click", () => openUrl(PACKRAT_MAKER_URL));
-  document.getElementById("proUpgrade").addEventListener("click", () => openUrl(upgradeUrl()));
-  document.getElementById("topProUpgrade").addEventListener("click", () => openUrl(upgradeUrl()));
+  document.getElementById("topProUpgrade").addEventListener("click", () => openUrl(PRO_MARKETPLACE_URL));
+  document.getElementById("proUpgrade").addEventListener("click", () => openUrl(PRO_MARKETPLACE_URL));
 
   bindSelect("toggleOperation", "operation");
   bindSelect("themeOperation", "operation");
@@ -234,9 +236,9 @@ function renderContext() {
   document.getElementById("edition").textContent = context.flavor === "pro"
     ? "Premium Windows Control Center for Stream Deck"
     : "Six useful Windows controls for Stream Deck";
-  const liteFlavor = context.flavor === "lite";
-  document.getElementById("liteUpsell").classList.toggle("hidden", !liteFlavor);
-  document.getElementById("topProUpgrade").classList.toggle("hidden", !liteFlavor);
+  const hideUpgrade = context.flavor !== "lite" || !PRO_MARKETPLACE_URL;
+  document.getElementById("liteUpsell").classList.toggle("hidden", hideUpgrade);
+  document.getElementById("topProUpgrade").classList.toggle("hidden", hideUpgrade);
 
   const live = document.getElementById("live");
   live.textContent = "";
