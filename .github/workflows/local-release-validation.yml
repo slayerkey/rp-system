@@ -78,7 +78,9 @@ jobs:
           $expected = "https://marketplace.elgato.com/product/text-expander-pro-7a939ada-53a5-49ae-99b5-2752c8e82f41"
           $hits = Get-ChildItem plugins/text-expander/dist/com.packrat.textexpanderlite.sdPlugin -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
           if (-not $hits) { throw "Verified Text Expander Pro URL was not injected into rebuilt Lite output." }
-      - uses: actions/upload-artifact@v4
+      - name: Upload release evidence (best effort)
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
         with:
           name: text-expander-local-release
           path: plugins/text-expander/release/*.streamDeckPlugin
