@@ -25,7 +25,7 @@ jobs:
       - run: npm test
         working-directory: plugins/audio-manager-lite
       - name: Audit canonical Lite to Pro catalog relationships
-        run: python tools/lite_pro_audit.py
+        run: python tools/lite_pro_audit.py --shipping audio-manager-lite
       - run: npm run build
         working-directory: plugins/audio-manager-lite
       - name: Fetch canonical Stream Deck QA tools
@@ -57,6 +57,17 @@ jobs:
         working-directory: plugins/audio-manager-lite
       - run: npm run pack
         working-directory: plugins/audio-manager-lite
+      - name: Strict direct Pro routing
+        shell: pwsh
+        run: |
+          $expected = "https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1"
+          $hit = Select-String -Path plugins/audio-manager-lite/com.packrat.audio-manager-lite.sdPlugin/bin/plugin.js -SimpleMatch $expected -ErrorAction SilentlyContinue
+          if (-not $hit) { throw "Verified Audio Manager Pro URL is missing from rebuilt Lite runtime." }
+
+      - name: Record package SHA256
+        shell: pwsh
+        run: Get-FileHash plugins/audio-manager-lite/dist/*.streamDeckPlugin -Algorithm SHA256 | Format-Table -AutoSize
+
       - name: Verify packaged helper
         shell: pwsh
         working-directory: plugins/audio-manager-lite
