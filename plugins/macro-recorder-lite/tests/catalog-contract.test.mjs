@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 const root=new URL("../",import.meta.url);
 const repoRoot=new URL("../../",root);
 
-test("Lite keeps the canonical Pro relationship without requiring a launch-time upsell URL",async()=>{
+test("Lite keeps the canonical Pro relationship and verified direct upgrade URL",async()=>{
   const [mapRaw,productRaw,submissionRaw,html,build]=await Promise.all([
     readFile(new URL("products/lite-pro-map.json",repoRoot),"utf8"),
     readFile(new URL("products/macro-recorder-lite.json",repoRoot),"utf8"),
@@ -20,13 +20,13 @@ test("Lite keeps the canonical Pro relationship without requiring a launch-time 
 
   assert.ok(pair,"Macro Recorder Lite/Pro pair must stay registered");
   assert.equal(pair.pro_id,"macro-recorder-pro");
-  assert.equal(product.upgrade_url,null);
-  assert.equal(submission.pro_marketplace_url,null);
-  assert.equal(product.upgrade_url_state,"deferred_until_verified_direct_pro_listing");
-  assert.equal(pair.launch_sequence,"Lite may launch standalone. Add the verified direct Pro product URL in a later Lite update.");
-  assert.doesNotMatch(html,/marketplace\.elgato\.com\/product\//i);
-  assert.doesNotMatch(build,/pro_marketplace_url/);
-  assert.doesNotMatch(build,/data-pro-url/);
+  const expected="https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066";
+  assert.equal(product.upgrade_url,expected);
+  assert.equal(submission.pro_marketplace_url,expected);
+  assert.equal(pair.pro_marketplace_url,expected);
+  assert.equal(product.upgrade_url_state,"verified_direct_pro_listing_validation_pending");
+  assert.match(html,/Upgrade to Pro/);
+  assert.match(build,/pro_marketplace_url|PRO_MARKETPLACE_URL|inspector/i);
 });
 
 test("a future Pro upsell must still use a verified direct Marketplace product URL",async()=>{
