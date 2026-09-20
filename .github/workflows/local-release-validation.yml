@@ -81,10 +81,12 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           python tools/lite_pro_audit.py --shipping wireless-device-manager
+          if ($LASTEXITCODE -ne 0) { throw "Wireless Device Manager strict Lite-to-Pro audit failed." }
           node tools/qa/streamdeck-plugin-design-audit.mjs plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin --require-canonical-pi --require-lite-pro-upsell
+          if ($LASTEXITCODE -ne 0) { throw "Wireless Device Manager canonical PI audit failed." }
           $expected = "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f"
-          $hits = Get-ChildItem plugins/wireless-device-manager-family -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
-          if (-not $hits) { throw "Verified Wireless Device Manager Pro URL was not found in rebuilt family output." }
+          $hits = Get-ChildItem plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin/ui -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
+          if (-not $hits) { throw "Verified Wireless Device Manager Pro URL was not found in rebuilt Lite UI." }
       - name: Upload release evidence (best effort)
         continue-on-error: true
         uses: actions/upload-artifact@v4
