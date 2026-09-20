@@ -3,8 +3,15 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
+
+ROOT = Path(__file__).resolve().parents[3]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.art.marketplace_text import draw_fitted_text
 
 W, H = 1920, 960
 BG = (8, 10, 14)
@@ -86,8 +93,16 @@ def save_icon(path: Path):
 
 def header(image, title, subtitle):
     d=ImageDraw.Draw(image)
-    text(d,(W//2,135),title,58,WHITE,bold=True)
-    text(d,(W//2,198),subtitle,27,MUTED)
+    draw_fitted_text(
+        d, (220, 96, W-220, 170), title, font,
+        fill=WHITE, max_size=58, min_size=36, bold=True,
+        max_lines=2, align="center", valign="middle",
+    )
+    draw_fitted_text(
+        d, (260, 176, W-260, 226), subtitle, font,
+        fill=MUTED, max_size=27, min_size=18,
+        max_lines=2, align="center", valign="middle",
+    )
 
 def gallery_one(path: Path):
     image=bg(); d=ImageDraw.Draw(image)
