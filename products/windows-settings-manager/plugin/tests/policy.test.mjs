@@ -153,12 +153,16 @@ test("canonical PackRat inspector tokens, glow, logo and maker link are bundled"
 
   assert.match(css, /body::before[\s\S]*top: -130px[\s\S]*right: -110px[\s\S]*width: 330px[\s\S]*height: 330px/);
   assert.match(css, /rgba\(255,178,30,\.12\)[\s\S]*rgba\(255,178,30,\.055\)[\s\S]*rgba\(255,178,30,0\)/);
-  assert.match(html, /id="packratMaker"[\s\S]*src="packrat-icon\.png"[\s\S]*PackRat ↗/);
+  assert.match(html, /id="packratMaker"[\s\S]*src="\.\.\/imgs\/plugin\/packrat-logo\.png"[\s\S]*PackRat ↗/);
   assert.match(js, /https:\/\/marketplace\.elgato\.com\/maker\/packrat/);
 
   for (const flavor of ["lite", "pro"]) {
+    const pluginRoot=path.join(root, `com.packrat.windows-settings-manager-${flavor}2.sdPlugin`);
     await assert.doesNotReject(() =>
-      readFile(path.join(root, `com.packrat.windows-settings-manager-${flavor}2.sdPlugin`, "ui", "packrat-icon.png"))
+      readFile(path.join(pluginRoot, "imgs", "plugin", "packrat-logo.png"))
+    );
+    await assert.doesNotReject(() =>
+      readFile(path.join(pluginRoot, "ui", "packrat-icon.png"))
     );
   }
 });
