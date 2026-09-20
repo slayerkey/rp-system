@@ -190,12 +190,14 @@
         "shared/macro-recorder",
         "shared/windows-input/PackRat.InputHost"
       ],
-      "source_status": "pro_url_verified_direct_cta_source_updated_validation_pending",
+      "source_status": "lite_and_pro_urls_verified_direct_cta_source_updated_validation_pending",
       "notes": "Lite is the standalone keyboard recorder with 10-second / 50-event limits and one macro per Play action. Macro Recorder Pro is publicly verified; the exact direct Pro Marketplace URL is recorded here. Lite must use that direct URL on the canonical top-right and bottom Pro upgrade surfaces. Fresh exact-commit build, validation, and package evidence are required after the URL update.",
       "launch_sequence": "Pro listing verified. Rebuild and validate Lite with the exact direct Pro product URL before the next public Lite candidate.",
       "upsell_build_source": "verified_direct_pro_marketplace_url",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066",
-      "pro_marketplace_product_id": "ac9d547d-eb65-4e49-a6bb-a378fa596066"
+      "pro_marketplace_product_id": "ac9d547d-eb65-4e49-a6bb-a378fa596066",
+      "lite_marketplace_product_id": "2b54ebb1-afd0-4321-9856-d4fd3f016894",
+      "lite_marketplace_url": "https://marketplace.elgato.com/product/macro-recorder-lite-2b54ebb1-afd0-4321-9856-d4fd3f016894"
     }
   ],
   "standalone_free": [
