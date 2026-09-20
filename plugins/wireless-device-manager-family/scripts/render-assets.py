@@ -94,7 +94,7 @@ for plugin in PLUGINS:
         shutil.copy2(ROOT/"ui"/filename,ui/filename)
     if not PACKRAT_LOGO.exists():
         raise SystemExit(f"Canonical PackRat logo missing: {PACKRAT_LOGO}")
-    shutil.copy2(PACKRAT_LOGO,ui/"packrat-logo.png")
+    shutil.copy2(PACKRAT_LOGO,plugin/"imgs/plugin/packrat-logo.png")
 
     pro_url=PRO_MARKETPLACE_URL if plugin.name=="com.packrat.wireless-device-manager.sdPlugin" else ""
     (ui/"upsell-config.js").write_text(
