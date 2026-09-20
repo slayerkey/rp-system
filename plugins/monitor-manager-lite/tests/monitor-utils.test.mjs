@@ -103,10 +103,10 @@ test("bundled profiles are V2 archives with real Monitor Manager actions", async
   }
 });
 
-test("Lite Pro CTA stays fail closed until the real Marketplace product URL is committed", async () => {
+test("Lite Pro CTA uses the verified direct Monitor Manager Pro Marketplace URL", async () => {
   const text=await readFile("src/product.ts","utf8");
-  assert.match(text,/PRO_MARKETPLACE_URL: string \| null = null/);
-  assert.doesNotMatch(text,/packrat.*\.com\/.*pro/i);
+  assert.match(text,/PRO_MARKETPLACE_URL: string \| null = "https:\/\/marketplace\.elgato\.com\/product\/monitor-manager-pro-d1f16ff0-2433-4b67-991d-8dd9fcddd425"/);
+  assert.doesNotMatch(text,/marketplace\.elgato\.com\/(?:search\/|\?search=|@packrat)/i);
 });
 
 test("all common high-refresh fixtures are accepted when Windows enumerates them", () => {
