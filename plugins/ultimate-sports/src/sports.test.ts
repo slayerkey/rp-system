@@ -77,6 +77,11 @@ for (const cfg of TEAM_SPORTS) {
 const cfb = sportByIdLocal("cfb");
 for (const t of cfb.teams) assert.ok(t.conference, `cfb kept ${t.abbr} with no conference`);
 assert.ok(cfb.teams.length < 200, "cfb should be FBS only, not every division ESPN publishes");
+const tennessee = cfb.teams.find((t) => t.id === "2633");
+assert.ok(tennessee, "Tennessee Volunteers must remain available in the College Football team picker");
+assert.equal(tennessee.name, "Tennessee Volunteers");
+assert.equal(tennessee.abbr, "TENN");
+assert.equal(tennessee.conference.toLowerCase(), "sec");
 
 // Soccer is the one sport whose clubs span leagues, so each row carries its own competition.
 const soccer = sportByIdLocal("soccer");
