@@ -85,7 +85,9 @@ jobs:
           $expected = "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f"
           $hits = Get-ChildItem plugins/wireless-device-manager-family -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
           if (-not $hits) { throw "Verified Wireless Device Manager Pro URL was not found in rebuilt family output." }
-      - uses: actions/upload-artifact@v4
+      - name: Upload release evidence (best effort)
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
         with:
           name: wireless-device-manager-local-release
           path: plugins/wireless-device-manager-family/dist/**/*.streamDeckPlugin
