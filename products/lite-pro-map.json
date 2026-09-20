@@ -189,8 +189,8 @@
         "plugins/audio-manager-pro",
         "companions/packrat-audio-core"
       ],
-      "source_status": "lite_output_and_input_scope_hardware_qa_pending",
-      "notes": "Lite is the direct-device free edition: Set Output Device + Set Input Device. Pro expands the same Windows audio use case into complete Audio Profiles, Communications routing, capture/apply/cycle/status, mic mute, restore state, and Stream Deck+ profile volume. Until the verified direct Pro Marketplace URL is recorded, both canonical Lite CTAs use the PackRat maker fallback.",
+      "source_status": "pro_url_verified_direct_cta_source_updated_validation_pending",
+      "notes": "Audio Manager Lite is the direct-device free edition: Set Output Device + Set Input Device. Audio Manager Pro is publicly verified; the exact direct Marketplace URL is recorded here and Lite must route both canonical upgrade surfaces directly to Pro. Fresh exact-commit CI, validation, and package evidence are required after the URL update.",
       "upsell_surface": "Lite Property Inspector",
       "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1",
