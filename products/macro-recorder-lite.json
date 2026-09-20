@@ -53,7 +53,7 @@
   "upsell_release_gate": {
     "required_before_public_lite_launch": true,
     "current_state": "verified_direct_pro_listing",
-    "policy": "Macro Recorder Pro is public. Both canonical Lite upgrade surfaces route directly to the verified Pro Marketplace listing.",
+    "policy": "Both canonical Lite→Pro surfaces route directly to the verified Macro Recorder Pro Marketplace listing.",
     "verified_marketplace_url": "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066"
   },
   "release_artifact": {
@@ -100,7 +100,9 @@
     "official_elgato_validation_package": "PASS",
     "marketplace_media": "PASS",
     "direct_pro_routing": "PASS",
-    "canonical_pi_audit": "PASS"
+    "canonical_pi_audit": "PASS",
+    "artifact_name": "macro-recorder-family-release-qa",
+    "strict_lite_pro_gate": "PASS"
   },
   "pro_marketplace_url": "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066"
 }
