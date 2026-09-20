@@ -13,7 +13,7 @@
   "shared_audio_core": "companions/packrat-audio-core/src/PackRat.AudioCore",
   "open_profile_on_dev": true,
   "dev_profile": "profiles/audio-manager-lite-standard.streamDeckProfile",
-  "pro_cta_release_policy": "verified_direct_pro_listing",
+  "pro_cta_release_policy": "verified_direct_public_url_required",
   "notes": "Lite intentionally exposes two direct-device jobs: switch Windows Default Output and switch Windows Default Input. Both canonical Pro upgrade surfaces route directly to the verified Audio Manager Pro Marketplace listing.",
   "blocker": null,
   "release_gate": [
@@ -26,14 +26,14 @@
     "official Elgato validation/package",
     "physical Windows output and input switch smoke"
   ],
-  "final_boundary": "READY_TO_SHIP on canonical main. Audio Manager Lite keeps its approved two-action scope and now routes both canonical upgrade surfaces directly to Audio Manager Pro; 13/13 tests, Windows snapshot smoke, design/key audits, and official validation/package all pass.",
+  "final_boundary": "READY_TO_SHIP on canonical main at ff185dc1be1b5acbbcf378836064d07ba4c475ff. Audio Manager Lite keeps its approved two-action scope and both canonical upgrade surfaces route directly to Audio Manager Pro; 13/13 tests, Windows snapshot smoke, design/key audits, and official validation/package all pass.",
   "automated_release_evidence": {
     "status": "PASS",
     "latest_successful_windows_run": 35537139076,
     "exact_head_at_run": "13ede2cffde01f34743c78d90718042884330acf",
-    "artifact_id": 10613227122,
+    "artifact_id": 10613653208,
     "artifact_name": "audio-manager-lite-release-qa",
-    "artifact_digest": "sha256:5391e13138847cb47b88cdbd4420e07876299cc9f747be201dcf264997bc4166",
+    "artifact_digest": "sha256:e5a7c5e1c2c52fc60282baf486c64aeb15fc34a9d034e0f91a6812c6f0f20ed5",
     "package_sha256": "3a442493ca3eef9f1fc0f5075e0011c3e95d7630c1f4a479921ac61a25fed356",
     "test_suite": "13/13 passing",
     "design_audit": "PASS — 0 warnings",
@@ -41,7 +41,11 @@
     "lite_pro_portfolio_audit": "PASS",
     "windows_snapshot_smoke": "PASS",
     "official_elgato_validation_package": "PASS",
-    "direct_pro_routing": "PASS"
+    "direct_pro_routing": "PASS",
+    "run_id": 35537549799,
+    "head_sha": "ff185dc1be1b5acbbcf378836064d07ba4c475ff",
+    "lite_package_sha256": "633cc43b1937a8b6069ecfc151008d2d884a3996450d6ae07152b1f022899ee0",
+    "strict_lite_pro_gate": "PASS"
   },
   "physical_release_evidence": {
     "status": "ACCEPTED_SHARED_PATH",
@@ -56,5 +60,8 @@
     "operator_release_decision": "Product owner stated the switching functionality has worked before and approved proceeding without additional Lite-only testing."
   },
   "pro_marketplace_url": "https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1",
-  "validated_main_commit": "13ede2cffde01f34743c78d90718042884330acf"
+  "validated_main_commit": "13ede2cffde01f34743c78d90718042884330acf",
+  "source_repository": "https://github.com/slayerkey/rp-system.git",
+  "source_ref": "refs/heads/main",
+  "source_commit": "ff185dc1be1b5acbbcf378836064d07ba4c475ff"
 }
