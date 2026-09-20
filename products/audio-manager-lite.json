@@ -60,8 +60,5 @@
     "operator_release_decision": "Product owner stated the switching functionality has worked before and approved proceeding without additional Lite-only testing."
   },
   "pro_marketplace_url": "https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1",
-  "validated_main_commit": "13ede2cffde01f34743c78d90718042884330acf",
-  "source_repository": "https://github.com/slayerkey/rp-system.git",
-  "source_ref": "refs/heads/main",
-  "source_commit": "ff185dc1be1b5acbbcf378836064d07ba4c475ff"
+  "validated_main_commit": "13ede2cffde01f34743c78d90718042884330acf"
 }
