@@ -81,7 +81,7 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           python tools/lite_pro_audit.py --shipping wireless-device-manager
-          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/wireless-device-manager-family --require-canonical-pi --require-lite-pro-upsell
+          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/wireless-device-manager-family/com.packrat.wireless-device-manager.sdPlugin --require-canonical-pi --require-lite-pro-upsell
           $expected = "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f"
           $hits = Get-ChildItem plugins/wireless-device-manager-family -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
           if (-not $hits) { throw "Verified Wireless Device Manager Pro URL was not found in rebuilt family output." }
