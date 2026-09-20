@@ -75,6 +75,10 @@ jobs:
           npm run native:selftest
           npm run validate
           npm run pack
+      - name: Record package SHA256
+        shell: powershell
+        run: Get-FileHash plugins/audio-manager-lite/dist/*.streamDeckPlugin -Algorithm SHA256 | Format-Table -AutoSize
+
       - name: Audit Lite-to-Pro routing
         shell: powershell
         run: |
