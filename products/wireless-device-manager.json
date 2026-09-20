@@ -11,14 +11,14 @@
   "plugin_uuid": "com.packrat.wireless-device-manager",
   "submission_metadata": "products/_submission/wireless-device-manager.json",
   "source_repository": "https://github.com/slayerkey/rp-system.git",
-  "source_commit": "ed50419a8817be7049756a5734f910127cd9a77c",
+  "source_commit": "4105ccaca7e8e449bafc73f336547b045b8830ee",
   "release_artifact": {
     "repository": "slayerkey/rp-system",
-    "run_id": 34924574105,
+    "run_id": 35531672098,
     "name": "wireless-device-manager-family",
-    "commit": "ed50419a8817be7049756a5734f910127cd9a77c",
+    "commit": "4105ccaca7e8e449bafc73f336547b045b8830ee",
     "package_path": "dist/lite/com.packrat.wireless-device-manager.streamDeckPlugin",
-    "package_sha256": "a94d4e194aaed8d8e52bfe9c4797f7c578edc4b2bcbd2871d771b4746114cb0b",
+    "package_sha256": "b0434d0d1e9e477c429ca7df384d701788c685d36e6322f7965fe2d0cb6e53e2",
     "media": {
       "search_icon": "dist/marketplace-lite/01_search_icon.png",
       "cover": "dist/marketplace-lite/02_cover.png",
@@ -28,17 +28,26 @@
         "dist/marketplace-lite/05_gallery_03.png",
         "dist/marketplace-lite/06_gallery_04.png"
       ]
-    }
+    },
+    "artifact_id": 10611059704,
+    "artifact_digest": "sha256:d8f10849834776684a14d2262d4ba04830a30df14c157d68b3f2daa7d62d57ce"
   },
   "automated_release_evidence": {
     "status": "PASS",
-    "run_id": 34924574105,
-    "artifact_id": 10380100395,
-    "artifact_digest": "sha256:b447a8c23bd085101a04621157b7aec0df5e0f6a3b3410f153d1f95ffbf31f6b",
+    "run_id": 35531672098,
+    "artifact_id": 10611059704,
+    "artifact_digest": "sha256:d8f10849834776684a14d2262d4ba04830a30df14c157d68b3f2daa7d62d57ce",
     "test_cases": 64,
     "official_elgato_validation_package": "PASS",
     "owner_visual_approval": "PASS",
-    "bluetooth_audio_hardware_matrix": "WAIVED_BY_PRODUCT_OWNER"
+    "bluetooth_audio_hardware_matrix": "WAIVED_BY_PRODUCT_OWNER",
+    "head_sha": "4105ccaca7e8e449bafc73f336547b045b8830ee",
+    "lite_package_sha256": "b0434d0d1e9e477c429ca7df384d701788c685d36e6322f7965fe2d0cb6e53e2",
+    "direct_pro_routing": "PASS",
+    "canonical_pi_audit": "PASS"
   },
-  "final_boundary": "READY_TO_SHIP from the exact validated artifact at ed50419a8817be7049756a5734f910127cd9a77c. Lite uses the PackRat maker fallback until the direct Pro listing is verified."
+  "final_boundary": "READY_TO_SHIP from exact validated artifact 4105ccaca7e8e449bafc73f336547b045b8830ee. Both Wireless Device Manager Lite upgrade surfaces route directly to the verified Pro Marketplace listing.",
+  "pro_marketplace_url": "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f",
+  "source_ref": "refs/heads/product/wireless-device-manager",
+  "pro_cta_release_policy": "verified_direct_pro_listing"
 }

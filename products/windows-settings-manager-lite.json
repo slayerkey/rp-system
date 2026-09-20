@@ -4,7 +4,7 @@
   "type": "plugin",
   "status": "qa_passed",
   "workflow_state": "READY_TO_SHIP",
-  "final_boundary": "Lite is technically/physically approved. Both canonical Pro upgrade surfaces remain usable before Pro publication through the PackRat maker fallback. Final public Lite submission still requires the exact verified Pro and Lite Marketplace URLs/IDs in products/lite-pro-map.json and a passing strict Lite-to-Pro shipping audit.",
+  "final_boundary": "READY_TO_SHIP on canonical main. Both Windows Settings Manager Lite upgrade surfaces route directly to the verified Pro listing; build, 53/53 tests, backend smoke, official validation/package, and strict Lite-to-Pro routing all pass.",
   "price_usd": 0,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -50,18 +50,17 @@
     "Sleep execution intentionally not exercised by product owner; shared native implementation and automated gates accepted",
     "deterministic Rat Art and Marketplace media dimensions — PASS",
     "bundled profile integrity across seven device families — PASS",
-    "final public Lite submission requires verified direct Pro + Lite Marketplace URLs/IDs and strict Lite-to-Pro shipping audit"
+    "verified direct Pro URL packaged on both canonical Lite upgrade surfaces + strict Lite-to-Pro audit — PASS"
   ],
   "upsell": {
     "target_product_id": "windows-settings-manager-pro",
     "surface": "Property Inspector top-right + bottom feature card",
     "url_source": "products/lite-pro-map.json",
-    "fallback_marketplace_url": "https://marketplace.elgato.com/maker/packrat",
-    "routing": "verified direct Pro Marketplace URL when available, otherwise PackRat maker fallback",
+    "routing": "verified direct Pro Marketplace URL",
     "hidden_until_verified": false,
-    "release_order": "publish Pro first, then record the verified direct Pro URL and rebuild Lite so both CTAs route directly to Pro"
+    "release_order": "Windows Settings Manager Pro is public and Lite now routes both canonical upgrade surfaces directly to it."
   },
-  "commercial_release_boundary": "Publish Pro first. Before the direct listing exists, Lite upgrade CTAs route to the PackRat maker page. After publication, record exact direct Marketplace URLs/IDs, rebuild Lite so both CTAs target Pro directly, then run tools/lite_pro_audit.py --shipping windows-settings-manager-lite before final public Lite submission.",
+  "commercial_release_boundary": "Verified direct Pro routing is packaged and the strict Lite-to-Pro shipping audit passes on canonical main.",
   "current_direction": {
     "thesis": "A free, coherent set of everyday Windows essentials for the broad use case: control your PC without opening Windows Settings or leaving what you are doing.",
     "primary_surface": "six-key essentials: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, Next Desktop",
@@ -114,13 +113,13 @@
     "official_pro_package_sha256": "148063a3bbe8cd41a3a97351695fb879078649d838c1c3093bccd67b27a3372f"
   },
   "automated_release_evidence": {
-    "candidate_commit": "8893fcee297d4b5a489ea8db7976fd1a5359cfc6",
+    "candidate_commit": "9845186013df5e6458f80f37bc9356fbffea2e73",
     "status": "PASSED",
-    "windows_ci_run": 34880736867,
+    "windows_ci_run": 35537036828,
     "windows_ci_job": 104099104165,
     "windows_package_artifact": {
-      "id": 10363400235,
-      "digest_sha256": "c7bcca1295a22bb7ec31e260df396e760cb4d7d8b6dcffc4522b9f3d33149efc"
+      "id": 10613716469,
+      "digest_sha256": "aefb2141a7dae7ae26e880590ffae68bc659977d9625d96f833b0d4c6d537206"
     },
     "portable_ci_run": 34880736790,
     "portable_ci_job": 104099103170,
@@ -130,7 +129,7 @@
     },
     "locked_dependency_install": "pass",
     "strict_typescript_build": "pass",
-    "policy_tests": "pass_51_of_51",
+    "policy_tests": "pass_53_of_53",
     "native_windows_backend_smoke": "pass",
     "official_elgato_validation": "pass_lite_and_pro",
     "production_dependency_audit": "pass_0_vulnerabilities",
@@ -142,7 +141,12 @@
     "physical_streamdeck_visual_review": "pass",
     "physical_lock_pc": "pass",
     "physical_virtual_desktop_navigation": "pass",
-    "final_lite_publication_gate": "verified_marketplace_urls_ids_plus_strict_lite_pro_audit"
+    "final_lite_publication_gate": "verified_marketplace_urls_ids_plus_strict_lite_pro_audit",
+    "official_lite_package_sha256": "844e0d8b579022a508d431ac062ccd10057f9d5f2b8d5163375e618fdc1d667c",
+    "official_pro_package_sha256": "fb79611b141eea20419c22efb7ddec2ed372c23e6de9dd9a6e5295b27ba5b151",
+    "strict_lite_pro_shipping_audit": "pass",
+    "canonical_pi_audit": "pass",
+    "direct_pro_url_rebuild": "PASS"
   },
   "open_profile_on_dev": true,
   "physical_qa_evidence": {
@@ -156,5 +160,8 @@
       "Power Plan and Keep Awake key presentation approved.",
       "Sleep was intentionally not physically executed; product owner accepted the shared native implementation and automated validation."
     ]
-  }
+  },
+  "blocker": null,
+  "pro_marketplace_url": "https://marketplace.elgato.com/product/windows-settings-manager-pro-a95ddbd4-32bb-4d19-a8c8-e4b8c2f3360e",
+  "validated_main_commit": "9845186013df5e6458f80f37bc9356fbffea2e73"
 }

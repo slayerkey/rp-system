@@ -11,14 +11,14 @@
   "plugin_uuid": "com.packrat.textexpanderlite",
   "submission_metadata": "products/_submission/text-expander.json",
   "source_repository": "https://github.com/slayerkey/rp-system.git",
-  "source_commit": "77af3f0aa3267fb8efb5c8aa1705c87d79004ed0",
+  "source_commit": "03459fc0b374e287585b721eb0f93f7fb8e0179c",
   "release_artifact": {
     "repository": "slayerkey/rp-system",
-    "run_id": 34923090363,
+    "run_id": 35532066925,
     "name": "text-expander-streamdeck-candidates",
-    "commit": "77af3f0aa3267fb8efb5c8aa1705c87d79004ed0",
+    "commit": "03459fc0b374e287585b721eb0f93f7fb8e0179c",
     "package_path": "release/com.packrat.textexpanderlite.streamDeckPlugin",
-    "package_sha256": "db68a333cc00a2751fbb4f65c890dd4c87117da87285c7387b1af4ced7d62e11",
+    "package_sha256": "a5303b3014f5d14de7bb8b6b8a9918f70d71b2942c2575c759d7cc557c6da7d4",
     "media": {
       "search_icon": "release/art-lite/01_search_icon.png",
       "cover": "release/art-lite/02_cover.png",
@@ -28,17 +28,27 @@
         "release/art-lite/05_gallery_03.png",
         "release/art-lite/06_gallery_04.png"
       ]
-    }
+    },
+    "artifact_id": 10611985678,
+    "artifact_digest": "sha256:a1b5daaba6c91628ca6fa45f5816756cfd326d630f8946749981ba153f2c7c4b"
   },
   "automated_release_evidence": {
     "status": "PASS",
-    "run_id": 34923090363,
-    "artifact_id": 10378628617,
-    "artifact_digest": "sha256:13d9718d3d2097366fcbbaad1ac6fd33593623e77f6cee16f38e4bc02d9d9241",
+    "run_id": 35532066925,
+    "artifact_id": 10611985678,
+    "artifact_digest": "sha256:a1b5daaba6c91628ca6fa45f5816756cfd326d630f8946749981ba153f2c7c4b",
     "automated_tests": 37,
     "official_elgato_validation_package": "PASS",
     "deterministic_marketplace_media": "PASS",
-    "physical_starter_smoke": "PASS on real Stream Deck: EMAIL + insertion, CLIP + clipboard insertion, and LIBRARY dashboard."
+    "physical_starter_smoke": "PASS on real Stream Deck: EMAIL + insertion, CLIP + clipboard insertion, and LIBRARY dashboard.",
+    "head_sha": "03459fc0b374e287585b721eb0f93f7fb8e0179c",
+    "lite_package_sha256": "a5303b3014f5d14de7bb8b6b8a9918f70d71b2942c2575c759d7cc557c6da7d4",
+    "direct_pro_url_rebuild": "PASS",
+    "lite_pro_upgrade_direct": "PASS",
+    "canonical_pi_audit": "PASS"
   },
-  "final_boundary": "READY_TO_SHIP from the exact validated artifact at 77af3f0aa3267fb8efb5c8aa1705c87d79004ed0. Lite uses the PackRat maker-page upgrade fallback until the verified direct Pro Marketplace URL is available."
+  "final_boundary": "READY_TO_SHIP from exact validated artifact 03459fc0b374e287585b721eb0f93f7fb8e0179c. Both Text Expander Lite upgrade CTAs route directly to the verified Text Expander Pro Marketplace listing.",
+  "pro_marketplace_url": "https://marketplace.elgato.com/product/text-expander-pro-7a939ada-53a5-49ae-99b5-2752c8e82f41",
+  "source_ref": "refs/heads/product/text-expander",
+  "pro_url_rule": "Text Expander Pro is public. Both canonical Lite-to-Pro conversion surfaces route directly to the exact verified Text Expander Pro Marketplace URL."
 }

@@ -13,8 +13,8 @@
   "shared_audio_core": "companions/packrat-audio-core/src/PackRat.AudioCore",
   "open_profile_on_dev": true,
   "dev_profile": "profiles/audio-manager-lite-standard.streamDeckProfile",
-  "pro_cta_release_policy": "always_visible_direct_pro_or_packrat_maker_fallback",
-  "notes": "Lite intentionally exposes two direct-device jobs: switch Windows Default Output and switch Windows Default Input. Pro owns complete Audio Profiles, Communications routing, capture/apply/cycle/status, mic mute, restore state, and Stream Deck+ profile volume.",
+  "pro_cta_release_policy": "verified_direct_pro_listing",
+  "notes": "Lite intentionally exposes two direct-device jobs: switch Windows Default Output and switch Windows Default Input. Both canonical Pro upgrade surfaces route directly to the verified Audio Manager Pro Marketplace listing.",
   "blocker": null,
   "release_gate": [
     "direct output + direct input Lite surface only",
@@ -26,19 +26,22 @@
     "official Elgato validation/package",
     "physical Windows output and input switch smoke"
   ],
-  "final_boundary": "READY_TO_SHIP. Audio Manager Lite now intentionally exposes only Set Output Device + Set Input Device. Exact-head CI passed 13/13 tests, canonical PackRat PI audit with 0 warnings, key/profile audit with 0 warnings, shared AudioCore/native Windows smoke, Elgato validation/package, and packaged-helper hygiene. The product owner accepted the direct speaker/microphone switching behavior based on the already-working shared AudioCore path and prior target-machine validation; no additional Lite-only hardware gate remains.",
+  "final_boundary": "READY_TO_SHIP on canonical main. Audio Manager Lite keeps its approved two-action scope and now routes both canonical upgrade surfaces directly to Audio Manager Pro; 13/13 tests, Windows snapshot smoke, design/key audits, and official validation/package all pass.",
   "automated_release_evidence": {
     "status": "PASS",
-    "latest_successful_windows_run": 34931484919,
-    "exact_head_at_run": "9cb0fcf9ca3b96ae8bf66f6de851012f2b46b60d",
-    "artifact_id": 10381837284,
+    "latest_successful_windows_run": 35537139076,
+    "exact_head_at_run": "13ede2cffde01f34743c78d90718042884330acf",
+    "artifact_id": 10613227122,
     "artifact_name": "audio-manager-lite-release-qa",
-    "artifact_digest": "sha256:91d7a3c9209de5e0a7af74fffcf2815cc295eda1089b2acf6c2d5d77710af6e1",
+    "artifact_digest": "sha256:5391e13138847cb47b88cdbd4420e07876299cc9f747be201dcf264997bc4166",
+    "package_sha256": "3a442493ca3eef9f1fc0f5075e0011c3e95d7630c1f4a479921ac61a25fed356",
     "test_suite": "13/13 passing",
     "design_audit": "PASS — 0 warnings",
     "key_visual_audit": "PASS — 0 warnings",
     "lite_pro_portfolio_audit": "PASS",
-    "official_elgato_validation_package": "PASS"
+    "windows_snapshot_smoke": "PASS",
+    "official_elgato_validation_package": "PASS",
+    "direct_pro_routing": "PASS"
   },
   "physical_release_evidence": {
     "status": "ACCEPTED_SHARED_PATH",
@@ -51,5 +54,7 @@
       "speaker/device key presentation accepted"
     ],
     "operator_release_decision": "Product owner stated the switching functionality has worked before and approved proceeding without additional Lite-only testing."
-  }
+  },
+  "pro_marketplace_url": "https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1",
+  "validated_main_commit": "13ede2cffde01f34743c78d90718042884330acf"
 }
