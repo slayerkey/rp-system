@@ -172,8 +172,5 @@
   },
   "blocker": null,
   "pro_marketplace_url": "https://marketplace.elgato.com/product/windows-settings-manager-pro-a95ddbd4-32bb-4d19-a8c8-e4b8c2f3360e",
-  "validated_main_commit": "9845186013df5e6458f80f37bc9356fbffea2e73",
-  "source_repository": "https://github.com/slayerkey/rp-system.git",
-  "source_ref": "refs/heads/main",
-  "source_commit": "f16edeae761dba287f83152c3180484b140595d8"
+  "validated_main_commit": "9845186013df5e6458f80f37bc9356fbffea2e73"
 }
