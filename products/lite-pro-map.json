@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-01",
+  "updated_at": "2026-09-20",
   "notes": "Commercial edition relationships. Direct URLs and Marketplace IDs below were verified against the live public Elgato Marketplace API for PackRat on 2026-09-01; no search, creator, generic, or placeholder URLs are accepted.",
   "pairs": [
     {
@@ -189,7 +189,9 @@
       ],
       "source_status": "automated_qa_passed_hardware_smoke_pending",
       "notes": "Text Expander Lite always shows the canonical top-right and bottom Pro upgrade surfaces. Until the direct Pro Marketplace listing exists, both route to the PackRat maker page. After Pro publication, record the exact verified /product/ URL here and rebuild/revalidate Lite so both CTAs route directly to Pro.",
-      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/text-expander-pro-7a939ada-53a5-49ae-99b5-2752c8e82f41",
+      "pro_marketplace_product_id": "7a939ada-53a5-49ae-99b5-2752c8e82f41"
     }
   ],
   "standalone_free": [
