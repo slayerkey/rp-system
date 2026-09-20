@@ -55,6 +55,11 @@ jobs:
         run: npx streamdeck pack out/com.packrat.windows-settings-manager-lite2.sdPlugin --output dist --force --no-update-check --no-file-list
       - name: Package Pro
         run: npx streamdeck pack out/com.packrat.windows-settings-manager-pro2.sdPlugin --output dist --force --no-update-check --no-file-list
+      - name: Record package SHA256
+        shell: powershell
+        working-directory: ${{ github.workspace }}
+        run: Get-FileHash products/windows-settings-manager/plugin/dist/*.streamDeckPlugin -Algorithm SHA256 | Format-Table -AutoSize
+
       - name: Strict Lite-to-Pro release gate
         shell: powershell
         working-directory: ${{ github.workspace }}
