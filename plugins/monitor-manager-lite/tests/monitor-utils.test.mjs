@@ -294,7 +294,7 @@ test("Lite consumes the canonical PackRat visual system", async () => {
   assert.match(css,/#080A0E/i);
   assert.match(css,/#FFB21E/i);
   assert.match(css,/radial-gradient/);
-  assert.match(html,/ratpack-icon-transparent\.png/);
+  assert.match(html,/\.\.\/imgs\/plugin\/packrat-logo\.png/);
   assert.match(html,/PackRat ↗/);
   assert.match(visuals,/setImage/);
   assert.match(visuals,/stroke="#fff"/);
