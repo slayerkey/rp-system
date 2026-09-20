@@ -84,6 +84,10 @@ jobs:
         run: |
           .\rat-art.ps1 -Destination release\art-lite -Edition lite
           .\rat-art.ps1 -Destination release\art-pro -Edition pro
+      - name: Record package SHA256
+        shell: pwsh
+        run: Get-FileHash plugins/text-expander/release/*.streamDeckPlugin -Algorithm SHA256 | Format-Table -AutoSize
+
       - name: Strict Lite-to-Pro release gate
         shell: pwsh
         working-directory: ${{ github.workspace }}
