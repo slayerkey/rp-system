@@ -7,10 +7,17 @@ on:
       - "plugins/_shared/monitor-manager/**"
       - "products/monitor-manager-lite.json"
       - "products/lite-pro-map.json"
+      - "products/index.json"
+      - "tools/lite_pro_audit.py"
+      - "tools/qa/streamdeck-plugin-design-audit.mjs"
       - ".github/workflows/local-release-validation.yml"
   workflow_dispatch:
 permissions:
   contents: read
+
+concurrency:
+  group: local-release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   local-release:
     runs-on: self-hosted
