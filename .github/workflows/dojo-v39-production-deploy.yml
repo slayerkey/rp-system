@@ -1,0 +1,61 @@
+name: Deploy Dojo v39 to Cloudflare
+
+on:
+  push:
+    branches:
+      - ci/dojo-v39-production-deploy
+    paths:
+      - ".github/workflows/dojo-v39-production-deploy.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-dojo:
+    runs-on: [self-hosted, Windows, X64, packrat]
+    timeout-minutes: 20
+
+    steps:
+      - name: Verify GitHub CLI
+        shell: powershell
+        run: |
+          gh --version
+          gh auth status
+
+      - name: Fetch production Dojo main
+        shell: powershell
+        run: |
+          $work = Join-Path $env:RUNNER_TEMP "dojo-v39-production-deploy"
+          if (Test-Path $work) {
+            Remove-Item -Recurse -Force $work
+          }
+          gh repo clone slayerkey/dojo-infrastructure $work -- --branch main --single-branch
+          Set-Content -Path $env:GITHUB_ENV -Value "DOJO_WORK=$work"
+
+      - name: Verify production entrypoint
+        shell: powershell
+        run: |
+          Set-Location (Join-Path $env:DOJO_WORK "slayerkey-dojo")
+          $config = Get-Content wrangler.jsonc -Raw
+          if ($config -notmatch '"main"\s*:\s*"src/index-v39.js"') {
+            throw "Production main is not pointing at src/index-v39.js"
+          }
+          git rev-parse HEAD
+
+      - name: Install dependencies
+        shell: powershell
+        run: |
+          Set-Location (Join-Path $env:DOJO_WORK "slayerkey-dojo")
+          npm install --no-audit --no-fund --ignore-scripts
+
+      - name: Verify Cloudflare authentication
+        shell: powershell
+        run: |
+          Set-Location (Join-Path $env:DOJO_WORK "slayerkey-dojo")
+          npx wrangler whoami
+
+      - name: Deploy v39
+        shell: powershell
+        run: |
+          Set-Location (Join-Path $env:DOJO_WORK "slayerkey-dojo")
+          npx wrangler deploy
