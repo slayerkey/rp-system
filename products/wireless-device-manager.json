@@ -44,7 +44,9 @@
     "head_sha": "4105ccaca7e8e449bafc73f336547b045b8830ee",
     "lite_package_sha256": "b0434d0d1e9e477c429ca7df384d701788c685d36e6322f7965fe2d0cb6e53e2",
     "direct_pro_routing": "PASS",
-    "canonical_pi_audit": "PASS"
+    "canonical_pi_audit": "PASS",
+    "artifact_name": "wireless-device-manager-family",
+    "strict_lite_pro_gate": "PASS"
   },
   "final_boundary": "READY_TO_SHIP from exact validated artifact 4105ccaca7e8e449bafc73f336547b045b8830ee. Both Wireless Device Manager Lite upgrade surfaces route directly to the verified Pro Marketplace listing.",
   "pro_marketplace_url": "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f",
