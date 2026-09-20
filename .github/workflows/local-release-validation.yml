@@ -93,7 +93,7 @@ jobs:
         run: |
           python tools/lite_pro_audit.py --shipping macro-recorder-lite
           if ($LASTEXITCODE -ne 0) { throw "Macro Recorder strict Lite-to-Pro audit failed." }
-          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/macro-recorder-lite/com.packrat.macro-recorder-lite.sdPlugin --require-canonical-pi --require-lite-pro-upsell
+          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/macro-recorder-lite --require-canonical-pi --require-lite-pro-upsell --extra-plugin-source=shared/macro-recorder/runtime.mjs
           if ($LASTEXITCODE -ne 0) { throw "Macro Recorder canonical PI audit failed." }
           $expected = "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066"
           $hits = Select-String -Path plugins/macro-recorder-lite/ui/inspector.js -SimpleMatch $expected -ErrorAction SilentlyContinue
