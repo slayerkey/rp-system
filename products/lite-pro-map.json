@@ -194,10 +194,10 @@
         "products/windows-settings-manager-lite.json",
         "products/windows-settings-manager-pro.json"
       ],
-      "source_status": "lite_and_pro_qa_passed_ready_to_ship_pro_first_marketplace_linking_pending",
-      "notes": "Lite is the coherent free essentials edition for the broad use case of controlling Windows without opening Settings or leaving the current task: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, and Next Desktop. Pro expands the same use case into the complete 15-key Windows Control Center with Hibernate, protected Restart/Shutdown, Wi-Fi, Bluetooth, Light/Dark theme, New/Close/Current Desktop, plus advanced Windows controls. Both editions passed build/tests/validation/package/media gates and physical Stream Deck visual review. Release order remains Pro first. Lite may be generated/uploaded as a draft, but final public Lite submission requires the exact verified Pro and Lite Marketplace URLs/IDs and a passing strict shipping audit.",
+      "source_status": "pro_url_verified_direct_cta_rebuild_validation_pending",
+      "notes": "Windows Settings Manager Pro is publicly verified and the exact direct Marketplace URL is recorded here. Lite is the six-key free essentials edition. Rebuild Lite so the exact Pro URL is injected, then run the strict Lite-to-Pro shipping audit and package validation. If the public Lite Marketplace URL/ID is still absent, that identity remains the only Marketplace-linking item required before final public Lite submission.",
       "upsell_surface": "Lite Property Inspector",
-      "url_injection": "Build reads pro_marketplace_url from this map. The Lite upgrade CTA remains hidden until a verified direct Pro Marketplace product URL exists."
+      "url_injection": "Build reads pro_marketplace_url from this map. The exact verified direct Pro Marketplace URL is now present and must be injected into the Lite upgrade CTA during the next validated build."
     },
     {
       "lite_id": "monitor-manager-lite",
@@ -209,8 +209,8 @@
         "plugins/monitor-manager-pro",
         "plugins/_shared/monitor-manager"
       ],
-      "source_status": "source_built_marketplace_pending",
-      "notes": "Lite is the brightness-only free edition. Pro is the full display-control edition. Direct Marketplace URLs and product IDs stay absent until public listings exist; Lite keeps its Pro CTA hidden until the exact verified public Pro URL is committed.",
+      "source_status": "pro_url_verified_direct_cta_source_updated_validation_pending",
+      "notes": "Monitor Manager Lite is the brightness-only free edition and Pro is the full display-control edition. Monitor Manager Pro is publicly verified; the exact direct Marketplace URL is recorded here and the Lite source is configured to expose it. Fresh exact-commit Windows build, validation, package, and Lite-to-Pro audit evidence are required after the URL update.",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/monitor-manager-pro-d1f16ff0-2433-4b67-991d-8dd9fcddd425",
       "pro_marketplace_product_id": "d1f16ff0-2433-4b67-991d-8dd9fcddd425"
     }
