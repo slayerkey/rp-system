@@ -5,6 +5,15 @@ on:
     branches:
       - product/monitor-manager-lite
       - main
+    paths:
+      - 'plugins/monitor-manager-lite/**'
+      - 'plugins/_shared/monitor-manager/**'
+      - 'products/monitor-manager-lite.json'
+      - 'products/lite-pro-map.json'
+      - 'products/index.json'
+      - 'tools/lite_pro_audit.py'
+      - 'tools/local/rat-ship-plugin.ps1'
+      - '.github/workflows/monitor-manager-lite-ci.yml'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
@@ -110,6 +119,9 @@ jobs:
       - name: Exercise canonical Rat Ship plugin kit
         shell: pwsh
         run: |
+          # Earlier build/test steps intentionally regenerate tracked package-source files.
+          # Rat Ship requires a clean canonical checkout before it creates its isolated worktree.
+          git reset --hard HEAD
           $dest = Join-Path $env:RUNNER_TEMP 'monitor-manager-lite-ship-kit'
           ./tools/local/rat-ship-plugin.ps1 -PluginSlug monitor-manager-lite -Destination $dest
           $required = @(
