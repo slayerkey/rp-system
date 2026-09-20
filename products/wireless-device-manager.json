@@ -3,7 +3,7 @@
   "name": "Wireless Device Manager",
   "type": "plugin",
   "status": "qa_passed",
-  "workflow_state": "READY_TO_SHIP",
+  "workflow_state": "TESTING",
   "price_usd": 0,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -11,10 +11,10 @@
   "plugin_uuid": "com.packrat.wireless-device-manager",
   "automated_feasibility": "GO",
   "hardware_smoke": "MAYA_X_PASS_BLUETOOTH_AUDIO_CONTROL_WAIVED",
-  "notes": "Free Lite edition. One selected device with sole-visible auto-selection. Battery/charging/control are capability-gated and battery percentages remain device-reported. Final visual approval is complete. Canonical top-right and bottom Pro upgrade surfaces are active and use the PackRat maker Marketplace page until the verified direct Pro listing exists.",
+  "notes": "Free Lite edition. One selected device with sole-visible auto-selection. Battery/charging/control remain capability-gated. The verified Wireless Device Manager Pro Marketplace URL is now configured and both canonical Lite upgrade surfaces must route directly to it. Fresh family build/package validation is required after this routing change.",
   "ship_plugin_dir": "com.packrat.wireless-device-manager.sdPlugin",
   "submission_metadata": "plugins/wireless-device-manager-family/submission-lite.json",
-  "blocker": null,
+  "blocker": "Fresh exact-commit family build, validation, package, and direct Lite-to-Pro routing audit required after recording the verified Pro URL.",
   "release_gate": [
     "locked dependency install and npm audit with 0 vulnerabilities",
     "64 deterministic model/package/profile/catalog/runtime-diagnostic regressions",
@@ -31,7 +31,7 @@
     "candidate_commit": "ed50419a8817be7049756a5734f910127cd9a77c",
     "github_actions_run": 34924574105,
     "windows_job": 104239784353,
-    "status": "PASSED",
+    "status": "STALE_AFTER_DIRECT_PRO_URL_UPDATE",
     "test_cases": 64,
     "test_failures": 0,
     "structural_key_visual_audit": "PASSED_0_WARNINGS",
@@ -46,7 +46,8 @@
     "pro_package_sha256": "D4BE5570BEAF8B23637EAD6422A5F6E71EBE72F715CDDE7C59F2FDE880A6194F",
     "lite_pro_upgrade_fallback": "PASS - Lite top-right Upgrade to Pro and bottom Pro feature card are always visible after Lite edition state is known; direct Pro /product/ URL is used when verified, otherwise both route to https://marketplace.elgato.com/maker/packrat.",
     "owner_visual_approval": "PASS - final Lite and Pro presentation approved on real Stream Deck / Property Inspector",
-    "release_state": "READY_TO_SHIP"
+    "release_state": "READY_TO_SHIP",
+    "lite_pro_upgrade_routing": "PENDING_DIRECT_PRO_REBUILD"
   },
   "catalog_audit": {
     "profiles": {
@@ -72,10 +73,11 @@
       "classification": "lite_to_pro",
       "pro_id": "wireless-device-manager-pro",
       "verified_against": "products/lite-pro-map.json",
-      "current_public_pro_url": null,
+      "current_public_pro_url": "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f",
       "fallback_marketplace_url": "https://marketplace.elgato.com/maker/packrat",
-      "behavior": "Top-right Upgrade to Pro and bottom Pro feature card are always visible in Lite. Both use the verified direct Pro /product/ URL when available; otherwise both open the PackRat maker page."
+      "behavior": "Both canonical Lite upgrade surfaces must use the verified direct Wireless Device Manager Pro /product/ URL."
     }
   },
-  "final_boundary": "READY_TO_SHIP. The product owner visually approved the final Lite and Pro presentation. Wireless Device Manager Lite uses the canonical PackRat maker-page fallback until a verified direct Pro Marketplace URL exists. Run rat ship wireless-device-manager-pro first, then rat ship wireless-device-manager."
+  "final_boundary": "Verified direct Pro routing is configured. Run fresh exact-commit family QA and package validation; when green, restore READY_TO_SHIP and use the direct Pro URL on both Lite upgrade surfaces.",
+  "pro_marketplace_url": "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f"
 }
