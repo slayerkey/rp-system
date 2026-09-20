@@ -1,6 +1,6 @@
 {
 	"Name": "Clipboard Manager Pro",
-	"Version": "1.0.0.0",
+	"Version": "1.1.0.0",
 	"Author": "Packrat",
 	"Actions": [
 		{
@@ -32,6 +32,28 @@
 				{
 					"Image": "imgs/actions/picker/key",
 					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "History Dial",
+			"UUID": "com.packrat.clipboardpro.dial",
+			"Icon": "imgs/actions/picker/icon",
+			"Tooltip": "Scroll your rolling clipboard history on Stream Deck+. Press to paste the selected copy. Tap the strip to return to the newest copy.",
+			"Controllers": [
+				"Encoder"
+			],
+			"Encoder": {
+				"layout": "$B1",
+				"TriggerDescription": {
+					"Rotate": "Previous or next history entry",
+					"Push": "Paste selected entry",
+					"Touch": "Jump to newest entry"
+				}
+			},
+			"States": [
+				{
+					"Image": "imgs/actions/picker/key"
 				}
 			]
 		}
