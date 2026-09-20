@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-15",
+  "updated_at": "2026-09-20",
   "notes": "Commercial edition relationships. Lite products with a true Pro counterpart always show the canonical top-right and bottom Pro conversion surfaces. Use the exact verified direct Pro Marketplace URL when available; until then use the canonical PackRat maker fallback. Strict final Lite shipping may still require exact verified public Lite/Pro product URLs and IDs. Window Manager Lite remains the structural reference implementation.",
   "pairs": [
     {
@@ -181,8 +181,8 @@
         "widgets/_src/retro-terminal-pro",
         "widgets/retro-terminal-pro"
       ],
-      "source_status": "free_catalog_only_source_unavailable_pro_marketplace_live",
-      "notes": "The published free Retro Terminal is live on Marketplace (public listing currently v1.0.1), but its exact source/package is not stored in rp-system. Retro Terminal Pro is live on Marketplace. When the free package is recovered, use the standard XENEON Lite→Pro in-widget overlay with a prominent View Pro CTA routed directly to the verified Pro Marketplace URL.",
+      "source_status": "free_marketplace_v1.0.2_live_source_unavailable_upsell_unverified",
+      "notes": "The published free Retro Terminal is live on Marketplace as v1.0.2 (published 2026-09-16), after Retro Terminal Pro went live on 2026-09-14. The current rp-system repository still does not contain the free widget source/package, so the v1.0.2 in-widget Pro upsell cannot be package-verified from GitHub alone. Preserve this pair as verified Marketplace identities with the free upsell state marked unverified until the live package/source is recovered or inspected.",
       "pro_marketplace_url": "https://marketplace.elgato.com/product/retro-terminal-pro-c2b47dcc-9c5a-4bf6-9007-18418a5724cf",
       "pro_marketplace_product_id": "c2b47dcc-9c5a-4bf6-9007-18418a5724cf",
       "upsell_surface": "Lite in-widget XENEON Pro upgrade overlay",
@@ -203,7 +203,9 @@
       "notes": "Lite is the coherent free essentials edition for the broad use case of controlling Windows without opening Settings or leaving the current task: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, and Next Desktop. Pro expands the same use case into the complete 15-key Windows Control Center with Hibernate, protected Restart/Shutdown, Wi-Fi, Bluetooth, Light/Dark theme, New/Close/Current Desktop, plus advanced Windows controls. Both editions passed build/tests/validation/package/media gates and physical Stream Deck visual review. Release order remains Pro first. Lite may be generated/uploaded as a draft, but final public Lite submission requires the exact verified Pro and Lite Marketplace URLs/IDs and a passing strict shipping audit.",
       "upsell_surface": "Lite Property Inspector",
       "url_injection": "Build reads pro_marketplace_url from this map. If absent, the Lite top-right and bottom Pro CTAs use the canonical PackRat maker fallback; once the verified direct Pro URL is recorded, rebuild Lite so both CTAs route directly to Pro.",
-      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/windows-settings-manager-pro-a95ddbd4-32bb-4d19-a8c8-e4b8c2f3360e",
+      "pro_marketplace_product_id": "a95ddbd4-32bb-4d19-a8c8-e4b8c2f3360e"
     },
     {
       "lite_id": "monitor-manager-lite",
@@ -217,7 +219,9 @@
       ],
       "source_status": "source_built_marketplace_pending",
       "notes": "Lite is the brightness-only free edition. Pro is the full display-control edition. Both canonical upgrade surfaces remain visible before Pro publication and route to the PackRat maker page; once the verified direct Pro /product/ URL is recorded, both route directly to Pro.",
-      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/monitor-manager-pro-d1f16ff0-2433-4b67-991d-8dd9fcddd425",
+      "pro_marketplace_product_id": "d1f16ff0-2433-4b67-991d-8dd9fcddd425"
     },
     {
       "lite_id": "macro-recorder-lite",
@@ -234,7 +238,9 @@
       "notes": "Lite is limited to 10 seconds / 50 keyboard events. Pro adds mouse capture, longer recordings, speed, loops, a reusable Macro Library, full editing, and import/export. Lite uses the PackRat maker fallback until the verified direct Pro Marketplace URL is recorded.",
       "launch_sequence": "Pro and Lite have exact validated artifacts. After Pro publication, record the exact direct Pro URL and rebuild/revalidate Lite if a direct upgrade target is desired.",
       "upsell_build_source": "maker_fallback_then_verified_direct_pro",
-      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066",
+      "pro_marketplace_product_id": "ac9d547d-eb65-4e49-a6bb-a378fa596066"
     },
     {
       "lite_id": "text-expander",
@@ -244,7 +250,9 @@
       "source_status": "exact_validated_artifacts_pinned_ready_to_ship",
       "notes": "Lite provides a 10-snippet local library with date, time, and clipboard variables. Pro adds large libraries, folders, fill-in templates, reusable variables, counters, custom date/time formats, cursor placement, and optional Tab/Enter behavior.",
       "launch_sequence": "Publish Pro first when convenient; Lite can use the PackRat maker fallback until the verified direct Pro URL is recorded.",
-      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/text-expander-pro-7a939ada-53a5-49ae-99b5-2752c8e82f41",
+      "pro_marketplace_product_id": "7a939ada-53a5-49ae-99b5-2752c8e82f41"
     },
     {
       "lite_id": "wireless-device-manager",
@@ -254,7 +262,9 @@
       "source_status": "exact_validated_artifacts_pinned_ready_to_ship",
       "notes": "Lite focuses on one selected wireless device. Pro adds multi-device dashboards, favorites, groups, low-battery alerts, and Cycle Device. Bluetooth audio physical control is explicitly owner-waived for initial release.",
       "launch_sequence": "Ship Pro first, then Lite. Lite uses the PackRat maker fallback until the exact direct Pro Marketplace URL is verified.",
-      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/wireless-device-manager-pro-d610ff7e-669b-4d48-b0f0-a9a9cced555f",
+      "pro_marketplace_product_id": "d610ff7e-669b-4d48-b0f0-a9a9cced555f"
     },
     {
       "lite_id": "audio-manager-lite",
@@ -269,7 +279,9 @@
       "source_status": "ready_to_ship_exact_head_ci_green",
       "notes": "Lite is the direct-device free edition: Set Output Device + Set Input Device. Pro expands the same Windows audio use case into complete Audio Profiles, Communications routing, capture/apply/cycle/status, mic mute, restore state, and Stream Deck+ profile volume. Until the verified direct Pro Marketplace URL is recorded, both canonical Lite CTAs use the PackRat maker fallback.",
       "upsell_surface": "Lite Property Inspector",
-      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat"
+      "upgrade_fallback_url": "https://marketplace.elgato.com/maker/packrat",
+      "pro_marketplace_url": "https://marketplace.elgato.com/product/audio-manager-pro-89fcd139-e8ce-4b42-a58b-0b25a3b38cf1",
+      "pro_marketplace_product_id": "89fcd139-e8ce-4b42-a58b-0b25a3b38cf1"
     }
   ],
   "standalone_free": [
