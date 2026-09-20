@@ -3,8 +3,8 @@
   "name": "Windows Settings Manager Lite",
   "type": "plugin",
   "status": "qa_passed",
-  "workflow_state": "READY_TO_SHIP",
-  "final_boundary": "Generate and upload the Lite candidate after the Pro listing exists. Final public Lite submission still requires the exact verified Pro and Lite Marketplace URLs/IDs in products/lite-pro-map.json and a passing strict Lite-to-Pro shipping audit.",
+  "workflow_state": "TESTING",
+  "final_boundary": "The verified direct Pro Marketplace URL is recorded. Rebuild Lite so that URL is injected, run the strict Lite-to-Pro shipping audit and package validation, then restore READY_TO_SHIP. If the public Lite Marketplace URL/ID is still absent, record it before final public Lite submission.",
   "price_usd": 0,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
@@ -50,17 +50,17 @@
     "Sleep execution intentionally not exercised by product owner; shared native implementation and automated gates accepted",
     "deterministic Rat Art and Marketplace media dimensions — PASS",
     "bundled profile integrity across seven device families — PASS",
-    "final public Lite submission requires verified direct Pro + Lite Marketplace URLs/IDs and strict Lite-to-Pro shipping audit"
+    "verified direct Pro URL recorded; fresh rebuilt Lite package plus strict Lite-to-Pro shipping audit required; public Lite URL/ID still required before final public submission if absent"
   ],
   "upsell": {
     "target_product_id": "windows-settings-manager-pro",
     "surface": "Property Inspector",
     "url_source": "products/lite-pro-map.json",
     "requires_verified_direct_marketplace_url": true,
-    "hidden_until_verified": true,
-    "release_order": "publish Pro first, then record direct Pro and Lite Marketplace URLs before Lite publication"
+    "hidden_until_verified": false,
+    "release_order": "Pro is published and its exact direct URL is recorded. Rebuild/validate Lite with direct routing; record public Lite URL/ID before final Lite submission if still absent."
   },
-  "commercial_release_boundary": "After technical/physical QA passes, publish Pro first. Lite remains BLOCKED until Pro is published, both exact direct Marketplace URLs/IDs are recorded in products/lite-pro-map.json, the rebuilt Lite package contains the exact Pro URL, and tools/lite_pro_audit.py --shipping windows-settings-manager-lite passes.",
+  "commercial_release_boundary": "Pro URL prerequisite is satisfied. Fresh rebuilt Lite package must contain the exact Pro URL and pass tools/lite_pro_audit.py --shipping windows-settings-manager-lite. Public Lite URL/ID must also be recorded before final public Lite submission if not already available.",
   "current_direction": {
     "thesis": "A free, coherent set of everyday Windows essentials for the broad use case: control your PC without opening Windows Settings or leaving what you are doing.",
     "primary_surface": "six-key essentials: Lock, Sleep, Power Plan, Keep Awake, Previous Desktop, Next Desktop",
@@ -114,7 +114,7 @@
   },
   "automated_release_evidence": {
     "candidate_commit": "8893fcee297d4b5a489ea8db7976fd1a5359cfc6",
-    "status": "PASSED",
+    "status": "STALE_AFTER_DIRECT_PRO_URL_UPDATE",
     "windows_ci_run": 34880736867,
     "windows_ci_job": 104099104165,
     "windows_package_artifact": {
@@ -141,7 +141,8 @@
     "physical_streamdeck_visual_review": "pass",
     "physical_lock_pc": "pass",
     "physical_virtual_desktop_navigation": "pass",
-    "final_lite_publication_gate": "verified_marketplace_urls_ids_plus_strict_lite_pro_audit"
+    "final_lite_publication_gate": "verified_marketplace_urls_ids_plus_strict_lite_pro_audit",
+    "direct_pro_url_rebuild": "PENDING"
   },
   "open_profile_on_dev": true,
   "physical_qa_evidence": {
@@ -155,5 +156,7 @@
       "Power Plan and Keep Awake key presentation approved.",
       "Sleep was intentionally not physically executed; product owner accepted the shared native implementation and automated validation."
     ]
-  }
+  },
+  "pro_marketplace_url": "https://marketplace.elgato.com/product/windows-settings-manager-pro-a95ddbd4-32bb-4d19-a8c8-e4b8c2f3360e",
+  "blocker": "Fresh exact-commit self-hosted build/package and strict Lite-to-Pro audit required after direct Pro URL injection."
 }
