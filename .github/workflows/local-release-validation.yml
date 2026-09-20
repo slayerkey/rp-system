@@ -1,0 +1,90 @@
+name: Macro Recorder Local Release Validation
+on:
+  push:
+    branches: [product/macro-recorder]
+    paths:
+      - "plugins/macro-recorder-lite/**"
+      - "plugins/macro-recorder-pro/**"
+      - "shared/windows-input/**"
+      - "products/macro-recorder-lite.json"
+      - "products/macro-recorder-pro.json"
+      - "products/lite-pro-map.json"
+      - ".github/workflows/local-release-validation.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-release:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Use host Python
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $python = $null
+          $py = Get-Command py -ErrorAction SilentlyContinue
+          if ($py) {
+            foreach ($version in @("3.13", "3.12")) {
+              try {
+                $candidate = (& py "-$version" -c "import sys; print(sys.executable)" 2>$null | Select-Object -Last 1).Trim()
+                if ($LASTEXITCODE -eq 0 -and $candidate -and (Test-Path $candidate)) { $python = $candidate; break }
+              } catch {}
+            }
+          }
+          if (-not $python) {
+            $cmd = Get-Command python -ErrorAction SilentlyContinue
+            if ($cmd -and (Test-Path $cmd.Source)) { $python = $cmd.Source }
+          }
+          if (-not $python) { throw "No usable host Python found." }
+          $pythonDir = Split-Path $python -Parent
+          $scriptsDir = Join-Path $pythonDir "Scripts"
+          $pythonDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          if (Test-Path $scriptsDir) { $scriptsDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append }
+          & $python --version
+          & $python -m pip --version
+      - name: Release metadata preflight
+        run: python tests/check_plugin_release_metadata.py
+      - name: Build shared Windows input host
+        shell: powershell
+        run: node shared/windows-input/build-host.mjs --force
+      - name: Validate Lite
+        working-directory: plugins/macro-recorder-lite
+        run: |
+          npm ci --no-fund --no-audit
+          npm audit --omit=dev --audit-level=high
+          npm test
+          npm run build
+          npm run validate
+          npm run pack
+      - name: Validate Pro
+        working-directory: plugins/macro-recorder-pro
+        run: |
+          npm ci --no-fund --no-audit
+          npm audit --omit=dev --audit-level=high
+          npm test
+          npm run build
+          npm run validate
+          npm run pack
+      - name: Audit Lite-to-Pro routing
+        shell: powershell
+        run: |
+          python tools/lite_pro_audit.py --shipping macro-recorder-lite
+          node tools/qa/streamdeck-plugin-design-audit.mjs plugins/macro-recorder-lite --require-canonical-pi --require-lite-pro-upsell
+          $expected = "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066"
+          $hits = Get-ChildItem plugins/macro-recorder-lite -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
+          if (-not $hits) { throw "Verified Macro Recorder Pro URL was not found in rebuilt Lite output/source." }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macro-recorder-local-release
+          path: |
+            plugins/macro-recorder-lite/dist/*.streamDeckPlugin
+            plugins/macro-recorder-pro/dist/*.streamDeckPlugin
+          if-no-files-found: error
