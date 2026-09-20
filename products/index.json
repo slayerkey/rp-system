@@ -115,7 +115,7 @@
       "id": "audio-manager-lite",
       "name": "Audio Manager Lite",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 0,
       "version": "1.0.0.0"
     },
@@ -123,7 +123,7 @@
       "id": "audio-manager-pro",
       "name": "Audio Manager Pro",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 9.99,
       "version": "1.0.0.0"
     },
@@ -427,7 +427,7 @@
       "id": "macro-recorder-lite",
       "name": "Macro Recorder Lite",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 0,
       "version": "1.0.0.0"
     },
@@ -435,7 +435,7 @@
       "id": "macro-recorder-pro",
       "name": "Macro Recorder Pro",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 7.99,
       "version": "1.0.0.0"
     },
@@ -467,7 +467,7 @@
       "id": "monitor-manager-lite",
       "name": "Monitor Manager Lite",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 0,
       "version": "1.0.0.0"
     },
@@ -475,7 +475,7 @@
       "id": "monitor-manager-pro",
       "name": "Monitor Manager Pro",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 9.99,
       "version": "1.0.0.0"
     },
@@ -763,7 +763,7 @@
       "id": "text-expander",
       "name": "Text Expander Lite",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 0,
       "version": "1.0.0.0"
     },
@@ -771,7 +771,7 @@
       "id": "text-expander-pro",
       "name": "Text Expander Pro",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 7.99,
       "version": "1.0.0.0"
     },
@@ -883,7 +883,7 @@
       "id": "windows-settings-manager-lite",
       "name": "Windows Settings Manager Lite",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 0,
       "version": "0.1.0.0"
     },
@@ -891,7 +891,7 @@
       "id": "windows-settings-manager-pro",
       "name": "Windows Settings Manager Pro",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 7.99,
       "version": "0.1.0.0"
     },
@@ -899,7 +899,7 @@
       "id": "wireless-device-manager",
       "name": "Wireless Device Manager",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 0,
       "version": "0.1.0.0"
     },
@@ -907,7 +907,7 @@
       "id": "wireless-device-manager-pro",
       "name": "Wireless Device Manager Pro",
       "type": "plugin",
-      "status": "qa_passed",
+      "status": "published",
       "price_usd": 7.99,
       "version": "0.1.0.0"
     },
