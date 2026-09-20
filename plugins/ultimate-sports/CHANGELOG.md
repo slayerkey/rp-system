@@ -4,6 +4,12 @@
 The top entry is pasted into the marketplace release notes verbatim: buyer
 language, no internal jargon, no em dashes. -->
 
+## v1.0.1.0 - 2026-09-20
+
+- Restored Tennessee Volunteers to the College Football team selector.
+- Hardened College Football team generation so a temporary provider standings omission cannot silently remove Tennessee again.
+- Kept saved teams, scores, standings and Stream Deck+ dial behavior unchanged.
+
 ## v1.0.0.0 - 2026-08-21
 
 - First release. Windows and macOS, every Stream Deck model.
