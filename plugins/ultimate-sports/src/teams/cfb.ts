@@ -119,6 +119,7 @@ export const CFB_TEAMS: SportTeam[] = [
 	{ id: "142", abbr: "MIZ", name: "Missouri Tigers", color: "#f1b82d", altColor: "#000000", conference: "sec", division: "Southeastern Conference" },
 	{ id: "201", abbr: "OU", name: "Oklahoma Sooners", color: "#990000", altColor: "#ffffff", conference: "sec", division: "Southeastern Conference" },
 	{ id: "145", abbr: "MISS", name: "Ole Miss Rebels", color: "#13294b", altColor: "#cf142b", conference: "sec", division: "Southeastern Conference" },
+	{ id: "2633", abbr: "TENN", name: "Tennessee Volunteers", color: "#ff8200", altColor: "#ffffff", conference: "sec", division: "Southeastern Conference" },
 	{ id: "245", abbr: "TA&M", name: "Texas A&M Aggies", color: "#500000", altColor: "#ffffff", conference: "sec", division: "Southeastern Conference" },
 	{ id: "251", abbr: "TEX", name: "Texas Longhorns", color: "#af5c37", altColor: "#ffffff", conference: "sec", division: "Southeastern Conference" },
 	{ id: "238", abbr: "VAN", name: "Vanderbilt Commodores", color: "#000000", altColor: "#cfae70", conference: "sec", division: "Southeastern Conference" },
