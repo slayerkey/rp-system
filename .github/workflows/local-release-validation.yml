@@ -96,7 +96,9 @@ jobs:
           $expected = "https://marketplace.elgato.com/product/macro-recorder-pro-ac9d547d-eb65-4e49-a6bb-a378fa596066"
           $hits = Get-ChildItem plugins/macro-recorder-lite -Recurse -File | Select-String -SimpleMatch $expected -ErrorAction SilentlyContinue
           if (-not $hits) { throw "Verified Macro Recorder Pro URL was not found in rebuilt Lite output/source." }
-      - uses: actions/upload-artifact@v4
+      - name: Upload release evidence (best effort)
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
         with:
           name: macro-recorder-local-release
           path: |
