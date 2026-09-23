@@ -1,0 +1,15 @@
+{
+  "slug":"hwinfo-sensor-monitor",
+  "name":"HWiNFO Sensor Monitor",
+  "type":"plugin",
+  "price_usd":9.99,
+  "version":"1.0.0.0",
+  "marketplace_category":["Monitoring","Utilities","Gaming"],
+  "marketplace_language":["English"],
+  "marketplace_operating_systems":["Windows"],
+  "marketplace_tags":["HWiNFO","Hardware","Sensors","Monitoring","PC"],
+  "marketplace_auto_publish":false,
+  "headline":"Put Any HWiNFO Sensor on a Stream Deck Key or Dial",
+  "description":"HWiNFO Sensor Monitor turns a customer-installed HWiNFO sensor feed into a polished Stream Deck dashboard. Search hundreds of HWiNFO readings by hardware device, put any sensor on a key, graph rolling local history, combine several sensors into a compact dashboard, and add warning/critical threshold visualization.\n\nFour focused actions: HWiNFO Sensor, HWiNFO Sensor Graph, HWiNFO Dashboard, and HWiNFO Sensor Alert. Stream Deck + dials rotate through selected sensors and the touch strip shows the current reading plus history. Ready-made dashboards are included for standard/MK.2, XL, Stream Deck +, and Neo.\n\nRequires Windows, Stream Deck 7.3 or newer, and HWiNFO 7.0+ installed separately with Sensors and Shared Memory Support enabled. HWiNFO64 Free can disable Shared Memory after 12 hours of continuous runtime; when that happens this plugin shows the source as expired and asks you to re-enable it manually. It never restarts or re-enables HWiNFO to bypass that limit.\n\nAll readings and history stay local. No PackRat cloud, account, analytics, or telemetry. HWiNFO is not bundled or redistributed. Independent third-party integration; HWiNFO® is a trademark of REALiX, s.r.o. and is not affiliated with or endorsed by PackRat.",
+  "release_notes":"- Browse and display arbitrary HWiNFO Shared Memory sensors with stable duplicate-safe identities.\n- Add rolling 30-second, 1-minute, and 5-minute graphs plus warning/critical threshold states.\n- Build multi-sensor dashboards and rotate sensors from Stream Deck + dials with touch-strip history.\n- Includes ready-made MK.2, XL, Stream Deck +, and Neo dashboards with clear HWiNFO setup and expiry states."
+}
