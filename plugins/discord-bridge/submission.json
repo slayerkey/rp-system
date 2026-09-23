@@ -3,7 +3,7 @@
   "name": "Discord Voice Bridge",
   "type": "plugin",
   "price_usd": 0.0,
-  "version": "1.0.0.1",
+  "version": "1.0.0.0",
   "marketplace_category": ["Utilities"],
   "marketplace_language": ["English"],
   "marketplace_operating_systems": ["Windows"],
