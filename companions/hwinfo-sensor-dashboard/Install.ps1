@@ -38,11 +38,12 @@ $shortcut.Description = 'PackRat HWiNFO Bridge for XENEON Edge'
 $shortcut.Save()
 if (-not (Test-Path $shortcutPath)) { throw 'PackRat HWiNFO Bridge startup shortcut was not created.' }
 
-$process = Start-Process $targetExe -PassThru
+$launchArgs = if ($env:PACKRAT_BRIDGE_NO_BROWSER -eq '1') { '--no-browser' } else { '' }
+$process = Start-Process $targetExe -ArgumentList $launchArgs -PassThru
 Start-Sleep -Milliseconds 500
 if ($process.HasExited) { throw "PackRat HWiNFO Bridge exited immediately with code $($process.ExitCode)." }
 
-Start-Process "http://127.0.0.1:17489/" | Out-Null
+if ($env:PACKRAT_BRIDGE_NO_BROWSER -ne '1') { Start-Process "http://127.0.0.1:17489/" | Out-Null }
 Write-Host ''
 Write-Host 'PackRat HWiNFO Bridge installed for this Windows user.'
 Write-Host "Location: $targetDir"
