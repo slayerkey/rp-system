@@ -166,7 +166,7 @@ internal static class Program
             return new ReadResult(new Status("sensors_inactive", "HWiNFO Shared Memory is active but no sensor readings are published."), pollTime, pollingPeriod);
 
         var devices = new List<(uint Id, uint Inst, string Orig, string User)>(checked((int)sensorCount));
-        for (var i = 0; i < sensorCount; i++)
+        for (uint i = 0; i < sensorCount; i++)
         {
             var start = checked((int)(sensorOffset + sensorSize * i));
             var item = span.Slice(start, checked((int)sensorSize));
@@ -174,7 +174,7 @@ internal static class Program
         }
 
         var sensors = new List<SensorItem>(checked((int)readingCount));
-        for (var i = 0; i < readingCount; i++)
+        for (uint i = 0; i < readingCount; i++)
         {
             var start = checked((int)(readingOffset + readingSize * i));
             var item = span.Slice(start, checked((int)readingSize));
