@@ -2,8 +2,8 @@
   "id": "hwinfo-sensor-monitor",
   "name": "HWiNFO Sensor Monitor",
   "type": "plugin",
-  "status": "building",
-  "workflow_state": "BUILDING",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
   "blocker": null,
   "price_usd": 9.99,
   "version": "1.0.0.0",
@@ -26,5 +26,14 @@
     "exact packaged profile and binary audit",
     "deterministic current PackRat Marketplace media",
     "Windows GitHub Actions release artifact"
-  ]
+  ],
+  "release_evidence": {
+    "windows_workflow_run_id": 35887677958,
+    "windows_workflow_conclusion": "success",
+    "artifact_id": 10763581623,
+    "artifact_name": "hwinfo-sensor-monitor-ready-to-ship",
+    "package_sha256": "66abb6f29fee3bf3e2b7b9943d512cbdc0b14a194873257c6ad6dfa0ce2c0927",
+    "automated_release_gates": "PASS",
+    "physical_hwinfo_smoke": "MANUAL_POST_INSTALL"
+  }
 }
