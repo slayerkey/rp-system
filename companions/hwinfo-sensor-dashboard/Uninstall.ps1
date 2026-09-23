@@ -11,19 +11,31 @@ function Get-InstalledProcesses {
   })
 }
 
-$processes = @(Get-InstalledProcesses)
-foreach ($process in $processes) { Stop-Process -Id $process.Id -Force -ErrorAction Stop }
-foreach ($process in $processes) {
-  try { Wait-Process -Id $process.Id -Timeout 10 -ErrorAction Stop }
-  catch { if (Get-Process -Id $process.Id -ErrorAction SilentlyContinue) { throw "PackRat HWiNFO Bridge process $($process.Id) did not exit during uninstall." } }
-}
-if (@(Get-InstalledProcesses).Count -ne 0) { throw 'PackRat HWiNFO Bridge is still running from the install directory.' }
-
+# Remove autostart first so no external Startup-folder observer can race the shutdown.
 if (Test-Path $shortcutPath) { Remove-Item $shortcutPath -Force -ErrorAction Stop }
 if (Test-Path $shortcutPath) { throw 'PackRat HWiNFO Bridge startup shortcut could not be removed.' }
 
+# Drain exact installed processes with a bounded retry loop. A second pass handles
+# short-lived process replacement races during update/uninstall without killing
+# unrelated copies or similarly named processes elsewhere on the machine.
+for ($attempt=1; $attempt -le 40; $attempt++) {
+  $processes = @(Get-InstalledProcesses)
+  if ($processes.Count -eq 0) {
+    Start-Sleep -Milliseconds 150
+    if (@(Get-InstalledProcesses).Count -eq 0) { break }
+  } else {
+    foreach ($process in $processes) {
+      Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    }
+    Start-Sleep -Milliseconds 250
+  }
+}
+if (@(Get-InstalledProcesses).Count -ne 0) {
+  throw 'PackRat HWiNFO Bridge is still running from the install directory after the bounded shutdown window.'
+}
+
 if (Test-Path $targetDir) {
-  for ($attempt=1; $attempt -le 6; $attempt++) {
+  for ($attempt=1; $attempt -le 8; $attempt++) {
     try { Remove-Item $targetDir -Recurse -Force -ErrorAction Stop } catch {}
     if (-not (Test-Path $targetDir)) { break }
     Start-Sleep -Milliseconds (250 * $attempt)
