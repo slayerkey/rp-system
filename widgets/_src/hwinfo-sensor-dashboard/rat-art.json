@@ -1,28 +1,62 @@
 {
   "schema_version": 1,
-  "hero": {"subtitle": "Any HWiNFO sensor on your XENEON Edge, with live graphs and history."},
-  "showcase": {"title": "Your whole PC telemetry stack, on one edge display.", "subtitle": "Choose CPU, GPU, storage, fans, VRM, power, clocks and any other useful HWiNFO reading.", "shot": "XL_H.png"},
+  "hero": {
+    "subtitle": "Any HWiNFO sensor on your XENEON Edge, with live graphs and history."
+  },
+  "showcase": {
+    "title": "Your hardware, your sensor wall.",
+    "subtitle": "Search HWiNFO readings and build a dashboard around the exact CPU, GPU, storage, board, cooling and power sensors your PC exposes.",
+    "shot": "XL_H.png"
+  },
   "features": {
-    "title": "Deeper than a generic CPU/GPU monitor.",
-    "subtitle": "Automatic discovery makes HWiNFO's full sensor catalog usable as a touch-first hardware dashboard.",
-    "shot": "M_H.png",
+    "title": "More than four generic numbers.",
+    "subtitle": "Live HWiNFO telemetry with source statistics and bounded history, presented as a touch-first hardware dashboard.",
+    "shot": "L_H.png",
     "items": [
-      ["Any HWiNFO sensor", "Search discovered devices and readings instead of being limited to hard-coded CPU and GPU fields."],
-      ["Live history + session stats", "Current value, bounded sparkline and local session min/average/max stay visible without unbounded logging."],
-      ["Per-sensor alerts", "Set warning and critical thresholds using the exact unit HWiNFO reports."],
-      ["Honest local bridge", "Explicit offline, stale and Shared Memory states replace believable fake zeroes when telemetry disappears."]
+      [
+        "Arbitrary HWiNFO sensors",
+        "Use HWiNFO Shared Memory discovery instead of a fixed CPU/GPU metric list."
+      ],
+      [
+        "Current + source stats",
+        "Show the current reading plus HWiNFO min, max and average without inventing missing values."
+      ],
+      [
+        "Rolling history",
+        "Per-slot sparklines with 30-second through 10-minute bounded history windows."
+      ],
+      [
+        "Thresholds + presets",
+        "Set warning/critical thresholds and fill dashboards quickly with thermal, CPU, GPU or cooling presets."
+      ]
     ]
   },
   "settings": {
-    "title": "Build the dashboard around your hardware.",
-    "subtitle": "Favorites, presets, search and independent slot assignment make 100+ sensor lists manageable.",
+    "title": "Configure it on the XENEON display.",
+    "subtitle": "Choose each dashboard slot, search 100+ sensors, set history and thresholds, and keep favorite readings close.",
     "panels": [
-      {"label": "Full XL dashboard", "file": "XL_H.png"},
-      {"label": "Two-sensor small view", "file": "S_H.png"},
-      {"label": "Vertical telemetry stack", "file": "L_V.png"},
-      {"label": "Sensor picker", "file": "VARIANT_PICKER.png"}
+      {
+        "label": "Small glance view",
+        "file": "S_H.png"
+      },
+      {
+        "label": "Medium dashboard",
+        "file": "M_H.png"
+      },
+      {
+        "label": "Large telemetry",
+        "file": "L_H.png"
+      },
+      {
+        "label": "Full XL dashboard",
+        "file": "XL_H.png"
+      }
     ],
-    "tags": "CPU + GPU   •   thermals   •   fans + pumps   •   storage   •   volts + power"
+    "tags": "searchable sensors  •  thresholds  •  HWiNFO statistics  •  localhost bridge"
   },
-  "sizes": {"title": "Built for all eight XENEON slots.", "subtitle": "Small views stay glanceable; large and XL views become dense multi-sensor hardware dashboards.", "footer": "8 tuned layouts total   •   4 sizes   •   horizontal + vertical"}
+  "sizes": {
+    "title": "Eight layouts, tuned for the space.",
+    "subtitle": "Small prioritizes one or two readings. Medium expands to four. Large and XL become true multi-sensor dashboards.",
+    "footer": "8 tuned layouts total  •  4 sizes  •  horizontal + vertical"
+  }
 }
