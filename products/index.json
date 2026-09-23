@@ -403,7 +403,7 @@
       "id": "hwinfo-sensor-monitor",
       "name": "HWiNFO Sensor Monitor",
       "type": "plugin",
-      "status": "building",
+      "status": "qa_passed",
       "price_usd": 9.99,
       "version": "1.0.0.0"
     },
