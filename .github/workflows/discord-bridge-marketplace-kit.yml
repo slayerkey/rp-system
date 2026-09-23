@@ -50,7 +50,7 @@ jobs:
           if ($submission.slug -ne 'discord-bridge') { throw 'submission slug mismatch' }
           if ($submission.type -ne 'plugin') { throw 'submission type mismatch' }
           if ([decimal]$submission.price_usd -ne [decimal]0) { throw 'Discord Bridge must remain free' }
-          if ($submission.version -ne '1.0.0.0') { throw 'submission version must be 1.0.0.0' }
+          if ($submission.version -ne '1.0.0.1') { throw 'submission version must be 1.0.0.1' }
           if ([bool]$submission.marketplace_auto_publish) { throw 'Discord Bridge must remain draft-only until Discord production RPC approval is recorded' }
 
           $artSource = Get-Content (Join-Path $PWD 'plugins\discord-bridge\rat-art.ps1') -Raw
