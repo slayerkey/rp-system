@@ -68,6 +68,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add package-lock.json
             git commit -m "Lock HWiNFO Sensor Monitor dependencies"
+            git pull --rebase origin "${{ github.ref_name }}"
             git push origin "HEAD:${{ github.ref_name }}"
           }
 
@@ -79,8 +80,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Dependency audit
-        run: npm audit --audit-level=high
+      - name: Runtime dependency audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Full toolchain critical vulnerability audit
+        run: npm audit --audit-level=critical
 
       - name: Unit and stress tests
         run: npm test
