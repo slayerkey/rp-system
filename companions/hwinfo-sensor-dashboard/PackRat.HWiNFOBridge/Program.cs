@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http.Json;
 using System.Net.WebSockets;
 using System.Security.Cryptography;
 using System.Text;
@@ -479,6 +480,7 @@ public sealed class TelemetryMonitorService : BackgroundService
     private readonly TelemetryState _state;
     private readonly BridgeHub _hub;
     private string _lastSerialized = "";
+    private DateTimeOffset _lastHeartbeat = DateTimeOffset.MinValue;
 
     public TelemetryMonitorService(IHwinfoSource source, TelemetryState state, BridgeHub hub)
     {
@@ -488,16 +490,15 @@ public sealed class TelemetryMonitorService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken token)
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(750));
-        var lastHeartbeat = DateTimeOffset.MinValue;
         while (!token.IsCancellationRequested)
         {
-            await Refresh(token, ref lastHeartbeat);
+            await Refresh(token);
             try { if (!await timer.WaitForNextTickAsync(token)) break; }
             catch (OperationCanceledException) { break; }
         }
     }
 
-    private async Task Refresh(CancellationToken token, ref DateTimeOffset lastHeartbeat)
+    private async Task Refresh(CancellationToken token)
     {
         SourceReadResult result;
         try { result = _source.Read(); }
@@ -511,11 +512,11 @@ public sealed class TelemetryMonitorService : BackgroundService
         var snapshot = new SensorSnapshot("snapshot", Program.ProtocolVersion, Program.CompanionVersion, result.PollTime, result.PollingPeriodMs, result.Status, result.Sensors);
         _state.Set(snapshot);
         var serialized = JsonSerializer.Serialize(snapshot, JsonDefaults.Options);
-        var heartbeatDue = DateTimeOffset.UtcNow - lastHeartbeat >= TimeSpan.FromSeconds(2);
+        var heartbeatDue = DateTimeOffset.UtcNow - _lastHeartbeat >= TimeSpan.FromSeconds(2);
         if (serialized != _lastSerialized || heartbeatDue)
         {
             _lastSerialized = serialized;
-            lastHeartbeat = DateTimeOffset.UtcNow;
+            _lastHeartbeat = DateTimeOffset.UtcNow;
             await _hub.BroadcastAsync(snapshot, token);
         }
     }
