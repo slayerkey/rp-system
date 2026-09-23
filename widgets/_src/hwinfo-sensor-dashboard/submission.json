@@ -1,0 +1,22 @@
+{
+  "slug": "hwinfo-sensor-dashboard",
+  "name": "HWiNFO Sensor Dashboard",
+  "type": "widget",
+  "price_usd": 11.99,
+  "version": "1.0.0",
+  "marketplace_category": ["Utilities"],
+  "marketplace_dashboard_sizes": ["Extra large", "Large", "Medium", "Small"],
+  "marketplace_language": ["English"],
+  "marketplace_auto_publish": false,
+  "description": "HWiNFO Sensor Dashboard turns CORSAIR XENEON Edge into a customizable live hardware telemetry display powered by the HWiNFO sensors already available on your Windows PC.\n\nPick essentially any numeric sensor HWiNFO exposes: CPU temperatures, utilization, clocks and power; GPU temperature, hotspot, load, power, VRAM and fans; RAM usage; motherboard, VRM and chipset sensors; storage temperatures and activity; network readings; fans and pumps; voltages; currents; and other readings exposed through Shared Memory.\n\nEach selected sensor shows its current value in the exact unit reported by HWiNFO, bounded rolling history, and local dashboard-session minimum, average and maximum. Configure warning and critical thresholds per sensor, favorite readings you use often, search large sensor lists, and apply quick CPU/GPU, thermal, fan or storage presets.\n\nThe dashboard is deliberately tuned for all eight XENEON Edge size/orientation combinations. Small layouts prioritize one or two readable values with sparklines. Medium layouts support up to four sensors. Large and Extra Large layouts expand into multi-card hardware dashboards with richer history and statistics.\n\nA free PackRat HWiNFO Bridge is required because an iCUE web widget cannot read Windows shared memory directly. The bridge reads HWiNFO's documented Shared Memory interface locally and sends normalized sensor snapshots only to 127.0.0.1 over an authenticated WebSocket. It does not bundle, launch, modify, patch, license, or bypass HWiNFO, and it does not send sensor data to PackRat.\n\nHWiNFO must be installed separately and Shared Memory Support must be enabled. HWiNFO64 free editions may disable Shared Memory after 12 hours of continuous runtime; the dashboard reports that condition honestly and does not attempt to circumvent the limit. HWiNFO licensing remains between the customer and HWiNFO for the customer's use case.\n\nHWiNFO is a third-party product and trademark of its respective owner. PackRat is independent and is not affiliated with, endorsed by, or sponsored by HWiNFO.\n\nPart of the PackRat Ecosystem.",
+  "release_notes": "• Adds automatic HWiNFO Shared Memory sensor discovery with search, favorites, presets and per-layout slot assignment.\n• Shows live values, exact HWiNFO units, rolling graphs, and local session min/average/max without inventing zeroes for missing sensors.\n• Adds per-sensor warning and critical thresholds plus explicit stale, HWiNFO-offline, Shared-Memory-unavailable and companion-offline states.\n• Includes a free localhost-only Windows bridge with authenticated WebSocket transport and automatic recovery after HWiNFO or bridge restarts.\n• Includes dedicated small, medium, large and XL horizontal/vertical XENEON Edge compositions.",
+  "companion_required": true,
+  "companion_name": "PackRat HWiNFO Bridge",
+  "companion_platform": "Windows x64",
+  "companion_release_url": "https://github.com/slayerkey/rp-system/releases/tag/hwinfo-bridge-v1.0.0",
+  "third_party_required": true,
+  "third_party_name": "HWiNFO",
+  "third_party_url": "https://www.hwinfo.com/download/",
+  "setup_note": "Install HWiNFO 7.0 or later (7.34+ recommended for UTF-8 Shared Memory strings) and enable Sensors > Shared Memory Support. Install PackRat HWiNFO Bridge, copy its local pairing key, then paste the key into this widget's iCUE settings.",
+  "privacy_note": "The PackRat bridge binds to 127.0.0.1 only. Hardware sensor names, values, history, pairing keys and dashboard preferences are not sent to PackRat."
+}
