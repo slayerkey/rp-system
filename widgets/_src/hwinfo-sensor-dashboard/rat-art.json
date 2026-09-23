@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "hero": {"subtitle": "Any HWiNFO sensor on your XENEON Edge, with live graphs and history."},
+  "showcase": {"title": "Your whole PC telemetry stack, on one edge display.", "subtitle": "Choose CPU, GPU, storage, fans, VRM, power, clocks and any other useful HWiNFO reading.", "shot": "XL_H.png"},
+  "features": {
+    "title": "Deeper than a generic CPU/GPU monitor.",
+    "subtitle": "Automatic discovery makes HWiNFO's full sensor catalog usable as a touch-first hardware dashboard.",
+    "shot": "M_H.png",
+    "items": [
+      ["Any HWiNFO sensor", "Search discovered devices and readings instead of being limited to hard-coded CPU and GPU fields."],
+      ["Live history + session stats", "Current value, bounded sparkline and local session min/average/max stay visible without unbounded logging."],
+      ["Per-sensor alerts", "Set warning and critical thresholds using the exact unit HWiNFO reports."],
+      ["Honest local bridge", "Explicit offline, stale and Shared Memory states replace believable fake zeroes when telemetry disappears."]
+    ]
+  },
+  "settings": {
+    "title": "Build the dashboard around your hardware.",
+    "subtitle": "Favorites, presets, search and independent slot assignment make 100+ sensor lists manageable.",
+    "panels": [
+      {"label": "Full XL dashboard", "file": "XL_H.png"},
+      {"label": "Two-sensor small view", "file": "S_H.png"},
+      {"label": "Vertical telemetry stack", "file": "L_V.png"},
+      {"label": "Sensor picker", "file": "VARIANT_PICKER.png"}
+    ],
+    "tags": "CPU + GPU   •   thermals   •   fans + pumps   •   storage   •   volts + power"
+  },
+  "sizes": {"title": "Built for all eight XENEON slots.", "subtitle": "Small views stay glanceable; large and XL views become dense multi-sensor hardware dashboards.", "footer": "8 tuned layouts total   •   4 sizes   •   horizontal + vertical"}
+}
