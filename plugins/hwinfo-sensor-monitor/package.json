@@ -1,0 +1,28 @@
+{
+  "name": "@packrat/hwinfo-sensor-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:profiles": "node scripts/build-profiles.mjs",
+    "build:native": "dotnet publish native/PackRat.HWiNFOReader/PackRat.HWiNFOReader.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o com.packrat.hwinfo-sensor-monitor.sdPlugin/native",
+    "build": "npm run build:profiles && npm run build:native && node scripts/build-assets.mjs && rollup -c",
+    "test": "node --test tests/*.test.mjs",
+    "test:native": "node scripts/test-native-fixtures.mjs",
+    "check": "npm run test && npm run build && npm run test:native && npm run check:package",
+    "check:package": "node scripts/package-audit.mjs",
+    "validate": "streamdeck validate com.packrat.hwinfo-sensor-monitor.sdPlugin --no-update-check",
+    "pack": "streamdeck pack com.packrat.hwinfo-sensor-monitor.sdPlugin --no-update-check --force --no-file-list --output dist",
+    "art": "python scripts/rat-art.py"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "2.1.2"
+  },
+  "devDependencies": {
+    "@elgato/cli": "1.10.0",
+    "@rollup/plugin-commonjs": "29.0.3",
+    "@rollup/plugin-node-resolve": "15.3.1",
+    "@rollup/plugin-terser": "1.0.0",
+    "rollup": "4.52.5"
+  }
+}

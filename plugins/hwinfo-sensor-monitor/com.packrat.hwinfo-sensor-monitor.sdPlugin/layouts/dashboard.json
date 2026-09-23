@@ -1,0 +1,11 @@
+{
+  "id": "packrat-hwinfo-dashboard",
+  "controller": "Encoder",
+  "items": [
+    {"key":"title","type":"text","rect":[10,6,180,20],"font":{"size":14,"weight":700},"alignment":"left","color":"#B7BEC8","text-overflow":"ellipsis"},
+    {"key":"spark","type":"pixmap","rect":[10,30,112,48]},
+    {"key":"value","type":"text","rect":[126,30,64,30],"font":{"size":20,"weight":700},"alignment":"right","color":"#F4F6F8","text-overflow":"ellipsis"},
+    {"key":"detail","type":"text","rect":[126,62,64,16],"font":{"size":9,"weight":600},"alignment":"right","color":"#9CA6B4","text-overflow":"ellipsis"},
+    {"key":"status","type":"text","rect":[10,82,180,12],"font":{"size":8,"weight":600},"alignment":"left","color":"#FFB21E","text-overflow":"ellipsis"}
+  ]
+}

@@ -1,0 +1,147 @@
+name: HWiNFO Sensor Monitor
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - product/hwinfo-sensor-monitor
+    paths:
+      - "plugins/hwinfo-sensor-monitor/**"
+      - "products/hwinfo-sensor-monitor.json"
+      - "tools/art/**"
+      - "tools/streamdeck/**"
+      - "tools/qa/streamdeck-key-visual-audit.mjs"
+      - "tools/qa/streamdeck-plugin-design-audit.mjs"
+      - ".github/workflows/hwinfo-sensor-monitor.yml"
+  pull_request:
+    paths:
+      - "plugins/hwinfo-sensor-monitor/**"
+      - "products/hwinfo-sensor-monitor.json"
+      - "tools/art/**"
+      - "tools/streamdeck/**"
+      - "tools/qa/streamdeck-key-visual-audit.mjs"
+      - "tools/qa/streamdeck-plugin-design-audit.mjs"
+      - ".github/workflows/hwinfo-sensor-monitor.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hwinfo-sensor-monitor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-release:
+    name: Windows release QA
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: plugins/hwinfo-sensor-monitor
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install deterministic art dependency
+        run: python -m pip install pillow==11.3.0
+
+      - name: Create package lock on first clean release branch run
+        if: github.event_name == 'push'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path package-lock.json)) {
+            npm install --package-lock-only --ignore-scripts
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "Lock HWiNFO Sensor Monitor dependencies"
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push origin "HEAD:${{ github.ref_name }}"
+          }
+
+      - name: Require committed lockfile
+        shell: pwsh
+        run: |
+          if (-not (Test-Path package-lock.json)) { throw "package-lock.json must be committed" }
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Runtime dependency audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Full toolchain critical vulnerability audit
+        run: npm audit --audit-level=critical
+
+      - name: Unit and stress tests
+        run: npm test
+
+      - name: Build profiles native reader assets and plugin
+        run: npm run build
+
+      - name: Native HWiNFO Shared Memory fixtures
+        run: npm run test:native
+
+      - name: Built plugin package audit
+        run: npm run check:package
+
+      - name: PackRat plugin design audit
+        working-directory: .
+        run: node tools/qa/streamdeck-plugin-design-audit.mjs plugins/hwinfo-sensor-monitor --require-canonical-pi
+
+      - name: PackRat key and major-profile visual audit
+        working-directory: .
+        run: node tools/qa/streamdeck-key-visual-audit.mjs plugins/hwinfo-sensor-monitor/com.packrat.hwinfo-sensor-monitor.sdPlugin --require-major-profiles
+
+      - name: Official Elgato CLI validate
+        run: npm run validate
+
+      - name: Official Elgato CLI pack
+        run: npm run pack
+
+      - name: Exact packaged-byte audit
+        shell: pwsh
+        run: .\scripts\validate-package.ps1 -Dist dist
+
+      - name: Deterministic Marketplace media
+        run: python scripts/rat-art.py --out dist/marketplace
+
+      - name: Build READY_TO_SHIP kit
+        shell: pwsh
+        run: .\scripts\build-ship-kit.ps1 -Dist dist -SourceSha "${{ github.sha }}"
+
+      - name: Final artifact inventory
+        shell: pwsh
+        run: |
+          $pkg = @(Get-ChildItem dist -Filter *.streamDeckPlugin -File)
+          if ($pkg.Count -ne 1) { throw "Expected one .streamDeckPlugin" }
+          $media = @(Get-ChildItem dist\marketplace -Filter *.png -File)
+          if ($media.Count -ne 6) { throw "Expected six Marketplace PNGs; found $($media.Count)" }
+          $kit = @(Get-ChildItem dist\SHIP_KIT -Directory)
+          if ($kit.Count -ne 1) { throw "Expected one SHIP_KIT directory" }
+          Get-FileHash $pkg[0].FullName -Algorithm SHA256 | Format-List
+          Get-ChildItem $kit[0].FullName -Recurse -File | Select-Object FullName,Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hwinfo-sensor-monitor-ready-to-ship
+          path: |
+            plugins/hwinfo-sensor-monitor/dist/*.streamDeckPlugin
+            plugins/hwinfo-sensor-monitor/dist/package-validation.json
+            plugins/hwinfo-sensor-monitor/dist/marketplace/**
+            plugins/hwinfo-sensor-monitor/dist/SHIP_KIT/**
+          if-no-files-found: error
+          retention-days: 30
