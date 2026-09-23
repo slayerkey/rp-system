@@ -1,0 +1,30 @@
+{
+  "id": "hwinfo-sensor-monitor",
+  "name": "HWiNFO Sensor Monitor",
+  "type": "plugin",
+  "status": "building",
+  "workflow_state": "BUILDING",
+  "blocker": null,
+  "price_usd": 9.99,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/hwinfo-sensor-monitor",
+  "submission_metadata": "plugins/hwinfo-sensor-monitor/submission.json",
+  "replaces_rejected_product": "hwinfo",
+  "marketplace_art": {
+    "hero_title_style": "monitor",
+    "campaign_style": "warm-studio-glass-v1",
+    "gallery_mode": "wrap"
+  },
+  "release_gate": [
+    "Node 24 unit and stress tests",
+    ".NET 8 HWiNFO Shared Memory fixture parser tests",
+    "PackRat Stream Deck design audit",
+    "PackRat Stream Deck key/profile visual audit",
+    "official Elgato CLI validate",
+    "official Elgato CLI pack",
+    "exact packaged profile and binary audit",
+    "deterministic current PackRat Marketplace media",
+    "Windows GitHub Actions release artifact"
+  ]
+}
