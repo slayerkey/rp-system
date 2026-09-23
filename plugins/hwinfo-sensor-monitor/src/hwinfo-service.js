@@ -7,7 +7,7 @@ import { BoundedHistory } from "./history.js";
 import { finite, resolveSensor } from "./sensor-model.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const DEFAULT_HELPER = resolve(here, "..", "com.packrat.hwinfo-sensor-monitor.sdPlugin", "native", "PackRat.HWiNFOReader.exe");
+const DEFAULT_HELPER = resolve(here, "..", "native", "PackRat.HWiNFOReader.exe");
 
 export class HwinfoService extends EventEmitter {
   constructor({ helperPath = DEFAULT_HELPER, spawnProcess = spawn, createLineInterface = createInterface, log = () => {} } = {}) {
