@@ -269,7 +269,7 @@
       "type": "plugin",
       "status": "qa_passed",
       "price_usd": 0,
-      "version": "1.0.0.1"
+      "version": "1.0.0.0"
     },
     {
       "id": "discord-essentials",
@@ -281,7 +281,7 @@
     },
     {
       "id": "discord-panel",
-      "name": "Discord Voice Panel",
+      "name": "Discord Voice Panel for XENEON Edge",
       "type": "widget",
       "status": "qa_passed",
       "price_usd": 7.99,
@@ -825,7 +825,7 @@
     },
     {
       "id": "voice-deck",
-      "name": "PackRat Voice Deck",
+      "name": "Discord Voice Deck for Stream Deck",
       "type": "plugin",
       "status": "qa_passed",
       "price_usd": 9.99,
