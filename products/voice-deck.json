@@ -1,6 +1,6 @@
 {
   "id": "voice-deck",
-  "name": "PackRat Voice Deck for Discord",
+  "name": "Discord Voice Deck for Stream Deck",
   "type": "plugin",
   "status": "qa_passed",
   "workflow_state": "READY_TO_SHIP",
