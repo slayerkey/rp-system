@@ -171,6 +171,26 @@ def gallery_plus(out: Path) -> None:
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
+def build_key_faces(out_dir: Path) -> None:
+    data=json.loads(KEY_FIXTURES.read_text(encoding="utf-8"))
+    specs=data.get("keys") or []
+    if len(specs)!=15:
+        fail("Rat Art key fixture list must contain 15 entries")
+    out_dir.mkdir(parents=True,exist_ok=True)
+    tones={"brand":ORANGE,"success":GREEN,"danger":RED,"neutral":(139,147,161)}
+    for index,spec in enumerate(specs):
+        lines=[str(value) for value in (spec.get("lines") or [])][:2]
+        image=Image.new("RGB",(288,288),(9,11,16))
+        draw=ImageDraw.Draw(image)
+        accent=tones.get(str(spec.get("tone") or "brand"),ORANGE)
+        draw.rounded_rectangle((5,5,283,283),radius=32,fill=(9,11,16),outline=(43,50,60),width=4)
+        draw.ellipse((24,25,40,41),fill=accent)
+        if lines:
+            draw.text((144,104),lines[0],font=fit(draw,lines[0],235,34,20),fill=MUTED,anchor="mm")
+        if len(lines)>1:
+            draw.text((144,170),lines[1],font=fit(draw,lines[1],245,48,24),fill=WHITE,anchor="mm")
+        image.save(out_dir/f"{index:02d}.png","PNG",optimize=True)
+
 def run(args: list[str]) -> None:
     result=subprocess.run(args,cwd=ROOT,text=True,capture_output=True)
     if result.returncode!=0:
@@ -190,14 +210,19 @@ def main() -> None:
         fail("built plugin icon is missing; run npm run build first")
     Image.open(icon).convert("RGBA").resize((288,288),Image.Resampling.LANCZOS).save(out/"01_icon.png","PNG",optimize=True)
 
+    key_faces=out/"_rat-art-keys"
+    build_key_faces(key_faces)
     run([
         "python",str(ROOT/"tools"/"art"/"render_streamdeck_ship_hero.py"),
         "--product",PRODUCT,
         "--plugin-dir",str(PLUGIN_DIR),
         "--submission",str(SUBMISSION),
         "--out",str(out/"02_cover.png"),
-        "--key-fixtures",str(KEY_FIXTURES)
+        "--keys-dir",str(key_faces)
     ])
+    for file in key_faces.glob("*.png"):
+        file.unlink()
+    key_faces.rmdir()
 
     gallery_browser(out/"03_gallery_01.png")
     gallery_graphs(out/"04_gallery_02.png")
