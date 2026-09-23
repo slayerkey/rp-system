@@ -265,11 +265,11 @@
     },
     {
       "id": "discord-bridge",
-      "name": "PackRat Discord Bridge",
+      "name": "Discord Voice Bridge",
       "type": "plugin",
       "status": "qa_passed",
       "price_usd": 0,
-      "version": "1.0.0.0"
+      "version": "1.0.0.1"
     },
     {
       "id": "discord-essentials",
