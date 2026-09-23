@@ -238,6 +238,11 @@ def main() -> None:
         "05_gallery_03.png":(1920,960),
         "06_gallery_04.png":(1920,960)
     }
+    # Canonical hero tooling may emit diagnostic PNGs beside the cover. They are
+    # QA artifacts, not Marketplace slots; keep the release media directory exact.
+    for path in out.glob("*.png"):
+        if path.name not in expected:
+            path.unlink()
     report={"schema_version":1,"product":PRODUCT,"image_generation":"disabled","outputs":{}}
     for name,size in expected.items():
         path=out/name
