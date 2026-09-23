@@ -10,9 +10,11 @@ const outDir=path.resolve(process.argv[3]||"artifacts/hwinfo-network-smoke");
 const exe=path.resolve(process.argv[4]||process.env.PACKRAT_HWINFO_BRIDGE_EXE||"");
 if(!entry||!exe)throw new Error("usage: node network-smoke.mjs <exact-index.html> <out-dir> <bridge-exe>");
 await fs.mkdir(outDir,{recursive:true});
+const stateFile=path.join(outDir,"fixture-state.txt");
+await fs.writeFile(stateFile,"live");
 
 function launchBridge(extra=[]){
- return spawn(exe,["--fixture","--no-browser",...extra],{
+ return spawn(exe,["--fixture","--no-browser","--fixture-state-file",stateFile,...extra],{
   env:{...process.env,PACKRAT_HWINFO_BRIDGE_TEST:"1",PACKRAT_HWINFO_FIXTURE_STATE:"live"},
   stdio:["ignore","pipe","pipe"]
  });
@@ -76,6 +78,13 @@ try{
   if(htmlBold!==0)throw new Error("Unicode/HTML-looking sensor label rendered as markup");
   await page.click("#closeConfig");
 
+  await fs.writeFile(stateFile,"hwinfo_not_running");
+  await page.waitForFunction(()=>globalThis.__PACKRAT_HWINFO_TEST__.getState().provider==="error"&&document.querySelector("#stateTitle")?.textContent==="HWiNFO is not running",{timeout:10000});
+  await fs.writeFile(stateFile,"shared_memory_lost");
+  await page.waitForFunction(()=>document.querySelector("#stateTitle")?.textContent==="Shared Memory stopped",{timeout:10000});
+  await fs.writeFile(stateFile,"live");
+  await page.waitForFunction(()=>globalThis.__PACKRAT_HWINFO_TEST__.getState().provider==="live",{timeout:10000});
+
   await stop(bridge);
   await page.waitForFunction(()=>document.body.getAttribute("data-connection")==="offline",{timeout:10000});
   bridge=launchBridge();await health();
@@ -83,7 +92,7 @@ try{
 
   await page.screenshot({path:path.join(outDir,"recovered.png")});
   if(errors.length)throw new Error("browser errors: "+errors.join(" | "));
-  await fs.writeFile(path.join(outDir,"result.json"),JSON.stringify({pass:true,sensors:good[1].sensors.length,wrongKey:"pass",protocolMismatch:"pass",restartRecovery:"pass",unicode:"pass"},null,2));
+  await fs.writeFile(path.join(outDir,"result.json"),JSON.stringify({pass:true,sensors:good[1].sensors.length,wrongKey:"pass",protocolMismatch:"pass",hwinfoCloseReopen:"pass",sharedMemoryDisappearReappear:"pass",restartRecovery:"pass",unicode:"pass"},null,2));
  }finally{await browser.close()}
 }finally{await stop(bridge)}
 console.log("HWiNFO EXACT-PACKAGE BRIDGE SMOKE PASS");
