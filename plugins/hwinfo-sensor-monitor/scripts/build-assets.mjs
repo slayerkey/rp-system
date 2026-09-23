@@ -14,6 +14,7 @@ await mkdir(imgs, { recursive: true });
 await mkdir(ui, { recursive: true });
 await mkdir(bin, { recursive: true });
 for (const file of ["inspector.html","inspector.css","inspector.js"]) await cp(resolve(root, "ui", file), resolve(ui, file));
+await cp(resolve(root, "THIRD_PARTY_NOTICES.md"), resolve(plugin, "THIRD_PARTY_NOTICES.md"));
 
 function crc32(buffer) {
   let crc = 0xffffffff;
