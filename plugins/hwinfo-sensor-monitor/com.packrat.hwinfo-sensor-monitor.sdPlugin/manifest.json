@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Actions": [
+    {
+      "UUID": "com.packrat.hwinfo-sensor-monitor.sensor",
+      "Name": "HWiNFO Sensor",
+      "Tooltip": "Put any discovered HWiNFO sensor on a key.",
+      "Icon": "imgs/actions/sensor/icon",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [{"Image": "imgs/actions/sensor/key", "ShowTitle": false}]
+    },
+    {
+      "UUID": "com.packrat.hwinfo-sensor-monitor.graph",
+      "Name": "HWiNFO Sensor Graph",
+      "Tooltip": "Current HWiNFO sensor value with rolling 30 second, 1 minute, or 5 minute history.",
+      "Icon": "imgs/actions/graph/icon",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [{"Image": "imgs/actions/graph/key", "ShowTitle": false}]
+    },
+    {
+      "UUID": "com.packrat.hwinfo-sensor-monitor.dashboard",
+      "Name": "HWiNFO Dashboard",
+      "Tooltip": "Summarize several HWiNFO sensors on a key, or rotate through them on a Stream Deck + dial.",
+      "Icon": "imgs/actions/dashboard/icon",
+      "Controllers": ["Keypad", "Encoder"],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "Encoder": {
+        "Icon": "imgs/actions/dashboard/encoder",
+        "layout": "layouts/dashboard.json",
+        "StackColor": "#FFB21E",
+        "TriggerDescription": {
+          "Rotate": "Previous / next sensor",
+          "Push": "Next dashboard page",
+          "Touch": "Next sensor"
+        }
+      },
+      "States": [{"Image": "imgs/actions/dashboard/key", "ShowTitle": false}]
+    },
+    {
+      "UUID": "com.packrat.hwinfo-sensor-monitor.alert",
+      "Name": "HWiNFO Sensor Alert",
+      "Tooltip": "Normal, warning, and critical visualization for any selected HWiNFO sensor.",
+      "Icon": "imgs/actions/alert/icon",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [{"Image": "imgs/actions/alert/key", "ShowTitle": false}]
+    }
+  ],
+  "Author": "PackRat",
+  "Category": "HWiNFO Sensor Monitor",
+  "CategoryIcon": "imgs/category/icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "Put any HWiNFO sensor on a Stream Deck key or dial. Browse customer-installed HWiNFO sensors, graph local history, build compact dashboards, and visualize thresholds. Independent third-party integration; HWiNFO is not bundled.",
+  "Icon": "imgs/plugin/icon",
+  "Name": "HWiNFO Sensor Monitor",
+  "Nodejs": {"Version": "24"},
+  "OS": [{"Platform": "windows", "MinimumVersion": "10"}],
+  "PropertyInspectorPath": "ui/inspector.html",
+  "SDKVersion": 3,
+  "Software": {"MinimumVersion": "7.3"},
+  "UUID": "com.packrat.hwinfo-sensor-monitor",
+  "Version": "1.0.0.0",
+  "Profiles": [
+    {"Name": "profiles/hwinfo-dashboard-mk2", "DeviceType": 0, "Readonly": false, "DontAutoSwitchWhenInstalled": true, "AutoInstall": true},
+    {"Name": "profiles/hwinfo-dashboard-xl", "DeviceType": 2, "Readonly": false, "DontAutoSwitchWhenInstalled": true, "AutoInstall": true},
+    {"Name": "profiles/hwinfo-dashboard-plus", "DeviceType": 7, "Readonly": false, "DontAutoSwitchWhenInstalled": true, "AutoInstall": true},
+    {"Name": "profiles/hwinfo-dashboard-neo", "DeviceType": 9, "Readonly": false, "DontAutoSwitchWhenInstalled": true, "AutoInstall": true}
+  ]
+}
