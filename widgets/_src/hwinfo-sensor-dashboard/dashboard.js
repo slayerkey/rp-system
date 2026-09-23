@@ -341,11 +341,13 @@ function boot(){
  window.addEventListener("pagehide",shutdown,{once:true});
  model.staleTimer=setInterval(staleSweep,1000);
  var fixture=globalThis.__PACKRAT_HWINFO_FIXTURE__;if(fixture)fixtureBoot(fixture);else connect();
- if(globalThis.icueEvents){
-  var priorInit=globalThis.icueEvents.onICUEInitialized,priorData=globalThis.icueEvents.onDataUpdated;
-  globalThis.icueEvents.onICUEInitialized=function(){try{if(typeof priorInit==="function")priorInit()}catch(e){}refresh()};
-  globalThis.icueEvents.onDataUpdated=function(){try{if(typeof priorData==="function")priorData()}catch(e){}refresh()}
- }
+ var events;
+ try{events=globalThis.icueEvents}catch(e){events=null}
+ if(!events||typeof events!=="object")events={};
+ var priorInit=events.onICUEInitialized,priorData=events.onDataUpdated;
+ events.onICUEInitialized=function(){try{if(typeof priorInit==="function")priorInit()}catch(e){}refresh()};
+ events.onDataUpdated=function(){try{if(typeof priorData==="function")priorData()}catch(e){}refresh()};
+ globalThis.icueEvents=events;
 }
 
 function shutdown(){model.shuttingDown=true;if(model.reconnectTimer){clearTimeout(model.reconnectTimer);model.reconnectTimer=null}if(model.staleTimer){clearInterval(model.staleTimer);model.staleTimer=null}if(model.socket){try{model.socket.close()}catch(e){}model.socket=null}}
