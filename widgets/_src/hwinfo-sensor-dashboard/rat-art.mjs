@@ -70,7 +70,12 @@ export async function assert(page, context) {
   const state = await page.evaluate(() => globalThis.__PACKRAT_HWINFO_TEST__.getState());
   if (state.connection !== "live" || state.provider !== "live") throw new Error("HWiNFO fixture did not reach live state");
   if (state.sensors.length !== 9) throw new Error("expected nine fixture sensors");
-  if (await page.locator("#dashboard b").count()) throw new Error("HTML-looking sensor label rendered as markup");
+  const literal = "ポンプ温度 gyqp <b>not markup</b>";
+  const labels = await page.locator(".sensorLabel").allTextContents();
+  const pickerLabels = await page.locator(".pickerLabel").allTextContents();
+  const renderedLiteral = labels.includes(literal) || pickerLabels.includes(literal);
+  if (!renderedLiteral && context.variant?.openPicker) throw new Error("adversarial sensor label was not rendered as literal text");
+  if (await page.locator(".sensorLabel b, .pickerLabel b").count()) throw new Error("HTML-looking sensor label rendered as markup");
   if (context.variant?.openPicker) {
     if (await page.locator("#configSheet[hidden]").count()) throw new Error("picker variant did not open");
     if (await page.locator(".pickerRow").count() < 9) throw new Error("picker omitted discovered sensors");
