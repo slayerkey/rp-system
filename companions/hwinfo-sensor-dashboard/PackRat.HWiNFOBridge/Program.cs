@@ -32,6 +32,7 @@ public static class Program
 
         var port = ArgInt(args, "--port", DefaultPort);
         var noBrowser = fixture || args.Contains("--no-browser", StringComparer.OrdinalIgnoreCase);
+        var fixtureStateFile = ArgString(args, "--fixture-state-file", "");
 
         if (!OperatingSystem.IsWindows() && !fixture)
         {
@@ -52,7 +53,7 @@ public static class Program
         builder.Logging.ClearProviders();
 
         builder.Services.AddSingleton(pairing);
-        builder.Services.AddSingleton<IHwinfoSource>(_ => fixture ? new FakeHWiNFOSource() : new HWiNFOSharedMemorySource());
+        builder.Services.AddSingleton<IHwinfoSource>(_ => fixture ? new FakeHWiNFOSource(fixtureStateFile) : new HWiNFOSharedMemorySource());
         builder.Services.AddSingleton<TelemetryState>();
         builder.Services.AddSingleton<BridgeHub>();
         builder.Services.AddHostedService<TelemetryMonitorService>();
@@ -159,6 +160,12 @@ public static class Program
     {
         var index = Array.FindIndex(args, value => value.Equals(name, StringComparison.OrdinalIgnoreCase));
         return index >= 0 && index + 1 < args.Length && int.TryParse(args[index + 1], out var parsed) ? parsed : fallback;
+    }
+
+    private static string ArgString(string[] args, string name, string fallback)
+    {
+        var index = Array.FindIndex(args, value => value.Equals(name, StringComparison.OrdinalIgnoreCase));
+        return index >= 0 && index + 1 < args.Length ? args[index + 1] : fallback;
     }
 
     private static async Task<bool> ExistingBridgeIsHealthy(int port)
@@ -531,10 +538,16 @@ public sealed class TelemetryMonitorService : BackgroundService
 public sealed class FakeHWiNFOSource : IHwinfoSource
 {
     private int _tick;
+    private readonly string _stateFile;
+    public FakeHWiNFOSource(string stateFile = "") => _stateFile = stateFile;
     public SourceReadResult Read()
     {
         _tick++;
         var state = Environment.GetEnvironmentVariable("PACKRAT_HWINFO_FIXTURE_STATE") ?? "live";
+        if (!string.IsNullOrWhiteSpace(_stateFile) && File.Exists(_stateFile))
+        {
+            try { state = File.ReadAllText(_stateFile).Trim(); } catch { }
+        }
         if (!string.Equals(state,"live",StringComparison.OrdinalIgnoreCase))
         {
             return new SourceReadResult(new ProviderStatus(state, $"Fixture state: {state}", true, state!="shared_memory_unavailable", false, 0, 0), 0, 1000, Array.Empty<SensorReadingDto>());
@@ -544,7 +557,7 @@ public sealed class FakeHWiNFOSource : IHwinfoSource
         var list = new List<SensorReadingDto>();
         for(var i=0;i<128;i++)
         {
-            var type = i%6 switch {0=>"Temperature",1=>"Usage",2=>"Power",3=>"Fan",4=>"Clock",_=>"Voltage"};
+            var type = (i%6) switch {0=>"Temperature",1=>"Usage",2=>"Power",3=>"Fan",4=>"Clock",_=>"Voltage"};
             var unit = type switch {"Temperature"=>"°C","Usage"=>"%","Power"=>"W","Fan"=>"RPM","Clock"=>"MHz",_=>"V"};
             var device = i==127 ? "主板 センサー 🎮" : $"Fixture Device {i/8:00}";
             var label = i==127 ? "ポンプ温度 gyqp <b>not markup</b>" : $"Sensor {i:000}";
