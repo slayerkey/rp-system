@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "keys": [
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.graph",
+      "lines": [
+        "GPU TEMP",
+        "68.4 °C"
+      ],
+      "tone": "success"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.graph",
+      "lines": [
+        "CPU TEMP",
+        "71.1 °C"
+      ],
+      "tone": "brand"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.sensor",
+      "lines": [
+        "GPU LOAD",
+        "94 %"
+      ],
+      "tone": "success"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.sensor",
+      "lines": [
+        "CPU LOAD",
+        "55 %"
+      ],
+      "tone": "success"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.sensor",
+      "lines": [
+        "RAM LOAD",
+        "62 %"
+      ],
+      "tone": "neutral"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.sensor",
+      "lines": [
+        "GPU POWER",
+        "376 W"
+      ],
+      "tone": "brand"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.sensor",
+      "lines": [
+        "CPU POWER",
+        "122 W"
+      ],
+      "tone": "neutral"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.sensor",
+      "lines": [
+        "GPU FAN",
+        "1450 RPM"
+      ],
+      "tone": "neutral"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.alert",
+      "lines": [
+        "GPU ALERT",
+        "NORMAL"
+      ],
+      "tone": "success"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.alert",
+      "lines": [
+        "CPU ALERT",
+        "WARNING"
+      ],
+      "tone": "brand"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.dashboard",
+      "lines": [
+        "HWiNFO",
+        "DASHBOARD"
+      ],
+      "tone": "success"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.graph",
+      "lines": [
+        "GPU",
+        "30 SEC"
+      ],
+      "tone": "success"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.graph",
+      "lines": [
+        "CPU",
+        "5 MIN"
+      ],
+      "tone": "brand"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.graph",
+      "lines": [
+        "GPU LOAD",
+        "5 MIN"
+      ],
+      "tone": "success"
+    },
+    {
+      "action_uuid": "com.packrat.hwinfo-sensor-monitor.graph",
+      "lines": [
+        "RAM",
+        "5 MIN"
+      ],
+      "tone": "neutral"
+    }
+  ]
+}
