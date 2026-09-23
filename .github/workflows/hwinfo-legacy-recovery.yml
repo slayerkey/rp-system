@@ -1,6 +1,7 @@
 name: HWiNFO Legacy Recovery
 
 on:
+  workflow_dispatch:
   push:
     branches: ['product/hwinfo-sensor-dashboard']
     paths: ['.github/workflows/hwinfo-legacy-recovery.yml']
