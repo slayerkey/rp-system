@@ -100,7 +100,6 @@ internal static class Program
 
     private static ReadResult ReadLive()
     {
-        var processes = GetHWiNFOProcesses();
         try
         {
             using var mapping = MemoryMappedFile.OpenExisting(MapName, MemoryMappedFileRights.Read);
@@ -127,6 +126,7 @@ internal static class Program
         }
         catch (FileNotFoundException)
         {
+            var processes = GetHWiNFOProcesses();
             if (processes.Count == 0)
                 return new ReadResult(new Status("not_running", "HWiNFO is not running. Start HWiNFO 7.0+ in Sensors mode."));
             if (!HasSensorsWindow(processes))
