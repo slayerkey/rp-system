@@ -18,12 +18,12 @@
         "Use HWiNFO Shared Memory discovery instead of a fixed CPU/GPU metric list."
       ],
       [
-        "Current + source stats",
-        "Show the current reading plus HWiNFO min, max and average without inventing missing values."
+        "Current + session stats",
+        "Show the current reading plus local dashboard-session min, average and max without inventing missing values."
       ],
       [
         "Rolling history",
-        "Per-slot sparklines with 30-second through 10-minute bounded history windows."
+        "Per-slot sparklines with 1-minute through 15-minute bounded history windows."
       ],
       [
         "Thresholds + presets",
