@@ -9,8 +9,10 @@ const LEGACY_LATEST = path.join(DATA_DIR, "streamdeck_search_popularity.json");
 const TRENDS_PATH = path.join(DATA_DIR, "marketplace-trends.json");
 const MARKETPLACE_URL = process.env.PACKRAT_MARKETPLACE_URL || "https://marketplace.elgato.com/search";
 const SUGGESTIONS_INDEX = process.env.PACKRAT_ALGOLIA_SUGGESTIONS_INDEX || "products_query_suggestions";
-const MAX_SCRIPT_FETCHES = Number(process.env.PACKRAT_MARKETPLACE_MAX_SCRIPTS || 80);\nconst SNAPSHOT_TERM_LIMIT = Number(process.env.PACKRAT_MARKETPLACE_TERM_LIMIT || 1000);
-const USER_AGENT = "PackRat-Marketplace-Intelligence/1.0 (+https://github.com/slayerkey/rp-system)";\nconst TRACKED_VISUAL_TERMS = ["cyberpunk","animated","gaming","neon","pastel","anime","sakura","kawaii","minimalist","manga"];
+const MAX_SCRIPT_FETCHES = Number(process.env.PACKRAT_MARKETPLACE_MAX_SCRIPTS || 80);
+const SNAPSHOT_TERM_LIMIT = Number(process.env.PACKRAT_MARKETPLACE_TERM_LIMIT || 1000);
+const USER_AGENT = "PackRat-Marketplace-Intelligence/1.0 (+https://github.com/slayerkey/rp-system)";
+const TRACKED_VISUAL_TERMS = ["cyberpunk","animated","gaming","neon","pastel","anime","sakura","kawaii","minimalist","manga"];
 
 function isoDay(d = new Date()) {
   return d.toISOString().slice(0, 10);
