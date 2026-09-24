@@ -35,5 +35,12 @@
     "deterministic companion ZIP and stable public download hash verification"
   ],
   "hardware_boundary": "Automated release evidence can validate the exact XENEON package, Windows companion, mocked HWiNFO Shared Memory layouts and restart/error behavior. Real physical XENEON Edge touch/readability and a live customer HWiNFO installation remain external hardware/runtime evidence and must not be claimed until observed.",
-  "notes": "New XENEON product. It does not reuse the rejected HWiNFO Monitor 0.1.0.0 implementation. HWiNFO must be installed separately and Shared Memory Support enabled. The bridge does not bundle, launch, modify, patch, redistribute or bypass HWiNFO."
+  "notes": "New XENEON product. It does not reuse the rejected HWiNFO Monitor 0.1.0.0 implementation. HWiNFO must be installed separately and Shared Memory Support enabled. The bridge does not bundle, launch, modify, patch, redistribute or bypass HWiNFO. Local Rat Ship now fail-closes unless the immutable companion download matches the pinned SHA-256.",
+  "local_rat_ship": {
+    "command": "rat ship hwinfo-sensor-dashboard",
+    "companion_inclusive": true,
+    "companion_asset": "PackRat-HWiNFO-Bridge-1.0.0-win-x64.zip",
+    "companion_sha256_pin": "release/hwinfo-sensor-dashboard-companion.sha256",
+    "output": "out/ship/hwinfo-sensor-dashboard"
+  }
 }
