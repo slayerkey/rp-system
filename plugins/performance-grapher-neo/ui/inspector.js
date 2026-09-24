@@ -1,6 +1,7 @@
 (() => {
   "use strict";
   const { useSettings, streamDeckClient } = SDPIComponents;
+  // SDPIComponents carries context: uiUuid on the WebSocket envelope; actionContext stays in the payload.
   const COMMON = [
     ["gpu.load", "GPU Load"], ["cpu.load", "CPU Load"], ["ram.load", "RAM Used"],
     ["gpu.temperature", "GPU Temperature"], ["cpu.temperature", "CPU Temperature"],
