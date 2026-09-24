@@ -9,7 +9,7 @@ const LEGACY_LATEST = path.join(DATA_DIR, "streamdeck_search_popularity.json");
 const TRENDS_PATH = path.join(DATA_DIR, "marketplace-trends.json");
 const MARKETPLACE_URL = process.env.PACKRAT_MARKETPLACE_URL || "https://marketplace.elgato.com/search";
 const SUGGESTIONS_INDEX = process.env.PACKRAT_ALGOLIA_SUGGESTIONS_INDEX || "products_query_suggestions";
-const MAX_SCRIPT_FETCHES = Number(process.env.PACKRAT_MARKETPLACE_MAX_SCRIPTS || 80);
+const MAX_SCRIPT_FETCHES = Number(process.env.PACKRAT_MARKETPLACE_MAX_SCRIPTS || 80);\nconst SNAPSHOT_TERM_LIMIT = Number(process.env.PACKRAT_MARKETPLACE_TERM_LIMIT || 1000);
 const USER_AGENT = "PackRat-Marketplace-Intelligence/1.0 (+https://github.com/slayerkey/rp-system)";
 
 function isoDay(d = new Date()) {
@@ -260,7 +260,17 @@ function normalizeSuggestions(rawHits, capturedAt, sourceMeta) {
       if (pop !== 0) return pop;
       return a.term.localeCompare(b.term);
     })
-    .map((row, index) => ({ rank: index + 1, ...row }));
+    .map((row, index) => ({ rank: index + 1, ...row }))
+    .slice(0, SNAPSHOT_TERM_LIMIT)
+    .map((row) => ({
+      ...row,
+      platform_supply: {
+        widgets: row.top_exact_categories.find((x) => String(x.category).toLowerCase() === "widgets")?.count ?? null,
+        plugins: row.top_exact_categories.find((x) => String(x.category).toLowerCase() === "plugins")?.count ?? null,
+        profiles: row.top_exact_categories.find((x) => String(x.category).toLowerCase() === "profiles")?.count ?? null,
+        icons: row.top_exact_categories.find((x) => String(x.category).toLowerCase() === "icons")?.count ?? null,
+      },
+    }));
 
   return {
     schema_version: 2,
