@@ -243,28 +243,21 @@ function Add-ProductCompanionToShipKit {
 
     if ($Slug -ne "hwinfo-sensor-dashboard") { return }
 
-    $hashFile = Join-Path $RepoRoot "release\hwinfo-sensor-dashboard-companion.sha256"
-    if (-not (Test-Path $hashFile)) {
-        throw "HWiNFO Rat Ship requires the pinned companion SHA256 at $hashFile"
-    }
-
-    $expected = (Get-Content $hashFile -Raw).Trim().ToLowerInvariant()
-    if ($expected -notmatch '^[0-9a-f]{64}$') {
-        throw "HWiNFO companion SHA256 pin is invalid: $expected"
-    }
-
     $asset = "PackRat-HWiNFO-Bridge-1.0.0-win-x64.zip"
+    $checksumAsset = "$asset.sha256"
     $tag = "hwinfo-bridge-v1.0.0"
-    $url = "https://github.com/slayerkey/rp-system/releases/download/$tag/$asset"
+    $baseUrl = "https://github.com/slayerkey/rp-system/releases/download/$tag"
+    $url = "$baseUrl/$asset"
+    $checksumUrl = "$baseUrl/$checksumAsset"
     $companionDir = Join-Path $Kit "companion"
     $zip = Join-Path $companionDir $asset
+    $checksumPath = Join-Path $companionDir $checksumAsset
     New-Item -ItemType Directory -Force -Path $companionDir | Out-Null
 
-    $downloaded = $false
     for ($attempt = 1; $attempt -le 3; $attempt++) {
         try {
             Invoke-WebRequest -UseBasicParsing $url -OutFile $zip -TimeoutSec 90
-            $downloaded = $true
+            Invoke-WebRequest -UseBasicParsing $checksumUrl -OutFile $checksumPath -TimeoutSec 90
             break
         }
         catch {
@@ -272,10 +265,14 @@ function Add-ProductCompanionToShipKit {
             Start-Sleep -Seconds 2
         }
     }
-    if (-not $downloaded -or -not (Test-Path $zip)) {
-        throw "Could not download the pinned HWiNFO companion release."
+    if (-not (Test-Path $zip) -or -not (Test-Path $checksumPath)) {
+        throw "Could not download the HWiNFO companion release and checksum."
     }
 
+    $expected = ((Get-Content $checksumPath -Raw).Trim().Split()[0]).ToLowerInvariant()
+    if ($expected -notmatch '^[0-9a-f]{64}$') {
+        throw "Published HWiNFO companion SHA256 is invalid: $expected"
+    }
     $actual = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($actual -ne $expected) {
         Remove-Item $zip -Force -ErrorAction SilentlyContinue
@@ -290,6 +287,7 @@ function Add-ProductCompanionToShipKit {
 
     @(
         "url=$url"
+        "checksum_url=$checksumUrl"
         "sha256=$expected"
     ) | Set-Content (Join-Path $companionDir "PUBLIC_DOWNLOAD.txt") -Encoding UTF8
 }
