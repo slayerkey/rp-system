@@ -649,3 +649,14 @@ When a Stream Deck product looks wrong:
 9. rerun exact-commit QA before release
 
 The objective is that local hardware review finds taste/host-specific issues, not ordinary repeatable engineering mistakes.
+
+## Stream Deck Neo Infobar and SDK 3.0
+
+For plugins that add a Neo Infobar action:
+
+- Set an explicit `Controllers: ["Neo"]` action, use a unique *new* action UUID while preserving published key/dial IDs, and require Stream Deck **7.6+** in the manifest. The SDK itself requires 7.1+, but Neo Infobar requires 7.6+; the minimum is plugin-wide, including existing keypad actions.
+- A Neo feedback layout is limited to **232×50**. Use `controller: "Neo"`, unique item `key` values, non-overlapping same-z rectangles, and Elgato CLI layout/manifest validation. Set the layout during each Neo `onWillAppear`, then update keys via `setFeedback`.
+- With `@elgato/streamdeck` SDK **3.x**, `getSettings` / `getGlobalSettings` do **not** trigger `onDidReceiveSettings` / `onDidReceiveGlobalSettings`. Initialize immediately from `onWillAppear` event settings or the resolved promise, then react to later setting changes explicitly. Audit every settings-read call during an SDK migration.
+- For live monitoring, add Neo contexts to the *existing* shared telemetry service. Rate-limit feedback, skip unchanged payloads, remove disappeared contexts, and guard asynchronous layout/feedback updates against disappearance or replacement. A layout/feedback transport error must stay retryable, not get committed into the last-successful cache.
+- Keep device proof separate: passing schema, mocked feedback, Node tests, Windows native provider checks, official CLI packaging, and source audits does not prove that actual text/sparklines render correctly on a physical Neo. Record the final 232×50 readability/settings smoke as a distinct physical check.
+
