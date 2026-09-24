@@ -1,43 +1,91 @@
-# Stream Deck Marketplace Search Data
+# Elgato Marketplace Search Intelligence
 
-## Canonical snapshot
+## Canonical data
 
-The current machine readable snapshot lives at `data/marketplace/streamdeck_search_popularity.json`.
+PackRat maintains Marketplace search-demand history rather than relying on one permanent snapshot.
 
-The snapshot was captured on 2026 08 29 from the public Query Suggestions index used by Elgato Marketplace search.
+Latest compatibility snapshot:
 
-It contains the current top 100 search terms, their popularity, their strict exact product result count, their leading exact result categories, and selected visual theme terms relevant to PackRat icon and art work.
+`data/marketplace/streamdeck_search_popularity.json`
+
+Dated history:
+
+`data/marketplace/snapshots/YYYY-MM-DD/query-suggestions.json`
+
+Generated trend view:
+
+`data/marketplace/marketplace-trends.json`
+
+Collector:
+
+`tools/marketplace/collect-marketplace-intelligence.mjs`
+
+Scheduled refresh:
+
+`.github/workflows/marketplace-intelligence.yml`
+
+The original 2026-08-29 snapshot is preserved in the dated history as the baseline for this system.
+
+## Source
+
+The collector reads the public Query Suggestions index used by Elgato Marketplace search:
+
+`products_query_suggestions`
+
+It first attempts to discover the public search-only Algolia configuration from the live Marketplace frontend. If Elgato changes frontend bundling, repository variables `PACKRAT_ALGOLIA_APP_ID` and `PACKRAT_ALGOLIA_SEARCH_KEY` can be set as a fallback without changing product code.
+
+The public search-only key is treated as a public frontend credential, not a secret. Never use or store an Algolia admin key.
 
 ## Meaning of the fields
 
-`popularity` is a raw rolling 30 day search popularity value based on unique users. It is not a score capped at 100.
+`popularity` is a rolling Marketplace search-demand value from the Query Suggestions index. It is not revenue, units sold, conversion rate, or a score capped at 100.
 
-`exact_product_hits` is the number of strict exact Marketplace results stored for that query by the Query Suggestions builder. It is a useful competition signal, but it is not a count of products sold.
+`rank` is the ordering in the captured suggestion index after normalization.
 
-`rank` is the position returned by the public suggestion index at the time of capture.
+`exact_product_hits` is visible exact-result supply when the public record exposes a compatible count. It can be `null` if the current public schema stops exposing that value.
 
-## How RatPack should use it
+`top_exact_categories` records the visible product/result-type mix when exposed by the public record.
 
-1. Use popularity to confirm that a term has actual Marketplace search activity.
+## Trend rules
 
-2. Compare popularity with exact product hits when evaluating demand against visible supply.
+`marketplace-trends.json` compares the newest snapshot with:
 
-3. Use a keyword in a product title, description, gallery, or art direction only when it truthfully describes the product.
+- the immediately previous saved snapshot;
+- the closest saved snapshot at least 7 days older;
+- the closest saved snapshot at least 30 days older.
 
-4. Do not select an unrelated visual theme merely because its search popularity is high.
+A term is not called trending from one high popularity value. PackRat needs multiple dated captures before making a movement claim.
 
-5. Treat the snapshot as dated evidence. Refresh it before making a major product decision when the file is more than 30 days old.
+The generated `momentum` label is intentionally conservative:
 
-6. Never interpret popularity as sales, revenue, conversion rate, or a normalized score out of 100.
+- `rising`: at least +5 popularity points since the previous capture;
+- `falling`: at least -5;
+- `stable`: between those thresholds;
+- `insufficient_history`: no prior saved observation.
 
-## Current visual theme read
+The raw deltas remain more important than the label.
 
-The snapshot shows stronger search activity for cyberpunk than for neon, pastel, anime, sakura, kawaii, or minimalist.
+## Platform interpretation
 
-Anime has a popularity value of 16 with 18 strict exact products.
+Marketplace demand is treated as Marketplace-wide unless the live source explicitly exposes a platform-specific popularity field.
 
-Sakura has a popularity value of 15 with only 4 strict exact products.
+Then classify the opportunity separately:
 
-Kawaii has a popularity value of 13 with only 5 strict exact products.
+- Stream Deck plugin/profile/icon product;
+- XENEON Edge / CORSAIR iCUE Widget;
+- both;
+- neither.
 
-For a genuinely matching product, combined positioning such as Anime Sakura Icons can target related demand without keyword stuffing.
+For XENEON-specific research, restrict competitor/supply analysis to Marketplace Widgets and validate against the real current iCUE/XENEON provider ceiling.
+
+For Stream Deck research, restrict implementation recommendations to the actual Stream Deck product types and SDK/profile constraints.
+
+## RatPack workflow
+
+The intended research flow is:
+
+`sales data -> Rat Pulse -> Rat Gaps -> Rat Validate -> owner selection -> product chat -> Rat Build -> Rat QA -> Rat Art -> Rat Ship`
+
+Use fresh Marketplace intelligence before a major product decision.
+
+Historical snapshots are durable research evidence and should not be replaced by conversation memory.
