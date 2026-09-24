@@ -2,8 +2,8 @@
   "id": "hwinfo-sensor-dashboard",
   "name": "HWiNFO Sensor Dashboard",
   "type": "widget",
-  "status": "building",
-  "workflow_state": "TESTING",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
   "price_usd": 11.99,
   "version": "1.0.0",
   "platform": "CORSAIR iCUE / XENEON Edge + Windows companion + HWiNFO",
@@ -42,5 +42,35 @@
     "companion_asset": "PackRat-HWiNFO-Bridge-1.0.0-win-x64.zip",
     "output": "out/ship/hwinfo-sensor-dashboard",
     "companion_checksum_asset": "PackRat-HWiNFO-Bridge-1.0.0-win-x64.zip.sha256"
-  }
+  },
+  "automated_release_evidence": {
+    "candidate_commit": "58f83a6accce66324fddcf8f13eb2f50d828ab83",
+    "full_gate_run": 35941536513,
+    "full_gate_conclusion": "success",
+    "rat_ship_artifact": {
+      "id": 10785576001,
+      "artifact_digest_sha256": "1a586ef69f81cc648afc6a5fd4d09304b70aae0fe57c72142a043b28f8a15ec3"
+    },
+    "core_artifact": {
+      "id": 10785018295,
+      "artifact_digest_sha256": "d29858fa984422bec43f1872ccfacf54710da6984f4f68a46564770ab91c1925"
+    },
+    "streamspell_artifact": {
+      "id": 10784893563,
+      "artifact_digest_sha256": "8bc345ca5f2115b0b28e4b6445705d443cef6c913afa5812db1d2361578d229c"
+    },
+    "companion_release": {
+      "release_id": 395212313,
+      "tag": "hwinfo-bridge-v1.0.0",
+      "zip_asset_id": 584908575,
+      "zip_sha256": "9ff5fd9b41a90a5592311e48fbb705d04e2312250fd66941a1e0010301dfa00e",
+      "exe_asset_id": 584908574,
+      "exe_sha256": "9cf200425fe5fdca3d6efa322a107134227e0eccdd271ba80521add20e8adf4c",
+      "checksum_asset_id": 584908573
+    },
+    "shared_lightweight_ci_run": 35941536590,
+    "shared_lightweight_ci_conclusion": "success",
+    "unrelated_repo_routing_ci_note": "Rat Ship Marketplace Routing CI fails on an existing Discord Voice Bridge branding assertion (actual 'Discord Voice Bridge', expected 'PackRat Voice Bridge'); HWiNFO helper parsing/integration stages pass."
+  },
+  "final_boundary": "Maker Console submission via Rat Ship. Physical XENEON Edge touch/readability and a live customer HWiNFO installation remain optional external hardware/runtime evidence and are not claimed by the automated release gate."
 }
