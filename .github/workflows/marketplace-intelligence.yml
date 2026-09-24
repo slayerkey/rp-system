@@ -41,7 +41,7 @@ jobs:
 
       - name: Commit fresh snapshot when data changed
         run: |
-          if git diff --quiet -- data/marketplace; then
+          if [ -z "$(git status --porcelain -- data/marketplace)" ]; then
             echo "Marketplace intelligence is unchanged."
             exit 0
           fi
