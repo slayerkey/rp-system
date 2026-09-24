@@ -608,6 +608,22 @@
       "version": "1.1.0"
     },
     {
+      "id": "performance-grapher-neo",
+      "name": "Performance Grapher Neo",
+      "type": "plugin",
+      "status": "testing",
+      "price_usd": null,
+      "version": "1.0.0.0"
+    },
+    {
+      "id": "performance-grapher-streamdeck",
+      "name": "Performance Grapher for Stream Deck",
+      "type": "plugin",
+      "status": "testing",
+      "price_usd": 9.99,
+      "version": "1.1.0.0"
+    },
+    {
       "id": "retro-terminal",
       "name": "Retro Terminal",
       "type": "widget",
@@ -902,14 +918,6 @@
       "status": "qa_passed",
       "price_usd": 34.99,
       "version": "1.0.0"
-    },
-    {
-      "id": "performance-grapher-streamdeck",
-      "name": "Performance Grapher for Stream Deck",
-      "type": "plugin",
-      "status": "testing",
-      "price_usd": 9.99,
-      "version": "1.1.0.0"
     }
   ]
 }
