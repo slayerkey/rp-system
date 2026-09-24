@@ -11,8 +11,11 @@ Performance Grapher for Stream Deck is a Windows-only PackRat Stream Deck plugin
 3. **Session Summary** — press to cycle average FPS, 1% low, 0.1% low, worst frametime, peak GPU/CPU temperature, peak GPU load, session length, and a conservative pressure signal.
 4. **Sensor / Metric** — configurable CPU/GPU/RAM/storage/general sensor action.
 5. **Performance Alert** — a selected metric becomes a high-visibility warning above or below a configured threshold.
+6. **Neo Infobar** — a dedicated display-only 232×50 Neo action with CPU/GPU/RAM overview, single selected sensor with existing-history sparkline, or configurable metric rotation. Does not occupy a key.
 
-No Stream Deck + dial action ships in 1.0 because changing a graph window is not enough value to justify a separate encoder action.
+No Stream Deck + dial action ships in 1.1 because changing a graph window is not enough value to justify a separate encoder action.
+
+**Neo Infobar requires Stream Deck 7.6+ and the plugin uses Elgato SDK 3.0.** Older normal-key action UUIDs and all four profile identities are preserved. The separate Neo action shares the existing TelemetryService rather than opening a second native helper or PresentMon process.
 
 ## Included profiles
 
