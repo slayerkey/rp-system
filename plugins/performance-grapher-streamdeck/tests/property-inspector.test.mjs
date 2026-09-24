@@ -84,6 +84,13 @@ test("standard inspector fields persist through SDPI setting controls", async ()
     "scaleMin",
     "scaleMax",
     "accent",
+    "neoMode",
+    "neoRefreshMs",
+    "neoShowLabels",
+    "neoShowHistory",
+    "neoMetric2",
+    "neoMetric3",
+    "neoRotationMs",
   ]) {
     assert.match(html, new RegExp('setting="' + key + '"'), "Missing SDPI setting binding for " + key);
   }

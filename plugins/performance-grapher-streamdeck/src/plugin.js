@@ -4,8 +4,9 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderKey, makeView } from "./render.js";
 import { TelemetryService } from "./telemetry.js";
+import { makeNeoFeedback, neoLayoutFor, neoMetricIds, normalizeNeoSettings } from "./neo.js";
 
-const BUILD_VERSION = "1.0.0.0";
+const BUILD_VERSION = "1.1.0.0";
 const PLUGIN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const FPS_SETUP_SCRIPT = resolve(PLUGIN_ROOT, "setup", "enable-fps-access.ps1");
 const ACTIONS = {
@@ -14,6 +15,7 @@ const ACTIONS = {
   session: "com.packrat.performance-grapher.session",
   metric: "com.packrat.performance-grapher.metric",
   alert: "com.packrat.performance-grapher.alert",
+  "neo-infobar": "com.packrat.performance-grapher.neo-infobar",
 };
 
 const WINDOWS = [60_000, 300_000, 900_000, 0];
@@ -33,13 +35,14 @@ const DEFAULTS = Object.freeze({
 
 function normalizeSettings(raw = {}, kind = "graph") {
   const source = raw && typeof raw === "object" ? raw : {};
-  const metricDefault = kind === "metric" ? "cpu.load" : "gpu.temperature";
+  const metricDefault = kind === "metric" ? "cpu.load" : kind === "neo-infobar" ? "gpu.load" : "gpu.temperature";
   const windowMs = WINDOWS.includes(Number(source.windowMs)) ? Number(source.windowMs) : 60_000;
   const scaleMin = source.scaleMin === "" || source.scaleMin == null ? null : Number(source.scaleMin);
   const scaleMax = source.scaleMax === "" || source.scaleMax == null ? null : Number(source.scaleMax);
   return {
     ...DEFAULTS,
     ...source,
+    ...normalizeNeoSettings(source),
     metricId: String(source.metricId || metricDefault),
     windowMs,
     threshold: Number.isFinite(Number(source.threshold)) ? Number(source.threshold) : 85,
@@ -64,6 +67,11 @@ let inspectorTimer = null;
 let fpsSetup = { state: "idle", detail: null };
 
 function renderInterval(record) {
+  if (record.kind === "neo-infobar") {
+    const refresh = Number(record.settings.neoRefreshMs) || 1000;
+    const rotation = record.settings.neoMode === "rotate" ? (Number(record.settings.neoRotationMs) || 5000) : refresh;
+    return Math.max(500, Math.min(refresh, rotation));
+  }
   if (record.kind === "fps") return 250;
   if (record.kind === "session") return 500;
   if (record.kind === "graph" && ["game.fps", "game.frametime"].includes(record.settings.metricId)) return 250;
@@ -153,7 +161,44 @@ function runFpsSetup() {
   });
 }
 
+async function renderNeoRecord(record, force = false) {
+  if (!record?.action?.isNeoInfobar?.()) return;
+  const now = Date.now();
+  const interval = renderInterval(record);
+  if (!force && now - record.lastRenderAt < interval) return;
+
+  const metricIds = neoMetricIds(record.settings);
+  for (const id of metricIds) telemetry.watchMetric(id);
+
+  const layout = neoLayoutFor(record.settings);
+  if (force || record.lastLayout !== layout) {
+    await record.action.setFeedbackLayout(layout).catch(logger);
+    record.lastLayout = layout;
+    record.lastFeedback = "";
+  }
+
+  let metricId = String(record.settings.metricId || "gpu.load");
+  if (record.settings.neoMode === "rotate" && metricIds.length) {
+    if (!Number.isFinite(record.nextRotationAt)) {
+      record.nextRotationAt = now + record.settings.neoRotationMs;
+    }
+    while (now >= record.nextRotationAt) {
+      record.rotationIndex = (record.rotationIndex + 1) % metricIds.length;
+      record.nextRotationAt += record.settings.neoRotationMs;
+    }
+    metricId = metricIds[record.rotationIndex % metricIds.length];
+  }
+
+  const feedback = makeNeoFeedback(telemetry, record.settings, metricId);
+  const signature = JSON.stringify(feedback);
+  record.lastRenderAt = now;
+  if (!force && signature === record.lastFeedback) return;
+  record.lastFeedback = signature;
+  await record.action.setFeedback(feedback).catch(logger);
+}
+
 async function renderRecord(record, force = false) {
+  if (record?.kind === "neo-infobar") return renderNeoRecord(record, force);
   if (!record?.action?.isKey?.()) return;
   const now = Date.now();
   const interval = renderInterval(record);
@@ -190,7 +235,11 @@ class PerformanceAction extends SingletonAction {
       action: ev.action,
       settings: normalizeSettings(ev.payload?.settings, this.kind),
       lastImage: "",
+      lastFeedback: "",
+      lastLayout: "",
       lastRenderAt: 0,
+      rotationIndex: 0,
+      nextRotationAt: Date.now() + normalizeSettings(ev.payload?.settings, this.kind).neoRotationMs,
     };
     visible.set(id, record);
     telemetry.watchMetric(record.settings.metricId);
@@ -207,6 +256,9 @@ class PerformanceAction extends SingletonAction {
     record.settings = normalizeSettings(ev.payload?.settings, record.kind);
     telemetry.watchMetric(record.settings.metricId);
     record.lastImage = "";
+    record.lastFeedback = "";
+    record.rotationIndex = 0;
+    record.nextRotationAt = Date.now() + record.settings.neoRotationMs;
     await renderRecord(record, true);
     await sendInspector(record);
   }
@@ -219,7 +271,7 @@ class PerformanceAction extends SingletonAction {
 
   async onKeyDown(ev) {
     const record = visible.get(String(ev.action?.id || ""));
-    if (!record) return;
+    if (!record || record.kind === "neo-infobar") return;
     let next = { ...record.settings };
 
     if (record.kind === "graph") {

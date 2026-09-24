@@ -11,10 +11,10 @@ test("plugin action UUIDs exactly match the manifest action UUIDs", async () => 
     readFile(resolve(root, "com.packrat.performance-grapher.sdPlugin", "manifest.json"), "utf8"),
   ]);
   const manifest = JSON.parse(manifestRaw);
-  const sourceIds = [...plugin.matchAll(/\b(?:graph|fps|session|metric|alert):\s*"([^"]+)"/g)].map((match) => match[1]);
+  const sourceIds = [...plugin.matchAll(/(?:\b(?:graph|fps|session|metric|alert)|"neo-infobar"):\s*"([^"]+)"/g)].map((match) => match[1]);
   const manifestIds = manifest.Actions.map((action) => action.UUID);
 
-  assert.equal(sourceIds.length, 5);
+  assert.equal(sourceIds.length, 6);
   assert.deepEqual(new Set(sourceIds), new Set(manifestIds));
 });
 
@@ -32,5 +32,5 @@ test("manifest action category and plugin identity remain canonical", async () =
   assert.equal(manifest.UUID, "com.packrat.performance-grapher");
   assert.equal(manifest.Name, "Performance Grapher for Stream Deck");
   assert.equal(manifest.Category, "Performance Grapher");
-  assert.equal(manifest.Actions.length, 5);
+  assert.equal(manifest.Actions.length, 6);
 });

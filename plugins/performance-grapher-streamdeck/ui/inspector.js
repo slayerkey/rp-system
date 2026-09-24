@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const PI_BUILD = "1.0.0.0-3";
+  const PI_BUILD = "1.1.0.0-neo1";
   window.__performanceGrapherPiVersion = PI_BUILD;
   console.log("Performance Grapher PI build " + PI_BUILD);
 
@@ -13,6 +13,7 @@
     "com.packrat.performance-grapher.session": "session",
     "com.packrat.performance-grapher.metric": "metric",
     "com.packrat.performance-grapher.alert": "alert",
+    "com.packrat.performance-grapher.neo-infobar": "neo-infobar",
   };
 
   const COMMON_METRICS = [
@@ -50,6 +51,7 @@
   let snapshot = null;
   let fpsSetup = { state: "idle", detail: null };
   let metricSetting = undefined;
+  let neoModeSetting = "overview";
   let showAdvanced = false;
 
   const $ = (id) => document.getElementById(id);
@@ -58,9 +60,14 @@
     updateMetricOptions();
     updateWarning();
   }, null);
+  const [getNeoModeSetting] = useSettings("neoMode", (value) => {
+    neoModeSetting = ["overview", "single", "rotate"].includes(String(value)) ? String(value) : "overview";
+    filterFields();
+    updateWarning();
+  }, null);
 
   function defaultMetric() {
-    return kind === "metric" ? "cpu.load" : "gpu.temperature";
+    return kind === "metric" ? "cpu.load" : kind === "neo-infobar" ? "gpu.load" : "gpu.temperature";
   }
 
   function selectedMetric() {
@@ -70,7 +77,16 @@
   function filterFields() {
     for (const node of document.querySelectorAll("[data-kinds]")) {
       const kinds = String(node.getAttribute("data-kinds") || "").split(/\s+/).filter(Boolean);
-      node.hidden = !kinds.includes(kind);
+      const kindVisible = kinds.includes(kind);
+      const neoModes = String(node.getAttribute("data-neo-modes") || "").split(/\s+/).filter(Boolean);
+      const modeVisible = kind !== "neo-infobar" || neoModes.length === 0 || neoModes.includes(neoModeSetting);
+      node.hidden = !(kindVisible && modeVisible);
+    }
+    if (kind === "neo-infobar") {
+      for (const node of document.querySelectorAll("[data-neo-modes]:not([data-kinds])")) {
+        const neoModes = String(node.getAttribute("data-neo-modes") || "").split(/\s+/).filter(Boolean);
+        node.hidden = neoModes.length > 0 && !neoModes.includes(neoModeSetting);
+      }
     }
   }
 
@@ -256,7 +272,7 @@
     const statuses = snapshot.status || {};
     const metricId = selectedMetric();
     const needsGame = kind === "fps" || kind === "session" || metricNeedsGame(metricId);
-    const needsHardware = !needsGame && (kind === "graph" || kind === "metric" || kind === "alert") && metricNeedsHardware(metricId);
+    const needsHardware = !needsGame && (kind === "graph" || kind === "metric" || kind === "alert" || kind === "neo-infobar") && metricNeedsHardware(metricId);
 
     let info = null;
     let provider = "";
@@ -389,8 +405,9 @@
     actionContext = String(connection?.actionInfo?.context || "");
     const actionUuid = String(connection?.actionInfo?.action || "");
     kind = KINDS[actionUuid] || "graph";
-    const savedMetric = await getMetricSetting();
+    const [savedMetric, savedNeoMode] = await Promise.all([getMetricSetting(), getNeoModeSetting()]);
     metricSetting = typeof savedMetric === "string" && savedMetric ? savedMetric : undefined;
+    neoModeSetting = ["overview", "single", "rotate"].includes(String(savedNeoMode)) ? String(savedNeoMode) : "overview";
     filterFields();
     updateMetricOptions();
     document.body.classList.add("ready");

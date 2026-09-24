@@ -128,6 +128,7 @@ const actionKinds = {
   session: '<circle cx="72" cy="72" r="43" stroke="COLOR" stroke-width="8" fill="none"/><path d="M72 45v28l20 13" stroke="COLOR" stroke-width="8" fill="none" stroke-linecap="round"/>',
   metric: '<path d="M42 103V67a30 30 0 0160 0v36" stroke="COLOR" stroke-width="8" fill="none"/><path d="M35 103h74" stroke="COLOR" stroke-width="8" stroke-linecap="round"/><circle cx="72" cy="67" r="12" fill="COLOR"/>',
   alert: '<path d="M72 24l50 92H22L72 24z" stroke="COLOR" stroke-width="8" fill="none" stroke-linejoin="round"/><path d="M72 55v30" stroke="COLOR" stroke-width="9" stroke-linecap="round"/><circle cx="72" cy="101" r="6" fill="COLOR"/>',
+  "neo-infobar": '<path d="M20 43h104v58H20z" stroke="COLOR" stroke-width="7" fill="none" rx="12"/><path d="M32 78l16-14 17 9 16-24 15 17 16-11" stroke="COLOR" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
 };
 for (const [kind, glyph] of Object.entries(actionKinds)) {
   const dir = resolve(imgs, "actions", kind);

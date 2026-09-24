@@ -57,8 +57,8 @@ jobs:
       - name: Install Rat Art dependency
         run: python -m pip install --disable-pip-version-check pillow==11.3.0
 
-      - name: Locked npm install
-        run: npm ci
+      - name: SDK 3 dependency install (lock refresh bootstrap)
+        run: npm install --no-audit --no-fund
 
       - name: JavaScript syntax gate
         run: npm run check:syntax
@@ -237,6 +237,7 @@ jobs:
           Copy-Item "com.packrat.performance-grapher.sdPlugin/profiles/*.streamDeckProfile" (Join-Path $stage "profiles") -Force
           Copy-Item "com.packrat.performance-grapher.sdPlugin/third_party/presentmon/provider.json" (Join-Path $stage "provider.json")
           Copy-Item "com.packrat.performance-grapher.sdPlugin/third_party/presentmon/SHA256.txt" (Join-Path $stage "SHA256.txt")
+          Copy-Item "package-lock.json" (Join-Path $stage "package-lock.json")
           Copy-Item "QA.md" (Join-Path $stage "QA.md")
           Copy-Item "REAL_WINDOWS_SMOKE.md" (Join-Path $stage "REAL_WINDOWS_SMOKE.md")
 
@@ -246,7 +247,7 @@ jobs:
           $packageBytes = (Get-Item (Join-Path $stage "dist/com.packrat.performance-grapher.streamDeckPlugin")).Length
           $evidence = [ordered]@{
             product = "Performance Grapher for Stream Deck"
-            version = "1.0.0.0"
+            version = "1.1.0.0"
             commit = "${{ github.event.pull_request.head.sha || github.sha }}"
             checkout_commit = "${{ github.sha }}"
             run_id = "${{ github.run_id }}"

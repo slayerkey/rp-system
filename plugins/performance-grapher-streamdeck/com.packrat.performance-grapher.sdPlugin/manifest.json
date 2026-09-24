@@ -90,6 +90,16 @@
           "ShowTitle": false
         }
       ]
+    },
+    {
+      "UUID": "com.packrat.performance-grapher.neo-infobar",
+      "Name": "Neo Infobar",
+      "Tooltip": "Glanceable live CPU, GPU, RAM, and selected performance metrics on Stream Deck Neo.",
+      "Icon": "imgs/actions/neo-infobar/icon",
+      "Controllers": [
+        "Neo"
+      ],
+      "SupportedInMultiActions": false
     }
   ],
   "Author": "PackRat",
@@ -111,10 +121,10 @@
   "PropertyInspectorPath": "ui/inspector.html",
   "SDKVersion": 3,
   "Software": {
-    "MinimumVersion": "7.3"
+    "MinimumVersion": "7.6"
   },
   "UUID": "com.packrat.performance-grapher",
-  "Version": "1.0.0.0",
+  "Version": "1.1.0.0",
   "Profiles": [
     {
       "Name": "profiles/performance-dashboard-mk2",

@@ -2,11 +2,11 @@
   "id": "performance-grapher-streamdeck",
   "name": "Performance Grapher for Stream Deck",
   "type": "plugin",
-  "status": "building",
-  "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Physical Stream Deck and real-game Windows smoke remain required: profile import/appearance, Property Inspector buttons/settings/live state, Game FPS UAC/sign-out recovery, NVIDIA/AMD/Intel coverage where available, dual-GPU/hot-remove behavior, sleep/wake persistence, 36/72px visual review, and plugin-disabled vs enabled game frametime A/B. Automated Windows build/package gates are green.",
+  "status": "testing",
+  "workflow_state": "TESTING",
+  "blocker": "Neo Infobar SDK 3.0 release candidate awaiting automated validation and physical Neo smoke.",
   "price_usd": 9.99,
-  "version": "1.0.0.0",
+  "version": "1.1.0.0",
   "platform": "Elgato Stream Deck / Windows",
   "source": "plugins/performance-grapher-streamdeck",
   "submission_metadata": "plugins/performance-grapher-streamdeck/submission.json",
@@ -263,5 +263,5 @@
     }
   },
   "physical_release_evidence": null,
-  "final_boundary": "Run rat dev performance-grapher-streamdeck on the real Windows gaming host, verify Common-first metrics, bounded key labels, one-click Game FPS setup, 2 Hz hardware refresh, Property Inspector persistence/live-state behavior, complete REAL_WINDOWS_SMOKE.md including physical profile/device checks and game A/B performance, then promote to READY_TO_SHIP only if those pass."
+  "final_boundary": "TESTING: SDK 3.0 / Neo Infobar automated release gate pending."
 }
