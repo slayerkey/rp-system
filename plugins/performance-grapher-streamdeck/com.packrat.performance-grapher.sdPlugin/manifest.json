@@ -99,7 +99,13 @@
       "Controllers": [
         "Neo"
       ],
-      "SupportedInMultiActions": false
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Image": "imgs/actions/neo-infobar/key",
+          "ShowTitle": false
+        }
+      ]
     }
   ],
   "Author": "PackRat",
