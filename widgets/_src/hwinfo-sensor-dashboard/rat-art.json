@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "hero": {
+    "subtitle": "Any HWiNFO sensor on your XENEON Edge, with live graphs and history."
+  },
+  "showcase": {
+    "title": "Your hardware, your sensor wall.",
+    "subtitle": "Search HWiNFO readings and build a dashboard around the exact CPU, GPU, storage, board, cooling and power sensors your PC exposes.",
+    "shot": "XL_H.png"
+  },
+  "features": {
+    "title": "More than four generic numbers.",
+    "subtitle": "Live HWiNFO telemetry with source statistics and bounded history, presented as a touch-first hardware dashboard.",
+    "shot": "L_H.png",
+    "items": [
+      [
+        "Arbitrary HWiNFO sensors",
+        "Use HWiNFO Shared Memory discovery instead of a fixed CPU/GPU metric list."
+      ],
+      [
+        "Current + session stats",
+        "Show the current reading plus local dashboard-session min, average and max without inventing missing values."
+      ],
+      [
+        "Rolling history",
+        "Per-slot sparklines with 1-minute through 15-minute bounded history windows."
+      ],
+      [
+        "Thresholds + presets",
+        "Set warning/critical thresholds and fill dashboards quickly with thermal, CPU, GPU or cooling presets."
+      ]
+    ]
+  },
+  "settings": {
+    "title": "Configure it on the XENEON display.",
+    "subtitle": "Choose each dashboard slot, search 100+ sensors, set history and thresholds, and keep favorite readings close.",
+    "panels": [
+      {
+        "label": "Small glance view",
+        "file": "S_H.png"
+      },
+      {
+        "label": "Medium dashboard",
+        "file": "M_H.png"
+      },
+      {
+        "label": "Large telemetry",
+        "file": "L_H.png"
+      },
+      {
+        "label": "Full XL dashboard",
+        "file": "XL_H.png"
+      }
+    ],
+    "tags": "searchable sensors  •  thresholds  •  HWiNFO statistics  •  localhost bridge"
+  },
+  "sizes": {
+    "title": "Eight layouts, tuned for the space.",
+    "subtitle": "Small prioritizes one or two readings. Medium expands to four. Large and XL become true multi-sensor dashboards.",
+    "footer": "8 tuned layouts total  •  4 sizes  •  horizontal + vertical"
+  }
+}

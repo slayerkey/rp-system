@@ -400,6 +400,14 @@
       "version": "0.1.0.0"
     },
     {
+      "id": "hwinfo-sensor-dashboard",
+      "name": "HWiNFO Sensor Dashboard",
+      "type": "widget",
+      "status": "qa_passed",
+      "price_usd": 11.99,
+      "version": "1.0.0"
+    },
+    {
       "id": "icue-widget-competitor-research",
       "name": "look into icue ones looks like XE is what they want plugins for the most",
       "type": "idea",
