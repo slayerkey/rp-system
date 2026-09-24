@@ -35,6 +35,15 @@ assert.match(html, /discord-panel-roster\.css/);
 assert.match(html, /discord-panel-appearance\.js/);
 assert.match(html, /discord-panel-stable-roster\.js/);
 assert.match(html, /discord-panel-rpc\.js/);
+assert.match(html, /id="bridgeInstallPrompt"/);
+assert.match(html, /id="installBridgeButton"/);
+assert.match(html, /id="dismissBridgeHelp"/);
+
+const panelCss = fs.readFileSync(path.join(source, "discord-panel.css"), "utf8");
+assert.match(panelCss, /#bridgeInstallPrompt/);
+assert.match(panelCss, /\.bridge-install-button/);
+assert.match(panelCss, /\.bridge-install-dismiss/);
+assert.match(panelCss, /bridge-help-dismissed/);
 
 const fixes = fs.readFileSync(path.join(source, "discord-panel-fixes.css"), "utf8");
 assert.match(fixes, /\.avatar-wrap > \.avatar/);
@@ -87,6 +96,9 @@ assert.match(runtime, /function installIcueLifecycle\(\)/);
 assert.match(runtime, /events\.onICUEInitialized = refreshIcueSettings/);
 assert.match(runtime, /events\.onDataUpdated = refreshIcueSettings/);
 assert.match(runtime, /__ratpackIcueSyncGlobals/);
+assert.match(runtime, /VOICE_BRIDGE_HELP_STORAGE_KEY/);
+assert.match(runtime, /Linkprovider\.open/);
+assert.equal(runtime.includes("https://marketplace.elgato.com/product/packrat-voice-bridge-b39501ef-6626-4807-9659-4103d9cc3db6"), true, "Voice Bridge Marketplace URL missing from runtime");
 assert.equal(runtime.includes("globalThis.icueEvents = function"), false);
 for (const stale of ["bridgeSettings(", "validDiscordId(", "configureBridge(", "discordServerId", "discordVoiceChannelId"]) {
   assert.equal(runtime.includes(stale), false, `stale fixed-channel runtime reference remains: ${stale}`);
@@ -115,14 +127,17 @@ const submissionText = fs.readFileSync(path.join(source, "submission.json"), "ut
 const submission = JSON.parse(submissionText);
 const artText = fs.readFileSync(path.join(source, "rat-art.json"), "utf8");
 const publicCopy = [html, ui, translations, manifestText, submissionText, artText].join("\n");
-assert.equal(manifest.name, "PackRat Voice Panel");
-assert.equal(submission.name, "PackRat Voice Panel");
+assert.equal(manifest.name, "Discord Voice Panel for XENEON Edge");
+assert.equal(submission.name, "Discord Voice Panel for XENEON Edge");
+assert.equal(manifest.version, "1.0.1");
+assert.equal(submission.version, "1.0.1");
 assert.equal(submission.price_usd, 7.99);
+assert.equal(submission.description.includes("https://marketplace.elgato.com/product/packrat-voice-bridge-b39501ef-6626-4807-9659-4103d9cc3db6"), true, "Voice Bridge Marketplace URL missing from submission copy");
 assert.equal(submission.marketplace_auto_publish, false);
 assert.match(submission.description, /independent third-party product/);
 assert.match(submission.description, /not affiliated with, endorsed by, or sponsored by Discord Inc\./);
-for (const forbidden of ["Discord Voice Panel", "PackRat Discord Bridge", "PackRat PackRat"]) {
+for (const forbidden of ["PackRat Discord Bridge", "PackRat PackRat"]) {
   assert.equal(publicCopy.includes(forbidden), false, `legacy marketplace product name remains: ${forbidden}`);
 }
 
-console.log("VOICE PANEL DEV QA PASS: syntax, hardened iCUE lifecycle, automatic loopback transport, contained compact avatars, stable member slots, separate name plates, opacity/font settings, mute/deafen mapping, trademark-safe marketplace naming, no fixed-channel code, no delayed stale runtime calls, and no obsolete direct Discord OAuth/RPC prototype code");
+console.log("VOICE PANEL DEV QA PASS: syntax, hardened iCUE lifecycle, automatic loopback transport, dismissible Voice Bridge Marketplace install helper, contained compact avatars, stable member slots, separate name plates, opacity/font settings, mute/deafen mapping, current marketplace naming, no fixed-channel code, no delayed stale runtime calls, and no obsolete direct Discord OAuth/RPC prototype code");
