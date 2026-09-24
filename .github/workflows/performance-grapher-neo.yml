@@ -1,0 +1,162 @@
+name: Performance Grapher Neo — standalone release
+
+on:
+  push:
+    branches:
+      - product/performance-grapher-neo
+    paths:
+      - "plugins/performance-grapher-neo/**"
+      - "plugins/performance-grapher-streamdeck/src/**"
+      - "plugins/performance-grapher-streamdeck/ui/**"
+      - "plugins/performance-grapher-streamdeck/rollup.neo.config.mjs"
+      - ".github/workflows/performance-grapher-neo.yml"
+      - "products/performance-grapher-neo.json"
+      - "products/index.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Neo-only Windows build, QA, art and official package
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: plugins/performance-grapher-streamdeck/package-lock.json
+      - name: .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install deterministic art dependency
+        run: python -m pip install --disable-pip-version-check pillow==11.3.0
+      - name: Install shared pinned SDK and native build dependencies
+        working-directory: plugins/performance-grapher-streamdeck
+        run: npm ci --no-audit --no-fund
+      - name: Regress shared telemetry and original product
+        working-directory: plugins/performance-grapher-streamdeck
+        run: npm test
+      - name: Build proven Windows native sensor helper
+        working-directory: plugins/performance-grapher-streamdeck
+        run: npm run build
+      - name: Stage standalone Neo assets
+        run: node plugins/performance-grapher-neo/scripts/build.mjs
+      - name: Compile Neo-only entrypoint against existing SDK 3
+        working-directory: plugins/performance-grapher-streamdeck
+        run: npx rollup -c rollup.neo.config.mjs
+      - name: Source syntax checks
+        shell: pwsh
+        run: |
+          foreach ($file in @(
+            "plugins/performance-grapher-neo/src/plugin.js",
+            "plugins/performance-grapher-neo/ui/inspector.js",
+            "plugins/performance-grapher-neo/tests/neo-only.test.mjs",
+            "plugins/performance-grapher-neo/scripts/build.mjs"
+          )) { node --check $file; if ($LASTEXITCODE) { throw "Syntax check failed: $file" } }
+          python -m py_compile plugins/performance-grapher-neo/scripts/rat-art-neo.py
+      - name: Standalone Neo-only regression tests
+        working-directory: plugins/performance-grapher-neo
+        run: node --test tests/*.test.mjs
+      - name: PackRat Stream Deck design contract
+        run: node tools/qa/streamdeck-plugin-design-audit.mjs plugins/performance-grapher-neo
+      - name: Probe actual compiled sensor helper
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path "plugins/performance-grapher-neo/com.packrat.performance-grapher-neo.sdPlugin/native/telemetry/PackRat.PerformanceTelemetry.exe"
+          $sample = & $exe --probe
+          if ($LASTEXITCODE -notin @(0, 2)) { throw "Native sensor helper probe failed: $LASTEXITCODE" }
+          $text = ($sample -join [Environment]::NewLine)
+          if ($text -notmatch '"type":"sample"' -and $text -notmatch '"status":"unavailable"') {
+            throw "Native helper did not provide a sample or explicit hardware unavailable status."
+          }
+          Write-Host $text
+      - name: Official Elgato Neo manifest and layout validation
+        working-directory: plugins/performance-grapher-streamdeck
+        run: npx streamdeck validate ../performance-grapher-neo/com.packrat.performance-grapher-neo.sdPlugin --no-update-check
+      - name: Official Neo-only plugin packaging
+        working-directory: plugins/performance-grapher-streamdeck
+        run: npx streamdeck pack ../performance-grapher-neo/com.packrat.performance-grapher-neo.sdPlugin --no-update-check --force --no-file-list --output ../performance-grapher-neo/dist
+      - name: Deterministic Neo-specific Marketplace previews
+        run: python plugins/performance-grapher-neo/scripts/rat-art-neo.py
+      - name: Verify exact standalone package, media and evidence
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:GITHUB_WORKSPACE "plugins/performance-grapher-neo"
+          $manifest = Get-Content (Join-Path $root "com.packrat.performance-grapher-neo.sdPlugin/manifest.json") -Raw | ConvertFrom-Json
+          if ($manifest.UUID -ne "com.packrat.performance-grapher-neo" -or $manifest.Version -ne "1.0.0.0") { throw "Wrong plugin identity/version." }
+          if ($manifest.Actions.Count -ne 1 -or $manifest.Actions[0].UUID -ne "com.packrat.performance-grapher-neo.infobar" -or
+              @($manifest.Actions[0].Controllers).Count -ne 1 -or $manifest.Actions[0].Controllers[0] -ne "Neo") { throw "Not a strict Neo-only package." }
+          if ($manifest.Software.MinimumVersion -ne "7.6") { throw "Incorrect Neo host minimum." }
+          $build = Join-Path $root "com.packrat.performance-grapher-neo.sdPlugin"
+          if (Test-Path (Join-Path $build "third_party/presentmon/PresentMon.exe")) { throw "Neo edition must not bundle a second PresentMon." }
+          $package = Get-ChildItem (Join-Path $root "dist") -Filter *.streamDeckPlugin | Select-Object -First 1
+          if (-not $package) { throw "Official package missing." }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead($package.FullName)
+          try {
+            $items = @($zip.Entries | ForEach-Object { $_.FullName })
+            if ($items -match 'PresentMon.exe|streamDeckProfile') { throw "Unexpected standalone package contents." }
+            foreach ($name in @("neo-overview.json", "neo-metric.json")) {
+              if (-not (@($items | Where-Object { $_ -match [regex]::Escape($name) }).Count)) { throw "Neo layout missing: $name" }
+            }
+          } finally { $zip.Dispose() }
+          $art = Join-Path $root "dist/marketplace-art"
+          python -c "from pathlib import Path; from PIL import Image; p=Path(r'$art'); files=['01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png']; [(_ for _ in ()).throw(ValueError(f)) for f in files if Image.open(p/f).size != ((288,288) if f.startswith('01') else (1920,960))]"
+          if ($LASTEXITCODE) { throw "Neo art dimensions failed." }
+          $kit = Join-Path $root "SHIP_KIT"
+          New-Item -ItemType Directory -Force -Path (Join-Path $kit "marketplace-art") | Out-Null
+          Copy-Item $package.FullName (Join-Path $kit "com.packrat.performance-grapher-neo.streamDeckPlugin")
+          Copy-Item (Join-Path $art "*.png") (Join-Path $kit "marketplace-art") -Force
+          Copy-Item (Join-Path $root "README.md") $kit
+          Copy-Item (Join-Path $root "QA.md") $kit
+          Copy-Item (Join-Path $root "submission.json") $kit
+          @(
+            "• Dedicated Neo-only Infobar dashboard with CPU, GPU, and RAM at a glance."
+            "• Single Metric and Rotating Metrics views with optional 60-second trend."
+            "• Simple persistent settings, shared bounded local telemetry, and no game-capture process."
+          ) | Set-Content -Encoding utf8 (Join-Path $kit "RELEASE_NOTES.txt")
+          $sha = (Get-FileHash -Algorithm SHA256 $package.FullName).Hash.ToLowerInvariant()
+          [ordered]@{
+            version = "1.0.0.0"
+            source_commit = $env:GITHUB_SHA
+            run_id = $env:GITHUB_RUN_ID
+            package_name = "com.packrat.performance-grapher-neo.streamDeckPlugin"
+            package_sha256 = $sha
+            automated_checks = "PASSED_EXACT_COMMIT"
+            physical_neo_smoke = "NOT_VERIFIED"
+            marketplace_art = "DETERMINISTIC_PREVIEW_POTENTIAL_FINAL_HOST_REVIEW"
+            marketplace_price = "NOT_YET_SET"
+          } | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 (Join-Path $kit "evidence.json")
+          Write-Host "NEO_PACKAGE_SHA256=$sha"
+      - name: Upload complete Neo-only release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-grapher-neo-ship-kit
+          path: plugins/performance-grapher-neo/SHIP_KIT
+          if-no-files-found: error
+          retention-days: 14
+      - name: Index exact green Neo release on its own branch
+        shell: pwsh
+        run: |
+          git fetch --no-tags origin "+refs/heads/product/performance-grapher-neo:refs/remotes/origin/product/performance-grapher-neo"
+          $latest = (git rev-parse refs/remotes/origin/product/performance-grapher-neo).Trim()
+          if ($latest -ne $env:GITHUB_SHA) { Write-Host "Newer branch head exists; skip stale evidence pin."; exit 0 }
+          $src = "plugins/performance-grapher-neo/SHIP_KIT/evidence.json"
+          $dest = "data/release-evidence/performance-grapher-neo.json"
+          New-Item -ItemType Directory -Force -Path (Split-Path $dest) | Out-Null
+          Copy-Item $src $dest
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $dest
+          git commit -m "Index exact green Neo-only release artifact"
+          git push origin HEAD:refs/heads/product/performance-grapher-neo
