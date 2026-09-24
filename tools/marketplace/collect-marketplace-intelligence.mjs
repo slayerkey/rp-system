@@ -160,6 +160,7 @@ async function fetchAllSuggestions(config) {
   const pageSize = 1000;
   let page = 0;
   let nbPages = 1;
+  let reportedTotal = null;
 
   while (page < nbPages) {
     const result = await algoliaQuery(config.appId, config.apiKey, {
@@ -171,11 +172,14 @@ async function fetchAllSuggestions(config) {
       attributesToSnippet: "",
     });
     hits.push(...(result.hits || []));
+    if (reportedTotal === null && Number.isFinite(Number(result.nbHits))) {
+      reportedTotal = Number(result.nbHits);
+    }
     nbPages = Number(result.nbPages || 1);
     page += 1;
     if (page > 100) throw new Error("Refusing to fetch more than 100 Algolia pages.");
   }
-  return hits;
+  return { hits, reportedTotal };
 }
 
 function numberFrom(record, keys) {
@@ -186,10 +190,21 @@ function numberFrom(record, keys) {
   return null;
 }
 
+function getSourceIndexPayload(record) {
+  for (const [key, value] of Object.entries(record || {})) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) continue;
+    if (Number.isFinite(Number(value.exact_nb_hits)) || value.facets?.exact_matches) {
+      return { indexName: key, payload: value };
+    }
+  }
+  return { indexName: null, payload: null };
+}
+
 function extractExactHits(record) {
   const direct = numberFrom(record, [
     "exact_product_hits",
     "exactProductHits",
+    "exact_nb_hits",
     "nb_hits",
     "nbHits",
     "results",
@@ -198,24 +213,24 @@ function extractExactHits(record) {
   ]);
   if (direct !== null) return direct;
 
-  const paths = [
-    ["facets", "exact_matches", "nb_hits"],
-    ["facets", "exact_matches", "nbHits"],
-    ["analytics", "nb_hits"],
-  ];
-  for (const parts of paths) {
-    let value = record;
-    for (const part of parts) value = value?.[part];
-    if (Number.isFinite(Number(value))) return Number(value);
+  const { payload } = getSourceIndexPayload(record);
+  if (payload && Number.isFinite(Number(payload.exact_nb_hits))) {
+    return Number(payload.exact_nb_hits);
   }
   return null;
 }
 
 function extractCategoryCounts(record) {
+  const { payload } = getSourceIndexPayload(record);
+  const exact = payload?.facets?.exact_matches ?? record?.facets?.exact_matches ?? null;
   const candidates = [
     record?.top_exact_categories,
-    record?.facets?.exact_matches?.categories,
-    record?.facets?.exact_matches?.extensions,
+    exact?.categories,
+    exact?.category,
+    exact?.extensions,
+    exact?.extension,
+    exact?.product_type,
+    exact?.type,
     record?.facets?.categories,
     record?.facets?.extensions,
   ];
@@ -248,7 +263,7 @@ function extractCategoryCounts(record) {
   return [];
 }
 
-function normalizeSuggestions(rawHits, capturedAt, sourceMeta) {
+function normalizeSuggestions(rawHits, capturedAt, sourceMeta, reportedTotal) {
   const rows = rawHits
     .map((hit) => ({
       term: String(hit.query ?? hit.term ?? "").trim(),
@@ -288,7 +303,9 @@ function normalizeSuggestions(rawHits, capturedAt, sourceMeta) {
       exact_product_hits_definition:
         "Exact-result supply when exposed by the Query Suggestions record. Null means the current public record did not expose a compatible count.",
     },
-    total_indexed_terms: rows.length,
+    total_indexed_terms: reportedTotal ?? rawHits.length,
+    captured_terms: rows.length,
+    term_limit: SNAPSHOT_TERM_LIMIT,
     top_terms: rows,
   };
 }
@@ -337,6 +354,7 @@ function mapTerms(snapshot) {
 function delta(current, prior, field) {
   const a = current?.[field];
   const b = prior?.[field];
+  if (a === null || a === undefined || a === "" || b === null || b === undefined || b === "") return null;
   if (!Number.isFinite(Number(a)) || !Number.isFinite(Number(b))) return null;
   return Number(a) - Number(b);
 }
@@ -381,6 +399,7 @@ function buildTrends(snapshots) {
         popularity: current.popularity ?? null,
         exact_product_hits: current.exact_product_hits ?? null,
         top_exact_categories: current.top_exact_categories ?? [],
+        platform_supply: current.platform_supply ?? null,
       },
       change_since_previous: previous
         ? {
@@ -443,10 +462,10 @@ async function main() {
   const config = await discoverAlgoliaConfig();
   console.log(`Discovered Marketplace search config via ${config.discovery}.`);
 
-  const rawHits = await fetchAllSuggestions(config);
+  const { hits: rawHits, reportedTotal } = await fetchAllSuggestions(config);
   if (!rawHits.length) throw new Error("Query Suggestions returned zero records.");
 
-  const snapshot = normalizeSuggestions(rawHits, capturedAt, config);
+  const snapshot = normalizeSuggestions(rawHits, capturedAt, config, reportedTotal);
   const snapshotPath = path.join(SNAPSHOT_ROOT, capturedAt, "query-suggestions.json");
   await writeJson(snapshotPath, snapshot);
 
