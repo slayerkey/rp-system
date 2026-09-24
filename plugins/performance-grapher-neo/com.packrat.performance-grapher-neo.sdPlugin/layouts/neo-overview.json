@@ -1,0 +1,109 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/layout.json",
+  "id": "packrat-performance-overview",
+  "controller": "Neo",
+  "items": [
+    {
+      "type": "text",
+      "key": "cpuLabel",
+      "rect": [
+        4,
+        3,
+        72,
+        12
+      ],
+      "alignment": "center",
+      "color": "#9AA2AF",
+      "font": {
+        "size": 9,
+        "weight": 600
+      },
+      "text-overflow": "ellipsis"
+    },
+    {
+      "type": "text",
+      "key": "cpuValue",
+      "rect": [
+        4,
+        17,
+        72,
+        29
+      ],
+      "alignment": "center",
+      "color": "#F5F7FB",
+      "font": {
+        "size": 18,
+        "weight": 700
+      },
+      "text-overflow": "clip"
+    },
+    {
+      "type": "text",
+      "key": "gpuLabel",
+      "rect": [
+        80,
+        3,
+        72,
+        12
+      ],
+      "alignment": "center",
+      "color": "#9AA2AF",
+      "font": {
+        "size": 9,
+        "weight": 600
+      },
+      "text-overflow": "ellipsis"
+    },
+    {
+      "type": "text",
+      "key": "gpuValue",
+      "rect": [
+        80,
+        17,
+        72,
+        29
+      ],
+      "alignment": "center",
+      "color": "#F5F7FB",
+      "font": {
+        "size": 18,
+        "weight": 700
+      },
+      "text-overflow": "clip"
+    },
+    {
+      "type": "text",
+      "key": "ramLabel",
+      "rect": [
+        156,
+        3,
+        72,
+        12
+      ],
+      "alignment": "center",
+      "color": "#9AA2AF",
+      "font": {
+        "size": 9,
+        "weight": 600
+      },
+      "text-overflow": "ellipsis"
+    },
+    {
+      "type": "text",
+      "key": "ramValue",
+      "rect": [
+        156,
+        17,
+        72,
+        29
+      ],
+      "alignment": "center",
+      "color": "#F5F7FB",
+      "font": {
+        "size": 18,
+        "weight": 700
+      },
+      "text-overflow": "clip"
+    }
+  ]
+}
