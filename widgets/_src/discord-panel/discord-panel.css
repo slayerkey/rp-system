@@ -510,3 +510,43 @@ body[data-slot="xl-v"].recent-off #activityPanel { display: none; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .member-row.speaking .avatar-wrap::before { opacity: 1; transform: none; }
 }
+
+/* Required free Voice Bridge setup helper. It appears only while the local bridge is offline. */
+#bridgeInstallPrompt {
+  display: none;
+  margin-top: 12px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+body[data-state="disconnected"]:not(.bridge-help-dismissed) #bridgeInstallPrompt {
+  display: flex;
+}
+.bridge-install-button {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid color-mix(in srgb, var(--accent) 46%, rgba(255,255,255,0.18));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 13%, rgba(11,13,18,0.84));
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 720;
+  cursor: pointer;
+}
+.bridge-install-dismiss {
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.045);
+  color: var(--muted);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+body[data-slot="s-h"] #bridgeInstallPrompt { margin-top: 9px; }
+body[data-slot="s-h"] .bridge-install-button,
+body[data-slot="s-h"] .bridge-install-dismiss { min-height: 42px; height: 42px; }
+body[data-slot="s-h"] .bridge-install-dismiss { width: 42px; min-width: 42px; }
+
