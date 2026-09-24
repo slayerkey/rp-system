@@ -234,6 +234,64 @@ if ($WidgetSlug -notmatch '^[a-z0-9]+(?:-[a-z0-9]+)*$') {
     throw "Invalid XENEON widget slug: $WidgetSlug"
 }
 
+
+function Add-ProductCompanionToShipKit {
+    param(
+        [string]$Slug,
+        [string]$Kit
+    )
+
+    if ($Slug -ne "hwinfo-sensor-dashboard") { return }
+
+    $asset = "PackRat-HWiNFO-Bridge-1.0.0-win-x64.zip"
+    $checksumAsset = "$asset.sha256"
+    $tag = "hwinfo-bridge-v1.0.0"
+    $baseUrl = "https://github.com/slayerkey/rp-system/releases/download/$tag"
+    $url = "$baseUrl/$asset"
+    $checksumUrl = "$baseUrl/$checksumAsset"
+    $companionDir = Join-Path $Kit "companion"
+    $zip = Join-Path $companionDir $asset
+    $checksumPath = Join-Path $companionDir $checksumAsset
+    New-Item -ItemType Directory -Force -Path $companionDir | Out-Null
+
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        try {
+            Invoke-WebRequest -UseBasicParsing $url -OutFile $zip -TimeoutSec 90
+            Invoke-WebRequest -UseBasicParsing $checksumUrl -OutFile $checksumPath -TimeoutSec 90
+            break
+        }
+        catch {
+            if ($attempt -eq 3) { throw }
+            Start-Sleep -Seconds 2
+        }
+    }
+    if (-not (Test-Path $zip) -or -not (Test-Path $checksumPath)) {
+        throw "Could not download the HWiNFO companion release and checksum."
+    }
+
+    $expected = ((Get-Content $checksumPath -Raw).Trim().Split()[0]).ToLowerInvariant()
+    if ($expected -notmatch '^[0-9a-f]{64}$') {
+        throw "Published HWiNFO companion SHA256 is invalid: $expected"
+    }
+    $actual = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actual -ne $expected) {
+        Remove-Item $zip -Force -ErrorAction SilentlyContinue
+        throw "HWiNFO companion SHA256 mismatch. Expected $expected, got $actual."
+    }
+
+    foreach ($doc in @("README.md","SECURITY.md")) {
+        $source = Join-Path $RepoRoot "companions\hwinfo-sensor-dashboard\$doc"
+        if (-not (Test-Path $source)) { throw "HWiNFO companion documentation missing: $source" }
+        Copy-Item $source (Join-Path $companionDir $doc) -Force
+    }
+
+    @(
+        "url=$url"
+        "checksum_url=$checksumUrl"
+        "sha256=$expected"
+    ) | Set-Content (Join-Path $companionDir "PUBLIC_DOWNLOAD.txt") -Encoding UTF8
+}
+
 $sourceDir = Join-Path $RepoRoot "widgets\_src\$WidgetSlug"
 $shippingDir = Join-Path $RepoRoot "widgets\$WidgetSlug"
 $submissionSource = Join-Path $sourceDir "submission.json"
@@ -297,6 +355,8 @@ try {
 
         Invoke-LocalStep "build Maker Console SHIP_KIT" { & python tools/ship/make_xeneon_kit.py $WidgetSlug --package $canonicalPackage --art $review --out $Destination }
 
+        Invoke-LocalStep "attach required product companion" { Add-ProductCompanionToShipKit -Slug $WidgetSlug -Kit $Destination }
+
         Invoke-LocalStep "Playwright driver kit preflight" { & node tools/ship/maker_console.mjs $WidgetSlug "--kit=$Destination" --check-kit }
 
         $source = Get-Content $submissionSource -Raw | ConvertFrom-Json
@@ -315,6 +375,12 @@ try {
         foreach ($file in @('01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png')) {
             if (-not (Test-Path (Join-Path $Destination $file))) {
                 throw "Local SHIP_KIT is missing $file"
+            }
+        }
+        if ($WidgetSlug -eq "hwinfo-sensor-dashboard") {
+            $companionZip = Join-Path $Destination "companion\PackRat-HWiNFO-Bridge-1.0.0-win-x64.zip"
+            if (-not (Test-Path $companionZip)) {
+                throw "Local HWiNFO SHIP_KIT is missing the required Windows companion ZIP"
             }
         }
     }

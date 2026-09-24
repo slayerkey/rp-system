@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+<title>tr('HWiNFO Sensor Dashboard')</title>
+
+<meta name="x-icue-property" content="bridgeKey" data-label="tr('HWiNFO Bridge Pairing Key')" data-type="textfield" data-default="''" />
+<meta name="x-icue-property" content="historyWindow" data-label="tr('History Window')" data-type="combobox" data-default="'180'" data-values="[{'key':'60','value':tr('60 seconds')},{'key':'180','value':tr('3 minutes')},{'key':'300','value':tr('5 minutes')},{'key':'600','value':tr('10 minutes')},{'key':'900','value':tr('15 minutes')}]" />
+<meta name="x-icue-property" content="staleSeconds" data-label="tr('Stale After')" data-type="slider" data-default="8" data-min="3" data-max="30" data-step="1" data-unit-label="' sec'" />
+<meta name="x-icue-property" content="textColor" data-label="tr('Text Color')" data-type="color" data-default="'#F4F6F8'" />
+<meta name="x-icue-property" content="accentColor" data-label="tr('Accent Color')" data-type="color" data-default="'#2BE86A'" />
+<meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#070A0D'" />
+<meta name="x-icue-property" content="graphColor" data-label="tr('Graph Color')" data-type="color" data-default="'#55D6FF'" />
+
+<script type="application/json" id="x-icue-groups">
+[
+  {
+    "title": "tr('Connection')",
+    "properties": ["bridgeKey"],
+    "info": "tr('Install the free PackRat HWiNFO Bridge on this Windows PC, enable HWiNFO Shared Memory Support, then paste the local pairing key here. Sensor data stays on localhost.')"
+  },
+  {
+    "title": "tr('History')",
+    "properties": ["historyWindow", "staleSeconds"],
+    "info": "tr('History is bounded locally inside the widget. A stale reading is shown as unavailable instead of zero.')"
+  },
+  {
+    "title": "tr('Appearance')",
+    "properties": ["textColor", "accentColor", "backgroundColor", "graphColor"]
+  }
+]
+</script>
+
+<link rel="stylesheet" href="dashboard.css" />
+</head>
+<body data-slot="s-h" data-connection="starting" data-provider="unknown">
+<main id="stage" aria-label="HWiNFO Sensor Dashboard">
+  <header id="topbar">
+    <div id="brand">
+      <div id="brandGlyph" aria-hidden="true">H</div>
+      <div>
+        <div id="eyebrow">PACKRAT • HWiNFO</div>
+        <div id="title">Sensor Dashboard</div>
+      </div>
+    </div>
+    <div id="statusPill"><span id="statusDot"></span><span id="statusText">CONNECTING</span></div>
+    <button id="configureButton" class="iconButton" type="button" aria-label="Configure sensors">⚙</button>
+  </header>
+
+  <section id="dashboard" aria-live="polite"></section>
+
+  <section id="statePanel" role="status" aria-live="polite">
+    <div id="stateGlyph">⌁</div>
+    <div id="stateCopy">
+      <h2 id="stateTitle">Starting local companion</h2>
+      <p id="stateBody">Connecting to PackRat HWiNFO Bridge on this PC.</p>
+      <div id="stateActions">
+        <button id="openBridge" type="button">Open Bridge Setup</button>
+        <button id="openHwinfo" type="button">Get HWiNFO</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="configSheet" class="sheet" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Sensor dashboard setup">
+    <div class="sheetHead">
+      <div>
+        <div class="sheetKicker">DASHBOARD SETUP</div>
+        <div class="sheetTitle">Choose HWiNFO sensors</div>
+      </div>
+      <button id="closeConfig" class="iconButton" type="button" aria-label="Close setup">×</button>
+    </div>
+
+    <div id="presetRow">
+      <button type="button" data-preset="cpu-gpu">CPU + GPU</button>
+      <button type="button" data-preset="thermals">Thermals</button>
+      <button type="button" data-preset="fans">Fans</button>
+      <button type="button" data-preset="storage">Storage</button>
+      <button type="button" data-preset="favorites">Favorites</button>
+    </div>
+
+    <label id="searchWrap">
+      <span>SEARCH SENSORS</span>
+      <input id="sensorSearch" type="search" autocomplete="off" placeholder="GPU hotspot, fan, NVMe, VRM…" />
+    </label>
+
+    <div id="slotSummary"></div>
+    <div id="sensorPicker"></div>
+
+    <div id="sheetFooter">
+      <button id="resetSession" type="button">Reset dashboard session stats</button>
+      <span>Does not reset HWiNFO's own min/max counters.</span>
+    </div>
+  </section>
+
+  <section id="thresholdSheet" class="sheet compact" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Sensor thresholds">
+    <div class="sheetHead">
+      <div>
+        <div class="sheetKicker">ALERT THRESHOLDS</div>
+        <div id="thresholdTitle" class="sheetTitle">Sensor</div>
+      </div>
+      <button id="closeThreshold" class="iconButton" type="button" aria-label="Close thresholds">×</button>
+    </div>
+    <p id="thresholdHint">Thresholds use the exact unit reported by HWiNFO. Leave blank to disable.</p>
+    <div class="thresholdGrid">
+      <label><span>Warning</span><input id="warningThreshold" inputmode="decimal" /></label>
+      <label><span>Critical</span><input id="criticalThreshold" inputmode="decimal" /></label>
+    </div>
+    <button id="saveThreshold" type="button">Save thresholds</button>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+</main>
+<script src="dashboard.js"></script>
+</body>
+</html>

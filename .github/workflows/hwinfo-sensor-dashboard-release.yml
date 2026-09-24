@@ -1,0 +1,442 @@
+name: HWiNFO Sensor Dashboard Release Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'widgets/_src/hwinfo-sensor-dashboard/**'
+      - 'widgets/hwinfo-sensor-dashboard/**'
+      - 'companions/hwinfo-sensor-dashboard/**'
+      - 'products/hwinfo-sensor-dashboard.json'
+      - 'products/index.json'
+      - 'tools/art/xeneon_hero_catalog.json'
+      - 'release/PUBLISH_HWINFO_COMPANION'
+      - 'release/hwinfo-sensor-dashboard-companion.sha256'
+      - '.github/workflows/hwinfo-sensor-dashboard-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hwinfo-sensor-dashboard-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WIDGET_SLUG: hwinfo-sensor-dashboard
+  BRIDGE_PROJECT: companions/hwinfo-sensor-dashboard/PackRat.HWiNFOBridge/PackRat.HWiNFOBridge.csproj
+  BRIDGE_EXE: PackRat.HWiNFOBridge.exe
+  BRIDGE_ZIP: PackRat-HWiNFO-Bridge-1.0.0-win-x64.zip
+
+jobs:
+  windows-release-gate:
+    name: Windows companion + CORSAIR exact-package gate
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.13' }
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '8.0.425' }
+
+      - name: Pin .NET SDK used by the companion
+        shell: pwsh
+        run: |
+          '{"sdk":{"version":"8.0.425","rollForward":"disable","allowPrerelease":false}}' | Set-Content global.json -Encoding UTF8
+          $sdk=(dotnet --version).Trim()
+          if($sdk -ne '8.0.425'){throw "Expected .NET SDK 8.0.425, got $sdk"}
+          Write-Host "PINNED .NET SDK $sdk / runtime pack 8.0.31"
+
+      - name: Install browser QA dependencies
+        shell: pwsh
+        run: |
+          npm install --no-save playwright@1.62.1 ws@8.21.3
+          npx playwright install chromium
+
+      - name: Build and self-test HWiNFO bridge
+        shell: pwsh
+        run: |
+          dotnet restore "$env:BRIDGE_PROJECT"
+          dotnet build "$env:BRIDGE_PROJECT" -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { throw "bridge build failed" }
+          dotnet run --project "$env:BRIDGE_PROJECT" -c Release --no-build -- --self-test
+          if ($LASTEXITCODE -ne 0) { throw "bridge self-test failed" }
+
+      - name: Publish companion across source revisions for deterministic binary proof
+        shell: pwsh
+        run: |
+          $projectDir=Split-Path $env:BRIDGE_PROJECT -Parent
+          $probes=@(
+            @{name='current';revision=''},
+            @{name='revision-a';revision='1111111111111111111111111111111111111111'},
+            @{name='revision-b';revision='2222222222222222222222222222222222222222'}
+          )
+          $hashes=@{}
+          foreach($probe in $probes){
+            Remove-Item (Join-Path $projectDir 'bin') -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item (Join-Path $projectDir 'obj') -Recurse -Force -ErrorAction SilentlyContinue
+            $dir="artifacts/companion/publish-$($probe.name)"
+            $args=@('publish',$env:BRIDGE_PROJECT,'-c','Release','-r','win-x64','--self-contained','true','-p:PublishSingleFile=true','-p:DebugType=None','-p:DebugSymbols=false','-p:EnableSourceLink=false','-o',$dir)
+            if($probe.revision){$args+=("-p:SourceRevisionId="+$probe.revision)}
+            & dotnet @args
+            if($LASTEXITCODE -ne 0){throw "bridge publish failed: $($probe.name)"}
+            $hashes[$probe.name]=(Get-FileHash "$dir/$env:BRIDGE_EXE" -Algorithm SHA256).Hash.ToLowerInvariant()
+          }
+          if($hashes['current'] -ne $hashes['revision-a'] -or $hashes['current'] -ne $hashes['revision-b']){
+            throw "companion binary depends on source revision metadata: current=$($hashes['current']) revision-a=$($hashes['revision-a']) revision-b=$($hashes['revision-b'])"
+          }
+          Copy-Item "artifacts/companion/publish-current/$env:BRIDGE_EXE" "artifacts/companion/$env:BRIDGE_EXE"
+          & "artifacts/companion/$env:BRIDGE_EXE" --self-test
+          if($LASTEXITCODE -ne 0){throw "published bridge self-test failed"}
+          [ordered]@{
+            current=$hashes['current']
+            revision_a=$hashes['revision-a']
+            revision_b=$hashes['revision-b']
+          } | ConvertTo-Json | Set-Content artifacts/companion/source-revision-proof.json -Encoding UTF8
+
+      - name: Build deterministic customer companion ZIP
+        shell: pwsh
+        run: |
+          Copy-Item companions/hwinfo-sensor-dashboard/README.md artifacts/companion/
+          Copy-Item companions/hwinfo-sensor-dashboard/SECURITY.md artifacts/companion/
+          Copy-Item companions/hwinfo-sensor-dashboard/Install.ps1 artifacts/companion/
+          Copy-Item companions/hwinfo-sensor-dashboard/Install.cmd artifacts/companion/
+          Copy-Item companions/hwinfo-sensor-dashboard/Uninstall.ps1 artifacts/companion/
+          Copy-Item companions/hwinfo-sensor-dashboard/Uninstall.cmd artifacts/companion/
+          @'
+          import os, pathlib, zipfile
+          root=pathlib.Path("artifacts/companion")
+          out=root/os.environ["BRIDGE_ZIP"]
+          names=["PackRat.HWiNFOBridge.exe","README.md","SECURITY.md","Install.ps1","Install.cmd","Uninstall.ps1","Uninstall.cmd"]
+          with zipfile.ZipFile(out,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for name in sorted(names):
+                  p=root/name
+                  if not p.is_file(): raise SystemExit(f"missing companion file: {name}")
+                  info=zipfile.ZipInfo(name,date_time=(1980,1,1,0,0,0))
+                  info.compress_type=zipfile.ZIP_DEFLATED
+                  info.external_attr=0o100644<<16
+                  z.writestr(info,p.read_bytes())
+          print(out)
+          '@ | python -
+          $zipHash=(Get-FileHash "artifacts/companion/$env:BRIDGE_ZIP" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $exeHash=(Get-FileHash "artifacts/companion/$env:BRIDGE_EXE" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $proof=Get-Content artifacts/companion/source-revision-proof.json -Raw | ConvertFrom-Json
+          [ordered]@{
+            zip_sha256=$zipHash
+            exe_sha256=$exeHash
+            source_commit=$env:GITHUB_SHA
+            source_revision_probe_sha256=$proof.revision_b
+            source_revision_independent=($proof.current -eq $proof.revision_a -and $proof.current -eq $proof.revision_b)
+          } | ConvertTo-Json | Set-Content artifacts/companion/hashes.json -Encoding UTF8
+          Write-Host "ZIP SHA256 $zipHash"
+
+      - name: Customer install update and uninstall lifecycle
+        shell: pwsh
+        run: |
+          $extract=Join-Path $env:RUNNER_TEMP 'packrat-hwinfo-customer'
+          if(Test-Path $extract){Remove-Item $extract -Recurse -Force}
+          Expand-Archive "artifacts/companion/$env:BRIDGE_ZIP" $extract
+          $targetDir=Join-Path $env:LOCALAPPDATA 'PackRat\HWiNFOBridge'
+          $targetExe=Join-Path $targetDir $env:BRIDGE_EXE
+          $startup=Join-Path ([Environment]::GetFolderPath('Startup')) 'PackRat HWiNFO Bridge.lnk'
+          $env:PACKRAT_BRIDGE_NO_BROWSER='1'
+          try {
+            & (Join-Path $extract 'Install.ps1')
+            $healthy=$false
+            for($i=0;$i -lt 60;$i++){
+              try{
+                $h=Invoke-RestMethod http://127.0.0.1:17489/health -TimeoutSec 1
+                if($h.product -eq 'PackRat HWiNFO Bridge'){$healthy=$true;break}
+              }catch{}
+              Start-Sleep -Milliseconds 250
+            }
+            if(-not $healthy){throw 'installed bridge never became healthy'}
+            if(-not (Test-Path $targetExe)){throw 'installed exe missing'}
+            if(-not (Test-Path $startup)){throw 'startup shortcut missing'}
+            $first=(Get-FileHash $targetExe -Algorithm SHA256).Hash
+
+            & (Join-Path $extract 'Install.ps1')
+            $healthy=$false
+            for($i=0;$i -lt 60;$i++){
+              try{$h=Invoke-RestMethod http://127.0.0.1:17489/health -TimeoutSec 1;if($h.product -eq 'PackRat HWiNFO Bridge'){$healthy=$true;break}}catch{}
+              Start-Sleep -Milliseconds 250
+            }
+            if(-not $healthy){throw 'bridge did not recover after update install'}
+            $second=(Get-FileHash $targetExe -Algorithm SHA256).Hash
+            if($first -ne $second){throw 'installed binary changed across same-version update'}
+
+            & (Join-Path $extract 'Uninstall.ps1')
+            if(Test-Path $targetDir){throw 'uninstall left LocalAppData directory'}
+            if(Test-Path $startup){throw 'uninstall left Startup shortcut'}
+          } finally {
+            Get-Process -Name 'PackRat.HWiNFOBridge' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+            Remove-Item $targetDir -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item $startup -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Deterministic widget source verification
+        shell: pwsh
+        run: node widgets/_src/$env:WIDGET_SLUG/verify.mjs
+
+      - name: Generate exact shipping widget
+        shell: pwsh
+        run: |
+          Copy-Item "widgets/_src/$env:WIDGET_SLUG/translation.json" "widgets/$env:WIDGET_SLUG/translation.json" -Force
+          python tools/xeneon/inline.py $env:WIDGET_SLUG
+          python tools/xeneon/inline.py $env:WIDGET_SLUG --check
+
+      - name: Eight-layout authored source gate
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts/layouts | Out-Null
+          node tools/art/capture_xeneon.mjs $env:WIDGET_SLUG artifacts/layouts
+          foreach($f in @('S_H.png','S_V.png','M_H.png','M_V.png','L_H.png','L_V.png','XL_H.png','XL_V.png')){
+            if(-not (Test-Path "artifacts/layouts/$f")){throw "missing layout $f"}
+          }
+
+      - name: Official CORSAIR validation and package
+        shell: pwsh
+        run: |
+          npx --yes icuewidget-cli@0.4.47 validate "widgets/$env:WIDGET_SLUG"
+          if($LASTEXITCODE -ne 0){throw 'CORSAIR validation failed'}
+          npx --yes icuewidget-cli@0.4.47 package "widgets/$env:WIDGET_SLUG"
+          if($LASTEXITCODE -ne 0){throw 'CORSAIR package failed'}
+          New-Item -ItemType Directory -Force artifacts/package | Out-Null
+          $pkg=Get-ChildItem widgets -Filter *.icuewidget -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if(-not $pkg){throw 'official package missing'}
+          Copy-Item $pkg.FullName "artifacts/package/$env:WIDGET_SLUG.icuewidget"
+
+      - name: Exact package integrity and extraction
+        shell: pwsh
+        run: |
+          @'
+          import os,pathlib,zipfile
+          slug=os.environ["WIDGET_SLUG"]
+          package=pathlib.Path("artifacts/package")/f"{slug}.icuewidget"
+          out=pathlib.Path("artifacts/extracted")/slug
+          out.mkdir(parents=True,exist_ok=True)
+          if not zipfile.is_zipfile(package): raise SystemExit("not a zip-compatible icuewidget")
+          with zipfile.ZipFile(package) as z:
+              bad=z.testzip()
+              if bad: raise SystemExit(f"corrupt member {bad}")
+              names={n.replace("\\","/") for n in z.namelist()}
+              for req in ("index.html","manifest.json","translation.json","resources/icon.svg"):
+                  if req not in names: raise SystemExit(f"missing {req}")
+              z.extractall(out)
+          '@ | python -
+
+      - name: Lexical iCUE settings regressions
+        shell: pwsh
+        run: |
+          node tools/xeneon/native-style-smoke.mjs "artifacts/extracted/$env:WIDGET_SLUG/index.html" "artifacts/native-style"
+          node tools/xeneon/native-style-autosync-smoke.mjs "artifacts/extracted/$env:WIDGET_SLUG/index.html" "artifacts/native-style-autosync"
+
+      - name: Exact-package widget to actual bridge integration
+        shell: pwsh
+        run: node widgets/_src/$env:WIDGET_SLUG/network-smoke.mjs "artifacts/extracted/$env:WIDGET_SLUG/index.html" artifacts/network-smoke "artifacts/companion/$env:BRIDGE_EXE"
+
+      - name: Corsair Labs Windows runner
+        shell: pwsh
+        run: |
+          $runnerDir=Join-Path $env:RUNNER_TEMP 'icue-widget-runner-windows'
+          if(Test-Path $runnerDir){Remove-Item $runnerDir -Recurse -Force}
+          git clone --depth 1 https://github.com/Corsair-Labs/iCUE-widget-runner-windows.git $runnerDir
+          git -C $runnerDir rev-parse HEAD | Set-Content artifacts/corsair-runner-commit.txt
+          $target=Join-Path (Join-Path $runnerDir 'widgets') $env:WIDGET_SLUG
+          Copy-Item -Recurse -Force "artifacts/extracted/$env:WIDGET_SLUG" $target
+          $stdout=Join-Path $env:RUNNER_TEMP 'corsair-hwinfo.out.log'
+          $stderr=Join-Path $env:RUNNER_TEMP 'corsair-hwinfo.err.log'
+          $process=Start-Process node -ArgumentList 'web-server.js' -WorkingDirectory $runnerDir -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          try{
+            $ready=$false
+            for($i=0;$i -lt 30;$i++){try{$r=Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/api/widgets -TimeoutSec 2;if($r.StatusCode -eq 200){$ready=$true;break}}catch{};Start-Sleep -Seconds 1}
+            if(-not $ready){throw 'Corsair Labs runner did not become ready'}
+            node tools/xeneon/icue-runner-smoke.mjs http://127.0.0.1:8080/ "$env:WIDGET_SLUG" "artifacts/icue-runner"
+            if($LASTEXITCODE -ne 0){throw 'Corsair Labs runner smoke failed'}
+          }finally{
+            if($process -and -not $process.HasExited){Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue}
+            if(Test-Path $stdout){Copy-Item $stdout artifacts/corsair-runner.stdout.log}
+            if(Test-Path $stderr){Copy-Item $stderr artifacts/corsair-runner.stderr.log}
+          }
+
+      - name: Upload exact package companion and Windows evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hwinfo-sensor-dashboard-core
+          path: |
+            artifacts/package/
+            artifacts/companion/
+            artifacts/layouts/
+            artifacts/native-style/
+            artifacts/native-style-autosync/
+            artifacts/network-smoke/
+            artifacts/icue-runner/
+            artifacts/corsair-runner-commit.txt
+            artifacts/corsair-runner.stdout.log
+            artifacts/corsair-runner.stderr.log
+          if-no-files-found: warn
+          retention-days: 30
+
+  streamspell:
+    name: StreamSpell exact-package all-layout gate
+    needs: windows-release-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - uses: actions/download-artifact@v4
+        with:
+          name: hwinfo-sensor-dashboard-core
+          path: artifacts/core
+      - name: Install browser dependencies
+        run: |
+          npm install --no-save playwright@1.62.1 ws@8.21.3
+          npx playwright install --with-deps chromium
+      - name: Start StreamSpell
+        run: |
+          git clone --depth 1 https://github.com/streamspell/xeneon-edge-widget-builder.git /tmp/xeneon-edge-widget-builder
+          cd /tmp/xeneon-edge-widget-builder
+          npm install
+          nohup npm run dev > /tmp/streamspell-server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8090/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/streamspell-server.log
+          exit 1
+      - name: Verify all eight exact-package presets
+        run: node tools/xeneon/streamspell.mjs "artifacts/core/package/hwinfo-sensor-dashboard.icuewidget" artifacts/streamspell
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hwinfo-sensor-dashboard-streamspell
+          path: artifacts/streamspell/
+          if-no-files-found: warn
+          retention-days: 30
+
+  rat-ship:
+    name: Rat Art + Rat Ship + immutable companion release
+    needs: [windows-release-gate, streamspell]
+    runs-on: windows-latest
+    env:
+      RATPACK_ART_FONT: C:\Windows\Fonts\segoeui.ttf
+      RATPACK_ART_FONT_BOLD: C:\Windows\Fonts\segoeuib.ttf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.13' }
+      - uses: actions/download-artifact@v4
+        with:
+          name: hwinfo-sensor-dashboard-core
+          path: artifacts/core
+      - uses: actions/download-artifact@v4
+        with:
+          name: hwinfo-sensor-dashboard-streamspell
+          path: artifacts/streamspell-evidence
+
+      - name: Install deterministic art dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==12.3.0
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+
+      - name: Render deterministic Rat Art
+        shell: pwsh
+        run: |
+          Copy-Item "widgets/_src/$env:WIDGET_SLUG/translation.json" "widgets/$env:WIDGET_SLUG/translation.json" -Force
+          python tools/xeneon/inline.py $env:WIDGET_SLUG
+          New-Item -ItemType Directory -Force artifacts/rat-art/shots | Out-Null
+          node tools/art/capture_xeneon.mjs $env:WIDGET_SLUG artifacts/rat-art/shots
+          python tools/art/rat_art.py xeneon $env:WIDGET_SLUG --shots artifacts/rat-art/shots --out artifacts/rat-art/review
+          node tools/ship/render_svg_icon.mjs "widgets/$env:WIDGET_SLUG/resources/icon.svg" artifacts/rat-art/review/icon-288x288.png
+
+      - name: Build companion-inclusive SHIP_KIT
+        shell: pwsh
+        run: |
+          python tools/ship/make_xeneon_kit.py $env:WIDGET_SLUG --package "artifacts/core/package/$env:WIDGET_SLUG.icuewidget" --art artifacts/rat-art/review --out "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+          $kit="artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+          New-Item -ItemType Directory -Force "$kit/companion" | Out-Null
+          Copy-Item "artifacts/core/companion/$env:BRIDGE_EXE" "$kit/companion/"
+          Copy-Item "artifacts/core/companion/$env:BRIDGE_ZIP" "$kit/companion/"
+          Copy-Item artifacts/core/companion/README.md "$kit/companion/"
+          Copy-Item artifacts/core/companion/SECURITY.md "$kit/companion/"
+          Copy-Item artifacts/core/companion/hashes.json "$kit/companion/"
+          Copy-Item -Recurse artifacts/streamspell-evidence "$kit/qa-streamspell"
+
+      - name: Maker Console kit preflight
+        shell: pwsh
+        run: node tools/ship/maker_console.mjs $env:WIDGET_SLUG --kit="artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT" --check-kit
+
+      - name: Rat Ship invariants
+        shell: pwsh
+        run: |
+          $kit="artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+          $sub=Get-Content "$kit/submission.json" -Raw | ConvertFrom-Json
+          if($sub.type -ne 'widget'){throw 'type mismatch'}
+          if($sub.name -ne 'HWiNFO Sensor Dashboard'){throw 'name mismatch'}
+          if([decimal]$sub.price_usd -ne [decimal]11.99){throw 'price mismatch'}
+          if($sub.version -ne '1.0.0'){throw 'version mismatch'}
+          foreach($f in @("$env:WIDGET_SLUG.icuewidget",'01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png',"companion/$env:BRIDGE_ZIP")){
+            if(-not(Test-Path "$kit/$f")){throw "missing ship file $f"}
+          }
+          $tested=(Get-FileHash "artifacts/core/package/$env:WIDGET_SLUG.icuewidget" -Algorithm SHA256).Hash
+          $shipped=(Get-FileHash "$kit/$env:WIDGET_SLUG.icuewidget" -Algorithm SHA256).Hash
+          if($tested -ne $shipped){throw 'SHIP_KIT package differs from exact tested package'}
+
+      - name: Cross-source-revision reproducibility proof
+        if: hashFiles('release/PUBLISH_HWINFO_COMPANION') != ''
+        shell: pwsh
+        run: |
+          $proof=Get-Content 'artifacts/core/companion/hashes.json' -Raw | ConvertFrom-Json
+          if(-not $proof.source_revision_independent){throw 'companion build is not source-revision independent'}
+          if($proof.exe_sha256 -ne $proof.source_revision_probe_sha256){throw "source revision proof differs from exact shipped EXE"}
+          Write-Host "CROSS-SOURCE-REVISION REPRODUCIBILITY PASS $($proof.exe_sha256)"
+
+      - name: Publish or verify immutable public companion release
+        if: hashFiles('release/PUBLISH_HWINFO_COMPANION') != ''
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag='hwinfo-bridge-v1.0.0'
+          $zip="artifacts/core/companion/$env:BRIDGE_ZIP"
+          $candidate=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          $checksum="artifacts/core/companion/$env:BRIDGE_ZIP.sha256"
+          "$candidate  $env:BRIDGE_ZIP" | Set-Content $checksum -Encoding ASCII
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if($LASTEXITCODE -eq 0){
+            $tmp=Join-Path $env:RUNNER_TEMP 'hwinfo-existing-release'
+            if(Test-Path $tmp){Remove-Item $tmp -Recurse -Force}
+            New-Item -ItemType Directory -Force $tmp | Out-Null
+            gh release download $tag --repo $env:GITHUB_REPOSITORY --pattern "$env:BRIDGE_ZIP" --pattern "$env:BRIDGE_ZIP.sha256" --dir $tmp
+            if($LASTEXITCODE -ne 0){throw 'could not download immutable companion release'}
+            $existing=(Get-FileHash (Join-Path $tmp $env:BRIDGE_ZIP) -Algorithm SHA256).Hash.ToLowerInvariant()
+            $publishedChecksum=((Get-Content (Join-Path $tmp "$env:BRIDGE_ZIP.sha256") -Raw).Trim().Split()[0]).ToLowerInvariant()
+            if($existing -ne $candidate -or $publishedChecksum -ne $candidate){throw "immutable tag already exists with different bytes/checksum"}
+            Write-Host "IMMUTABLE RELEASE ALREADY MATCHES $existing"
+          } else {
+            gh release create $tag $zip $checksum "artifacts/core/companion/$env:BRIDGE_EXE" --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'PackRat HWiNFO Bridge 1.0.0' --notes 'Free localhost-only Windows companion required by HWiNFO Sensor Dashboard for XENEON Edge. HWiNFO must be installed separately with Shared Memory Support enabled.' --prerelease
+            if($LASTEXITCODE -ne 0){throw 'could not publish companion release'}
+          }
+          $verify=Join-Path $env:RUNNER_TEMP 'hwinfo-public-verify'
+          if(Test-Path $verify){Remove-Item $verify -Recurse -Force}
+          New-Item -ItemType Directory -Force $verify | Out-Null
+          gh release download $tag --repo $env:GITHUB_REPOSITORY --pattern "$env:BRIDGE_ZIP" --pattern "$env:BRIDGE_ZIP.sha256" --dir $verify
+          $public=(Get-FileHash (Join-Path $verify $env:BRIDGE_ZIP) -Algorithm SHA256).Hash.ToLowerInvariant()
+          $publicChecksum=((Get-Content (Join-Path $verify "$env:BRIDGE_ZIP.sha256") -Raw).Trim().Split()[0]).ToLowerInvariant()
+          if($public -ne $candidate -or $publicChecksum -ne $candidate){throw 'public release SHA256/checksum differs from exact tested ZIP'}
+          Set-Content "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT/companion/public-release-sha256.txt" $public
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rat-ship-hwinfo-sensor-dashboard
+          path: artifacts/ship/hwinfo-sensor-dashboard/SHIP_KIT/
+          if-no-files-found: error
+          retention-days: 30
