@@ -234,6 +234,169 @@ if ($WidgetSlug -notmatch '^[a-z0-9]+(?:-[a-z0-9]+)*$') {
     throw "Invalid XENEON widget slug: $WidgetSlug"
 }
 
+
+function Add-ProductCompanionToShipKit {
+    param(
+        [string]$Slug,
+        [string]$Kit
+    )
+
+    if ($Slug -ne "hwinfo-sensor-dashboard") { return }
+
+    $hashFile = Join-Path $RepoRoot "release\hwinfo-sensor-dashboard-companion.sha256"
+    if (-not (Test-Path $hashFile)) {
+        throw "HWiNFO Rat Ship requires the pinned companion SHA256 at $hashFile"
+    }
+
+    $expected = (Get-Content $hashFile -Raw).Trim().ToLowerInvariant()
+    if ($expected -notmatch '^[0-9a-f]{64}
+$shippingDir = Join-Path $RepoRoot "widgets\$WidgetSlug"
+$submissionSource = Join-Path $sourceDir "submission.json"
+if (-not (Test-Path $sourceDir) -or -not (Test-Path $shippingDir) -or -not (Test-Path $submissionSource)) {
+    throw "Local Rat Ship cannot find the isolated source/shipping files for '$WidgetSlug'."
+}
+
+try {
+    Ensure-LocalDependencies
+    Connect-SharedNodeDependencies
+    Remove-GeneratedWidgetOutputs
+
+    if (Test-Path $WorkRoot) { Remove-Item $WorkRoot -Recurse -Force }
+    if (Test-Path $Destination) { Remove-Item $Destination -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path $WorkRoot | Out-Null
+    New-Item -ItemType Directory -Force -Path $Destination | Out-Null
+
+    $shots = Join-Path $WorkRoot "shots"
+    $review = Join-Path $WorkRoot "review"
+    $packageDir = Join-Path $WorkRoot "package"
+    New-Item -ItemType Directory -Force -Path $packageDir | Out-Null
+
+    Push-Location $RepoRoot
+    try {
+        Invoke-LocalStep "build isolated canonical shipping widget" { & python tools/xeneon/inline.py $WidgetSlug }
+
+        $trackedDrift = (& git -C $RepoRoot diff --name-only -- "widgets/$WidgetSlug" 2>$null)
+        if ($trackedDrift) {
+            throw "Canonical generated widget output is stale for '$WidgetSlug'. Commit the generated shipping output before Rat Ship; the isolated candidate detected tracked drift."
+        }
+
+        Invoke-LocalStep "official CORSAIR validation" { Invoke-IcueWidgetCliUtf8 @("validate", "widgets/$WidgetSlug") }
+
+        $packageStarted = Get-Date
+        Invoke-LocalStep "official CORSAIR package" { Invoke-IcueWidgetCliUtf8 @("package", "widgets/$WidgetSlug") }
+        $pkg = Get-ChildItem -Path (Join-Path $RepoRoot "widgets") -Filter *.icuewidget -File |
+            Where-Object { $_.LastWriteTime -ge $packageStarted.AddSeconds(-2) } |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+        if (-not $pkg) {
+            throw "Official CORSAIR package command completed but no fresh .icuewidget package was found."
+        }
+        $canonicalPackage = Join-Path $packageDir "$WidgetSlug.icuewidget"
+        Copy-Item $pkg.FullName $canonicalPackage -Force
+
+        Invoke-LocalStep "capture real widget for Rat Art" { & node tools/art/capture_xeneon.mjs $WidgetSlug $shots }
+
+        $oldFont = $env:RATPACK_ART_FONT
+        $oldFontBold = $env:RATPACK_ART_FONT_BOLD
+        try {
+            $env:RATPACK_ART_FONT = Join-Path $env:WINDIR "Fonts\segoeui.ttf"
+            $env:RATPACK_ART_FONT_BOLD = Join-Path $env:WINDIR "Fonts\segoeuib.ttf"
+            Invoke-LocalStep "render deterministic Rat Art" { & python tools/art/rat_art.py xeneon $WidgetSlug --shots $shots --out $review }
+        }
+        finally {
+            $env:RATPACK_ART_FONT = $oldFont
+            $env:RATPACK_ART_FONT_BOLD = $oldFontBold
+        }
+
+        Invoke-LocalStep "render canonical search icon" { & node tools/ship/render_svg_icon.mjs "widgets/$WidgetSlug/resources/icon.svg" (Join-Path $review "icon-288x288.png") }
+
+        Invoke-LocalStep "build Maker Console SHIP_KIT" { & python tools/ship/make_xeneon_kit.py $WidgetSlug --package $canonicalPackage --art $review --out $Destination }
+
+        Invoke-LocalStep "attach required product companion" { Add-ProductCompanionToShipKit -Slug $WidgetSlug -Kit $Destination }
+
+        Invoke-LocalStep "Playwright driver kit preflight" { & node tools/ship/maker_console.mjs $WidgetSlug "--kit=$Destination" --check-kit }
+
+        $source = Get-Content $submissionSource -Raw | ConvertFrom-Json
+        $subPath = Join-Path $Destination "submission.json"
+        if (-not (Test-Path $subPath)) { throw "Local SHIP_KIT is missing submission.json" }
+        $sub = Get-Content $subPath -Raw | ConvertFrom-Json
+        if ($source.type -ne 'widget' -or $sub.type -ne 'widget') { throw "Local SHIP_KIT submission type must be widget" }
+        if ($sub.slug -ne $WidgetSlug) { throw "Local SHIP_KIT submission slug mismatch" }
+        if ($sub.name -ne $source.name) { throw "Local SHIP_KIT submission name mismatch" }
+        if ([decimal]$sub.price_usd -ne [decimal]$source.price_usd) { throw "Local SHIP_KIT submission price mismatch" }
+        if ($sub.version -ne $source.version) { throw "Local SHIP_KIT submission version mismatch" }
+
+        if (-not (Test-Path (Join-Path $Destination "$WidgetSlug.icuewidget"))) {
+            throw "Local SHIP_KIT is missing the official widget package"
+        }
+        foreach ($file in @('01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png')) {
+            if (-not (Test-Path (Join-Path $Destination $file))) {
+                throw "Local SHIP_KIT is missing $file"
+            }
+        }
+        if ($WidgetSlug -eq "hwinfo-sensor-dashboard") {
+            $companionZip = Join-Path $Destination "companion\PackRat-HWiNFO-Bridge-1.0.0-win-x64.zip"
+            if (-not (Test-Path $companionZip)) {
+                throw "Local HWiNFO SHIP_KIT is missing the required Windows companion ZIP"
+            }
+        }
+    }
+    finally {
+        Remove-GeneratedWidgetOutputs
+        Pop-Location
+    }
+
+    Write-Host "Local Rat Ship kit is ready at:`n$Destination" -ForegroundColor Green
+}
+catch {
+    Write-LocalFailureRecovery -Failure $_
+    throw
+}
+) {
+        throw "HWiNFO companion SHA256 pin is invalid: $expected"
+    }
+
+    $asset = "PackRat-HWiNFO-Bridge-1.0.0-win-x64.zip"
+    $tag = "hwinfo-bridge-v1.0.0"
+    $url = "https://github.com/slayerkey/rp-system/releases/download/$tag/$asset"
+    $companionDir = Join-Path $Kit "companion"
+    $zip = Join-Path $companionDir $asset
+    New-Item -ItemType Directory -Force -Path $companionDir | Out-Null
+
+    $downloaded = $false
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        try {
+            Invoke-WebRequest -UseBasicParsing $url -OutFile $zip -TimeoutSec 90
+            $downloaded = $true
+            break
+        }
+        catch {
+            if ($attempt -eq 3) { throw }
+            Start-Sleep -Seconds 2
+        }
+    }
+    if (-not $downloaded -or -not (Test-Path $zip)) {
+        throw "Could not download the pinned HWiNFO companion release."
+    }
+
+    $actual = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actual -ne $expected) {
+        Remove-Item $zip -Force -ErrorAction SilentlyContinue
+        throw "HWiNFO companion SHA256 mismatch. Expected $expected, got $actual."
+    }
+
+    foreach ($doc in @("README.md","SECURITY.md")) {
+        $source = Join-Path $RepoRoot "companions\hwinfo-sensor-dashboard\$doc"
+        if (-not (Test-Path $source)) { throw "HWiNFO companion documentation missing: $source" }
+        Copy-Item $source (Join-Path $companionDir $doc) -Force
+    }
+
+    @(
+        "url=$url"
+        "sha256=$expected"
+    ) | Set-Content (Join-Path $companionDir "PUBLIC_DOWNLOAD.txt") -Encoding UTF8
+}
+
 $sourceDir = Join-Path $RepoRoot "widgets\_src\$WidgetSlug"
 $shippingDir = Join-Path $RepoRoot "widgets\$WidgetSlug"
 $submissionSource = Join-Path $sourceDir "submission.json"
