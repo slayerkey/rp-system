@@ -172,7 +172,14 @@ async function renderNeoRecord(record, force = false) {
 
   const layout = neoLayoutFor(record.settings);
   if (force || record.lastLayout !== layout) {
-    await record.action.setFeedbackLayout(layout).catch(logger);
+    try {
+      await record.action.setFeedbackLayout(layout);
+    } catch (error) {
+      logger(error);
+      return; // Do not cache a layout that the host failed to install.
+    }
+    // A disappearing or replaced action must not receive stale feedback.
+    if (visible.get(record.id) !== record) return;
     record.lastLayout = layout;
     record.lastFeedback = "";
   }
@@ -192,9 +199,14 @@ async function renderNeoRecord(record, force = false) {
   const feedback = makeNeoFeedback(telemetry, record.settings, metricId);
   const signature = JSON.stringify(feedback);
   record.lastRenderAt = now;
+  if (visible.get(record.id) !== record) return;
   if (!force && signature === record.lastFeedback) return;
-  record.lastFeedback = signature;
-  await record.action.setFeedback(feedback).catch(logger);
+  try {
+    await record.action.setFeedback(feedback);
+    if (visible.get(record.id) === record) record.lastFeedback = signature;
+  } catch (error) {
+    logger(error); // Preserve previous signature so the next update retries.
+  }
 }
 
 async function renderRecord(record, force = false) {
