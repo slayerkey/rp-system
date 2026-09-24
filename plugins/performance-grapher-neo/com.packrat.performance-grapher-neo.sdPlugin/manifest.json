@@ -40,6 +40,5 @@
     "MinimumVersion": "7.6"
   },
   "UUID": "com.packrat.performance-grapher-neo",
-  "Version": "1.0.0.0",
-  "Profiles": []
+  "Version": "1.0.0.0"
 }
