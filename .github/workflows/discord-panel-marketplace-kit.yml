@@ -55,9 +55,12 @@ jobs:
           if ($submission.slug -ne 'discord-panel') { throw 'submission slug mismatch' }
           if ($submission.type -ne 'widget') { throw 'submission type mismatch' }
           if ([decimal]$submission.price_usd -ne [decimal]7.99) { throw 'submission price must be 7.99' }
-          if ($submission.version -ne '1.0.0') { throw 'submission version must be 1.0.0' }
-          if ([bool]$submission.marketplace_auto_publish) { throw 'Discord Panel must remain draft-only until Discord production RPC approval is recorded' }
-          Write-Host 'DISCORD PANEL MARKETPLACE KIT PASS'
+          $sourceSubmission = Get-Content 'widgets/_src/discord-panel/submission.json' -Raw | ConvertFrom-Json
+          $manifest = Get-Content 'widgets/discord-panel/manifest.json' -Raw | ConvertFrom-Json
+          if ($submission.version -ne $sourceSubmission.version) { throw "submission version mismatch: kit=$($submission.version) source=$($sourceSubmission.version)" }
+          if ($submission.version -ne $manifest.version) { throw "submission/manifest version mismatch: submission=$($submission.version) manifest=$($manifest.version)" }
+          if ([bool]$submission.marketplace_auto_publish) { throw 'Discord Panel marketplace kit must remain manual-publish' }
+          Write-Host "DISCORD PANEL MARKETPLACE KIT PASS: version $($submission.version)"
 
       - name: Upload complete Maker Console kit
         uses: actions/upload-artifact@v4
