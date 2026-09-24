@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Performance Grapher Neo</title>
+  <script src="sdpi-components.js"></script>
+  <link rel="stylesheet" href="inspector.css">
+</head>
+<body>
+<main>
+  <sdpi-item label="Infobar mode">
+    <sdpi-select setting="neoMode" default="overview">
+      <option value="overview">CPU · GPU · RAM</option>
+      <option value="single">Single metric + trend</option>
+      <option value="rotate">Rotating metrics</option>
+    </sdpi-select>
+  </sdpi-item>
+  <p class="hint" data-modes="overview">A glanceable system overview. No Neo key is used.</p>
+  <section data-modes="single rotate">
+    <sdpi-item label="Main metric"><select id="metricId"><option value="gpu.load">GPU Load</option></select></sdpi-item>
+    <p class="hint">Only readings provided by your Windows PC are displayed.</p>
+    <button id="advanced" type="button">Show advanced sensors</button>
+    <sdpi-item label="60s trend">
+      <sdpi-select setting="neoShowHistory" default="true">
+        <option value="true">On</option><option value="false">Off</option>
+      </sdpi-select>
+    </sdpi-item>
+  </section>
+  <section data-modes="rotate">
+    <sdpi-item label="Second metric">
+      <sdpi-select setting="neoMetric2" default="cpu.load">
+        <option value="cpu.load">CPU Load</option><option value="gpu.load">GPU Load</option>
+        <option value="ram.load">RAM Used</option><option value="cpu.temperature">CPU Temp</option>
+        <option value="gpu.temperature">GPU Temp</option><option value="gpu.fan">GPU Fan</option>
+        <option value="gpu.power">GPU Power</option><option value="cpu.power">CPU Power</option>
+      </sdpi-select>
+    </sdpi-item>
+    <sdpi-item label="Third metric">
+      <sdpi-select setting="neoMetric3" default="ram.load">
+        <option value="ram.load">RAM Used</option><option value="cpu.load">CPU Load</option>
+        <option value="gpu.load">GPU Load</option><option value="cpu.temperature">CPU Temp</option>
+        <option value="gpu.temperature">GPU Temp</option><option value="gpu.fan">GPU Fan</option>
+        <option value="gpu.power">GPU Power</option><option value="cpu.power">CPU Power</option>
+      </sdpi-select>
+    </sdpi-item>
+    <sdpi-item label="Rotate every">
+      <sdpi-select setting="neoRotationMs" default="5000">
+        <option value="3000">3 sec</option><option value="5000">5 sec</option>
+        <option value="10000">10 sec</option>
+      </sdpi-select>
+    </sdpi-item>
+  </section>
+  <sdpi-item label="Refresh">
+    <sdpi-select setting="neoRefreshMs" default="1000">
+      <option value="1000">1 sec</option><option value="2000">2 sec</option>
+      <option value="5000">5 sec</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Labels">
+    <sdpi-select setting="neoShowLabels" default="true">
+      <option value="true">On</option><option value="false">Off</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Trend color"><sdpi-color setting="accent" default="#2BE86A"></sdpi-color></sdpi-item>
+  <details><summary>Sensor status</summary><p id="status">Waiting for sensor data…</p></details>
+</main>
+<script src="inspector.js"></script>
+</body>
+</html>
