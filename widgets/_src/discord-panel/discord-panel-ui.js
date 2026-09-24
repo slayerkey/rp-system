@@ -352,8 +352,8 @@ function renderControls() {
 }
 
 function stateCopy() {
-  if (model.state === "setup") return ["Starting Voice Panel", "The PackRat Voice Bridge will connect automatically.", true];
-  if (model.state === "disconnected") return ["PackRat Voice Bridge offline", "Start Stream Deck and Discord. The panel will reconnect automatically.", true];
+  if (model.state === "setup") return ["Starting Voice Panel", "Looking for the PackRat Voice Bridge on this PC.", false];
+  if (model.state === "disconnected") return ["PackRat Voice Bridge offline", "Install the free Voice Bridge below, then keep Stream Deck and Discord open. The panel will reconnect automatically.", false];
   if (model.state === "authorization") return [copy["Discord authorization required"] || "Discord authorization required", "Tap Connect Discord once, then approve the Discord prompt.", true];
   if (model.state === "auth-failed") return [copy["Authorization failed"] || "Authorization failed", "Tap Connect Discord to retry. The bridge status page has the exact error.", true];
   return [copy["Not in a voice channel"] || "Not in a voice channel", "Join any Discord voice channel and the panel will follow automatically.", false];
