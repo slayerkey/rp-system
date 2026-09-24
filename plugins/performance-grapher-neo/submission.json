@@ -1,0 +1,28 @@
+{
+  "slug": "performance-grapher-neo",
+  "name": "Performance Grapher Neo",
+  "type": "plugin",
+  "version": "1.0.0.0",
+  "price_usd": null,
+  "marketplace_category": [
+    "Monitoring",
+    "Utilities"
+  ],
+  "marketplace_operating_systems": [
+    "Windows"
+  ],
+  "marketplace_tags": [
+    "Neo",
+    "Infobar",
+    "Performance",
+    "Hardware",
+    "Monitoring"
+  ],
+  "marketplace_auto_publish": false,
+  "description": "Built specifically for Stream Deck Neo. Give your Neo Infobar a live performance dashboard without using a normal key: CPU / GPU / RAM overview, a selected GPU or CPU sensor with optional trend, or rotating readings for supported hardware sensors. Reuses PackRat’s bounded local monitoring history; no cloud account or Game FPS capture. Windows 10+, Stream Deck 7.6+ and Stream Deck Neo required. Sensor availability varies by PC.",
+  "release_notes": [
+    "Dedicated Neo-only Infobar dashboard: CPU, GPU and RAM at a glance.",
+    "Add Single Metric and Rotating Metrics modes with optional live 60-second history.",
+    "Simple persistent settings; no normal keys, extra game-capture session, or cloud services."
+  ]
+}
