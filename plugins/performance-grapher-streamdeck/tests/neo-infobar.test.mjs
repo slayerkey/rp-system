@@ -134,9 +134,9 @@ test("SDK 3 lifecycle initializes settings from willAppear instead of relying on
 
 test("Neo feedback failures remain retryable and disappeared contexts are not repainted", async () => {
   const plugin = await readFile(resolve(root, "src", "plugin.js"), "utf8");
-  assert.match(plugin, /await record\\.action\\.setFeedbackLayout\\(layout\\)/);
+  assert.match(plugin, /await record\.action\.setFeedbackLayout\(layout\)/);
   assert.match(plugin, /Do not cache a layout that the host failed to install/);
-  assert.match(plugin, /if \\(visible\\.get\\(record\\.id\\) !== record\\) return/);
-  assert.match(plugin, /await record\\.action\\.setFeedback\\(feedback\\)/);
-  assert.match(plugin, /if \\(visible\\.get\\(record\\.id\\) === record\\) record\\.lastFeedback = signature/);
+  assert.match(plugin, /if \(visible\.get\(record\.id\) !== record\) return/);
+  assert.match(plugin, /await record\.action\.setFeedback\(feedback\)/);
+  assert.match(plugin, /if \(visible\.get\(record\.id\) === record\) record\.lastFeedback = signature/);
 });
