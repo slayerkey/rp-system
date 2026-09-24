@@ -39,7 +39,15 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: '3.13' }
       - uses: actions/setup-dotnet@v4
-        with: { dotnet-version: '8.0.x' }
+        with: { dotnet-version: '8.0.425' }
+
+      - name: Pin .NET SDK used by the companion
+        shell: pwsh
+        run: |
+          '{"sdk":{"version":"8.0.425","rollForward":"disable","allowPrerelease":false}}' | Set-Content global.json -Encoding UTF8
+          $sdk=(dotnet --version).Trim()
+          if($sdk -ne '8.0.425'){throw "Expected .NET SDK 8.0.425, got $sdk"}
+          Write-Host "PINNED .NET SDK $sdk / runtime pack 8.0.31"
 
       - name: Install browser QA dependencies
         shell: pwsh
