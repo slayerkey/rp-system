@@ -1,0 +1,30 @@
+{
+  "id": "performance-grapher-neo",
+  "name": "Performance Grapher Neo",
+  "type": "plugin",
+  "status": "testing",
+  "workflow_state": "BUILDING",
+  "blocker": "Standalone Neo-only SDK 3 source authored; exact-head Windows CI, Neo hardware QA, dedicated art, and listing price pending",
+  "price_usd": null,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck Neo Infobar / Windows",
+  "source": "plugins/performance-grapher-neo",
+  "submission_metadata": "plugins/performance-grapher-neo/submission.json",
+  "branch": "product/performance-grapher-neo",
+  "source_repository": "https://github.com/slayerkey/rp-system.git",
+  "source_ref": "refs/heads/product/performance-grapher-neo",
+  "plugin_uuid": "com.packrat.performance-grapher-neo",
+  "action_uuid": "com.packrat.performance-grapher-neo.infobar",
+  "minimum_stream_deck": "7.6",
+  "distinct_product_from": "performance-grapher-streamdeck",
+  "hardware_gate": "PENDING_PHYSICAL_NEO",
+  "release_gate": [
+    "new Neo-only manifest + settings + layout test",
+    "shared telemetry/hardware sensor tests",
+    "Windows .NET helper probe",
+    "Elgato CLI validate + pack",
+    "independent plugin IDs and no keypad/profile actions",
+    "Neo 232x50 physical readability and PI persistence",
+    "dedicated Marketplace art and operator-approved standalone pricing"
+  ]
+}
