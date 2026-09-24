@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0.0",
+  "source_commit": "9f9c53eed7cbb1fe4de54cdf57534f150ad703b6",
+  "run_id": "35953225587",
+  "package_name": "com.packrat.performance-grapher-neo.streamDeckPlugin",
+  "package_sha256": "c6ee2c31ea6ce3eb41f7d81319848bd0da22fdab6b3d25605a37afd11445df9a",
+  "automated_checks": "PASSED_EXACT_COMMIT",
+  "physical_neo_smoke": "NOT_VERIFIED",
+  "marketplace_art": "DETERMINISTIC_PREVIEW_POTENTIAL_FINAL_HOST_REVIEW",
+  "marketplace_price": "NOT_YET_SET"
+}
