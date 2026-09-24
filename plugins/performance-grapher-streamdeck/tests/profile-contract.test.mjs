@@ -77,7 +77,9 @@ test("manifest registers the four generated PackRat performance dashboards", asy
 
 test("generated profiles contain valid bounded keypad layouts and only Performance Grapher actions", async () => {
   const manifest = JSON.parse(await readFile(resolve(plugin, "manifest.json"), "utf8"));
-  const allowedUuids = new Set(manifest.Actions.map((action) => action.UUID));
+  const allowedUuids = new Set(manifest.Actions
+    .filter((action) => Array.isArray(action.Controllers) && action.Controllers.includes("Keypad"))
+    .map((action) => action.UUID));
   const allowedWindows = new Set([0, 60_000, 300_000, 900_000]);
   const globalActionIds = new Set();
 
@@ -121,7 +123,7 @@ test("generated profiles contain valid bounded keypad layouts and only Performan
       if (settings.metricId !== undefined) assert.ok(String(settings.metricId).length > 0);
     }
 
-    assert.deepEqual(seenPluginActions, allowedUuids, spec.file + " should demonstrate all five plugin actions");
+    assert.deepEqual(seenPluginActions, allowedUuids, spec.file + " should demonstrate all five keypad plugin actions");
   }
 });
 

@@ -35,8 +35,8 @@ test("package-lock production runtime graph is complete and license-declared", a
   }
 
   assert.deepEqual(resolved.sort(), [
-    "@elgato/schemas@0.4.16",
-    "@elgato/streamdeck@2.1.2",
+    "@elgato/schemas@0.5.0",
+    "@elgato/streamdeck@3.0.0",
     "@elgato/utils@0.6.0",
     "ws@8.21.3",
     "zod@3.25.76",

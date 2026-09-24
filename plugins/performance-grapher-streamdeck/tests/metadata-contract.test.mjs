@@ -30,7 +30,7 @@ test("submission, manifest, product metadata, and registry agree", async () => {
   assert.equal(manifest.Name, product.name);
   assert.equal(manifest.Version, product.version);
   assert.equal(manifest.UUID, "com.packrat.performance-grapher");
-  assert.equal(manifest.Actions.length, 5);
+  assert.equal(manifest.Actions.length, 6);
 
   assert.equal(registry[0].name, product.name);
   assert.equal(registry[0].price_usd, product.price_usd);
@@ -46,7 +46,8 @@ test("Marketplace submission keeps required product disclosures", async () => {
   assert.ok(submission.description.includes("Sensor availability varies by hardware"));
   assert.ok(submission.description.includes("Part of the PackRat Ecosystem."));
   assert.ok(submission.description.includes("Ready-made dashboards are included for MK.2/15-key, XL, Stream Deck +, and Neo."));
-  assert.ok(submission.release_notes.includes("ready-made performance dashboards for MK.2/15-key, XL, Stream Deck +, and Neo"));
+  assert.ok(submission.release_notes.includes("Stream Deck Neo Infobar"));
+  assert.ok(submission.release_notes.includes("SDK 3.0"));
   assert.deepEqual(submission.marketplace_operating_systems, ["Windows"]);
   assert.ok(submission.marketplace_category.includes("Gaming"));
   assert.ok(submission.marketplace_category.includes("Monitoring"));
