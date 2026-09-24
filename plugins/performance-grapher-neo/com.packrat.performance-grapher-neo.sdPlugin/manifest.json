@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Actions": [
+    {
+      "UUID": "com.packrat.performance-grapher-neo.infobar",
+      "Name": "Live Performance Infobar",
+      "Tooltip": "Neo-only CPU, GPU, RAM, and sensor readouts without using a key.",
+      "Icon": "imgs/actions/infobar/icon",
+      "Controllers": [
+        "Neo"
+      ],
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Image": "imgs/actions/infobar/key",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ],
+  "Author": "PackRat",
+  "Category": "Performance Neo",
+  "CategoryIcon": "imgs/category/icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "A Neo-native, live CPU, GPU, RAM and temperature Infobar with compact 60-second history and rotating readouts. Windows-only.",
+  "Icon": "imgs/plugin/icon",
+  "Name": "Performance Grapher Neo",
+  "Nodejs": {
+    "Version": "24"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "PropertyInspectorPath": "ui/inspector.html",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.6"
+  },
+  "UUID": "com.packrat.performance-grapher-neo",
+  "Version": "1.0.0.0",
+  "Profiles": []
+}
