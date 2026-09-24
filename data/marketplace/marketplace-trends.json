@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-24T00:45:21.680Z",
+  "generated_at": "2026-09-24T14:12:48.294Z",
   "marketplace": "Elgato Marketplace",
   "source": "data/marketplace/snapshots/*/query-suggestions.json",
   "snapshot_count": 2,
