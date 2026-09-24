@@ -403,7 +403,7 @@
       "id": "hwinfo-sensor-dashboard",
       "name": "HWiNFO Sensor Dashboard",
       "type": "widget",
-      "status": "building",
+      "status": "qa_passed",
       "price_usd": 11.99,
       "version": "1.0.0"
     },
