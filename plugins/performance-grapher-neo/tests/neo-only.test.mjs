@@ -21,7 +21,7 @@ test("standalone product is Neo-only with its own permanent UUID", () => {
   assert.deepEqual(manifest.Actions[0].Controllers, ["Neo"]);
   assert.equal(manifest.Actions[0].UUID, "com.packrat.performance-grapher-neo.infobar");
   assert.equal(manifest.Profiles, undefined);
-  assert.doesNotMatch(source, /registerAction\\(new PerformanceAction/);
+  assert.doesNotMatch(source, /registerAction\(new PerformanceAction/);
 });
 test("physical Neo layouts are wholly inside 232 x 50 with no equal-z overlaps", async () => {
   for (const name of ["neo-overview.json", "neo-metric.json"]) {
@@ -66,20 +66,20 @@ test("only reliable shared sensor data is advertised; missing GPU is not fake 0"
   }).length, 2);
 });
 test("Neo-only process never starts PresentMon or registers legacy keypad actions", () => {
-  assert.match(source, /presentMonProvider: new DisabledGameCapture\\(\\)/);
-  assert.match(source, /isNeoInfobar\\(\\)/);
-  assert.match(source, /setFeedbackLayout\\(/);
-  assert.match(source, /setFeedback\\(/);
-  assert.match(source, /if \\(!visible\\.size && ticker\\)/);
-  assert.doesNotMatch(source, /getSettings\\s*\\(/);
-  assert.doesNotMatch(source, /getGlobalSettings\\s*\\(/);
-  assert.doesNotMatch(source, /streamDeck\\.actions\\.registerAction\\(new (?!NeoPerformanceInfobar)/);
+  assert.match(source, /presentMonProvider: new DisabledGameCapture\(\)/);
+  assert.match(source, /isNeoInfobar\(\)/);
+  assert.match(source, /setFeedbackLayout\(/);
+  assert.match(source, /setFeedback\(/);
+  assert.match(source, /if \(!visible\.size && ticker\)/);
+  assert.doesNotMatch(source, /getSettings\s*\(/);
+  assert.doesNotMatch(source, /getGlobalSettings\s*\(/);
+  assert.doesNotMatch(source, /streamDeck\.actions\.registerAction\(new (?!NeoPerformanceInfobar)/);
 });
 test("Neo inspector contains no hidden FPS/normal-key options", async () => {
   const html = await readFile(resolve(root, "ui/inspector.html"), "utf8");
   const js = await readFile(resolve(root, "ui/inspector.js"), "utf8");
   for (const mode of ["overview", "single", "rotate"]) assert.match(html, new RegExp(mode));
-  assert.match(js, /performanceNeo\\.inspect/);
+  assert.match(js, /performanceNeo\.inspect/);
   assert.doesNotMatch(html, /Game FPS|Frametime|Press the key/i);
   assert.doesNotMatch(html, /Preview Pro|Upgrade/);
 });
