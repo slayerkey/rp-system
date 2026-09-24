@@ -2,6 +2,13 @@ name: PackRat Marketplace Intelligence
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "tools/marketplace/**"
+      - ".github/workflows/marketplace-intelligence.yml"
+      - "skills/rat-pulse/SKILL.md"
+      - "docs/STREAMDECK_MARKETPLACE_SEARCH_DATA.md"
+      - "data/marketplace/**"
   schedule:
     # Daily capture of the Marketplace rolling search-demand window.
     - cron: "17 9 * * *"
@@ -40,6 +47,7 @@ jobs:
           node -e "const x=JSON.parse(require('fs').readFileSync('data/marketplace/marketplace-trends.json','utf8')); if(!x.latest_capture || !Array.isArray(x.terms)) process.exit(1)"
 
       - name: Commit fresh snapshot when data changed
+        if: github.event_name != 'pull_request'
         run: |
           if [ -z "$(git status --porcelain -- data/marketplace)" ]; then
             echo "Marketplace intelligence is unchanged."
