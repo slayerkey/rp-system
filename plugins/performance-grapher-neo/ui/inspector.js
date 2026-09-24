@@ -52,7 +52,7 @@
       }
       if (extra.childElementCount) el.appendChild(extra);
     }
-    if (!el.querySelector([...el.options].some((opt) => opt.value === selected) ? "[value='" + CSS.escape(selected) + "']" : "___never")) {
+    if (![...el.options].some((opt) => opt.value === selected)) {
       // Persisted advanced/unavailable readings remain selected instead of resetting silently.
       const option = document.createElement("option");
       option.value = selected; option.textContent = selected + " (saved)";
