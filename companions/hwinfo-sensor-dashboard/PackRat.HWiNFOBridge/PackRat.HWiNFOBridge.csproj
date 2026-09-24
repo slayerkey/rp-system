@@ -6,6 +6,7 @@
     <AssemblyName>PackRat.HWiNFOBridge</AssemblyName>
     <RootNamespace>PackRat.HWiNFOBridge</RootNamespace>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeFrameworkVersion>8.0.31</RuntimeFrameworkVersion>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
