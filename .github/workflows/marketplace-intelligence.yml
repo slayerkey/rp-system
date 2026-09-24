@@ -2,6 +2,10 @@ name: PackRat Marketplace Intelligence
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "tools/marketplace/**"
+      - ".github/workflows/marketplace-intelligence.yml"
   pull_request:
     paths:
       - "tools/marketplace/**"
