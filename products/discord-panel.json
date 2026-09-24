@@ -6,7 +6,7 @@
   "workflow_state": "READY_TO_SHIP",
   "blocker": null,
   "price_usd": 7.99,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "platform": "CORSAIR iCUE / XENEON Edge",
   "source": "widgets/_src/discord-panel",
   "package": "widgets/discord-panel",
@@ -22,6 +22,6 @@
     "deterministic Rat Art",
     "Rat Ship Maker Console kit preflight"
   ],
-  "release_note": "Operator elected to proceed with Marketplace submission after successful real-world testing. Discord RPC / StreamKit production permission remains documented for reference but is not treated as a release gate for this product.",
+  "release_note": "v1.0.1 adds a dismissible one-tap Elgato Marketplace install link for the required free PackRat Voice Bridge when the bridge is offline, while preserving existing voice controls and dashboard behavior.",
   "final_boundary": "Authenticated Maker Console submission"
 }
