@@ -23,7 +23,7 @@
   }, null);
   function showModeFields() {
     for (const field of document.querySelectorAll("[data-modes]")) {
-      const modes = String(field.dataset.modes || "").split(/\\s+/);
+      const modes = String(field.dataset.modes || "").split(/\s+/);
       field.hidden = !modes.includes(neoMode);
     }
   }
