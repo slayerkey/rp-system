@@ -19,7 +19,7 @@ on:
       - ".github/workflows/performance-grapher-streamdeck.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   qa:
@@ -59,6 +59,19 @@ jobs:
 
       - name: SDK 3 dependency install (lock refresh bootstrap)
         run: npm install --no-audit --no-fund
+
+      - name: Commit generated SDK 3 lockfile
+        shell: pwsh
+        run: |
+          git add package-lock.json
+          if (git diff --cached --quiet) {
+            Write-Host "package-lock.json already matches package.json."
+            exit 0
+          }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Lock Performance Grapher SDK 3 dependencies"
+          git push origin HEAD:product/performance-grapher-streamdeck
 
       - name: JavaScript syntax gate
         run: npm run check:syntax
