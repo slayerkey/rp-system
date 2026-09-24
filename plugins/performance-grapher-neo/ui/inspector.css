@@ -1,0 +1,10 @@
+:root { color-scheme: dark; font-family: "Segoe UI", sans-serif; }
+* { box-sizing: border-box; } [hidden] { display: none !important; }
+body { margin: 0; background: #2d2d2d; color: #f5f6f8; font-size: 12px; }
+body:not(.ready) main { visibility: hidden; }
+main { padding: 9px 0 14px; }
+.hint { margin: 0 11px 12px 108px; color: #b1b9c7; line-height: 1.45; font-size: 11px; }
+#metricId { width: 100%; background: #3b3b3b; color: #fff; border: 1px solid #555; padding: 6px; }
+#advanced { margin: -3px 12px 12px 108px; background: #3e3e3e; border: 1px solid #666; border-radius: 4px; color: #e2e6ec; padding: 5px 9px; cursor: pointer; }
+details { margin: 12px; padding: 8px 0; border-top: 1px solid #555; color: #b6bec9; }
+details summary { cursor: pointer; } details p { line-height: 1.5; }
