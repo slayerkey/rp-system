@@ -300,3 +300,41 @@ jobs:
           path: ${{ steps.stage.outputs.release_stage }}
           if-no-files-found: error
           retention-days: 14
+
+      - name: Record verified Neo artifact lookup
+        if: github.event_name == 'push' && github.ref == 'refs/heads/product/performance-grapher-streamdeck'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          # Do not publish a stale run's artifact when newer source has landed.
+          git fetch --no-tags origin "+refs/heads/product/performance-grapher-streamdeck:refs/remotes/origin/product/performance-grapher-streamdeck"
+          $current = (git rev-parse refs/remotes/origin/product/performance-grapher-streamdeck).Trim()
+          if ($current -ne "${{ github.sha }}") {
+            Write-Host "Newer branch head exists. Skip stale artifact indexing."
+            exit 0
+          }
+          $artifacts = gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" | ConvertFrom-Json
+          $artifact = @($artifacts.artifacts | Where-Object name -eq "performance-grapher-streamdeck-release-candidate" | Select-Object -First 1)
+          if ($artifact.Count -ne 1) { throw "New exact-run artifact not found." }
+          $stagePackage = Join-Path "${{ steps.stage.outputs.release_stage }}" "dist/com.packrat.performance-grapher.streamDeckPlugin"
+          $sha = (Get-FileHash -Algorithm SHA256 $stagePackage).Hash.ToLowerInvariant()
+          $dest = Join-Path "${{ github.workspace }}" "data/release-evidence/performance-grapher-neo.json"
+          New-Item -ItemType Directory -Force -Path (Split-Path $dest) | Out-Null
+          [ordered]@{
+            version = "1.1.0.0"
+            source_commit = "${{ github.sha }}"
+            run_id = ${{ github.run_id }}
+            artifact_id = [long]$artifact[0].id
+            artifact_name = $artifact[0].name
+            package_path = "dist/com.packrat.performance-grapher.streamDeckPlugin"
+            package_sha256 = $sha
+            automatic_checks = "PASSED"
+            physical_neo_smoke = "NOT_YET_VERIFIED"
+          } | ConvertTo-Json -Depth 4 | Set-Content -Path $dest -Encoding utf8
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/release-evidence/performance-grapher-neo.json
+          git commit -m "Index validated Performance Grapher Neo release artifact"
+          git push origin HEAD:product/performance-grapher-streamdeck
