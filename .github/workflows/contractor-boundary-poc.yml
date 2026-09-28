@@ -1,0 +1,66 @@
+name: Contractor Boundary PoC
+
+on:
+  pull_request:
+    paths:
+      - "prototype/contractor-access/**"
+      - "tools/security/verify-contractor-intake.mjs"
+      - "tools/security/packrat-provenance.mjs"
+      - ".github/workflows/contractor-boundary-poc.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  boundary-self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout candidate only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Validate contractor intake
+        run: |
+          mkdir -p out/contractor-boundary
+          node tools/security/verify-contractor-intake.mjs \
+            prototype/contractor-access/submission.example.json \
+            > out/contractor-boundary/intake.json
+
+      - name: Generate deterministic demo provenance twice
+        env:
+          # Deliberately public/non-production. Production signing material must
+          # live only in PackRat-owned private infrastructure.
+          PACKRAT_PROVENANCE_KEY: POC-ONLY-THIS-IS-NOT-A-PRODUCTION-SECRET-0001
+          PACKRAT_PROVENANCE_KEY_ID: poc-v1
+        run: |
+          node tools/security/packrat-provenance.mjs \
+            out/contractor-boundary/intake.json \
+            out/contractor-boundary/provenance-a.json
+          node tools/security/packrat-provenance.mjs \
+            out/contractor-boundary/intake.json \
+            out/contractor-boundary/provenance-b.json
+          cmp out/contractor-boundary/provenance-a.json out/contractor-boundary/provenance-b.json
+
+      - name: Record evidence hashes
+        run: |
+          sha256sum \
+            out/contractor-boundary/intake.json \
+            out/contractor-boundary/provenance-a.json \
+            > out/contractor-boundary/SHA256SUMS.txt
+          cat out/contractor-boundary/SHA256SUMS.txt
+
+      - name: Upload non-secret PoC evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: contractor-boundary-poc
+          path: out/contractor-boundary/
+          if-no-files-found: error
+          retention-days: 7
