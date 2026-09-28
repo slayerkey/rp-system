@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "assignment_id": "asg_demo_streamdeck_001",
+  "builder_id": "ctr_demo",
+  "sku": "DEMO-STREAMDECK-001",
+  "product_slug": "demo-counter",
+  "product_type": "plugin",
+  "source_repository": "packrat-products/demo-counter",
+  "source_commit": "0123456789abcdef0123456789abcdef01234567",
+  "pull_request": 123,
+  "workflow_run": 456,
+  "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}
