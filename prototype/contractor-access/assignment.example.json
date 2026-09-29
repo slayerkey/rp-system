@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "assignment_id": "asg_demo_streamdeck_001",
+  "sku": "DEMO-STREAMDECK-001",
+  "product_slug": "demo-counter",
+  "product_type": "plugin",
+  "builder_id": "ctr_demo",
+  "allowed_scope": [
+    "assigned product source",
+    "assigned product tests",
+    "assigned product assets",
+    "public PackRat development checks"
+  ],
+  "required_outputs": [
+    "source committed to the assigned repository",
+    "tests",
+    "buildable product",
+    "pull request"
+  ],
+  "forbidden_outputs": [
+    "production credentials",
+    "Marketplace session data",
+    "private PackRat factory source",
+    "unrelated PackRat product source"
+  ]
+}

@@ -1,0 +1,224 @@
+name: Contractor Boundary PoC
+
+on:
+  pull_request:
+    paths:
+      - "prototype/contractor-access/**"
+      - "tools/security/verify-contractor-intake.mjs"
+      - "tools/security/packrat-provenance.mjs"
+      - "tools/security/packrat-canary.mjs"
+      - "tools/security/apply-marketing-canary.mjs"
+      - "tools/security/scan-packrat-canary.mjs"
+      - "tools/security/scan_packrat_canary.py"
+      - ".github/workflows/contractor-boundary-poc.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  boundary-self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout candidate only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Validate contractor intake
+        run: |
+          mkdir -p out/contractor-boundary
+          node tools/security/verify-contractor-intake.mjs \
+            prototype/contractor-access/submission.example.json \
+            > out/contractor-boundary/intake.json
+
+      - name: Generate deterministic demo provenance twice
+        env:
+          # Deliberately public/non-production. Production signing material must
+          # live only in PackRat-owned private infrastructure.
+          PACKRAT_PROVENANCE_KEY: POC-ONLY-THIS-IS-NOT-A-PRODUCTION-SECRET-0001
+          PACKRAT_PROVENANCE_KEY_ID: poc-v1
+        run: |
+          node tools/security/packrat-provenance.mjs \
+            out/contractor-boundary/intake.json \
+            out/contractor-boundary/provenance-a.json
+          node tools/security/packrat-provenance.mjs \
+            out/contractor-boundary/intake.json \
+            out/contractor-boundary/provenance-b.json
+          cmp out/contractor-boundary/provenance-a.json out/contractor-boundary/provenance-b.json
+
+      - name: Generate package and Marketplace canaries
+        run: |
+          node tools/security/packrat-canary.mjs \
+            out/contractor-boundary/provenance-a.json \
+            out/contractor-boundary/canary
+          token="$(node -p "require('./out/contractor-boundary/canary/PACKRAT-PROVENANCE.json').packrat_build_marker")"
+          phrase="$(cat out/contractor-boundary/canary/MARKETING-CANARY.txt)"
+          node tools/security/scan-packrat-canary.mjs \
+            out/contractor-boundary/canary \
+            "$token" \
+            "$phrase"
+
+          node tools/security/apply-marketing-canary.mjs \
+            plugins/discord-bridge/submission.json \
+            out/contractor-boundary/canary/MARKETING-CANARY.json \
+            out/contractor-boundary/submission-with-canary.json
+
+          node - <<'NODE'
+          const fs=require("fs");
+          const submission=JSON.parse(fs.readFileSync("out/contractor-boundary/submission-with-canary.json","utf8"));
+          const phrase=fs.readFileSync("out/contractor-boundary/canary/MARKETING-CANARY.txt","utf8").trim();
+          const count=submission.description.split(phrase).length-1;
+          if(count!==1) throw new Error("Marketplace canary must appear exactly once in description");
+          if(!submission.packrat_build_marker?.startsWith("PKR1-")) throw new Error("missing listing build marker");
+          console.log("MARKETPLACE DESCRIPTION CANARY PASS", submission.packrat_build_marker, phrase);
+          NODE
+
+      - name: Record evidence hashes
+        run: |
+          rm -f out/contractor-boundary/SHA256SUMS.txt
+          find out/contractor-boundary -type f ! -name SHA256SUMS.txt -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > out/contractor-boundary/SHA256SUMS.txt
+          cat out/contractor-boundary/SHA256SUMS.txt
+
+      - name: Upload non-secret PoC evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: contractor-boundary-poc
+          path: out/contractor-boundary/
+          if-no-files-found: error
+          retention-days: 7
+
+  streamdeck-package-canary:
+    needs: boundary-self-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout candidate only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Download generated canary
+        uses: actions/download-artifact@v4
+        with:
+          name: contractor-boundary-poc
+          path: out/contractor-boundary
+
+      - name: Build Stream Deck reference plugin
+        working-directory: plugins/discord-bridge
+        run: |
+          npm ci
+          npm run build
+          cp ../../out/contractor-boundary/canary/PACKRAT-PROVENANCE.json \
+            com.packrat.discord-bridge.sdPlugin/PACKRAT-PROVENANCE.json
+          npm run validate
+          npm run pack
+
+      - name: Verify marker survived Stream Deck package
+        run: |
+          python - <<'PY'
+          import json, pathlib, zipfile
+          marker=json.loads(pathlib.Path("out/contractor-boundary/canary/PACKRAT-PROVENANCE.json").read_text())["packrat_build_marker"]
+          packages=list(pathlib.Path("plugins/discord-bridge/dist").glob("*.streamDeckPlugin"))
+          if len(packages)!=1:
+              raise SystemExit(f"expected exactly one Stream Deck package, got {packages}")
+          with zipfile.ZipFile(packages[0]) as z:
+              names=z.namelist()
+              matches=[n for n in names if n.endswith("/PACKRAT-PROVENANCE.json") or n=="PACKRAT-PROVENANCE.json"]
+              if len(matches)!=1:
+                  raise SystemExit(f"provenance file not uniquely packaged: {matches}")
+              payload=z.read(matches[0]).decode("utf-8")
+              if marker not in payload:
+                  raise SystemExit("PackRat canary did not survive Stream Deck packaging")
+              print(f"STREAM DECK CANARY PASS {marker} {matches[0]}")
+          PY
+          marker="$(node -p "require('./out/contractor-boundary/canary/PACKRAT-PROVENANCE.json').packrat_build_marker")"
+          python tools/security/scan_packrat_canary.py \
+            plugins/discord-bridge/dist/*.streamDeckPlugin \
+            --require-marker "$marker"
+
+  xeneon-package-canary:
+    needs: boundary-self-test
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout candidate only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Use Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Download generated canary
+        uses: actions/download-artifact@v4
+        with:
+          name: contractor-boundary-poc
+          path: out/contractor-boundary
+
+      - name: Stage XENEON reference widget with provenance marker
+        shell: pwsh
+        run: |
+          Copy-Item -Force "widgets/_src/hwinfo-sensor-dashboard/translation.json" "widgets/hwinfo-sensor-dashboard/translation.json"
+          python tools/xeneon/inline.py hwinfo-sensor-dashboard
+          python tools/xeneon/inline.py hwinfo-sensor-dashboard --check
+
+          $target="out/xeneon-canary/hwinfo-sensor-dashboard"
+          New-Item -ItemType Directory -Force "out/xeneon-canary" | Out-Null
+          Copy-Item -Recurse -Force "widgets/hwinfo-sensor-dashboard" $target
+          Copy-Item -Force "out/contractor-boundary/canary/PACKRAT-PROVENANCE.json" "$target/PACKRAT-PROVENANCE.json"
+          npx --yes icuewidget-cli@0.4.47 validate $target
+          if($LASTEXITCODE -ne 0){throw "iCUE validation rejected PackRat provenance marker"}
+          npx --yes icuewidget-cli@0.4.47 package $target
+          if($LASTEXITCODE -ne 0){throw "iCUE package failed with PackRat provenance marker"}
+
+      - name: Verify marker survived XENEON package
+        shell: pwsh
+        run: |
+          @'
+          import json, pathlib, zipfile
+          marker=json.loads(pathlib.Path("out/contractor-boundary/canary/PACKRAT-PROVENANCE.json").read_text())["packrat_build_marker"]
+          packages=list(pathlib.Path("out").rglob("*.icuewidget"))
+          if not packages:
+              raise SystemExit("no XENEON package produced")
+          found=[]
+          for package in packages:
+              if not zipfile.is_zipfile(package):
+                  continue
+              with zipfile.ZipFile(package) as z:
+                  names=z.namelist()
+                  matches=[n for n in names if n.endswith("PACKRAT-PROVENANCE.json")]
+                  for name in matches:
+                      payload=z.read(name).decode("utf-8")
+                      if marker in payload:
+                          found.append((str(package),name))
+          if not found:
+              raise SystemExit("PackRat canary did not survive XENEON packaging")
+          print("XENEON CANARY PASS", marker, found)
+          '@ | python -
+          $marker=(Get-Content "out/contractor-boundary/canary/PACKRAT-PROVENANCE.json" -Raw | ConvertFrom-Json).packrat_build_marker
+          $package=Get-ChildItem out -Recurse -File -Filter *.icuewidget | Select-Object -First 1
+          if(-not $package){throw "no XENEON package available for scanner"}
+          python tools/security/scan_packrat_canary.py $package.FullName --require-marker $marker
+          if($LASTEXITCODE -ne 0){throw "package-aware PackRat canary scanner failed"}
