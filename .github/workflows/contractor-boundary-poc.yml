@@ -7,6 +7,7 @@ on:
       - "tools/security/verify-contractor-intake.mjs"
       - "tools/security/packrat-provenance.mjs"
       - "tools/security/packrat-canary.mjs"
+      - "tools/security/apply-marketing-canary.mjs"
       - "tools/security/scan-packrat-canary.mjs"
       - "tools/security/scan_packrat_canary.py"
       - ".github/workflows/contractor-boundary-poc.yml"
@@ -63,6 +64,21 @@ jobs:
             out/contractor-boundary/canary \
             "$token" \
             "$phrase"
+
+          node tools/security/apply-marketing-canary.mjs \
+            plugins/discord-bridge/submission.json \
+            out/contractor-boundary/canary/MARKETING-CANARY.json \
+            out/contractor-boundary/submission-with-canary.json
+
+          node - <<'NODE'
+          const fs=require("fs");
+          const submission=JSON.parse(fs.readFileSync("out/contractor-boundary/submission-with-canary.json","utf8"));
+          const phrase=fs.readFileSync("out/contractor-boundary/canary/MARKETING-CANARY.txt","utf8").trim();
+          const count=submission.description.split(phrase).length-1;
+          if(count!==1) throw new Error("Marketplace canary must appear exactly once in description");
+          if(!submission.packrat_build_marker?.startsWith("PKR1-")) throw new Error("missing listing build marker");
+          console.log("MARKETPLACE DESCRIPTION CANARY PASS", submission.packrat_build_marker, phrase);
+          NODE
 
       - name: Record evidence hashes
         run: |
