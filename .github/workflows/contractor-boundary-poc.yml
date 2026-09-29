@@ -180,13 +180,13 @@ jobs:
       - name: Stage XENEON reference widget with provenance marker
         shell: pwsh
         run: |
-          Copy-Item -Force "widgets/_src/retro-terminal-pro/translation.json" "widgets/retro-terminal-pro/translation.json"
-          python tools/xeneon/inline.py retro-terminal-pro
-          python tools/xeneon/inline.py retro-terminal-pro --check
+          Copy-Item -Force "widgets/_src/hwinfo-sensor-dashboard/translation.json" "widgets/hwinfo-sensor-dashboard/translation.json"
+          python tools/xeneon/inline.py hwinfo-sensor-dashboard
+          python tools/xeneon/inline.py hwinfo-sensor-dashboard --check
 
-          $target="out/xeneon-canary/retro-terminal-pro"
+          $target="out/xeneon-canary/hwinfo-sensor-dashboard"
           New-Item -ItemType Directory -Force "out/xeneon-canary" | Out-Null
-          Copy-Item -Recurse -Force "widgets/retro-terminal-pro" $target
+          Copy-Item -Recurse -Force "widgets/hwinfo-sensor-dashboard" $target
           Copy-Item -Force "out/contractor-boundary/canary/PACKRAT-PROVENANCE.json" "$target/PACKRAT-PROVENANCE.json"
           npx --yes icuewidget-cli@0.4.47 validate $target
           if($LASTEXITCODE -ne 0){throw "iCUE validation rejected PackRat provenance marker"}
