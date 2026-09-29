@@ -8,6 +8,7 @@ on:
       - "tools/security/packrat-provenance.mjs"
       - "tools/security/packrat-canary.mjs"
       - "tools/security/scan-packrat-canary.mjs"
+      - "tools/security/scan_packrat_canary.py"
       - ".github/workflows/contractor-boundary-poc.yml"
   workflow_dispatch:
 
@@ -65,7 +66,8 @@ jobs:
 
       - name: Record evidence hashes
         run: |
-          find out/contractor-boundary -type f -print0 \
+          rm -f out/contractor-boundary/SHA256SUMS.txt
+          find out/contractor-boundary -type f ! -name SHA256SUMS.txt -print0 \
             | sort -z \
             | xargs -0 sha256sum \
             > out/contractor-boundary/SHA256SUMS.txt
@@ -128,6 +130,10 @@ jobs:
                   raise SystemExit("PackRat canary did not survive Stream Deck packaging")
               print(f"STREAM DECK CANARY PASS {marker} {matches[0]}")
           PY
+          marker="$(node -p "require('./out/contractor-boundary/canary/PACKRAT-PROVENANCE.json').packrat_build_marker")"
+          python tools/security/scan_packrat_canary.py \
+            plugins/discord-bridge/dist/*.streamDeckPlugin \
+            --require-marker "$marker"
 
   xeneon-package-canary:
     needs: boundary-self-test
@@ -158,6 +164,10 @@ jobs:
       - name: Stage XENEON reference widget with provenance marker
         shell: pwsh
         run: |
+          Copy-Item -Force "widgets/_src/retro-terminal-pro/translation.json" "widgets/retro-terminal-pro/translation.json"
+          python tools/xeneon/inline.py retro-terminal-pro
+          python tools/xeneon/inline.py retro-terminal-pro --check
+
           $target="out/xeneon-canary/retro-terminal-pro"
           New-Item -ItemType Directory -Force "out/xeneon-canary" | Out-Null
           Copy-Item -Recurse -Force "widgets/retro-terminal-pro" $target
@@ -191,3 +201,8 @@ jobs:
               raise SystemExit("PackRat canary did not survive XENEON packaging")
           print("XENEON CANARY PASS", marker, found)
           '@ | python -
+          $marker=(Get-Content "out/contractor-boundary/canary/PACKRAT-PROVENANCE.json" -Raw | ConvertFrom-Json).packrat_build_marker
+          $package=Get-ChildItem out -Recurse -File -Filter *.icuewidget | Select-Object -First 1
+          if(-not $package){throw "no XENEON package available for scanner"}
+          python tools/security/scan_packrat_canary.py $package.FullName --require-marker $marker
+          if($LASTEXITCODE -ne 0){throw "package-aware PackRat canary scanner failed"}
