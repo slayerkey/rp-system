@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: marketplace-intelligence
@@ -52,15 +53,28 @@ jobs:
           node -e "JSON.parse(require('fs').readFileSync('data/marketplace/streamdeck_search_popularity.json','utf8'))"
           node -e "const x=JSON.parse(require('fs').readFileSync('data/marketplace/marketplace-trends.json','utf8')); if(!x.latest_capture || !Array.isArray(x.terms)) process.exit(1)"
 
-      - name: Commit fresh snapshot when data changed
+      - name: Open or refresh Marketplace intelligence PR
         if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ -z "$(git status --porcelain -- data/marketplace)" ]; then
             echo "Marketplace intelligence is unchanged."
             exit 0
           fi
+
+          branch="automation/marketplace-intelligence"
+          title="Refresh Marketplace intelligence $(date -u +%F)"
+
           git config user.name "PackRat Bot"
           git config user.email "34904637+slayerkey@users.noreply.github.com"
+          git checkout -B "$branch"
           git add data/marketplace
-          git commit -m "Refresh Marketplace intelligence $(date -u +%F)"
-          git push
+          git commit -m "$title"
+          git push --force-with-lease origin "HEAD:$branch"
+
+          if gh pr view "$branch" --json number >/dev/null 2>&1; then
+            gh pr edit "$branch" --title "$title" --body "Automated Marketplace intelligence refresh. This PR replaces the former direct-to-main bot push so main can be protected."
+          else
+            gh pr create --base main --head "$branch" --title "$title" --body "Automated Marketplace intelligence refresh. This PR replaces the former direct-to-main bot push so main can be protected."
+          fi
