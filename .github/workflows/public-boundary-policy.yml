@@ -2,19 +2,9 @@ name: PackRat Public Boundary Policy
 
 on:
   pull_request:
-    paths:
-      - "products/index.json"
-      - ".github/workflows/**"
-      - "tools/security/**"
-      - "docs/PACKRAT_INFORMATION_BOUNDARIES.md"
+    branches: [main]
   push:
-    branches:
-      - main
-    paths:
-      - "products/index.json"
-      - ".github/workflows/**"
-      - "tools/security/**"
-      - "docs/PACKRAT_INFORMATION_BOUNDARIES.md"
+    branches: [main]
   workflow_dispatch:
 
 permissions:
