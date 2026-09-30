@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Reject obvious public release-package uploads
+      - name: Enforce migrated paid/private workflows stay package-free
         shell: bash
         run: |
           set -euo pipefail
@@ -46,23 +46,52 @@ jobs:
           from pathlib import Path
           import re, sys
 
+          migrated = {
+              "audio-manager-pro-ci.yml",
+              "internet-health-pro-ci.yml",
+              "monitor-manager-pro-ci.yml",
+              "voice-deck-ci.yml",
+              "window-manager-pro-private-qa.yml",
+          }
+
           violations=[]
-          for p in sorted(Path(".github/workflows").glob("*.yml")):
+          for name in sorted(migrated):
+              p=Path(".github/workflows")/name
               text=p.read_text(encoding="utf-8")
               lines=text.splitlines()
               for i,line in enumerate(lines):
                   if "actions/upload-artifact@" not in line:
                       continue
-                  block="\n".join(lines[i:i+18])
-                  if re.search(r"(?i)\.streamDeckPlugin|\.icuewidget", block):
-                      violations.append((str(p), i+1, "packaged binary"))
-                  if re.search(r"(?i)SHIP_KIT", block):
-                      violations.append((str(p), i+1, "SHIP_KIT"))
+                  block="\n".join(lines[i:i+20])
+                  if re.search(r"(?i)\.streamDeckPlugin|\.icuewidget|SHIP_KIT|artifacts/(?:package|packages)/", block):
+                      violations.append((str(p), i+1))
           if violations:
-              print("Public Actions artifact boundary violations:")
-              for file,line,kind in violations:
-                  print(f"- {file}:{line}: uploads {kind}")
-              print("Paid/private release packages belong in PackRat-private artifact storage/factory.")
+              print("Migrated paid/private workflows regressed to public package uploads:")
+              for file,line in violations:
+                  print(f"- {file}:{line}")
               sys.exit(1)
-          print("PUBLIC ACTIONS ARTIFACT POLICY PASS")
+          print("MIGRATED PAID/PRIVATE ARTIFACT POLICY PASS")
+          PY
+
+  marketplace-bot-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Ensure Marketplace intelligence proposes PRs instead of direct main writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import sys
+          text=Path(".github/workflows/marketplace-intelligence.yml").read_text(encoding="utf-8")
+          if "gh pr create" not in text:
+              raise SystemExit("Marketplace intelligence workflow must create/update a PR.")
+          if 'git push\n' in text or 'git push\r\n' in text:
+              raise SystemExit("Bare direct git push detected; bot must target its automation branch and PR.")
+          if 'automation/marketplace-intelligence' not in text:
+              raise SystemExit("Expected dedicated Marketplace intelligence automation branch.")
+          print("MARKETPLACE BOT PR-ONLY POLICY PASS")
           PY
