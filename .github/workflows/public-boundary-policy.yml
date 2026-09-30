@@ -1,0 +1,68 @@
+name: PackRat Public Boundary Policy
+
+on:
+  pull_request:
+    paths:
+      - "products/index.json"
+      - ".github/workflows/**"
+      - "tools/security/**"
+      - "docs/PACKRAT_INFORMATION_BOUNDARIES.md"
+  push:
+    branches:
+      - main
+    paths:
+      - "products/index.json"
+      - ".github/workflows/**"
+      - "tools/security/**"
+      - "docs/PACKRAT_INFORMATION_BOUNDARIES.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-index-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node tools/security/check-public-product-index.mjs products/index.json
+
+  workflow-artifact-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Reject obvious public release-package uploads
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re, sys
+
+          violations=[]
+          for p in sorted(Path(".github/workflows").glob("*.yml")):
+              text=p.read_text(encoding="utf-8")
+              lines=text.splitlines()
+              for i,line in enumerate(lines):
+                  if "actions/upload-artifact@" not in line:
+                      continue
+                  block="\n".join(lines[i:i+18])
+                  if re.search(r"(?i)\.streamDeckPlugin|\.icuewidget", block):
+                      violations.append((str(p), i+1, "packaged binary"))
+                  if re.search(r"(?i)SHIP_KIT", block):
+                      violations.append((str(p), i+1, "SHIP_KIT"))
+          if violations:
+              print("Public Actions artifact boundary violations:")
+              for file,line,kind in violations:
+                  print(f"- {file}:{line}: uploads {kind}")
+              print("Paid/private release packages belong in PackRat-private artifact storage/factory.")
+              sys.exit(1)
+          print("PUBLIC ACTIONS ARTIFACT POLICY PASS")
+          PY
