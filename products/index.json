@@ -168,14 +168,6 @@
       "version": "0.1.2.0"
     },
     {
-      "id": "clip-studio-paint",
-      "name": "Clip Studio Paint",
-      "type": "profile",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
-    },
-    {
       "id": "clipboard-manager",
       "name": "Clipboard Manager",
       "type": "plugin",
@@ -406,14 +398,6 @@
       "status": "qa_passed",
       "price_usd": 11.99,
       "version": "1.0.0"
-    },
-    {
-      "id": "icue-widget-competitor-research",
-      "name": "look into icue ones looks like XE is what they want plugins for the most",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
     },
     {
       "id": "internet-health-pro",
@@ -664,14 +648,6 @@
       "version": "1.0.0"
     },
     {
-      "id": "review-marketplace-performance-30d",
-      "name": "review performance over 30d",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
-    },
-    {
       "id": "rig-cost",
       "name": "PC Power Cost Meter",
       "type": "plugin",
@@ -734,14 +710,6 @@
       "status": "submitted",
       "price_usd": 19.99,
       "version": "1.0.0"
-    },
-    {
-      "id": "streamdeck-wallpaper-engine",
-      "name": "wallpaper engine type shit but for streamdeck",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
     },
     {
       "id": "streamer-starter-pack",
@@ -816,14 +784,6 @@
       "version": "1.0.0"
     },
     {
-      "id": "valorant-dev-portal-key",
-      "name": "Apply for a VALORANT key on the dev portal",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
-    },
-    {
       "id": "vectorworks",
       "name": "Vectorworks",
       "type": "profile",
@@ -838,14 +798,6 @@
       "status": "qa_passed",
       "price_usd": 9.99,
       "version": "1.0.0.0"
-    },
-    {
-      "id": "volume-mixer-active-app-plugin",
-      "name": "create prompt for volume mixer that first button is active application",
-      "type": "idea",
-      "status": "idea",
-      "price_usd": null,
-      "version": null
     },
     {
       "id": "weather-timeline",
