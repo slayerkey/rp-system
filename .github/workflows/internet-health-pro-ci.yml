@@ -78,12 +78,14 @@ jobs:
           if ($pkg.Count -ne 1) { throw "Expected one .streamDeckPlugin; found $($pkg.Count)" }
           $media = @(Get-ChildItem dist\\marketplace -Filter *.png -File)
           if ($media.Count -ne 6) { throw "Expected six Marketplace images; found $($media.Count)" }
-          Get-FileHash $pkg[0].FullName -Algorithm SHA256 | Format-List
+          $sha = (Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Path dist/PACKAGE-SHA256.txt -Value "$sha  $($pkg[0].Name)"
+          Write-Host "PACKAGE SHA256: $sha"
       - uses: actions/upload-artifact@v4
         with:
           name: internet-health-pro-release-qa
           path: |
-            plugins/internet-health-pro/dist/*.streamDeckPlugin
+            plugins/internet-health-pro/dist/PACKAGE-SHA256.txt
             plugins/internet-health-pro/dist/marketplace/*.png
             plugins/internet-health-pro/QA.md
             plugins/internet-health-pro/ARCHITECTURE.md
