@@ -179,7 +179,23 @@
       if (adjust) adjustLast(Number(adjust.dataset.adjust));
     });
     window.addEventListener('resize', render);
-    document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
+    // Other screens can update the same edition's shared state. Never write
+    // back from a storage event or two widgets can produce a feedback loop.
+    function refreshIfNewer() {
+      try {
+        var stored = JSON.parse(localStorage.getItem(SHARED_STATE_KEY) || 'null');
+        if (stored && Number(stored.updatedAtMs || 0) > Number(state.updatedAtMs || 0)) {
+          state = loadState();
+          render();
+        }
+      } catch (error) { console.warn('Work Session Tracker shared-state refresh failed', error); }
+    }
+    window.addEventListener('storage', function (event) {
+      if (event.key === SHARED_STATE_KEY) refreshIfNewer();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) { refreshIfNewer(); render(); }
+    });
   }
 
   function init() {
