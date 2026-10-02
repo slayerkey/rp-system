@@ -145,10 +145,14 @@ export async function fetchUsageOAuth(token: string): Promise<FetchResult> {
 				"Content-Type": "application/json",
 			},
 		});
+		const body = await res.text();
+		const contentType = res.headers.get("content-type") ?? "";
+		if (contentType.includes("html") || body.trimStart().startsWith("<"))
+			return { ok: false, status: res.status, reason: "blocked" };
 		if (res.status === 401 || res.status === 403) return { ok: false, status: res.status, reason: "auth" };
 		if (res.status === 429) return { ok: false, status: 429, reason: "rate-limited" };
-		if (!res.ok) return { ok: false, status: res.status, reason: "error", detail: await res.text().catch(() => "") };
-		return { ok: true, data: (await res.json()) as UsageResponse };
+		if (!res.ok) return { ok: false, status: res.status, reason: "error" };
+		return { ok: true, data: JSON.parse(body) as UsageResponse };
 	} catch (e) {
 		return { ok: false, status: 0, reason: "error", detail: String(e) };
 	}
