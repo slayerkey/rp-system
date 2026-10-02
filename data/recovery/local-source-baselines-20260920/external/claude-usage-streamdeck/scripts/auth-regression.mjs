@@ -34,6 +34,15 @@ try {
   const unknown=await perplexityProvider.fetchUsage('session-test');
   assert.equal(unknown.ok,false);
   assert.equal(unknown.reason,'error');
+  globalThis.fetch=async ()=>new Response(JSON.stringify({remaining_pro:190}),{status:200,headers:{'content-type':'application/json'}});
+  const partial=await perplexityProvider.fetchUsage('session-test');
+  assert.equal(partial.ok,true);
+  assert.equal(partial.usage.windows.length,1);
+  assert.equal(partial.usage.windows[0].key,'pro');
+  globalThis.fetch=async ()=>{throw new Error('Unrelated cookies must never be transmitted');};
+  const unrelated=await perplexityProvider.fetchUsage('Cookie: unrelated=private; theme=dark');
+  assert.equal(unrelated.ok,false);
+  assert.equal(unrelated.reason,'auth');
   // No token means no attempt to call a real account.
   const empty=await fetchChatGptUsage('');
   assert.equal(empty.ok,false);
