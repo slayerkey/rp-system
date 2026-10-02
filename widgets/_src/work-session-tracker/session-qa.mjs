@@ -95,10 +95,8 @@ export async function runSessionQa(edition, entryArg, outDirArg) {
     const resumed=(await page.locator('#elapsed').textContent()).trim();
     if (resumed!=='04:15:12') throw new Error(`resume derivation failed: ${resumed}`);
     const crossScreen=await page.evaluate(()=>{
-      const originalId=globalThis.uniqueId;
-      globalThis.uniqueId='second-iCUE-screen-'+EDITION;
-      const restored=loadState();
-      globalThis.uniqueId=originalId;
+      const edition=document.body.dataset.edition;
+      const restored=globalThis.__workSessionTest.loadForInstance('second-iCUE-screen-'+edition);
       return {id:restored.active?.id,name:restored.active?.name,status:restored.active?.status};
     });
     if(crossScreen.id!==firstId||crossScreen.name!=='Deep Work'||crossScreen.status!=='running')
