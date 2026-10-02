@@ -227,18 +227,18 @@ export const PROVIDERS = {
 		actionUuid: "com.ratpack.perplexity-usage.monitor",
 		brand: "#20B2AA",
 		version: "0.1.2.0", // accept Perplexity's current secure session-cookie name
-		help: `<p>Log in to <code>perplexity.ai</code>, then copy the <code>__Secure-next-auth.session-token</code> cookie value from browser DevTools.</p>
+		help: `<p>Log in to <code>perplexity.ai</code>, then find your session cookie in browser DevTools. Its name may be <code>__Secure-authjs.session-token</code>, <code>__Secure-next-auth.session-token</code>, or an <code>authjs</code>/<code>next-auth</code> variant. Copy its exact <b>name=value</b> pair.</p>
 			<details class="browser"><summary>Chrome / Edge / Arc / Brave</summary><ol>
 				<li>Go to <code>perplexity.ai</code> and make sure you're signed in to your Pro account</li>
 				<li>Open DevTools (<code>F12</code>)</li>
 				<li><b>Application</b> tab → <b>Storage → Cookies → https://www.perplexity.ai</b></li>
-				<li>Find <code>__Secure-next-auth.session-token</code>, right-click its <b>Value</b> → <b>Copy value</b></li>
+				<li>Find the session-token cookie, then copy its full name and value (name=value)</li>
 				<li>Paste it below</li></ol></details>
 			<details class="browser"><summary>Firefox</summary><ol>
-				<li><code>F12</code> → <b>Storage</b> → Cookies → perplexity.ai → <code>__Secure-next-auth.session-token</code> → right-click → Copy</li></ol></details>
+				<li><code>F12</code> → <b>Storage</b> → Cookies → perplexity.ai → the session-token cookie → copy name and value</li></ol></details>
 			<details class="browser"><summary>Safari</summary><ol>
 				<li>Enable Develop menu (Settings → Advanced → "Show features for web developers")</li>
-				<li><code>Cmd+Opt+I</code> → Storage → Cookies → perplexity.ai → <code>__Secure-next-auth.session-token</code></li></ol></details>
+				<li><code>Cmd+Opt+I</code> → Storage → Cookies → perplexity.ai → session-token cookie</li></ol></details>
 			<p>Use the <b>Type</b> dropdown to switch between Pro queries (weekly), Research (weekly), and Labs (daily).</p>`,
 		windows: [
 			{ value: "pro", label: "Pro queries (weekly)" },
