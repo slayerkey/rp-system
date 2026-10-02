@@ -59,7 +59,8 @@ jobs:
                   assert any(n.endswith('/ui/usage.html') for n in archive.namelist())
                   print(f.name,manifest['Version'],manifest['UUID'])
               lines.append(hashlib.sha256(f.read_bytes()).hexdigest()+'  '+f.name)
-          (out/'SHA256.txt').write_text('\\n'.join(lines)+'\\n')
+          (out/'SHA256.txt').write_text(chr(10).join(lines)+chr(10))
+          assert len((out/'SHA256.txt').read_text().splitlines()) == len(expected)
           print('PASS: exact packaged manifest identities and entry files')
           PY
       - uses: actions/upload-artifact@v4
