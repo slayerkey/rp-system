@@ -149,7 +149,7 @@
   function saveState() {
     pruneHistory();
     state.version = STORAGE_VERSION;
-    state.updatedAtMs = nowMs();
+    state.updatedAtMs = Math.max(nowMs(), Number(state.updatedAtMs || 0) + 1);
     try {
       var serialized = JSON.stringify(state);
       localStorage.setItem(instanceKey('state'), serialized);
