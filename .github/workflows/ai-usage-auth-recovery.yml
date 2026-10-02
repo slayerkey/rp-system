@@ -1,0 +1,72 @@
+name: AI Usage authentication recovery candidates
+
+on:
+  push:
+    branches: [fix/ai-usage-auth-20261002]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provider-regressions-and-packaging:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: data/recovery/local-source-baselines-20260920/external/claude-usage-streamdeck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: data/recovery/local-source-baselines-20260920/external/claude-usage-streamdeck/package-lock.json
+      - name: Install recovered source dependencies
+        run: npm ci
+      - name: Deterministic authentication regression
+        run: node --experimental-strip-types scripts/auth-regression.mjs
+      - name: TypeScript compile QA
+        run: npx tsc --noEmit
+      - name: Build and pack unchanged-identity plugins
+        run: |
+          node scripts/build-tracker.mjs
+          node scripts/build-provider.mjs perplexity
+          node scripts/build-provider.mjs openai
+          node scripts/build-provider.mjs claude
+      - name: Verify package identity, content and checksums
+        run: |
+          python - <<'PY'
+          import pathlib,zipfile,json,hashlib
+          expected={
+            'com.packrat.ai-usage-tracker':'AI Usage Tracker',
+            'com.ratpack.perplexity-usage':'Perplexity Usage',
+            'com.ratpack.chatgpt-usage':'ChatGPT Usage',
+            'com.ratpack.claude-usage':'Claude Usage'
+          }
+          out=pathlib.Path('dist')
+          lines=[]
+          for uuid,name in expected.items():
+              f=out/(uuid+'.streamDeckPlugin')
+              assert f.exists(),f
+              with zipfile.ZipFile(f) as archive:
+                  assert archive.testzip() is None
+                  matches=[n for n in archive.namelist() if n.endswith('/manifest.json')]
+                  assert len(matches)==1,(f,matches)
+                  manifest=json.loads(archive.read(matches[0]))
+                  assert manifest['UUID']==uuid,(f,manifest['UUID'])
+                  assert (manifest['Name']==name) or uuid.endswith('chatgpt-usage')
+                  assert any(n.endswith('/bin/plugin.js') for n in archive.namelist())
+                  assert any(n.endswith('/ui/usage.html') for n in archive.namelist())
+                  print(f.name,manifest['Version'],manifest['UUID'])
+              lines.append(hashlib.sha256(f.read_bytes()).hexdigest()+'  '+f.name)
+          (out/'SHA256.txt').write_text('\\n'.join(lines)+'\\n')
+          print('PASS: exact packaged manifest identities and entry files')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-usage-auth-recovery-candidates
+          path: |
+            data/recovery/local-source-baselines-20260920/external/claude-usage-streamdeck/dist/*.streamDeckPlugin
+            data/recovery/local-source-baselines-20260920/external/claude-usage-streamdeck/dist/SHA256.txt
+          if-no-files-found: error
+          retention-days: 30
