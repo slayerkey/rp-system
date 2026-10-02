@@ -13,6 +13,7 @@ const rateUrl = () => `https://www.perplexity.ai/rest/rate-limit/all?t=${Date.no
 const TOTALS = { pro: 200, research: 20, agentic: 5, labs: 25 };
 
 const SESSION_COOKIE_NAMES = [
+	"__Host-authjs.session-token",
 	"__Secure-authjs.session-token",
 	"authjs.session-token",
 	"__Secure-next-auth.session-token",
@@ -37,7 +38,7 @@ function sessionCookie(raw: string): string {
 	}
 	// Perplexity's current production cookie name. Older names above remain
 	// accepted for accounts or deployments that still expose them.
-	return `__Secure-next-auth.session-token=${input}`;
+	return `__Secure-next-auth.session-token=${input.replace(/^["\x27]|["\x27]$/g, "")}`;
 }
 
 function nextMonday(): string {
@@ -66,14 +67,22 @@ async function fetchUsage(token: string): Promise<FetchResult> {
 				Referer: "https://www.perplexity.ai/",
 			},
 		});
-		if (res.status === 401 || res.status === 403) return { ok: false, status: res.status, reason: "auth" };
-		if (res.status === 429) return { ok: false, status: 429, reason: "rate-limited" };
 		const ct = res.headers.get("content-type") ?? "";
 		const body = await res.text();
-		if (ct.includes("html") || body.startsWith("<")) return { ok: false, status: res.status, reason: "blocked" };
+		// A Cloudflare HTML challenge can use HTTP 403. It is not evidence that
+		// the customer pasted an expired cookie.
+		if (ct.includes("html") || body.trimStart().startsWith("<")) return { ok: false, status: res.status, reason: "blocked" };
+		if (res.status === 401 || res.status === 403) return { ok: false, status: res.status, reason: "auth" };
+		if (res.status === 429) return { ok: false, status: 429, reason: "rate-limited" };
 		if (!res.ok) return { ok: false, status: res.status, reason: "error", detail: body.slice(0, 120) };
 
 		const j = JSON.parse(body);
+		// If the endpoint changed its payload, do not fabricate 0% usage.
+		if (!j || typeof j !== "object" ||
+			!["remaining_pro","remaining_research","remaining_agentic_research","remaining_labs"]
+				.some(key => typeof j[key] === "number" && Number.isFinite(j[key]))) {
+			return { ok: false, status: res.status, reason: "error", detail: "usage response fields unavailable" };
+		}
 		const weekly = nextMonday();
 		const daily = nextMidnight();
 
