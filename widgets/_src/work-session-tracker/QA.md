@@ -7,3 +7,7 @@ The test opens the packaged widget at all eight official XENEON sizes, rejects v
 Retention: Lite intentionally exposes only today. Internally it retains at most 150 completed sessions and prunes completed data older than 8 days so local storage cannot grow forever.
 
 Physical hardware remains an optional confidence tier after browser fixtures, official CORSAIR package validation and StreamSpell pass.
+
+Cross-screen regression: the Playwright behavioral check changes `uniqueId` after starting an active session and verifies that a second widget instance restores the running session from the shared edition key. Legacy per-instance restart fixtures are explicitly isolated from shared state to preserve backwards-compatibility coverage.
+
+This verifies same-origin cross-instance storage behavior in a browser fixture; real iCUE/XENEON screen-switch QA remains required before Marketplace submission.
