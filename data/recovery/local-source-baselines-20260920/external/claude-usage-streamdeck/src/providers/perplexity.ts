@@ -38,6 +38,9 @@ function sessionCookie(raw: string): string {
 	}
 	// Perplexity's current production cookie name. Older names above remain
 	// accepted for accounts or deployments that still expose them.
+	// Refuse copied headers without a recognized session cookie; never forward
+	// unrelated cookie values as if they were a Perplexity session.
+	if (input.includes(";") || /^[A-Za-z0-9_.-]+=(?!$)/.test(input)) return "";
 	return `__Secure-next-auth.session-token=${input.replace(/^["\x27]|["\x27]$/g, "")}`;
 }
 
@@ -59,9 +62,11 @@ function utilization(remaining: number, total: number): number {
 
 async function fetchUsage(token: string): Promise<FetchResult> {
 	try {
+		const cookie = sessionCookie(token);
+		if (!cookie) return { ok: false, status: 0, reason: "auth" };
 		const res = await fetch(rateUrl(), {
 			headers: {
-				Cookie: sessionCookie(token),
+				Cookie: cookie,
 				Accept: "application/json",
 				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
 				Referer: "https://www.perplexity.ai/",
@@ -77,41 +82,22 @@ async function fetchUsage(token: string): Promise<FetchResult> {
 		if (!res.ok) return { ok: false, status: res.status, reason: "error", detail: body.slice(0, 120) };
 
 		const j = JSON.parse(body);
-		// If the endpoint changed its payload, do not fabricate 0% usage.
-		if (!j || typeof j !== "object" ||
-			!["remaining_pro","remaining_research","remaining_agentic_research","remaining_labs"]
-				.some(key => typeof j[key] === "number" && Number.isFinite(j[key]))) {
-			return { ok: false, status: res.status, reason: "error", detail: "usage response fields unavailable" };
-		}
+		// Missing API fields are unavailable, not a healthy 0% reading.
 		const weekly = nextMonday();
 		const daily = nextMidnight();
-
-		const windows: WindowData[] = [
-			{
-				key: "pro",
-				label: "PRO",
-				utilization: utilization(Number(j.remaining_pro ?? TOTALS.pro), TOTALS.pro),
-				resetsAt: weekly,
-			},
-			{
-				key: "research",
-				label: "RESEARCH",
-				utilization: utilization(Number(j.remaining_research ?? TOTALS.research), TOTALS.research),
-				resetsAt: weekly,
-			},
-			{
-				key: "agentic",
-				label: "AGENTIC",
-				utilization: utilization(Number(j.remaining_agentic_research ?? TOTALS.agentic), TOTALS.agentic),
-				resetsAt: weekly,
-			},
-			{
-				key: "labs",
-				label: "LABS",
-				utilization: utilization(Number(j.remaining_labs ?? TOTALS.labs), TOTALS.labs),
-				resetsAt: daily,
-			},
-		];
+		const windows: WindowData[] = [];
+		const add = (field: string, key: string, label: string, total: number, reset: string): void => {
+			const raw = j?.[field];
+			if (raw === null || raw === undefined || raw === "") return;
+			const remaining = Number(raw);
+			if (!Number.isFinite(remaining) || remaining < 0) return;
+			windows.push({key,label,utilization: Math.max(0, Math.min(100, utilization(remaining, total))),resetsAt:reset});
+		};
+		add("remaining_pro","pro","PRO",TOTALS.pro,weekly);
+		add("remaining_research","research","RESEARCH",TOTALS.research,weekly);
+		add("remaining_agentic_research","agentic","AGENTIC",TOTALS.agentic,weekly);
+		add("remaining_labs","labs","LABS",TOTALS.labs,daily);
+		if (!windows.length) return { ok: false, status: res.status, reason: "error", detail: "usage response fields unavailable" };
 
 		return { ok: true, usage: { windows } };
 	} catch (e) {
