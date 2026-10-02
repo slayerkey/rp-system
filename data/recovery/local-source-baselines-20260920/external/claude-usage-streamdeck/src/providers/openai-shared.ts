@@ -24,10 +24,25 @@ const HEADERS: Record<string, string> = {
 /** Pasting from a browser JSON viewer routinely drags along quotes, the field name,
  *  or a stray newline — all of which 401 and look like an expired token. */
 export function sanitizeToken(raw: string): string {
-	let t = raw.trim().replace(/\s+/g, "");
-	t = t.replace(/^"?accessToken"?:?/i, "");
-	t = t.replace(/^Bearer/i, "");
-	t = t.replace(/^["'`,]+|["'`,;]+$/g, "");
+	let t = raw.trim();
+	// Chrome devtools exposes a full Cookie header or a name=value pair. Only
+	// accept the session cookie; never forward unrelated copied cookies.
+	if (/^Cookie:/i.test(t)) t = t.replace(/^Cookie:\\s*/i, "");
+	const pair = t.split(";").map(p => p.trim())
+		.find(p => /^__Secure-next-auth\\.session-token=/i.test(p));
+	if (pair) return pair.slice(pair.indexOf("=") + 1).replace(/^["']|["']$/g, "").trim();
+	if (t.includes(";")) return "";
+	// Also accept JSON session output copied directly from the browser.
+	if (t.startsWith("{")) {
+		try {
+			const parsed = JSON.parse(t);
+			if (typeof parsed?.accessToken === "string") return parsed.accessToken.trim();
+		} catch { return ""; }
+	}
+	t = t.replace(/^["']?accessToken["']?\\s*:\\s*/i, "");
+	t = t.replace(/^Bearer\\s+/i, "");
+	t = t.replace(/^__Secure-next-auth\\.session-token=/i, "");
+	t = t.replace(/^["'`;,]+|["'`;,]+$/g, "");
 	return t.trim();
 }
 
