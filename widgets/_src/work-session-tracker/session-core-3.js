@@ -207,6 +207,12 @@
 
   globalThis.__workSessionTest = {
     getState: function () { return JSON.parse(JSON.stringify(state)); },
+    // Test the exact storage lookup a second iCUE widget instance performs.
+    loadForInstance: function (id) {
+      var previousId = globalThis.uniqueId;
+      try { globalThis.uniqueId = id; return JSON.parse(JSON.stringify(loadState())); }
+      finally { globalThis.uniqueId = previousId; }
+    },
     setNow: function (value) { testNow = value === null ? null : Number(value); render(); },
     reset: function (value) { state = value ? seedFixture(value) : defaultState(); saveState(); render(); },
     start: function (name, kind) { lastActionAt = -Infinity; return startSession(name, kind || 'focus', null); },
