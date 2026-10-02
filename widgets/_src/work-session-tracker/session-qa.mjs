@@ -94,6 +94,16 @@ export async function runSessionQa(edition, entryArg, outDirArg) {
     await page.evaluate(now => globalThis.__workSessionTest.setNow(now), fixedNow + 6*hour + 15*minute + 12_000);
     const resumed=(await page.locator('#elapsed').textContent()).trim();
     if (resumed!=='04:15:12') throw new Error(`resume derivation failed: ${resumed}`);
+    const crossScreen=await page.evaluate(()=>{
+      const originalId=globalThis.uniqueId;
+      globalThis.uniqueId='second-iCUE-screen-'+EDITION;
+      const restored=loadState();
+      globalThis.uniqueId=originalId;
+      return {id:restored.active?.id,name:restored.active?.name,status:restored.active?.status};
+    });
+    if(crossScreen.id!==firstId||crossScreen.name!=='Deep Work'||crossScreen.status!=='running')
+      throw new Error('cross-screen active session was lost: '+JSON.stringify(crossScreen));
+    report.transitions.crossScreenRecovery=crossScreen;
     await page.evaluate(() => globalThis.__workSessionTest.finish());
     const transitionState=await page.evaluate(()=>globalThis.__workSessionTest.getState());
     if(transitionState.active!==null||transitionState.sessions.length!==1||transitionState.sessions[0].id===firstId) throw new Error(`finish state failed: ${JSON.stringify(transitionState)}`);
@@ -119,12 +129,14 @@ export async function runSessionQa(edition, entryArg, outDirArg) {
 
     const storageKey=`behavior-${edition}:work-session:${edition}:state`;
     await page.evaluate(({key,now})=>{
+      localStorage.removeItem('packrat:work-session:'+EDITION+':shared-state-v2');
       localStorage.setItem(key,JSON.stringify({version:2,sequence:1,lastProjectName:'Recovered',projects:[],sessions:[],active:{id:'recover',name:'Recovered',color:'#2BE86A',kind:'focus',startedAtMs:now-2*3600000,status:'running',segments:[{startMs:now-2*3600000,endMs:null}]}}));
     },{key:storageKey,now:fixedNow});
     await page.reload({waitUntil:'load'}); await page.waitForFunction(()=>globalThis.__workSessionReady===true);
     const recovered=(await page.locator('#elapsed').textContent()).trim();
     if(recovered!=='02:00:00') throw new Error(`restart recovery failed: ${recovered}`);
     await page.evaluate(({key,now})=>{
+      localStorage.removeItem('packrat:work-session:'+EDITION+':shared-state-v2');
       localStorage.setItem(key,JSON.stringify({version:2,sequence:1,lastProjectName:'Paused',projects:[],sessions:[],active:{id:'pause-recover',name:'Paused',color:'#2BE86A',kind:'focus',startedAtMs:now-3*3600000,status:'paused',segments:[{startMs:now-3*3600000,endMs:now-2*3600000}]}}));
     },{key:storageKey,now:fixedNow});
     await page.reload({waitUntil:'load'}); await page.waitForFunction(()=>globalThis.__workSessionReady===true);
@@ -132,7 +144,7 @@ export async function runSessionQa(edition, entryArg, outDirArg) {
     if(pauseRecovered!=='01:00:00') throw new Error(`pause recovery failed: ${pauseRecovered}`);
     report.restart={ running:recovered, paused:pauseRecovered };
 
-    await page.evaluate(key=>localStorage.removeItem(key),storageKey); await page.reload({waitUntil:'load'}); await page.waitForFunction(()=>globalThis.__workSessionReady===true);
+    await page.evaluate(key=>{localStorage.removeItem(key); localStorage.removeItem('packrat:work-session:'+EDITION+':shared-state-v2');},storageKey); await page.reload({waitUntil:'load'}); await page.waitForFunction(()=>globalThis.__workSessionReady===true);
     const midnight=await page.evaluate(() => {
       const api=globalThis.__workSessionTest;
       const t0=new Date(2026,0,15,23,50,0,0).getTime();
@@ -151,6 +163,7 @@ export async function runSessionQa(edition, entryArg, outDirArg) {
       }
       const old=now-(keepDays+5)*86400000;
       sessions.push({id:'old',name:'Old',color:'#2BE86A',kind:'focus',startedAtMs:old-60000,endedAtMs:old,segments:[{startMs:old-60000,endMs:old}],manualAdjustmentMs:0});
+      localStorage.removeItem('packrat:work-session:'+EDITION+':shared-state-v2');
       localStorage.setItem(key,JSON.stringify({version:2,sequence:9999,lastProjectName:'',projects:[],active:null,sessions}));
     },{key:storageKey,now:fixedNow,count:cap+80,keepDays});
     await page.reload({waitUntil:'load'}); await page.waitForFunction(()=>globalThis.__workSessionReady===true);
