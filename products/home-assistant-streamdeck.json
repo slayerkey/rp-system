@@ -5,7 +5,6 @@
   "status": "qa_passed",
   "workflow_state": "READY_TO_SHIP",
   "price_usd": 9.99,
-  "price_hypothesis_usd": 9.99,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows (provisional)",
   "plugin_uuid": "com.packrat.home-assistant-streamdeck",
@@ -13,7 +12,7 @@
   "source_owner": "PUBLIC_RP_SYSTEM_APPROVED",
   "controller_repository": "slayerkey/rp-system",
   "candidate_local_commit": "36ee24dd5ad2fb3e6dd60a9b669ce2f4ea0667ad",
-  "source_migration": "COMPLETED: owner authorized public source in rp-system; branch has real expanded source, generated source assets and four profiles.",
+  "source_migration": "COMPLETED: approved paid plugin source merged into canonical public rp-system main under plugins/home-assistant-streamdeck; in-repository Rat Ship rebuild, not external artifact fetching.",
   "release_gate": [
     "PUBLIC SOURCE IMPORT: PASS",
     "Windows locked Node build and deterministic fixtures: PASS",
@@ -35,8 +34,6 @@
     "gallery_mode": "wrap"
   },
   "source": "plugins/home-assistant-streamdeck",
-  "branch": "product/home-assistant-streamdeck",
-  "source_repository": "https://github.com/slayerkey/rp-system.git",
   "source_import_commit": "d584dbb7b33d5601048f38cf20b40b041c68b261",
   "automated_release_evidence": {
     "status": "PASSED_CLEAN_AUTOMATED_CANDIDATE",
@@ -56,7 +53,7 @@
     "package_sha256": "c1a501b0ee4f763cb1e79e1062728319e0364de6d22d3e9f1326fcb931e2ec6c",
     "public_safe_review_artifact_id": 11260759396,
     "artifact_note": "Only final media and package SHA-256 uploaded by public CI, no downloadable public paid binary.",
-    "source_note": "Exact green package and art from main merge 943648d; intervening 9ecf742 modifies unrelated Maker Console driver only. Price and readiness metadata updates require fresh clean workflow revalidation."
+    "source_note": "Exact green package and art from main merge 943648d; intervening 9ecf742 changes only the separate Maker Console driver. Approved price and readiness metadata require clean revalidation on the final release commit."
   },
   "hardware_gate": "OPERATOR_ACCEPTED_DEFERRED_PHYSICAL_SMOKE_NOT_PASSED",
   "operator_release_approval": {
