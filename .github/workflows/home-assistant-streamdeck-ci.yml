@@ -16,6 +16,9 @@ on:
       - 'products/home-assistant-streamdeck.json'
       - '.github/workflows/home-assistant-streamdeck-ci.yml'
   workflow_dispatch:
+concurrency:
+  group: home-assistant-release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:

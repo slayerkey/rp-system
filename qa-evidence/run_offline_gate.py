@@ -13,7 +13,7 @@ assert {a['UUID'] for a in M['Actions']}=={M['UUID']+'.'+k for k in ('status','g
 assert sorted(p['DeviceType'] for p in M['Profiles'])==sorted(expected)
 for act in M['Actions']:
     assert act['States'] and all(s['ShowTitle'] is False for s in act['States'])
-    assert (P/(act['Icon']+'.png')).exists()
+    assert (P/(act['Icon'] if Path(act['Icon']).suffix else act['Icon']+'.png')).exists()
     assert (P/(act['States'][0]['Image']+'.png')).exists()
 for record in M['Profiles']:
     prefix=Path(record['Name']).name
