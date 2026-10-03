@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HWiNFO Sensor Monitor</title>
+  <link rel="stylesheet" href="inspector.css?v=1.0.0.0">
+</head>
+<body>
+  <header class="packrat-topbar">
+    <a class="brand" href="https://marketplace.elgato.com/maker/packrat"><img class="packrat-logo" src="../imgs/plugin/packrat-logo.png" alt="">PackRat ↗</a>
+    <span class="product">HWiNFO SENSOR MONITOR</span>
+  </header>
+
+  <main>
+    <section id="statusCard" class="card status-card">
+      <div class="status-row"><span id="statusDot" class="dot"></span><strong id="statusTitle">Connecting to HWiNFO</strong></div>
+      <p id="statusDetail">Waiting for the local HWiNFO Shared Memory feed.</p>
+      <div class="tiny" id="statusMeta"></div>
+    </section>
+
+    <section class="card">
+      <h2 id="sensorHeading">Sensor</h2>
+      <label class="field">
+        <span>Search hardware & sensors</span>
+        <input id="sensorSearch" type="search" placeholder="GPU temp, CPU package, fan…">
+      </label>
+      <div id="selectedPreview" class="preview">No sensor selected yet.</div>
+      <div id="sensorList" class="sensor-list"></div>
+      <button id="moreSensors" class="secondary" type="button" hidden>Load more sensors</button>
+      <p class="hint">Selections use HWiNFO sensor ID + instance + reading ID, so duplicate labels remain independent.</p>
+    </section>
+
+    <section class="card">
+      <h2>Display</h2>
+      <label class="field"><span>Custom label</span><input id="customLabel" maxlength="28" placeholder="Use HWiNFO label"></label>
+      <label class="field"><span>Decimal precision</span><select id="precision"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
+      <label class="check"><input id="showMinMax" type="checkbox"> Show HWiNFO min / max</label>
+      <label class="field"><span>Refresh interval</span><select id="refreshMs"><option value="250">250 ms</option><option value="500">500 ms</option><option value="1000">1 second</option><option value="2000">2 seconds</option><option value="5000">5 seconds</option></select></label>
+      <label class="field"><span>Accent</span><input id="accent" type="color" value="#2BE86A"></label>
+    </section>
+
+    <section id="historyCard" class="card">
+      <h2>History</h2>
+      <label class="check"><input id="historyEnabled" type="checkbox"> Keep rolling history for this sensor</label>
+      <label class="field"><span>Window</span><select id="historyWindowMs"><option value="30000">30 seconds</option><option value="60000">1 minute</option><option value="300000">5 minutes</option></select></label>
+    </section>
+
+    <section id="thresholdCard" class="card">
+      <h2>Thresholds</h2>
+      <label class="field"><span>Direction</span><select id="thresholdDirection"><option value="above">Warn above</option><option value="below">Warn below</option></select></label>
+      <label class="field"><span>Warning</span><input id="warningThreshold" type="number" step="any"></label>
+      <label class="field"><span>Critical</span><input id="criticalThreshold" type="number" step="any"></label>
+      <label id="attentionWrap" class="check"><input id="visualAttention" type="checkbox"> One visual attention pulse when entering critical</label>
+      <p class="hint">No notifications are repeated while the reading stays critical.</p>
+    </section>
+
+    <section class="card actions-card">
+      <button id="resetConfig" type="button">Reset configuration</button>
+    </section>
+
+    <section class="card privacy">
+      <strong>Local by design</strong>
+      <p>Reads only the HWiNFO Shared Memory feed on this Windows PC. No PackRat account, cloud service, analytics, or telemetry.</p>
+      <p class="legal">Independent third-party plugin. HWiNFO® is a trademark of REALiX, s.r.o. HWiNFO is not bundled, redistributed, installed, affiliated with, or endorsed by PackRat.</p>
+    </section>
+  </main>
+  <script src="inspector.js?v=1.0.0.0"></script>
+</body>
+</html>

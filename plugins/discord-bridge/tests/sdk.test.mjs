@@ -72,9 +72,9 @@ test("Marketplace-facing Voice Bridge branding stays trademark-safe", async () =
   const ratArt = await text("rat-art.ps1");
   const publicCopy = [manifestText, submissionText, ratArt].join("\n");
 
-  assert.equal(manifest.Name, "PackRat Voice Bridge");
-  assert.equal(manifest.Category, "PackRat Voice Bridge");
-  assert.equal(submission.name, "PackRat Voice Bridge");
+  assert.equal(manifest.Name, "Discord Voice Bridge");
+  assert.equal(manifest.Category, "Discord Voice Bridge");
+  assert.equal(submission.name, "Discord Voice Bridge");
   assert.equal(submission.price_usd, 0);
   assert.equal(submission.marketplace_auto_publish, false);
   assert.match(submission.description, /independent third-party product/);
