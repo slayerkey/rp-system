@@ -24,7 +24,7 @@
   "CodePath": "bin/plugin.js",
   "Description": "A Neo-native, live CPU, GPU, RAM and temperature Infobar with compact 60-second history and rotating readouts. Windows-only.",
   "Icon": "imgs/plugin/icon",
-  "Name": "Performance Grapher Neo",
+  "Name": "Performance Grapher for Stream Deck Neo",
   "Nodejs": {
     "Version": "24"
   },
