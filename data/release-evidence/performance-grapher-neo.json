@@ -9,7 +9,7 @@
   "artifact_digest": "sha256:bac8a2a2cebda9509d909218b99b2bd750b4c18ae56e7423cf835cd6345780ea",
   "automated_checks": "PASSED_EXACT_COMMIT",
   "physical_neo_smoke": "NOT_VERIFIED",
-  "marketplace_price": "UNAPPROVED",
+  "marketplace_price": "14.99_USD_OPERATOR_APPROVED_2026-10-02",
   "marketplace_art": "FINAL_COVER_APPROVAL_PENDING",
   "artifact_expires_at": "2026-10-08T03:54:20Z"
 }
