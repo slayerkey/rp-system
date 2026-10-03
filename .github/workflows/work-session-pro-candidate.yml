@@ -1,0 +1,50 @@
+name: Work Session Tracker Pro local QA (no public package artifact)
+
+on:
+  push:
+    branches: [fix/work-session-cross-screen-20261001]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-private-product:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Generate and check the Pro source
+        run: |
+          python tools/xeneon/inline.py work-session-tracker-pro
+          python tools/xeneon/inline.py work-session-tracker-pro --check
+      - name: Official CLI validation and package (runner-local only)
+        run: |
+          npx --yes icuewidget-cli@0.4.47 validate widgets/work-session-tracker-pro
+          npx --yes icuewidget-cli@0.4.47 package widgets/work-session-tracker-pro
+      - name: Verify package and extract locally
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts/extracted | Out-Null
+          @'
+          import pathlib,zipfile,json
+          packages=list(pathlib.Path('widgets').glob('*.icuewidget'))
+          if len(packages)!=1: raise SystemExit(f'Expected 1 package: {packages}')
+          with zipfile.ZipFile(packages[0]) as z:
+              assert z.testzip() is None
+              manifest=json.loads(z.read('manifest.json'))
+              assert manifest['id']=='com.packrat.worksessiontrackerpro'
+              assert b'shared-state-v2' in z.read('index.html')
+              z.extractall('artifacts/extracted')
+          print('Pro exact package valid; binary intentionally not uploaded')
+          '@ | python -
+      - name: Install browser prerequisites
+        run: |
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+      - name: Run exact-package Pro layout and persistence QA
+        run: node widgets/_src/work-session-tracker-pro/network-smoke.mjs artifacts/extracted/index.html artifacts/pro-regression
+      - name: QA summary
+        run: echo "Pro candidate passed. Keep paid package in private factory; no public artifact uploads."

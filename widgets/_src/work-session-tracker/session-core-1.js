@@ -11,6 +11,9 @@
   var IS_PRO = EDITION === 'pro';
   var PRO_UPGRADE_URL = 'https://marketplace.elgato.com/product/work-session-tracker-pro-f8e12d94-4354-41ca-b6da-beb2297fb9e2';
   var STORAGE_VERSION = 2;
+  // Share running sessions between instances of the same edition, while retaining
+  // the original per-widget key as a non-destructive migration fallback.
+  var SHARED_STATE_KEY = 'packrat:work-session:' + EDITION + ':shared-state-v2';
   var RENDER_TIMER = null;
   var lastActionAt = -Infinity;
   var lastWall = Date.now();
@@ -103,10 +106,18 @@
   function loadState() {
     var base = defaultState();
     try {
-      var raw = localStorage.getItem(instanceKey('state'));
-      if (!raw) return seedFixture(base);
-      var parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== 'object') return seedFixture(base);
+      var legacy = null;
+      var shared = null;
+      try { legacy = JSON.parse(localStorage.getItem(instanceKey('state')) || 'null'); } catch (error) {}
+      try { shared = JSON.parse(localStorage.getItem(SHARED_STATE_KEY) || 'null'); } catch (error) {}
+      var isState = function (value) { return value && typeof value === 'object' && !Array.isArray(value); };
+      if (!isState(legacy)) legacy = null;
+      if (!isState(shared)) shared = null;
+      // An existing instance wins when its data is newer; new screen instances
+      // without a legacy key recover the most recently saved shared state.
+      var parsed = legacy;
+      if (shared && (!legacy || Number(shared.updatedAtMs || 0) > Number(legacy.updatedAtMs || 0))) parsed = shared;
+      if (!parsed) return seedFixture(base);
       base.active = normalizeActive(parsed.active);
       base.sessions = Array.isArray(parsed.sessions) ? parsed.sessions.map(normalizeSession).filter(Boolean) : [];
       base.projects = Array.isArray(parsed.projects) ? parsed.projects.slice(0, 30).map(function (project, index) {
@@ -138,8 +149,15 @@
   function saveState() {
     pruneHistory();
     state.version = STORAGE_VERSION;
-    state.updatedAtMs = nowMs();
-    try { localStorage.setItem(instanceKey('state'), JSON.stringify(state)); } catch (error) {}
+    state.updatedAtMs = Math.max(nowMs(), Number(state.updatedAtMs || 0) + 1);
+    try {
+      var serialized = JSON.stringify(state);
+      localStorage.setItem(instanceKey('state'), serialized);
+      localStorage.setItem(SHARED_STATE_KEY, serialized);
+    } catch (error) {
+      // In-memory tracking remains functional if iCUE storage is unavailable.
+      console.warn('Work Session Tracker could not persist session state', error);
+    }
   }
 
   function clampNumber(value, min, max, fallback) {
