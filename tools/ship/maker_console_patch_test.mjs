@@ -46,6 +46,17 @@ assert.match(patched, /target = await waitForDetailsAfterCreate\(target, 'config
 assert.match(patched, /editorLooksLikeCopy\(page\)/);
 assert.match(patched, /waitForDetailsAfterCreate\(page, 'resumed description create product'\)/);
 
+assert.match(patched, /No existing Maker Console draft after two checks/);
+assert.match(patched, /editing = await openExisting\(page\);\s+if \(!editing\) \{\s+await page.waitForTimeout\(1500\);/);
+// The owner recovery ZIP uses /<organization-id>/create/plugins, not /create/*.
+const createWizardPath = /^https:\/\/maker\.elgato\.com\/(?:[^\/?#]+\/)?create(?:\/|[?#]|$)/i;
+assert.equal(createWizardPath.test('https://maker.elgato.com/create/plugins'),true);
+assert.equal(createWizardPath.test('https://maker.elgato.com/6ca8662c-1988-4901-8058-f5929450a596/create/plugins'),true);
+assert.equal(createWizardPath.test('https://maker.elgato.com/products'),false);
+assert.equal(createWizardPath.test('https://maker.elgato.com/6ca8662c-1988-4901-8058-f5929450a596/products'),false);
+assert.match(patched,/!\^https:.*\(\?:\[\^\\\/\?#\]\+\\\/\)\?create/);
+
+
 const begin = core.indexOf('async function waitForDetailsAfterCreate(');
 const end = core.indexOf('\nasync function editorLooksLikeDetails(', begin);
 assert.ok(begin > 0 && end > begin, 'transition helper must have stable source boundaries');
