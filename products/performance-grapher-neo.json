@@ -4,8 +4,8 @@
   "type": "plugin",
   "status": "testing",
   "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Automated Windows build, official Elgato CLI validation/packaging and Neo-only tests passed; physical Neo QA and operator-approved standalone price remain pending.",
-  "price_usd": null,
+  "blocker": "Physical Stream Deck Neo smoke test and final Marketplace cover approval pending; standalone Marketplace price $14.99 approved.",
+  "price_usd": 14.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck Neo Infobar / Windows",
   "source": "plugins/performance-grapher-neo",
@@ -25,7 +25,7 @@
     "Windows .NET helper smoke probe: PASS",
     "Deterministic Neo-specific Marketplace art generated: PASS; final cover approval pending",
     "Physical Stream Deck Neo runtime/readability and Inspector persistence: NOT YET TESTED",
-    "Standalone Marketplace listing price: AWAITING OPERATOR APPROVAL"
+    "Standalone Marketplace listing price: APPROVED at $14.99"
   ],
   "source_commit": "9f9c53eed7cbb1fe4de54cdf57534f150ad703b6",
   "release_artifact": {
