@@ -274,6 +274,12 @@ Use Marketplace icon metadata such as style, theme, color, static/animated state
 
 ## Description system
 
+### Structured descriptions (opt-in now; default for new/refreshed listings)
+
+Create a readable value proposition, blank-line-separated short uppercase headings, 3–6 actual feature bullets, a short setup paragraph and a compatibility/limitations close when applicable. Put buyer value first; do not stuff the entire feature list into one long paragraph. Use `description_format: "structured-v1"` in submission metadata when a new listing is ready for the formatting gate. The shared guard checks paragraph sections and bullets, then Maker Console types real rich-text paragraph breaks via Enter and verifies they persist. This is not an HTML paste and should not depend on editor-specific markup. Historical descriptions without the opt-in continue to work; upgrade them when deliberately refreshing their listing.
+
+
+
 Descriptions should sound like a real creator explaining the product.
 
 Recommended structure when each section adds useful information:
