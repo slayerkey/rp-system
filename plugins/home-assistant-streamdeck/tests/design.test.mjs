@@ -35,7 +35,7 @@ test('unconfigured bundled profiles never include pretend customer entities',asy
  for(const name of files){const archive=await readFile(resolve(plugin,'profiles',name));assert(!archive.includes(Buffer.from('sensor.fake')));assert(archive.length>200)}
 });
 test('property inspector has a real PI websocket context and dirty race guard',async()=>{
- const source=await readFile(resolve(plugin,'ui/inspector.js'),'utf8');assert.match(source,/context=uiUuid/);assert.match(source,/if\(dirty\|\|waiting\)return/);assert.match(source,/actionContext/);assert(!source.includes('eval('));
+ const source=await readFile(resolve(plugin,'ui/inspector.js'),'utf8');assert.match(source,/context\s*:\s*uiUuid/);assert.match(source,/if\(dirty\|\|waiting\)return/);assert.match(source,/actionContext/);assert(!source.includes('eval('));
 });
 
 test('unsupported services render an explicit non-actionable key rather than a fake control',()=>{

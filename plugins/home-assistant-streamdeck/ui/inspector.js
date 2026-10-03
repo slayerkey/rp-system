@@ -2,7 +2,7 @@
 const UUID='com.packrat.home-assistant-streamdeck.';
 const $=id=>document.getElementById(id);const kinds=['status','graph','overview','control','trigger','brightness','neo-infobar'];
 let socket=null,uiUuid='',actionContext='',kind='status',catalog=[],globals={},confirmed={},draft={},dirty=false,waiting=false,connected=false;
-function send(event,payload={},context=uiUuid){if(socket?.readyState===1)socket.send(JSON.stringify({event,context,payload}))}
+function send(event,payload={}){if(socket?.readyState===1)socket.send(JSON.stringify({event,context:uiUuid,payload}))}
 function read(){
  const entityIds=[$('entity0').value,$('entity1').value,$('entity2').value].map(v=>v.trim());
  return {entityId:$('entityId').value.trim(),entityIds,windowMs:Number($('windowMs').value),dialStep:Number($('dialStep').value)};

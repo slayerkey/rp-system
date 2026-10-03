@@ -8,4 +8,5 @@ try{await stat(approved)}catch{throw new Error('Approved PackRat brand mark miss
 await cp(resolve(root,'ui'),resolve(folder,'ui'),{recursive:true,force:true});
 await mkdir(resolve(folder,'imgs/brand'),{recursive:true});
 await copyFile(approved,resolve(folder,'imgs/brand/ratpack-icon-transparent.png'));
+await copyFile(approved,resolve(folder,'imgs/plugin/packrat-logo.png'));
 console.log('Copied canonical Property Inspector and approved PackRat brand mark');
