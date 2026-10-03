@@ -953,7 +953,7 @@
     },
     {
       "id": "smart-lighting-streamdeck",
-      "name": "PackRat Smart Lighting for Hue & Govee",
+      "name": "Smart Lighting for Hue & Govee",
       "type": "plugin",
       "status": "qa_passed",
       "price_usd": 9.99,
