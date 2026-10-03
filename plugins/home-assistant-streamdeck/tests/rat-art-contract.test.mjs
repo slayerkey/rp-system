@@ -35,6 +35,7 @@ test('Windows SVG screenshot failure has a real PNG-producing Canvas fallback an
   assert.match(renderer, /page\.screenshot/);
   assert.match(renderer, /catch \(error\)/);
   assert.match(renderer, /canvas\.toDataURL\('image\/png'\)/);
+  assert.match(renderer, /page\.goto\('about:blank'\)/);
   assert.match(renderer, /RAT ART|ICON PASS/);
   assert.match(renderer, /batch.*args\.includes\('--batch'\)/);
   assert.match(exporter, /'--canvas-only'/);
