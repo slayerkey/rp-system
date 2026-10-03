@@ -33,8 +33,10 @@ STYLE = "warm-studio-glass-v1"
 def gallery_scene(slug: str) -> Path:
     """Use the common scene by default; accept only explicit repo-owned overrides."""
     product = ROOT / "products" / f"{slug}.json"
+    # A few legacy catalogue widgets use source-local Rat Art config before
+    # migration into products/<slug>.json; shared defaults still apply.
     if not product.is_file():
-        raise SystemExit(f"XENEON gallery requires canonical product metadata: {product}")
+        return DEFAULT_GALLERY_SCENE
     data = json.loads(product.read_text(encoding="utf-8"))
     if data.get("type") != "widget":
         raise SystemExit(f"XENEON gallery product must be a widget: {slug}")
