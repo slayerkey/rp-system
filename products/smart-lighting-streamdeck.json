@@ -1,6 +1,6 @@
 {
   "id": "smart-lighting-streamdeck",
-  "name": "PackRat Smart Lighting for Hue & Govee",
+  "name": "Smart Lighting for Hue & Govee",
   "type": "plugin",
   "status": "qa_passed",
   "workflow_state": "READY_TO_SHIP",
@@ -61,7 +61,7 @@
     "Physical Hue/Govee and physical Stream Deck tests: DEFERRED by operator, NOT TESTED, accepted release risk",
     "Marketplace submission/publication: NOT YET EXECUTED; any required real-hardware review evidence must still be supplied"
   ],
-  "notes": "Separate Stream Deck plugin consuming the unchanged local XENEON Hue/Govee companion; no duplicate provider integrations or credentials. Private release artifact retention expires 2026-10-10; re-pin/rebuild after expiration if staging later.",
+  "notes": "Separate Stream Deck plugin consuming the unchanged local XENEON Hue/Govee companion; no duplicate provider integrations or credentials. Private release artifact retention expires 2026-10-10; re-pin/rebuild after expiration if staging later. Marketplace title correction in progress; original pre-submission title was banned by owner; repin exact corrected manifest package before merging this release branch.",
   "release_artifact": {
     "repository": "slayerkey/packrat-site",
     "run_id": 37085181726,
