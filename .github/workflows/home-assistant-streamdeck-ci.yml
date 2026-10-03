@@ -20,7 +20,6 @@ permissions:
   contents: read
 jobs:
   official-release:
-    if: ${{ hashFiles('plugins/home-assistant-streamdeck/package-lock.json') != '' }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
