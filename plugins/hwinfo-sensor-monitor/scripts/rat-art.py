@@ -6,12 +6,17 @@ import hashlib
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 PRODUCT = "hwinfo-sensor-monitor"
 ROOT = Path(__file__).resolve().parents[3]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from tools.art.marketplace_text import draw_fitted_text
+
 PRODUCT_DIR = Path(__file__).resolve().parents[1]
 PLUGIN_DIR = PRODUCT_DIR / "com.packrat.hwinfo-sensor-monitor.sdPlugin"
 SUBMISSION = PRODUCT_DIR / "submission.json"
@@ -50,13 +55,6 @@ def font_path(bold: bool) -> str:
 def F(size: int, bold: bool = True) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(font_path(bold), size)
 
-def fit(draw: ImageDraw.ImageDraw, text: str, max_width: int, max_size: int, min_size: int = 18, bold: bool = True):
-    for size in range(max_size, min_size - 1, -2):
-        f = F(size, bold)
-        if draw.textbbox((0, 0), text, font=f)[2] <= max_width:
-            return f
-    return F(min_size, bold)
-
 def background() -> Image.Image:
     image = Image.new("RGB", (W, H), BG)
     glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -67,8 +65,8 @@ def background() -> Image.Image:
 
 def header(image: Image.Image, title: str, subtitle: str) -> None:
     draw = ImageDraw.Draw(image)
-    draw.text((96, 78), title, font=fit(draw, title, 1680, 66, 34), fill=WHITE)
-    draw.text((98, 158), subtitle, font=fit(draw, subtitle, 1660, 30, 20, False), fill=MUTED)
+    draw_fitted_text(draw, (96, 78, 1776, 150), title, F, fill=WHITE, max_size=66, min_size=34, bold=True, max_lines=1)
+    draw_fitted_text(draw, (98, 158, 1758, 202), subtitle, F, fill=MUTED, max_size=30, min_size=20, max_lines=1)
     draw.line((96, 214, W - 96, 214), fill=(73, 81, 92), width=2)
 
 def card(draw: ImageDraw.ImageDraw, box, title: str = "", accent=ORANGE):
@@ -186,9 +184,9 @@ def build_key_faces(out_dir: Path) -> None:
         draw.rounded_rectangle((5,5,283,283),radius=32,fill=(9,11,16),outline=(43,50,60),width=4)
         draw.ellipse((24,25,40,41),fill=accent)
         if lines:
-            draw.text((144,104),lines[0],font=fit(draw,lines[0],235,34,20),fill=MUTED,anchor="mm")
+            draw_fitted_text(draw, (27, 77, 261, 131), lines[0], F, fill=MUTED, max_size=34, min_size=20, bold=True, max_lines=1, align="center", valign="middle")
         if len(lines)>1:
-            draw.text((144,170),lines[1],font=fit(draw,lines[1],245,48,24),fill=WHITE,anchor="mm")
+            draw_fitted_text(draw, (21, 135, 267, 205), lines[1], F, fill=WHITE, max_size=48, min_size=24, bold=True, max_lines=1, align="center", valign="middle")
         image.save(out_dir/f"{index:02d}.png","PNG",optimize=True)
 
 def run(args: list[str]) -> None:
