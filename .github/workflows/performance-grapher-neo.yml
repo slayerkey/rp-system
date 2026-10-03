@@ -110,7 +110,12 @@ jobs:
           try {
             $items = @($zip.Entries | ForEach-Object { $_.FullName })
             if ($items -match 'PresentMon.exe|streamDeckProfile') { throw "Unexpected standalone package contents." }
-            $pluginManifest = @($zip.Entries | Where-Object { $_.FullName -match '/manifest.json
+            $pluginManifest = @($zip.Entries | Where-Object { $_.FullName -match '/manifest.json$' })
+            if ($pluginManifest.Count -ne 1) { throw "Expected exactly one packaged plugin manifest." }
+            $reader = [System.IO.StreamReader]::new($pluginManifest[0].Open())
+            try { $packed = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
+            if ($packed.Name -ne "Performance Grapher for Stream Deck Neo" -or $packed.UUID -ne "com.packrat.performance-grapher-neo" -or
+                $packed.Actions.Count -ne 1 -or $packed.Actions[0].Controllers[0] -ne "Neo") { throw "Packaged manifest is not the renamed Neo-only release." }
             foreach ($name in @("neo-overview.json", "neo-metric.json")) {
               if (-not (@($items | Where-Object { $_ -match [regex]::Escape($name) }).Count)) { throw "Neo layout missing: $name" }
             }
@@ -142,66 +147,6 @@ jobs:
             physical_neo_smoke = "NOT_VERIFIED"
             marketplace_art = "DETERMINISTIC_PREVIEW_POTENTIAL_FINAL_HOST_REVIEW"
             marketplace_price = "14.99_USD_OPERATOR_APPROVED"
-          } | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 (Join-Path $kit "evidence.json")
-          Write-Host "NEO_PACKAGE_SHA256=$sha"
-      - name: Upload complete Neo-only release candidate
-        uses: actions/upload-artifact@v4
-        with:
-          name: performance-grapher-neo-ship-kit
-          path: plugins/performance-grapher-neo/SHIP_KIT
-          if-no-files-found: error
-          retention-days: 14
-      - name: Index exact green Neo release on its own branch
-        shell: pwsh
-        run: |
-          git fetch --no-tags origin "+refs/heads/product/performance-grapher-neo:refs/remotes/origin/product/performance-grapher-neo"
-          $latest = (git rev-parse refs/remotes/origin/product/performance-grapher-neo).Trim()
-          if ($latest -ne $env:GITHUB_SHA) { Write-Host "Newer branch head exists; skip stale evidence pin."; exit 0 }
-          $src = "plugins/performance-grapher-neo/SHIP_KIT/evidence.json"
-          $dest = "data/release-evidence/performance-grapher-neo.json"
-          New-Item -ItemType Directory -Force -Path (Split-Path $dest) | Out-Null
-          Copy-Item $src $dest
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add $dest
-          git commit -m "Index exact green Neo-only release artifact"
-          git push origin HEAD:refs/heads/product/performance-grapher-neo
- })
-            if ($pluginManifest.Count -ne 1) { throw "Expected exactly one packaged plugin manifest." }
-            $reader = [System.IO.StreamReader]::new($pluginManifest[0].Open())
-            try { $packed = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
-            if ($packed.Name -ne "Performance Grapher for Stream Deck Neo" -or $packed.UUID -ne "com.packrat.performance-grapher-neo" -or
-                $packed.Actions.Count -ne 1 -or $packed.Actions[0].Controllers[0] -ne "Neo") { throw "Packaged manifest is not the renamed Neo-only release." }
-            foreach ($name in @("neo-overview.json", "neo-metric.json")) {
-              if (-not (@($items | Where-Object { $_ -match [regex]::Escape($name) }).Count)) { throw "Neo layout missing: $name" }
-            }
-          } finally { $zip.Dispose() }
-          $art = Join-Path $root "dist/marketplace-art"
-          python -c "from pathlib import Path; from PIL import Image; p=Path(r'$art'); files=['01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png']; [(_ for _ in ()).throw(ValueError(f)) for f in files if Image.open(p/f).size != ((288,288) if f.startswith('01') else (1920,960))]"
-          if ($LASTEXITCODE) { throw "Neo art dimensions failed." }
-          $kit = Join-Path $root "SHIP_KIT"
-          New-Item -ItemType Directory -Force -Path (Join-Path $kit "marketplace-art") | Out-Null
-          Copy-Item $package.FullName (Join-Path $kit "com.packrat.performance-grapher-neo.streamDeckPlugin")
-          Copy-Item (Join-Path $art "*.png") (Join-Path $kit "marketplace-art") -Force
-          Copy-Item (Join-Path $root "README.md") $kit
-          Copy-Item (Join-Path $root "QA.md") $kit
-          Copy-Item (Join-Path $root "submission.json") $kit
-          @(
-            "• Dedicated Neo-only Infobar dashboard with CPU, GPU, and RAM at a glance."
-            "• Single Metric and Rotating Metrics views with optional 60-second trend."
-            "• Simple persistent settings, shared bounded local telemetry, and no game-capture process."
-          ) | Set-Content -Encoding utf8 (Join-Path $kit "RELEASE_NOTES.txt")
-          $sha = (Get-FileHash -Algorithm SHA256 $package.FullName).Hash.ToLowerInvariant()
-          [ordered]@{
-            version = "1.0.0.0"
-            source_commit = $env:GITHUB_SHA
-            run_id = $env:GITHUB_RUN_ID
-            package_name = "com.packrat.performance-grapher-neo.streamDeckPlugin"
-            package_sha256 = $sha
-            automated_checks = "PASSED_EXACT_COMMIT"
-            physical_neo_smoke = "NOT_VERIFIED"
-            marketplace_art = "DETERMINISTIC_PREVIEW_POTENTIAL_FINAL_HOST_REVIEW"
-            marketplace_price = "NOT_YET_SET"
           } | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 (Join-Path $kit "evidence.json")
           Write-Host "NEO_PACKAGE_SHA256=$sha"
       - name: Upload complete Neo-only release candidate
