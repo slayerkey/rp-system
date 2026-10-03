@@ -33,6 +33,8 @@ Required:
 
 Do not give the Marketplace intelligence automation a direct-main bypass. It now updates an automation branch and opens/refreshes a PR.
 
+In `rp-system → Settings → Actions → General → Workflow permissions`, ensure **Allow GitHub Actions to create and approve pull requests** is enabled; otherwise the automation's PR creation will be rejected. It only needs PR creation, not permission to approve its own PR.
+
 ## 3. Create private repositories
 
 Create these private repositories under the PackRat organization:
@@ -42,7 +44,7 @@ Create these private repositories under the PackRat organization:
 - packrat-commercial
 - packrat-product-<first-sku>
 
-Set default branch to main.
+Set default branch to main. Leave **License = None** for these private repositories; intellectual-property use/assignment belongs in the signed contractor agreement, not a public open-source license.
 
 Do not initialize the contractor product repo with access to any sibling repository.
 
