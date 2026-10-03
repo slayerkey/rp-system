@@ -1,0 +1,24 @@
+{
+  "name": "@packrat/home-assistant-streamdeck",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "assets": "python scripts/make-assets.py && node scripts/make-manifest.mjs",
+    "profiles": "node scripts/build-profiles.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "build": "node scripts/make-manifest.mjs && npm run profiles && node scripts/copy-ui.mjs && rollup -c",
+    "validate": "streamdeck validate com.packrat.home-assistant-streamdeck.sdPlugin --no-update-check",
+    "pack": "streamdeck pack com.packrat.home-assistant-streamdeck.sdPlugin --no-update-check --force --no-file-list --output dist"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "3.0.0"
+  },
+  "devDependencies": {
+    "@elgato/cli": "1.10.0",
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^15.2.2",
+    "@rollup/plugin-terser": "^1.0.0",
+    "rollup": "^4.0.2"
+  }
+}

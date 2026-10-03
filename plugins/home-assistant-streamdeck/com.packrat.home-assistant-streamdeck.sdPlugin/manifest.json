@@ -1,0 +1,191 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "Home Assistant Dashboard",
+  "Author": "PackRat",
+  "Category": "Home Assistant Dashboard",
+  "CategoryIcon": "imgs/category/icon",
+  "Icon": "imgs/plugin/icon",
+  "UUID": "com.packrat.home-assistant-streamdeck",
+  "Version": "0.1.0.0",
+  "SDKVersion": 3,
+  "Nodejs": {
+    "Version": "24"
+  },
+  "CodePath": "bin/plugin.js",
+  "PropertyInspectorPath": "ui/inspector.html",
+  "Description": "Glanceable smart-home dashboard: real-time statuses, shared live history and selective controls.",
+  "Software": {
+    "MinimumVersion": "7.6"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Actions": [
+    {
+      "UUID": "com.packrat.home-assistant-streamdeck.status",
+      "Name": "Entity Status",
+      "Tooltip": "Shows a selected entity with live state and unit.",
+      "Icon": "imgs/actions/status/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/status/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.home-assistant-streamdeck.graph",
+      "Name": "Live History",
+      "Tooltip": "Observed rolling history for numeric sensors.",
+      "Icon": "imgs/actions/graph/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/graph/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.home-assistant-streamdeck.overview",
+      "Name": "Home Overview",
+      "Tooltip": "Three live entity values at a glance.",
+      "Icon": "imgs/actions/overview/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/overview/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.home-assistant-streamdeck.control",
+      "Name": "Smart-Home Control",
+      "Tooltip": "Toggle a supported light or switch.",
+      "Icon": "imgs/actions/control/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/control/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.home-assistant-streamdeck.trigger",
+      "Name": "Scene / Script",
+      "Tooltip": "Activate a configured Home Assistant scene or script.",
+      "Icon": "imgs/actions/trigger/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/trigger/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.home-assistant-streamdeck.brightness",
+      "Name": "Brightness Dial",
+      "Tooltip": "Adjust a supported light brightness with Stream Deck +.",
+      "Icon": "imgs/actions/brightness/icon",
+      "Controllers": [
+        "Encoder"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": {
+          "Rotate": "Adjust brightness",
+          "Push": "Toggle light"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/brightness/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.home-assistant-streamdeck.neo-infobar",
+      "Name": "Neo Home Infobar",
+      "Tooltip": "Show three selected household values on Neo.",
+      "Icon": "imgs/actions/neo-infobar/icon",
+      "Controllers": [
+        "Neo"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/neo-infobar/key",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ],
+  "Profiles": [
+    {
+      "Name": "profiles/home-dashboard-mk2",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/home-dashboard-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/home-dashboard-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/home-dashboard-neo",
+      "DeviceType": 9,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
+  ]
+}

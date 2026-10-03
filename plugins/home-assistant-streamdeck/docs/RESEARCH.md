@@ -1,0 +1,8 @@
+# Competitive assessment — 2026-10-02
+
+- **Christoph Giesche, Home Assistant Stream Deck plugin**: widely established free/open-source plugin with support for multiple entity types, service calls and Stream Deck+ dial controls; offers Windows/macOS. https://marketplace.elgato.com/product/home-assistant-c8f0a985-75a8-412a-ac20-dc0d7076f7c8 and https://github.com/cgiesche/streamdeck-homeassistant
+- **Community alternatives** already target individual entity controls, status and configurable tiles. Do not charge for a generic toggle catalog simply because it is branded.
+- **Proposed distinction**: cohesive single-action three-entity views, honest rolling observed sensor graphs, Neo's actual Infobar, and usable editable four-device starter dashboards, all sharing one live feed. The user selects their actual entities after connection.
+- **Pricing**: $9.99 is a hypothesis, not validated willingness to pay; stage without setting a final Marketplace price until device/runtime QA and approved art are complete.
+- **Risks**: widely capable free alternatives; first-time setup complexity; external HA availability and permission differences; heavy user support from token handling; physical key legibility; no real HA acceptance test yet. Treat product as TESTING rather than market-proven.
+- **Explicitly deferred**: automatic room-based profiles; would require verified HA `config/area_registry/list`, `config/device_registry/list`, `config/entity_registry/list` availability and accurate mappings; don't infer areas from names. macOS support is plausible via Node but not advertised until validated. No instant historical backfill without permission/performance analysis.
