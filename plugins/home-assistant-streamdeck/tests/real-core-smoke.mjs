@@ -4,7 +4,7 @@ import {writeFile,mkdir} from 'node:fs/promises';
 import {dirname,resolve} from 'node:path';
 import {HAClient,HA_STATES} from '../src/ha-client.js';
 
-const base=(process.argv[2]||'http://127.0.0.1:8123').replace(/\\/+$/,'');
+let base=process.argv[2] || 'http://127.0.0.1:8123'; while(base.endsWith('/'))base=base.slice(0,-1);
 const reportPath=resolve(process.argv[3]||'qa-evidence/real-home-assistant.json');
 const id='sensor.ratpack_qa_streamdeck';
 const clientId=base+'/';
