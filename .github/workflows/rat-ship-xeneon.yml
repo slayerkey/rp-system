@@ -106,6 +106,12 @@ jobs:
             --art "artifacts/rat-art/review" `
             --out "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
 
+      - name: Verify final shared gallery design and exact SHIP_KIT order
+        shell: pwsh
+        run: |
+          python tools/art/validate_xeneon_marketplace_campaign.py $env:WIDGET_SLUG --art "artifacts/rat-art/review" --kit "artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT"
+          if ($LASTEXITCODE -ne 0) { throw "XENEON gallery campaign release gate failed" }
+
       - name: Playwright driver kit preflight
         shell: pwsh
         run: node tools/ship/maker_console.mjs $env:WIDGET_SLUG --kit="artifacts/ship/$env:WIDGET_SLUG/SHIP_KIT" --check-kit

@@ -105,6 +105,18 @@ def safe_logo() -> Image.Image:
     return out
 
 
+def add_studio_cool_rim(image: Image.Image) -> Image.Image:
+    """Keep the approved warm studio geometry, add restrained blue tech lighting.
+
+    The Stream Deck campaign uses warm-left/cool-right light; this treatment
+    echoes it without changing the actual XENEON device, screen or source room.
+    """
+    ambient = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(ambient)
+    draw.ellipse((1080, 360, 2170, 1120), fill=(30, 138, 240, 44))
+    return Image.alpha_composite(image, ambient.filter(ImageFilter.GaussianBlur(85)))
+
+
 def monitor(
     img: Image.Image,
     line1: str,
@@ -206,6 +218,7 @@ def render_one(slug: str, shot: Path, out: Path, write_metadata: bool = True) ->
     img = Image.open(BASE).convert("RGBA")
     if img.size != (W, H):
         fail(f"approved environment must be {W}x{H}: {BASE}")
+    img = add_studio_cool_rim(img)
     monitor(img, line1, line2)
 
     device, x, y, screen = device_geometry()
@@ -237,6 +250,7 @@ def render_one(slug: str, shot: Path, out: Path, write_metadata: bool = True) ->
                     "name": product["name"],
                     "title": product["title"],
                     "scene": SCENE_NAME,
+                    "lighting": "warm-cool-rim-v1",
                     "catalog_version": CATALOG["version"],
                     "source_capture": str(shot),
                     "generated_image_dependency": False,

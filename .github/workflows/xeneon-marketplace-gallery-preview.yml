@@ -1,0 +1,106 @@
+name: XENEON Marketplace Gallery Preview
+
+on:
+  pull_request:
+    paths:
+      - 'tools/art/rat_art.py'
+      - 'tools/art/xeneon_marketplace_campaign.py'
+      - 'tools/art/xeneon_all_hero_batch.py'
+      - 'tools/art/validate_xeneon_marketplace_campaign.py'
+      - 'tools/ship/make_xeneon_kit.py'
+      - 'tools/ship/maker_console_core.mjs'
+      - 'widgets/_src/**/rat-art.json'
+      - 'standards/xeneon-marketplace-gallery-v1.md'
+      - '.github/workflows/xeneon-marketplace-gallery-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    strategy:
+      fail-fast: false
+      matrix:
+        slug: [hwinfo-sensor-dashboard, pc-power-meter-pro]
+    runs-on: windows-latest
+    env:
+      WIDGET_SLUG: ${{ matrix.slug }}
+      RATPACK_ART_FONT: C:\Windows\Fonts\segoeui.ttf
+      RATPACK_ART_FONT_BOLD: C:\Windows\Fonts\segoeuib.ttf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install deterministic QA dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==12.3.0
+          npm install --no-save playwright@1.62.1
+          npx playwright install chromium
+
+      - name: Build and capture all eight real widget layouts
+        shell: pwsh
+        run: |
+          python tools/xeneon/inline.py $env:WIDGET_SLUG
+          if ($LASTEXITCODE -ne 0) { throw "inline build failed" }
+          node tools/art/capture_xeneon.mjs $env:WIDGET_SLUG "artifacts/gallery-preview/shots"
+          if ($LASTEXITCODE -ne 0) { throw "real widget capture failed" }
+
+      - name: Generate exact XENEON marketplace visuals
+        shell: pwsh
+        run: |
+          python tools/art/rat_art.py xeneon $env:WIDGET_SLUG --shots "artifacts/gallery-preview/shots" --out "artifacts/gallery-preview/review"
+          if ($LASTEXITCODE -ne 0) { throw "Rat Art failed" }
+          node tools/ship/render_svg_icon.mjs "widgets/$env:WIDGET_SLUG/resources/icon.svg" "artifacts/gallery-preview/review/icon-288x288.png"
+          if ($LASTEXITCODE -ne 0) { throw "icon render failed" }
+          python tools/art/validate_xeneon_marketplace_campaign.py $env:WIDGET_SLUG --art artifacts/gallery-preview/review
+          if ($LASTEXITCODE -ne 0) { throw "gallery campaign failed" }
+
+      - name: Official CORSAIR widget package
+        shell: pwsh
+        run: |
+          npx --yes icuewidget-cli@0.4.47 validate "widgets/$env:WIDGET_SLUG"
+          if ($LASTEXITCODE -ne 0) { throw "official CORSAIR validation failed" }
+          npx --yes icuewidget-cli@0.4.47 package "widgets/$env:WIDGET_SLUG"
+          if ($LASTEXITCODE -ne 0) { throw "official CORSAIR package failed" }
+          New-Item -ItemType Directory -Force -Path "artifacts/gallery-preview/package" | Out-Null
+          $pkg = Get-ChildItem widgets -Filter '*.icuewidget' -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $pkg) { throw "official package missing" }
+          Copy-Item $pkg.FullName "artifacts/gallery-preview/package/$env:WIDGET_SLUG.icuewidget"
+
+      - name: Check Maker Console runtime patch and stale-gallery guard
+        shell: pwsh
+        run: |
+          node tools/ship/maker_console_patch_test.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Maker Console patch tests failed" }
+          $core = Get-Content tools/ship/maker_console_core.mjs -Raw
+          if (-not $core.Contains('Widget gallery already contains unexpected media')) { throw "stale-gallery fail-closed protection missing" }
+
+      - name: Build and validate exact preview SHIP_KIT
+        shell: pwsh
+        run: |
+          python tools/ship/make_xeneon_kit.py $env:WIDGET_SLUG --package "artifacts/gallery-preview/package/$env:WIDGET_SLUG.icuewidget" --art "artifacts/gallery-preview/review" --out "artifacts/gallery-preview/SHIP_KIT"
+          if ($LASTEXITCODE -ne 0) { throw "kit failed" }
+          python tools/art/validate_xeneon_marketplace_campaign.py $env:WIDGET_SLUG --art artifacts/gallery-preview/review --kit artifacts/gallery-preview/SHIP_KIT
+          if ($LASTEXITCODE -ne 0) { throw "kit mapping failed" }
+          node tools/ship/maker_console.mjs $env:WIDGET_SLUG --kit=artifacts/gallery-preview/SHIP_KIT --check-kit
+          if ($LASTEXITCODE -ne 0) { throw "Maker Console preflight failed" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: xeneon-gallery-preview-${{ matrix.slug }}
+          path: |
+            artifacts/gallery-preview/review/
+            artifacts/gallery-preview/SHIP_KIT/02_cover.png
+            artifacts/gallery-preview/SHIP_KIT/03_gallery_01.png
+            artifacts/gallery-preview/SHIP_KIT/04_gallery_02.png
+            artifacts/gallery-preview/SHIP_KIT/05_gallery_03.png
+            artifacts/gallery-preview/SHIP_KIT/06_gallery_04.png
+          if-no-files-found: error
+          retention-days: 14

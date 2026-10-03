@@ -135,9 +135,9 @@ The capture gate must test glyph safety for clipped descenders and other text-bo
 These are repository defaults for future XENEON Rat Art and should not be reimplemented product by product.
 
 1. Footer center branding is the PackRat rat logo only. Do not render the `PACKRAT` wordmark beside it. Hero frames may still keep useful platform labels such as `iCUE WIDGET` and `CORSAIR XENEON EDGE` at the sides.
-2. Marketplace sequence is cover first, then the detailed feature or value breakdown, then the broader product showcase, then settings or interaction states, then size compatibility. The gallery should teach more as the customer moves forward rather than repeat the cover.
-3. Treat the sequence as a conversion funnel. The cover earns the click. Gallery 01 should answer `What do I get and why would I want this?` at a glance. Later frames should prove the most important experience, remove setup or usability doubts, demonstrate customization or depth, and finish with compatibility confidence.
-4. Gallery 01 should normally contain three or four outcome-led feature/value points. Lead with what materially changes the user experience. Prefer the core use case, controls or workflow, persistence/progression, useful customization, or a meaningful Pro advantage. Do not spend prime feature-list space on low-value implementation trivia such as `zero upkeep`, `runs locally`, or `no account` unless setup friction is genuinely one of the main buying objections.
+2. Marketplace sequence is cover first, then the actual product showcase, then the detailed outcome-led feature breakdown, then an actual settings/interaction/alternate-state capture, then slot compatibility. Use the shared warm-studio-clean orange-to-blue glass background from `standards/xeneon-marketplace-gallery-v1.md` instead of the retired flat-green gallery backgrounds.
+3. Treat the sequence as a conversion funnel. The cover earns the click. Gallery 01 should show a compelling real product screen in the clean studio rather than lead with miniature text. Gallery 02 adds three or four practical reasons to buy. Gallery 03 proves real interaction/state where applicable. Gallery 04 closes with compatibility.
+4. Gallery 02 should normally contain three or four outcome-led feature/value points supported by a real widget capture. Prefer the core use case, controls or workflow, persistence/progression, useful customization, or a meaningful Pro advantage. Avoid low-value implementation trivia unless setup friction is genuinely the main buying objection.
 5. Search/app icons are utility assets, not gallery content. Never create or intentionally upload a logo-only or icon-only gallery frame. If there is no dedicated marketplace icon field, the icon should simply remain a package/search asset.
 6. Cover and gallery frames must be distinct. Rat Ship should fail if any generated marketplace image is byte identical to another listing image.
 7. Labels beneath screenshots need a visible safety gap from the screenshot frame. Never place a label directly on the screenshot edge.
@@ -146,7 +146,7 @@ These are repository defaults for future XENEON Rat Art and should not be reimpl
 
 ### Feature breakdown copy test
 
-Before accepting Gallery 01, read only its title and feature points and ask whether a customer can understand the product's practical value without seeing the rest of the listing.
+Before accepting Gallery 01, inspect the real showcased product screen and its headline at 15% browse scale. The feature points belong to Gallery 02. Preserve one distinct selling job per frame.
 
 For a game, stronger feature points are usually things like display fit, controls, difficulty/progression, persistence, replayability, or meaningful presentation options. For a utility, prioritize the core job, saved time or visibility, important live data, history/persistence, quick controls, and the feature that most clearly separates Lite from Pro.
 

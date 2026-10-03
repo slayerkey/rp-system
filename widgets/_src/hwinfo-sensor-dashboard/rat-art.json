@@ -4,13 +4,13 @@
     "subtitle": "Any HWiNFO sensor on your XENEON Edge, with live graphs and history."
   },
   "showcase": {
-    "title": "Your hardware, your sensor wall.",
-    "subtitle": "Search HWiNFO readings and build a dashboard around the exact CPU, GPU, storage, board, cooling and power sensors your PC exposes.",
+    "title": "Your hardware. Your sensor wall.",
+    "subtitle": "Build a live dashboard from the readings your own PC exposes.",
     "shot": "XL_H.png"
   },
   "features": {
-    "title": "More than four generic numbers.",
-    "subtitle": "Live HWiNFO telemetry with source statistics and bounded history, presented as a touch-first hardware dashboard.",
+    "title": "Any sensor. Graphs. Alerts.",
+    "subtitle": "A hardware dashboard built around your HWiNFO readings, not a fixed CPU and GPU list.",
     "shot": "L_H.png",
     "items": [
       [
@@ -32,31 +32,23 @@
     ]
   },
   "settings": {
-    "title": "Configure it on the XENEON display.",
-    "subtitle": "Choose each dashboard slot, search 100+ sensors, set history and thresholds, and keep favorite readings close.",
+    "title": "Find sensors. Set your limits.",
+    "subtitle": "Search your available sensors and see real thresholds and live warnings.",
     "panels": [
       {
-        "label": "Small glance view",
-        "file": "S_H.png"
+        "label": "Search & choose sensors",
+        "file": "VARIANT_PICKER.png"
       },
       {
-        "label": "Medium dashboard",
-        "file": "M_H.png"
-      },
-      {
-        "label": "Large telemetry",
-        "file": "L_H.png"
-      },
-      {
-        "label": "Full XL dashboard",
-        "file": "XL_H.png"
+        "label": "Live warning thresholds",
+        "file": "VARIANT_WARNING.png"
       }
     ],
-    "tags": "searchable sensors  •  thresholds  •  HWiNFO statistics  •  localhost bridge"
+    "tags": "Real widget states  •  per-sensor selection  •  custom alert thresholds"
   },
   "sizes": {
-    "title": "Eight layouts, tuned for the space.",
-    "subtitle": "Small prioritizes one or two readings. Medium expands to four. Large and XL become true multi-sensor dashboards.",
+    "title": "Four sizes. Both orientations.",
+    "subtitle": "Small for quick readings. Medium through XL for richer dashboards.",
     "footer": "8 tuned layouts total  •  4 sizes  •  horizontal + vertical"
   }
 }

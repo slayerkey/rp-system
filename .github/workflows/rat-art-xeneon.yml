@@ -68,6 +68,10 @@ jobs:
         shell: pwsh
         run: python tools/art/rat_art.py xeneon $env:WIDGET_SLUG --shots "artifacts/rat-art/shots" --out "artifacts/rat-art/review"
 
+      - name: Verify shared XENEON gallery campaign and browse-scale review
+        shell: pwsh
+        run: python tools/art/validate_xeneon_marketplace_campaign.py $env:WIDGET_SLUG --art artifacts/rat-art/review
+
       - name: Verify Rat Art contract
         shell: pwsh
         run: |
