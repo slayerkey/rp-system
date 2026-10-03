@@ -1,0 +1,9 @@
+# PackRat owner review
+* @slayerkey
+
+# Security-sensitive control plane
+/.github/ @slayerkey
+/tools/security/ @slayerkey
+/products/index.json @slayerkey
+/data/marketplace/ @slayerkey
+/prototype/contractor-access/ @slayerkey

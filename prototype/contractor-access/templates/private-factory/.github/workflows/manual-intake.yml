@@ -1,0 +1,65 @@
+name: PackRat Private Factory Intake
+
+on:
+  workflow_dispatch:
+    inputs:
+      assignment_id:
+        description: PackRat assignment ID
+        required: true
+        type: string
+      builder_id:
+        description: PackRat builder ID
+        required: true
+        type: string
+      sku:
+        description: Product SKU
+        required: true
+        type: string
+      source_repository:
+        description: Allowlisted owner/repo
+        required: true
+        type: string
+      source_commit:
+        description: Exact 40-character source commit
+        required: true
+        type: string
+      pull_request:
+        description: Contractor PR number
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate immutable intake
+        shell: bash
+        env:
+          ASSIGNMENT_ID: ${{ inputs.assignment_id }}
+          BUILDER_ID: ${{ inputs.builder_id }}
+          SKU: ${{ inputs.sku }}
+          SOURCE_REPOSITORY: ${{ inputs.source_repository }}
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+          PULL_REQUEST: ${{ inputs.pull_request }}
+        run: |
+          set -euo pipefail
+          [[ "$ASSIGNMENT_ID" =~ ^asg_[A-Za-z0-9_-]+$ ]]
+          [[ "$BUILDER_ID" =~ ^ctr_[A-Za-z0-9_-]+$ ]]
+          [[ "$SOURCE_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]
+          [[ "$SOURCE_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+          [[ "$PULL_REQUEST" =~ ^[1-9][0-9]*$ ]]
+          echo "INTAKE CONTRACT PASS"
+
+      - name: Production provenance boundary
+        shell: bash
+        env:
+          PACKRAT_PROVENANCE_KEY: ${{ secrets.PACKRAT_PROVENANCE_KEY }}
+          PACKRAT_PROVENANCE_KEY_ID: ${{ secrets.PACKRAT_PROVENANCE_KEY_ID }}
+        run: |
+          set -euo pipefail
+          test -n "$PACKRAT_PROVENANCE_KEY"
+          test -n "$PACKRAT_PROVENANCE_KEY_ID"
+          echo "Private factory secret boundary is configured."
