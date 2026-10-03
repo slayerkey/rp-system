@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from math import ceil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -263,3 +264,31 @@ def thin_arrow(
 def paste_face(image: Image.Image, face: Image.Image, x: int, y: int, size: int) -> None:
     rendered = face.resize((size, size), Image.Resampling.LANCZOS)
     image.alpha_composite(rendered, (x, y))
+
+def bounded_key_grid(region: tuple[int, int, int, int], keys, columns: int, size: int, gap_x: int, gap_y: int = 0):
+    """Center exact runtime faces inside an explicit content region or fail closed.
+
+    Shared for native Stream Deck galleries: a valid 1920x960 canvas does not
+    prove that smaller card contents fit. The gallery author still defines the
+    visual panel and its inset content region; this function verifies each key
+    against the region and centers complete rows as one group.
+    """
+    x1, y1, x2, y2 = [int(v) for v in region]
+    keys = list(keys)
+    if not keys or not (1 <= columns <= len(keys)) or size <= 0 or min(gap_x, gap_y) < 0:
+        raise ValueError("Invalid Stream Deck native key-grid geometry")
+    rows = ceil(len(keys) / columns)
+    grid_width = columns * size + (columns - 1) * gap_x
+    grid_height = rows * size + (rows - 1) * gap_y
+    if grid_width > x2 - x1 or grid_height > y2 - y1:
+        raise ValueError(f"Native gallery keys overflow card: grid={grid_width}x{grid_height}, region={region}")
+    left = x1 + (x2 - x1 - grid_width) // 2
+    top = y1 + (y2 - y1 - grid_height) // 2
+    boxes = []
+    for index, key in enumerate(keys):
+        x = left + index % columns * (size + gap_x)
+        y = top + index // columns * (size + gap_y)
+        if x < x1 or y < y1 or x + size > x2 or y + size > y2:
+            raise ValueError(f"Native gallery key {key} escaped card {region}")
+        boxes.append((key, x, y, size))
+    return boxes
