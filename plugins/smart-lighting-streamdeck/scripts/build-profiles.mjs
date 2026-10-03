@@ -39,11 +39,11 @@ const compact=model=>({
  "3,1":action(model,"favoff","favorites","All Favorites OFF",{powerMode:"off"})
 });
 const specs=[
- {file:"lighting-mk2",name:"PackRat Smart Lighting",keypad:mk2},
- {file:"lighting-xl",name:"PackRat Smart Lighting XL",keypad:xl},
- {file:"lighting-plus",name:"PackRat Smart Lighting +",keypad:compact("plus"),
+ {file:"lighting-mk2",name:"Smart Lighting",keypad:mk2},
+ {file:"lighting-xl",name:"Smart Lighting XL",keypad:xl},
+ {file:"lighting-plus",name:"Smart Lighting +",keypad:compact("plus"),
   encoder:{"0,0":action("plus","dial1","brightness","Light Brightness"),"1,0":action("plus","dial2","brightness","Other Brightness")}},
- {file:"lighting-neo",name:"PackRat Smart Lighting Neo",keypad:compact("neo")}
+ {file:"lighting-neo",name:"Smart Lighting Neo",keypad:compact("neo")}
 ];
 const actionIds=specs.flatMap(s=>Object.values(s.keypad).concat(Object.values(s.encoder||{})).map(a=>a.ActionID));
 if(new Set(actionIds).size!==actionIds.length)throw Error("Duplicate profile ActionIDs");
