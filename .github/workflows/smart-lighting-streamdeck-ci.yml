@@ -1,0 +1,71 @@
+name: Smart Lighting Stream Deck Candidate
+on:
+  push:
+    branches:
+      - product/smart-lighting-streamdeck
+    paths:
+      - 'plugins/smart-lighting-streamdeck/**'
+      - 'products/smart-lighting-streamdeck.json'
+      - 'products/index.json'
+      - '.github/workflows/smart-lighting-streamdeck-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: smart-lighting-streamdeck-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows-release-gate:
+    runs-on: windows-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: plugins/smart-lighting-streamdeck/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Install deterministic Rat Art dependencies
+        run: python -m pip install --disable-pip-version-check Pillow==12.3.0
+      - name: Build and test existing unmodified Windows lighting companion
+        run: dotnet run --project companions/smart-lighting-control/PackRat.SmartLighting.Companion.csproj -- --self-test
+      - name: Install locked Stream Deck SDK and Elgato CLI
+        working-directory: plugins/smart-lighting-streamdeck
+        run: npm ci --no-audit --no-fund
+      - name: Build plugin and four deterministic editable profiles
+        working-directory: plugins/smart-lighting-streamdeck
+        run: npm run build
+      - name: Run plugin and protocol regression tests
+        working-directory: plugins/smart-lighting-streamdeck
+        run: npm test
+      - name: Source design contract and canonical inspector
+        run: node tools/qa/streamdeck-plugin-design-audit.mjs plugins/smart-lighting-streamdeck --require-canonical-pi
+      - name: Profile and 72x72 / 36x36 key contract
+        run: node tools/qa/streamdeck-key-visual-audit.mjs plugins/smart-lighting-streamdeck/com.packrat.smart-lighting-streamdeck.sdPlugin --require-major-profiles
+      - name: Official Elgato manifest validation
+        working-directory: plugins/smart-lighting-streamdeck
+        run: npm run validate
+      - name: Official Elgato package (runner-local, never public upload)
+        working-directory: plugins/smart-lighting-streamdeck
+        run: npm run pack
+      - name: Canonical Rat Ship exact-cover/art candidate (runner-local)
+        shell: pwsh
+        run: |
+          ./tools/local/rat-ship-plugin.ps1 -PluginSlug smart-lighting-streamdeck -Destination (Join-Path $env:RUNNER_TEMP 'smart-lighting-streamdeck-ship-kit') -IsolatedBuild
+          if($LASTEXITCODE -ne 0){throw 'Canonical candidate kit failed'}
+      - name: Verify exact final cover and package files
+        shell: pwsh
+        run: |
+          $p = Join-Path $env:RUNNER_TEMP 'smart-lighting-streamdeck-ship-kit'
+          @('smart-lighting-streamdeck.streamDeckPlugin','01_search_icon.png','02_cover.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png','streamdeck-ship-hero-report.json') | ForEach-Object {
+            if(-not(Test-Path (Join-Path $p $_))){throw "Missing exact ship kit file: $_"}
+          }
+          $hash=(Get-FileHash -Path (Join-Path $p 'smart-lighting-streamdeck.streamDeckPlugin') -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "RUNNER-LOCAL PACKAGE SHA256: $hash"
+          Write-Host "The unreleased paid plugin and SHIP_KIT are intentionally not uploaded as PUBLIC Actions artifacts."

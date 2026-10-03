@@ -1,0 +1,23 @@
+{
+  "name": "@packrat/smart-lighting-streamdeck",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-profiles.mjs && node scripts/build-assets.mjs && python scripts/assets.py && rollup -c",
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm run build && npm test",
+    "validate": "streamdeck validate com.packrat.smart-lighting-streamdeck.sdPlugin --no-update-check",
+    "pack": "streamdeck pack com.packrat.smart-lighting-streamdeck.sdPlugin --no-update-check --force --no-file-list --output dist"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "3.0.0"
+  },
+  "devDependencies": {
+    "@elgato/cli": "1.10.0",
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^15.2.2",
+    "@rollup/plugin-terser": "^1.0.0",
+    "rollup": "^4.0.2"
+  }
+}

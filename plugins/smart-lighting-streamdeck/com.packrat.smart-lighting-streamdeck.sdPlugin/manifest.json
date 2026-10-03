@@ -1,0 +1,172 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Actions": [
+    {
+      "UUID": "com.packrat.smart-lighting-streamdeck.power",
+      "Name": "Light / Room Power",
+      "Tooltip": "Show live power and toggle a selected Hue or Govee light, or Hue room / zone",
+      "Icon": "imgs/actions/power/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "UserTitleEnabled": false,
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/power/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.smart-lighting-streamdeck.brightness",
+      "Name": "Brightness",
+      "Tooltip": "A fixed brightness preset on keys; live brightness on Stream Deck+ dial",
+      "Icon": "imgs/actions/brightness/icon",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "SupportedInMultiActions": false,
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": {
+          "Rotate": "Adjust brightness",
+          "Push": "Toggle power"
+        }
+      },
+      "UserTitleEnabled": false,
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/brightness/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.smart-lighting-streamdeck.tone",
+      "Name": "Color / Temperature",
+      "Tooltip": "Set the color or temperature supported by the selected light",
+      "Icon": "imgs/actions/tone/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "UserTitleEnabled": false,
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/tone/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.smart-lighting-streamdeck.scene",
+      "Name": "Scene Recall",
+      "Tooltip": "Recall a supported Philips Hue or Govee scene",
+      "Icon": "imgs/actions/scene/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "UserTitleEnabled": false,
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/scene/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.smart-lighting-streamdeck.favorites",
+      "Name": "Mixed-Brand Favorites",
+      "Tooltip": "Turn all power-capable favorite Hue and Govee lights on or off together",
+      "Icon": "imgs/actions/favorites/icon",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "UserTitleEnabled": false,
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/favorites/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "UUID": "com.packrat.smart-lighting-streamdeck.neo-infobar",
+      "Name": "Lighting Overview",
+      "Tooltip": "Display-only count and names of active Hue / Govee lights on Neo",
+      "Icon": "imgs/actions/neo-infobar/icon",
+      "Controllers": [
+        "Neo"
+      ],
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Image": "imgs/actions/neo-infobar/key",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ],
+  "Author": "PackRat",
+  "Category": "Smart Lighting",
+  "CategoryIcon": "imgs/category/icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "One mixed-brand lighting workflow for Philips Hue and Govee. Local-first control through the existing PackRat Lighting Companion.",
+  "Icon": "imgs/plugin/icon",
+  "Name": "PackRat Smart Lighting for Hue & Govee",
+  "Nodejs": {
+    "Version": "24"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "PropertyInspectorPath": "ui/inspector.html",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.6"
+  },
+  "UUID": "com.packrat.smart-lighting-streamdeck",
+  "Version": "1.0.0.0",
+  "Profiles": [
+    {
+      "Name": "profiles/lighting-mk2",
+      "DeviceType": 0,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/lighting-xl",
+      "DeviceType": 2,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/lighting-plus",
+      "DeviceType": 7,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    },
+    {
+      "Name": "profiles/lighting-neo",
+      "DeviceType": 9,
+      "Readonly": false,
+      "DontAutoSwitchWhenInstalled": true,
+      "AutoInstall": true
+    }
+  ]
+}

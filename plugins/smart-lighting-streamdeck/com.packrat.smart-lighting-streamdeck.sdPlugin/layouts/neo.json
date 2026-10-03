@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/layout.json",
+  "id": "packrat-lighting-neo",
+  "controller": "Neo",
+  "items": [
+    {
+      "key": "left",
+      "type": "text",
+      "rect": [
+        4,
+        7,
+        49,
+        36
+      ],
+      "font": {
+        "size": 12,
+        "weight": 700
+      },
+      "alignment": "left"
+    },
+    {
+      "key": "center",
+      "type": "text",
+      "rect": [
+        60,
+        5,
+        104,
+        40
+      ],
+      "font": {
+        "size": 23,
+        "weight": 700
+      },
+      "alignment": "center"
+    },
+    {
+      "key": "right",
+      "type": "text",
+      "rect": [
+        174,
+        7,
+        54,
+        36
+      ],
+      "font": {
+        "size": 11,
+        "weight": 600
+      },
+      "alignment": "right"
+    }
+  ]
+}
