@@ -1,0 +1,77 @@
+{
+  "id": "smart-lighting-streamdeck",
+  "name": "PackRat Smart Lighting for Hue & Govee",
+  "type": "plugin",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "blocker": null,
+  "price_usd": 9.99,
+  "price_status": "approved by operator on 2026-10-02",
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "submission_metadata": "plugins/smart-lighting-streamdeck/submission.json",
+  "branch": "product/smart-lighting-streamdeck",
+  "source_repository": "https://github.com/slayerkey/rp-system.git",
+  "source_ref": "refs/heads/product/smart-lighting-streamdeck",
+  "source_commit": "c035b41158cba49e6e146f15915eca688258ae41",
+  "plugin_uuid": "com.packrat.smart-lighting-streamdeck",
+  "companion": "companions/smart-lighting-control",
+  "companion_protocol": 1,
+  "companion_download_url": "https://packrat-site.pages.dev/downloads/smart-lighting",
+  "marketplace_art": {
+    "hero_title_style": "monitor",
+    "campaign_style": "warm-studio-glass-v1",
+    "gallery_mode": "native"
+  },
+  "automated_release_evidence": {
+    "status": "PASS",
+    "source_commit": "c035b41158cba49e6e146f15915eca688258ae41",
+    "windows_workflow_run_id": 37084083136,
+    "node_tests_passed": 31,
+    "companion_self_tests": "PASS",
+    "official_elgato_validation": "PASS",
+    "official_elgato_packaging": "PASS",
+    "design_and_key_visual_audit": "PASS",
+    "exact_canonical_rat_art": "PASS",
+    "private_artifact_run_id": 37085181726,
+    "private_artifact_id": 11259808481,
+    "package_sha256": "5286f9e24d3f32e8f33ee0043626b881debc1b02cb516f21df0c904d87780b95",
+    "package_sha256_verified_against_artifact": true
+  },
+  "physical_release_evidence": {
+    "status": "DEFERRED_NOT_TESTED",
+    "deferred_checks": [
+      "Real Philips Hue and Govee pairing/control",
+      "Simultaneous XENEON widget and Stream Deck operation on the operator's PC",
+      "Physical Stream Deck key/dial/Neo states and Property Inspector persistence"
+    ],
+    "operator_release_decision": "Operator approved $9.99 and authorized Rat Ship after green automated gates. Physical tests were not supplied, remain DEFERRED_NOT_TESTED, and must not be claimed as passed; no automatic Marketplace publication."
+  },
+  "marketplace_auto_publish": false,
+  "release_gate": [
+    "Exact green Windows CI and final Rat Art from pinned source: PASS",
+    "Private validated release artifact pinned to exact green source and verified SHA-256: PASS",
+    "Physical lighting and Stream Deck testing: DEFERRED / NOT TESTED",
+    "Authenticated Maker Console final submission: NOT PERFORMED"
+  ],
+  "notes": "Separate Stream Deck plugin consuming the unchanged local XENEON Hue/Govee companion; no duplicate provider integrations or credentials. Private release artifact retention expires 2026-10-10; re-pin/rebuild after expiration if staging later.",
+  "release_artifact": {
+    "repository": "slayerkey/packrat-site",
+    "run_id": 37085181726,
+    "artifact_id": 11259808481,
+    "name": "smart-lighting-streamdeck-private-SHIP_KIT",
+    "commit": "c035b41158cba49e6e146f15915eca688258ae41",
+    "package_path": "smart-lighting-streamdeck-private-SHIP_KIT/smart-lighting-streamdeck.streamDeckPlugin",
+    "package_sha256": "5286f9e24d3f32e8f33ee0043626b881debc1b02cb516f21df0c904d87780b95",
+    "media": {
+      "search_icon": "smart-lighting-streamdeck-private-SHIP_KIT/01_search_icon.png",
+      "cover": "smart-lighting-streamdeck-private-SHIP_KIT/02_cover.png",
+      "gallery": [
+        "smart-lighting-streamdeck-private-SHIP_KIT/03_gallery_01.png",
+        "smart-lighting-streamdeck-private-SHIP_KIT/04_gallery_02.png",
+        "smart-lighting-streamdeck-private-SHIP_KIT/05_gallery_03.png",
+        "smart-lighting-streamdeck-private-SHIP_KIT/06_gallery_04.png"
+      ]
+    }
+  }
+}
