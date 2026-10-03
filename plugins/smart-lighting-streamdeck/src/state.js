@@ -54,7 +54,7 @@ export function commandFor(kind,target,settings) {
  throw new Error("This device does not support the selected control");
 }
 export function favoriteCommands(snapshot,on) {
- return (snapshot?.targets||[]).filter(t=>t.favorite&&t.reachable!==false&&t.capabilities?.power&&t.kind!=="scene")
+ return (snapshot?.targets||[]).filter(t=>t.favorite&&t.reachable!==false&&t.capabilities?.power&&t.kind!=="scene"&&(!snapshot?.providers?.[t.provider]||["connected","partial","lan","cloud"].some(k=>snapshot.providers[t.provider][k]===true)))
   .map(t=>({command:"power",id:t.id,value:!!on}));
 }
 export function observed(snapshot,command) {

@@ -19,7 +19,9 @@ export function viewFor(kind,settings,target,client){
  if(!settings.targetId)return {top:kind.toUpperCase(),value:"SELECT",tone:"neutral"};
  if(!target)return {top:kind.toUpperCase(),value:"MISSING",tone:"error"};
  const name=trim(target.name,15),provider=target.provider.toUpperCase();
- if(target.reachable===false)return {top:name,value:"OFFLINE",foot:provider,tone:"error"};
+ if(target.reachable===false)return {top:name,value:"DEVICE",foot:provider,tone:"error"};
+ const health=client.snapshot?.providers?.[target.provider];
+ if(health && !(health.connected||health.partial||health.lan||health.cloud))return{top:name,value:"PROVIDER",foot:provider,tone:"error"};
  if(!target.capabilities?.[kind==="tone"?settings.toneMode:kind==="scene"?"scene":kind==="brightness"?"brightness":"power"])return{top:name,value:"N/A",foot:provider,tone:"error"};
  if(kind==="power")return{top:name,value:target.on?"ON":"OFF",foot:provider,tone:target.on?"active":"neutral"};
  if(kind==="brightness")return{top:name,value:String(settings.brightness)+"%",foot:provider+" PRESET",tone:"preset"};

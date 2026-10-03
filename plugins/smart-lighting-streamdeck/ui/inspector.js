@@ -53,7 +53,7 @@ function render(){
  renderOptions();
  const t=currentTarget();
  $("selectedState").textContent=!settings.targetId?"Choose a supported target.":!t?"This target was removed. Re-select explicitly.":
-  t.reachable===false?t.name+" is unavailable.":t.name+" · "+(t.on?"ON":"OFF")+(t.brightness==null?"":" · "+Math.round(t.brightness)+"%")+(t.provider==="hue"?" · Hue":" · Govee");
+  t.reachable===false?t.name+" is unavailable.":providers[t.provider]&&!["connected","partial","lan","cloud"].some(k=>providers[t.provider]?.[k]===true)?t.name+" · Provider unavailable":t.name+" · "+(t.on?"ON":"OFF")+(t.brightness==null?"":" · "+Math.round(t.brightness)+"%")+(t.provider==="hue"?" · Hue":" · Govee");
  for(const [field,dom] of Object.entries(val)){if(field!=="targetId"&&!dirty.has(field))$(dom).value=settings[field]??$(dom).value;}
  $("brightnessValue").textContent=safe(settings.brightness||65)+"%";
  const range=Array.isArray(t?.temperatureRange)?t.temperatureRange:[1500,9000];
