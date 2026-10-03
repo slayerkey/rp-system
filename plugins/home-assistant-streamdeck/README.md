@@ -1,4 +1,4 @@
-# Home Assistant Dashboard for Stream Deck — PackRat
+# Home Assistant Dashboard — PackRat Stream Deck
 **Status: automated release candidate passed; physical Stream Deck / operator release gates pending.** Public source is approved by the owner in `slayerkey/rp-system`. Its standalone Stream Deck SKU does not change the existing published XENEON Home Assistant Panel.
 
 ## Product
