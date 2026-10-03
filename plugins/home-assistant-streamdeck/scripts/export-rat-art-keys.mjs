@@ -50,14 +50,30 @@ const keys = [
   ['status', { entityId: triple[0] }],
   ['control', { entityId: 'light.desk_lamp' }],
 ];
+// Write all real renderer fixtures first, then share one Chromium instance
+// instead of launching a new headless browser for every key on Windows.
 for (let i = 0; i < keys.length; i += 1) {
   const [kind, settings] = keys[i];
-  const svg = render(ha, kind, settings);
   const src = resolve(scratch, String(i).padStart(2, '0') + '.svg');
-  const dst = resolve(out, String(i).padStart(2, '0') + '.png');
-  await writeFile(src, svg, 'utf8');
-  const result = spawnSync(process.execPath, [renderer, src, dst], { cwd: root, stdio: 'inherit' });
-  if (result.status !== 0) throw new Error(`Canonical SVG renderer failed for key ${i}`);
+  await writeFile(src, render(ha, kind, settings), 'utf8');
 }
+// Force the Canvas fallback once even in green CI: screenshot-only tests would
+// never cover the exact failure reported on the Windows operator machine.
+const canary = resolve(out, '.canvas-raster-smoke.png');
+const smoke = spawnSync(process.execPath, [renderer, resolve(scratch, '00.svg'), canary, '--canvas-only'], {
+  cwd: root,
+  stdio: 'inherit',
+});
+if (smoke.status !== 0) throw new Error('Canonical SVG Canvas fallback smoke failed');
+await rm(canary, { force: true });
+// Windows headless screenshot capture failed on the operator PC. Use the
+// verified browser Canvas renderer directly for all 15 keys on Windows.
+const batchArgs = [renderer, '--batch', scratch, out];
+if (process.platform === 'win32') batchArgs.push('--canvas-only');
+const result = spawnSync(process.execPath, batchArgs, {
+  cwd: root,
+  stdio: 'inherit',
+});
+if (result.status !== 0) throw new Error('Canonical SVG batch export failed');
 await rm(scratch, { recursive: true, force: true });
 console.log('RAT ART: 15 exact representative runtime key faces (illustrative Home Assistant fixture data)');
