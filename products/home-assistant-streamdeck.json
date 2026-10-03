@@ -1,6 +1,6 @@
 {
   "id": "home-assistant-streamdeck",
-  "name": "Home Assistant Dashboard for Stream Deck",
+  "name": "Home Assistant Dashboard",
   "type": "plugin",
   "status": "qa_passed",
   "workflow_state": "READY_FOR_HARDWARE_QA",
