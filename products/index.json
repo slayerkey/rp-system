@@ -635,7 +635,7 @@
       "id": "performance-grapher-neo",
       "name": "Performance Grapher for Stream Deck Neo",
       "type": "plugin",
-      "status": "testing",
+      "status": "qa_passed",
       "price_usd": 14.99,
       "version": "1.0.0.0"
     },
