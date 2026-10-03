@@ -348,6 +348,30 @@ function Copy-ValidatedArtifactMedia {
         }
         Copy-Item $source (Join-Path $Target $item.Target) -Force
     }
+
+    # External validated kits may include the exact product runtime key faces.
+    # Preserve those faces for the canonical photographed cover rather than
+    # allowing the manifest-icon fallback to replace already-approved art.
+    $keysRelative = [string]$Artifact.media.rat_art_keys
+    if (-not [string]::IsNullOrWhiteSpace($keysRelative)) {
+        if ([System.IO.Path]::IsPathRooted($keysRelative) -or (($keysRelative -split '[\\/]') -contains '..')) {
+            throw "External Rat Art key path must be relative and stay inside the pinned artifact."
+        }
+        $sourceKeys = Join-Path $ArtifactRoot ($keysRelative -replace '/', '\')
+        if (-not (Test-Path $sourceKeys -PathType Container)) {
+            throw "Validated external artifact is missing exact runtime key directory '$keysRelative'."
+        }
+        $runtimeKeys = @(Get-ChildItem -LiteralPath $sourceKeys -File -Filter '*.png')
+        if ($runtimeKeys.Count -ne 15) {
+            throw "Validated external artifact must contain exactly 15 runtime key PNGs; found $($runtimeKeys.Count)."
+        }
+        $targetKeys = Join-Path $Target 'rat-art-keys'
+        New-Item -ItemType Directory -Path $targetKeys -Force | Out-Null
+        foreach ($key in $runtimeKeys) {
+            Copy-Item -LiteralPath $key.FullName -Destination (Join-Path $targetKeys $key.Name) -Force
+        }
+        Write-Host "Recovered $($runtimeKeys.Count) exact runtime key faces from pinned artifact." -ForegroundColor DarkGray
+    }
 }
 
 function Build-FromValidatedExternalArtifact {
