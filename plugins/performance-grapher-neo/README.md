@@ -1,4 +1,4 @@
-# Performance Grapher Neo — dedicated Stream Deck Neo Infobar plugin
+# Performance Grapher for Stream Deck Neo — dedicated Stream Deck Neo Infobar plugin
 
 This is a **separate, Neo-only** PackRat product, not the 1.1 update to the existing Performance Grapher for Stream Deck. The original published plugin and its five Keypad actions, IDs and four bundled profiles remain untouched.
 
