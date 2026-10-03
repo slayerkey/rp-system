@@ -1,6 +1,6 @@
 {
   "slug": "home-assistant-streamdeck",
-  "name": "Home Assistant Dashboard for Stream Deck",
+  "name": "Home Assistant Dashboard",
   "type": "plugin",
   "version": "0.1.0.0",
   "price_usd": null,

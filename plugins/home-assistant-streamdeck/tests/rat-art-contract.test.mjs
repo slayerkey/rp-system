@@ -21,3 +21,10 @@ test('product Rat Art depends on canonical approval surfaces', async () => {
   assert.match(py, /ILLUSTRATIVE TEST VALUES/);
   for (const filename of ['01_search_icon.png','03_gallery_01.png','04_gallery_02.png','05_gallery_03.png','06_gallery_04.png']) assert(py.includes(filename));
 });
+
+test('Marketplace title matches actual manifest and does not duplicate the shared cover subtitle', async () => {
+  const submission = JSON.parse(await src('../submission.json'));
+  const manifest = JSON.parse(await src('../com.packrat.home-assistant-streamdeck.sdPlugin/manifest.json'));
+  assert.equal(submission.name, manifest.Name);
+  assert.doesNotMatch(submission.name, /\bfor\s+stream\s*deck\b/i);
+});
