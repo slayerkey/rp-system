@@ -18,8 +18,8 @@ Create an active branch ruleset targeting the default branch/main.
 
 Required:
 - require a pull request before merging
-- at least 1 approval
-- require review from Code Owners
+- at least 1 approval, **only if there is another trusted reviewer available**. GitHub does not allow an author to approve their own PR.
+- require review from Code Owners for other contributors' PRs. As the only owner, use a narrowly scoped owner bypass for self-authored PRs or add a trusted co-maintainer to avoid locking yourself out. Never give the Marketplace bot a bypass.
 - dismiss stale approvals when new commits are pushed
 - require approval of the most recent reviewable push
 - require all conversations resolved
