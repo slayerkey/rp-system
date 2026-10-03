@@ -504,6 +504,7 @@ async function configurePrice(target) {
 }
 
 async function configureDetails(target) {
+  target = await waitForDetailsAfterCreate(target, 'configure details');
   for (const size of prod.marketplace_dashboard_sizes) {
     await ensureNamedSelected(target, size, `size:${String(size).toLowerCase()}`, 'Dashboard size');
   }
@@ -741,6 +742,47 @@ async function uploadGallery(target) {
   state.galleryProof = {mode:isMultiple?'individual-append':'reverse-for-prepend',files:[...galleryFiles],uploadOrder,before,after:finalCount};
   save();
   mark('6-gallery');
+}
+
+
+async function waitForDetailsAfterCreate(target, phase = 'create-product transition') {
+  // The Create product button can remain on the description screen with a
+  // loading spinner while the server persists the draft. A fixed 900 ms click
+  // delay is not proof that the Details screen has mounted.
+  const deadline = Date.now() + 75000;
+  let sawDetails = false;
+  let sawDescription = false;
+
+  while (Date.now() < deadline) {
+    target = await livePage();
+    const details = await editorLooksLikeDetails(target);
+    const categoryInputs = await target.locator('button[aria-haspopup="listbox"]').count();
+    if (details) sawDetails = true;
+    if (await visible(target.locator('input[readonly][maxlength]').first())) sawDescription = true;
+
+    // Require both the actual details screen and mounted category selectors:
+    // recognizing its heading alone still races asynchronous form hydration.
+    if (details && categoryInputs > 0) {
+      await target.waitForTimeout(300);
+      return target;
+    }
+    await target.waitForTimeout(600);
+  }
+
+  target = await livePage();
+  await snap(target, 'details-transition-timeout');
+  const body = ((await target.locator('body').innerText().catch(() => '')) || '').slice(0,10000);
+  const buttons = await target.getByRole('button').allTextContents().catch(() => []);
+  writeFileSync(join(LOG,'details-transition-diagnostic.json'),JSON.stringify({
+    phase, url:target.url(), sawDescription, sawDetails,
+    categoryListboxCount:await target.locator('button[aria-haspopup="listbox"]').count(),
+    buttons, body
+  },null,2));
+  throw new Error(
+    sawDetails
+      ? 'Maker Console details screen appeared but category selectors did not mount; inspect details-transition-diagnostic.json before changing selectors'
+      : 'Maker Console Create product did not advance to the details screen; inspect the description spinner/error in details-transition-timeout.png'
+  );
 }
 
 async function editorLooksLikeDetails(target) {
@@ -1134,7 +1176,7 @@ async function run() {
       const desc = page.locator('#description').or(page.locator('div[role="textbox"]')).or(page.locator('[contenteditable="true"]')).first();
       await proseMirror(page,desc,readFileSync(join(KIT,'PASTE_description.txt'),'utf8').trim());
       await click(page,/^create product$/i);
-      page = await livePage();
+      page = await waitForDetailsAfterCreate(page, 'fresh create product');
     });
 
     await step('4-details','Set category, dashboard sizes, orientation, language and price',async() => configureDetails(page));
