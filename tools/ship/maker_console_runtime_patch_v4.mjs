@@ -111,7 +111,7 @@ async function deleteConfirmedExistingDraft(target) {
   source = replaceOnce(
     source,
     `  } else {\n    editing = await openExisting(page);\n  }\n\n  if (editing) {`,
-    `  } else if (RESUME) {\n    editing = await openExisting(page);\n  } else {\n    await deleteConfirmedExistingDraft(page);\n    editing = false;\n  }\n\n  if (editing) {`,
+    `  } else if (RESUME) {\n    editing = await openExisting(page);\n    if (!editing) {\n      await page.waitForTimeout(1500);\n      editing = await openExisting(page);\n    }\n    if (!editing) {\n      console.log('No existing Maker Console draft after two checks; clearing partial wizard state to restart safely.');\n      state.done = [];\n      state.uploaded = [];\n      state.detailsSelections = [];\n      state.detailsProof = [];\n      state.pricingProof = null;\n      state.listboxProof = [];\n      state.galleryProof = null;\n      state.lastUrl = null;\n      save();\n    }\n  } else {\n    await deleteConfirmedExistingDraft(page);\n    editing = false;\n  }\n\n  if (editing) {`,
     'fresh-run existing product handling'
   );
 

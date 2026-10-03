@@ -18,7 +18,7 @@ export function patchMakerConsoleSource(source, options) {
   source = replaceOnce(
     source,
     "  if (RESUME && state.lastUrl && /^https:\\/\\/maker\\.elgato\\.com\\//i.test(state.lastUrl)) {",
-    "  if (RESUME && state.lastUrl && /^https:\\/\\/maker\\.elgato\\.com\\//i.test(state.lastUrl) && !/^https:\\/\\/maker\\.elgato\\.com\\/create\\//i.test(state.lastUrl)) {",
+    "  if (RESUME && state.lastUrl && /^https:\\/\\/maker\\.elgato\\.com\\//i.test(state.lastUrl) && !/^https:\\/\\/maker\\.elgato\\.com\\/(?:[^\\/?#]+\\/)?create(?:\\/|[?#]|$)/i.test(state.lastUrl)) {",
     'unsafe create-wizard direct resume guard'
   );
 
