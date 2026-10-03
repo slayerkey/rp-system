@@ -102,7 +102,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ha-ci-config
-          printf 'default_config:\\n' > ha-ci-config/configuration.yaml
+          echo 'default_config:' > ha-ci-config/configuration.yaml
           docker pull ghcr.io/home-assistant/home-assistant:2026.8.3
           docker run -d --name packrat-streamdeck-real-ha -p 8123:8123 -e TZ=Etc/UTC -v "$PWD/ha-ci-config:/config" ghcr.io/home-assistant/home-assistant:2026.8.3
       - name: Verify actual SDK transport, live sensor events and auth rejection
