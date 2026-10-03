@@ -28,3 +28,15 @@ test('Marketplace title matches actual manifest and does not duplicate the share
   assert.equal(submission.name, manifest.Name);
   assert.doesNotMatch(submission.name, /\bfor\s+stream\s*deck\b/i);
 });
+
+test('Windows SVG screenshot failure has a real PNG-producing Canvas fallback and batch mode', async () => {
+  const renderer = await src('../../../tools/ship/render_svg_icon.mjs');
+  const exporter = await src('../scripts/export-rat-art-keys.mjs');
+  assert.match(renderer, /page\.screenshot/);
+  assert.match(renderer, /catch \(error\)/);
+  assert.match(renderer, /canvas\.toDataURL\('image\/png'\)/);
+  assert.match(renderer, /RAT ART|ICON PASS/);
+  assert.match(renderer, /batch.*args\.includes\('--batch'\)/);
+  assert.match(exporter, /'--canvas-only'/);
+  assert.match(exporter, /'--batch', scratch, out/);
+});

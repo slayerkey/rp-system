@@ -7,6 +7,7 @@ on:
       - 'products/home-assistant-streamdeck.json'
       - 'tools/art/**'
       - 'tools/qa/**'
+      - 'tools/ship/render_svg_icon.mjs'
       - 'tools/local/rat-ship-plugin.ps1'
       - '.github/workflows/home-assistant-streamdeck-ci.yml'
   pull_request:
