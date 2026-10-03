@@ -17,6 +17,15 @@ from typing import Any
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 from xeneon_all_hero_batch import PRODUCTS as APPROVED_XENEON_HERO_PRODUCTS, SCENE_NAME as APPROVED_XENEON_HERO_SCENE, render_one as render_approved_xeneon_hero
+from xeneon_marketplace_campaign import (
+    WARM as GALLERY_WARM,
+    COOL as GALLERY_COOL,
+    gallery_canvas,
+    gallery_header,
+    gallery_footer,
+    gallery_scene,
+    STYLE as GALLERY_STYLE,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 W, H = 1920, 960
@@ -31,7 +40,8 @@ RAT = ASSET_DIR / "ratpack-icon-transparent.png"
 SLOT_ORDER = ["S_H", "S_V", "M_H", "M_V", "L_H", "L_V", "XL_H", "XL_V"]
 CONTENT_DIVIDER_Y = 690
 CONTENT_FOOTER_TEXT_Y = 744
-MARKETPLACE_ORDER = ["1-hero.png", "3-features.png", "2-showcase.png", "4-settings.png", "5-sizes.png"]
+# Lead with actual widget proof; feature text supports the second gallery frame.
+MARKETPLACE_ORDER = ["1-hero.png", "2-showcase.png", "3-features.png", "4-settings.png", "5-sizes.png"]
 
 
 def fail(msg: str) -> None:
@@ -268,109 +278,111 @@ def hero(shots: Path, out: Path, name: str, section: dict[str, Any]) -> None:
     canvas.convert("RGB").save(out / "1-hero.png", quality=96)
 
 
-def showcase(shots: Path, out: Path, section: dict[str, Any]) -> None:
-    canvas = gradient_bg()
+def showcase(slug: str, shots: Path, out: Path, section: dict[str, Any]) -> None:
+    canvas = gallery_canvas(slug)
     title = require_text(section.get("title"), "showcase.title")
     subtitle = require_text(section.get("subtitle"), "showcase.subtitle")
     shot_name = require_text(section.get("shot", "XL_H.png"), "showcase.shot")
-    header(canvas, title, subtitle)
-    panel = framed_shot(shots / shot_name, (1700, 500))
-    canvas.alpha_composite(panel, ((W - panel.width) // 2, 260))
-    footer(canvas)
-    canvas.convert("RGB").save(out / "2-showcase.png", quality=96)
+    gallery_header(canvas, title, subtitle, resolve_font)
+    panel = framed_shot(shots / shot_name, (1640, 465))
+    canvas.alpha_composite(panel, ((W - panel.width) // 2, 306 + (464 - panel.height) // 2))
+    gallery_footer(canvas)
+    canvas.convert("RGB").save(out / "2-showcase.png", "PNG", optimize=True)
 
 
-def features(shots: Path, out: Path, section: dict[str, Any]) -> None:
-    canvas = gradient_bg()
+def features(slug: str, shots: Path, out: Path, section: dict[str, Any]) -> None:
+    canvas = gallery_canvas(slug)
     title = require_text(section.get("title"), "features.title")
     subtitle = require_text(section.get("subtitle"), "features.subtitle")
     shot_name = require_text(section.get("shot", "M_V.png"), "features.shot")
     items = section.get("items")
     if not isinstance(items, list) or not 1 <= len(items) <= 4:
         fail("features.items must contain between one and four entries")
-    header(canvas, title, subtitle)
-    panel = framed_shot(shots / shot_name, (520, 500))
-    canvas.alpha_composite(panel, (88, 270))
+    gallery_header(canvas, title, subtitle, resolve_font)
+    panel = framed_shot(shots / shot_name, (650, 375))
+    canvas.alpha_composite(panel, (120 + (650 - panel.width) // 2, 345 + (375 - panel.height) // 2))
     draw = ImageDraw.Draw(canvas)
-    x, y, max_width = 690, 285, 1090
-    spacing = 472 // max(1, len(items))
-    for item in items:
+    x, y, max_width = 800, 306, 990
+    spacing = 455 // len(items)
+    for index, item in enumerate(items):
         if not isinstance(item, list) or len(item) != 2:
             fail("each features.items entry must be [title, description]")
         item_title = require_text(item[0], "feature title")
         description = require_text(item[1], "feature description")
-        draw.rounded_rectangle((x, y + 12, x + 10, y + 32), radius=3, fill=(*ACCENT, 255))
-        title_font = resolve_font(31, True)
+        marker = GALLERY_WARM if index % 2 == 0 else GALLERY_COOL
+        draw.rounded_rectangle((x, y + 10, x + 9, y + 30), radius=3, fill=(*marker, 255))
+        title_font = fit_font(draw, item_title, max_width - 50, 33, 23)
         draw.text((x + 28, y), item_title, font=title_font, fill=(*WHITE, 255))
-        desc_font = resolve_font(22, False)
-        yy = y + 42
-        for line in wrapped_lines(draw, description, desc_font, max_width - 40, 2):
+        desc_font = resolve_font(23, False)
+        yy = y + 40
+        for line in wrapped_lines(draw, description, desc_font, max_width - 45, 2):
             draw.text((x + 28, yy), line, font=desc_font, fill=(*MUTED, 255))
             yy += 29
         y += spacing
-    footer(canvas)
-    canvas.convert("RGB").save(out / "3-features.png", quality=96)
+    gallery_footer(canvas)
+    canvas.convert("RGB").save(out / "3-features.png", "PNG", optimize=True)
 
 
-def settings(shots: Path, out: Path, section: dict[str, Any]) -> None:
-    canvas = gradient_bg()
+def settings(slug: str, shots: Path, out: Path, section: dict[str, Any]) -> None:
+    canvas = gallery_canvas(slug)
     title = require_text(section.get("title"), "settings.title")
     subtitle = require_text(section.get("subtitle"), "settings.subtitle")
     panels = section.get("panels")
     if not isinstance(panels, list) or not 1 <= len(panels) <= 4:
         fail("settings.panels must contain between one and four entries")
-    header(canvas, title, subtitle)
+    gallery_header(canvas, title, subtitle, resolve_font)
     draw = ImageDraw.Draw(canvas)
+    count = len(panels)
     gap = 28
-    box_width = min(390, (1640 - gap * (len(panels) - 1)) // len(panels))
-    total = box_width * len(panels) + gap * (len(panels) - 1)
+    # Two deliberate feature/state captures get much more screen area than
+    # four small generic layout thumbnails.
+    box_width = 710 if count <= 2 else min(415, (1610 - gap * (count - 1)) // count)
+    max_height = 364 if count <= 2 else 265
+    total = box_width * count + gap * (count - 1)
     x = (W - total) // 2
-    panel_top = 285
-    label_y = 610
+    panel_top = 318 if count <= 2 else 336
+    band = 365 if count <= 2 else 284
+    label_y = 710 if count <= 2 else 659
     for panel_meta in panels:
         if not isinstance(panel_meta, dict):
             fail("each settings.panels entry must be an object")
         label = require_text(panel_meta.get("label"), "settings panel label")
         file_name = require_text(panel_meta.get("file"), "settings panel file")
-        panel = framed_shot(shots / file_name, (box_width, 250))
-        canvas.alpha_composite(panel, (x + (box_width - panel.width) // 2, panel_top))
+        panel = framed_shot(shots / file_name, (box_width - 8, max_height))
+        canvas.alpha_composite(panel, (x + (box_width - panel.width) // 2, panel_top + (band - panel.height) // 2))
         draw.text(
             (x + box_width // 2, label_y),
             label,
-            font=resolve_font(25, True),
+            font=fit_font(draw, label, box_width - 16, 29, 20),
             fill=(*WHITE, 255),
             anchor="mm",
         )
         x += box_width + gap
-    draw_content_divider(canvas)
     tags = section.get("tags")
     if isinstance(tags, str) and tags.strip():
         tag_font = fit_font(draw, tags, 1500, 23, 17, bold=False)
-        draw.text((W // 2, CONTENT_FOOTER_TEXT_Y), tags, font=tag_font, fill=(*MUTED, 255), anchor="mm")
-    footer(canvas)
-    canvas.convert("RGB").save(out / "4-settings.png", quality=96)
+        draw.text((W // 2, 768), tags, font=tag_font, fill=(*MUTED, 255), anchor="mm")
+    gallery_footer(canvas)
+    canvas.convert("RGB").save(out / "4-settings.png", "PNG", optimize=True)
 
 
-def sizes(shots: Path, out: Path, section: dict[str, Any]) -> None:
-    canvas = gradient_bg()
+def sizes(slug: str, shots: Path, out: Path, section: dict[str, Any]) -> None:
+    canvas = gallery_canvas(slug)
     title = require_text(section.get("title"), "sizes.title")
     subtitle = require_text(section.get("subtitle"), "sizes.subtitle")
     footer_text = require_text(section.get("footer"), "sizes.footer")
-    header(canvas, title, subtitle)
+    gallery_header(canvas, title, subtitle, resolve_font)
     draw = ImageDraw.Draw(canvas)
     specs = [
-        ("S slot", "S_H.png", 300, 210),
-        ("M slot", "M_V.png", 255, 300),
-        ("L slot", "L_H.png", 390, 210),
-        ("XL slot", "XL_H.png", 450, 210),
+        ("SMALL", "S_H.png", 300, 210),
+        ("MEDIUM", "M_V.png", 300, 330),
+        ("LARGE", "L_H.png", 400, 230),
+        ("EXTRA LARGE", "XL_H.png", 470, 230),
     ]
-    gap = 35
-    widths = [spec[2] for spec in specs]
-    total = sum(widths) + gap * 3
+    gap = 32
+    total = sum(spec[2] for spec in specs) + gap * (len(specs) - 1)
     x = (W - total) // 2
-    base = 285
-    visual_band = 300
-    label_y = 640
+    base, visual_band, label_y = 306, 320, 675
     for label, file_name, max_width, max_height in specs:
         panel = framed_shot(shots / file_name, (max_width, max_height))
         py = base + (visual_band - panel.height) // 2
@@ -378,16 +390,15 @@ def sizes(shots: Path, out: Path, section: dict[str, Any]) -> None:
         draw.text(
             (x + max_width // 2, label_y),
             label,
-            font=resolve_font(24, True),
+            font=fit_font(draw, label, max_width, 27, 18),
             fill=(*WHITE, 255),
             anchor="mm",
         )
         x += max_width + gap
-    draw_content_divider(canvas)
-    footer_font = fit_font(draw, footer_text, 1500, 21, 16, bold=False)
-    draw.text((W // 2, CONTENT_FOOTER_TEXT_Y), footer_text, font=footer_font, fill=(*MUTED, 255), anchor="mm")
-    footer(canvas)
-    canvas.convert("RGB").save(out / "5-sizes.png", quality=96)
+    footer_font = fit_font(draw, footer_text, 1510, 24, 18, bold=False)
+    draw.text((W // 2, 766), footer_text, font=footer_font, fill=(*MUTED, 255), anchor="mm")
+    gallery_footer(canvas)
+    canvas.convert("RGB").save(out / "5-sizes.png", "PNG", optimize=True)
 
 
 def contact_sheet(out: Path, name: str) -> None:
@@ -444,10 +455,10 @@ def render_xeneon(slug: str, shots: Path, out: Path) -> None:
     hero(shots, out, name, config["hero"])
     if slug in APPROVED_XENEON_HERO_PRODUCTS:
         render_approved_xeneon_hero(slug, shots / "XL_H.png", out / "1-hero.png", write_metadata=False)
-    showcase(shots, out, config["showcase"])
-    features(shots, out, config["features"])
-    settings(shots, out, config["settings"])
-    sizes(shots, out, config["sizes"])
+    showcase(slug, shots, out, config["showcase"])
+    features(slug, shots, out, config["features"])
+    settings(slug, shots, out, config["settings"])
+    sizes(slug, shots, out, config["sizes"])
     contact_sheet(out, name)
 
     report = {
@@ -458,6 +469,8 @@ def render_xeneon(slug: str, shots: Path, out: Path) -> None:
         "product_config": str(config_path.relative_to(ROOT)).replace("\\", "/"),
         "product_config_sha256": sha(config_path),
         "marketplace_order": MARKETPLACE_ORDER,
+        "gallery_system": GALLERY_STYLE,
+        "gallery_scene": str(gallery_scene(slug).relative_to(ROOT)).replace("\\\\", "/"),
         "footer_branding": "logo-only",
         "hero_system": (
             f"approved-xeneon:{APPROVED_XENEON_HERO_SCENE}"
