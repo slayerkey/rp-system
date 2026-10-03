@@ -12,10 +12,10 @@
   "submission_metadata": "plugins/home-assistant-streamdeck/submission.json",
   "source_owner": "PRIVATE_PER_SKU_REQUIRED",
   "controller_repository": "slayerkey/rp-system",
-  "candidate_local_commit": "4e2727f30bba3e36ebe50a33c092435480bce118",
+  "candidate_local_commit": "36ee24dd5ad2fb3e6dd60a9b669ce2f4ea0667ad",
   "source_migration": "Pending approved private per-SKU source repository and exact remote commit; never fall back to public paid-code upload.",
   "release_gate": [
-    "29 deterministic fixture tests previously passed on local source candidate (not a real Home Assistant server)",
+    "31 deterministic fixture and Rat Art contract tests passed on local source candidate (not a real Home Assistant server)",
     "Canonical --require-canonical-pi design audit: NOT YET RUN ON COMPLETE CANONICAL REPO",
     "Canonical --require-major-profiles visual audit: NOT YET RUN ON COMPLETE CANONICAL REPO",
     "Official Elgato CLI validation and packaging: NOT RUN",
