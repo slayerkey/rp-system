@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.streamDeckPlugin
+.ship-kit/
+.env*
+*.token
+.DS_Store
+com.packrat.home-assistant-streamdeck.sdPlugin/bin/

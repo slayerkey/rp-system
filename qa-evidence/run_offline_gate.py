@@ -42,6 +42,6 @@ for name,size in [('imgs/plugin/icon.png',(256,256)),('imgs/plugin/icon@2x.png',
     path=P/name
     with Image.open(path) as img: assert img.size==size,(name,img.size)
 report={'gate':'OFFLINE STRUCTURAL ONLY','manifest_actions':len(M['Actions']),'unique_action_ids':len(seen),'profiles':rows,'vendor_cli':'NOT RUN','real_home_assistant':'NOT RUN','physical_hardware':'NOT RUN','canonical_art':'NOT RUN'}
-(ROOT/'qa-evidence/offline-structure.json').write_text(json.dumps(report,indent=2)+'\n')
+out=ROOT/'artifacts/home-assistant/offline-structure.json'\nout.parent.mkdir(parents=True,exist_ok=True)\nout.write_text(json.dumps(report,indent=2)+'\n')
 print('OFFLINE STRUCTURE PASS: 7 actions, 4 profiles, %d unique action identities'%len(seen))
 for row in rows:print('device %s keys %s encoders %s'% (row['device'],row['keypad'],row['encoder']))
