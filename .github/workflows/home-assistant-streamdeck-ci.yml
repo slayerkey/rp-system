@@ -88,3 +88,29 @@ jobs:
           name: home-assistant-ratship-safe-review
           path: artifacts/home-assistant-safe-review/*
           if-no-files-found: error
+
+  real-home-assistant:
+    name: Shared Stream Deck transport on real Home Assistant Core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Boot isolated real Home Assistant Core
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ha-ci-config
+          printf 'default_config:\\n' > ha-ci-config/configuration.yaml
+          docker pull ghcr.io/home-assistant/home-assistant:2026.8.3
+          docker run -d --name packrat-streamdeck-real-ha -p 8123:8123 -e TZ=Etc/UTC -v "$PWD/ha-ci-config:/config" ghcr.io/home-assistant/home-assistant:2026.8.3
+      - name: Verify actual SDK transport, live sensor events and auth rejection
+        run: node plugins/home-assistant-streamdeck/tests/real-core-smoke.mjs http://127.0.0.1:8123 qa-evidence/real-home-assistant.json
+      - name: Retain non-secret real-server evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-assistant-real-core-transport-evidence
+          path: qa-evidence/real-home-assistant.json
+          if-no-files-found: warn
