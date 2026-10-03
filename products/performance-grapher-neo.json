@@ -2,9 +2,9 @@
   "id": "performance-grapher-neo",
   "name": "Performance Grapher Neo",
   "type": "plugin",
-  "status": "testing",
-  "workflow_state": "READY_FOR_HARDWARE_QA",
-  "blocker": "Physical Stream Deck Neo smoke test and final Marketplace cover approval pending; standalone Marketplace price $14.99 approved.",
+  "status": "qa_passed",
+  "workflow_state": "READY_TO_SHIP",
+  "blocker": null,
   "price_usd": 14.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck Neo Infobar / Windows",
@@ -17,14 +17,14 @@
   "action_uuid": "com.packrat.performance-grapher-neo.infobar",
   "minimum_stream_deck": "7.6",
   "distinct_product_from": "performance-grapher-streamdeck",
-  "hardware_gate": "PENDING_PHYSICAL_NEO",
+  "hardware_gate": "DEFERRED_BY_OPERATOR_NOT_PASSED",
   "release_gate": [
     "Exact-head Windows CI: PASS (run 35953225587, source 9f9c53e)",
     "Official Elgato Neo-only manifest/layout validation and .streamDeckPlugin package: PASS",
     "Shared telemetry regression tests and Neo-only unit tests: PASS",
     "Windows .NET helper smoke probe: PASS",
-    "Deterministic Neo-specific Marketplace art generated: PASS; final cover approval pending",
-    "Physical Stream Deck Neo runtime/readability and Inspector persistence: NOT YET TESTED",
+    "Deterministic Neo-specific art: generated in validated artifact; final canonical cover/gallery to be applied and preflighted by Rat Ship before submission",
+    "Physical Stream Deck Neo test: DEFERRED BY OPERATOR (unverified, potential rejection risk accepted)",
     "Standalone Marketplace listing price: APPROVED at $14.99"
   ],
   "source_commit": "9f9c53eed7cbb1fe4de54cdf57534f150ad703b6",
@@ -61,5 +61,17 @@
     "shared_and_neo_unit_tests": "PASS",
     "streamdeck_design_audit": "PASS"
   },
-  "final_boundary": "Release candidate pinned to exact successful automated artifact; not READY_TO_SHIP. No physical Neo claim and no price approved."
+  "final_boundary": "READY_TO_SHIP using exact successful Windows CI artifact (source 9f9c53e, run 35953225587), $14.99 explicitly approved. Physical Neo runtime/readability/PI test explicitly deferred by operator, NOT passed. Final Rat Ship-generated canonical artwork and Marketplace preflight must pass before any submission.",
+  "physical_release_evidence": {
+    "status": "OPERATOR_ACCEPTED_DEFERRED_PHYSICAL_NEO_SMOKE",
+    "decision": "Operator explicitly elected to move READY_TO_SHIP and accept potential Marketplace rejection rather than require physical Neo smoke before submission.",
+    "not_verified": [
+      "Physical Neo Infobar 232x50 readability, clipping, and live CPU/GPU/RAM values",
+      "Physical Neo Property Inspector settings persistence, mode rotation and removal/re-add lifecycle",
+      "Real-host behavior when installed alongside the original Performance Grapher"
+    ],
+    "follow_up": "Perform physical Neo smoke at earliest opportunity and troubleshoot any Marketplace/device-reported issue.",
+    "claim": "DEFERRED_NOT_PASSED"
+  },
+  "marketplace_art_gate": "Rat Ship must apply and validate final canonical Marketplace cover/gallery from this exact release artifact; existing product art is preview, not separately approved final cover."
 }
