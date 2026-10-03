@@ -1,10 +1,11 @@
 from __future__ import annotations
-import argparse, os, sys
+import argparse, math, os, sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/"tools"/"art"))
-from streamdeck_marketplace_campaign import campaign_header,campaign_footer,glass_panel,load_scene,resolve_campaign_config
+from streamdeck_marketplace_campaign import campaign_header,campaign_footer,glass_panel,load_scene,resolve_campaign_config,thin_arrow
+from marketplace_text import draw_fitted_text
 SLUG="smart-lighting-streamdeck"
 CONFIG=resolve_campaign_config(SLUG)
 LOGO=ROOT/"tools/art/assets/ratpack-icon-transparent.png"
@@ -27,10 +28,35 @@ def face(out,n):
  im=Image.open(p).convert("RGBA")
  if im.size!=(288,288):raise SystemExit("Wrong runtime key dimensions")
  return im
-def keys(im,out,ns,x,y,size=174,gap=17,cols=4):
+def layout_faces(region,ns,cols,size,gap_x,gap_y=0):
+ # Layout regions are inset from their visual panels. Refuse to generate art
+ # when a runtime key face would spill beyond its card.
+ x1,y1,x2,y2=region
+ if not ns or not (1<=cols<=len(ns)) or min(size,gap_x,gap_y)<0 or size==0:raise ValueError("Invalid key grid geometry")
+ rows=math.ceil(len(ns)/cols)
+ grid_w=cols*size+(cols-1)*gap_x
+ grid_h=rows*size+(rows-1)*gap_y
+ if grid_w>x2-x1 or grid_h>y2-y1:
+  raise ValueError(f"Rat Art keys overflow their card: grid {grid_w}x{grid_h}, region {region}")
+ left=x1+((x2-x1-grid_w)//2)
+ top=y1+((y2-y1-grid_h)//2)
+ result=[]
  for i,n in enumerate(ns):
-  f=face(out,n).resize((size,size),Image.Resampling.LANCZOS)
-  im.alpha_composite(f,(x+(i%cols)*(size+gap),y+(i//cols)*(size+gap)))
+  x=left+(i%cols)*(size+gap_x);y=top+(i//cols)*(size+gap_y)
+  if x<x1 or y<y1 or x+size>x2 or y+size>y2:raise ValueError(f"Runtime key {n} escaped card {region}")
+  result.append((n,x,y,size))
+ return result
+def place_faces(im,out,region,ns,cols,size,gap_x,gap_y=0):
+ geometry=layout_faces(region,ns,cols,size,gap_x,gap_y)
+ for n,x,y,key_size in geometry:
+  f=face(out,n).resize((key_size,key_size),Image.Resampling.LANCZOS)
+  im.alpha_composite(f,(x,y))
+ return geometry
+def caption_box(center,top,width=210):
+ return (int(center-width/2),top,int(center+width/2),top+46)
+def caption(im,txt,center,top,width=210,color=WHITE):
+ box=caption_box(center,top,width)
+ draw_fitted_text(ImageDraw.Draw(im),box,txt,font,fill=color,max_size=30,min_size=22,bold=True,max_lines=1,align="center")
 def label(im,txt,x,y,size=35,color=WHITE):
  ImageDraw.Draw(im).text((x,y),txt,font=font(size),fill=color)
 def panel(im,b):glass_panel(im,b,radius=28,fill=(8,12,18,210),border_alpha=180,glow_alpha=22,border_width=2)
@@ -39,32 +65,50 @@ def search_icon(out):
  im=ImageOps.contain(approved,(512,512),Image.Resampling.LANCZOS);canvas=Image.new("RGBA",(512,512),(8,10,14,255));canvas.alpha_composite(im,((512-im.width)//2,(512-im.height)//2))
  canvas.save(out/"01_search_icon.png",optimize=True)
 def slides(out):
- # Product-local 02 is an intermediate. Rat Ship overwrites with approved
- # photographed MK.2 compositor using exact rat-art-keys from this same run.
- im=background("ONE DECK. BOTH LIGHTING BRANDS.","Real controls, not an illustration of a separate second product")
- keys(im,out,list(range(1,16)),225,290,141,16,5);save(im,out/"02_cover.png")
- im=background("STOP SWITCHING LIGHTING APPS","Keep Hue and Govee on the same Stream Deck surface")
- panel(im,(154,306,865,737));label(im,"Separate lighting apps",206,358)
- label(im,"Hue controls",222,453,29,MUTED);label(im,"Govee controls",222,533,29,MUTED)
- panel(im,(970,306,1770,737));label(im,"One mixed-brand deck",1008,358)
- keys(im,out,[1,7,3,4,5,10],1010,420,190,31,3)
+ # Product-local 02 is an intermediate. Rat Ship replaces it with the
+ # photographed MK.2 hero using the exact runtime faces from this same run.
+ im=background("ONE DECK. BOTH LIGHTING BRANDS.","Real controls from one unified Stream Deck plugin")
+ place_faces(im,out,(245,285,1655,761),list(range(1,16)),5,132,30,18)
+ save(im,out/"02_cover.png")
+
+ # 1. Why: show the two-app workflow becoming one deck. Both rows now fit.
+ im=background("STOP SWITCHING LIGHTING APPS","Hue and Govee controls on one Stream Deck")
+ left_panel=(150,310,862,740);right_panel=(982,310,1770,740)
+ panel(im,left_panel);panel(im,right_panel)
+ label(im,"Separate lighting apps",209,362,33)
+ label(im,"Hue app",247,457,31,MUTED)
+ label(im,"Govee app",247,548,31,MUTED)
+ thin_arrow(ImageDraw.Draw(im),884,538,957,width=8)
+ label(im,"One mixed-brand deck",1030,356,33)
+ place_faces(im,out,(1032,403,1716,716),[1,7,3,4,5,10],3,142,25,20)
  save(im,out/"03_gallery_01.png")
- im=background("ONE-PRESS MIXED-BRAND FAVORITES","Power eligible favorite Hue and Govee lights together")
- panel(im,(205,330,1715,735))
- keys(im,out,[1,7,5,10],328,431,193,67,4)
- label(im,"HUE",392,674,28);label(im,"GOVEE",674,674,28);label(im,"ALL ON",968,674,28,ORANGE);label(im,"ALL OFF",1283,674,28,ORANGE)
+
+ # 2. Strongest repeated workflow: exactly four centered keys and captions.
+ im=background("ONE PRESS. BOTH LIGHTING BRANDS.","Power your favorite Hue and Govee lights together")
+ panel(im,(205,327,1715,741))
+ positions=place_faces(im,out,(286,407,1634,625),[1,7,5,10],4,200,110)
+ for (_,x,_,size),txt,color in zip(positions,["HUE","GOVEE","ALL ON","ALL OFF"],[WHITE,WHITE,ORANGE,WHITE]):
+  caption(im,txt,x+size//2,643,245,color)
  save(im,out/"04_gallery_02.png")
- im=background("POWER. BRIGHTNESS. COLOR. SCENES.","Capabilities come from the real Hue and Govee devices")
- panel(im,(175,317,1745,742));keys(im,out,[2,3,8,9,6],280,403,209,43,5)
- label(im,"Live power",280,668,25);label(im,"Bright preset",532,668,25);label(im,"Warmth",785,668,25);label(im,"RGB",1038,668,25);label(im,"Hue scene",1285,668,25)
+
+ # 3. The shipping plugin's exact live key visuals, not marketing substitutes.
+ im=background("POWER. BRIGHTNESS. COLOR. SCENES.","Controls adapt to supported Hue and Govee devices")
+ panel(im,(175,317,1745,742))
+ positions=place_faces(im,out,(231,395,1689,623),[2,3,8,9,6],5,204,45)
+ for (_,x,_,size),txt in zip(positions,["LIVE POWER","BRIGHTNESS","WARMTH","RGB","HUE SCENES"]):
+  caption(im,txt,x+size//2,654,235)
  save(im,out/"05_gallery_03.png")
- im=background("SET IT UP ONCE. CONTROL IT DAILY.","Shared Windows companion • Local Hue + Govee LAN where supported")
- panel(im,(185,318,955,741));label(im,"Included profiles",247,373)
- label(im,"Standard / MK.2",259,451,31);label(im,"Stream Deck XL",259,519,31)
- label(im,"Stream Deck +",259,587,31);label(im,"Stream Deck Neo",259,655,31)
- panel(im,(1000,318,1755,741));label(im,"Purpose-built controls",1065,373)
- keys(im,out,[11,12,13,14],1050,458,167,25,4)
- label(im,"Plus dials + Neo status",1103,669,25,MUTED)
+
+ # 4. Model support: inset keys + bounded footer inside the right glass card.
+ im=background("SET IT UP ONCE. CONTROL IT DAILY.","Shared Windows companion • Hue + supported Govee LAN lights")
+ left_panel=(185,318,950,741);right_panel=(1000,318,1755,741)
+ panel(im,left_panel);panel(im,right_panel)
+ label(im,"Included profiles",245,371,35)
+ for i,txt in enumerate(["STANDARD / MK.2","STREAM DECK XL","STREAM DECK +","STREAM DECK NEO"]):
+  label(im,txt,267,450+i*67,30)
+ label(im,"Purpose-built controls",1056,371,34)
+ place_faces(im,out,(1037,437,1718,619),[11,12,13,14],4,143,28)
+ caption(im,"PLUS DIALS + NEO STATUS",1377,657,605,MUTED)
  save(im,out/"06_gallery_04.png")
 if __name__=="__main__":
  parser=argparse.ArgumentParser();parser.add_argument("--out",required=True);args=parser.parse_args()
