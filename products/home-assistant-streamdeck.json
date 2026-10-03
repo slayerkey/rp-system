@@ -23,11 +23,14 @@
     "Deterministic five-frame Rat Art and final Rat Ship cover/contact sheet: NOT GENERATED",
     "Price approval: PENDING; $9.99 is only a hypothesis"
   ],
-  "blocker": "Paid source is not yet in an approved private per-SKU repository; no exact verified private CI artifact or release_artifact pin. Rat Ship must fail closed.",
-  "final_boundary": "CANONICAL REGISTRATION STAGED ONLY. Do not run rat ship for submission or mark READY_TO_SHIP until private exact-source CI, package hash, final art and required runtime release gates are resolved.",
+  "blocker": "Awaiting public source import, clean exact-head Rat Ship CI, approved price, and real Home Assistant / hardware validation; do not publish.",
+  "final_boundary": "TESTING: public import authorized. Run canonical source, design, profile, official CLI and final Rat Ship art gates before READY_TO_SHIP; publication not authorized.",
   "distinct_from": "home-assistant",
   "marketplace_art": {
     "campaign_style": "warm-studio-glass-v1",
     "gallery_mode": "wrap"
-  }
+  },
+  "source": "plugins/home-assistant-streamdeck",
+  "branch": "integration/home-assistant-streamdeck-ratship",
+  "source_repository": "https://github.com/slayerkey/rp-system.git"
 }
