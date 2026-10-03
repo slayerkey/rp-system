@@ -28,7 +28,7 @@
       "UUID": "com.packrat.home-assistant-streamdeck.status",
       "Name": "Entity Status",
       "Tooltip": "Shows a selected entity with live state and unit.",
-      "Icon": "imgs/actions/status/icon.png",
+      "Icon": "imgs/actions/status/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -46,7 +46,7 @@
       "UUID": "com.packrat.home-assistant-streamdeck.graph",
       "Name": "Live History",
       "Tooltip": "Observed rolling history for numeric sensors.",
-      "Icon": "imgs/actions/graph/icon.png",
+      "Icon": "imgs/actions/graph/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -64,7 +64,7 @@
       "UUID": "com.packrat.home-assistant-streamdeck.overview",
       "Name": "Home Overview",
       "Tooltip": "Three live entity values at a glance.",
-      "Icon": "imgs/actions/overview/icon.png",
+      "Icon": "imgs/actions/overview/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -82,7 +82,7 @@
       "UUID": "com.packrat.home-assistant-streamdeck.control",
       "Name": "Smart-Home Control",
       "Tooltip": "Toggle a supported light or switch.",
-      "Icon": "imgs/actions/control/icon.png",
+      "Icon": "imgs/actions/control/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -100,7 +100,7 @@
       "UUID": "com.packrat.home-assistant-streamdeck.trigger",
       "Name": "Scene / Script",
       "Tooltip": "Activate a configured Home Assistant scene or script.",
-      "Icon": "imgs/actions/trigger/icon.png",
+      "Icon": "imgs/actions/trigger/icon",
       "Controllers": [
         "Keypad"
       ],
@@ -118,7 +118,7 @@
       "UUID": "com.packrat.home-assistant-streamdeck.brightness",
       "Name": "Brightness Dial",
       "Tooltip": "Adjust a supported light brightness with Stream Deck +.",
-      "Icon": "imgs/actions/brightness/icon.png",
+      "Icon": "imgs/actions/brightness/icon",
       "Controllers": [
         "Encoder"
       ],
@@ -143,7 +143,7 @@
       "UUID": "com.packrat.home-assistant-streamdeck.neo-infobar",
       "Name": "Neo Home Infobar",
       "Tooltip": "Show three selected household values on Neo.",
-      "Icon": "imgs/actions/neo-infobar/icon.png",
+      "Icon": "imgs/actions/neo-infobar/icon",
       "Controllers": [
         "Neo"
       ],

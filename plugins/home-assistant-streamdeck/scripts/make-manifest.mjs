@@ -10,7 +10,7 @@ const specs=[
  ['neo-infobar','Neo Home Infobar','Show three selected household values on Neo.',['Neo']],
 ];
 const actions=specs.map(([slug,name,tooltip,controllers])=>({
- UUID:prefix+'.'+slug,Name:name,Tooltip:tooltip,Icon:`imgs/actions/${slug}/icon.png`,Controllers:controllers,
+ UUID:prefix+'.'+slug,Name:name,Tooltip:tooltip,Icon:`imgs/actions/${slug}/icon`,Controllers:controllers,
  SupportedInMultiActions:false,DisableAutomaticStates:true,UserTitleEnabled:false,
  ...(slug==='brightness'?{Encoder:{layout:'$B1',TriggerDescription:{Rotate:'Adjust brightness',Push:'Toggle light'}}}:{}),
  States:[{Image:`imgs/actions/${slug}/key`,ShowTitle:false}],
