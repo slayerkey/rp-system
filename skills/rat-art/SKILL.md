@@ -7,6 +7,8 @@ description: Research, stage, render, and visually review PackRat marketplace ar
 
 Rat Art is a repository pipeline, not chat image generation.
 
+For native Stream Deck galleries with card panels, use the shared bounded-grid and fitted-caption rules in `standards/streamdeck-marketplace-art-system-v1.md`. Do not accept dimensions-only validation: require source-owned geometry regression that fails on text/key overflow before building the SHIP_KIT.
+
 ## Non-negotiable execution rule
 
 When the user invokes `/rat-art`, asks to use Rat Art, or asks to regenerate marketplace art through the Rat Art pipeline, **do not call ChatGPT image generation, ImageGen, DALL-E, an image API, or any other generative image provider**.
