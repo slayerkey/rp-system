@@ -73,5 +73,10 @@
     "follow_up": "Perform physical Neo smoke at earliest opportunity and troubleshoot any Marketplace/device-reported issue.",
     "claim": "DEFERRED_NOT_PASSED"
   },
-  "marketplace_art_gate": "Rat Ship must apply and validate final canonical Marketplace cover/gallery from this exact release artifact; existing product art is preview, not separately approved final cover."
+  "marketplace_art_gate": "Rat Ship must apply and validate final canonical Marketplace cover/gallery from this exact release artifact; existing product art is preview, not separately approved final cover.",
+  "marketplace_art": {
+    "gallery_mode": "wrap",
+    "hero_mode": "neo-infobar-native-cover",
+    "hero_rationale": "Neo-only 232x50 Infobar action with zero normal keypad actions; preserve the exact validated artifact's truthful native Infobar cover rather than render the global 15-key photographed device. Rat Ship must verify source manifest identity and full-size native cover before use."
+  }
 }
