@@ -8,6 +8,12 @@ The product is the marketing. The system exists to make the real product easy to
 
 This standard changes marketplace presentation only. It must not redesign or fabricate the purchased product.
 
+## Product-first naming rule (mandatory for every new or resubmitted listing)
+
+**Marketplace product titles must never contain `PackRat`, `Pack Rat`, or variants with a hyphen.** Put the useful product name first (for example `Smart Lighting for Hue & Govee`). The Marketplace account and plugin manifest `Author` already attribute the maker. PackRat branding **is allowed** in creator fields, technical UUIDs, the shared companion's name, descriptions and artwork when relevant; do not rename binary identifiers or published SKUs to comply. A submitted Stream Deck plugin's manifest `Name`, canonical product `name` and submission `name` must exactly match; any change to a packaged manifest name invalidates old release artifacts and requires fresh exact-source QA, packaging, hash and Rat Ship provenance. Keep the Marketplace version unchanged for a rejected or stopped pre-publication correction.
+
+Shared release gates enforce the title rule for `rat ship` / `rat stage` and the authenticated Maker Console bridge. Historical published products are not renamed automatically; their next deliberate submission must comply.
+
 ## Core buyer questions
 
 A listing should answer these questions in roughly this order:
