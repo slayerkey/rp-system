@@ -147,11 +147,13 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: hwinfo-sensor-monitor-ready-to-ship
+          # This repository is public. Never upload paid plugin binaries or private
+          # SHIP_KIT content. Package building/validation remains local to this job;
+          # creators release from their private local Rat Ship workspace instead.
+          name: hwinfo-sensor-monitor-public-qa-evidence
           path: |
-            plugins/hwinfo-sensor-monitor/dist/*.streamDeckPlugin
             plugins/hwinfo-sensor-monitor/dist/package-validation.json
-            plugins/hwinfo-sensor-monitor/dist/marketplace/**
-            plugins/hwinfo-sensor-monitor/dist/SHIP_KIT/**
+            plugins/hwinfo-sensor-monitor/dist/marketplace/hwinfo-rat-art-report.json
+            plugins/hwinfo-sensor-monitor/dist/marketplace/*.png
           if-no-files-found: error
           retention-days: 30
