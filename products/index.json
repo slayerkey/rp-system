@@ -269,7 +269,7 @@
       "type": "plugin",
       "status": "qa_passed",
       "price_usd": 0,
-      "version": "1.0.0.1"
+      "version": "1.0.0.0"
     },
     {
       "id": "discord-essentials",
@@ -281,11 +281,11 @@
     },
     {
       "id": "discord-panel",
-      "name": "Discord Voice Panel",
+      "name": "Discord Voice Panel for XENEON Edge",
       "type": "widget",
       "status": "qa_passed",
       "price_usd": 7.99,
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "id": "dota2",
@@ -398,6 +398,14 @@
       "status": "rejected",
       "price_usd": 0,
       "version": "0.1.0.0"
+    },
+    {
+      "id": "hwinfo-sensor-dashboard",
+      "name": "HWiNFO Sensor Dashboard",
+      "type": "widget",
+      "status": "qa_passed",
+      "price_usd": 11.99,
+      "version": "1.0.0"
     },
     {
       "id": "hwinfo-sensor-monitor",
@@ -833,7 +841,7 @@
     },
     {
       "id": "voice-deck",
-      "name": "PackRat Voice Deck",
+      "name": "Discord Voice Deck for Stream Deck",
       "type": "plugin",
       "status": "qa_passed",
       "price_usd": 9.99,

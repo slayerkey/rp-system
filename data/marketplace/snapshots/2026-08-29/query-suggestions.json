@@ -1,0 +1,2018 @@
+{
+  "schema_version": 1,
+  "marketplace": "Elgato Marketplace",
+  "captured_at": "2026-08-29",
+  "source": {
+    "public_frontend": "https://marketplace.elgato.com/search",
+    "query_suggestions_index": "products_query_suggestions",
+    "popularity_definition": "Raw search popularity based on unique users during the preceding 30 days. It is not normalized to 100.",
+    "index_refresh": "Algolia Query Suggestions normally rebuilds once every 24 hours.",
+    "exact_product_hits_definition": "Strict exact result count stored with each query suggestion."
+  },
+  "total_indexed_terms": 6715,
+  "top_terms": [
+    {
+      "rank": 1,
+      "term": "discord",
+      "popularity": 445,
+      "exact_product_hits": 191,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 70
+        },
+        {
+          "category": "Profiles",
+          "count": 51
+        },
+        {
+          "category": "Plugins",
+          "count": 27
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "term": "spotify",
+      "popularity": 321,
+      "exact_product_hits": 56,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 25
+        },
+        {
+          "category": "Plugins",
+          "count": 21
+        },
+        {
+          "category": "Profiles",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "term": "youtube",
+      "popularity": 285,
+      "exact_product_hits": 168,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 61
+        },
+        {
+          "category": "Plugins",
+          "count": 41
+        },
+        {
+          "category": "Profiles",
+          "count": 38
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "term": "voicemod",
+      "popularity": 261,
+      "exact_product_hits": 30,
+      "top_exact_categories": [
+        {
+          "category": "VST",
+          "count": 13
+        },
+        {
+          "category": "Profiles",
+          "count": 12
+        },
+        {
+          "category": "Plugins",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "term": "stream",
+      "popularity": 209,
+      "exact_product_hits": 2383,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 840
+        },
+        {
+          "category": "Profiles",
+          "count": 700
+        },
+        {
+          "category": "Icons",
+          "count": 560
+        }
+      ]
+    },
+    {
+      "rank": 6,
+      "term": "windows",
+      "popularity": 198,
+      "exact_product_hits": 671,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 301
+        },
+        {
+          "category": "Plugins",
+          "count": 285
+        },
+        {
+          "category": "Icons",
+          "count": 44
+        }
+      ]
+    },
+    {
+      "rank": 7,
+      "term": "twitch",
+      "popularity": 178,
+      "exact_product_hits": 144,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 55
+        },
+        {
+          "category": "Icons",
+          "count": 51
+        },
+        {
+          "category": "Scene Collections",
+          "count": 21
+        }
+      ]
+    },
+    {
+      "rank": 8,
+      "term": "microsoft",
+      "popularity": 178,
+      "exact_product_hits": 165,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 49
+        },
+        {
+          "category": "Plugins",
+          "count": 43
+        },
+        {
+          "category": "Backgrounds",
+          "count": 36
+        }
+      ]
+    },
+    {
+      "rank": 9,
+      "term": "davinci",
+      "popularity": 170,
+      "exact_product_hits": 75,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 37
+        },
+        {
+          "category": "Profiles",
+          "count": 36
+        },
+        {
+          "category": "Plugins",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 10,
+      "term": "soundboards",
+      "popularity": 169,
+      "exact_product_hits": 27,
+      "top_exact_categories": [
+        {
+          "category": "VST",
+          "count": 12
+        },
+        {
+          "category": "Profiles",
+          "count": 8
+        },
+        {
+          "category": "Soundboards",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "rank": 11,
+      "term": "equalizer",
+      "popularity": 162,
+      "exact_product_hits": 35,
+      "top_exact_categories": [
+        {
+          "category": "Presets",
+          "count": 13
+        },
+        {
+          "category": "Plugins",
+          "count": 8
+        },
+        {
+          "category": "VST",
+          "count": 6
+        }
+      ]
+    },
+    {
+      "rank": 12,
+      "term": "audio",
+      "popularity": 156,
+      "exact_product_hits": 443,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 168
+        },
+        {
+          "category": "Icons",
+          "count": 125
+        },
+        {
+          "category": "Profiles",
+          "count": 87
+        }
+      ]
+    },
+    {
+      "rank": 13,
+      "term": "volume",
+      "popularity": 149,
+      "exact_product_hits": 199,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 96
+        },
+        {
+          "category": "Icons",
+          "count": 53
+        },
+        {
+          "category": "Profiles",
+          "count": 38
+        }
+      ]
+    },
+    {
+      "rank": 14,
+      "term": "steelseries",
+      "popularity": 149,
+      "exact_product_hits": 848,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 454
+        },
+        {
+          "category": "Plugins",
+          "count": 198
+        },
+        {
+          "category": "Icons",
+          "count": 124
+        }
+      ]
+    },
+    {
+      "rank": 15,
+      "term": "elgato",
+      "popularity": 147,
+      "exact_product_hits": 512,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 138
+        },
+        {
+          "category": "Icons",
+          "count": 133
+        },
+        {
+          "category": "Plugins",
+          "count": 125
+        }
+      ]
+    },
+    {
+      "rank": 16,
+      "term": "barraider",
+      "popularity": 146,
+      "exact_product_hits": 30,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 28
+        },
+        {
+          "category": "Profiles",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 17,
+      "term": "wave",
+      "popularity": 145,
+      "exact_product_hits": 49,
+      "top_exact_categories": [
+        {
+          "category": "VST",
+          "count": 17
+        },
+        {
+          "category": "Plugins",
+          "count": 12
+        },
+        {
+          "category": "Profiles",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "rank": 18,
+      "term": "obs",
+      "popularity": 140,
+      "exact_product_hits": 186,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 62
+        },
+        {
+          "category": "Scene Collections",
+          "count": 52
+        },
+        {
+          "category": "Plugins",
+          "count": 30
+        }
+      ]
+    },
+    {
+      "rank": 19,
+      "term": "nvidia",
+      "popularity": 133,
+      "exact_product_hits": 29,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 13
+        },
+        {
+          "category": "Plugins",
+          "count": 13
+        },
+        {
+          "category": "Scene Collections",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "rank": 20,
+      "term": "tiktok",
+      "popularity": 124,
+      "exact_product_hits": 48,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 25
+        },
+        {
+          "category": "Plugins",
+          "count": 14
+        },
+        {
+          "category": "Profiles",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "rank": 21,
+      "term": "helldivers",
+      "popularity": 120,
+      "exact_product_hits": 12,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 7
+        },
+        {
+          "category": "Icons",
+          "count": 4
+        },
+        {
+          "category": "Plugins",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 22,
+      "term": "teams",
+      "popularity": 117,
+      "exact_product_hits": 93,
+      "top_exact_categories": [
+        {
+          "category": "Backgrounds",
+          "count": 36
+        },
+        {
+          "category": "Plugins",
+          "count": 34
+        },
+        {
+          "category": "Profiles",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "rank": 23,
+      "term": "hwinfo",
+      "popularity": 114,
+      "exact_product_hits": 3,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "rank": 24,
+      "term": "sound",
+      "popularity": 113,
+      "exact_product_hits": 443,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 168
+        },
+        {
+          "category": "Icons",
+          "count": 125
+        },
+        {
+          "category": "Profiles",
+          "count": 87
+        }
+      ]
+    },
+    {
+      "rank": 25,
+      "term": "streamlabs",
+      "popularity": 100,
+      "exact_product_hits": 34,
+      "top_exact_categories": [
+        {
+          "category": "Backgrounds",
+          "count": 21
+        },
+        {
+          "category": "Icons",
+          "count": 4
+        },
+        {
+          "category": "Plugins",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "rank": 26,
+      "term": "steam",
+      "popularity": 98,
+      "exact_product_hits": 78,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 41
+        },
+        {
+          "category": "Profiles",
+          "count": 21
+        },
+        {
+          "category": "Plugins",
+          "count": 15
+        }
+      ]
+    },
+    {
+      "rank": 27,
+      "term": "mouse",
+      "popularity": 98,
+      "exact_product_hits": 156,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 70
+        },
+        {
+          "category": "Profiles",
+          "count": 40
+        },
+        {
+          "category": "Icons",
+          "count": 36
+        }
+      ]
+    },
+    {
+      "rank": 28,
+      "term": "google",
+      "popularity": 98,
+      "exact_product_hits": 126,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 43
+        },
+        {
+          "category": "Backgrounds",
+          "count": 31
+        },
+        {
+          "category": "Icons",
+          "count": 30
+        }
+      ]
+    },
+    {
+      "rank": 29,
+      "term": "audio switcher",
+      "popularity": 98,
+      "exact_product_hits": 10,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 7
+        },
+        {
+          "category": "Icons",
+          "count": 1
+        },
+        {
+          "category": "Profiles",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 30,
+      "term": "premiere",
+      "popularity": 96,
+      "exact_product_hits": 40,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 26
+        },
+        {
+          "category": "Profiles",
+          "count": 11
+        },
+        {
+          "category": "Plugins",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 31,
+      "term": "keyboard",
+      "popularity": 96,
+      "exact_product_hits": 564,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 416
+        },
+        {
+          "category": "Plugins",
+          "count": 83
+        },
+        {
+          "category": "Icons",
+          "count": 42
+        }
+      ]
+    },
+    {
+      "rank": 32,
+      "term": "apple",
+      "popularity": 94,
+      "exact_product_hits": 128,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 58
+        },
+        {
+          "category": "Plugins",
+          "count": 48
+        },
+        {
+          "category": "Profiles",
+          "count": 18
+        }
+      ]
+    },
+    {
+      "rank": 33,
+      "term": "noise",
+      "popularity": 92,
+      "exact_product_hits": 38,
+      "top_exact_categories": [
+        {
+          "category": "VST",
+          "count": 18
+        },
+        {
+          "category": "LUTs",
+          "count": 5
+        },
+        {
+          "category": "Icons",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "rank": 34,
+      "term": "logitech",
+      "popularity": 91,
+      "exact_product_hits": 41,
+      "top_exact_categories": [
+        {
+          "category": "Backgrounds",
+          "count": 21
+        },
+        {
+          "category": "Plugins",
+          "count": 8
+        },
+        {
+          "category": "Icons",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "rank": 35,
+      "term": "lightroom",
+      "popularity": 91,
+      "exact_product_hits": 31,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 24
+        },
+        {
+          "category": "Profiles",
+          "count": 4
+        },
+        {
+          "category": "Plugins",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 36,
+      "term": "clock",
+      "popularity": 91,
+      "exact_product_hits": 95,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 49
+        },
+        {
+          "category": "Icons",
+          "count": 26
+        },
+        {
+          "category": "Widgets",
+          "count": 15
+        }
+      ]
+    },
+    {
+      "rank": 37,
+      "term": "battery",
+      "popularity": 91,
+      "exact_product_hits": 77,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 43
+        },
+        {
+          "category": "Plugins",
+          "count": 33
+        },
+        {
+          "category": "Profiles",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 38,
+      "term": "chatgpt",
+      "popularity": 88,
+      "exact_product_hits": 168,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 67
+        },
+        {
+          "category": "Profiles",
+          "count": 48
+        },
+        {
+          "category": "Icons",
+          "count": 32
+        }
+      ]
+    },
+    {
+      "rank": 39,
+      "term": "minecraft",
+      "popularity": 86,
+      "exact_product_hits": 18,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 10
+        },
+        {
+          "category": "Plugins",
+          "count": 6
+        },
+        {
+          "category": "Icons",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 40,
+      "term": "star citizen",
+      "popularity": 84,
+      "exact_product_hits": 24,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 18
+        },
+        {
+          "category": "Plugins",
+          "count": 2
+        },
+        {
+          "category": "Widgets",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 41,
+      "term": "photoshop",
+      "popularity": 84,
+      "exact_product_hits": 46,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 29
+        },
+        {
+          "category": "Profiles",
+          "count": 10
+        },
+        {
+          "category": "Plugins",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "rank": 42,
+      "term": "mutedeck",
+      "popularity": 82,
+      "exact_product_hits": 255,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 76
+        },
+        {
+          "category": "Profiles",
+          "count": 68
+        },
+        {
+          "category": "Plugins",
+          "count": 66
+        }
+      ]
+    },
+    {
+      "rank": 43,
+      "term": "noise removal",
+      "popularity": 80,
+      "exact_product_hits": 4,
+      "top_exact_categories": [
+        {
+          "category": "VST",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "rank": 44,
+      "term": "music",
+      "popularity": 79,
+      "exact_product_hits": 229,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 94
+        },
+        {
+          "category": "Plugins",
+          "count": 67
+        },
+        {
+          "category": "Profiles",
+          "count": 54
+        }
+      ]
+    },
+    {
+      "rank": 45,
+      "term": "apple music",
+      "popularity": 79,
+      "exact_product_hits": 53,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 28
+        },
+        {
+          "category": "Plugins",
+          "count": 17
+        },
+        {
+          "category": "Profiles",
+          "count": 7
+        }
+      ]
+    },
+    {
+      "rank": 46,
+      "term": "advanced",
+      "popularity": 79,
+      "exact_product_hits": 109,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 66
+        },
+        {
+          "category": "Profiles",
+          "count": 23
+        },
+        {
+          "category": "VST",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "rank": 47,
+      "term": "home assistant",
+      "popularity": 78,
+      "exact_product_hits": 19,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 9
+        },
+        {
+          "category": "Icons",
+          "count": 4
+        },
+        {
+          "category": "Profiles",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "rank": 48,
+      "term": "weather",
+      "popularity": 77,
+      "exact_product_hits": 137,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 64
+        },
+        {
+          "category": "Icons",
+          "count": 34
+        },
+        {
+          "category": "Profiles",
+          "count": 30
+        }
+      ]
+    },
+    {
+      "rank": 49,
+      "term": "claude",
+      "popularity": 77,
+      "exact_product_hits": 61,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 40
+        },
+        {
+          "category": "Profiles",
+          "count": 17
+        },
+        {
+          "category": "Icons",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "rank": 50,
+      "term": "compressor",
+      "popularity": 76,
+      "exact_product_hits": 8,
+      "top_exact_categories": [
+        {
+          "category": "Presets",
+          "count": 4
+        },
+        {
+          "category": "VST",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "rank": 51,
+      "term": "aitum",
+      "popularity": 74,
+      "exact_product_hits": 4,
+      "top_exact_categories": [
+        {
+          "category": "Scene Collections",
+          "count": 3
+        },
+        {
+          "category": "Plugins",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 52,
+      "term": "valorant",
+      "popularity": 73,
+      "exact_product_hits": 15,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 5
+        },
+        {
+          "category": "Icons",
+          "count": 3
+        },
+        {
+          "category": "Plugins",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 53,
+      "term": "camera",
+      "popularity": 73,
+      "exact_product_hits": 278,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 87
+        },
+        {
+          "category": "Icons",
+          "count": 76
+        },
+        {
+          "category": "Plugins",
+          "count": 45
+        }
+      ]
+    },
+    {
+      "rank": 54,
+      "term": "timer",
+      "popularity": 71,
+      "exact_product_hits": 98,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 78
+        },
+        {
+          "category": "Widgets",
+          "count": 9
+        },
+        {
+          "category": "Scene Collections",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "rank": 55,
+      "term": "monitor",
+      "popularity": 71,
+      "exact_product_hits": 216,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 155
+        },
+        {
+          "category": "Icons",
+          "count": 33
+        },
+        {
+          "category": "Profiles",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "rank": 56,
+      "term": "calendar",
+      "popularity": 71,
+      "exact_product_hits": 866,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 445
+        },
+        {
+          "category": "Profiles",
+          "count": 221
+        },
+        {
+          "category": "Icons",
+          "count": 83
+        }
+      ]
+    },
+    {
+      "rank": 57,
+      "term": "govee",
+      "popularity": 70,
+      "exact_product_hits": 3,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "rank": 58,
+      "term": "volume controller",
+      "popularity": 69,
+      "exact_product_hits": 28,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 17
+        },
+        {
+          "category": "Profiles",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "rank": 59,
+      "term": "iracing",
+      "popularity": 68,
+      "exact_product_hits": 122,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 58
+        },
+        {
+          "category": "Profiles",
+          "count": 42
+        },
+        {
+          "category": "Plugins",
+          "count": 17
+        }
+      ]
+    },
+    {
+      "rank": 60,
+      "term": "icons",
+      "popularity": 66,
+      "exact_product_hits": 1380,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 795
+        },
+        {
+          "category": "Profiles",
+          "count": 446
+        },
+        {
+          "category": "Plugins",
+          "count": 65
+        }
+      ]
+    },
+    {
+      "rank": 61,
+      "term": "backgrounds",
+      "popularity": 66,
+      "exact_product_hits": 84,
+      "top_exact_categories": [
+        {
+          "category": "Backgrounds",
+          "count": 43
+        },
+        {
+          "category": "Icons",
+          "count": 19
+        },
+        {
+          "category": "Plugins",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "rank": 62,
+      "term": "ableton",
+      "popularity": 66,
+      "exact_product_hits": 31,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 12
+        },
+        {
+          "category": "VST",
+          "count": 9
+        },
+        {
+          "category": "Plugins",
+          "count": 6
+        }
+      ]
+    },
+    {
+      "rank": 63,
+      "term": "philips",
+      "popularity": 65,
+      "exact_product_hits": 7,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 5
+        },
+        {
+          "category": "Icons",
+          "count": 1
+        },
+        {
+          "category": "Profiles",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 64,
+      "term": "cyberpunk",
+      "popularity": 65,
+      "exact_product_hits": 36,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 20
+        },
+        {
+          "category": "Profiles",
+          "count": 5
+        },
+        {
+          "category": "Plugins",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "rank": 65,
+      "term": "adobe",
+      "popularity": 65,
+      "exact_product_hits": 112,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 65
+        },
+        {
+          "category": "Profiles",
+          "count": 36
+        },
+        {
+          "category": "Plugins",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "rank": 66,
+      "term": "system",
+      "popularity": 64,
+      "exact_product_hits": 464,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 202
+        },
+        {
+          "category": "Plugins",
+          "count": 127
+        },
+        {
+          "category": "Profiles",
+          "count": 104
+        }
+      ]
+    },
+    {
+      "rank": 67,
+      "term": "emoji",
+      "popularity": 64,
+      "exact_product_hits": 59,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 37
+        },
+        {
+          "category": "Plugins",
+          "count": 13
+        },
+        {
+          "category": "Profiles",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "rank": 68,
+      "term": "companion",
+      "popularity": 64,
+      "exact_product_hits": 81,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 39
+        },
+        {
+          "category": "Profiles",
+          "count": 18
+        },
+        {
+          "category": "Widgets",
+          "count": 13
+        }
+      ]
+    },
+    {
+      "rank": 69,
+      "term": "flight",
+      "popularity": 63,
+      "exact_product_hits": 85,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 43
+        },
+        {
+          "category": "Icons",
+          "count": 18
+        },
+        {
+          "category": "Plugins",
+          "count": 15
+        }
+      ]
+    },
+    {
+      "rank": 70,
+      "term": "youtube music",
+      "popularity": 62,
+      "exact_product_hits": 29,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 12
+        },
+        {
+          "category": "Plugins",
+          "count": 11
+        },
+        {
+          "category": "Profiles",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "rank": 71,
+      "term": "shortcut",
+      "popularity": 62,
+      "exact_product_hits": 322,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 246
+        },
+        {
+          "category": "Plugins",
+          "count": 44
+        },
+        {
+          "category": "Icons",
+          "count": 32
+        }
+      ]
+    },
+    {
+      "rank": 72,
+      "term": "control",
+      "popularity": 62,
+      "exact_product_hits": 958,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 457
+        },
+        {
+          "category": "Profiles",
+          "count": 309
+        },
+        {
+          "category": "Icons",
+          "count": 139
+        }
+      ]
+    },
+    {
+      "rank": 73,
+      "term": "speedtest",
+      "popularity": 61,
+      "exact_product_hits": 15,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 11
+        },
+        {
+          "category": "Plugins",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "rank": 74,
+      "term": "farming",
+      "popularity": 61,
+      "exact_product_hits": 24,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 12
+        },
+        {
+          "category": "Profiles",
+          "count": 11
+        },
+        {
+          "category": "Plugins",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 75,
+      "term": "screen",
+      "popularity": 60,
+      "exact_product_hits": 358,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 120
+        },
+        {
+          "category": "Scene Collections",
+          "count": 74
+        },
+        {
+          "category": "Profiles",
+          "count": 64
+        }
+      ]
+    },
+    {
+      "rank": 76,
+      "term": "clipboard",
+      "popularity": 60,
+      "exact_product_hits": 69,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 41
+        },
+        {
+          "category": "Icons",
+          "count": 16
+        },
+        {
+          "category": "Profiles",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "rank": 77,
+      "term": "powerpoint",
+      "popularity": 59,
+      "exact_product_hits": 23,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 15
+        },
+        {
+          "category": "Profiles",
+          "count": 5
+        },
+        {
+          "category": "Plugins",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "rank": 78,
+      "term": "overlays",
+      "popularity": 59,
+      "exact_product_hits": 100,
+      "top_exact_categories": [
+        {
+          "category": "Scene Collections",
+          "count": 43
+        },
+        {
+          "category": "Plugins",
+          "count": 30
+        },
+        {
+          "category": "Icons",
+          "count": 18
+        }
+      ]
+    },
+    {
+      "rank": 79,
+      "term": "display",
+      "popularity": 59,
+      "exact_product_hits": 323,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 227
+        },
+        {
+          "category": "Widgets",
+          "count": 52
+        },
+        {
+          "category": "Profiles",
+          "count": 21
+        }
+      ]
+    },
+    {
+      "rank": 80,
+      "term": "countdown",
+      "popularity": 59,
+      "exact_product_hits": 92,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 74
+        },
+        {
+          "category": "Widgets",
+          "count": 12
+        },
+        {
+          "category": "Scene Collections",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "rank": 81,
+      "term": "stream deck",
+      "popularity": 58,
+      "exact_product_hits": 2229,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 818
+        },
+        {
+          "category": "Profiles",
+          "count": 697
+        },
+        {
+          "category": "Icons",
+          "count": 548
+        }
+      ]
+    },
+    {
+      "rank": 82,
+      "term": "fl studio",
+      "popularity": 58,
+      "exact_product_hits": 13,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 6
+        },
+        {
+          "category": "Icons",
+          "count": 4
+        },
+        {
+          "category": "VST",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 83,
+      "term": "capcut",
+      "popularity": 58,
+      "exact_product_hits": 48,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 25
+        },
+        {
+          "category": "Plugins",
+          "count": 14
+        },
+        {
+          "category": "Profiles",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "rank": 84,
+      "term": "wave link",
+      "popularity": 57,
+      "exact_product_hits": 25,
+      "top_exact_categories": [
+        {
+          "category": "VST",
+          "count": 17
+        },
+        {
+          "category": "Plugins",
+          "count": 6
+        },
+        {
+          "category": "Icons",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 85,
+      "term": "stopwatch",
+      "popularity": 57,
+      "exact_product_hits": 16,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 14
+        },
+        {
+          "category": "Widgets",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 86,
+      "term": "advanced launcher",
+      "popularity": 57,
+      "exact_product_hits": 4,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 3
+        },
+        {
+          "category": "Profiles",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 87,
+      "term": "capture",
+      "popularity": 55,
+      "exact_product_hits": 91,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 51
+        },
+        {
+          "category": "Icons",
+          "count": 22
+        },
+        {
+          "category": "Profiles",
+          "count": 14
+        }
+      ]
+    },
+    {
+      "rank": 88,
+      "term": "simple",
+      "popularity": 54,
+      "exact_product_hits": 165,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 78
+        },
+        {
+          "category": "Icons",
+          "count": 41
+        },
+        {
+          "category": "Profiles",
+          "count": 17
+        }
+      ]
+    },
+    {
+      "rank": 89,
+      "term": "illustrator",
+      "popularity": 54,
+      "exact_product_hits": 36,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 27
+        },
+        {
+          "category": "Profiles",
+          "count": 5
+        },
+        {
+          "category": "Plugins",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "rank": 90,
+      "term": "github",
+      "popularity": 54,
+      "exact_product_hits": 75,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 45
+        },
+        {
+          "category": "Icons",
+          "count": 26
+        },
+        {
+          "category": "Profiles",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "rank": 91,
+      "term": "galleon",
+      "popularity": 54,
+      "exact_product_hits": 112,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 104
+        },
+        {
+          "category": "Plugins",
+          "count": 6
+        },
+        {
+          "category": "Screensavers",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 92,
+      "term": "fortnite",
+      "popularity": 54,
+      "exact_product_hits": 8,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 5
+        },
+        {
+          "category": "Icons",
+          "count": 1
+        },
+        {
+          "category": "Scene Collections",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 93,
+      "term": "equalizer presets",
+      "popularity": 54,
+      "exact_product_hits": 15,
+      "top_exact_categories": [
+        {
+          "category": "Presets",
+          "count": 13
+        },
+        {
+          "category": "VST",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 94,
+      "term": "tradingview",
+      "popularity": 53,
+      "exact_product_hits": 17,
+      "top_exact_categories": [
+        {
+          "category": "Icons",
+          "count": 14
+        },
+        {
+          "category": "Profiles",
+          "count": 2
+        },
+        {
+          "category": "Plugins",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rank": 95,
+      "term": "super",
+      "popularity": 53,
+      "exact_product_hits": 115,
+      "top_exact_categories": [
+        {
+          "category": "Screensavers",
+          "count": 84
+        },
+        {
+          "category": "Backgrounds",
+          "count": 10
+        },
+        {
+          "category": "Plugins",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "rank": 96,
+      "term": "reaper",
+      "popularity": 53,
+      "exact_product_hits": 17,
+      "top_exact_categories": [
+        {
+          "category": "VST",
+          "count": 7
+        },
+        {
+          "category": "Icons",
+          "count": 4
+        },
+        {
+          "category": "Profiles",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "rank": 97,
+      "term": "outlook",
+      "popularity": 52,
+      "exact_product_hits": 22,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 14
+        },
+        {
+          "category": "Profiles",
+          "count": 5
+        },
+        {
+          "category": "Icons",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 98,
+      "term": "microphones",
+      "popularity": 52,
+      "exact_product_hits": 11,
+      "top_exact_categories": [
+        {
+          "category": "Plugins",
+          "count": 9
+        },
+        {
+          "category": "VST",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "rank": 99,
+      "term": "animated",
+      "popularity": 52,
+      "exact_product_hits": 457,
+      "top_exact_categories": [
+        {
+          "category": "Screensavers",
+          "count": 155
+        },
+        {
+          "category": "Icons",
+          "count": 144
+        },
+        {
+          "category": "Scene Collections",
+          "count": 78
+        }
+      ]
+    },
+    {
+      "rank": 100,
+      "term": "world of warcraft",
+      "popularity": 51,
+      "exact_product_hits": 11,
+      "top_exact_categories": [
+        {
+          "category": "Profiles",
+          "count": 7
+        },
+        {
+          "category": "VST",
+          "count": 2
+        },
+        {
+          "category": "Backgrounds",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "tracked_visual_terms": [
+    {
+      "rank": 64,
+      "term": "cyberpunk",
+      "popularity": 65,
+      "exact_product_hits": 36
+    },
+    {
+      "rank": 99,
+      "term": "animated",
+      "popularity": 52,
+      "exact_product_hits": 457
+    },
+    {
+      "rank": 243,
+      "term": "gaming",
+      "popularity": 29,
+      "exact_product_hits": 186
+    },
+    {
+      "rank": 286,
+      "term": "neon",
+      "popularity": 26,
+      "exact_product_hits": 75
+    },
+    {
+      "rank": 539,
+      "term": "pastel",
+      "popularity": 17,
+      "exact_product_hits": 26
+    },
+    {
+      "rank": 602,
+      "term": "anime",
+      "popularity": 16,
+      "exact_product_hits": 18
+    },
+    {
+      "rank": 623,
+      "term": "sakura",
+      "popularity": 15,
+      "exact_product_hits": 4
+    },
+    {
+      "rank": 755,
+      "term": "kawaii",
+      "popularity": 13,
+      "exact_product_hits": 5
+    },
+    {
+      "rank": null,
+      "term": "minimalist",
+      "popularity": 7,
+      "exact_product_hits": 76
+    },
+    {
+      "rank": null,
+      "term": "manga",
+      "popularity": null,
+      "exact_product_hits": 5,
+      "note": "No exact Query Suggestions record was present in this snapshot."
+    }
+  ]
+}

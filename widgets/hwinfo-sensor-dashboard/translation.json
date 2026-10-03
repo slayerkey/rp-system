@@ -1,0 +1,13 @@
+{
+  "en":{"translation":{
+    "HWiNFO Sensor Dashboard":"HWiNFO Sensor Dashboard",
+    "HWiNFO Bridge Pairing Key":"HWiNFO Bridge Pairing Key",
+    "History Window":"History Window",
+    "60 seconds":"60 seconds","3 minutes":"3 minutes","5 minutes":"5 minutes","10 minutes":"10 minutes","15 minutes":"15 minutes",
+    "Stale After":"Stale After",
+    "Text Color":"Text Color","Accent Color":"Accent Color","Background Color":"Background Color","Graph Color":"Graph Color",
+    "Connection":"Connection","History":"History","Appearance":"Appearance",
+    "Install the free PackRat HWiNFO Bridge on this Windows PC, enable HWiNFO Shared Memory Support, then paste the local pairing key here. Sensor data stays on localhost.":"Install the free PackRat HWiNFO Bridge on this Windows PC, enable HWiNFO Shared Memory Support, then paste the local pairing key here. Sensor data stays on localhost.",
+    "History is bounded locally inside the widget. A stale reading is shown as unavailable instead of zero.":"History is bounded locally inside the widget. A stale reading is shown as unavailable instead of zero."
+  }}
+}

@@ -1,0 +1,55 @@
+name: HWiNFO Legacy Recovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['product/hwinfo-sensor-dashboard']
+    paths: ['.github/workflows/hwinfo-legacy-recovery.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: [self-hosted, Windows, X64, packrat]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: product/hwinfo-sensor-dashboard
+          fetch-depth: 0
+      - name: Search legacy PackRat workspace
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $roots = @('C:\Users\Key\Videos\Claude Projects', (Join-Path $env:USERPROFILE 'Videos\Claude Projects')) | Select-Object -Unique
+          $lines = New-Object System.Collections.Generic.List[string]
+          $lines.Add('HWiNFO legacy recovery scan')
+          foreach ($root in $roots) {
+            if (-not (Test-Path $root)) { $lines.Add("MISSING_ROOT: $root"); continue }
+            $lines.Add("ROOT: $root")
+            $dirs = Get-ChildItem $root -Directory -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '(?i)ratpack|packrat|legacy|shared' }
+            foreach ($dir in $dirs) {
+              $lines.Add("DIR: $($dir.FullName)")
+              $matches = Get-ChildItem $dir.FullName -File -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.Length -lt 5MB -and $_.FullName -notmatch '\\node_modules\\|\\.git\\objects\\|\\out\\|\\dist\\|\\artifacts\\' } | Select-String -Pattern 'HWiNFO Monitor|HWiNFO|hwinfo' -ErrorAction SilentlyContinue | Select-Object -First 200
+              foreach ($m in $matches) {
+                $snippet = ($m.Line -replace '[\r\n]+',' ').Trim()
+                if ($snippet.Length -gt 260) { $snippet = $snippet.Substring(0,260) }
+                $lines.Add(("MATCH: {0}:{1}: {2}" -f $m.Path,$m.LineNumber,$snippet))
+              }
+              if (Test-Path (Join-Path $dir.FullName '.git')) {
+                try { foreach ($entry in (git -C $dir.FullName log --all --oneline --regexp-ignore-case --grep=hwinfo -n 50 2>$null)) { $lines.Add("GIT: $($dir.FullName): $entry") } } catch {}
+              }
+            }
+          }
+          New-Item -ItemType Directory -Force -Path docs/recovery | Out-Null
+          $lines | Set-Content -Encoding UTF8 docs/recovery/hwinfo-legacy-scan.txt
+      - name: Commit scan evidence
+        shell: powershell
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/recovery/hwinfo-legacy-scan.txt
+          if (git diff --cached --quiet) { exit 0 }
+          git commit -m "Recover legacy HWiNFO PackRat evidence"
+          git push origin HEAD:product/hwinfo-sensor-dashboard
