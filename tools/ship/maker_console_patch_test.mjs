@@ -5,7 +5,7 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
-import { patchMakerConsoleSource } from './maker_console_runtime_patch_v12.mjs';
+import { patchMakerConsoleSource } from './maker_console_runtime_patch_v13.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..');
@@ -24,6 +24,12 @@ assert.equal((patched.match(/prod\.marketplace_dashboard_sizes \|\| \[\]/g) || [
 assert.match(patched, /Create \$\{productKindLabel\} draft/);
 assert.match(patched, /new RegExp\(`\^\$\{productKindLabel\}\$`,'i'\)/);
 assert.match(patched, /deleteConfirmedExistingDraft/);
+assert.match(patched,/deleteConfirmedExistingDraft\(target, draftName = prod\.name\)/);
+assert.match(patched,/prod\.marketplace_superseded_draft_names/);
+assert.match(patched,/deleteConfirmedExistingDraft\(page, priorTitle\)/);
+assert.match(patched,/priorTitle === prod\.name/);
+assert.doesNotMatch(patched,/async function deleteConfirmedExistingDraft\(target\) \{/);
+
 assert.doesNotMatch(patched, /prod\.type !== 'widget'/);
 assert.match(patched, /prod\.marketplace_existing_product_update === true/);
 assert.match(patched, /runExistingProductVersionUpdate/);
