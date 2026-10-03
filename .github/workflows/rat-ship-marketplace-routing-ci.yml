@@ -27,6 +27,7 @@ on:
       - 'tools/ship/maker_console_runtime_patch*.mjs'
       - 'tools/ship/maker_console_patch_test.mjs'
       - 'tools/ship/marketplace_title_guard*.mjs'
+      - 'tools/ship/marketplace_description_guard*.mjs'
       - 'tools/ship/streamdeck-marketplace-uuid.ps1'
       - 'tools/ship/streamdeck-marketplace-uuid-overrides.json'
       - 'tests/check_rat_ship_uuid_override.ps1'
@@ -79,6 +80,9 @@ jobs:
 
       - name: Validate global Marketplace product-title rule
         run: node tools/ship/marketplace_title_guard.test.mjs
+
+      - name: Validate structured Marketplace descriptions
+        run: node tools/ship/marketplace_description_guard.test.mjs
 
       - name: Parse Marketplace PowerShell helpers
         shell: pwsh
