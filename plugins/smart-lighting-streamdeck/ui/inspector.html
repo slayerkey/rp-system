@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>PackRat Smart Lighting</title><link rel="stylesheet" href="./inspector.css"/></head>
+<body><main>
+<header><a href="https://marketplace.elgato.com/maker/packrat" target="_blank" rel="noopener"><img src="../imgs/plugin/packrat-logo.png" alt="" width="30" height="30"/>PackRat ↗</a><span id="connection">Connecting…</span></header>
+<section class="card"><strong>Smart Lighting</strong><p class="muted">One local companion. Hue + Govee on your Stream Deck.</p>
+ <p id="detail" class="small"></p><div class="row"><button id="setup">Open companion setup</button><button id="download">Get companion</button></div>
+ <details id="pair"><summary>Pair this plugin with your companion</summary>
+  <label for="token">Local companion pairing token</label><input id="token" type="password" autocomplete="off" placeholder="Paste from companion setup"/><div class="row"><button id="saveToken" class="primary">Save token</button><button id="clearToken">Clear</button></div><p class="muted small">Token stays in Stream Deck's local plugin settings; Hue/Govee credentials stay in the Windows companion.</p>
+ </details>
+</section>
+<section class="card" id="actionCard"><strong id="actionName">Choose target</strong><p id="actionHelp" class="muted small"></p>
+ <div id="deviceSection"><label for="findDevice">Search lights, rooms or scenes</label><input id="findDevice" type="search" placeholder="Search name or provider"/><label for="target">This key uses</label><select id="target"><option value="">Choose a target…</option></select><p id="selectedState" class="small muted">Choose an available target.</p></div>
+ <div id="brightnessSection" hidden><label for="brightness">Brightness preset: <span id="brightnessValue">65%</span></label><input id="brightness" type="range" min="1" max="100" value="65"/><p class="small muted">Key always shows this preset. Plus dial displays actual brightness.</p></div>
+ <div id="toneSection" hidden><label for="toneMode">Control</label><select id="toneMode"><option value="color">RGB color</option><option value="temperature">Color temperature</option></select><div id="colorFields"><label for="hex">Preset color</label><input id="hex" type="color" value="#FFB21E"/></div><div id="tempFields" hidden><label for="kelvin">Preset temperature: <span id="kelvinValue">4000K</span></label><input id="kelvin" type="range" min="1500" max="9000" step="100" value="4000"/></div></div>
+ <div id="favoritesSection" hidden><p>Controls every favorite with power support, across Hue and Govee. Manage favorites in the companion or XENEON widget.</p><label for="powerMode">This key sets favorites</label><select id="powerMode"><option value="on">ON</option><option value="off">OFF</option></select><p class="muted small" id="favoriteCount"></p></div>
+ <div id="neoSection" hidden><p>The Neo Infobar is display-only. It shows how many supported lights are on and the names of active lights.</p></div>
+ <p id="saveState" class="small muted" aria-live="polite"></p>
+</section><section class="card"><strong>Provider health</strong><div id="providers" class="small muted">Waiting for companion…</div><p id="error" class="error small" aria-live="polite"></p></section>
+</main><script src="./inspector.js"></script></body></html>

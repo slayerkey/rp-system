@@ -1,0 +1,26 @@
+{
+  "id": "smart-lighting-streamdeck",
+  "name": "PackRat Smart Lighting for Hue & Govee",
+  "type": "plugin",
+  "status": "in_progress",
+  "workflow_state": "QA_PENDING",
+  "blocker": "Exact Windows build, official CLI, canonical Rat Art/SHIP_KIT and physical device validation pending",
+  "price_usd": 9.99,
+  "price_status": "hypothesis; manual final approval before Marketplace submission",
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "source": "plugins/smart-lighting-streamdeck",
+  "plugin_dir": "com.packrat.smart-lighting-streamdeck.sdPlugin",
+  "submission_metadata": "plugins/smart-lighting-streamdeck/submission.json",
+  "branch": "product/smart-lighting-streamdeck",
+  "plugin_uuid": "com.packrat.smart-lighting-streamdeck",
+  "companion": "companions/smart-lighting-control",
+  "companion_protocol": 1,
+  "companion_download_url": "https://packrat-site.pages.dev/downloads/smart-lighting",
+  "marketplace_art": {
+    "hero_title_style": "monitor",
+    "campaign_style": "warm-studio-glass-v1",
+    "gallery_mode": "native"
+  },
+  "hardware_boundary": "No physical Hue, Govee or Stream Deck test claimed until performed."
+}
