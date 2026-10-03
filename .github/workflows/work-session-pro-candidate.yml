@@ -1,0 +1,85 @@
+name: Work Session Tracker Pro candidate QA
+
+on:
+  push:
+    branches: [fix/work-session-cross-screen-20261001]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  official-package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Generate shipping Pro widget using shared fixed core
+        run: |
+          python tools/xeneon/inline.py work-session-tracker-pro
+          python tools/xeneon/inline.py work-session-tracker-pro --check
+      - name: Official CORSAIR validation
+        run: npx --yes icuewidget-cli@0.4.47 validate widgets/work-session-tracker-pro
+      - name: Official CORSAIR packaging
+        run: npx --yes icuewidget-cli@0.4.47 package widgets/work-session-tracker-pro
+      - name: Preserve exact Pro package and checksum
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          $pkg = Get-ChildItem widgets -Filter '*.icuewidget' -File |
+            Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $pkg) { throw 'No official Pro package produced' }
+          Copy-Item $pkg.FullName artifacts/work-session-tracker-pro.icuewidget
+          @'
+          import pathlib,zipfile,json
+          f=pathlib.Path('artifacts/work-session-tracker-pro.icuewidget')
+          with zipfile.ZipFile(f) as z:
+              assert z.testzip() is None
+              assert {'index.html','manifest.json'}.issubset(z.namelist())
+              m=json.loads(z.read('manifest.json'))
+              assert m.get('name')=='Work Session Tracker Pro',m
+              assert 'shared-state-v2' in z.read('index.html').decode('utf-8')
+          print('Official Pro candidate contains shared persistence fix')
+          '@ | python -
+          $hash=(Get-FileHash artifacts/work-session-tracker-pro.icuewidget -Algorithm SHA256).Hash.ToLower()
+          Set-Content artifacts/SHA256.txt "$hash  work-session-tracker-pro.icuewidget"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: work-session-tracker-pro-candidate
+          path: artifacts/
+          if-no-files-found: error
+
+  exact-package-regression:
+    needs: official-package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@v4
+        with:
+          name: work-session-tracker-pro-candidate
+          path: artifacts/input
+      - name: Browser regression prerequisites
+        run: |
+          npm install --no-save playwright@1.62.1
+          npx playwright install --with-deps chromium
+      - name: Exact official Pro package full session QA
+        run: |
+          python - <<'PY'
+          import pathlib,zipfile
+          f=pathlib.Path('artifacts/input/work-session-tracker-pro.icuewidget')
+          with zipfile.ZipFile(f) as z:
+              assert z.testzip() is None
+              z.extractall('artifacts/extracted')
+          PY
+          node widgets/_src/work-session-tracker-pro/network-smoke.mjs artifacts/extracted/index.html artifacts/pro-regression
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: work-session-tracker-pro-qa-report
+          path: artifacts/pro-regression/
+          if-no-files-found: warn
