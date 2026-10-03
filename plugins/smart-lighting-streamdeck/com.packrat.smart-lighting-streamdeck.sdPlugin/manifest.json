@@ -122,7 +122,7 @@
   "CodePath": "bin/plugin.js",
   "Description": "One mixed-brand lighting workflow for Philips Hue and Govee. Local-first control through the existing PackRat Lighting Companion.",
   "Icon": "imgs/plugin/icon",
-  "Name": "PackRat Smart Lighting for Hue & Govee",
+  "Name": "Smart Lighting for Hue & Govee",
   "Nodejs": {
     "Version": "24"
   },
