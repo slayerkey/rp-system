@@ -65,5 +65,5 @@ try{
  console.log('REAL HOME ASSISTANT CORE PASS: snapshot, pushed updates, bounded observed history, rejected bad token');
 }finally{
  ha?.close();invalid?.close();
- await mkdir(dirname(reportPath),{recursive:true});await writeFile(reportPath,JSON.stringify(report,null,2)+'\\n');
+ await mkdir(dirname(reportPath),{recursive:true});await writeFile(reportPath,JSON.stringify(report,null,2)+'\n');
 }
