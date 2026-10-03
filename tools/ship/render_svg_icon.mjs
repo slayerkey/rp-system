@@ -54,8 +54,11 @@ try {
       }
     }
     if (usedCanvas) {
-      const base64 = await page.evaluate(async () => {
-        const markup = new XMLSerializer().serializeToString(document.documentElement);
+      // The SVG file is an XML document: HTMLCanvasElement cannot be created there.
+      // Capture its exact rendered markup, then rasterize in an HTML document.
+      const svgMarkup = await page.evaluate(() => new XMLSerializer().serializeToString(document.documentElement));
+      await page.goto('about:blank');
+      const base64 = await page.evaluate(async markup => {
         const blobUrl = URL.createObjectURL(new Blob([markup], { type: 'image/svg+xml;charset=utf-8' }));
         try {
           const image = new Image();
@@ -77,7 +80,7 @@ try {
         } finally {
           URL.revokeObjectURL(blobUrl);
         }
-      });
+      }, svgMarkup);
       const bytes = Buffer.from(base64, 'base64');
       if (bytes.length < 100 || bytes.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') {
         throw new Error('Canvas PNG rasterization failed its output integrity check');
