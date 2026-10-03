@@ -144,14 +144,14 @@ For XENEON widgets, treat the cover, search/app icon, and gallery as separate cu
 The default marketplace order is:
 
 1. Cover or hero
-2. Feature and value breakdown
-3. Product showcase
+2. Real product showcase
+3. Feature and value breakdown
 4. Settings, interaction, or alternate state
 5. Slot size compatibility
 
 Do not upload the cover again as a gallery item. The ship kit must fail if the cover or any gallery image is byte identical to another listing image.
 
-The first gallery frame should explain the product in more detail with concise feature or value points rather than repeat the hero composition. It is the conversion frame immediately after the click, so prioritize the most important practical reasons to use or buy the product rather than low-value implementation trivia.
+The first gallery frame should showcase a large real product screen immediately after the click, without repeating the hardware hero or drowning it in text. Gallery 02 carries concise feature/value points. All four galleries use the shared clean studio/orange-to-blue glass system from `standards/xeneon-marketplace-gallery-v1.md`, backed by real captures. Use the final SHIP_KIT sequence for approval.
 
 A search/app icon is never a gallery image. Only upload `01_search_icon.png` to the dedicated icon/search/app control. Maker Console has changed this control's DOM labeling before, so detection must use the live field context, validation copy, and the 288×288 / 1:1 requirement rather than one brittle element ID. If the page says **App icon required**, the media step is not complete: do not mark it done, do not advance, and capture diagnostics instead of silently skipping the icon.
 
