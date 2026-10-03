@@ -3,9 +3,8 @@
   "name": "Home Assistant Dashboard",
   "type": "plugin",
   "status": "qa_passed",
-  "workflow_state": "READY_FOR_HARDWARE_QA",
-  "price_usd": null,
-  "price_hypothesis_usd": 9.99,
+  "workflow_state": "READY_TO_SHIP",
+  "price_usd": 9.99,
   "version": "0.1.0.0",
   "platform": "Elgato Stream Deck / Windows (provisional)",
   "plugin_uuid": "com.packrat.home-assistant-streamdeck",
@@ -13,7 +12,7 @@
   "source_owner": "PUBLIC_RP_SYSTEM_APPROVED",
   "controller_repository": "slayerkey/rp-system",
   "candidate_local_commit": "36ee24dd5ad2fb3e6dd60a9b669ce2f4ea0667ad",
-  "source_migration": "COMPLETED: owner authorized public source in rp-system; branch has real expanded source, generated source assets and four profiles.",
+  "source_migration": "COMPLETED: approved paid plugin source merged into canonical public rp-system main under plugins/home-assistant-streamdeck; in-repository Rat Ship rebuild, not external artifact fetching.",
   "release_gate": [
     "PUBLIC SOURCE IMPORT: PASS",
     "Windows locked Node build and deterministic fixtures: PASS",
@@ -22,27 +21,26 @@
     "Official Elgato validate and package on Windows: PASS",
     "Real Home Assistant Core WebSocket snapshot, live event, bad-token test: PASS",
     "Canonical isolated Rat Ship kit, photo cover, four galleries and contact sheet: PASS",
-    "Physical Stream Deck and customer Home Assistant smoke: NOT VERIFIED",
-    "Long-lived token is in Stream Deck global settings, not OS keychain: DISCLOSE BEFORE RELEASE",
-    "$9.99 initial price: PENDING EXPLICIT APPROVAL; submission.price_usd remains null"
+    "Physical Stream Deck and customer Home Assistant smoke: DEFERRED BY OPERATOR on 2026-10-03; NOT PASSED",
+    "Long-lived token is in Stream Deck global settings, not OS keychain: explicitly disclosed and ACCEPTED by operator on 2026-10-03",
+    "$9.99 initial price: explicitly APPROVED by operator on 2026-10-03",
+    "Final five-image Rat Ship artwork from exact successful run 37088244126: OPERATOR APPROVED on 2026-10-03"
   ],
-  "blocker": "Automated release gate green. Await operator decision on $9.99 price and physical Stream Deck/customer HA smoke (or explicit documented deferral), plus final 02_cover/contact-sheet visual approval. Do not stage/submit without authorization.",
-  "final_boundary": "READY_FOR_HARDWARE_QA (automated release candidate validated). Rat Ship public submission remains blocked until price and required manual/visual acceptance. Binary is rebuilt by canonical local Rat Ship rather than uploaded to public Actions.",
+  "blocker": null,
+  "final_boundary": "READY_TO_SHIP: $9.99 and final exact Rat Ship media approved 2026-10-03; actual physical Stream Deck/customer HA smoke explicitly deferred by operator, NOT PASSED. Global-settings token storage (not OS keychain) disclosed and accepted. Automated validation passed on exact product source and final media run 37088244126; repeat on promotion commit. Rat Ship must rebuild a fresh local kit from canonical main before operator-initiated Marketplace submission. Submission NOT performed.",
   "distinct_from": "home-assistant",
   "marketplace_art": {
     "campaign_style": "warm-studio-glass-v1",
     "gallery_mode": "wrap"
   },
   "source": "plugins/home-assistant-streamdeck",
-  "branch": "product/home-assistant-streamdeck",
-  "source_repository": "https://github.com/slayerkey/rp-system.git",
   "source_import_commit": "d584dbb7b33d5601048f38cf20b40b041c68b261",
   "automated_release_evidence": {
     "status": "PASSED_CLEAN_AUTOMATED_CANDIDATE",
-    "source_commit": "e0316938af4812cdb31da1b98c34901974424b91",
-    "run_id": 37086074174,
-    "windows_job_id": 111096580132,
-    "real_home_assistant_job_id": 111096579986,
+    "source_commit": "943648d45202c4110971241d459152a46f909f71",
+    "run_id": 37088244126,
+    "windows_job_id": 111102849512,
+    "real_home_assistant_job_id": 111102849360,
     "windows_ci": "PASS",
     "canonical_pi_design_audit": "PASS",
     "canonical_key_visual_major_profiles": "PASS",
@@ -52,9 +50,30 @@
     "exact_local_rat_ship_kit": "PASS",
     "final_canonical_photo_hero": "PASS",
     "final_contact_sheet": "PASS",
-    "package_sha256": "16dc3064fc14d52e14f26c1f4e0ca31ac8aa7540342aa7c7267bef1fa539e641",
-    "public_safe_review_artifact_id": 11261045209,
-    "artifact_note": "Only final media and package SHA-256 uploaded by public CI, no downloadable public paid binary."
+    "package_sha256": "c1a501b0ee4f763cb1e79e1062728319e0364de6d22d3e9f1326fcb931e2ec6c",
+    "public_safe_review_artifact_id": 11260759396,
+    "artifact_note": "Only final media and package SHA-256 uploaded by public CI, no downloadable public paid binary.",
+    "source_note": "Exact green package and art from main merge 943648d; intervening 9ecf742 changes only the separate Maker Console driver. Approved price and readiness metadata require clean revalidation on the final release commit."
   },
-  "hardware_gate": "NOT_VERIFIED_NO_DEFERRAL_APPROVED"
+  "hardware_gate": "OPERATOR_ACCEPTED_DEFERRED_PHYSICAL_SMOKE_NOT_PASSED",
+  "operator_release_approval": {
+    "date_local": "2026-10-03",
+    "price_usd": 9.99,
+    "physical_hardware_qa": "EXPLICITLY_DEFERRED_NOT_PASSED",
+    "customer_home_assistant_smoke": "EXPLICITLY_DEFERRED_NOT_PASSED",
+    "global_settings_token_storage": "DISCLOSED_AND_ACCEPTED_NOT_OS_KEYCHAIN",
+    "final_rat_ship_artwork": "APPROVED",
+    "marketplace_submission": "NOT_PERFORMED_OWNER_TO_RUN_RAT_SHIP"
+  },
+  "physical_release_evidence": {
+    "status": "OPERATOR_ACCEPTED_DEFERRED_PHYSICAL_QA",
+    "date_local": "2026-10-03",
+    "not_verified": [
+      "Physical Stream Deck MK.2/XL/Plus/Neo functional and visual smoke",
+      "Customer-style Home Assistant instance with actual user devices, service permissions and reconnection behavior",
+      "Physical Stream Deck+ brightness encoder and Neo Infobar lifecycle/readability"
+    ],
+    "accepted_release_risk": "Operator explicitly approved shipping without completing these physical/customer-environment checks; future failures/rejections remain possible. These tests are NOT PASS.",
+    "follow_up": "Complete physical and customer-style HA smoke at first practical opportunity; address any marketplace rejection or customer feedback."
+  }
 }

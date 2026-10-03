@@ -1,22 +1,18 @@
-# Home Assistant Stream Deck — verified release QA
+# Home Assistant Stream Deck — release gate and accepted risk
 
-## Automated evidence
+Latest accepted pre-promotion exact-main evidence: [Rat Ship run 37088244126](https://github.com/slayerkey/rp-system/actions/runs/37088244126) at `943648d45202c4110971241d459152a46f909f71`, package SHA-256 `c1a501b0ee4f763cb1e79e1062728319e0364de6d22d3e9f1326fcb931e2ec6c`. Re-run `.github/workflows/home-assistant-streamdeck-ci.yml` on the price/readiness promotion before submission, and use the latest accepted exact package/art from canonical main.
 
-The current release gate is `.github/workflows/home-assistant-streamdeck-ci.yml`. Check its **latest successful exact-head run**, not an earlier package hash, after changing any plugin, release metadata or artwork.
-
-| Gate | Verified state |
+| Gate | Outcome |
 |---|---|
-| Locked Windows Node build and deterministic product tests | PASS in main CI before current cover-title patch; exact-head PR run required for this patch |
-| Four editable profiles: MK.2, XL, Plus, Neo, 65 distinct action IDs | PASS in main CI; rerun on patch |
-| Canonical PI and keypad/major-profile visual audit | PASS in main CI; rerun on patch |
-| Official Elgato validation and .streamDeckPlugin packaging | PASS in main CI; rerun on patch |
-| Real isolated HA Core 2026.8.3: WebSocket authentication, state snapshot, pushed live state, invalid-token rejection | PASS in main CI; not equivalent to physical/customer installation |
-| Canonical isolated Rat Ship artwork (five frames, photographed final hero, contact sheet) | PASS in main CI; repeated platform subtitle found during manual artwork review, patch + exact-head rerun required |
-| Real HA controls across user devices, reconnect, local/remote network and customer permissions | NOT VERIFIED |
-| Physical Stream Deck key/PI/dial/Neo/readability testing | NOT VERIFIED; no implicit deferral |
-| Final corrected cover/content visual acceptance | PENDING manual review of patch-specific CI artifact |
-| Price approval | PENDING; $9.99 is a hypothesis, not an approval |
-| Access-token storage | Stream Deck host-managed global settings, **not OS keychain**. Disclose and obtain operator release acceptance. |
-| READY_TO_SHIP or Maker Console submission | NOT AUTHORIZED. Never treat automated PASS as publication approval. |
+| Locked Windows build and deterministic product tests | PASS on exact evidence run; repeat on promotion |
+| MK.2/XL/Plus/Neo editable profiles, 65 distinct ActionIDs | PASS |
+| Canonical Property Inspector and key/profile visual audits | PASS |
+| Official Elgato CLI validation and packaging | PASS |
+| Real HA Core 2026.8.3 snapshot/live state/history/invalid-token transport | PASS — automated test environment only |
+| Isolated canonical Rat Ship kit with final photographed cover and four galleries | PASS — final art explicitly accepted by operator 2026-10-03 |
+| $9.99 price | APPROVED by operator 2026-10-03 |
+| Physical Stream Deck and customer-style Home Assistant smoke | **DEFERRED BY OPERATOR, NOT PASSED**; complete as post-release follow-up |
+| Access token in Stream Deck host global settings, not OS keychain | DISCLOSED in listing; operator expressly ACCEPTED 2026-10-03 |
+| Marketplace submission or publication | NOT PERFORMED; only operator-initiated `rat ship` may submit |
 
-Only final artwork and package SHA are retained in the public CI artifact; no paid package is uploaded. Generate the actual package and SHIP_KIT through local `rat kit home-assistant-streamdeck`, after the release-gate checks have passed. `rat ship home-assistant-streamdeck` starts the authenticated submission flow; do not invoke it until the owner explicitly authorizes submission and the canonical product record is `READY_TO_SHIP`.
+Public CI retains only final review media and package hash (artifact 11260759396), never the paid binary. Generate the installable package and ship kit locally through `rat kit home-assistant-streamdeck`. Successful fixture and automated HA tests do not attest to physical Stream Deck behavior.
