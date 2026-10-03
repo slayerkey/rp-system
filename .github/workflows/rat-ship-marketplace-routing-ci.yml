@@ -18,6 +18,7 @@ on:
       - 'tools/local/rat-ship-local.ps1'
       - 'tools/local/rat-preview-art.ps1'
       - 'tools/art/streamdeck_marketplace_campaign.py'
+      - 'tools/art/test_streamdeck_gallery_layout.py'
       - 'tools/art/apply_streamdeck_gallery_campaign.py'
       - 'tools/art/render_streamdeck_ship_hero.py'
       - 'tools/art/render_streamdeck_product_hero.py'
@@ -49,6 +50,7 @@ on:
       - 'tools/local/rat-ship-local.ps1'
       - 'tools/local/rat-preview-art.ps1'
       - 'tools/art/streamdeck_marketplace_campaign.py'
+      - 'tools/art/test_streamdeck_gallery_layout.py'
       - 'tools/art/apply_streamdeck_gallery_campaign.py'
       - 'tools/art/render_streamdeck_ship_hero.py'
       - 'tools/art/render_streamdeck_product_hero.py'
@@ -83,6 +85,11 @@ jobs:
 
       - name: Validate structured Marketplace descriptions
         run: node tools/ship/marketplace_description_guard.test.mjs
+
+      - name: Assert native Marketplace gallery bounds
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==12.3.0
+          python tools/art/test_streamdeck_gallery_layout.py
 
       - name: Parse Marketplace PowerShell helpers
         shell: pwsh
