@@ -673,6 +673,17 @@ async function selectedFileNames(input) {
 async function uploadGallery(target) {
   const pending = galleryFiles.filter(file => !state.uploaded.includes(file));
   if (!pending.length) {
+    // Browser uploads can be completed even when the underlying draft contains
+    // older gallery images; the previous local state alone cannot prove the
+    // live order. Never silently treat an extra fifth item as success.
+    if (prod.type === 'widget') {
+      const current = await countGallery(target);
+      const proof = state.galleryProof;
+      if (!proof || !Number.isFinite(proof.after) || current !== proof.after) {
+        await mediaDiagnostic(target,
+          'Existing widget gallery cannot be proven clean. Review/remove stale images in Maker Console before uploading the four current gallery frames.');
+      }
+    }
     mark('6-gallery');
     return;
   }
@@ -682,6 +693,13 @@ async function uploadGallery(target) {
 
   const before = await countGallery(target);
   if (before == null) throw new Error('cannot verify gallery count');
+  // The editor can display the icon, thumbnail, and a thumbnail preview.
+  // Four or more media previews BEFORE the first gallery upload indicate
+  // pre-existing or otherwise ambiguous content. Do not append another set.
+  if (prod.type === 'widget' && state.uploaded.length === 0 && before > 3) {
+    await mediaDiagnostic(target,
+      `Widget gallery already contains unexpected media before upload (preview count ${before}). Clear/reconcile the existing draft first; Rat Ship will not append duplicates.`);
+  }
 
   const isMultiple = Boolean(input.info?.multiple);
   if (isMultiple && state.uploaded.length === 0) {
@@ -719,7 +737,8 @@ async function uploadGallery(target) {
     await snap(target,`gallery-${file}`);
   }
 
-  state.galleryProof = {mode:isMultiple?'individual-append':'reverse-for-prepend',files:[...galleryFiles],uploadOrder};
+  const finalCount = await countGallery(target);
+  state.galleryProof = {mode:isMultiple?'individual-append':'reverse-for-prepend',files:[...galleryFiles],uploadOrder,before,after:finalCount};
   save();
   mark('6-gallery');
 }
