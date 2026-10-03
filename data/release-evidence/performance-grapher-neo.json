@@ -8,8 +8,10 @@
   "package_sha256": "c6ee2c31ea6ce3eb41f7d81319848bd0da22fdab6b3d25605a37afd11445df9a",
   "artifact_digest": "sha256:bac8a2a2cebda9509d909218b99b2bd750b4c18ae56e7423cf835cd6345780ea",
   "automated_checks": "PASSED_EXACT_COMMIT",
-  "physical_neo_smoke": "NOT_VERIFIED",
+  "physical_neo_smoke": "DEFERRED_BY_OPERATOR_NOT_PASSED",
   "marketplace_price": "14.99_USD_OPERATOR_APPROVED_2026-10-02",
-  "marketplace_art": "FINAL_COVER_APPROVAL_PENDING",
-  "artifact_expires_at": "2026-10-08T03:54:20Z"
+  "marketplace_art": "GENERATED_PREVIEW_FINAL_GLOBAL_RAT_SHIP_HERO_AND_GALLERY_PREFLIGHT_REQUIRED",
+  "artifact_expires_at": "2026-10-08T03:54:20Z",
+  "operator_release_decision": "READY_TO_SHIP at $14.99 with physical Neo smoke explicitly deferred; operator accepts rejection/compatibility risk.",
+  "final_gate": "Final Rat Ship media and Marketplace preflight must pass; no claim physical test passed."
 }
