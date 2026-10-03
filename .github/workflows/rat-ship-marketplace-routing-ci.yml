@@ -87,6 +87,8 @@ jobs:
         run: node tools/ship/marketplace_description_guard.test.mjs
 
       - name: Assert native Marketplace gallery bounds
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
         run: |
           python -m pip install --disable-pip-version-check Pillow==12.3.0
           python tools/art/test_streamdeck_gallery_layout.py
