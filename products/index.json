@@ -384,6 +384,14 @@
       "version": "1.0.1"
     },
     {
+      "id": "home-assistant-streamdeck",
+      "name": "Home Assistant Dashboard for Stream Deck",
+      "type": "plugin",
+      "status": "qa_passed",
+      "price_usd": null,
+      "version": "0.1.0.0"
+    },
+    {
       "id": "hwinfo",
       "name": "HWiNFO Monitor",
       "type": "plugin",

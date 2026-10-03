@@ -84,10 +84,21 @@ function assetCandidates(base){
   ];
 }
 function existingAssets(base){return assetCandidates(base).filter(existsSync);}
+function canonicalScalePair(base,matches){
+  // Elgato requires paired 1x and @2x images. Treat that pair as ONE
+  // unambiguous logical asset; still reject mixed SVG/PNG or orphan duplicates.
+  if(extname(base)||matches.length!==2)return false;
+  for(const ext of [".png",".svg"]){
+    const normal=resolve(pluginDir,base+ext);
+    const hi=resolve(pluginDir,base+"@2x"+ext);
+    if(matches.includes(normal)&&matches.includes(hi))return true;
+  }
+  return false;
+}
 function firstAsset(base,name="asset"){
   const matches=existingAssets(base);
-  if(matches.length>1){
-    errors.push(name+": extensionless asset path is ambiguous; keep exactly one canonical target ("+matches.join(", ")+")");
+  if(matches.length>1&&!canonicalScalePair(base,matches)){
+    errors.push(name+": extensionless asset path is ambiguous; keep exactly one format / canonical 1x+@2x pair ("+matches.join(", ")+")");
   }
   return matches[0]??null;
 }

@@ -1,0 +1,119 @@
+name: Home Assistant Stream Deck Rat Ship Release Gate
+on:
+  push:
+    branches: [integration/home-assistant-streamdeck-ratship, product/home-assistant-streamdeck, main]
+    paths:
+      - 'plugins/home-assistant-streamdeck/**'
+      - 'products/home-assistant-streamdeck.json'
+      - 'tools/art/**'
+      - 'tools/qa/**'
+      - 'tools/local/rat-ship-plugin.ps1'
+      - '.github/workflows/home-assistant-streamdeck-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'plugins/home-assistant-streamdeck/**'
+      - 'products/home-assistant-streamdeck.json'
+      - '.github/workflows/home-assistant-streamdeck-ci.yml'
+  workflow_dispatch:
+concurrency:
+  group: home-assistant-release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  official-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: plugins/home-assistant-streamdeck/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Lock and dependencies
+        working-directory: plugins/home-assistant-streamdeck
+        run: npm ci --no-fund --no-audit
+      - name: Generate plugin and all bundled profiles
+        working-directory: plugins/home-assistant-streamdeck
+        run: npm run build
+      - name: Run deterministic product regressions
+        working-directory: plugins/home-assistant-streamdeck
+        run: npm test
+      - name: Install canonical Rat Art/structural image runtime
+        run: python -m pip install --disable-pip-version-check "Pillow==12.3.0"
+      - name: Offline profile and unique action identity checks
+        run: python qa-evidence/run_offline_gate.py
+      - name: Canonical PI design contract
+        run: node tools/qa/streamdeck-plugin-design-audit.mjs plugins/home-assistant-streamdeck --require-canonical-pi
+      - name: Canonical keypad visual and major-model profile contract
+        run: node tools/qa/streamdeck-key-visual-audit.mjs plugins/home-assistant-streamdeck/com.packrat.home-assistant-streamdeck.sdPlugin --require-major-profiles
+      - name: Official Elgato validate and package
+        working-directory: plugins/home-assistant-streamdeck
+        shell: pwsh
+        run: |
+          npm run validate
+          if ($LASTEXITCODE -ne 0) { throw "Elgato validator rejected candidate" }
+          npm run pack
+          if ($LASTEXITCODE -ne 0) { throw "Elgato package creation failed" }
+      - name: Reset generated tracking before isolated canonical Rat Ship
+        shell: pwsh
+        run: |
+          git reset --hard HEAD
+          if ($LASTEXITCODE -ne 0) { throw "Cannot reset checkout" }
+      - name: Canonical Rat Ship nonpublishing kit and final art
+        shell: pwsh
+        run: |
+          $dest = Join-Path $env:RUNNER_TEMP 'home-assistant-ratship'
+          ./tools/local/rat-ship-plugin.ps1 -PluginSlug home-assistant-streamdeck -Destination $dest
+          if ($LASTEXITCODE -ne 0) { throw "Rat Ship release-gate failed" }
+          $pkg = Join-Path $dest 'home-assistant-streamdeck.streamDeckPlugin'
+          if (-not (Test-Path $pkg)) { throw 'Validated package is missing' }
+          $hash = (Get-FileHash $pkg -Algorithm SHA256).Hash.ToLowerInvariant()
+          New-Item -ItemType Directory -Force artifacts/home-assistant-safe-review | Out-Null
+          "$hash  home-assistant-streamdeck.streamDeckPlugin" | Set-Content artifacts/home-assistant-safe-review/PACKAGE-SHA256.txt
+          Copy-Item (Join-Path $dest '02_cover.png') artifacts/home-assistant-safe-review/02_cover.png
+          Copy-Item (Join-Path $dest '03_gallery_01.png') artifacts/home-assistant-safe-review/03_gallery_01.png
+          Copy-Item (Join-Path $dest '04_gallery_02.png') artifacts/home-assistant-safe-review/04_gallery_02.png
+          Copy-Item (Join-Path $dest '05_gallery_03.png') artifacts/home-assistant-safe-review/05_gallery_03.png
+          Copy-Item (Join-Path $dest '06_gallery_04.png') artifacts/home-assistant-safe-review/06_gallery_04.png
+          python tools/art/build_marketplace_contact_sheet.py --input $dest --output artifacts/home-assistant-safe-review/review-contact-sheet.png
+          if ($LASTEXITCODE -ne 0) { throw "Final Rat Ship contact sheet failed" }
+          Write-Host "HOME ASSISTANT CANONICAL RAT SHIP PASS package sha256=$hash (binary deliberately NOT uploaded)"
+      - name: Upload artwork and hash only (never paid binary)
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-assistant-ratship-safe-review
+          path: artifacts/home-assistant-safe-review/*
+          if-no-files-found: error
+
+  real-home-assistant:
+    name: Shared Stream Deck transport on real Home Assistant Core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Boot isolated real Home Assistant Core
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ha-ci-config
+          echo 'default_config:' > ha-ci-config/configuration.yaml
+          docker pull ghcr.io/home-assistant/home-assistant:2026.8.3
+          docker run -d --name packrat-streamdeck-real-ha -p 8123:8123 -e TZ=Etc/UTC -v "$PWD/ha-ci-config:/config" ghcr.io/home-assistant/home-assistant:2026.8.3
+      - name: Verify actual SDK transport, live sensor events and auth rejection
+        run: node plugins/home-assistant-streamdeck/tests/real-core-smoke.mjs http://127.0.0.1:8123 qa-evidence/real-home-assistant.json
+      - name: Retain non-secret real-server evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-assistant-real-core-transport-evidence
+          path: qa-evidence/real-home-assistant.json
+          if-no-files-found: warn

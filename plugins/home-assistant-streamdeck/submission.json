@@ -1,0 +1,28 @@
+{
+  "slug": "home-assistant-streamdeck",
+  "name": "Home Assistant Dashboard for Stream Deck",
+  "type": "plugin",
+  "version": "0.1.0.0",
+  "price_usd": null,
+  "price_hypothesis_usd": 9.99,
+  "marketplace_category": [
+    "Utilities"
+  ],
+  "marketplace_language": [
+    "English"
+  ],
+  "marketplace_operating_systems": [
+    "Windows"
+  ],
+  "marketplace_tags": [
+    "Home Assistant",
+    "Smart Home",
+    "Dashboard",
+    "Lighting",
+    "Sensors"
+  ],
+  "marketplace_auto_publish": false,
+  "headline": "Your Smart Home at a Glance",
+  "description": "A customizable Home Assistant dashboard for Stream Deck. View selected real-time entity values, compact multi-entity overviews and observed sensor trends, with domain-checked smart-home controls and scene/script shortcuts. Stream Deck+ gets a brightness dial for supported lights, and Neo can show a display-only household Infobar. Includes editable unconfigured MK.2, XL, Plus and Neo profile templates. Requires a reachable Home Assistant instance and a user-provided long-lived access token. Windows support only until additional platforms are verified. Device capabilities and availability vary.",
+  "release_notes": "Initial candidate: shared live Home Assistant connection with entity status, observed sensor history and multi-entity overviews. Supported light/switch controls and scene/script triggers with acknowledgements. Editable major-model profile templates plus Stream Deck+ brightness dial and Neo display-only Infobar."
+}
