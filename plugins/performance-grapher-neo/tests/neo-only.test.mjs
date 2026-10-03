@@ -14,6 +14,7 @@ const source = await readFile(resolve(root, "src/plugin.js"), "utf8");
 
 test("standalone product is Neo-only with its own permanent UUID", () => {
   assert.equal(manifest.UUID, "com.packrat.performance-grapher-neo");
+  assert.equal(manifest.Name, "Performance Grapher for Stream Deck Neo");
   assert.equal(manifest.Version, "1.0.0.0");
   assert.equal(manifest.Software.MinimumVersion, "7.6");
   assert.equal(manifest.SDKVersion, 3);
