@@ -1,0 +1,15 @@
+{
+  "slug": "performance-grapher-neo",
+  "version": "1.0.0.0",
+  "source_commit": "9f9c53eed7cbb1fe4de54cdf57534f150ad703b6",
+  "run_id": 35953225587,
+  "artifact_id": 10789526451,
+  "package_path": "com.packrat.performance-grapher-neo.streamDeckPlugin",
+  "package_sha256": "c6ee2c31ea6ce3eb41f7d81319848bd0da22fdab6b3d25605a37afd11445df9a",
+  "artifact_digest": "sha256:bac8a2a2cebda9509d909218b99b2bd750b4c18ae56e7423cf835cd6345780ea",
+  "automated_checks": "PASSED_EXACT_COMMIT",
+  "physical_neo_smoke": "NOT_VERIFIED",
+  "marketplace_price": "UNAPPROVED",
+  "marketplace_art": "FINAL_COVER_APPROVAL_PENDING",
+  "artifact_expires_at": "2026-10-08T03:54:20Z"
+}
