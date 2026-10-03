@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { patchMakerConsoleSource } from './maker_console_runtime_patch_v12.mjs';
+import { patchMakerConsoleSource } from './maker_console_runtime_patch_v13.mjs';
 import { assertMarketplaceTitle } from './marketplace_title_guard.mjs';
 
 // Check exact SHIP_KIT metadata before mounting browser state or touching a
