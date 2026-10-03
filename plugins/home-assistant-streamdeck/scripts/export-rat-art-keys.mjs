@@ -66,7 +66,11 @@ const smoke = spawnSync(process.execPath, [renderer, resolve(scratch, '00.svg'),
 });
 if (smoke.status !== 0) throw new Error('Canonical SVG Canvas fallback smoke failed');
 await rm(canary, { force: true });
-const result = spawnSync(process.execPath, [renderer, '--batch', scratch, out], {
+// Windows headless screenshot capture failed on the operator PC. Use the
+// verified browser Canvas renderer directly for all 15 keys on Windows.
+const batchArgs = [renderer, '--batch', scratch, out];
+if (process.platform === 'win32') batchArgs.push('--canvas-only');
+const result = spawnSync(process.execPath, batchArgs, {
   cwd: root,
   stdio: 'inherit',
 });
