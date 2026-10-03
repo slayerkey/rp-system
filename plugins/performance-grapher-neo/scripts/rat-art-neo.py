@@ -56,7 +56,10 @@ def text(draw, xy, value, size=32, bold=False, fill=WHITE, anchor=None):
 def header(img, title, subtitle):
     brand(img)
     d = ImageDraw.Draw(img)
-    text(d, (W//2, 158), title, 67, True, WHITE, "mm")
+    title_size = 67
+    while d.textbbox((0, 0), title, font=font(title_size, True))[2] > W - 240 and title_size > 38:
+        title_size -= 2
+    text(d, (W//2, 158), title, title_size, True, WHITE, "mm")
     text(d, (W//2, 218), subtitle, 27, False, MUTED, "mm")
 
 
@@ -105,7 +108,7 @@ def frame(name, title, subtitle, mode="overview", values=None, caption=None):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    frame("02_cover.png", "PERFORMANCE GRAPHER NEO",
+    frame("02_cover.png", "PERFORMANCE GRAPHER FOR STREAM DECK NEO",
           "PC performance at a glance. Keep all eight keys free.",
           caption="CPU  ·  GPU  ·  RAM  —  NO KEY REQUIRED")
     frame("03_gallery_01.png", "YOUR PC. ONE GLANCE.",
