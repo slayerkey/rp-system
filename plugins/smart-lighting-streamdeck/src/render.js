@@ -14,7 +14,7 @@ export function viewFor(kind,settings,target,client){
  if(state!=="connected")return {top:kind.toUpperCase(),value:state==="setup"?"SETUP":state==="unauthorized"?"PAIR":state==="incompatible"?"UPDATE":"OFFLINE",tone:state==="setup"?"neutral":"error"};
  if(kind==="favorites"){
   const fav=(client.snapshot?.targets||[]).filter(t=>t.favorite&&t.capabilities?.power&&t.kind!=="scene");
-  return {top:settings.powerMode==="off"?"ALL FAVORITES OFF":"ALL FAVORITES ON",value:fav.length?String(fav.length):"NO FAV",tone:fav.length?"active":"neutral",foot:"HUE + GOVEE"};
+  return {top:"FAVORITES",value:fav.length?(settings.powerMode==="off"?"OFF":"ON"):"NO FAV",tone:fav.length&&settings.powerMode!=="off"?"preset":"neutral",foot:fav.length?fav.length+" LIGHTS":"HUE + GOVEE"};
  }
  if(!settings.targetId)return {top:kind.toUpperCase(),value:"SELECT",tone:"neutral"};
  if(!target)return {top:kind.toUpperCase(),value:"MISSING",tone:"error"};

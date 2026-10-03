@@ -20,16 +20,16 @@ await writeFile(resolve(dir,"category/icon@2x.svg"),'<svg xmlns="http://www.w3.o
 const scenes=[
  ["power","OFF","DESK LIGHT","hue"],["power","ON","DESK LIGHT","hue"],
  ["brightness","35%","DESK LIGHT","hue"],["brightness","75%","DESK LIGHT","hue"],
- ["favorites","2","FAVORITES","hue + govee"],["scene","APPLY","NIGHT SCENE","hue"],
+ ["favorites","ON","FAVORITES","2 LIGHTS"],["scene","APPLY","NIGHT SCENE","hue"],
  ["power","ON","ACCENT","govee"],["tone","2700K","DESK LIGHT","hue"],
- ["tone","#FFB21E","ACCENT","govee"],["favorites","2","FAVORITES","hue + govee"],
+ ["tone","#FFB21E","ACCENT","govee"],["favorites","OFF","FAVORITES","2 LIGHTS"],
  ["power","SETUP","POWER",""],["brightness","SELECT","BRIGHTNESS",""],
  ["tone","4000K","ACCENT",""],["scene","APPLY","FOCUS","hue"],["power","OFFLINE","DESK LIGHT",""]
 ];
 const svgs=resolve(root,"art-source-keys");
 await rm(svgs,{recursive:true,force:true});await mkdir(svgs,{recursive:true});
 for(const [i,[kind,value,top,provider]] of scenes.entries()){
- const tone=value==="OFFLINE"?"error":value==="ON"?"active":value==="OFF"?"neutral":"preset";
+ const tone=kind==="favorites"?(value==="ON"?"preset":"neutral"):value==="OFFLINE"?"error":value==="ON"?"active":value==="OFF"?"neutral":"preset";
  await writeFile(resolve(svgs,String(i+1).padStart(2,"0")+".svg"),renderKey(kind,{top,value,foot:provider.toUpperCase(),tone},288));
 }
 console.log("Generated canonical PackRat lighting action art + 15 runtime faces");
