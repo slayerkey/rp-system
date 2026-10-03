@@ -1,10 +1,10 @@
 from __future__ import annotations
-import argparse, math, os, sys
+import argparse, os, sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/"tools"/"art"))
-from streamdeck_marketplace_campaign import campaign_header,campaign_footer,glass_panel,load_scene,resolve_campaign_config,thin_arrow
+from streamdeck_marketplace_campaign import campaign_header,campaign_footer,glass_panel,load_scene,resolve_campaign_config,thin_arrow,bounded_key_grid
 from marketplace_text import draw_fitted_text
 SLUG="smart-lighting-streamdeck"
 CONFIG=resolve_campaign_config(SLUG)
@@ -28,24 +28,9 @@ def face(out,n):
  im=Image.open(p).convert("RGBA")
  if im.size!=(288,288):raise SystemExit("Wrong runtime key dimensions")
  return im
-def layout_faces(region,ns,cols,size,gap_x,gap_y=0):
- # Layout regions are inset from their visual panels. Refuse to generate art
- # when a runtime key face would spill beyond its card.
- x1,y1,x2,y2=region
- if not ns or not (1<=cols<=len(ns)) or min(size,gap_x,gap_y)<0 or size==0:raise ValueError("Invalid key grid geometry")
- rows=math.ceil(len(ns)/cols)
- grid_w=cols*size+(cols-1)*gap_x
- grid_h=rows*size+(rows-1)*gap_y
- if grid_w>x2-x1 or grid_h>y2-y1:
-  raise ValueError(f"Rat Art keys overflow their card: grid {grid_w}x{grid_h}, region {region}")
- left=x1+((x2-x1-grid_w)//2)
- top=y1+((y2-y1-grid_h)//2)
- result=[]
- for i,n in enumerate(ns):
-  x=left+(i%cols)*(size+gap_x);y=top+(i//cols)*(size+gap_y)
-  if x<x1 or y<y1 or x+size>x2 or y+size>y2:raise ValueError(f"Runtime key {n} escaped card {region}")
-  result.append((n,x,y,size))
- return result
+# Retain the product-local alias for regression tests; geometry comes from the
+# canonical reusable Marketplace campaign primitive.
+layout_faces=bounded_key_grid
 def place_faces(im,out,region,ns,cols,size,gap_x,gap_y=0):
  geometry=layout_faces(region,ns,cols,size,gap_x,gap_y)
  for n,x,y,key_size in geometry:
