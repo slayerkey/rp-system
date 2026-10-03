@@ -1,10 +1,10 @@
 {
   "id": "performance-grapher-neo",
-  "name": "Performance Grapher Neo",
+  "name": "Performance Grapher for Stream Deck Neo",
   "type": "plugin",
   "status": "qa_passed",
-  "workflow_state": "READY_TO_SHIP",
-  "blocker": null,
+  "workflow_state": "TESTING",
+  "blocker": "Marketplace name conflict reported; old pinned artifact still embeds previous Name. Build and validate exact renamed plugin before restoring READY_TO_SHIP; approved $14.99 and operator-accepted physical Neo deferral remain unchanged.",
   "price_usd": 14.99,
   "version": "1.0.0.0",
   "platform": "Elgato Stream Deck Neo Infobar / Windows",
@@ -61,7 +61,7 @@
     "shared_and_neo_unit_tests": "PASS",
     "streamdeck_design_audit": "PASS"
   },
-  "final_boundary": "READY_TO_SHIP using exact successful Windows CI artifact (source 9f9c53e, run 35953225587), $14.99 explicitly approved. Physical Neo runtime/readability/PI test explicitly deferred by operator, NOT passed. Final Rat Ship-generated canonical artwork and Marketplace preflight must pass before any submission.",
+  "final_boundary": "Previous exact artifact has OLD manifest Name and is not authorized for renamed Maker Console submission. New exact-head Windows CI/CLI package and new immutable artifact pin required; physical Neo smoke remains operator-deferred, not passed.",
   "physical_release_evidence": {
     "status": "OPERATOR_ACCEPTED_DEFERRED_PHYSICAL_NEO_SMOKE",
     "decision": "Operator explicitly elected to move READY_TO_SHIP and accept potential Marketplace rejection rather than require physical Neo smoke before submission.",
