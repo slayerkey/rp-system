@@ -21,7 +21,7 @@ test("single-provider favorites remain useful",()=>assert.equal(favoriteCommands
 test("offline favorites skipped",()=>assert.equal(favoriteCommands({targets:[{...govee,reachable:false}]},true).length,0));
 test("missing brightness is not zero",()=>assert.equal(observed({targets:[{...hue,brightness:null}]},{command:"brightness",id:hue.id,value:0}),false));
 test("observed command uses stable target id",()=>assert.equal(observed(snap,{command:"power",id:govee.id,value:false}),true));
-test("fixed preset key shows configured 65 percent not live 40",()=>assert.equal(viewFor("brightness",settingsFor({brightness:65}, "brightness"),hue,{state:"connected",snapshot:snap}).value,"65%"));
+test("fixed preset key shows configured 65 percent not live 40",()=>assert.equal(viewFor("brightness",settingsFor({brightness:65,targetId:hue.id}, "brightness"),hue,{state:"connected",snapshot:snap}).value,"65%"));
 test("explicit offline and missing views",()=>{assert.equal(viewFor("power",{targetId:"gone"},null,{state:"connected",snapshot:snap}).value,"MISSING");assert.equal(viewFor("power",{targetId:hue.id},hue,{state:"offline"}).value,"OFFLINE");});
 test("escape hostile device labels in SVG",()=>assert.doesNotMatch(renderKey("power",{top:"<script>&bad",value:"ON"},144),/<script>/));
 test("36/72/144 key size and state text",()=>{for(const n of [36,72,144]){const svg=renderKey("power",{top:"POWER",value:"OFFLINE",tone:"error"},n);assert.match(svg,new RegExp('width="'+n+'"'));assert.match(svg,/>OFFLINE</);}});

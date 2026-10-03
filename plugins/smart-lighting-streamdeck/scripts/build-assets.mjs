@@ -1,4 +1,4 @@
-import {mkdir,rm,writeFile} from "node:fs/promises";
+import {mkdir,rm,writeFile,cp} from "node:fs/promises";
 import {resolve,dirname} from "node:path";
 import {fileURLToPath} from "node:url";
 import {keyFixture,renderKey} from "../src/render.js";
@@ -33,3 +33,8 @@ for(const [i,[kind,value,top,provider]] of scenes.entries()){
  await writeFile(resolve(svgs,String(i+1).padStart(2,"0")+".svg"),renderKey(kind,{top,value,foot:provider.toUpperCase(),tone},288));
 }
 console.log("Generated canonical PackRat lighting action art + 15 runtime faces");
+
+const uiOut=resolve(root,"com.packrat.smart-lighting-streamdeck.sdPlugin/ui");
+await rm(uiOut,{recursive:true,force:true});await mkdir(uiOut,{recursive:true});
+for(const file of ["inspector.html","inspector.js","inspector.css"])await cp(resolve(root,"ui",file),resolve(uiOut,file));
+console.log("Bundled contextual Property Inspector");

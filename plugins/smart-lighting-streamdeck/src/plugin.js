@@ -37,7 +37,7 @@ async function render(record){
  const svg=renderKey(record.kind,view,144);
  if(svg===record.lastImage)return;
  record.lastImage=svg;
- await record.action.setImage(svg);
+ await record.action.setImage("data:image/svg+xml;base64,"+Buffer.from(svg,"utf8").toString("base64"));
 }
 async function renderAll(){
  await Promise.allSettled([...visible.values()].map(render));
