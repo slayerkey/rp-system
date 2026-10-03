@@ -1,4 +1,4 @@
-# Performance Grapher Neo — QA / shipping gate
+# Performance Grapher for Stream Deck Neo — QA / shipping gate
 
 **Product:** Neo-only standalone edition, version 1.0.0.0
 **Candidate branch:** product/performance-grapher-neo
