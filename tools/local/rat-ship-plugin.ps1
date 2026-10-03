@@ -150,6 +150,57 @@ function Invoke-CanonicalStreamDeckHero {
         [string]$Target
     )
 
+    # A dedicated Neo Infobar has no keypad action. Rendering the global 15-key
+    # MK.2 photographed hero would misrepresent its hardware and capabilities.
+    # This exception must be explicitly enabled by the canonical product and
+    # verified against the exact packaged Neo-only manifest.
+    $productMetadataPath = Join-Path $RepoRoot "products\$ProductSlug.json"
+    $productMetadata = Get-Content $productMetadataPath -Raw | ConvertFrom-Json
+    if ($productMetadata.marketplace_art.hero_mode -eq "neo-infobar-native-cover") {
+        $manifestPath = Join-Path $PluginDirectory "manifest.json"
+        if (-not (Test-Path $manifestPath -PathType Leaf)) {
+            throw "Neo-only hero requires the exact packaged plugin manifest."
+        }
+        $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+        $submission = Get-Content $SubmissionFile -Raw | ConvertFrom-Json
+        $neoActions = @($manifest.Actions)
+        if ($neoActions.Count -ne 1 -or
+            @($neoActions[0].Controllers).Count -ne 1 -or
+            [string]$neoActions[0].Controllers[0] -ne "Neo" -or
+            $manifest.Name -ne $submission.name -or
+            $manifest.UUID -ne [string]$productMetadata.plugin_uuid) {
+            throw "Neo-only hero refused a mismatched name/UUID or ordinary-key plugin package."
+        }
+
+        $nativeCover = Join-Path $Target "02_cover.png"
+        if (-not (Test-Path $nativeCover -PathType Leaf)) {
+            throw "Neo-only hero requires the exact validated artifact's original Infobar cover."
+        }
+        Require-Command "python" "Install Python with Pillow for Neo Marketplace cover validation."
+        & python -c "from PIL import Image; import sys; im=Image.open(sys.argv[1]); assert im.format == 'PNG' and im.size == (1920,960), 'Neo Infobar cover must be 1920x960 PNG'; im.verify()" $nativeCover
+        if ($LASTEXITCODE -ne 0) { throw "Neo-only native cover validation failed." }
+
+        $coverSha = (Get-FileHash -Path $nativeCover -Algorithm SHA256).Hash.ToLowerInvariant()
+        [ordered]@{
+            schema_version = 1
+            product = $ProductSlug
+            source = "validated-native-neo-infobar-cover"
+            manifest = $manifestPath
+            submission = $SubmissionFile
+            manifest_name = [string]$manifest.Name
+            manifest_uuid = [string]$manifest.UUID
+            action_count = 1
+            controllers = @("Neo")
+            cover = $nativeCover
+            cover_sha256 = $coverSha
+            render_model = "actual-232x50-infobar-preview-without-fictional-keypad-hardware"
+            global_mk2_photo_hero = "EXPLICITLY_NOT_APPLICABLE_TO_NEO_ONLY"
+            only_marketplace_slot_verified = "02_cover.png"
+        } | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 (Join-Path $Target "streamdeck-ship-hero-report.json")
+        Write-Host "Neo-only cover PASS: preserved exact Infobar artwork; never rendered 15-key hardware." -ForegroundColor Green
+        return
+    }
+
     $renderer = Join-Path $RepoRoot "tools\\art\\render_streamdeck_ship_hero.py"
     if (-not (Test-Path $renderer -PathType Leaf)) {
         throw "Canonical Stream Deck hero renderer missing: $renderer"
