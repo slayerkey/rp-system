@@ -36,7 +36,11 @@
     "private_artifact_run_id": 37085181726,
     "private_artifact_id": 11259808481,
     "package_sha256": "5286f9e24d3f32e8f33ee0043626b881debc1b02cb516f21df0c904d87780b95",
-    "package_sha256_verified_against_artifact": true
+    "package_sha256_verified_against_artifact": true,
+    "canonical_main_rat_ship_run_id": 37085552665,
+    "canonical_main_rat_ship_conclusion": "success",
+    "canonical_main_rat_ship_artifact_id": 11260333856,
+    "canonical_main_rat_ship_cover_sha256": "c76a94afeb21e8b25efbba2484ec5d818b694812ead33dc618bf6210ea56f234"
   },
   "physical_release_evidence": {
     "status": "DEFERRED_NOT_TESTED",
@@ -45,14 +49,17 @@
       "Simultaneous XENEON widget and Stream Deck operation on the operator's PC",
       "Physical Stream Deck key/dial/Neo states and Property Inspector persistence"
     ],
-    "operator_release_decision": "Operator approved $9.99 and authorized Rat Ship after green automated gates. Physical tests were not supplied, remain DEFERRED_NOT_TESTED, and must not be claimed as passed; no automatic Marketplace publication."
+    "operator_release_decision": "On 2026-10-02 the owner explicitly authorized `rat ship smart-lighting-streamdeck` with the real Hue/Govee and physical Stream Deck QA listed above deferred. These checks were NOT performed or PASSED. If the Marketplace requires real-hardware evidence in its submission flow, that required evidence must still be provided rather than fabricated.",
+    "accepted_release_risk": true
   },
   "marketplace_auto_publish": false,
   "release_gate": [
-    "Exact green Windows CI and final Rat Art from pinned source: PASS",
-    "Private validated release artifact pinned to exact green source and verified SHA-256: PASS",
-    "Physical lighting and Stream Deck testing: DEFERRED / NOT TESTED",
-    "Authenticated Maker Console final submission: NOT PERFORMED"
+    "Exact-head Windows QA, Elgato validation, canonical Rat Art, and 31 tests: PASS",
+    "Exact private package pinned and package SHA-256 verified: PASS",
+    "Canonical main Rat Ship passed; final photographed cover equals pinned runtime-key cover: PASS",
+    "$9.99 approved and `rat ship smart-lighting-streamdeck` explicitly authorized by owner: PASS",
+    "Physical Hue/Govee and physical Stream Deck tests: DEFERRED by operator, NOT TESTED, accepted release risk",
+    "Marketplace submission/publication: NOT YET EXECUTED; any required real-hardware review evidence must still be supplied"
   ],
   "notes": "Separate Stream Deck plugin consuming the unchanged local XENEON Hue/Govee companion; no duplicate provider integrations or credentials. Private release artifact retention expires 2026-10-10; re-pin/rebuild after expiration if staging later.",
   "release_artifact": {
