@@ -1,8 +1,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { patchMakerConsoleSource } from './maker_console_runtime_patch_v13.mjs';
+import { patchMakerConsoleSource } from './maker_console_runtime_patch_v14.mjs';
 import { assertMarketplaceTitle } from './marketplace_title_guard.mjs';
+import { assertMarketplaceDescription } from './marketplace_description_guard.mjs';
 
 // Check exact SHIP_KIT metadata before mounting browser state or touching a
 // draft. This also protects direct Maker Console invocations outside rat ship.
@@ -11,6 +12,7 @@ if (kitOption) {
   const kitSubmission = join(resolve(kitOption.slice(6)), 'submission.json');
   const kitProduct = JSON.parse(readFileSync(kitSubmission, 'utf8'));
   assertMarketplaceTitle(kitProduct.name, 'Maker Console submission.name');
+  assertMarketplaceDescription(kitProduct);
 }
 
 const HERE = dirname(fileURLToPath(import.meta.url));
