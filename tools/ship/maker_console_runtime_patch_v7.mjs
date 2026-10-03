@@ -78,7 +78,14 @@ export function patchMakerConsoleSource(source, options) {
   source = replaceOnce(
     source,
 `async function editorLooksLikeDetails(target) {`,
-`async function editorLooksLikePackage(target) {
+`async function editorLooksLikeCopy(target) {
+  const name = target.locator('input[readonly][maxlength]').first();
+  const create = target.getByRole('button',{name:/^create product$/i}).first();
+  if (!await visible(name) || !await visible(create)) return false;
+  return (await name.inputValue().catch(() => '')).trim() === prod.name;
+}
+
+async function editorLooksLikePackage(target) {
   const body = ((await target.locator('body').innerText().catch(() => '')) || '').toLowerCase();
   if (/upload your (?:stream deck )?plugin|only \\.streamdeckplugin files|upload your icue widget|only \\.icuewidget files/.test(body)) return true;
   const inputs = await describeFileInputs(target);
@@ -121,6 +128,30 @@ async function editorLooksLikeDetails(target) {`,
         await proseMirror(page,desc,readFileSync(join(KIT,'PASTE_description.txt'),'utf8').trim());
         await click(page,/^create product$/i);
         page = await livePage();
+      });
+
+      await step('4-details',prod.type === 'plugin' ? 'Set category, language and price' : 'Set category, dashboard sizes, orientation, language and price',async() => configureDetails(page));
+    } else if (await editorLooksLikeCopy(page)) {
+      console.log('Existing draft reopened at description. Re-entering the same verified product details after Create product finishes.');
+      const replay = new Set(['3-copy','4-details','5-media','6-gallery','6-continue','7-notes','8-autopublish']);
+      state.done = state.done.filter(id => !replay.has(id));
+      state.uploaded = [];
+      state.detailsSelections = [];
+      state.detailsProof = [];
+      state.listboxProof = [];
+      state.pricingProof = null;
+      state.galleryProof = null;
+      save();
+
+      await step('3-copy','Verify name and set description',async() => {
+        page = await livePage();
+        const readonlyName = page.locator('input[readonly][maxlength]').first();
+        const name = (await readonlyName.inputValue()).trim();
+        if (name !== prod.name) throw new Error('Existing draft name mismatch: ' + name);
+        const desc = page.locator('#description').or(page.locator('div[role="textbox"]')).or(page.locator('[contenteditable="true"]')).first();
+        await proseMirror(page,desc,readFileSync(join(KIT,'PASTE_description.txt'),'utf8').trim());
+        await click(page,/^create product$/i);
+        page = await waitForDetailsAfterCreate(page, 'resumed description create product');
       });
 
       await step('4-details',prod.type === 'plugin' ? 'Set category, language and price' : 'Set category, dashboard sizes, orientation, language and price',async() => configureDetails(page));
