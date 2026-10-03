@@ -135,12 +135,21 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Monitor Manager Pro final contact sheet failed.' }
           Write-Host 'MONITOR MANAGER PRO RAT SHIP KIT PASS'
 
-      - name: Upload release candidate
+      - name: Record package hash without publishing paid binary
+        working-directory: plugins/monitor-manager-pro
+        shell: pwsh
+        run: |
+          $pkg = Get-ChildItem dist -Filter *.streamDeckPlugin -File | Select-Object -First 1
+          if (-not $pkg) { throw 'Monitor Manager Pro package missing before hash capture.' }
+          $sha = (Get-FileHash $pkg.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Path dist/PACKAGE-SHA256.txt -Value "$sha  $($pkg.Name)"
+
+      - name: Upload sanitized release evidence
         uses: actions/upload-artifact@v4
         with:
           name: monitor-manager-pro
           path: |
-            plugins/monitor-manager-pro/dist/*.streamDeckPlugin
+            plugins/monitor-manager-pro/dist/PACKAGE-SHA256.txt
             plugins/monitor-manager-pro/dist/marketplace/*.png
             ${{ runner.temp }}/monitor-manager-pro-ship-kit/*.png
             ${{ runner.temp }}/monitor-manager-pro-ship-kit/streamdeck-ship-hero-report.json

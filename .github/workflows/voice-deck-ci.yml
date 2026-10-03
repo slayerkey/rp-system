@@ -90,14 +90,16 @@ jobs:
           if ($pkg.Count -ne 1) { throw "Expected one .streamDeckPlugin; found $($pkg.Count)" }
           $media = @(Get-ChildItem dist\marketplace -Filter *.png -File)
           if ($media.Count -ne 6) { throw "Expected six Marketplace images; found $($media.Count)" }
-          Get-FileHash $pkg[0].FullName -Algorithm SHA256 | Format-List
+          $sha = (Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Path dist/PACKAGE-SHA256.txt -Value "$sha  $($pkg[0].Name)"
+          Write-Host "PACKAGE SHA256: $sha"
 
-      - name: Upload release evidence
+      - name: Upload sanitized release evidence
         uses: actions/upload-artifact@v4
         with:
           name: voice-deck-release-qa
           path: |
-            plugins/voice-deck/dist/*.streamDeckPlugin
+            plugins/voice-deck/dist/PACKAGE-SHA256.txt
             plugins/voice-deck/dist/marketplace/*.png
             plugins/voice-deck/com.packrat.voice-deck.sdPlugin/manifest.json
             plugins/voice-deck/com.packrat.voice-deck.sdPlugin/profiles/*.streamDeckProfile

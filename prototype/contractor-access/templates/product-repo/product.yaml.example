@@ -1,0 +1,8 @@
+schema_version: 1
+assignment_id: asg_REPLACE
+builder_id: ctr_REPLACE
+sku: REPLACE
+slug: REPLACE
+product_type: plugin
+private_factory_required: true
+owner_release_required: true
