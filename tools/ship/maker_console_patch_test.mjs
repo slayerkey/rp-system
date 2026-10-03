@@ -54,7 +54,15 @@ assert.equal(createWizardPath.test('https://maker.elgato.com/create/plugins'),tr
 assert.equal(createWizardPath.test('https://maker.elgato.com/6ca8662c-1988-4901-8058-f5929450a596/create/plugins'),true);
 assert.equal(createWizardPath.test('https://maker.elgato.com/products'),false);
 assert.equal(createWizardPath.test('https://maker.elgato.com/6ca8662c-1988-4901-8058-f5929450a596/products'),false);
-assert.match(patched,/!\^https:.*\(\?:\[\^\\\/\?#\]\+\\\/\)\?create/);
+const resumeGuardLine = patched.split('\n').find(line => line.includes('if (RESUME && state.lastUrl') && line.includes('&& !') && line.includes('create'));
+assert.ok(resumeGuardLine, 'patched runtime must contain a create-wizard resume exclusion');
+const literal = resumeGuardLine.split('&& !')[1].split('.test(state.lastUrl)')[0].trim();
+const closing = literal.lastIndexOf('/');
+assert.ok(literal.startsWith('/') && closing > 0, 'expected regex literal in patched create-wizard guard');
+const emittedGuard = new RegExp(literal.slice(1,closing),literal.slice(closing+1));
+assert.equal(emittedGuard.test('https://maker.elgato.com/create/plugins'),true);
+assert.equal(emittedGuard.test('https://maker.elgato.com/6ca8662c-1988-4901-8058-f5929450a596/create/plugins'),true);
+assert.equal(emittedGuard.test('https://maker.elgato.com/products'),false);
 
 
 const begin = core.indexOf('async function waitForDetailsAfterCreate(');
