@@ -1,5 +1,5 @@
 # Home Assistant Dashboard — PackRat Stream Deck
-**Status: automated release candidate passed; physical Stream Deck / operator release gates pending.** Public source is approved by the owner in `slayerkey/rp-system`. Its standalone Stream Deck SKU does not change the existing published XENEON Home Assistant Panel.
+**Status: READY_TO_SHIP.** Operator approved $9.99, final five-frame Rat Ship art, deferred physical/customer-environment QA, and disclosed global-settings token storage on 2026-10-03. Marketplace submission is not performed; public source remains in `rp-system`. The existing published XENEON Home Assistant Panel is a separate SKU.
 
 ## Product
 - One shared authenticated Home Assistant WebSocket client for all visible actions.
@@ -8,17 +8,19 @@
 - Four editable unconfigured profile templates: MK.2, XL, Plus and Neo. Actual customer entities must be selected after connection; never prepopulate fictitious working devices.
 - Manual entity assignment in v1. Room auto-generation is deferred until genuine entity/area registry checks are implemented and permission-tested.
 
-## Exact clean automated release evidence
-At source commit `e0316938af4812cdb31da1b98c34901974424b91`, [GitHub Actions run 37086074174](https://github.com/slayerkey/rp-system/actions/runs/37086074174) completed successfully: locked Windows Node build/tests, major-model profile structural checks (65 distinct action identities), canonical PI and key/profile audits, official Elgato validation and packaging, isolated canonical Rat Ship art and kit with final photo cover and contact sheet. Separate Ubuntu job confirmed shared transport against **real Home Assistant Core 2026.8.3**: authenticated snapshot, pushed state updates, observed history, rejected token. This is not a claim of physical Stream Deck/customer HA testing. Packaged candidate SHA-256: `16dc3064fc14d52e14f26c1f4e0ca31ac8aa7540342aa7c7267bef1fa539e641`. Public CI uploads **review artwork and hash only**; the paid binary is built locally by Rat Ship and is never exposed as a public Actions artifact.
+## Exact automated release evidence
 
-## Remaining release gates
-1. Inspect the **exact final Rat Ship** `02_cover.png` and `review-contact-sheet.png` (safe media artifact 11261045209). Illustrative test values in artwork are clearly labeled.
-2. Physical Stream Deck hardware and a customer-like Home Assistant run are not verified. Record the results or obtain explicit operator authorization to defer; never mark deferred checks PASS.
-3. Approve the price. $9.99 is an *unapproved hypothesis*; canonical product price and submission price deliberately remain null, preventing submission.
-4. The user-supplied long-lived Home Assistant token is currently stored in Stream Deck plugin global settings (host-managed), **not** OS secure credential storage. Disclose that limitation, or replace it with a verified secure mechanism before public release. Never log tokens or put them in bundled profiles or art. macOS is not advertised until tested.
+[Canonical main Rat Ship run 37088244126](https://github.com/slayerkey/rp-system/actions/runs/37088244126) passed on source commit `943648d45202c4110971241d459152a46f909f71`: locked Windows build/tests, 65 distinct profile ActionIDs, canonical UI/key audits, official Elgato validation/package, isolated Rat Ship kit and final photographic cover/contact sheet. The separate real Home Assistant Core 2026.8.3 job tested authentication, snapshot, pushed state updates, observed history and bad-token rejection. Package SHA-256: `c1a501b0ee4f763cb1e79e1062728319e0364de6d22d3e9f1326fcb931e2ec6c`. Only art and package SHA (artifact 11260759396), not the paid binary, were uploaded publicly. Changing release metadata triggers a fresh candidate rebuild.
+
+## Explicitly approved release risks and follow-up
+
+- Price **$9.99** and exact final Rat Ship artwork: approved 2026-10-03.
+- Physical Stream Deck (MK.2/XL/Plus/Neo) and customer-style Home Assistant smoke: **OPERATOR-ACCEPTED DEFERRAL; NOT PASSED**. Test later and address any Marketplace rejection or customer issues.
+- Customer-provided Home Assistant long-lived token is stored in Stream Deck **global settings, not OS secure credential storage**. Disclosed in the Marketplace description; the operator accepted this limitation on 2026-10-03. Never log credentials or embed them in profiles. Only Windows is advertised.
 
 ## Canonical Rat Ship workflow
-The full workflow is in root `STREAMDECK.md`, `skills/rat-qa/SKILL.md`, `skills/rat-art/SKILL.md`, and `skills/rat-ship/SKILL.md`. Run `rat preview-art home-assistant-streamdeck` to inspect the final photo cover/contact sheet. After operator acceptance of remaining gates and canonical `READY_TO_SHIP`, use `rat ship home-assistant-streamdeck`. **That command can enter authenticated Marketplace submission; do not run it until publication/submission is authorized.** For nonpublishing preparation use `rat kit home-assistant-streamdeck` or `rat stage home-assistant-streamdeck` where available.
+
+Run `rat kit home-assistant-streamdeck` for nonpublishing preparation. When ready to initiate authenticated Maker Console submission on your PC, run `rat ship home-assistant-streamdeck`. That command can **submit**; it is not a dry run, and the user must intentionally execute it. Never equate `READY_TO_SHIP` with a claim that the plugin is already published.
 
 ## Proven component reuse
 - Home Assistant native protocol and reconnection decisions from `widgets/_src/home-assistant/` and `docs/XENEON_HOME_ASSISTANT_RECOVERY_2026-08-28.md`.
