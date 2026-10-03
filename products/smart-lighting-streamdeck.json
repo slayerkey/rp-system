@@ -1,0 +1,54 @@
+{
+  "id": "smart-lighting-streamdeck",
+  "name": "PackRat Smart Lighting for Hue & Govee",
+  "type": "plugin",
+  "status": "qa_passed",
+  "workflow_state": "PIN_RELEASE_ARTIFACT",
+  "blocker": "Awaiting immutable private artifact registration on canonical main",
+  "price_usd": 9.99,
+  "price_status": "approved by operator on 2026-10-02",
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck / Windows",
+  "submission_metadata": "plugins/smart-lighting-streamdeck/submission.json",
+  "branch": "product/smart-lighting-streamdeck",
+  "source_repository": "https://github.com/slayerkey/rp-system.git",
+  "source_ref": "refs/heads/product/smart-lighting-streamdeck",
+  "source_commit": "c035b41158cba49e6e146f15915eca688258ae41",
+  "plugin_uuid": "com.packrat.smart-lighting-streamdeck",
+  "companion": "companions/smart-lighting-control",
+  "companion_protocol": 1,
+  "companion_download_url": "https://packrat-site.pages.dev/downloads/smart-lighting",
+  "marketplace_art": {
+    "hero_title_style": "monitor",
+    "campaign_style": "warm-studio-glass-v1",
+    "gallery_mode": "native"
+  },
+  "automated_release_evidence": {
+    "status": "PASS",
+    "source_commit": "c035b41158cba49e6e146f15915eca688258ae41",
+    "windows_workflow_run_id": 37084083136,
+    "node_tests_passed": 31,
+    "companion_self_tests": "PASS",
+    "official_elgato_validation": "PASS",
+    "official_elgato_packaging": "PASS",
+    "design_and_key_visual_audit": "PASS",
+    "exact_canonical_rat_art": "PASS"
+  },
+  "physical_release_evidence": {
+    "status": "DEFERRED_NOT_TESTED",
+    "deferred_checks": [
+      "Real Philips Hue and Govee pairing/control",
+      "Simultaneous XENEON widget and Stream Deck operation on the operator's PC",
+      "Physical Stream Deck key/dial/Neo states and Property Inspector persistence"
+    ],
+    "operator_release_decision": "Owner approved $9.99 and authorized Rat Ship preparation conditional on clean automated gates; no physical tests were supplied. Deferred checks are accepted for preparing the ship kit and must not be described as passed."
+  },
+  "marketplace_auto_publish": false,
+  "release_gate": [
+    "Exact green Windows CI and final Rat Art from pinned source: PASS",
+    "Private validated release artifact pin on main: PENDING",
+    "Physical lighting and Stream Deck testing: DEFERRED / NOT TESTED",
+    "Authenticated Maker Console final submission: NOT PERFORMED"
+  ],
+  "notes": "Separate Stream Deck plugin consuming the unchanged local XENEON Hue/Govee companion; no duplicate provider integrations or credentials."
+}
