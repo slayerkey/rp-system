@@ -1,6 +1,6 @@
 {
   "id": "smart-lighting-streamdeck",
-  "name": "PackRat Smart Lighting for Hue & Govee",
+  "name": "Smart Lighting for Hue & Govee",
   "type": "plugin",
   "status": "in_progress",
   "workflow_state": "QA_PENDING",
