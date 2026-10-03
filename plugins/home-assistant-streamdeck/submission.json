@@ -4,7 +4,6 @@
   "type": "plugin",
   "version": "0.1.0.0",
   "price_usd": 9.99,
-  "price_hypothesis_usd": 9.99,
   "marketplace_category": [
     "Utilities"
   ],
