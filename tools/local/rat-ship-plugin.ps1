@@ -548,6 +548,11 @@ if (-not $submissionPath -or -not (Test-Path $submissionPath -PathType Leaf)) {
     throw "Stream Deck Rat Ship cannot find submission metadata for '$PluginSlug'."
 }
 $submission = Get-Content $submissionPath -Raw | ConvertFrom-Json
+# An opt-in structured description is a release gate, not just a cosmetic
+# convention. Validate the exact submission file before creating the kit.
+Require-Command "node" "Install Node.js to validate Marketplace description formatting."
+& node (Join-Path $RepoRoot "tools\\ship\\marketplace_description_guard.mjs") --submission $submissionPath | Out-Host
+if ($LASTEXITCODE -ne 0) { throw "Marketplace description format failed for '$PluginSlug'." }
 if ($submission.type -ne "plugin" -or $submission.slug -ne $PluginSlug) {
     throw "submission.json does not match Stream Deck plugin '$PluginSlug'."
 }

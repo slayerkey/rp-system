@@ -128,6 +128,10 @@ Product-local code owns:
 
 Do not globalize product-specific creative decisions.
 
+### Native gallery geometry gate
+
+A native gallery's correct 1920 × 960 dimensions do **not** prove that its content fits its glass cards. When a frame contains product key/state grids, call the shared `bounded_key_grid(...)` primitive in `tools/art/streamdeck_marketplace_campaign.py` (or a checked equivalent), define the inner content region separately from the panel border, and draw captions with the shared bounded `draw_fitted_text`. Each participating product needs a deterministic geometry regression covering **every** gallery's real key set, rows, labels and overflow refusal. If any key, footer or caption extends outside the relevant panel at full resolution, fail Rat Art, not just the final screenshot review. Review the actual 320 × 160 thumbnail as well; simplify, do not shrink copy indefinitely.
+
 ## 4. Product-proof rule
 
 Marketplace art must use the actual product visual language.

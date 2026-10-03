@@ -9,6 +9,8 @@ Require a clean automated QA report before preparing submission.
 
 Before building any new or resubmitted Marketplace listing, follow `standards/marketplace-listing-v2.md`: **never put PackRat/Pack Rat in the customer-visible product title**. Keep PackRat in creator/Author branding, descriptive copy, artwork, and stable technical IDs if appropriate. For a Stream Deck plugin, keep the canonical product name, submission name and packaged manifest `Name` identical. A manifest-title change invalidates the prior package/hash and requires fresh exact-source QA and Rat Ship artifact pinning; preserve the first-submission version for a title correction. The shared Rat Ship command and Maker Console bridge reject branded listing titles automatically.
 
+For every new or intentionally refreshed listing, apply the structured Description system in `standards/marketplace-listing-v2.md`. Set `description_format: "structured-v1"` with separated value proposition, headings, bullets, setup and compatibility. The Rat Ship guard and Maker Console rich-text writer must enforce the real section breaks before submission, not merely render a one-line PASTE_description.txt.
+
 
 Create the release candidate from canonical source and generated artifacts. Include package, listing art, description, tags or keywords, pricing evidence, compatibility, version, changelog or release notes, QA report, and gallery order where the marketplace needs it.
 

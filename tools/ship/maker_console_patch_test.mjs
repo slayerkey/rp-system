@@ -5,7 +5,7 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
-import { patchMakerConsoleSource } from './maker_console_runtime_patch_v13.mjs';
+import { patchMakerConsoleSource } from './maker_console_runtime_patch_v14.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..');
@@ -119,6 +119,68 @@ assert.match(missingControls.failure,/category selectors did not mount/);
 assert.equal(missingControls.reports[0].sawDetails, true);
 assert.equal(missingControls.reports[0].categoryListboxCount, 0);
 console.log('MAKER CONSOLE COPY TRANSITION PASS: hydration race, stalled spinner, and missing listbox diagnostics');
+
+assert.match(patched,/async function writeMarketplaceDescription\(/);
+assert.equal((patched.match(/await writeMarketplaceDescription\(page,desc/g)||[]).length,3,
+  'all three description writers must use the structured paragraph bridge');
+const writerStart=patched.indexOf('async function writeMarketplaceDescription(');
+const writerEnd=patched.indexOf('\nfunction normalizeReleaseNotes(',writerStart);
+assert.ok(writerStart>0&&writerEnd>writerStart,'structured description helper emitted before release notes');
+const writerSource=patched.slice(writerStart,writerEnd);
+const sampleDescription=[
+  'Control Hue and Govee lights from one Stream Deck with easy real-time power controls.',
+  '',
+  'WHAT YOU CAN DO',
+  '• Toggle supported lights with a single key.',
+  '• Set brightness and color when available.',
+  '• Save compatible mixed-brand favorites.',
+  '',
+  'QUICK SETUP',
+  'Connect the local companion and assign favorite lights.',
+  '',
+  'COMPATIBILITY',
+  'Windows and supported Stream Deck devices.'
+].join('\n');
+async function writerFixture(blocks,format='structured-v1'){
+  const pressed=[],inserted=[],state={};
+  const locator={
+    click:async()=>pressed.push('click'),
+    evaluate:async()=>({
+      blocks,contentEditable:true,text:sampleDescription
+    })
+  };
+  const target={
+    keyboard:{
+      press:async v=>pressed.push(v),
+      insertText:async v=>inserted.push(v)
+    },
+    waitForTimeout:async()=>{}
+  };
+  const scope={
+    prod:{description_format:format},
+    state,
+    save:()=>{},
+    proseMirror:async()=>pressed.push('legacy'),
+    console:{log:()=>{}}
+  };
+  runInNewContext(writerSource+'\nthis.writeMarketplaceDescription=writeMarketplaceDescription;',scope);
+  let error=null;
+  try{await scope.writeMarketplaceDescription(target,locator,sampleDescription)}
+  catch(e){error=String(e.message)}
+  return {pressed,inserted,state,error};
+}
+const writerOK=await writerFixture(12);
+assert.equal(writerOK.error,null);
+assert.equal(writerOK.state.descriptionProof.bulletCount,3);
+assert.equal(writerOK.pressed.filter(x=>x==='Enter').length,sampleDescription.split('\n').length-1);
+assert.equal(writerOK.inserted.length,sampleDescription.split('\n').filter(Boolean).length);
+const writerCollapsed=await writerFixture(1);
+assert.match(writerCollapsed.error,/collapsed/);
+const legacyWriter=await writerFixture(1,'legacy');
+assert.equal(legacyWriter.error,null);
+assert.ok(legacyWriter.pressed.includes('legacy'));
+console.log('MAKER CONSOLE STRUCTURED DESCRIPTION PASS: real Enter paragraphs, bullets, collapse refusal and legacy compatibility');
+
 
 
 const temp = join(tmpdir(), `ratpack-maker-console-${process.pid}.mjs`);
