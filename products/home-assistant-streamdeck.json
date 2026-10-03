@@ -24,10 +24,11 @@
     "Physical Stream Deck and customer Home Assistant smoke: DEFERRED BY OPERATOR on 2026-10-03; NOT PASSED",
     "Long-lived token is in Stream Deck global settings, not OS keychain: explicitly disclosed and ACCEPTED by operator on 2026-10-03",
     "$9.99 initial price: explicitly APPROVED by operator on 2026-10-03",
-    "Final five-image Rat Ship artwork from exact successful run 37088244126: OPERATOR APPROVED on 2026-10-03"
+    "Final five-image Rat Ship artwork from exact successful run 37088244126: OPERATOR APPROVED on 2026-10-03",
+    "Windows Canvas-only SVG key export after screenshot failure: 15/15 runtime keys PASS; exact-main Rat Ship run 37143082868"
   ],
   "blocker": null,
-  "final_boundary": "READY_TO_SHIP: $9.99 and final exact Rat Ship media approved 2026-10-03; actual physical Stream Deck/customer HA smoke explicitly deferred by operator, NOT PASSED. Global-settings token storage (not OS keychain) disclosed and accepted. Automated validation passed on exact product source and final media run 37088244126; repeat on promotion commit. Rat Ship must rebuild a fresh local kit from canonical main before operator-initiated Marketplace submission. Submission NOT performed.",
+  "final_boundary": "READY_TO_SHIP. Operator-approved $9.99 and final Rat Ship art; physical Stream Deck/customer-style Home Assistant testing explicitly DEFERRED, not passed; host-global-settings token storage disclosed and accepted. Latest exact merged-main CI 37143082868 validated shared Windows Canvas-only art renderer and final non-publishing kit. Product source is in public rp-system; Rat Ship builds locally; no Maker Console submission performed.",
   "distinct_from": "home-assistant",
   "marketplace_art": {
     "campaign_style": "warm-studio-glass-v1",
@@ -37,10 +38,10 @@
   "source_import_commit": "d584dbb7b33d5601048f38cf20b40b041c68b261",
   "automated_release_evidence": {
     "status": "PASSED_CLEAN_AUTOMATED_CANDIDATE",
-    "source_commit": "943648d45202c4110971241d459152a46f909f71",
-    "run_id": 37088244126,
-    "windows_job_id": 111102849512,
-    "real_home_assistant_job_id": 111102849360,
+    "source_commit": "069751db2df881668529c63af4cbd76a83dea8f6",
+    "run_id": 37143082868,
+    "windows_job_id": 111261370825,
+    "real_home_assistant_job_id": 111261370693,
     "windows_ci": "PASS",
     "canonical_pi_design_audit": "PASS",
     "canonical_key_visual_major_profiles": "PASS",
@@ -50,10 +51,11 @@
     "exact_local_rat_ship_kit": "PASS",
     "final_canonical_photo_hero": "PASS",
     "final_contact_sheet": "PASS",
-    "package_sha256": "c1a501b0ee4f763cb1e79e1062728319e0364de6d22d3e9f1326fcb931e2ec6c",
-    "public_safe_review_artifact_id": 11260759396,
+    "package_sha256": "6c14ee79a71748a699e2ee57c4f764bf969c35fb525328dd157838b5db925178",
+    "public_safe_review_artifact_id": 11280799528,
     "artifact_note": "Only final media and package SHA-256 uploaded by public CI, no downloadable public paid binary.",
-    "source_note": "Exact green package and art from main merge 943648d; intervening 9ecf742 changes only the separate Maker Console driver. Approved price and readiness metadata require clean revalidation on the final release commit."
+    "source_note": "Exact successful merged-main release CI after Windows Canvas-only Rat Art fix: 34/34 tests, full Elgato packaging, 15 actual runtime keys, canonical final Rat Ship art/kit and real HA transport. Media files independently checked byte-identical to the operator-approved previous five-frame art/contact sheet. In-repo Rat Ship rebuilds locally, so this is a reference CI package hash rather than an immutable external release artifact.",
+    "public_safe_review_artifact_digest": "sha256:179b55f8d85b403db4dbc651d4669e412a66b584288d9c6344a2d0bfca47a9f0"
   },
   "hardware_gate": "OPERATOR_ACCEPTED_DEFERRED_PHYSICAL_SMOKE_NOT_PASSED",
   "operator_release_approval": {

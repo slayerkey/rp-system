@@ -8,9 +8,9 @@
 - Four editable unconfigured profile templates: MK.2, XL, Plus and Neo. Actual customer entities must be selected after connection; never prepopulate fictitious working devices.
 - Manual entity assignment in v1. Room auto-generation is deferred until genuine entity/area registry checks are implemented and permission-tested.
 
-## Exact automated release evidence
+## Latest verified nonpublishing Rat Ship release evidence
 
-[Canonical main Rat Ship run 37088244126](https://github.com/slayerkey/rp-system/actions/runs/37088244126) passed on source commit `943648d45202c4110971241d459152a46f909f71`: locked Windows build/tests, 65 distinct profile ActionIDs, canonical UI/key audits, official Elgato validation/package, isolated Rat Ship kit and final photographic cover/contact sheet. The separate real Home Assistant Core 2026.8.3 job tested authentication, snapshot, pushed state updates, observed history and bad-token rejection. Package SHA-256: `c1a501b0ee4f763cb1e79e1062728319e0364de6d22d3e9f1326fcb931e2ec6c`. Only art and package SHA (artifact 11260759396), not the paid binary, were uploaded publicly. Changing release metadata triggers a fresh candidate rebuild.
+[Canonical merged-main release run 37143082868](https://github.com/slayerkey/rp-system/actions/runs/37143082868), source commit `069751db2df881668529c63af4cbd76a83dea8f6`: 34/34 Node tests, 65 distinct ActionIDs across four profiles, canonical UI and key audits, official Elgato validation/package, **all 15 genuine runtime art keys through the Windows Canvas renderer**, complete canonical photo cover and four galleries/contact sheet, and live Home Assistant Core 2026.8.3 transport tests. The new media files were independently compared byte-for-byte with the previously owner-approved five-frame artwork and contact sheet. CI reference package SHA-256: `6c14ee79a71748a699e2ee57c4f764bf969c35fb525328dd157838b5db925178`. Safe public artifact: `11280799528` (media and package hash only; no public package binary). A local Rat Ship invocation always builds and verifies its own fresh package; do not substitute the CI reference hash for the local package hash.
 
 ## Explicitly approved release risks and follow-up
 
