@@ -8,6 +8,7 @@ on:
       - 'tools/art/xeneon_all_hero_batch.py'
       - 'tools/art/validate_xeneon_marketplace_campaign.py'
       - 'tools/ship/make_xeneon_kit.py'
+      - 'tools/ship/maker_console_core.mjs'
       - 'widgets/_src/**/rat-art.json'
       - 'standards/xeneon-marketplace-gallery-v1.md'
       - '.github/workflows/xeneon-marketplace-gallery-preview.yml'
@@ -72,6 +73,14 @@ jobs:
           $pkg = Get-ChildItem widgets -Filter '*.icuewidget' -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
           if (-not $pkg) { throw "official package missing" }
           Copy-Item $pkg.FullName "artifacts/gallery-preview/package/$env:WIDGET_SLUG.icuewidget"
+
+      - name: Check Maker Console runtime patch and stale-gallery guard
+        shell: pwsh
+        run: |
+          node tools/ship/maker_console_patch_test.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Maker Console patch tests failed" }
+          $core = Get-Content tools/ship/maker_console_core.mjs -Raw
+          if (-not $core.Contains('Widget gallery already contains unexpected media')) { throw "stale-gallery fail-closed protection missing" }
 
       - name: Build and validate exact preview SHIP_KIT
         shell: pwsh
