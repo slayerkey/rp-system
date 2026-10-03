@@ -210,7 +210,7 @@ def main() -> None:
         fail("built plugin icon is missing; run npm run build first")
     Image.open(icon).convert("RGBA").resize((288,288),Image.Resampling.LANCZOS).save(out/"01_icon.png","PNG",optimize=True)
 
-    key_faces=out/"_rat-art-keys"
+    key_faces=out/("rat-art-keys" if args.skip_hero else "_rat-art-keys")
     build_key_faces(key_faces)
     if not args.skip_hero:
         run([
