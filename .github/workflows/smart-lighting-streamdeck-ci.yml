@@ -44,6 +44,8 @@ jobs:
       - name: Run plugin and protocol regression tests
         working-directory: plugins/smart-lighting-streamdeck
         run: npm test
+      - name: Reject off-card Smart Lighting key and caption layouts
+        run: python plugins/smart-lighting-streamdeck/scripts/test_rat_art_geometry.py
       - name: Source design contract and canonical inspector
         run: node tools/qa/streamdeck-plugin-design-audit.mjs plugins/smart-lighting-streamdeck --require-canonical-pi
       - name: Profile and 72x72 / 36x36 key contract
