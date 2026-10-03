@@ -199,6 +199,8 @@ def run(args: list[str]) -> None:
 def main() -> None:
     parser=argparse.ArgumentParser()
     parser.add_argument("--out",type=Path,default=PRODUCT_DIR/"dist"/"marketplace")
+    parser.add_argument("--skip-hero",action="store_true",help="Let canonical local Rat Ship render the final hero")
+    parser.add_argument("--skip-campaign",action="store_true",help="Let canonical local Rat Ship apply the gallery campaign once")
     args=parser.parse_args()
     out=args.out.resolve()
     out.mkdir(parents=True,exist_ok=True)
@@ -210,23 +212,25 @@ def main() -> None:
 
     key_faces=out/"_rat-art-keys"
     build_key_faces(key_faces)
-    run([
-        "python",str(ROOT/"tools"/"art"/"render_streamdeck_ship_hero.py"),
-        "--product",PRODUCT,
-        "--plugin-dir",str(PLUGIN_DIR),
-        "--submission",str(SUBMISSION),
-        "--out",str(out/"02_cover.png"),
-        "--keys-dir",str(key_faces)
-    ])
-    for file in key_faces.glob("*.png"):
-        file.unlink()
-    key_faces.rmdir()
+    if not args.skip_hero:
+        run([
+            "python",str(ROOT/"tools"/"art"/"render_streamdeck_ship_hero.py"),
+            "--product",PRODUCT,
+            "--plugin-dir",str(PLUGIN_DIR),
+            "--submission",str(SUBMISSION),
+            "--out",str(out/"02_cover.png"),
+            "--keys-dir",str(key_faces)
+        ])
+        for file in key_faces.glob("*.png"):
+            file.unlink()
+        key_faces.rmdir()
 
     gallery_browser(out/"03_gallery_01.png")
     gallery_graphs(out/"04_gallery_02.png")
     gallery_dashboard(out/"05_gallery_03.png")
     gallery_plus(out/"06_gallery_04.png")
-    run(["python",str(ROOT/"tools"/"art"/"apply_streamdeck_gallery_campaign.py"),"--product",PRODUCT,"--media-dir",str(out)])
+    if not args.skip_campaign:
+        run(["python",str(ROOT/"tools"/"art"/"apply_streamdeck_gallery_campaign.py"),"--product",PRODUCT,"--media-dir",str(out)])
 
     expected={
         "01_icon.png":(288,288),
@@ -236,6 +240,8 @@ def main() -> None:
         "05_gallery_03.png":(1920,960),
         "06_gallery_04.png":(1920,960)
     }
+    if args.skip_hero:
+        expected.pop("02_cover.png")
     # Canonical hero tooling may emit diagnostic PNGs beside the cover. They are
     # QA artifacts, not Marketplace slots; keep the release media directory exact.
     for path in out.glob("*.png"):
