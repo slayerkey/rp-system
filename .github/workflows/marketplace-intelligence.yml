@@ -71,7 +71,16 @@ jobs:
           git checkout -B "$branch"
           git add data/marketplace
           git commit -m "$title"
-          git push --force-with-lease origin "HEAD:$branch"
+
+          # Checkout is shallow and normally only fetches main. Use the remote
+          # automation branch SHA as an explicit optimistic-concurrency lease
+          # so later scheduled refreshes can safely replace an open PR.
+          remote_sha="$(git ls-remote --heads origin "refs/heads/$branch" | awk '{print $1}')"
+          if [ -n "$remote_sha" ]; then
+            git push "--force-with-lease=refs/heads/$branch:$remote_sha" origin "HEAD:refs/heads/$branch"
+          else
+            git push origin "HEAD:refs/heads/$branch"
+          fi
 
           if gh pr view "$branch" --json number >/dev/null 2>&1; then
             gh pr edit "$branch" --title "$title" --body "Automated Marketplace intelligence refresh. This PR replaces the former direct-to-main bot push so main can be protected."
