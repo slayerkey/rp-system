@@ -1,10 +1,11 @@
-# Home Assistant Stream Deck — Rat Ship integration
+# Home Assistant Stream Deck — canonical Rat Ship handoff
 
-This public controller contains ONLY release-safe product registration and proposed Marketplace copy. The actual candidate source is intentionally NOT here: the prior private SKU boundary and `packratEG/packrat-factory/SECURITY.md` prohibit using the owner-only factory as a product repository. No unapproved paid code or package was uploaded.
+Owner authorized public source in `slayerkey/rp-system/plugins/home-assistant-streamdeck/`. The separate XENEON `home-assistant` widget is unchanged.
 
-## Next dependency
-Import the existing source candidate Git bundle / source ZIP into an approved **private per-SKU** source repository, retaining `plugins/home-assistant-streamdeck/`. Record the exact source commit and add the private CI job for `npm ci`, `npm test`, `npm run build`, canonical plugin design audit `--require-canonical-pi`, key audit `--require-major-profiles`, official `streamdeck validate` and `streamdeck pack`. The packaged binary/SHIP_KIT must never be uploaded by this public repository's Actions.
+## Verified automation
+[Exact-source green GitHub Actions run](https://github.com/slayerkey/rp-system/actions/runs/37086074174) on commit `e0316938af4812cdb31da1b98c34901974424b91` passed Windows build/tests, canonical PI design audit, major-model visual/profile audit, official Elgato CLI validation/packaging, an isolated full Rat Ship kit with deterministic galleries and final photo cover/contact sheet. Real HA Core 2026.8.3 job passed the actual shared WebSocket transport smoke. Package SHA-256 `16dc3064fc14d52e14f26c1f4e0ca31ac8aa7540342aa7c7267bef1fa539e641`. Public [safe review art artifact](https://github.com/slayerkey/rp-system/actions/runs/37086074174) id `11261045209`; intentionally no public paid-package artifact.
 
-After private CI and actual Home Assistant integration checks pass, pin the private release artifact to `products/home-assistant-streamdeck.json` (immutable source commit, CI run/artifact, package SHA256 and gallery paths), align the submission version and explicitly approve price. Then run `rat preview-art home-assistant-streamdeck` to inspect final 02_cover.png and contact sheet, and finally `rat ship home-assistant-streamdeck` in non-publishing review mode; do not submit or publish without owner authorization.
+## Manual release checks
+Product is `READY_FOR_HARDWARE_QA`, *not* `READY_TO_SHIP`. Review exact final `02_cover.png` and contact sheet; perform/explicitly defer actual hardware and customer Home Assistant smoke; approve the candidate $9.99 price or select another amount. Current long-lived access token storage is host-managed Stream Deck global settings, not OS keychain: disclose clearly or improve before public release.
 
-TESTING means 31 local fixture and art-contract checks passed; it does NOT represent validated Elgato packaging, physical Stream Deck, a real HA server or a finished Marketplace campaign.
+Once these are closed, record truthfully in `products/home-assistant-streamdeck.json`, `plugins/home-assistant-streamdeck/submission.json` and `products/index.json`, merge canonical main, preview via `rat preview-art home-assistant-streamdeck`, and only after explicit operator authorization run `rat ship home-assistant-streamdeck`. Never treat `rat ship` as a nonpublishing command or fabricate hardware success.
