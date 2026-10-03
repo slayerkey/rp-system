@@ -1,0 +1,33 @@
+{
+  "id": "home-assistant-streamdeck",
+  "name": "Home Assistant Dashboard for Stream Deck",
+  "type": "plugin",
+  "status": "building",
+  "workflow_state": "TESTING",
+  "price_usd": null,
+  "price_hypothesis_usd": 9.99,
+  "version": "0.1.0.0",
+  "platform": "Elgato Stream Deck / Windows (provisional)",
+  "plugin_uuid": "com.packrat.home-assistant-streamdeck",
+  "submission_metadata": "plugins/home-assistant-streamdeck/submission.json",
+  "source_owner": "PRIVATE_PER_SKU_REQUIRED",
+  "controller_repository": "slayerkey/rp-system",
+  "candidate_local_commit": "4e2727f30bba3e36ebe50a33c092435480bce118",
+  "source_migration": "Pending approved private per-SKU source repository and exact remote commit; never fall back to public paid-code upload.",
+  "release_gate": [
+    "29 deterministic fixture tests previously passed on local source candidate (not a real Home Assistant server)",
+    "Canonical --require-canonical-pi design audit: NOT YET RUN ON COMPLETE CANONICAL REPO",
+    "Canonical --require-major-profiles visual audit: NOT YET RUN ON COMPLETE CANONICAL REPO",
+    "Official Elgato CLI validation and packaging: NOT RUN",
+    "Real Home Assistant server and physical Stream Deck: NOT VERIFIED",
+    "Deterministic five-frame Rat Art and final Rat Ship cover/contact sheet: NOT GENERATED",
+    "Price approval: PENDING; $9.99 is only a hypothesis"
+  ],
+  "blocker": "Paid source is not yet in an approved private per-SKU repository; no exact verified private CI artifact or release_artifact pin. Rat Ship must fail closed.",
+  "final_boundary": "CANONICAL REGISTRATION STAGED ONLY. Do not run rat ship for submission or mark READY_TO_SHIP until private exact-source CI, package hash, final art and required runtime release gates are resolved.",
+  "distinct_from": "home-assistant",
+  "marketplace_art": {
+    "campaign_style": "warm-studio-glass-v1",
+    "gallery_mode": "wrap"
+  }
+}
