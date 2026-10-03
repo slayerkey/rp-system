@@ -42,6 +42,8 @@ jobs:
       - name: Run deterministic product regressions
         working-directory: plugins/home-assistant-streamdeck
         run: npm test
+      - name: Install canonical Rat Art/structural image runtime
+        run: python -m pip install --disable-pip-version-check "Pillow==12.3.0"
       - name: Offline profile and unique action identity checks
         run: python qa-evidence/run_offline_gate.py
       - name: Canonical PI design contract
