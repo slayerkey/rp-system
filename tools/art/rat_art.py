@@ -416,6 +416,17 @@ def contact_sheet(out: Path, name: str) -> None:
         )
         sheet.paste(image, (x, y))
     sheet.save(out / "contact-sheet.jpg", quality=92)
+    # Judge the same five listing images at real marketplace browse scale.
+    browse_w, browse_h, caption_h = 288, 144, 27
+    browse = Image.new("RGB", (browse_w * 3, (browse_h + caption_h) * 2), (8, 12, 18))
+    bdraw = ImageDraw.Draw(browse)
+    for index, path in enumerate(files):
+        col, row = index % 3, index // 3
+        px, py = col * browse_w, row * (browse_h + caption_h)
+        image = Image.open(path).convert("RGB").resize((browse_w, browse_h), Image.Resampling.LANCZOS)
+        browse.paste(image, (px, py))
+        bdraw.text((px + 8, py + browse_h + 5), path.stem, font=resolve_font(15, True), fill=WHITE)
+    browse.save(out / "marketplace-15percent-sheet.jpg", quality=95)
 
 
 def sha(path: Path) -> str:
@@ -470,7 +481,7 @@ def render_xeneon(slug: str, shots: Path, out: Path) -> None:
         "product_config_sha256": sha(config_path),
         "marketplace_order": MARKETPLACE_ORDER,
         "gallery_system": GALLERY_STYLE,
-        "gallery_scene": str(gallery_scene(slug).relative_to(ROOT)).replace("\\\\", "/"),
+        "gallery_scene": gallery_scene(slug).relative_to(ROOT).as_posix(),
         "footer_branding": "logo-only",
         "hero_system": (
             f"approved-xeneon:{APPROVED_XENEON_HERO_SCENE}"
@@ -482,6 +493,7 @@ def render_xeneon(slug: str, shots: Path, out: Path) -> None:
             for path in sorted(out.glob("*.png"))
         },
         "contact_sheet": "contact-sheet.jpg",
+        "browse_sheet": "marketplace-15percent-sheet.jpg",
     }
     (out / "rat-art-report.json").write_text(
         json.dumps(report, indent=2, ensure_ascii=False) + "\n",
