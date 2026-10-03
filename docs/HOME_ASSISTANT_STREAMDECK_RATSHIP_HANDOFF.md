@@ -7,4 +7,4 @@ Import the existing source candidate Git bundle / source ZIP into an approved **
 
 After private CI and actual Home Assistant integration checks pass, pin the private release artifact to `products/home-assistant-streamdeck.json` (immutable source commit, CI run/artifact, package SHA256 and gallery paths), align the submission version and explicitly approve price. Then run `rat preview-art home-assistant-streamdeck` to inspect final 02_cover.png and contact sheet, and finally `rat ship home-assistant-streamdeck` in non-publishing review mode; do not submit or publish without owner authorization.
 
-TESTING means a local fixture suite passed; it does NOT represent validated Elgato packaging, physical Stream Deck, a real HA server or a finished Marketplace campaign.
+TESTING means 31 local fixture and art-contract checks passed; it does NOT represent validated Elgato packaging, physical Stream Deck, a real HA server or a finished Marketplace campaign.
