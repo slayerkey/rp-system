@@ -40,4 +40,6 @@ test('Windows SVG screenshot failure has a real PNG-producing Canvas fallback an
   assert.match(renderer, /batch.*args\.includes\('--batch'\)/);
   assert.match(exporter, /'--canvas-only'/);
   assert.match(exporter, /'--batch', scratch, out/);
+  assert.match(exporter, /process\.platform === 'win32'/);
+  assert.match(exporter, /batchArgs\.push\('--canvas-only'\)/);
 });
