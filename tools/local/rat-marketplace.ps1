@@ -205,6 +205,12 @@ for ($i = 0; $i -lt $queue.Count; $i++) {
         }
 
         $product = Get-Content $productPath -Raw | ConvertFrom-Json
+        # Marketplace listing names are product-first. PackRat remains available
+        # in creator attribution, descriptions, source IDs and artwork.
+        if ($Action -in @("ship","submit","stage") -and
+            ([string]$product.name) -match '(?i)\\bpack[\\s-]*rat\\b') {
+            throw "Marketplace product title '$($product.name)' contains PackRat. Rename the canonical product, the submission title, and (for plugins) the packaged manifest Name; rebuild and re-pin the exact artifact before Rat $Action."
+        }
         Assert-ProductReleaseState -Product $product -ProductSlug $item -RequestedAction $Action
         $isPlugin = $product.type -eq "plugin"
 
