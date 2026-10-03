@@ -30,7 +30,7 @@ The product name and real product must both survive marketplace browsing scale. 
 
 ## Approved composition
 
-The approved family is the deterministic `warm-studio-v1` environment.
+The approved family is the deterministic `warm-studio-v1` environment. Its deterministic restrained cool-right ambient light may echo the shared Stream Deck campaign, but the room/monitor/device geometry and real UI source remain unchanged. The separate gallery treatment and order live in `standards/xeneon-marketplace-gallery-v1.md`.
 
 The composition uses:
 
