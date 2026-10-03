@@ -1,0 +1,65 @@
+{
+  "id": "performance-grapher-neo",
+  "name": "Performance Grapher Neo",
+  "type": "plugin",
+  "status": "testing",
+  "workflow_state": "READY_FOR_HARDWARE_QA",
+  "blocker": "Automated Windows build, official Elgato CLI validation/packaging and Neo-only tests passed; physical Neo QA and operator-approved standalone price remain pending.",
+  "price_usd": null,
+  "version": "1.0.0.0",
+  "platform": "Elgato Stream Deck Neo Infobar / Windows",
+  "source": "plugins/performance-grapher-neo",
+  "submission_metadata": "plugins/performance-grapher-neo/submission.json",
+  "branch": "product/performance-grapher-neo",
+  "source_repository": "https://github.com/slayerkey/rp-system.git",
+  "source_ref": "refs/heads/product/performance-grapher-neo",
+  "plugin_uuid": "com.packrat.performance-grapher-neo",
+  "action_uuid": "com.packrat.performance-grapher-neo.infobar",
+  "minimum_stream_deck": "7.6",
+  "distinct_product_from": "performance-grapher-streamdeck",
+  "hardware_gate": "PENDING_PHYSICAL_NEO",
+  "release_gate": [
+    "Exact-head Windows CI: PASS (run 35953225587, source 9f9c53e)",
+    "Official Elgato Neo-only manifest/layout validation and .streamDeckPlugin package: PASS",
+    "Shared telemetry regression tests and Neo-only unit tests: PASS",
+    "Windows .NET helper smoke probe: PASS",
+    "Deterministic Neo-specific Marketplace art generated: PASS; final cover approval pending",
+    "Physical Stream Deck Neo runtime/readability and Inspector persistence: NOT YET TESTED",
+    "Standalone Marketplace listing price: AWAITING OPERATOR APPROVAL"
+  ],
+  "source_commit": "9f9c53eed7cbb1fe4de54cdf57534f150ad703b6",
+  "release_artifact": {
+    "repository": "slayerkey/rp-system",
+    "run_id": 35953225587,
+    "artifact_id": 10789526451,
+    "name": "performance-grapher-neo-ship-kit",
+    "commit": "9f9c53eed7cbb1fe4de54cdf57534f150ad703b6",
+    "package_path": "com.packrat.performance-grapher-neo.streamDeckPlugin",
+    "package_sha256": "c6ee2c31ea6ce3eb41f7d81319848bd0da22fdab6b3d25605a37afd11445df9a",
+    "media": {
+      "search_icon": "marketplace-art/01_search_icon.png",
+      "cover": "marketplace-art/02_cover.png",
+      "gallery": [
+        "marketplace-art/03_gallery_01.png",
+        "marketplace-art/04_gallery_02.png",
+        "marketplace-art/05_gallery_03.png",
+        "marketplace-art/06_gallery_04.png"
+      ]
+    }
+  },
+  "automated_release_evidence": {
+    "status": "PASSED_EXACT_ARTIFACT",
+    "candidate_commit": "9f9c53eed7cbb1fe4de54cdf57534f150ad703b6",
+    "github_actions_run": 35953225587,
+    "github_actions_job": 107486016699,
+    "artifact_id": 10789526451,
+    "artifact_digest": "sha256:bac8a2a2cebda9509d909218b99b2bd750b4c18ae56e7423cf835cd6345780ea",
+    "package_sha256": "c6ee2c31ea6ce3eb41f7d81319848bd0da22fdab6b3d25605a37afd11445df9a",
+    "official_cli_validation": "PASS",
+    "official_cli_packaging": "PASS",
+    "native_helper_probe": "PASS",
+    "shared_and_neo_unit_tests": "PASS",
+    "streamdeck_design_audit": "PASS"
+  },
+  "final_boundary": "Release candidate pinned to exact successful automated artifact; not READY_TO_SHIP. No physical Neo claim and no price approved."
+}
