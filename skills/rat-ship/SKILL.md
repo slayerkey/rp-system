@@ -7,6 +7,9 @@ description: Prepare a verified PackRat release candidate, marketplace kit, and 
 
 Require a clean automated QA report before preparing submission.
 
+Before building any new or resubmitted Marketplace listing, follow `standards/marketplace-listing-v2.md`: **never put PackRat/Pack Rat in the customer-visible product title**. Keep PackRat in creator/Author branding, descriptive copy, artwork, and stable technical IDs if appropriate. For a Stream Deck plugin, keep the canonical product name, submission name and packaged manifest `Name` identical. A manifest-title change invalidates the prior package/hash and requires fresh exact-source QA and Rat Ship artifact pinning; preserve the first-submission version for a title correction. The shared Rat Ship command and Maker Console bridge reject branded listing titles automatically.
+
+
 Create the release candidate from canonical source and generated artifacts. Include package, listing art, description, tags or keywords, pricing evidence, compatibility, version, changelog or release notes, QA report, and gallery order where the marketplace needs it.
 
 Final evidence must match the exact source commit and package being submitted. If product behavior, feature scope, or release boundary changed after an earlier green QA run, invalidate that earlier final evidence and regenerate the package/art/QA record before Rat Ship can proceed.
